@@ -6,9 +6,10 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="adrestus-util" />
+        <module name="adrestus-consensus" />
         <module name="adrestus-crypto" />
         <module name="adrestus-core" />
-        <module name="adrestus-consensus" />
       </profile>
     </annotationProcessing>
   </component>
