@@ -1,6 +1,8 @@
 package io.Adrestus.util;
 
 
+import io.Adrestus.crypto.ByteUtil;
+
 import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
 import java.util.HashMap;

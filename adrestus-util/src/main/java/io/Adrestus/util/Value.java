@@ -1,6 +1,7 @@
 package io.Adrestus.util;
 
 
+import io.Adrestus.crypto.ByteUtil;
 import io.Adrestus.crypto.HashUtil;
 import org.spongycastle.util.encoders.Hex;
 

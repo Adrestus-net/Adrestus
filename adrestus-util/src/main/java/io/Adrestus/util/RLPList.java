@@ -1,6 +1,8 @@
 package io.Adrestus.util;
 
 
+import io.Adrestus.crypto.ByteUtil;
+
 import java.util.ArrayList;
 
 /**

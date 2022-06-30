@@ -1,4 +1,4 @@
-package io.Adrestus.util;
+package io.Adrestus.crypto;
 
 
 import org.spongycastle.util.encoders.Hex;
