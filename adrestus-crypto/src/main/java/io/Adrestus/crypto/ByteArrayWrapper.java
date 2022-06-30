@@ -6,7 +6,7 @@ package io.Adrestus.util;
 import java.io.Serializable;
 import java.util.Arrays;
 
-import static io.Adrestus.util.ByteUtil.toHexString;
+import static io.Adrestus.crypto.ByteUtil.toHexString;
 
 
 /**
