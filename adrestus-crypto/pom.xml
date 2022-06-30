@@ -18,6 +18,8 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>1.7</maven.compiler.source>
     <maven.compiler.target>1.7</maven.compiler.target>
+    <spongycastle.version>1.58.0.0</spongycastle.version>
+    <util.version>1.0-SNAPSHOT</util.version>
   </properties>
 
   <dependencies>
@@ -27,6 +29,17 @@
       <version>4.11</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>io.Adrestus.v1</groupId>
+      <artifactId>adrestus-util</artifactId>
+      <version>${util.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.madgag.spongycastle</groupId>
+      <artifactId>core</artifactId>
+      <version>${spongycastle.version}</version>
+    </dependency>
+
   </dependencies>
 
   <build>
