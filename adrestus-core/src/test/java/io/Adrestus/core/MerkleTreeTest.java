@@ -1,6 +1,7 @@
 package io.Adrestus.core;
 
-import io.Adrestus.core.Trie.MekleNode;
+import io.Adrestus.core.Trie.MerkleNode;
+import io.Adrestus.core.Trie.MerkleProofs;
 import io.Adrestus.core.Trie.MerkleTree;
 import io.Adrestus.core.Trie.MerkleTreeImp;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,7 +13,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class MerkleTreeTest {
-    private MerkleTree tree;
+    private MerkleTreeImp tree;
     @BeforeEach
     void setUp() throws Exception {
         tree = new MerkleTreeImp();
@@ -20,13 +21,30 @@ public class MerkleTreeTest {
 
     @Test
     public void merklee_tree() {
-        List<MekleNode> list1 = new ArrayList<MekleNode>();
-        MekleNode node1 = new MekleNode("E");
+        List<MerkleNode> list1 = new ArrayList<MerkleNode>();
+        MerkleNode node1 = new MerkleNode("E");
         for (int i = 0; i < 1000000; i++) {
-            list1.add(new MekleNode(String.valueOf(i)));
+            list1.add(new MerkleNode(String.valueOf(i)));
         }
         list1.add(node1);
         tree.my_generate(list1);
         assertEquals("72ad9ce53d35639b8576626e1365fd55221b544dfdd8d1fbf3faa86b034344be",tree.getRootHash());
     }
+    @Test
+    public void merklee_proofs() {
+        List<MerkleNode> list = new ArrayList<MerkleNode>();
+        for (int i = 0; i < 100000; i++) {
+            MerkleNode node=new MerkleNode(String.valueOf(i));
+            list.add(node);
+
+        }
+        tree.my_generate(list);
+        for (int i = 0; i < 1000; i++) {
+            MerkleNode node=new MerkleNode(String.valueOf(i));
+            tree.build_proofs(list,node);
+            MerkleProofs proofs=tree.getMerkleeproofs();
+            assertEquals(tree.getRootHash(),tree.GenerateRoot(proofs));
+        }
+    }
+
 }

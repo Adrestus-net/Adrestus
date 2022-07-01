@@ -7,39 +7,39 @@ import java.util.List;
 
 public class MerkleTreeImp implements MerkleTree {
 
-    private MekleNode root;
-    private MekleNode buildable = new MekleNode();
+    private MerkleNode root;
     // private ArrayList<MekleeNode> proofs = new ArrayList<MekleeNode>();
 
-    private MerkleProofs merkleeproofs = new MerkleProofs(new ArrayList<MekleNode>());
+    private MerkleProofs MerkleProofs;// = new MerkleProofs(new ArrayList<MerkleNode>());
     private int pos = 0;
 
     @Override
-    public boolean isMekleeNodeExisted(List<MekleNode> list, String roothash, MekleNode node) {
+    public boolean isMekleeNodeExisted(List<MerkleNode> list, String roothash, MerkleNode node) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void my_generate(List<MekleNode> dataBlocks) {
-
+    public void my_generate(List<MerkleNode> dataBlocks) {
+        ArrayList<MerkleNode> current = new ArrayList<MerkleNode>();
         for (int i = 0; i < dataBlocks.size(); i++) {
-            dataBlocks.get(i).setTransactionHash(HashUtil.sha256(dataBlocks.get(i).getTransactionHash()));
+            MerkleNode node=new MerkleNode(HashUtil.sha256(dataBlocks.get(i).getTransactionHash()));
+            current.add(node);
         }
 
-        buildTree2(dataBlocks);
+        buildTree(current);
     }
 
-    public void buildTree2(List<MekleNode> list) {
+    public void buildTree(ArrayList<MerkleNode> list) {
         if (list.size() == 1) {
             this.root = list.get(0);
             return;
         }
 
         //list.stream().forEach(x->System.out.println(x.getTransactionHash()));
-        ArrayList<MekleNode> iterate = new ArrayList<MekleNode>();
+        ArrayList<MerkleNode> iterate = new ArrayList<MerkleNode>();
         int i = 0;
         while (list.size() > i) {
-            MekleNode node = new MekleNode();
+            MerkleNode node = new MerkleNode();
             node.setLeft(list.get(i));
 
             if (list.size() - 1 >= i + 1) {
@@ -60,7 +60,7 @@ public class MerkleTreeImp implements MerkleTree {
             return;
         }
         //iterate.stream().forEach(x->System.out.println(x.getTransactionHash()));
-        buildTree2(iterate);
+        buildTree(iterate);
     }
 
     public String getRootHash() {
@@ -68,47 +68,63 @@ public class MerkleTreeImp implements MerkleTree {
         return this.root.getTransactionHash();
     }
 
+
     @Override
-    public void build_proofs(List<MekleNode> dataBlocks, MekleNode current) {
-
-        for (int i = 0; i < dataBlocks.size(); i++) {
-            dataBlocks.get(i).setTransactionHash(HashUtil.sha256(dataBlocks.get(i).getTransactionHash()));
-        }
-
-        this.merkleeproofs.setTarget(current);
-        proofs(dataBlocks, current);
+    public io.Adrestus.core.Trie.MerkleProofs getMerkleeproofs() {
+        return MerkleProofs;
     }
 
-    private void proofs(List<MekleNode> list, MekleNode current) {
-        int position = list.indexOf(current);
-        ArrayList<MekleNode> iterate = new ArrayList<MekleNode>();
+    @Override
+    public void build_proofs(List<MerkleNode> dataBlocks, MerkleNode current) {
+        ArrayList<MerkleNode> current_list = new ArrayList<MerkleNode>();
+        for (int i = 0; i < dataBlocks.size(); i++) {
+            MerkleNode node=new MerkleNode(HashUtil.sha256(dataBlocks.get(i).getTransactionHash()));
+            current_list.add(node);
+        }
+
+        this.MerkleProofs = new MerkleProofs(new ArrayList<MerkleNode>());
+        current.setTransactionHash(HashUtil.sha256(current.getTransactionHash()));
+        this.MerkleProofs.setTarget(current);
+        proofs(current_list, current);
+    }
+
+    private void proofs(List<MerkleNode> list, MerkleNode current) {
+        int position = -1;
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i).getTransactionHash().equals(current.getTransactionHash())) {
+                position = i;
+            }
+        }
+        if(position==-1)
+            System.out.println("problima");
+        ArrayList<MerkleNode> iterate = new ArrayList<MerkleNode>();
         int i = 0;
         while (list.size() > i) {
-            MekleNode node = new MekleNode();
+            MerkleNode node = new MerkleNode();
             node.setLeft(list.get(i));
 
             if (list.size() - 1 >= i + 1) {
                 node.setRight(list.get(i + 1));
                 node.setTransactionHash(HashUtil.sha256(node.getLeft().getTransactionHash() + node.getRight().getTransactionHash()));
                 if (position == i) {
-                    merkleeproofs.getList_builder().add(new MekleNode(null, list.get(i + 1)));
+                    MerkleProofs.getList_builder().add(new MerkleNode(null, list.get(i + 1)));
                     current = node;
                 }
             } else {
                 node.setTransactionHash(node.getLeft().getTransactionHash());
                 if (position == i) {
-                    MekleNode left = new MekleNode(node, null);
-                    merkleeproofs.getList_builder().add(left);
+                    MerkleNode left = new MerkleNode(node, null);
+                    MerkleProofs.getList_builder().add(left);
                     current = node;
 
-                    if (!merkleeproofs.getList_builder().get(merkleeproofs.getList_builder().size() - 1).getLeft().getTransactionHash().equals(left.getTransactionHash())) {
-                        merkleeproofs.getList_builder().remove(left);
+                    if (!MerkleProofs.getList_builder().get(MerkleProofs.getList_builder().size() - 1).getLeft().getTransactionHash().equals(left.getTransactionHash())) {
+                        MerkleProofs.getList_builder().remove(left);
                     }
 
                 }
             }
             if (position == i + 1) {
-                merkleeproofs.getList_builder().add(new MekleNode(list.get(i), null));
+                MerkleProofs.getList_builder().add(new MerkleNode(list.get(i), null));
                 current = node;
             }
 
@@ -121,9 +137,16 @@ public class MerkleTreeImp implements MerkleTree {
         }
         proofs(iterate, current);
     }
-
-    @Override
-    public MerkleProofs getMerkleeproofs() {
-        return merkleeproofs;
+    public String GenerateRoot(MerkleProofs proofs) {
+        String hash = proofs.getTarget().getTransactionHash();
+        for (int i = 0; i < proofs.getList_builder().size(); i++) {
+            if (proofs.getList_builder().get(i).getLeft() != null) {
+                hash = HashUtil.sha256((proofs.getList_builder().get(i).getLeft().getTransactionHash() + hash));
+            }
+            if (proofs.getList_builder().get(i).getRight() != null) {
+                hash = HashUtil.sha256((hash + proofs.getList_builder().get(i).getRight().getTransactionHash()));
+            }
+        }
+        return hash;
     }
 }

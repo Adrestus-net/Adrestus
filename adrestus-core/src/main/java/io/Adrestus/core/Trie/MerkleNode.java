@@ -1,21 +1,21 @@
 package io.Adrestus.core.Trie;
 
-public class MekleNode {
+public class MerkleNode {
     private String TransactionHash;
-    private MekleNode root;
-    private MekleNode left;
-    private MekleNode right;
+    private MerkleNode root;
+    private MerkleNode left;
+    private MerkleNode right;
 
-    public MekleNode(String TransactionHash) {
+    public MerkleNode(String TransactionHash) {
         this.TransactionHash = TransactionHash;
         this.left=null;
         this.right=null;
     }
 
-    public MekleNode() {
+    public MerkleNode() {
     }
 
-    public MekleNode(MekleNode left, MekleNode right) {
+    public MerkleNode(MerkleNode left, MerkleNode right) {
         this.left = left;
         this.right = right;
     }
@@ -28,27 +28,27 @@ public class MekleNode {
         this.TransactionHash = TransactionHash;
     }
 
-    public MekleNode getLeft() {
+    public MerkleNode getLeft() {
         return left;
     }
 
-    public void setLeft(MekleNode left) {
+    public void setLeft(MerkleNode left) {
         this.left = left;
     }
 
-    public MekleNode getRight() {
+    public MerkleNode getRight() {
         return right;
     }
 
-    public void setRight(MekleNode right) {
+    public void setRight(MerkleNode right) {
         this.right = right;
     }
 
-    public MekleNode getRoot() {
+    public MerkleNode getRoot() {
         return root;
     }
 
-    public void setRoot(MekleNode root) {
+    public void setRoot(MerkleNode root) {
         this.root = root;
     }
 

@@ -4,16 +4,16 @@ import java.util.List;
 
 public class MerkleProofs {
     private String roothash;
-    private List<MekleNode> list_builder;
-    private MekleNode target;
+    private List<MerkleNode> list_builder;
+    private MerkleNode target;
 
-    public MerkleProofs(String roothash, List<MekleNode> list_builder, MekleNode target) {
+    public MerkleProofs(String roothash, List<MerkleNode> list_builder, MerkleNode target) {
         this.roothash = roothash;
         this.list_builder = list_builder;
         this.target = target;
     }
 
-    public MerkleProofs(List<MekleNode> list_builder) {
+    public MerkleProofs(List<MerkleNode> list_builder) {
         this.list_builder = list_builder;
     }
 
@@ -28,19 +28,19 @@ public class MerkleProofs {
         this.roothash = roothash;
     }
 
-    public List<MekleNode> getList_builder() {
+    public List<MerkleNode> getList_builder() {
         return list_builder;
     }
 
-    public void setList_builder(List<MekleNode> list_builder) {
+    public void setList_builder(List<MerkleNode> list_builder) {
         this.list_builder = list_builder;
     }
 
-    public MekleNode getTarget() {
+    public MerkleNode getTarget() {
         return target;
     }
 
-    public void setTarget(MekleNode target) {
+    public void setTarget(MerkleNode target) {
         this.target = target;
     }
     
