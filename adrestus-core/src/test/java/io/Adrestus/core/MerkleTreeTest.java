@@ -33,13 +33,30 @@ public class MerkleTreeTest {
     @Test
     public void merklee_proofs() {
         List<MerkleNode> list = new ArrayList<MerkleNode>();
-        for (int i = 0; i < 100000; i++) {
+        for (int i = 0; i < 10000; i++) {
             MerkleNode node=new MerkleNode(String.valueOf(i));
             list.add(node);
 
         }
         tree.my_generate(list);
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < 10000; i++) {
+            MerkleNode node=new MerkleNode(String.valueOf(i));
+            tree.build_proofs(list,node);
+            MerkleProofs proofs=tree.getMerkleeproofs();
+            assertEquals(tree.getRootHash(),tree.GenerateRoot(proofs));
+        }
+    }
+
+    @Test
+    public void merklee_proofs_with_trampoline() {
+        List<MerkleNode> list = new ArrayList<MerkleNode>();
+        for (int i = 0; i < 10000; i++) {
+            MerkleNode node=new MerkleNode(String.valueOf(i));
+            list.add(node);
+
+        }
+        tree.my_generate2(list);
+        for (int i = 0; i < 10000; i++) {
             MerkleNode node=new MerkleNode(String.valueOf(i));
             tree.build_proofs(list,node);
             MerkleProofs proofs=tree.getMerkleeproofs();
