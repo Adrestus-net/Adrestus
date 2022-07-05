@@ -4,6 +4,7 @@ package io.Adrestus.crypto;
 //import io.Adrestus.util.RLP;
 
 import io.Adrestus.crypto.elliptic.ProviderInstance;
+import org.bouncycastle.jcajce.provider.digest.Keccak;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.crypto.Digest;
@@ -24,22 +25,23 @@ public class HashUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(HashUtil.class);
 
-    public static  byte[] EMPTY_DATA_HASH;
+    public static byte[] EMPTY_DATA_HASH;
     public static byte[] EMPTY_LIST_HASH;
-    public static  byte[] EMPTY_TRIE_HASH;
+    public static byte[] EMPTY_TRIE_HASH;
 
-    private static ProviderInstance CRYPTO_PROVIDER;
+    private static Provider CRYPTO_PROVIDER;
 
-    private static final String HASH_256_ALGORITHM_NAME = "ETH-KECCAK-256";
+    private static final String HASH_256_ALGORITHM_NAME = "SHA-256";
+    private static final String SHA3_HASH_256_ALGORITHM_NAME = "ETH-KECCAK-256";
     private static final String HASH_512_ALGORITHM_NAME = "ETH-KECCAK-512";
     private static SecureRandom random = new SecureRandom();
 
     static {
-        /*Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
+        Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
         CRYPTO_PROVIDER = Security.getProvider("BC");
         CRYPTO_PROVIDER.put("MessageDigest.ETH-KECCAK-256", "org.ethereum.crypto.cryptohash.Keccak256");
-        CRYPTO_PROVIDER.put("MessageDigest.ETH-KECCAK-512", "org.ethereum.crypto.cryptohash.Keccak512");*/
-        if(EMPTY_BYTE_ARRAY==null) {
+        CRYPTO_PROVIDER.put("MessageDigest.ETH-KECCAK-512", "org.ethereum.crypto.cryptohash.Keccak512");
+        if (EMPTY_BYTE_ARRAY == null) {
             EMPTY_DATA_HASH = sha3(EMPTY_BYTE_ARRAY);
             EMPTY_LIST_HASH = sha3(EncodeUtil.encodeList());
             EMPTY_TRIE_HASH = sha3(EncodeUtil.encodeElement(EMPTY_BYTE_ARRAY));
@@ -53,7 +55,7 @@ public class HashUtil {
     public static String sha256(String input) {
         // return input;
         try {
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            MessageDigest md = MessageDigest.getInstance(HASH_256_ALGORITHM_NAME);
             String result = Hex.toHexString(md.digest(input.getBytes(StandardCharsets.UTF_8)));
             return result;
         } catch (NoSuchAlgorithmException ex) {
@@ -64,7 +66,7 @@ public class HashUtil {
 
     public static byte[] sha256(byte[] input) {
         try {
-            MessageDigest sha256digest = MessageDigest.getInstance("SHA-256");
+            MessageDigest sha256digest = MessageDigest.getInstance(HASH_256_ALGORITHM_NAME);
             return sha256digest.digest(input);
         } catch (NoSuchAlgorithmException e) {
             LOG.error("Can't find such algorithm", e);
@@ -74,7 +76,7 @@ public class HashUtil {
 
     public static byte[] sha256(byte[] input, Provider provider) {
         try {
-            MessageDigest sha256digest = MessageDigest.getInstance("SHA-256",provider);
+            MessageDigest sha256digest = MessageDigest.getInstance(HASH_256_ALGORITHM_NAME, provider);
             return sha256digest.digest(input);
         } catch (NoSuchAlgorithmException e) {
             LOG.error("Can't find such algorithm", e);
@@ -83,12 +85,12 @@ public class HashUtil {
     }
 
     public static byte[] sha3(byte[] input) {
-        MessageDigest digest;
+        Keccak.Digest256 digest;
         try {
-            digest = MessageDigest.getInstance(HASH_256_ALGORITHM_NAME, ProviderInstance.getCryptoProvider());
-            digest.update(input);
-            return digest.digest();
-        } catch (NoSuchAlgorithmException e) {
+            digest=new Keccak.Digest256();
+            byte[] hash = digest.digest(input);
+            return hash;
+        } catch (Exception e) {
             LOG.error("Can't find such algorithm", e);
             throw new RuntimeException(e);
         }
@@ -98,7 +100,7 @@ public class HashUtil {
     public static byte[] sha3(byte[] input1, byte[] input2) {
         MessageDigest digest;
         try {
-            digest = MessageDigest.getInstance(HASH_256_ALGORITHM_NAME, ProviderInstance.getCryptoProvider());
+            digest = MessageDigest.getInstance(SHA3_HASH_256_ALGORITHM_NAME);
             digest.update(input1, 0, input1.length);
             digest.update(input2, 0, input2.length);
             return digest.digest();
@@ -119,7 +121,7 @@ public class HashUtil {
     public static byte[] sha3(byte[] input, int start, int length) {
         MessageDigest digest;
         try {
-            digest = MessageDigest.getInstance(HASH_256_ALGORITHM_NAME, ProviderInstance.getCryptoProvider());
+            digest = MessageDigest.getInstance(SHA3_HASH_256_ALGORITHM_NAME, CRYPTO_PROVIDER);
             digest.update(input, start, length);
             return digest.digest();
         } catch (NoSuchAlgorithmException e) {
@@ -131,7 +133,7 @@ public class HashUtil {
     public static byte[] sha512(byte[] input) {
         MessageDigest digest;
         try {
-            digest = MessageDigest.getInstance(HASH_512_ALGORITHM_NAME, ProviderInstance.getCryptoProvider());
+            digest = MessageDigest.getInstance(HASH_512_ALGORITHM_NAME, CRYPTO_PROVIDER);
             digest.update(input);
             return digest.digest();
         } catch (NoSuchAlgorithmException e) {

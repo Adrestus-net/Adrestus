@@ -20,6 +20,8 @@ public class Keys {
     public static final int PUBLIC_KEY_LENGTH_IN_HEX = PUBLIC_KEY_SIZE << 1;
     public static final int PRIVATE_KEY_LENGTH_IN_HEX = PRIVATE_KEY_SIZE << 1;
 
+    public static final String ALGORITHM="ECDSA";
+    public static final String PARAM_SPEC="secp256k1";
     static {
         if (Security.getProvider(BouncyCastleProvider.PROVIDER_NAME) == null) {
             Security.addProvider(new BouncyCastleProvider());
@@ -32,8 +34,8 @@ public class Keys {
             throws NoSuchProviderException, NoSuchAlgorithmException,
             InvalidAlgorithmParameterException {
 
-        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("ECDSA", "BC");
-        ECGenParameterSpec ecGenParameterSpec = new ECGenParameterSpec("secp256k1");
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(ALGORITHM, ProviderInstance.getCryptoProvider());
+        ECGenParameterSpec ecGenParameterSpec = new ECGenParameterSpec(PARAM_SPEC);
         if (random != null) {
             keyPairGenerator.initialize(ecGenParameterSpec, random);
         } else {

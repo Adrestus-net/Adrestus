@@ -145,4 +145,20 @@ public class PrimitiveUtil {
         System.arraycopy(bytes, srcOffset, result, destOffset, bytesLength);
         return result;
     }
+
+    public static byte[] concat(final byte[]... arrays) {
+        int totalSize = 0;
+        for (final byte[] array : arrays) {
+            totalSize += array.length;
+        }
+
+        int startIndex = 0;
+        final byte[] result = new byte[totalSize];
+        for (final byte[] array : arrays) {
+            System.arraycopy(array, 0, result, startIndex, array.length);
+            startIndex += array.length;
+        }
+
+        return result;
+    }
 }
