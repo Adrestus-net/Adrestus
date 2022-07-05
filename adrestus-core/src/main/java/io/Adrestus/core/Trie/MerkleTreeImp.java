@@ -72,10 +72,10 @@ public class MerkleTreeImp implements MerkleTree {
         buildTree(iterate);
     }
 
-    public Trampoline<Integer> buildTree2(ArrayList<MerkleNode> list) {
+    public RecursiveOptimizer<Integer> buildTree2(ArrayList<MerkleNode> list) {
         if (list.size() == 1) {
             this.root = list.get(0);
-            return Trampoline.done(0);
+            return RecursiveOptimizer.done(0);
         }
 
         //list.stream().forEach(x->System.out.println(x.getTransactionHash()));
@@ -100,10 +100,10 @@ public class MerkleTreeImp implements MerkleTree {
             //System.out.println(iterate.get(0).getLeft().getTransactionHash());
             // System.out.println(iterate.get(0).getRight().getTransactionHash());
             this.root = iterate.get(0);
-            return Trampoline.done(0);
+            return RecursiveOptimizer.done(0);
         }
         //iterate.stream().forEach(x->System.out.println(x.getTransactionHash()));
-        return Trampoline.more(() -> buildTree2(iterate));
+        return RecursiveOptimizer.more(() -> buildTree2(iterate));
     }
 
     public String getRootHash() {
@@ -194,7 +194,7 @@ public class MerkleTreeImp implements MerkleTree {
         proofs(iterate, current);
     }
 
-    private Trampoline<Integer> proofs2(List<MerkleNode> list, final MerkleNode current) {
+    private RecursiveOptimizer<Integer> proofs2(List<MerkleNode> list, final MerkleNode current) {
         int position = -1;
         for (int i = 0; i < list.size(); i++) {
             if (list.get(i).getTransactionHash().equals(current.getTransactionHash())) {
@@ -237,9 +237,9 @@ public class MerkleTreeImp implements MerkleTree {
             i = i + 2;
         }
         if (iterate.size() == 1) {
-            return Trampoline.done(0);
+            return RecursiveOptimizer.done(0);
         }
-        return Trampoline.more(() -> proofs2(iterate, node));
+        return RecursiveOptimizer.more(() -> proofs2(iterate, node));
     }
     public String GenerateRoot(MerkleProofs proofs) {
         String hash = proofs.getTarget().getTransactionHash();

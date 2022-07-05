@@ -2,11 +2,11 @@ package io.Adrestus.core.Trie;
 import java.util.stream.Stream;
 
 
-public interface Trampoline<T> {
+public interface RecursiveOptimizer<T> {
     T get();
 
 
-    default Trampoline<T> jump() {
+    default RecursiveOptimizer<T> jump() {
         return this;
     }
 
@@ -19,20 +19,20 @@ public interface Trampoline<T> {
         return true;
     }
 
-    static <T> Trampoline<T> done(final T result) {
+    static <T> RecursiveOptimizer<T> done(final T result) {
         return () -> result;
     }
 
 
-    static <T> Trampoline<T> more(final Trampoline<Trampoline<T>> trampoline) {
-        return new Trampoline<T>() {
+    static <T> RecursiveOptimizer<T> more(final RecursiveOptimizer<RecursiveOptimizer<T>> trampoline) {
+        return new RecursiveOptimizer<T>() {
             @Override
             public boolean complete() {
                 return false;
             }
 
             @Override
-            public Trampoline<T> jump() {
+            public RecursiveOptimizer<T> jump() {
                 return trampoline.result();
             }
 
@@ -41,11 +41,11 @@ public interface Trampoline<T> {
                 return trampoline(this);
             }
 
-            T trampoline(final Trampoline<T> trampoline) {
-                return Stream.iterate(trampoline, Trampoline::jump)
-                        .filter(Trampoline::complete)
+            T trampoline(final RecursiveOptimizer<T> recursiveOptimizer) {
+                return Stream.iterate(recursiveOptimizer, RecursiveOptimizer::jump)
+                        .filter(RecursiveOptimizer::complete)
                         .findFirst()
-                        .map(Trampoline::result)
+                        .map(RecursiveOptimizer::result)
                         .get();
             }
         };
