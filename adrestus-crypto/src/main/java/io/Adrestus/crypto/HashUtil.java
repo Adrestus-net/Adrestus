@@ -73,6 +73,16 @@ public class HashUtil {
         }
     }
 
+    public static byte[] sha256(byte[] input,Provider provider) {
+        try {
+            MessageDigest sha256digest = MessageDigest.getInstance("SHA-256",provider);
+            return sha256digest.digest(input);
+        } catch (NoSuchAlgorithmException e) {
+            LOG.error("Can't find such algorithm", e);
+            throw new RuntimeException(e);
+        }
+    }
+
     public static byte[] sha3(byte[] input) {
         MessageDigest digest;
         try {

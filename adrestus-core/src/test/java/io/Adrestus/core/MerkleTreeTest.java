@@ -14,6 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class MerkleTreeTest {
     private MerkleTreeImp tree;
+
     @BeforeEach
     void setUp() throws Exception {
         tree = new MerkleTreeImp();
@@ -28,40 +29,59 @@ public class MerkleTreeTest {
         }
         list1.add(node1);
         tree.my_generate(list1);
-        assertEquals("72ad9ce53d35639b8576626e1365fd55221b544dfdd8d1fbf3faa86b034344be",tree.getRootHash());
+        assertEquals("72ad9ce53d35639b8576626e1365fd55221b544dfdd8d1fbf3faa86b034344be", tree.getRootHash());
     }
+
     @Test
-    public void merklee_proofs() {
+    public void merklee_proofs_add() {
         List<MerkleNode> list = new ArrayList<MerkleNode>();
-        for (int i = 0; i < 10000; i++) {
-            MerkleNode node=new MerkleNode(String.valueOf(i));
+        for (int i = 0; i < 100000; i++) {
+            MerkleNode node = new MerkleNode(String.valueOf(i));
             list.add(node);
 
         }
         tree.my_generate(list);
-        for (int i = 0; i < 10000; i++) {
-            MerkleNode node=new MerkleNode(String.valueOf(i));
-            tree.build_proofs(list,node);
-            MerkleProofs proofs=tree.getMerkleeproofs();
-            assertEquals(tree.getRootHash(),tree.GenerateRoot(proofs));
-        }
     }
 
     @Test
-    public void merklee_proofs_with_trampoline() {
+    public void merklee_proofs_search() {
         List<MerkleNode> list = new ArrayList<MerkleNode>();
-        for (int i = 0; i < 10000; i++) {
-            MerkleNode node=new MerkleNode(String.valueOf(i));
+        for (int i = 0; i < 100000; i++) {
+            MerkleNode node = new MerkleNode(String.valueOf(i));
+            list.add(node);
+
+        }
+        tree.my_generate(list);
+        MerkleNode node = new MerkleNode(String.valueOf(1000));
+        tree.build_proofs(list, node);
+        MerkleProofs proofs = tree.getMerkleeproofs();
+        assertEquals(tree.getRootHash(), tree.GenerateRoot(proofs));
+    }
+
+    @Test
+    public void merklee_proofs_add_with_optimization() {
+        List<MerkleNode> list = new ArrayList<MerkleNode>();
+        for (int i = 0; i < 100000; i++) {
+            MerkleNode node = new MerkleNode(String.valueOf(i));
             list.add(node);
 
         }
         tree.my_generate2(list);
-        for (int i = 0; i < 10000; i++) {
-            MerkleNode node=new MerkleNode(String.valueOf(i));
-            tree.build_proofs(list,node);
-            MerkleProofs proofs=tree.getMerkleeproofs();
-            assertEquals(tree.getRootHash(),tree.GenerateRoot(proofs));
+    }
+
+    @Test
+    public void merklee_proofs_search_with_optimization() {
+        List<MerkleNode> list = new ArrayList<MerkleNode>();
+        for (int i = 0; i < 100000; i++) {
+            MerkleNode node = new MerkleNode(String.valueOf(i));
+            list.add(node);
+
         }
+        tree.my_generate2(list);
+        MerkleNode node = new MerkleNode(String.valueOf(1000));
+        tree.build_proofs(list, node);
+        MerkleProofs proofs = tree.getMerkleeproofs();
+        assertEquals(tree.getRootHash(), tree.GenerateRoot(proofs));
     }
 
 }
