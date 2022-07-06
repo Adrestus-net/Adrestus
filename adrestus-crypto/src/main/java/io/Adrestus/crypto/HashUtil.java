@@ -3,8 +3,6 @@ package io.Adrestus.crypto;
 
 //import io.Adrestus.util.RLP;
 
-import com.github.aelstad.keccakj.fips202.Shake256;
-import io.Adrestus.crypto.elliptic.ProviderInstance;
 import org.bouncycastle.jcajce.provider.digest.Keccak;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

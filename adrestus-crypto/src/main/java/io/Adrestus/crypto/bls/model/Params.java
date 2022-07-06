@@ -11,6 +11,7 @@ public class Params {
     }
     
     public Params(byte[] label) {
-        this.g = new G1(HashUtil.Shake256(label));
+        byte[]b=HashUtil.Shake256(label);
+        this.g = new G1(b);
     }
 }

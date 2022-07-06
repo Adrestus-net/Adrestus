@@ -24,22 +24,13 @@
     <codec.version>1.15</codec.version>
     <jna.version>5.12.1</jna.version>
     <milagro.version>0.4.0</milagro.version>
-    <keccakj.version>1.1.0</keccakj.version>
   </properties>
-  <repositories>
-    <repository>
-      <id>keccakj</id>
-      <name>keccakj</name>
-      <url>https://repository.mulesoft.org/nexus/content/repositories/public</url>
-    </repository>
-  </repositories>
   <dependencies>
     <dependency>
       <groupId>com.madgag.spongycastle</groupId>
       <artifactId>core</artifactId>
       <version>${spongycastle.version}</version>
     </dependency>
-    <!-- https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk15on -->
     <dependency>
       <groupId>org.bouncycastle</groupId>
       <artifactId>bcprov-jdk15on</artifactId>
@@ -61,9 +52,9 @@
       <version>${milagro.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.github.aelstad</groupId>
-      <artifactId>keccakj</artifactId>
-      <version>${keccakj.version}</version>
+      <groupId>com.github.emilianobonassi</groupId>
+      <artifactId>jpbc</artifactId>
+      <version>2.0.0</version>
     </dependency>
   </dependencies>
 

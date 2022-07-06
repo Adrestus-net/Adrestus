@@ -12,8 +12,8 @@ public class Keypair {
         this.verKey = verKey;
     }
     
-    public Keypair(RAND r, Params params) {
-        this.sigKey = new SigKey(r);
+    public Keypair(int entropy, Params params) {
+        this.sigKey = new SigKey(entropy);
         this.verKey = new VerKey(this.sigKey, params);
     }
 }

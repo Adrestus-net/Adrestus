@@ -5,13 +5,17 @@ import io.Adrestus.crypto.bls.constants.*;
 import io.Adrestus.crypto.bls.utils.*;
 import org.apache.milagro.amcl.BLS381.BIG;
 import org.apache.milagro.amcl.BLS381.DBIG;
+import org.apache.milagro.amcl.BLS381.ECP;
 import org.apache.milagro.amcl.RAND;
+import org.spongycastle.util.encoders.Hex;
 
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 
 public class FieldElement {
-
+    private static final int fpPointSize = BIG.MODBYTES;
+    private static final BIG curveOrder = CurveUtil.curveOrder.value;
     public BIG value;
     
     public FieldElement() {
@@ -21,17 +25,34 @@ public class FieldElement {
     public FieldElement(BIG value) {
         this.value = value;
     }
+    public FieldElement(byte[] buff) {
+        byte[] bytes = new byte[fpPointSize + 1];
+        ECP.mapit(buff);//.toBytes(bytes,true);
+        this.value = BIG.fromBytes(bytes);
+    }
     
     public FieldElement(FieldElement fe) {
         this.value = new BIG(fe.value);
     }
-    
-    public FieldElement(RAND r) {
-        BIG n;
-        do {
-            n = BIG.randomnum(Constants.curveOrder, r);
-        }while(n.iszilch());
-        this.value = n;
+
+
+    public FieldElement(SecureRandom srng){
+        RAND rng = new RAND();
+        byte[] b = new byte[128];
+        srng.nextBytes(b);
+        rng.seed(128, b);
+        // secret key must be between 1 and (curveOrder - 1) inclusive
+        BIG bigSecret = BIG.randomnum(curveOrder.minus(new BIG(1)), rng);
+        bigSecret.plus(new BIG(1));
+        this.value = bigSecret;
+    }
+    public FieldElement(int entropy) {
+        RAND rng = new RAND();
+        rng.sirand(entropy);
+        // secret key must be between 1 and (curveOrder - 1) inclusive
+        BIG bigSecret = BIG.randomnum(curveOrder.minus(new BIG(1)), rng);
+        bigSecret.plus(new BIG(1));
+        this.value = bigSecret;
     }
     
     public FieldElement plus(FieldElement rhs) {
@@ -178,4 +199,5 @@ public class FieldElement {
         }
         return new FieldElement(acc);
     }
+
 }

@@ -1,18 +1,17 @@
 package io.Adrestus.crypto.vrf.engine;
 
 import io.Adrestus.crypto.HashUtil;
-import org.apache.milagro.amcl.ANSSI.ECP;
+import org.apache.milagro.amcl.BLS381.BIG;
 import org.bouncycastle.jce.ECNamedCurveTable;
 import org.bouncycastle.jce.spec.ECParameterSpec;
-import org.bouncycastle.math.ec.ECPoint;
 import org.bouncycastle.math.field.FiniteField;
 
 import java.io.ByteArrayOutputStream;
 import java.math.BigInteger;
+import org.apache.milagro.amcl.BLS381.ECP;
+public class VrfEngine2 {
 
-public class VrfEngine {
-
-    private String curveName;
+   /* private String curveName;
     private ECParameterSpec curveParams;
     private int qlen;
     private BigInteger order;
@@ -20,7 +19,7 @@ public class VrfEngine {
     private byte suiteString;
     private byte cofactor;
 
-    public VrfEngine(String curveName) throws Exception {
+    public VrfEngine2(String curveName) throws Exception {
 
         this.curveName = curveName;
         this.curveParams = ECNamedCurveTable.getParameterSpec(curveName);
@@ -63,34 +62,33 @@ public class VrfEngine {
         throw new RuntimeException("Unsupported curve: " + curveName);
     }
 
-    public ECPoint zero() {
+    public ECP zero() {
 
         return curveParams.getCurve().getInfinity();
     }
 
-    public ECPoint decode(byte[] encoded) {
+    public ECP decode(byte[] encoded) {
 
         return curveParams.getCurve().decodePoint(encoded);
     }
 
-    public byte[] encode(ECPoint g) {
+    public byte[] encode(ECP g) {
 
         return g.getEncoded(true);
     }
 
-    private ECPoint derivePublicKeyPoint(BigInteger secretKeyBigNum) {
+    private ECP derivePublicKeyPoint(byte[] secret) {
 
-        return curveParams.getG().multiply(secretKeyBigNum);
+        return ECP.fromBytes(secret).mul(secretKeyBigNum);
     }
 
     public byte[] derivePublicKey(byte[] secret) {
 
-        BigInteger secretKeyBigNum  = new BigInteger(1, secret);
-        ECPoint point = derivePublicKeyPoint(secretKeyBigNum);
+        ECP point = derivePublicKeyPoint(secret);
         return encode(point);
     }
 
-    private ECPoint arbitraryStringToPoint(byte[] data) throws Exception {
+    private ECP arbitraryStringToPoint(byte[] data) throws Exception {
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         bos.write(2);
@@ -98,16 +96,16 @@ public class VrfEngine {
         return decode(bos.toByteArray());
     }
 
-    private ECPoint hashToTryAndIncrement(ECPoint publicKey, byte[] alpha) throws Exception {
+    private ECP hashToTryAndIncrement(ECP publicKey, byte[] alpha) throws Exception {
 
         byte[] pkBytes = encode(publicKey);
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-       // bos.write(suiteString);
-      //  bos.write(1);
+        // bos.write(suiteString);
+        //  bos.write(1);
         bos.write(pkBytes);
         bos.write(alpha);
-       // bos.write(0);
+        // bos.write(0);
         byte[] v = bos.toByteArray();
 
         int pos = v.length-1;
@@ -222,13 +220,13 @@ public class VrfEngine {
         }
     }
 
-    private BigInteger hashPoints(ECPoint[] points) throws Exception {
+    private BigInteger hashPoints(ECP[] points) throws Exception {
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         bos.write(suiteString);
         bos.write(2);
 
-        for(ECPoint point : points) {
+        for(ECP point : points) {
             bos.write(encode(point));
         }
 
@@ -241,18 +239,17 @@ public class VrfEngine {
 
     public byte[] prove(byte[] secretKey, byte[] alpha) throws Exception {
 
-        BigInteger secretKeyBigNum  = new BigInteger(1, secretKey);
-        ECPoint publicKeyPoint = derivePublicKeyPoint(secretKeyBigNum);
-        ECPoint hPoint  = hashToTryAndIncrement(publicKeyPoint, alpha);
+        ECP publicKeyPoint = ECP.fromBytes(secretKey);
+        ECP hPoint  = hashToTryAndIncrement(publicKeyPoint, alpha);
         if(hPoint == null) return null;
 
         byte[] hString = encode(hPoint);
-        ECPoint gammaPoint  = hPoint.multiply(secretKeyBigNum);
+        ECP gammaPoint  = hPoint.mul(BIG.fromBytes(secretKey));
 
         BigInteger k = generateNonce(secretKey, hString);
-        ECPoint uPoint = curveParams.getG().multiply(k);
-        ECPoint vPoint = hPoint.multiply(k);
-        BigInteger c = hashPoints(new ECPoint[] {hPoint, gammaPoint, uPoint, vPoint});
+        ECP uPoint = curveParams.getG().multiply(k);
+        ECP vPoint = hPoint.multiply(k);
+        BigInteger c = hashPoints(new ECP[] {hPoint, gammaPoint, uPoint, vPoint});
 
         BigInteger s = k.add(c.multiply(secretKeyBigNum)).mod(order);
         byte[] gammaString  = encode(gammaPoint);
@@ -266,77 +263,77 @@ public class VrfEngine {
         return bos.toByteArray();
     }
 
-    private byte[] gammaToHash(ECPoint gamma) throws Exception {
-        ECPoint gammaCof = gamma.multiply(new BigInteger(1, new byte[] {cofactor}));
+    private byte[] gammaToHash(ECP gamma) throws Exception {
+        ECP gammaCof = gamma.multiply(new BigInteger(1, new byte[] {cofactor}));
         byte[] gammaString =  encode(gammaCof);
-        
+
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         bos.write(suiteString);
         bos.write(3);
         bos.write(gammaString);
-        
+
         return HashUtil.sha256(bos.toByteArray());
     }
-    
+
     public byte[] proofToHash(byte[] pi) throws Exception {
         Object[] objs = decodeProof(pi);
-        ECPoint gammaPoint = (ECPoint) objs[0];
-        return gammaToHash(gammaPoint);          
+        ECP gammaPoint = (ECP) objs[0];
+        return gammaToHash(gammaPoint);
     }
-    
+
     private Object[] decodeProof(byte[] pi) {
         int gammaOct  =  qlen % 8 > 0 ? (qlen / 8 + 2) : (qlen / 8 + 1);
         int cOct = n%8 > 0? (n/8 + 1) : n/8;
-        
+
         if(pi.length * 8 < gammaOct + cOct*3) {
             throw new RuntimeException("Invalid pi length");
         }
-        
+
         byte[] gammaBytes = new byte[gammaOct];
-        System.arraycopy(pi, 0, gammaBytes, 0, gammaOct);         
-        ECPoint gamma = decode(gammaBytes);
-        
+        System.arraycopy(pi, 0, gammaBytes, 0, gammaOct);
+        ECP gamma = decode(gammaBytes);
+
         byte[] cBytes = new byte[cOct];
         System.arraycopy(pi, gammaOct, cBytes, 0, cOct);
         BigInteger c = new BigInteger(1, cBytes);
-        
+
         byte[] sBytes = new byte[pi.length - gammaOct - cOct];
         System.arraycopy(pi, gammaOct + cOct, sBytes , 0, sBytes.length);
         BigInteger s = new BigInteger(1, sBytes);
-        
-        return new Object[] {gamma, c, s};        
-        
+
+        return new Object[] {gamma, c, s};
+
     }
-    
+
     public byte[] verify(byte[] y, byte[] pi, byte[] alpha) throws Exception {
-        
+
         if(pi == null) return null;
-        
+
         Object[] objs = decodeProof(pi);
-        ECPoint gammaPoint = (ECPoint) objs[0];
+        ECP gammaPoint = (ECP) objs[0];
         BigInteger c = (BigInteger) objs[1];
         BigInteger s = (BigInteger) objs[2];
-        
-        ECPoint publicKeyPoint  = decode(y);
-        ECPoint hPoint = hashToTryAndIncrement(publicKeyPoint, alpha);
-        
-        ECPoint sb = curveParams.getG().multiply(s);
-        ECPoint cy = publicKeyPoint.multiply(c);
+
+        ECP publicKeyPoint  = decode(y);
+        ECP hPoint = hashToTryAndIncrement(publicKeyPoint, alpha);
+
+        ECP sb = curveParams.getG().multiply(s);
+        ECP cy = publicKeyPoint.multiply(c);
         cy = cy.negate();
-        ECPoint uPoint = sb.add(cy);
-        
-        ECPoint sh = hPoint.multiply(s);
-        ECPoint cGamma = gammaPoint.multiply(c);
+        ECP uPoint = sb.add(cy);
+
+        ECP sh = hPoint.multiply(s);
+        ECP cGamma = gammaPoint.multiply(c);
         cGamma = cGamma.negate();
-        
-        ECPoint vPoint = sh.add(cGamma);
-        BigInteger derivedC  = hashPoints(new ECPoint[] {hPoint, gammaPoint, uPoint, vPoint});
-        
+
+        ECP vPoint = sh.add(cGamma);
+        BigInteger derivedC  = hashPoints(new ECP[] {hPoint, gammaPoint, uPoint, vPoint});
+
         if(derivedC.compareTo(c) != 0) {
             return null;
         }
-        
+
         return gammaToHash(gammaPoint);
-        
-    }
+
+    }*/
 }

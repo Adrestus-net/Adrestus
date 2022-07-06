@@ -11,11 +11,11 @@ public class Polynomial {
 
     private List<FieldElement> coefficients;
     
-    public Polynomial(RAND r, int degree) {
+    public Polynomial(int entropy, int degree) {
         this.coefficients = new ArrayList<>();
         
         for(int i = 0 ; i < degree+1; i++) {
-            this.coefficients.add(new FieldElement(r));
+            this.coefficients.add(new FieldElement(entropy));
         }
     }
     

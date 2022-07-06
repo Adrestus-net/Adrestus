@@ -3,6 +3,8 @@ package io.Adrestus.crypto.bls.model;
 import org.apache.milagro.amcl.BLS381.BIG;
 import org.apache.milagro.amcl.RAND;
 
+import java.security.SecureRandom;
+
 public class SigKey {
 
     public FieldElement x;
@@ -11,13 +13,16 @@ public class SigKey {
         this.x = x;
     }
     
-    public SigKey(RAND r) {
-        this.x = new FieldElement(r);
+    public SigKey(int entropy) {
+        this.x = new FieldElement(entropy);
     }
-    
-    public SigKey(int r) {
-        this.x = new FieldElement(new BIG(r));
+    public SigKey(SecureRandom random) {
+        this.x = new FieldElement(random);
     }
+    public SigKey(byte [] buff){
+        this.x=FieldElement.fromBytes(buff);
+    }
+
     
     public byte[] toBytes() {
         return this.x.toBytes();

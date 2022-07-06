@@ -44,8 +44,7 @@ public class ThresholdSigUtils {
     }
     
     private static Object[] getSharedSecretWithPolynomial(int threshold, int total) {
-        RAND r = new RAND();
-        Polynomial randomPoly = new Polynomial(r, threshold-1);
+        Polynomial randomPoly = new Polynomial(42, threshold-1);
         FieldElement secret = randomPoly.eval(FieldElement.zero());
         Map<Integer, FieldElement> shares = new HashMap<>();
         for(int x = 1; x <= total; x++) {
