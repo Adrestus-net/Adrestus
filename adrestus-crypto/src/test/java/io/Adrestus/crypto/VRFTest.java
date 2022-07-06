@@ -16,8 +16,10 @@ public class VRFTest {
     @Test
     public void test_vrf() throws Exception {
         VrfEngine group = new VrfEngine("secp256k1");
-        byte[] secret_key = VrfUtils.hexStringToByteArray("c9afa9d845ba75166b5c215767b1d6934e50c3db36eb127b8a622b120f6721");
+        byte[] secret_key = VrfUtils.hexStringToByteArray("00000000000000000000000000000000119f962794f815e4f21ae048e66286a930f69b51bbc711367a6a4b3a57e3f5ff");
+        //byte[] public_key  = group.derivePublicKey(secret_key);
         byte[] public_key  = group.derivePublicKey(secret_key);
+        //assertEquals("0408446c7bfd9b7b17f61f1e9efb7f08a8f2289e12970a66104c4822b0d8d7a914342a12acd82f7bad82021bd4c5577ea70fe302c37552e2dc376e2d613cd97233cee3b3218a70e8c8acfb85a600c13351d1e4176df3b056da22f7ee3eff182256",Hex.toHexString(public_key));
         byte[] msg = "this is a test".getBytes();
         byte[] pi = group.prove(secret_key, msg);
         byte[] hash = group.proofToHash(pi);

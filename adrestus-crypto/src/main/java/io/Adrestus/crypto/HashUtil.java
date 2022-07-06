@@ -3,6 +3,7 @@ package io.Adrestus.crypto;
 
 //import io.Adrestus.util.RLP;
 
+import com.github.aelstad.keccakj.fips202.Shake256;
 import io.Adrestus.crypto.elliptic.ProviderInstance;
 import org.bouncycastle.jcajce.provider.digest.Keccak;
 import org.slf4j.Logger;
@@ -12,6 +13,8 @@ import org.spongycastle.crypto.digests.RIPEMD160Digest;
 import org.spongycastle.util.encoders.Hex;
 
 
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.*;
@@ -34,6 +37,7 @@ public class HashUtil {
     private static final String HASH_256_ALGORITHM_NAME = "SHA-256";
     private static final String SHA3_HASH_256_ALGORITHM_NAME = "ETH-KECCAK-256";
     private static final String HASH_512_ALGORITHM_NAME = "ETH-KECCAK-512";
+    private static final String HASH_256_HMAC="HmacSHA256";
     private static SecureRandom random = new SecureRandom();
 
     static {
@@ -157,13 +161,22 @@ public class HashUtil {
         throw new NullPointerException("Can't hash a NULL value");
     }
 
-    /**
-     * Calculates RIGTMOST160(SHA3(input)). This is used in address
-     * calculations. *
-     *
-     * @param input - data
-     * @return - 20 right bytes of the hash keccak of the data
-     */
+    public static byte[] mac(byte[] data, byte[] key) throws Exception {
+
+        Mac sha256HMAC = Mac.getInstance(HASH_256_HMAC);
+        SecretKeySpec secretKey = new SecretKeySpec(key, HASH_256_HMAC);
+        sha256HMAC.init(secretKey);
+        return sha256HMAC.doFinal(data);
+    }
+
+    public static byte[] Shake256(byte[] inp) {
+        Shake256 shake256 = new Shake256();
+        shake256.getAbsorbStream().write(inp);
+        byte[] out = new byte[48];
+        shake256.getSqueezeStream().read(out);
+        return out;
+    }
+
     public static byte[] sha3omit12(byte[] input) {
         byte[] hash = sha3(input);
         return copyOfRange(hash, 12, hash.length);

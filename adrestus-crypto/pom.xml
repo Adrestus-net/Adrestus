@@ -23,8 +23,16 @@
     <bcprov.version>1.70</bcprov.version>
     <codec.version>1.15</codec.version>
     <jna.version>5.12.1</jna.version>
+    <milagro.version>0.4.0</milagro.version>
+    <keccakj.version>1.1.0</keccakj.version>
   </properties>
-
+  <repositories>
+    <repository>
+      <id>keccakj</id>
+      <name>keccakj</name>
+      <url>https://repository.mulesoft.org/nexus/content/repositories/public</url>
+    </repository>
+  </repositories>
   <dependencies>
     <dependency>
       <groupId>com.madgag.spongycastle</groupId>
@@ -47,7 +55,16 @@
       <artifactId>jna</artifactId>
       <version>${jna.version}</version>
     </dependency>
-
+    <dependency>
+      <groupId>org.miracl.milagro.amcl</groupId>
+      <artifactId>milagro-crypto-java</artifactId>
+      <version>${milagro.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.github.aelstad</groupId>
+      <artifactId>keccakj</artifactId>
+      <version>${keccakj.version}</version>
+    </dependency>
   </dependencies>
 
   <build>
