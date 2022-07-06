@@ -10,9 +10,6 @@ import java.util.Arrays;
 import java.util.List;
 
 
-/**
- * Class to encapsulate an object and provide utilities for conversion
- */
 public class Value {
 
     private Object value;

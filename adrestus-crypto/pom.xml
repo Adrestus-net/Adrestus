@@ -22,6 +22,7 @@
     <util.version>1.0-SNAPSHOT</util.version>
     <bcprov.version>1.70</bcprov.version>
     <codec.version>1.15</codec.version>
+    <jna.version>5.12.1</jna.version>
   </properties>
 
   <dependencies>
@@ -41,6 +42,12 @@
       <artifactId>commons-codec</artifactId>
       <version>${codec.version}</version>
     </dependency>
+    <dependency>
+      <groupId>net.java.dev.jna</groupId>
+      <artifactId>jna</artifactId>
+      <version>${jna.version}</version>
+    </dependency>
+
   </dependencies>
 
   <build>
