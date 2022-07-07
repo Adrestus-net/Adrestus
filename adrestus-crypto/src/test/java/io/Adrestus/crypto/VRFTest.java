@@ -4,6 +4,7 @@ import io.Adrestus.crypto.bls.model.Params;
 import io.Adrestus.crypto.bls.model.SigKey;
 import io.Adrestus.crypto.bls.model.VerKey;
 import io.Adrestus.crypto.vrf.engine.VrfEngine;
+import io.Adrestus.crypto.vrf.engine.VrfEngine2;
 import io.Adrestus.crypto.vrf.utils.VrfUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -35,5 +36,20 @@ public class VRFTest {
         byte[] hash = group.proofToHash(pi);
         byte[] beta = group.verify(public_key,pi, msg);
         assertEquals(Hex.toHexString(beta),Hex.toHexString(hash));
+    }
+
+    @Test
+    public void test_vrf2() throws Exception {
+        SigKey sk = new SigKey(42);
+        VerKey vk = new VerKey(sk);
+
+        VrfEngine2 group = new VrfEngine2("secp256k1");
+        byte[] msg = "this is a test".getBytes();
+        byte[] pi = group.prove(sk.toBytes(), msg);
+        //byte[] hash = group.proofToHash(pi);
+        System.out.println(Hex.toHexString(pi));
+        byte[] beta = group.verify(sk.toBytes(), pi, msg);
+        System.out.println(Hex.toHexString(beta));
+        // assertEquals(Hex.toHexString(beta),Hex.toHexString(hash));
     }
 }

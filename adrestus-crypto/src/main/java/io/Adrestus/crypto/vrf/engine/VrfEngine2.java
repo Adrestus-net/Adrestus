@@ -4,14 +4,15 @@ import io.Adrestus.crypto.HashUtil;
 import org.apache.milagro.amcl.BLS381.BIG;
 import org.bouncycastle.jce.ECNamedCurveTable;
 import org.bouncycastle.jce.spec.ECParameterSpec;
+import org.bouncycastle.math.ec.ECPoint;
 import org.bouncycastle.math.field.FiniteField;
 
 import java.io.ByteArrayOutputStream;
 import java.math.BigInteger;
 import org.apache.milagro.amcl.BLS381.ECP;
 public class VrfEngine2 {
-
-   /* private String curveName;
+    private static final int fpPointSize = BIG.MODBYTES;
+    private String curveName;
     private ECParameterSpec curveParams;
     private int qlen;
     private BigInteger order;
@@ -62,43 +63,16 @@ public class VrfEngine2 {
         throw new RuntimeException("Unsupported curve: " + curveName);
     }
 
-    public ECP zero() {
 
-        return curveParams.getCurve().getInfinity();
-    }
-
-    public ECP decode(byte[] encoded) {
-
-        return curveParams.getCurve().decodePoint(encoded);
-    }
-
-    public byte[] encode(ECP g) {
-
-        return g.getEncoded(true);
-    }
-
-    private ECP derivePublicKeyPoint(byte[] secret) {
-
-        return ECP.fromBytes(secret).mul(secretKeyBigNum);
-    }
-
-    public byte[] derivePublicKey(byte[] secret) {
-
-        ECP point = derivePublicKeyPoint(secret);
-        return encode(point);
-    }
 
     private ECP arbitraryStringToPoint(byte[] data) throws Exception {
-
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        bos.write(2);
-        bos.write(data);
-        return decode(bos.toByteArray());
+        return ECP.mapit(data);
     }
 
     private ECP hashToTryAndIncrement(ECP publicKey, byte[] alpha) throws Exception {
 
-        byte[] pkBytes = encode(publicKey);
+        byte[] pkBytes = new byte[fpPointSize + 1];
+        publicKey.toBytes(pkBytes,true);
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         // bos.write(suiteString);
@@ -114,10 +88,10 @@ public class VrfEngine2 {
         {
             try {
                 v[pos] = (byte)c;
-                byte[] attemptedHash  = HashUtil.sha256(v);
+                byte[] attemptedHash  = HashUtil.Shake256(v);
                 return arbitraryStringToPoint(attemptedHash);
             }catch(Exception e) {
-
+                e.printStackTrace();
             }
 
         }
@@ -178,10 +152,13 @@ public class VrfEngine2 {
         return result;
     }
 
+    public ECPoint decode(byte[] encoded) {
 
+        return curveParams.getCurve().decodePoint(encoded);
+    }
     private BigInteger generateNonce(byte[] secretKey, byte[] data) throws Exception {
 
-        byte[] dataHash = HashUtil.sha256(data);
+        byte[] dataHash = HashUtil.Shake256(data);
         byte[] dataTrunc  = bits2octets(dataHash, qlen, order);
 
         byte[] paddedDataTrunc  = appendLeadingZeros(dataTrunc, qlen);
@@ -227,10 +204,12 @@ public class VrfEngine2 {
         bos.write(2);
 
         for(ECP point : points) {
-            bos.write(encode(point));
+            byte[] bufs = new byte[fpPointSize + 1];
+            point.toBytes(bufs,true);
+            bos.write(bufs);
         }
 
-        byte[] hash = HashUtil.sha256(bos.toByteArray());
+        byte[] hash = HashUtil.Shake256(bos.toByteArray());
         byte[] hashTrunc = new byte[this.n/8];
         System.arraycopy(hash, 0, hashTrunc, 0, hashTrunc.length);
 
@@ -239,20 +218,23 @@ public class VrfEngine2 {
 
     public byte[] prove(byte[] secretKey, byte[] alpha) throws Exception {
 
-        ECP publicKeyPoint = ECP.fromBytes(secretKey);
+        BigInteger secretKeyBigNum  = new BigInteger(1, secretKey);
+        ECP publicKeyPoint = ECP.mapit(curveParams.getG().getEncoded(false)).mul(BIG.fromBytes(secretKey));
         ECP hPoint  = hashToTryAndIncrement(publicKeyPoint, alpha);
         if(hPoint == null) return null;
 
-        byte[] hString = encode(hPoint);
+        byte[] hString = new byte[fpPointSize + 1];
+        hPoint.toBytes(hString,true);
         ECP gammaPoint  = hPoint.mul(BIG.fromBytes(secretKey));
 
         BigInteger k = generateNonce(secretKey, hString);
-        ECP uPoint = curveParams.getG().multiply(k);
-        ECP vPoint = hPoint.multiply(k);
+        ECP uPoint = ECP.mapit(curveParams.getG().multiply(k).getEncoded(false));
+        ECP vPoint = hPoint.mul(BIG.fromBytes(k.toByteArray()));
         BigInteger c = hashPoints(new ECP[] {hPoint, gammaPoint, uPoint, vPoint});
 
         BigInteger s = k.add(c.multiply(secretKeyBigNum)).mod(order);
-        byte[] gammaString  = encode(gammaPoint);
+        byte[] gammaString  = new byte[fpPointSize + 1];
+        gammaPoint.toBytes(gammaString,true);
         byte[] cString = appendLeadingZeros(getBigIntegerBytes(c), this.n);
         byte[] sString = appendLeadingZeros(getBigIntegerBytes(s), this.qlen);
 
@@ -264,15 +246,16 @@ public class VrfEngine2 {
     }
 
     private byte[] gammaToHash(ECP gamma) throws Exception {
-        ECP gammaCof = gamma.multiply(new BigInteger(1, new byte[] {cofactor}));
-        byte[] gammaString =  encode(gammaCof);
+        ECP gammaCof = gamma.mul(BIG.fromBytes(new BigInteger(1, new byte[] {cofactor}).toByteArray()));
+        byte[] gammaString =  new byte[fpPointSize + 1];
+        gammaCof.toBytes(gammaString,true);
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         bos.write(suiteString);
         bos.write(3);
         bos.write(gammaString);
 
-        return HashUtil.sha256(bos.toByteArray());
+        return HashUtil.Shake256(bos.toByteArray());
     }
 
     public byte[] proofToHash(byte[] pi) throws Exception {
@@ -289,11 +272,11 @@ public class VrfEngine2 {
             throw new RuntimeException("Invalid pi length");
         }
 
-        byte[] gammaBytes = new byte[gammaOct];
+        byte[] gammaBytes = new byte[fpPointSize + 1];
         System.arraycopy(pi, 0, gammaBytes, 0, gammaOct);
-        ECP gamma = decode(gammaBytes);
+        ECP gamma = ECP.mapit(gammaBytes);
 
-        byte[] cBytes = new byte[cOct];
+        byte[] cBytes = new byte[fpPointSize + 1];
         System.arraycopy(pi, gammaOct, cBytes, 0, cOct);
         BigInteger c = new BigInteger(1, cBytes);
 
@@ -308,26 +291,27 @@ public class VrfEngine2 {
     public byte[] verify(byte[] y, byte[] pi, byte[] alpha) throws Exception {
 
         if(pi == null) return null;
-
+        BigInteger secretKeyBigNum  = new BigInteger(1, y);
+        ECP publicKeyPoint = ECP.mapit(curveParams.getG().getEncoded(false)).mul(BIG.fromBytes(y));
         Object[] objs = decodeProof(pi);
         ECP gammaPoint = (ECP) objs[0];
         BigInteger c = (BigInteger) objs[1];
         BigInteger s = (BigInteger) objs[2];
 
-        ECP publicKeyPoint  = decode(y);
+        //ECP publicKeyPoint  = ECP.mapit(y);
         ECP hPoint = hashToTryAndIncrement(publicKeyPoint, alpha);
 
-        ECP sb = curveParams.getG().multiply(s);
-        ECP cy = publicKeyPoint.multiply(c);
-        cy = cy.negate();
-        ECP uPoint = sb.add(cy);
+        ECP sb = ECP.mapit(curveParams.getG().multiply(s).getEncoded(false));
+        ECP cy = publicKeyPoint.mul(BIG.fromBytes(c.toByteArray()));
+        cy.neg();
+        sb.add(cy);
 
-        ECP sh = hPoint.multiply(s);
-        ECP cGamma = gammaPoint.multiply(c);
-        cGamma = cGamma.negate();
+        ECP sh = hPoint.mul(BIG.fromBytes(s.toByteArray()));
+        ECP cGamma = gammaPoint.mul(BIG.fromBytes(c.toByteArray()));
+        cGamma.neg();
 
-        ECP vPoint = sh.add(cGamma);
-        BigInteger derivedC  = hashPoints(new ECP[] {hPoint, gammaPoint, uPoint, vPoint});
+        sh.add(cGamma);
+        BigInteger derivedC  = hashPoints(new ECP[] {hPoint, gammaPoint, sb, sh});
 
         if(derivedC.compareTo(c) != 0) {
             return null;
@@ -335,5 +319,6 @@ public class VrfEngine2 {
 
         return gammaToHash(gammaPoint);
 
-    }*/
+    }
 }
+

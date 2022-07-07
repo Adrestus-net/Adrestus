@@ -40,13 +40,13 @@ public class BLSTest {
     @Test
     public void single_signature_random(){
         SigKey sk = new SigKey(new SecureRandom());
-        VerKey vk = new VerKey(sk, "verkey_proves".getBytes(StandardCharsets.UTF_8));
+        VerKey vk = new VerKey(sk);
        // System.out.println(Hex.toHexString(sk.toBytes()));
        // System.out.println(Hex.toHexString(vk.toBytes()));
 
         byte[] msg = "Test_Message".getBytes();
         Signature sig = new Signature(msg, sk);
-        assertEquals(true,sig.verify(msg, vk, "verkey_proves".getBytes(StandardCharsets.UTF_8)));
+        assertEquals(true,sig.verify(msg, vk));
     }
     @Test
     public void multi_sig_slow(){

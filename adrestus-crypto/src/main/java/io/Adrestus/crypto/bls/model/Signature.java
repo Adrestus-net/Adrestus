@@ -48,6 +48,16 @@ public class Signature {
         GT gt = GT.ate2Pairing(verKey.point, hashPoint, g, this.point);
         return gt.value.isunity();
     }
-    
+
+    public boolean verify(byte[] msg, VerKey verKey) {
+        if(this.point.value.is_infinity()) {
+            return false;
+        }
+        G2 hashPoint = hashMessage(msg);
+        G1 g=new G1(Curve.getCurveParams().getG().getEncoded(false));
+        g.neg();
+        GT gt = GT.ate2Pairing(verKey.point, hashPoint, g, this.point);
+        return gt.value.isunity();
+    }
     
 }

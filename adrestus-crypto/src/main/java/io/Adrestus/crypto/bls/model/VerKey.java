@@ -26,7 +26,12 @@ public class VerKey {
         ECP ecp = new G1(hash).value.mul(sk.x.value);
         this.point = new G1(ecp);
     }
-    
+
+    public VerKey(SigKey sk) {
+        ECP ecp = new G1(Curve.getCurveParams().getG().getEncoded(false)).value.mul(sk.x.value);
+        this.point = new G1(ecp);
+    }
+
     public byte[] toBytes() {
         return this.point.toBytes();
     }
