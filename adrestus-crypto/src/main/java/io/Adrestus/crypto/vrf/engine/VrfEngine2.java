@@ -159,17 +159,6 @@ public class VrfEngine2 {
     }
 
 
-    public static BIG mapbytes(byte[] b, int n) {
-        BIG m = new BIG(0);
-
-        for(int i = 0; i < b.length; ++i) {
-            m.fshl(8);
-            long[] var10000 = wr;
-            var10000[0] += (long)(b[i + n] & 255);
-        }
-
-        return m;
-    }
     private BigInteger generateNonce(byte[] secretKey, byte[] data) throws Exception {
 
         byte[] dataHash = HashUtil.sha256(data);
@@ -235,7 +224,9 @@ public class VrfEngine2 {
         BigInteger secretKeyBigNum  = new BigInteger(1, secretKey);
 
         ECP publicKeyPoint = params.g.value.mul(ConvertUtil.byte_to_BIG(secretKey,0));
+        ECP publicKeyPoint1 = params.g.value.mul(ConvertUtil.byte_to_BIG(secretKey,0));
         ECP hPoint  = hashToTryAndIncrement(publicKeyPoint, alpha);
+
         if(hPoint == null) return null;
 
         byte[] hString = new byte[fpPointSize + 1];
@@ -315,8 +306,9 @@ public class VrfEngine2 {
 
         //ECP publicKeyPoint  = ECP.mapit(y);
         ECP hPoint = hashToTryAndIncrement(publicKeyPoint, alpha);
-
+        
         ECP sb = params.g.value.mul(ConvertUtil.byte_to_BIG(s.toByteArray(),0));
+        
         ECP cy = publicKeyPoint.mul(ConvertUtil.byte_to_BIG(c.toByteArray(),0));
         cy.neg();
         sb.add(cy);
