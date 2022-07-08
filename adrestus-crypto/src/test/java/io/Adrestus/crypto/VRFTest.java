@@ -45,7 +45,7 @@ public class VRFTest {
     @Test
     public void test_vrf2() throws Exception {
         SigKey sk = new SigKey(42);
-        VerKey vk = new VerKey(sk);
+        VerKey vk = new VerKey(sk,params);
 
         VrfEngine2 group = new VrfEngine2("secp256k1",params);
         byte[] msg = "this is a test".getBytes();
@@ -53,8 +53,8 @@ public class VRFTest {
         byte[] hash = group.proofToHash(pi);
         System.out.println("1b: "+Hex.toHexString(pi));
         System.out.println("2b: "+Hex.toHexString(hash));
-        byte[] beta = group.verify(sk.toBytes(), pi, msg);
+        byte[] beta = group.verify(vk.toBytes(), pi, msg);
         System.out.println(Hex.toHexString(beta));
-         assertEquals(Hex.toHexString(beta),Hex.toHexString(hash));
+        assertEquals(Hex.toHexString(beta),Hex.toHexString(hash));
     }
 }

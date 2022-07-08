@@ -1,20 +1,16 @@
 package io.Adrestus.crypto.vrf.engine;
 
 import io.Adrestus.crypto.HashUtil;
-import io.Adrestus.crypto.bls.constants.Constants;
 import io.Adrestus.crypto.bls.model.Params;
 import io.Adrestus.crypto.bls.utils.ConvertUtil;
-import org.apache.commons.codec.binary.Hex;
 import org.apache.milagro.amcl.BLS381.BIG;
-import org.apache.milagro.amcl.BLS381.ROM;
+import org.apache.milagro.amcl.BLS381.ECP;
 import org.bouncycastle.jce.ECNamedCurveTable;
 import org.bouncycastle.jce.spec.ECParameterSpec;
-import org.bouncycastle.math.ec.ECPoint;
 import org.bouncycastle.math.field.FiniteField;
 
 import java.io.ByteArrayOutputStream;
 import java.math.BigInteger;
-import org.apache.milagro.amcl.BLS381.ECP;
 public class VrfEngine2 {
     private static final int fpPointSize = BIG.MODBYTES;
     private String curveName;
@@ -223,8 +219,8 @@ public class VrfEngine2 {
 
         BigInteger secretKeyBigNum  = new BigInteger(1, secretKey);
 
+
         ECP publicKeyPoint = params.g.value.mul(ConvertUtil.byte_to_BIG(secretKey,0));
-        ECP publicKeyPoint1 = params.g.value.mul(ConvertUtil.byte_to_BIG(secretKey,0));
         ECP hPoint  = hashToTryAndIncrement(publicKeyPoint, alpha);
 
         if(hPoint == null) return null;
@@ -236,6 +232,7 @@ public class VrfEngine2 {
         BigInteger k = generateNonce(secretKey, hString);
         ECP uPoint = params.g.value.mul(ConvertUtil.byte_to_BIG(k.toByteArray(),0));
         ECP vPoint = hPoint.mul(ConvertUtil.byte_to_BIG(k.toByteArray(),0));
+
         BigInteger c = hashPoints(new ECP[] {hPoint, gammaPoint, uPoint,vPoint});
 
         BigInteger s = k.add(c.multiply(secretKeyBigNum)).mod(order);
@@ -294,11 +291,11 @@ public class VrfEngine2 {
 
     }
 
+
     public byte[] verify(byte[] y, byte[] pi, byte[] alpha) throws Exception {
 
         if(pi == null) return null;
-        BigInteger secretKeyBigNum  = new BigInteger(1, y);
-        ECP publicKeyPoint = params.g.value.mul(ConvertUtil.byte_to_BIG(y,0));
+        ECP publicKeyPoint = ConvertUtil.fromBytes(y);
         Object[] objs = decodeProof(pi);
         ECP gammaPoint = (ECP) objs[0];
         BigInteger c = (BigInteger) objs[1];

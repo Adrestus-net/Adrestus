@@ -41,9 +41,14 @@ public class ConvertUtil {
         Class myClass = m.getClass();
         Field myField = null;
         long[] wr = new long[NLEN];
+
         try {
             myField = ConvertUtil.getField(myClass, "w");
             myField.setAccessible(true);
+            wr[0]=0;
+            for (int i=1;i<NLEN;i++)
+                wr[i]=0;
+            myField.set(m,wr);
             for (int i = 0; i < b.length; i++) {
                 m.fshl(8);
                  wr[0] += (int) b[i + n] & 0xff;
@@ -59,29 +64,30 @@ public class ConvertUtil {
     }
 
     public static ECP fromBytes(byte[] b) {
-        byte[] t = new byte[b.length];
-        BIG p = new BIG(b.length);
+        byte[] t=new byte[BIG.MODBYTES];
+        BIG p=new BIG(ROM.Modulus);
 
-        for (int i = 0; i < b.length - 1; i++) {
-            t[i] = b[i + 1];
-        }
-        BIG px = byte_to_BIG(t, 0);
-        if (BIG.comp(px, p) >= 0) return new ECP();
+        for (int i=0;i<BIG.MODBYTES;i++) t[i]=b[i+1];
+        BIG px=BIG.fromBytes(t);
+        if (BIG.comp(px,p)>=0) return new ECP();
 
-        if (CURVETYPE == MONTGOMERY) {
+        if (CURVETYPE==MONTGOMERY)
+        {
             return new ECP(px);
         }
-        if (b[0] == 0x02 || b[0] == 0x03) {
-            return new ECP(px, (int) (b[0] & 1));
-        }
-        if (b[0] == 0x04) {
-            for (int i = 0; i < p.nbits(); i++) {
-                t[i] = b[i + BIG.MODBYTES + 1];
-            }
-            BIG py = byte_to_BIG(t, 0);
-            return new ECP(px, py);
+
+        if (b[0]==0x04)
+        {
+            for (int i=0;i<BIG.MODBYTES;i++) t[i]=b[i+BIG.MODBYTES+1];
+            BIG py=BIG.fromBytes(t);
+            if (BIG.comp(py,p)>=0) return new ECP();
+            return new ECP(px,py);
         }
 
+        if (b[0]==0x02 || b[0]==0x03)
+        {
+            return new ECP(px,(int)(b[0]&1));
+        }
         return new ECP();
     }
 
