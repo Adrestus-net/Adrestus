@@ -3,6 +3,7 @@ package io.Adrestus.crypto.vrf.engine;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.bls.constants.Constants;
 import io.Adrestus.crypto.bls.model.Params;
+import io.Adrestus.crypto.bls.utils.ConvertUtil;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.milagro.amcl.BLS381.BIG;
 import org.apache.milagro.amcl.BLS381.ROM;
@@ -71,7 +72,7 @@ public class VrfEngine2 {
 
 
     private ECP arbitraryStringToPoint(byte[] data) throws Exception {
-        return mapit(data);
+        return ConvertUtil.mapit(data);
     }
 
     private ECP hashToTryAndIncrement(ECP publicKey, byte[] alpha) throws Exception {
@@ -233,17 +234,17 @@ public class VrfEngine2 {
 
         BigInteger secretKeyBigNum  = new BigInteger(1, secretKey);
 
-        ECP publicKeyPoint = params.g.value.mul(frombytearrayto_big(secretKey,0));
+        ECP publicKeyPoint = params.g.value.mul(ConvertUtil.byte_to_BIG(secretKey,0));
         ECP hPoint  = hashToTryAndIncrement(publicKeyPoint, alpha);
         if(hPoint == null) return null;
 
         byte[] hString = new byte[fpPointSize + 1];
         hPoint.toBytes(hString,true);
-        ECP gammaPoint  = hPoint.mul(frombytearrayto_big(secretKey,0));
+        ECP gammaPoint  = hPoint.mul(ConvertUtil.byte_to_BIG(secretKey,0));
 
         BigInteger k = generateNonce(secretKey, hString);
-        ECP uPoint = params.g.value.mul(frombytearrayto_big(k.toByteArray(),0));
-        ECP vPoint = hPoint.mul(frombytearrayto_big(k.toByteArray(),0));
+        ECP uPoint = params.g.value.mul(ConvertUtil.byte_to_BIG(k.toByteArray(),0));
+        ECP vPoint = hPoint.mul(ConvertUtil.byte_to_BIG(k.toByteArray(),0));
         BigInteger c = hashPoints(new ECP[] {hPoint, gammaPoint, uPoint,vPoint});
 
         BigInteger s = k.add(c.multiply(secretKeyBigNum)).mod(order);
@@ -260,7 +261,7 @@ public class VrfEngine2 {
     }
 
     private byte[] gammaToHash(ECP gamma) throws Exception {
-        ECP gammaCof = gamma.mul(frombytearrayto_big(new BigInteger(1, new byte[] {cofactor}).toByteArray(),0));
+        ECP gammaCof = gamma.mul(ConvertUtil.byte_to_BIG(new BigInteger(1, new byte[] {cofactor}).toByteArray(),0));
         byte[] gammaString =  new byte[fpPointSize + 1];
         gammaCof.toBytes(gammaString,true);
 
@@ -288,7 +289,7 @@ public class VrfEngine2 {
 
         byte[] gammaBytes = new byte[gammaOct];
         System.arraycopy(pi, 0, gammaBytes, 0, gammaOct);
-        ECP gamma = mapit(gammaBytes);
+        ECP gamma = ConvertUtil.mapit(gammaBytes);
 
         byte[] cBytes = new byte[cOct];
         System.arraycopy(pi, gammaOct, cBytes, 0, cOct);
@@ -306,7 +307,7 @@ public class VrfEngine2 {
 
         if(pi == null) return null;
         BigInteger secretKeyBigNum  = new BigInteger(1, y);
-        ECP publicKeyPoint = params.g.value.mul(frombytearrayto_big(y,0));
+        ECP publicKeyPoint = params.g.value.mul(ConvertUtil.byte_to_BIG(y,0));
         Object[] objs = decodeProof(pi);
         ECP gammaPoint = (ECP) objs[0];
         BigInteger c = (BigInteger) objs[1];
@@ -315,13 +316,13 @@ public class VrfEngine2 {
         //ECP publicKeyPoint  = ECP.mapit(y);
         ECP hPoint = hashToTryAndIncrement(publicKeyPoint, alpha);
 
-        ECP sb = params.g.value.mul(frombytearrayto_big(s.toByteArray(),0));
-        ECP cy = publicKeyPoint.mul(frombytearrayto_big(c.toByteArray(),0));
+        ECP sb = params.g.value.mul(ConvertUtil.byte_to_BIG(s.toByteArray(),0));
+        ECP cy = publicKeyPoint.mul(ConvertUtil.byte_to_BIG(c.toByteArray(),0));
         cy.neg();
         sb.add(cy);
 
-        ECP sh = hPoint.mul(frombytearrayto_big(s.toByteArray(),0));
-        ECP cGamma = gammaPoint.mul(frombytearrayto_big(c.toByteArray(),0));
+        ECP sh = hPoint.mul(ConvertUtil.byte_to_BIG(s.toByteArray(),0));
+        ECP cGamma = gammaPoint.mul(ConvertUtil.byte_to_BIG(c.toByteArray(),0));
         cGamma.neg();
 
         sh.add(cGamma);
@@ -335,45 +336,5 @@ public class VrfEngine2 {
 
     }
 
-    public static String gethexfrombytes(ECP ecp){
-        byte[] buf = new byte[Constants.GROUP_G1_SIZE];
-        ecp.toBytes(buf,true);
-        return Hex.encodeHexString(buf);
-    }
-    public static String gethexfrombytes(BIG big){
-        byte[] buf = new byte[Constants.GROUP_G1_SIZE];
-        big.toBytes(buf);
-        return Hex.encodeHexString(buf);
-    }
-
-    public static ECP mapit(byte[] h) {
-        BIG q = new BIG(ROM.Modulus);
-        BIG x = frombytearrayto_big(h,0);
-        x.mod(q);
-
-        ECP P;
-        do {
-            do {
-                P = new ECP(x, 0);
-                x.inc(1);
-                x.norm();
-            } while(P.is_infinity());
-
-            P.cfp();
-        } while(P.is_infinity());
-
-        return P;
-    }
-    public  static BIG frombytearrayto_big(byte[] b, int n) {
-        BIG m=new BIG(0);
-
-        for (int i=0;i< b.length;i++)
-        {
-            m.fshl(8);
-            wr[0]+=(int)b[i+n]&0xff;
-            //m.inc((int)b[i]&0xff);
-        }
-        return new BIG(wr);
-    }
 }
 
