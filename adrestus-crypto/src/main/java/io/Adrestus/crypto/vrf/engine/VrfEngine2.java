@@ -232,6 +232,7 @@ public class VrfEngine2 {
     public byte[] prove(byte[] secretKey, byte[] alpha) throws Exception {
 
         BigInteger secretKeyBigNum  = new BigInteger(1, secretKey);
+
         ECP publicKeyPoint = params.g.value.mul(frombytearrayto_big(secretKey,0));
         ECP hPoint  = hashToTryAndIncrement(publicKeyPoint, alpha);
         if(hPoint == null) return null;
@@ -241,7 +242,7 @@ public class VrfEngine2 {
         ECP gammaPoint  = hPoint.mul(frombytearrayto_big(secretKey,0));
 
         BigInteger k = generateNonce(secretKey, hString);
-        ECP uPoint = new ECP(params.g.value).mul(frombytearrayto_big(k.toByteArray(),0));
+        ECP uPoint = params.g.value.mul(frombytearrayto_big(k.toByteArray(),0));
         ECP vPoint = hPoint.mul(frombytearrayto_big(k.toByteArray(),0));
         BigInteger c = hashPoints(new ECP[] {hPoint, gammaPoint, uPoint,vPoint});
 
@@ -345,24 +346,9 @@ public class VrfEngine2 {
         return Hex.encodeHexString(buf);
     }
 
-    public static BIG frombytearrayto_big(byte[] b,int n) {
-        BIG m = new BIG(0);
-        wr[0] = (long)0;
-
-        for(int i = 1; i < 7; ++i) {
-            wr[i] = 0L;
-        }
-        for(int i = 0; i < b.length; ++i) {
-            m.fshl(8);
-            long[] var10000 = wr;
-            var10000[0] += (long)(b[i + n] & 255);
-        }
-
-        return m;
-    }
     public static ECP mapit(byte[] h) {
         BIG q = new BIG(ROM.Modulus);
-        BIG x = frombytearray(h,0);
+        BIG x = frombytearrayto_big(h,0);
         x.mod(q);
 
         ECP P;
@@ -378,16 +364,16 @@ public class VrfEngine2 {
 
         return P;
     }
-    public  static BIG frombytearray(byte[] b, int n) {
-        BIG m = new BIG(0);
+    public  static BIG frombytearrayto_big(byte[] b, int n) {
+        BIG m=new BIG(0);
 
-        for(int i = 0; i < b.length; ++i) {
+        for (int i=0;i< b.length;i++)
+        {
             m.fshl(8);
-            long[] var10000 = wr;
-            var10000[0] += (long)(b[i + n] & 255);
+            wr[0]+=(int)b[i+n]&0xff;
+            //m.inc((int)b[i]&0xff);
         }
-
-        return m;
+        return new BIG(wr);
     }
 }
 
