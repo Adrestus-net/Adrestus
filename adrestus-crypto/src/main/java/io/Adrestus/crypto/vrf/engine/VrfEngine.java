@@ -1,6 +1,7 @@
 package io.Adrestus.crypto.vrf.engine;
 
 import io.Adrestus.crypto.HashUtil;
+import org.apache.commons.codec.binary.Hex;
 import org.apache.milagro.amcl.ANSSI.ECP;
 import org.bouncycastle.jce.ECNamedCurveTable;
 import org.bouncycastle.jce.spec.ECParameterSpec;
@@ -299,11 +300,11 @@ public class VrfEngine {
         byte[] cBytes = new byte[cOct];
         System.arraycopy(pi, gammaOct, cBytes, 0, cOct);
         BigInteger c = new BigInteger(1, cBytes);
-        
+
         byte[] sBytes = new byte[pi.length - gammaOct - cOct];
         System.arraycopy(pi, gammaOct + cOct, sBytes , 0, sBytes.length);
         BigInteger s = new BigInteger(1, sBytes);
-        
+
         return new Object[] {gamma, c, s};        
         
     }

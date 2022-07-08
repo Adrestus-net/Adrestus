@@ -10,6 +10,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.spongycastle.util.encoders.Hex;
 
+import java.nio.charset.StandardCharsets;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class VRFTest {
@@ -33,7 +35,9 @@ public class VRFTest {
         //assertEquals("0408446c7bfd9b7b17f61f1e9efb7f08a8f2289e12970a66104c4822b0d8d7a914342a12acd82f7bad82021bd4c5577ea70fe302c37552e2dc376e2d613cd97233cee3b3218a70e8c8acfb85a600c13351d1e4176df3b056da22f7ee3eff182256",Hex.toHexString(public_key));
         byte[] msg = "this is a test".getBytes();
         byte[] pi = group.prove(sk.toBytes(), msg);
+        //System.out.println("1a: "+Hex.toHexString(pi));
         byte[] hash = group.proofToHash(pi);
+       // System.out.println("2a: "+Hex.toHexString(hash));
         byte[] beta = group.verify(public_key,pi, msg);
         assertEquals(Hex.toHexString(beta),Hex.toHexString(hash));
     }
@@ -43,13 +47,14 @@ public class VRFTest {
         SigKey sk = new SigKey(42);
         VerKey vk = new VerKey(sk);
 
-        VrfEngine2 group = new VrfEngine2("secp256k1");
+        VrfEngine2 group = new VrfEngine2("secp256k1",params);
         byte[] msg = "this is a test".getBytes();
         byte[] pi = group.prove(sk.toBytes(), msg);
-        //byte[] hash = group.proofToHash(pi);
-        System.out.println(Hex.toHexString(pi));
+        byte[] hash = group.proofToHash(pi);
+        System.out.println("1b: "+Hex.toHexString(pi));
+        System.out.println("2b: "+Hex.toHexString(hash));
         byte[] beta = group.verify(sk.toBytes(), pi, msg);
         System.out.println(Hex.toHexString(beta));
-        // assertEquals(Hex.toHexString(beta),Hex.toHexString(hash));
+         assertEquals(Hex.toHexString(beta),Hex.toHexString(hash));
     }
 }

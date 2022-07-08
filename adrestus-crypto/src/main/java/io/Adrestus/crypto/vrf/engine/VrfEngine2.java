@@ -1,7 +1,11 @@
 package io.Adrestus.crypto.vrf.engine;
 
 import io.Adrestus.crypto.HashUtil;
+import io.Adrestus.crypto.bls.constants.Constants;
+import io.Adrestus.crypto.bls.model.Params;
+import org.apache.commons.codec.binary.Hex;
 import org.apache.milagro.amcl.BLS381.BIG;
+import org.apache.milagro.amcl.BLS381.ROM;
 import org.bouncycastle.jce.ECNamedCurveTable;
 import org.bouncycastle.jce.spec.ECParameterSpec;
 import org.bouncycastle.math.ec.ECPoint;
@@ -19,9 +23,10 @@ public class VrfEngine2 {
     private int n;
     private byte suiteString;
     private byte cofactor;
-
-    public VrfEngine2(String curveName) throws Exception {
-
+    private static long[] wr = new long[7];
+    private Params params;
+    public VrfEngine2(String curveName, Params params) throws Exception {
+        this.params=params;
         this.curveName = curveName;
         this.curveParams = ECNamedCurveTable.getParameterSpec(curveName);
 
@@ -66,7 +71,7 @@ public class VrfEngine2 {
 
 
     private ECP arbitraryStringToPoint(byte[] data) throws Exception {
-        return ECP.mapit(data);
+        return mapit(data);
     }
 
     private ECP hashToTryAndIncrement(ECP publicKey, byte[] alpha) throws Exception {
@@ -88,7 +93,7 @@ public class VrfEngine2 {
         {
             try {
                 v[pos] = (byte)c;
-                byte[] attemptedHash  = HashUtil.Shake256(v);
+                byte[] attemptedHash  = HashUtil.sha256(v);
                 return arbitraryStringToPoint(attemptedHash);
             }catch(Exception e) {
                 e.printStackTrace();
@@ -152,13 +157,21 @@ public class VrfEngine2 {
         return result;
     }
 
-    public ECPoint decode(byte[] encoded) {
 
-        return curveParams.getCurve().decodePoint(encoded);
+    public static BIG mapbytes(byte[] b, int n) {
+        BIG m = new BIG(0);
+
+        for(int i = 0; i < b.length; ++i) {
+            m.fshl(8);
+            long[] var10000 = wr;
+            var10000[0] += (long)(b[i + n] & 255);
+        }
+
+        return m;
     }
     private BigInteger generateNonce(byte[] secretKey, byte[] data) throws Exception {
 
-        byte[] dataHash = HashUtil.Shake256(data);
+        byte[] dataHash = HashUtil.sha256(data);
         byte[] dataTrunc  = bits2octets(dataHash, qlen, order);
 
         byte[] paddedDataTrunc  = appendLeadingZeros(dataTrunc, qlen);
@@ -209,7 +222,7 @@ public class VrfEngine2 {
             bos.write(bufs);
         }
 
-        byte[] hash = HashUtil.Shake256(bos.toByteArray());
+        byte[] hash = HashUtil.sha256(bos.toByteArray());
         byte[] hashTrunc = new byte[this.n/8];
         System.arraycopy(hash, 0, hashTrunc, 0, hashTrunc.length);
 
@@ -219,18 +232,18 @@ public class VrfEngine2 {
     public byte[] prove(byte[] secretKey, byte[] alpha) throws Exception {
 
         BigInteger secretKeyBigNum  = new BigInteger(1, secretKey);
-        ECP publicKeyPoint = ECP.mapit(curveParams.getG().getEncoded(false)).mul(BIG.fromBytes(secretKey));
+        ECP publicKeyPoint = params.g.value.mul(frombytearrayto_big(secretKey,0));
         ECP hPoint  = hashToTryAndIncrement(publicKeyPoint, alpha);
         if(hPoint == null) return null;
 
         byte[] hString = new byte[fpPointSize + 1];
         hPoint.toBytes(hString,true);
-        ECP gammaPoint  = hPoint.mul(BIG.fromBytes(secretKey));
+        ECP gammaPoint  = hPoint.mul(frombytearrayto_big(secretKey,0));
 
         BigInteger k = generateNonce(secretKey, hString);
-        ECP uPoint = ECP.mapit(curveParams.getG().multiply(k).getEncoded(false));
-        ECP vPoint = hPoint.mul(BIG.fromBytes(k.toByteArray()));
-        BigInteger c = hashPoints(new ECP[] {hPoint, gammaPoint, uPoint, vPoint});
+        ECP uPoint = new ECP(params.g.value).mul(frombytearrayto_big(k.toByteArray(),0));
+        ECP vPoint = hPoint.mul(frombytearrayto_big(k.toByteArray(),0));
+        BigInteger c = hashPoints(new ECP[] {hPoint, gammaPoint, uPoint,vPoint});
 
         BigInteger s = k.add(c.multiply(secretKeyBigNum)).mod(order);
         byte[] gammaString  = new byte[fpPointSize + 1];
@@ -246,7 +259,7 @@ public class VrfEngine2 {
     }
 
     private byte[] gammaToHash(ECP gamma) throws Exception {
-        ECP gammaCof = gamma.mul(BIG.fromBytes(new BigInteger(1, new byte[] {cofactor}).toByteArray()));
+        ECP gammaCof = gamma.mul(frombytearrayto_big(new BigInteger(1, new byte[] {cofactor}).toByteArray(),0));
         byte[] gammaString =  new byte[fpPointSize + 1];
         gammaCof.toBytes(gammaString,true);
 
@@ -255,7 +268,7 @@ public class VrfEngine2 {
         bos.write(3);
         bos.write(gammaString);
 
-        return HashUtil.Shake256(bos.toByteArray());
+        return HashUtil.sha256(bos.toByteArray());
     }
 
     public byte[] proofToHash(byte[] pi) throws Exception {
@@ -272,11 +285,11 @@ public class VrfEngine2 {
             throw new RuntimeException("Invalid pi length");
         }
 
-        byte[] gammaBytes = new byte[fpPointSize + 1];
+        byte[] gammaBytes = new byte[gammaOct];
         System.arraycopy(pi, 0, gammaBytes, 0, gammaOct);
-        ECP gamma = ECP.mapit(gammaBytes);
+        ECP gamma = mapit(gammaBytes);
 
-        byte[] cBytes = new byte[fpPointSize + 1];
+        byte[] cBytes = new byte[cOct];
         System.arraycopy(pi, gammaOct, cBytes, 0, cOct);
         BigInteger c = new BigInteger(1, cBytes);
 
@@ -292,7 +305,7 @@ public class VrfEngine2 {
 
         if(pi == null) return null;
         BigInteger secretKeyBigNum  = new BigInteger(1, y);
-        ECP publicKeyPoint = ECP.mapit(curveParams.getG().getEncoded(false)).mul(BIG.fromBytes(y));
+        ECP publicKeyPoint = params.g.value.mul(frombytearrayto_big(y,0));
         Object[] objs = decodeProof(pi);
         ECP gammaPoint = (ECP) objs[0];
         BigInteger c = (BigInteger) objs[1];
@@ -301,17 +314,17 @@ public class VrfEngine2 {
         //ECP publicKeyPoint  = ECP.mapit(y);
         ECP hPoint = hashToTryAndIncrement(publicKeyPoint, alpha);
 
-        ECP sb = ECP.mapit(curveParams.getG().multiply(s).getEncoded(false));
-        ECP cy = publicKeyPoint.mul(BIG.fromBytes(c.toByteArray()));
+        ECP sb = params.g.value.mul(frombytearrayto_big(s.toByteArray(),0));
+        ECP cy = publicKeyPoint.mul(frombytearrayto_big(c.toByteArray(),0));
         cy.neg();
         sb.add(cy);
 
-        ECP sh = hPoint.mul(BIG.fromBytes(s.toByteArray()));
-        ECP cGamma = gammaPoint.mul(BIG.fromBytes(c.toByteArray()));
+        ECP sh = hPoint.mul(frombytearrayto_big(s.toByteArray(),0));
+        ECP cGamma = gammaPoint.mul(frombytearrayto_big(c.toByteArray(),0));
         cGamma.neg();
 
         sh.add(cGamma);
-        BigInteger derivedC  = hashPoints(new ECP[] {hPoint, gammaPoint, sb, sh});
+        BigInteger derivedC  = hashPoints(new ECP[] {hPoint, gammaPoint, sb,sh});
 
         if(derivedC.compareTo(c) != 0) {
             return null;
@@ -319,6 +332,62 @@ public class VrfEngine2 {
 
         return gammaToHash(gammaPoint);
 
+    }
+
+    public static String gethexfrombytes(ECP ecp){
+        byte[] buf = new byte[Constants.GROUP_G1_SIZE];
+        ecp.toBytes(buf,true);
+        return Hex.encodeHexString(buf);
+    }
+    public static String gethexfrombytes(BIG big){
+        byte[] buf = new byte[Constants.GROUP_G1_SIZE];
+        big.toBytes(buf);
+        return Hex.encodeHexString(buf);
+    }
+
+    public static BIG frombytearrayto_big(byte[] b,int n) {
+        BIG m = new BIG(0);
+        wr[0] = (long)0;
+
+        for(int i = 1; i < 7; ++i) {
+            wr[i] = 0L;
+        }
+        for(int i = 0; i < b.length; ++i) {
+            m.fshl(8);
+            long[] var10000 = wr;
+            var10000[0] += (long)(b[i + n] & 255);
+        }
+
+        return m;
+    }
+    public static ECP mapit(byte[] h) {
+        BIG q = new BIG(ROM.Modulus);
+        BIG x = frombytearray(h,0);
+        x.mod(q);
+
+        ECP P;
+        do {
+            do {
+                P = new ECP(x, 0);
+                x.inc(1);
+                x.norm();
+            } while(P.is_infinity());
+
+            P.cfp();
+        } while(P.is_infinity());
+
+        return P;
+    }
+    public  static BIG frombytearray(byte[] b, int n) {
+        BIG m = new BIG(0);
+
+        for(int i = 0; i < b.length; ++i) {
+            m.fshl(8);
+            long[] var10000 = wr;
+            var10000[0] += (long)(b[i + n] & 255);
+        }
+
+        return m;
     }
 }
 
