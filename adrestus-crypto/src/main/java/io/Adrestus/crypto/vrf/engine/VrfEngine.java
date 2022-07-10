@@ -1,10 +1,9 @@
 package io.Adrestus.crypto.vrf.engine;
 
 import io.Adrestus.crypto.HashUtil;
-import org.apache.commons.codec.binary.Hex;
-import org.apache.milagro.amcl.ANSSI.ECP;
 import org.bouncycastle.jce.ECNamedCurveTable;
 import org.bouncycastle.jce.spec.ECParameterSpec;
+import org.bouncycastle.math.ec.ECCurve;
 import org.bouncycastle.math.ec.ECPoint;
 import org.bouncycastle.math.field.FiniteField;
 
@@ -20,7 +19,7 @@ public class VrfEngine {
     private int n;
     private byte suiteString;
     private byte cofactor;
-
+    private ECCurve CURVES;
     public VrfEngine(String curveName) throws Exception {
 
         this.curveName = curveName;
@@ -264,6 +263,7 @@ public class VrfEngine {
         bos.write(gammaString);
         bos.write(cString);
         bos.write(sString);
+
         return bos.toByteArray();
     }
 

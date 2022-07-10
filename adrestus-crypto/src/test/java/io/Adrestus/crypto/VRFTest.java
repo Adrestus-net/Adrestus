@@ -6,6 +6,7 @@ import io.Adrestus.crypto.bls.model.VerKey;
 import io.Adrestus.crypto.vrf.engine.VrfEngine;
 import io.Adrestus.crypto.vrf.engine.VrfEngine2;
 import io.Adrestus.crypto.vrf.utils.VrfUtils;
+import org.apache.milagro.amcl.ANSSI.BIG;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.spongycastle.util.encoders.Hex;
@@ -47,7 +48,9 @@ public class VRFTest {
         SigKey sk = new SigKey(42);
         VerKey vk = new VerKey(sk,params);
 
-        VrfEngine2 group = new VrfEngine2("secp256k1",params);
+
+        BIG g=BIG.fromBytes("291761761045963288055148079542589253634".getBytes());
+        VrfEngine2 group = new VrfEngine2(params);
         byte[] msg = "this is a test".getBytes();
         byte[] pi = group.prove(sk.toBytes(), msg);
         byte[] hash = group.proofToHash(pi);
