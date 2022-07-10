@@ -3,6 +3,7 @@ package io.Adrestus.crypto;
 
 //import io.Adrestus.util.RLP;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.bouncycastle.jcajce.provider.digest.Keccak;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,6 +72,15 @@ public class HashUtil {
             MessageDigest sha256digest = MessageDigest.getInstance(HASH_256_ALGORITHM_NAME);
             return sha256digest.digest(input);
         } catch (NoSuchAlgorithmException e) {
+            LOG.error("Can't find such algorithm", e);
+            throw new RuntimeException(e);
+        }
+    }
+    public static byte[] sha256omit(byte[] input) {
+        try {
+            byte[] res=DigestUtils.sha256(input);
+            return res;
+        } catch (Exception e) {
             LOG.error("Can't find such algorithm", e);
             throw new RuntimeException(e);
         }

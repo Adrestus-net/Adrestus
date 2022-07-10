@@ -1,51 +1,46 @@
 package io.Adrestus.crypto.vrf.engine;
 
 import io.Adrestus.crypto.HashUtil;
-import io.Adrestus.crypto.bls.model.Params;
+import io.Adrestus.crypto.bls.BLS381.BIG;
+import io.Adrestus.crypto.bls.BLS381.ECP;
+import io.Adrestus.crypto.bls.constants.Constants;
 import io.Adrestus.crypto.bls.utils.ConvertUtil;
-import org.apache.milagro.amcl.BLS381.BIG;
-import org.apache.milagro.amcl.BLS381.ECP;
-import org.bouncycastle.util.encoders.Hex;
+import org.apache.milagro.amcl.BLS381.ROM;
 
 import java.io.ByteArrayOutputStream;
 import java.math.BigInteger;
+import java.nio.ByteBuffer;
+import java.util.Arrays;
+
 
 public class VrfEngine2 {
-    private static final int fpPointSize = BIG.MODBYTES;
-    private static final int qlen = 128;
-    public static final BigInteger Q = new BigInteger(1, Hex.decode("115792089237316195423570985008687907852837564279074904382605163141518161494337"));
-    private Params params;
-    public VrfEngine2(Params params) throws Exception {
-        this.params=params;
+    public static final BIG order = new BIG(ROM.CURVE_Order);
+    
+    public VrfEngine2() {
     }
 
 
-    private ECP arbitraryStringToPoint(byte[] data) throws Exception {
-        return ConvertUtil.mapit(data);
+    private ECP arbitraryStringToPoint(byte[] data) {
+        return ECP.mapitUnlimited(data);
     }
 
     private ECP hashToTryAndIncrement(ECP publicKey, byte[] alpha) throws Exception {
 
-        byte[] pkBytes = new byte[fpPointSize + 1];
-        publicKey.toBytes(pkBytes,true);
+        byte[] pkBytes = ConvertUtil.parseECPByte(publicKey);
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        // bos.write(suiteString);
-        //  bos.write(1);
         bos.write(pkBytes);
         bos.write(alpha);
-        // bos.write(0);
         byte[] v = bos.toByteArray();
 
-        int pos = v.length-1;
+        int pos = v.length - 1;
 
-        for(int c = 0; c < 255; c++)
-        {
+        for (int c = 0; c < 255; c++) {
             try {
-                v[pos] = (byte)c;
-                byte[] attemptedHash  = HashUtil.sha256(v);
+                v[pos] = (byte) c;
+                byte[] attemptedHash = HashUtil.sha256(v);
                 return arbitraryStringToPoint(attemptedHash);
-            }catch(Exception e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
 
@@ -59,9 +54,9 @@ public class VrfEngine2 {
         BigInteger dataBignum = new BigInteger(1, data);
         BigInteger result;
 
-        if(dataLenBits > qlen) {
+        if (dataLenBits > qlen) {
             result = dataBignum.shiftRight(dataLenBits - qlen);
-        }else {
+        } else {
             result = dataBignum;
         }
 
@@ -72,8 +67,8 @@ public class VrfEngine2 {
 
         byte[] buf = b.toByteArray();
 
-        if(buf[0] == 0) {
-            byte[] tmp = new byte[buf.length-1];
+        if (buf[0] == 0) {
+            byte[] tmp = new byte[buf.length - 1];
             System.arraycopy(buf, 1, tmp, 0, tmp.length);
             return tmp;
         }
@@ -89,16 +84,16 @@ public class VrfEngine2 {
 
     private byte[] appendLeadingZeros(byte[] data, int bitsLength) {
 
-        if(data.length * 8> bitsLength) {
+        if (data.length * 8 > bitsLength) {
             return data;
         }
 
         int paddingLen;
 
-        if(bitsLength % 8 > 0) {
+        if (bitsLength % 8 > 0) {
             paddingLen = (bitsLength / 8 - data.length + 1);
 
-        }else {
+        } else {
             paddingLen = (bitsLength / 8 - data.length);
         }
 
@@ -108,16 +103,16 @@ public class VrfEngine2 {
     }
 
 
-    private BigInteger generateNonce(byte[] secretKey, byte[] data) throws Exception {
+    private BIG generateNonce(byte[] secretKey, byte[] data) throws Exception {
 
         byte[] dataHash = HashUtil.sha256(data);
 
         byte[] v = new byte[32];
-        for(int i = 0; i < v.length; i++) v[i] = 1;
+        for (int i = 0; i < v.length; i++) v[i] = 1;
 
         byte[] k = new byte[32];
 
-        for(int prefix = 0; prefix < 2; prefix++) {
+        for (int prefix = 0; prefix < 2; prefix++) {
 
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             bos.write(v);
@@ -125,91 +120,79 @@ public class VrfEngine2 {
             bos.write(secretKey);
             bos.write(dataHash);
 
-            k =  HashUtil.mac(bos.toByteArray(), k);
-            v =HashUtil.mac(v, k);
-        }
-
-        while(true) {
-            v = HashUtil.mac(v, k);
-            BigInteger result = bits2int(v, qlen);
-
-            if(result.signum() > 0 && result.compareTo(Q) < 0) {
-                return result;
-            }
-
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            bos.write(v);
-            bos.write(0);
             k = HashUtil.mac(bos.toByteArray(), k);
             v = HashUtil.mac(v, k);
         }
+
+        v = HashUtil.mac(v, k);
+        return BIG.fromBytesUnlimited(v);
     }
 
-    private BigInteger hashPoints(ECP[] points) throws Exception {
+    private BIG hashPoints(ECP[] points) throws Exception {
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        bos.write(1);
-        bos.write(2);
 
-        for(ECP point : points) {
-            byte[] bufs = new byte[fpPointSize + 1];
-            point.toBytes(bufs,true);
+        for (ECP point : points) {
+            byte[] bufs = new byte[Constants.GROUP_G1_SIZE];
+            point.toBytes(bufs, true);
             bos.write(bufs);
         }
 
-        byte[] hash = HashUtil.sha256(bos.toByteArray());
-        byte[] hashTrunc = new byte[qlen/8];
-        System.arraycopy(hash, 0, hashTrunc, 0, hashTrunc.length);
-
-        return new BigInteger(1, hashTrunc);
+        //System.out.println(Hex.toHexString(bos.toByteArray()));
+        byte[] hashTrunc = new byte[32];
+        System.arraycopy(bos.toByteArray(), 0, hashTrunc, 0, hashTrunc.length);
+        byte[] hash = HashUtil.sha256omit(hashTrunc);
+        return BIG.fromBytesUnlimited(hash);
     }
 
     public byte[] prove(byte[] secretKey, byte[] alpha) throws Exception {
 
-        BigInteger secretKeyBigNum  = new BigInteger(1, secretKey);
+
+        ECP publicKeyPoint = ECP.generator().mul(BIG.fromBytes(secretKey));
+        ECP hPoint = hashToTryAndIncrement(publicKeyPoint, alpha);
+        
+        if (hPoint == null) return null;
+
+        byte[] hString = ConvertUtil.parseECPByte(hPoint);
+        BIG secret = BIG.fromBytes(secretKey);
+        ECP gammaPoint = hPoint.mul(secret);
+       
+        BIG k = generateNonce(secretKey, hString);
+
+        //ECP generator is a fixed G value generator
+        ECP uPoint = ECP.generator().mul(k);
+        ECP vPoint = hPoint.mul(k);
+       
+        BIG c = hashPoints(new ECP[]{hPoint, gammaPoint, uPoint, vPoint});
+        BIG.fromBytes(secretKey);
+        k.add(BIG.mul2(c, secret));
+        k.mod(order);
+        BIG s = k;
 
 
-        ECP publicKeyPoint = params.g.value.mul(ConvertUtil.byte_to_BIG(secretKey,0));
-        ECP hPoint  = hashToTryAndIncrement(publicKeyPoint, alpha);
-
-        if(hPoint == null) return null;
-
-        byte[] hString = ConvertUtil.ecp_to_bytes(hPoint);
-        ECP gammaPoint  = hPoint.mul(ConvertUtil.byte_to_BIG(secretKey,0));
-
-        BigInteger k = generateNonce(secretKey, hString);
-        ECP uPoint = params.g.value.mul(ConvertUtil.byte_to_BIG(k.toByteArray(),0));
-        ECP vPoint = hPoint.mul(ConvertUtil.byte_to_BIG(k.toByteArray(),0));
-
-        // BigInteger c = hashPoints(new ECP[] {hPoint, gammaPoint, uPoint,vPoint});
-        BigInteger c = hashPoints(new ECP[]{hPoint, gammaPoint});
-        BigInteger s = k.add(c.multiply(secretKeyBigNum)).mod(Q);
-
-
-        byte[] gammaString  = ConvertUtil.ecp_to_bytes(gammaPoint);
-        byte[] cString = c.toByteArray();
-        byte[] sString = s.toByteArray();
+        byte[] gammaString = ConvertUtil.parseECPByte(gammaPoint);
+        byte[] cString = ConvertUtil.parseBIGByte(c);
+        byte[] sString = ConvertUtil.parseBIGByte(s);
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         bos.write(gammaString);
-        int gammaInt=bos.size();
+        int gammaInt = bos.size();
         bos.write(cString);
-        int cSInt=bos.size();
+        int cSInt = bos.size();
         bos.write(sString);
-        int sSInt=bos.size();
+        int sSInt = bos.size();
 
-        bos.write(gammaInt);
-        bos.write(cSInt);
-        bos.write(sSInt);
-        bos.write(0);
+        bos.write(ByteBuffer.allocate(4).putInt(gammaInt).array());
+        bos.write(ByteBuffer.allocate(4).putInt(cSInt).array());
+        bos.write(ByteBuffer.allocate(4).putInt(sSInt).array());
+
 
         return bos.toByteArray();
     }
 
     private byte[] gammaToHash(ECP gamma) throws Exception {
-        ECP gammaCof = gamma.mul(ConvertUtil.byte_to_BIG(new BigInteger(1, new byte[] {0}).toByteArray(),0));
-        byte[] gammaString =  new byte[fpPointSize + 1];
-        gammaCof.toBytes(gammaString,true);
+        ECP gammaCof = gamma.mul(new BIG());
+        byte[] gammaString = ConvertUtil.parseECPByte(gammaCof);
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         bos.write(1);
@@ -226,55 +209,59 @@ public class VrfEngine2 {
     }
 
     private Object[] decodeProof(byte[] pi) {
-        int gammaInt=(pi[pi.length-4]& 0xFF);
-        int cSInt=(pi[pi.length-3]& 0xFF);
-        int sSInt=(pi[pi.length-2]& 0xFF);
-        byte[] gammaBytes = new byte[gammaInt];
-        System.arraycopy(pi, 0, gammaBytes, 0, gammaInt);
-        ECP gamma = ECP.fromBytes(gammaBytes);
+        try {
+            int gammaInt = ByteBuffer.wrap(Arrays.copyOfRange(pi, pi.length - 12, pi.length - 8)).getInt();
+            int cSInt = ByteBuffer.wrap(Arrays.copyOfRange(pi, pi.length - 8, pi.length - 4)).getInt();
+            int sSInt = ByteBuffer.wrap(Arrays.copyOfRange(pi, pi.length - 4, pi.length)).getInt();
+            
+            byte[] gammaBytes = new byte[gammaInt];
+            System.arraycopy(pi, 0, gammaBytes, 0, gammaInt);
+            ECP gamma = ECP.fromBytes(gammaBytes);
 
-        byte[] cBytes = new byte[cSInt-gammaInt];
-        System.arraycopy(pi, gammaInt, cBytes, 0, cBytes.length);
-        BigInteger c = new BigInteger(1, cBytes);
+            byte[] cBytes = new byte[cSInt - gammaInt];
+            System.arraycopy(pi, gammaInt, cBytes, 0, cBytes.length);
+            BIG c = BIG.fromBytes(cBytes);
 
-        byte[] sBytes = new byte[sSInt-cSInt];
-        //byte[]sBytes=Arrays.copyOfRange(pi, cSInt, pi.length-4);
-        System.arraycopy(pi, cSInt,sBytes , 0, sBytes.length);
-        BigInteger s = new BigInteger(1, sBytes);
+            byte[] sBytes = new byte[sSInt - cSInt];
+          
+            System.arraycopy(pi, cSInt, sBytes, 0, sBytes.length);
+            BIG s = BIG.fromBytes(sBytes);
 
-        return new Object[] {gamma, c,s};
+            return new Object[]{gamma, c, s};
+        } catch (ArrayIndexOutOfBoundsException e) {
+            throw new IllegalArgumentException("pi length is invalid");
+        }
 
     }
 
     public byte[] verify(byte[] y, byte[] pi, byte[] alpha) throws Exception {
 
-        if(pi == null) return null;
+        if (pi == null) return null;
         ECP publicKeyPoint = ECP.fromBytes(y);
         Object[] objs = decodeProof(pi);
         ECP gammaPoint = (ECP) objs[0];
-        BigInteger c = (BigInteger) objs[1];
-        BigInteger s = (BigInteger) objs[2];
+        BIG c = (BIG) objs[1];
+        BIG s = (BIG) objs[2];
 
         ECP hPoint = hashToTryAndIncrement(publicKeyPoint, alpha);
 
-        ECP sb = params.g.value.mul(ConvertUtil.byte_to_BIG(s.toByteArray(),0));
+        ECP sb = ECP.generator().mul(s);
 
-        ECP cy = publicKeyPoint.mul(ConvertUtil.byte_to_BIG(c.toByteArray(),0));
+        ECP cy = publicKeyPoint.mul(c);
         cy.neg();
         sb.add(cy);
 
-        ECP sh = hPoint.mul(ConvertUtil.byte_to_BIG(s.toByteArray(),0));
-        ECP cGamma = gammaPoint.mul(ConvertUtil.byte_to_BIG(c.toByteArray(),0));
+        ECP sh = hPoint.mul(s);
+        ECP cGamma = gammaPoint.mul(c);
         cGamma.neg();
 
         sh.add(cGamma);
-        // BigInteger derivedC  = hashPoints(new ECP[] {hPoint, gammaPoint, sb,sh});
-        BigInteger derivedC  = hashPoints(new ECP[] {hPoint, gammaPoint});
+      
+        BIG derivedC = hashPoints(new ECP[]{hPoint, gammaPoint, sb, sh});
 
-        if(derivedC.compareTo(c) != 0) {
-            return null;
+        if (!derivedC.equals(c)) {
+            throw new IllegalArgumentException("VRF Computation failed");
         }
-
         return gammaToHash(gammaPoint);
 
     }

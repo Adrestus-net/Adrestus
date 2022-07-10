@@ -2,7 +2,6 @@ package io.Adrestus.crypto.bls.model;
 
 import io.Adrestus.crypto.HashUtil;
 import org.apache.milagro.amcl.BLS381.ECP;
-import org.bouncycastle.asn1.x9.X9ECParameters;
 import org.bouncycastle.crypto.params.ECDomainParameters;
 import org.bouncycastle.jce.ECNamedCurveTable;
 import org.bouncycastle.jce.spec.ECParameterSpec;
@@ -28,7 +27,7 @@ public class VerKey {
     }
 
     public VerKey(SigKey sk) {
-        ECP ecp = new G1(Curve.getCurveParams().getG().getEncoded(false)).value.mul(sk.x.value);
+        ECP ecp = ECP.generator().mul(sk.x.value);
         this.point = new G1(ecp);
     }
 
