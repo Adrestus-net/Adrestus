@@ -2,7 +2,6 @@ package io.Adrestus.crypto.bls.utils;
 
 import io.Adrestus.crypto.bls.model.*;
 import org.apache.milagro.amcl.BLS381.BIG;
-import org.apache.milagro.amcl.RAND;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -13,34 +12,34 @@ public class ThresholdSigUtils {
     
     public static Signature aggregateSignature(int threshold, List<Integer> ids, List<Signature> sigs) {
         
-        G2[] sBases = new G2[threshold];
+        G2Point[] sBases = new G2Point[threshold];
         FieldElement[] sExps = new FieldElement[threshold];
         
         for(int i = 0; i < threshold; i++) {
             Signature sig = sigs.get(i);
             int id  = ids.get(i);
             FieldElement l = Polynomial.lagrangeBasisAt0(new HashSet<>(ids.subList(0, threshold)), id);
-            sBases[i] = new G2(sig.point);
+            sBases[i] = new G2Point(sig.getPoint());
             sExps[i] = l;
         }
-        G2 point = G2.multiScalarMulConstTime(sBases, sExps);
+        G2Point point = G2Point.multiScalarMulConstTime(sBases, sExps);
         return new Signature(point);
     }
     
-    public static VerKey aggregateVerkey(int threshold,  List<Integer> ids, List<VerKey> verkeys) {
+    public static BLSPublicKey aggregateVerkey(int threshold, List<Integer> ids, List<BLSPublicKey> verkeys) {
         
-        G1[] vkBases = new G1[threshold];
+        G1Point[] vkBases = new G1Point[threshold];
         FieldElement[] vkExps = new FieldElement[threshold];
         
         for(int i = 0; i < threshold; i++) {
             int id = ids.get(i);
-            VerKey vk = verkeys.get(i);
+            BLSPublicKey vk = verkeys.get(i);
             FieldElement l = Polynomial.lagrangeBasisAt0(new HashSet<>(ids.subList(0, threshold)), id);
-            vkBases[i] = new G1(vk.point);
+            vkBases[i] = new G1Point(vk.getPoint());
             vkExps[i] = new FieldElement(l);
         }
-        G1 point = G1.multiScalarMulVarTime(vkBases, vkExps);
-        return new VerKey(point);
+        G1Point point = G1Point.multiScalarMulVarTime(vkBases, vkExps);
+        return new BLSPublicKey(point);
     }
     
     private static Object[] getSharedSecretWithPolynomial(int threshold, int total) {

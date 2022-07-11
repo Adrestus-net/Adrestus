@@ -1,7 +1,6 @@
 package io.Adrestus.crypto.bls.model;
 
 import org.apache.milagro.amcl.BLS381.BIG;
-import org.apache.milagro.amcl.RAND;
 
 import java.util.ArrayList;
 import java.util.List;

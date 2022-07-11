@@ -51,11 +51,6 @@
       <artifactId>milagro-crypto-java</artifactId>
       <version>${milagro.version}</version>
     </dependency>
-    <dependency>
-      <groupId>com.github.emilianobonassi</groupId>
-      <artifactId>jpbc</artifactId>
-      <version>2.0.0</version>
-    </dependency>
   </dependencies>
 
   <build>

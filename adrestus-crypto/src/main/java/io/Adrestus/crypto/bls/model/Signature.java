@@ -1,63 +1,50 @@
 package io.Adrestus.crypto.bls.model;
 
-import io.Adrestus.crypto.HashUtil;
-import io.Adrestus.crypto.bls.constants.Constants;
-import org.apache.milagro.amcl.BLS381.ECP2;
-
-import java.nio.charset.StandardCharsets;
+import java.util.Objects;
+import java.util.function.Supplier;
 
 public class Signature {
-
-    public G2 point;
-    
-    public Signature(G2 point) {
+    private G2Point point;
+    private Supplier<G2Point> supplier_point;
+    public Signature(G2Point point) {
         this.point = point;
     }
-    
-    private G2 hashMessage(byte[] msg) {
-        byte[] tmp = new byte[Constants.MESSAGE_DOMAIN_PREFIX.length + msg.length];
-        System.arraycopy(Constants.MESSAGE_DOMAIN_PREFIX, 0, tmp, 0, Constants.MESSAGE_DOMAIN_PREFIX.length);
-        System.arraycopy(msg, 0, tmp, Constants.MESSAGE_DOMAIN_PREFIX.length, msg.length);
-        return new G2(HashUtil.Shake256(tmp));
-    }
-    
-    public Signature(byte[] msg, SigKey sigKey) {
-        G2 hashPoint = hashMessage(msg);
-        ECP2 ecp2 = hashPoint.value.mul(sigKey.x.value);
-        this.point = new G2(ecp2);
-    }              
-    
-    public boolean verify(byte[] msg, VerKey verKey, Params params) {
-        if(this.point.value.is_infinity()) {
-            return false;
-        }
-        G2 hashPoint = hashMessage(msg);
-        G1 g = new G1(params.g);
-        g.neg();
-        GT gt = GT.ate2Pairing(verKey.point, hashPoint, g, this.point);
-        return gt.value.isunity();
+
+    public Signature(Supplier<G2Point> supplier_point) {
+        this.supplier_point = supplier_point;
     }
 
-    public boolean verify(byte[] msg, VerKey verKey, byte [] param) {
-        if(this.point.value.is_infinity()) {
-            return false;
-        }
-        G2 hashPoint = hashMessage(msg);
-        G1 g=new G1(HashUtil.Shake256(param));
-        g.neg();
-        GT gt = GT.ate2Pairing(verKey.point, hashPoint, g, this.point);
-        return gt.value.isunity();
+    public G2Point getPoint() {
+        return point;
     }
 
-    public boolean verify(byte[] msg, VerKey verKey) {
-        if(this.point.value.is_infinity()) {
-            return false;
-        }
-        G2 hashPoint = hashMessage(msg);
-        G1 g=new G1(Curve.getCurveParams().getG().getEncoded(false));
-        g.neg();
-        GT gt = GT.ate2Pairing(verKey.point, hashPoint, g, this.point);
-        return gt.value.isunity();
+    public void setPoint(G2Point point) {
+        this.point = point;
     }
-    
+
+    public Signature combine(Signature signature) {
+        point.getValue().add(signature.point.getValue());
+        return new Signature(point);
+    }
+
+    public Supplier<G2Point> getSupplier_point() {
+        return supplier_point;
+    }
+
+    public void setSupplier_point(Supplier<G2Point> supplier_point) {
+        this.supplier_point = supplier_point;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Signature signature = (Signature) o;
+        return Objects.equals(point, signature.point) && Objects.equals(supplier_point, signature.supplier_point);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(point, supplier_point);
+    }
 }

@@ -7,23 +7,23 @@ import org.apache.milagro.amcl.BLS381.ECP;
 import java.util.ArrayList;
 import java.util.List;
 
-public class G1 {
+public class G1Point {
 
-    public ECP value;
+    private ECP value;
     
-    public G1() {
+    public G1Point() {
         this.value = new ECP();
     }
     
-    public G1(G1 g1) {
+    public G1Point(G1Point g1) {
         this.value = new ECP(g1.value);
     }
     
-    public G1(ECP value) {
+    public G1Point(ECP value) {
         this.value = value;
     }
     
-    public G1(byte[] msg) {
+    public G1Point(byte[] msg) {
         this.value = ECP.mapit(msg);
     }
     
@@ -31,11 +31,11 @@ public class G1 {
         this.value.neg();
     }
     
-    public void add(G1 rhs) {
+    public void add(G1Point rhs) {
         this.value.add(rhs.value);
     }
     
-    public void sub(G1 rhs) {
+    public void sub(G1Point rhs) {
         this.value.sub(rhs.value);
     }
     
@@ -43,10 +43,10 @@ public class G1 {
         value.dbl();
     }
     
-    public static G1 identity() {
+    public static G1Point identity() {
         ECP value = new ECP();
         value.inf();
-        return new G1(value);
+        return new G1Point(value);
     }
     
     public byte[] toBytes() {
@@ -55,11 +55,11 @@ public class G1 {
         return buf;
     }
     
-    public static G1 fromBytes(byte[] buf) {
-        return new G1(ECP.fromBytes(buf));
+    public static G1Point fromBytes(byte[] buf) {
+        return new G1Point(ECP.fromBytes(buf));
     }
     
-    public static G1 multiScalarMulVarTime(G1[] g1Arr, FieldElement[] fieldElems) {
+    public static G1Point multiScalarMulVarTime(G1Point[] g1Arr, FieldElement[] fieldElems) {
         G1LookupTable[] lookups = new G1LookupTable[g1Arr.length];
         
         for(int i = 0; i < lookups.length; i++) {
@@ -72,9 +72,9 @@ public class G1 {
         }
         
         int newLength = CommonUtils.padCollection(nafs, 0);
-        G1 r = G1.identity();
+        G1Point r = G1Point.identity();
         for(int i = newLength - 1; i >= 0; i--) {
-            G1 t = new G1(r);
+            G1Point t = new G1Point(r);
             t.dbl();
             for(int j = 0; j < nafs.size(); j++) {
                 List<Integer> naf = nafs.get(j);
@@ -89,5 +89,13 @@ public class G1 {
             r = t;
         }
         return r;        
+    }
+
+    public ECP getValue() {
+        return value;
+    }
+
+    public void setValue(ECP value) {
+        this.value = value;
     }
 }

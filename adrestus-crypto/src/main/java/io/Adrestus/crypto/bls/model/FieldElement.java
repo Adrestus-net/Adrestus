@@ -1,13 +1,13 @@
 package io.Adrestus.crypto.bls.model;
 
 import io.Adrestus.crypto.HashUtil;
-import io.Adrestus.crypto.bls.constants.*;
-import io.Adrestus.crypto.bls.utils.*;
+import io.Adrestus.crypto.bls.constants.Constants;
+import io.Adrestus.crypto.bls.utils.BigNumberUtils;
+import io.Adrestus.crypto.bls.constants.CurveUtil;
 import org.apache.milagro.amcl.BLS381.BIG;
 import org.apache.milagro.amcl.BLS381.DBIG;
 import org.apache.milagro.amcl.BLS381.ECP;
 import org.apache.milagro.amcl.RAND;
-import org.spongycastle.util.encoders.Hex;
 
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -88,7 +88,7 @@ public class FieldElement {
     }
     
     public static FieldElement fromMsgHash(byte[] msg) {
-        byte[] hash = HashUtil.sha256(msg);
+        byte[] hash = HashUtil.Shake256(msg);
         return fromBytes(hash);
     }
     

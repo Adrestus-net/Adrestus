@@ -2,23 +2,23 @@ package io.Adrestus.crypto.bls.model;
 
 public class G2LookupTable {
 
-    private G2[] table;
+    private G2Point[] table;
     
-    public G2LookupTable(G2 A) {        
-        G2[] Ai = new G2[8];
+    public G2LookupTable(G2Point A) {
+        G2Point[] Ai = new G2Point[8];
         
-        Ai[0] = new G2(A);
-        G2 A2 = new G2(A);
+        Ai[0] = new G2Point(A);
+        G2Point A2 = new G2Point(A);
         A2.dbl();
         
         for(int i = 0; i < 7; i++) {
-            Ai[i+1] = new G2(Ai[i]);
+            Ai[i+1] = new G2Point(Ai[i]);
             Ai[i+1].add(A2);
         }
         this.table = Ai;
     }
     
-    public G2 select(int x) {
+    public G2Point select(int x) {
         return this.table[x/2];
     }
 }

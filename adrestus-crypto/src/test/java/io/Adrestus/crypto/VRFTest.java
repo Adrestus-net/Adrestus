@@ -1,9 +1,9 @@
 package io.Adrestus.crypto;
 
-import io.Adrestus.crypto.bls.model.Keypair;
+import io.Adrestus.crypto.bls.model.BLSKeyPair;
 import io.Adrestus.crypto.bls.model.Params;
-import io.Adrestus.crypto.bls.model.SigKey;
-import io.Adrestus.crypto.bls.model.VerKey;
+import io.Adrestus.crypto.bls.model.BLSPrivateKey;
+import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.Adrestus.crypto.vrf.engine.VrfEngine;
 import io.Adrestus.crypto.vrf.engine.VrfEngine2;
 import io.Adrestus.crypto.vrf.utils.VrfUtils;
@@ -16,7 +16,7 @@ import java.util.Random;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class VRFTest {
-    private static Keypair keypair;
+    private static BLSKeyPair keypair;
     private static Params params;
     private static int leftLimit;
     private static int rightLimit;
@@ -27,7 +27,6 @@ public class VRFTest {
     @BeforeAll
     public static void Setup() {
         params = new Params("testss".getBytes());
-        keypair = new Keypair(43, params);
         leftLimit = 97; // letter 'a'
         rightLimit = 122; // letter 'z'
         targetStringLength = 10;
@@ -36,8 +35,8 @@ public class VRFTest {
 
     @Test
     public void test_vrf() throws Exception {
-        SigKey sk = new SigKey(42);
-        VerKey vk = new VerKey(sk, params);
+        BLSPrivateKey sk = new BLSPrivateKey(42);
+        BLSPublicKey vk = new BLSPublicKey(sk, params);
         VrfEngine group = new VrfEngine("secp256k1");
         byte[] secret_key = VrfUtils.hexStringToByteArray("00000000000000000000000000000000119f962794f815e4f21ae048e66286a930f69b51bbc711367a6a4b3a57e3f5ff");
         //byte[] public_key  = group.derivePublicKey(secret_key);
@@ -55,8 +54,8 @@ public class VRFTest {
 
     @Test
     public void test_vrf2() throws Exception {
-        SigKey sk = new SigKey(42);
-        VerKey vk = new VerKey(sk);
+        BLSPrivateKey sk = new BLSPrivateKey(42);
+        BLSPublicKey vk = new BLSPublicKey(sk);
 
 
         VrfEngine2 group = new VrfEngine2();
@@ -72,8 +71,8 @@ public class VRFTest {
 
     @Test
     public void loop_vrf2() throws Exception {
-        SigKey sk = new SigKey(42);
-        VerKey vk = new VerKey(sk);
+        BLSPrivateKey sk = new BLSPrivateKey(42);
+        BLSPublicKey vk = new BLSPublicKey(sk);
 
         VrfEngine2 group = new VrfEngine2();
 

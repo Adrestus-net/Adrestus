@@ -139,7 +139,7 @@ public class VrfEngine2 {
         }
 
         //System.out.println(Hex.toHexString(bos.toByteArray()));
-        byte[] hashTrunc = new byte[32];
+        byte[] hashTrunc = new byte[128];
         System.arraycopy(bos.toByteArray(), 0, hashTrunc, 0, hashTrunc.length);
         byte[] hash = HashUtil.sha256omit(hashTrunc);
         return BIG.fromBytesUnlimited(hash);
