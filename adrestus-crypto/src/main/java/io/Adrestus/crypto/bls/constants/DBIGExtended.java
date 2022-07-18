@@ -1,9 +1,9 @@
 package io.Adrestus.crypto.bls.constants;
 
-import static com.google.common.base.Preconditions.checkArgument;
-
 import org.apache.milagro.amcl.BLS381.BIG;
 import org.apache.milagro.amcl.BLS381.DBIG;
+
+import static com.google.common.base.Preconditions.checkArgument;
 
 public class DBIGExtended extends DBIG {
 

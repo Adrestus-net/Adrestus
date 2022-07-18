@@ -5,7 +5,7 @@ import java.math.BigInteger;
 public class BigIntUtils {
 
     public static BigInteger createBigInteger(int i) {
-        byte[] buff = new byte[] {
+        byte[] buff = new byte[]{
                 (byte) (i >> 24),
                 (byte) (i >> 16),
                 (byte) (i >> 8),
@@ -16,7 +16,7 @@ public class BigIntUtils {
     }
 
     public static BigInteger createBigInteger(long q) {
-        byte[] buff = new byte[] {
+        byte[] buff = new byte[]{
                 (byte) (q >> 56),
                 (byte) (q >> 48),
                 (byte) (q >> 40),

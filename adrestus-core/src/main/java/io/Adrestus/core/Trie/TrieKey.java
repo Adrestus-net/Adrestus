@@ -53,7 +53,8 @@ public final class TrieKey {
     }
 
     public byte[] toNormal() {
-        if ((off & 1) != 0) throw new RuntimeException("Can't convert a key with odd number of hexes to normal: " + this);
+        if ((off & 1) != 0)
+            throw new RuntimeException("Can't convert a key with odd number of hexes to normal: " + this);
         int arrLen = key.length - off / 2;
         byte[] ret = new byte[arrLen];
         System.arraycopy(key, key.length - arrLen, ret, 0, arrLen);

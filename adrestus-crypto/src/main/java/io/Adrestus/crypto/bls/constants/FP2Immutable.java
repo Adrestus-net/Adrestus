@@ -1,9 +1,10 @@
 package io.Adrestus.crypto.bls.constants;
 
-import java.util.Objects;
 import org.apache.milagro.amcl.BLS381.BIG;
 import org.apache.milagro.amcl.BLS381.FP;
 import org.apache.milagro.amcl.BLS381.FP2;
+
+import java.util.Objects;
 
 import static io.Adrestus.crypto.bls.constants.CurveUtil.bigFromHex;
 import static io.Adrestus.crypto.bls.constants.CurveUtil.fpFromHex;
@@ -11,7 +12,7 @@ import static io.Adrestus.crypto.bls.constants.CurveUtil.fpFromHex;
 
 public class FP2Immutable {
 
-   public static final FP2Immutable ZERO = new FP2Immutable(0);
+    public static final FP2Immutable ZERO = new FP2Immutable(0);
     public static final FP2Immutable ONE = new FP2Immutable(1);
 
     // The threshold for ordering elements is (P - 1) // 2
@@ -31,7 +32,7 @@ public class FP2Immutable {
     }
 
 
-    public  FP2Immutable(FP fpA, FP fpB) {
+    public FP2Immutable(FP fpA, FP fpB) {
         fp2 = new FP2(fpA, fpB);
     }
 
@@ -73,7 +74,7 @@ public class FP2Immutable {
     }
 
 
-    public  FP2Immutable mul(FP c) {
+    public FP2Immutable mul(FP c) {
         FP2 result = new FP2(fp2);
         result.pmul(c);
         result.norm();
@@ -111,7 +112,7 @@ public class FP2Immutable {
     }
 
 
-    public  FP2Immutable inverse() {
+    public FP2Immutable inverse() {
         FP2 result = new FP2(fp2);
         result.inverse();
         return new FP2Immutable(result);
@@ -122,7 +123,7 @@ public class FP2Immutable {
         return this.add(this);
     }
 
-    public  boolean iszilch() {
+    public boolean iszilch() {
         return fp2.iszilch();
     }
 

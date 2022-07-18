@@ -8,7 +8,7 @@ import java.math.BigInteger;
 public class Context {
     public BigInteger negativeA, r, denom, oldA, oldB, ra, s, x, h, w, m, u, a, l, j, b, k, t, mu, v, sigma, lambda;
     public CongruenceContext congruenceContext = new CongruenceContext();
-    
+
     public Context() {
         this.negativeA = BigIntUtils.createBigInteger(0);
         this.r = BigIntUtils.createBigInteger(0);

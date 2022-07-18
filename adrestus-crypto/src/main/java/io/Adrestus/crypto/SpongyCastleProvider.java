@@ -10,7 +10,8 @@ public final class SpongyCastleProvider {
 
     private static class Holder {
         private static final Provider INSTANCE;
-        static{
+
+        static {
             Provider p = Security.getProvider("SC");
 
             INSTANCE = (p != null) ? p : new BouncyCastleProvider();

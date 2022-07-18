@@ -4,7 +4,7 @@ import org.bouncycastle.jce.ECNamedCurveTable;
 import org.bouncycastle.jce.spec.ECParameterSpec;
 
 public class Curve {
-    private  static ECParameterSpec curveParams;
+    private static ECParameterSpec curveParams;
 
     public static ECParameterSpec getCurveParams() {
         curveParams = ECNamedCurveTable.getParameterSpec("secp256k1");

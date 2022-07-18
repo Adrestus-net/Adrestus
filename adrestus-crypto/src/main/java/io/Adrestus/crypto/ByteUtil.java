@@ -31,7 +31,7 @@ public class ByteUtil {
      * The regular {@link BigInteger#toByteArray()} method isn't quite what we often need:
      * it appends a leading zero to indicate that the number is positive and may need padding.
      *
-     * @param b the integer to format into a byte array
+     * @param b        the integer to format into a byte array
      * @param numBytes the desired size of the resulting byte array
      * @return numBytes byte long array.
      */
@@ -66,7 +66,7 @@ public class ByteUtil {
      *
      * @param value - any big integer number. A <code>null</code>-value will return <code>null</code>
      * @return A byte array without a leading zero byte if present in the signed encoding.
-     *      BigInteger.ZERO will return an array with length 1 and byte-value 0.
+     * BigInteger.ZERO will return an array with length 1 and byte-value 0.
      */
     public static byte[] bigIntegerToBytes(BigInteger value) {
         if (value == null)
@@ -144,7 +144,7 @@ public class ByteUtil {
      * @param val - int value to convert
      * @return <code>byte[]</code> of length 4, representing the int value
      */
-    public static byte[] intToBytes(int val){
+    public static byte[] intToBytes(int val) {
         return ByteBuffer.allocate(Integer.BYTES).putInt(val).array();
     }
 
@@ -154,14 +154,14 @@ public class ByteUtil {
      * @param val - int value to convert
      * @return value with leading byte that are zeroes striped
      */
-    public static byte[] intToBytesNoLeadZeroes(int val){
+    public static byte[] intToBytesNoLeadZeroes(int val) {
 
         if (val == 0) return EMPTY_BYTE_ARRAY;
 
         int lenght = 0;
 
         int tmpVal = val;
-        while (tmpVal != 0){
+        while (tmpVal != 0) {
             tmpVal = tmpVal >>> 8;
             ++lenght;
         }
@@ -169,9 +169,9 @@ public class ByteUtil {
         byte[] result = new byte[lenght];
 
         int index = result.length - 1;
-        while(val != 0){
+        while (val != 0) {
 
-            result[index] = (byte)(val & 0xFF);
+            result[index] = (byte) (val & 0xFF);
             val = val >>> 8;
             index -= 1;
         }
@@ -187,8 +187,7 @@ public class ByteUtil {
      *
      * @param data - byte-array to convert to a hex-string
      * @return hex representation of the data.<br>
-     *      Returns an empty String if the input is <code>null</code>
-     *
+     * Returns an empty String if the input is <code>null</code>
      * @see Hex#toHexString
      */
     public static String toHexString(byte[] data) {
@@ -213,7 +212,7 @@ public class ByteUtil {
     /**
      * Cast hex encoded value from byte[] to int
      * null is parsed like byte[0]
-     *
+     * <p>
      * Limited to Integer.MAX_VALUE: 2^32-1 (4 bytes)
      *
      * @param b array contains the values
@@ -228,7 +227,7 @@ public class ByteUtil {
     /**
      * Cast hex encoded value from byte[] to long
      * null is parsed like byte[0]
-     *
+     * <p>
      * Limited to Long.MAX_VALUE: 2<sup>63</sup>-1 (8 bytes)
      *
      * @param b array contains the values
@@ -243,11 +242,11 @@ public class ByteUtil {
 
     /**
      * Turn nibbles to a pretty looking output string
-     *
+     * <p>
      * Example. [ 1, 2, 3, 4, 5 ] becomes '\x11\x23\x45'
      *
      * @param nibbles - getting byte of data [ 04 ] and turning
-     *                  it to a '\x04' representation
+     *                it to a '\x04' representation
      * @return pretty string of nibbles
      */
     public static String nibblesToPrettyString(byte[] nibbles) {
@@ -481,42 +480,40 @@ public class ByteUtil {
      * @param arrays - arrays to merge
      * @return - merged array
      */
-    public static byte[] merge(byte[]... arrays)
-    {
+    public static byte[] merge(byte[]... arrays) {
         int count = 0;
-        for (byte[] array: arrays)
-        {
+        for (byte[] array : arrays) {
             count += array.length;
         }
 
         // Create new array and copy all array contents
         byte[] mergedArray = new byte[count];
         int start = 0;
-        for (byte[] array: arrays) {
+        for (byte[] array : arrays) {
             System.arraycopy(array, 0, mergedArray, start, array.length);
             start += array.length;
         }
         return mergedArray;
     }
 
-    public static boolean isNullOrZeroArray(byte[] array){
+    public static boolean isNullOrZeroArray(byte[] array) {
         return (array == null) || (array.length == 0);
     }
 
-    public static boolean isSingleZero(byte[] array){
+    public static boolean isSingleZero(byte[] array) {
         return (array.length == 1 && array[0] == 0);
     }
 
 
-    public static Set<byte[]> difference(Set<byte[]> setA, Set<byte[]> setB){
+    public static Set<byte[]> difference(Set<byte[]> setA, Set<byte[]> setB) {
 
         Set<byte[]> result = new HashSet<>();
 
-        for (byte[] elementA : setA){
+        for (byte[] elementA : setA) {
             boolean found = false;
-            for (byte[] elementB : setB){
+            for (byte[] elementB : setB) {
 
-                if (Arrays.equals(elementA, elementB)){
+                if (Arrays.equals(elementA, elementB)) {
                     found = true;
                     break;
                 }
@@ -609,10 +606,11 @@ public class ByteUtil {
     /**
      * Converts string hex representation to data bytes
      * Accepts following hex:
-     *  - with or without 0x prefix
-     *  - with no leading 0, like 0xabc -> 0x0abc
-     * @param data  String like '0xa5e..' or just 'a5e..'
-     * @return  decoded bytes array
+     * - with or without 0x prefix
+     * - with no leading 0, like 0xabc -> 0x0abc
+     *
+     * @param data String like '0xa5e..' or just 'a5e..'
+     * @return decoded bytes array
      */
     public static byte[] hexStringToBytes(String data) {
         if (data == null) return EMPTY_BYTE_ARRAY;
@@ -664,7 +662,7 @@ public class ByteUtil {
         if (i == -1) {
             return bytes.length * 8;
         } else {
-            int byteLeadingZeros = Integer.numberOfLeadingZeros((int)bytes[i] & 0xff) - 24;
+            int byteLeadingZeros = Integer.numberOfLeadingZeros((int) bytes[i] & 0xff) - 24;
             return i * 8 + byteLeadingZeros;
         }
     }
@@ -700,7 +698,7 @@ public class ByteUtil {
      * Uses {@link #parseBytes(byte[], int, int)} method,
      * thus, result will be right-padded with zero bytes if there is not enough bytes in {@code input}
      *
-     * @param idx an index of the word starting from {@code 0}
+     * @param idx    an index of the word starting from {@code 0}
      * @param offset an offset in {@code input} array to start parsing from
      */
     public static byte[] parseWord(byte[] input, int offset, int idx) {

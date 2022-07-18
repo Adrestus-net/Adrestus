@@ -8,17 +8,18 @@ import java.util.List;
 public class BLSPublicKey {
 
     private G1Point point;
+
     public BLSPublicKey(G1Point point) {
         this.point = point;
     }
-    
+
     public BLSPublicKey(BLSPrivateKey sk, Params params) {
         ECP ecp = params.g.getValue().mul(sk.getX().value);
         this.point = new G1Point(ecp);
     }
 
     public BLSPublicKey(BLSPrivateKey sk, byte[] g) {
-        byte hash[]= HashUtil.Shake256(g);
+        byte hash[] = HashUtil.Shake256(g);
         ECP ecp = ECP.fromBytes(hash).mul(sk.getX().value);
         this.point = new G1Point(ecp);
     }
@@ -32,7 +33,7 @@ public class BLSPublicKey {
         return this.point.toBytes();
     }
 
-    public String toRaw(){
+    public String toRaw() {
         return this.point.getValue().toString();
     }
 
@@ -41,10 +42,12 @@ public class BLSPublicKey {
                 ? new BLSPublicKey(new G1Point())
                 : keys.stream().reduce(BLSPublicKey::combine).get();
     }
+
     public BLSPublicKey combine(BLSPublicKey pk) {
         point.getValue().add(pk.point.getValue());
         return new BLSPublicKey(new G1Point(point));
     }
+
     public static BLSPublicKey fromByte(byte[] buf) {
         return new BLSPublicKey(G1Point.fromBytes(buf));
     }

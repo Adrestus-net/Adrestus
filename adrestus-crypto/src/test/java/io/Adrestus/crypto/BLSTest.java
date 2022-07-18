@@ -4,8 +4,7 @@ import io.Adrestus.crypto.bls.model.*;
 import io.Adrestus.crypto.bls.utils.MultiSigFastUtils;
 import io.Adrestus.crypto.bls.utils.ThresholdSigUtils;
 import org.apache.tuweni.bytes.Bytes;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.spongycastle.util.encoders.Hex;
 
 import java.security.SecureRandom;
@@ -15,9 +14,6 @@ import java.util.List;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.TestMethodOrder;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class BLSTest {
@@ -110,12 +106,12 @@ public class BLSTest {
 
         Signature thresholdSig = ThresholdSigUtils.aggregateSignature(threshold, sigIds, sigs);
 
-        assertEquals(true,BLSSignature.verify(thresholdSig, msg, thresholdVk, params));
+        assertEquals(true, BLSSignature.verify(thresholdSig, msg, thresholdVk, params));
     }
 
     @Test
     @Order(5)
-    public void fastAggregateVerify1(){
+    public void fastAggregateVerify1() {
         Bytes message = Bytes.wrap("Hello, world 1!".getBytes(UTF_8));
         BLSPrivateKey sk1 = new BLSPrivateKey(new SecureRandom());
         BLSPublicKey vk1 = new BLSPublicKey(sk1);
@@ -130,14 +126,14 @@ public class BLSTest {
         BLSKeyPair keyPair2 = new BLSKeyPair(sk2, vk2);
         BLSKeyPair keyPair3 = new BLSKeyPair(sk3, vk3);
         List<BLSPublicKey> publicKeys = Arrays.asList(keyPair1.getPublicKey(), keyPair2.getPublicKey(), keyPair3.getPublicKey());
-        List<Signature> signatures = Arrays.asList(BLSSignature.sign(message.toArray(),keyPair1.getPrivateKey()), BLSSignature.sign(message.toArray(),keyPair2.getPrivateKey()), BLSSignature.sign(message.toArray(),keyPair3.getPrivateKey()));
+        List<Signature> signatures = Arrays.asList(BLSSignature.sign(message.toArray(), keyPair1.getPrivateKey()), BLSSignature.sign(message.toArray(), keyPair2.getPrivateKey()), BLSSignature.sign(message.toArray(), keyPair3.getPrivateKey()));
         Signature aggregatedSignature = BLSSignature.aggregate(signatures);
-        assertEquals(true,BLSSignature.fastAggregateVerify(publicKeys, message, aggregatedSignature));
+        assertEquals(true, BLSSignature.fastAggregateVerify(publicKeys, message, aggregatedSignature));
     }
 
     @Test
     @Order(6)
-    public void succeedsWhenAggregateVerifyWithRepeatedMessagesReturnsFalse(){
+    public void succeedsWhenAggregateVerifyWithRepeatedMessagesReturnsFalse() {
         Bytes message = Bytes.wrap("Hello, world 1!".getBytes(UTF_8));
         BLSPrivateKey sk1 = new BLSPrivateKey(new SecureRandom());
         BLSPublicKey vk1 = new BLSPublicKey(sk1);
@@ -153,8 +149,8 @@ public class BLSTest {
         BLSKeyPair keyPair3 = new BLSKeyPair(sk3, vk3);
         List<Bytes> messages = Arrays.asList(message, message, message);
         List<BLSPublicKey> publicKeys = Arrays.asList(keyPair1.getPublicKey(), keyPair2.getPublicKey(), keyPair3.getPublicKey());
-        List<Signature> signatures = Arrays.asList(BLSSignature.sign(message.toArray(),keyPair1.getPrivateKey()), BLSSignature.sign(message.toArray(),keyPair2.getPrivateKey()), BLSSignature.sign(message.toArray(),keyPair3.getPrivateKey()));
+        List<Signature> signatures = Arrays.asList(BLSSignature.sign(message.toArray(), keyPair1.getPrivateKey()), BLSSignature.sign(message.toArray(), keyPair2.getPrivateKey()), BLSSignature.sign(message.toArray(), keyPair3.getPrivateKey()));
         Signature aggregatedSignature = BLSSignature.aggregate(signatures);
-        assertEquals(false,BLSSignature.aggregateVerify(publicKeys, messages, aggregatedSignature));
+        assertEquals(false, BLSSignature.aggregateVerify(publicKeys, messages, aggregatedSignature));
     }
 }

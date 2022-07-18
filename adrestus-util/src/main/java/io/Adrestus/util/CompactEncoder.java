@@ -101,7 +101,7 @@ public class CompactEncoder {
         byte[] hexEncoded = encode(str);
         byte[] hexEncodedTerminated = Arrays.copyOf(hexEncoded, hexEncoded.length + 1);
 
-        for (int i = 0; i < hexEncoded.length; ++i){
+        for (int i = 0; i < hexEncoded.length; ++i) {
             byte b = hexEncodedTerminated[i];
             hexEncodedTerminated[i] = hexMap.get((char) b);
         }
@@ -115,7 +115,7 @@ public class CompactEncoder {
 
         byte[] hexEncoded = encode(str);
 
-        for (int i = 0; i < hexEncoded.length; ++i){
+        for (int i = 0; i < hexEncoded.length; ++i) {
             byte b = hexEncoded[i];
             hexEncoded[i] = hexMap.get((char) b);
         }

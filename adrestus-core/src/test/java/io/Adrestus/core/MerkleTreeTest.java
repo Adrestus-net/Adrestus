@@ -2,15 +2,16 @@ package io.Adrestus.core;
 
 import io.Adrestus.core.Trie.MerkleNode;
 import io.Adrestus.core.Trie.MerkleProofs;
-import io.Adrestus.core.Trie.MerkleTree;
 import io.Adrestus.core.Trie.MerkleTreeImp;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+
+;
 
 public class MerkleTreeTest {
     private MerkleTreeImp tree;

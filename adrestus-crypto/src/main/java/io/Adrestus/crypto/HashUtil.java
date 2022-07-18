@@ -11,7 +11,6 @@ import org.spongycastle.crypto.Digest;
 import org.spongycastle.crypto.digests.RIPEMD160Digest;
 import org.spongycastle.util.encoders.Hex;
 
-
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.math.BigInteger;
@@ -36,7 +35,7 @@ public class HashUtil {
     private static final String HASH_256_ALGORITHM_NAME = "SHA-256";
     private static final String SHA3_HASH_256_ALGORITHM_NAME = "ETH-KECCAK-256";
     private static final String HASH_512_ALGORITHM_NAME = "ETH-KECCAK-512";
-    private static final String HASH_256_HMAC="HmacSHA256";
+    private static final String HASH_256_HMAC = "HmacSHA256";
     private static SecureRandom random = new SecureRandom();
 
     static {
@@ -76,9 +75,10 @@ public class HashUtil {
             throw new RuntimeException(e);
         }
     }
+
     public static byte[] sha256omit(byte[] input) {
         try {
-            byte[] res=DigestUtils.sha256(input);
+            byte[] res = DigestUtils.sha256(input);
             return res;
         } catch (Exception e) {
             LOG.error("Can't find such algorithm", e);
@@ -99,7 +99,7 @@ public class HashUtil {
     public static byte[] sha3(byte[] input) {
         Keccak.Digest256 digest;
         try {
-            digest=new Keccak.Digest256();
+            digest = new Keccak.Digest256();
             byte[] hash = digest.digest(input);
             return hash;
         } catch (Exception e) {

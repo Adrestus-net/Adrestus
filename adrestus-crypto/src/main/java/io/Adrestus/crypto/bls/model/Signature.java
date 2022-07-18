@@ -6,6 +6,7 @@ import java.util.function.Supplier;
 public class Signature {
     private G2Point point;
     private Supplier<G2Point> supplier_point;
+
     public Signature(G2Point point) {
         this.point = point;
     }

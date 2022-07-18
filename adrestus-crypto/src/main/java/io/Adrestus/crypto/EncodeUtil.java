@@ -12,6 +12,7 @@ public class EncodeUtil {
     private static final int OFFSET_LONG_LIST = 0xf7;
     private static final int OFFSET_SHORT_ITEM = 0x80;
     private static final int OFFSET_LONG_ITEM = 0xb7;
+
     public static byte[] encodeElement(byte[] srcData) {
 
         // [0x80]
@@ -111,7 +112,8 @@ public class EncodeUtil {
     }
 
     public static byte[] encodeBigInteger(BigInteger srcBigInteger) {
-        if (srcBigInteger.compareTo(BigInteger.ZERO) < 0) throw new RuntimeException("negative numbers are not allowed");
+        if (srcBigInteger.compareTo(BigInteger.ZERO) < 0)
+            throw new RuntimeException("negative numbers are not allowed");
 
         if (srcBigInteger.equals(BigInteger.ZERO))
             return encodeByte((byte) 0);

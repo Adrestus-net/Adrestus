@@ -4,27 +4,27 @@ import com.sun.jna.Memory;
 
 /**
  * Prototype taken from jna-gmp github project (https://github.com/square/jna-gmp)
- * 
+ * <p>
  * You do not need to edit this class
- * 
- * @author Adrian Pacurar
  *
+ * @author Adrian Pacurar
  */
 public class MPZMemory extends Memory {
-	public final mpz_t peer;
-	
-	MPZMemory() {
-		super(mpz_t.SIZE);
-		peer = new mpz_t(this);
-		LibGMP.__gmpz_init(peer);
-	}
-	
-	@Override protected void finalize() {
-		LibGMP.__gmpz_clear(peer);
-		try {
-			super.finalize();
-		} catch (Throwable e) {
-			e.printStackTrace();
-		}
-	}
+    public final mpz_t peer;
+
+    MPZMemory() {
+        super(mpz_t.SIZE);
+        peer = new mpz_t(this);
+        LibGMP.__gmpz_init(peer);
+    }
+
+    @Override
+    protected void finalize() {
+        LibGMP.__gmpz_clear(peer);
+        try {
+            super.finalize();
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+    }
 }

@@ -1,7 +1,8 @@
 package io.Adrestus.crypto.elliptic;
 
-import java.math.BigInteger;
 import org.bouncycastle.math.ec.ECPoint;
+
+import java.math.BigInteger;
 
 public class ECDSASignature {
     private BigInteger r;

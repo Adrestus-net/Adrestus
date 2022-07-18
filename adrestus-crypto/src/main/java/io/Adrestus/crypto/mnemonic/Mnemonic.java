@@ -7,7 +7,6 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import java.security.SecureRandom;
 import java.util.List;
-import java.util.Optional;
 
 public class Mnemonic {
 
@@ -17,8 +16,8 @@ public class Mnemonic {
     private WordList wordList;
 
     public Mnemonic(Security strength, WordList wordList) {
-        this.strength=strength;
-        this.wordList=wordList;
+        this.strength = strength;
+        this.wordList = wordList;
     }
 
     public char[] create() throws MnemonicException {
@@ -29,7 +28,7 @@ public class Mnemonic {
 
     private char[] create(byte[] entropy, WordList wordList) throws MnemonicException {
         try {
-            byte[] hashBits = HashUtil.sha256(entropy,new BouncyCastleProvider());
+            byte[] hashBits = HashUtil.sha256(entropy, new BouncyCastleProvider());
             char[] binaryHash = PrimitiveUtil.bytesToBinaryAsChars(hashBits);
             char[] checkSum = PrimitiveUtil.charSubArray(binaryHash, 0, entropy.length * 8 / 32);
             char[] entropyBits = PrimitiveUtil.bytesToBinaryAsChars(entropy);
@@ -64,6 +63,6 @@ public class Mnemonic {
         }
         merged = PrimitiveUtil.concatCharArrays(SALT_CHARS, passphrase);
         byte[] salt = PrimitiveUtil.toBytes(merged);
-        return AESKeyFactory.PBEKeySpec(mnemonic,salt);
+        return AESKeyFactory.PBEKeySpec(mnemonic, salt);
     }
 }

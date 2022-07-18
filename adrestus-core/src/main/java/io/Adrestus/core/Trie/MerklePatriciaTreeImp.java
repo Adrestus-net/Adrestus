@@ -2,13 +2,13 @@ package io.Adrestus.core.Trie;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import io.Adrestus.core.HashMapDB;
+import io.Adrestus.crypto.ByteUtil;
+import io.Adrestus.crypto.FastByteComparisons;
 import io.Adrestus.crypto.HashUtil;
+import io.Adrestus.util.RLP;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
-import io.Adrestus.crypto.ByteUtil;
-import io.Adrestus.crypto.FastByteComparisons;
-import io.Adrestus.util.RLP;
 
 import java.nio.ByteBuffer;
 import java.util.concurrent.ExecutionException;
@@ -20,7 +20,9 @@ import static io.Adrestus.crypto.EncodeUtil.encodeElement;
 import static io.Adrestus.crypto.EncodeUtil.encodeList;
 import static io.Adrestus.util.RLP.EMPTY_ELEMENT_RLP;
 import static org.apache.commons.lang3.concurrent.ConcurrentUtils.constantFuture;
+
 ;
+
 public class MerklePatriciaTreeImp implements PatriciaTree<byte[], byte[]> {
 
     private final static Object NULL_NODE = new Object();

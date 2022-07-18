@@ -28,10 +28,10 @@ public class Value {
         return null;
     }
 
-    public Value(){
+    public Value() {
     }
 
-    public void init(byte[] rlp){
+    public void init(byte[] rlp) {
         this.rlp = rlp;
     }
 
@@ -112,11 +112,11 @@ public class Value {
         return ByteUtil.EMPTY_BYTE_ARRAY;
     }
 
-    public String getHex(){
+    public String getHex() {
         return Hex.toHexString(this.encode());
     }
 
-    public byte[] getData(){
+    public byte[] getData() {
         return this.encode();
     }
 
@@ -144,7 +144,7 @@ public class Value {
      *      Utility
      * *****************/
 
-    public void decode(){
+    public void decode() {
         if (!this.decoded) {
             this.value = RLP.decode(rlp, 0).getDecoded();
             this.decoded = true;
@@ -157,13 +157,13 @@ public class Value {
         return rlp;
     }
 
-    public byte[] hash(){
+    public byte[] hash() {
         if (sha3 == null)
             sha3 = HashUtil.sha3(encode());
         return sha3;
     }
 
-  
+
 
     /* *****************
      *      Checks

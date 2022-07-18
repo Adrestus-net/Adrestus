@@ -14,6 +14,7 @@ public abstract class FastByteComparisons {
     public static boolean equal(byte[] b1, byte[] b2) {
         return b1.length == b2.length && compareTo(b1, 0, b1.length, b2, 0, b2.length) == 0;
     }
+
     /**
      * Lexicographically compare two byte arrays.
      *
@@ -41,7 +42,6 @@ public abstract class FastByteComparisons {
 
 
     /**
-     *
      * <p>Uses reflection to gracefully fall back to the Java implementation if
      * {@code Unsafe} isn't available.
      */

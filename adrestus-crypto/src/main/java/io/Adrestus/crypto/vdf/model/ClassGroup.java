@@ -1,7 +1,7 @@
 package io.Adrestus.crypto.vdf.model;
 
 
-import io.Adrestus.crypto.pca.cs.jna.gmp.*;
+import io.Adrestus.crypto.pca.cs.jna.gmp.GMP;
 
 import java.math.BigInteger;
 import java.util.Collections;

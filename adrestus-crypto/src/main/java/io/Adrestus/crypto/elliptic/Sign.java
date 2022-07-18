@@ -1,9 +1,5 @@
 package io.Adrestus.crypto.elliptic;
 
-import java.math.BigInteger;
-import java.security.SignatureException;
-import java.util.Arrays;
-
 import io.Adrestus.crypto.HashUtil;
 import org.bouncycastle.asn1.x9.X9ECParameters;
 import org.bouncycastle.asn1.x9.X9IntegerConverter;
@@ -13,6 +9,10 @@ import org.bouncycastle.math.ec.ECAlgorithms;
 import org.bouncycastle.math.ec.ECPoint;
 import org.bouncycastle.math.ec.FixedPointCombMultiplier;
 import org.bouncycastle.math.ec.custom.sec.SecP256K1Curve;
+
+import java.math.BigInteger;
+import java.security.SignatureException;
+import java.util.Arrays;
 
 
 public class Sign {
@@ -27,7 +27,7 @@ public class Sign {
     }
 
     public static final X9ECParameters CURVE_PARAMS = CustomNamedCurves.getByName("secp256k1");
-    public  static final ECDomainParameters CURVE =
+    public static final ECDomainParameters CURVE =
             new ECDomainParameters(
                     CURVE_PARAMS.getCurve(),
                     CURVE_PARAMS.getG(),
@@ -86,7 +86,9 @@ public class Sign {
         return new BigInteger(1, Arrays.copyOfRange(qBytes, 1, qBytes.length));
     }
 
-    /** Decompress a compressed public key (x co-ord and low-bit of y-coord). */
+    /**
+     * Decompress a compressed public key (x co-ord and low-bit of y-coord).
+     */
     private static ECPoint decompressKey(BigInteger xBN, boolean yBit) {
         X9IntegerConverter x9 = new X9IntegerConverter();
         byte[] compEnc = x9.integerToBytes(xBN, 1 + x9.getByteLength(CURVE.getCurve()));

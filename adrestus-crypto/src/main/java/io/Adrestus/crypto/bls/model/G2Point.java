@@ -1,10 +1,7 @@
 package io.Adrestus.crypto.bls.model;
 
-import io.Adrestus.crypto.bls.constants.FP2Immutable;
-import io.Adrestus.crypto.bls.constants.CurveUtil.*;
 import io.Adrestus.crypto.bls.utils.CommonUtils;
 import org.apache.milagro.amcl.BLS381.ECP2;
-import org.apache.tuweni.bytes.Bytes;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -9,7 +9,7 @@ public class BatchSemiAggregate {
         this.msgPubKeyPairing = msgPubKeyPairing;
     }
 
-   public G2Point getSigPoint() {
+    public G2Point getSigPoint() {
         return sigPoint;
     }
 

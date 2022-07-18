@@ -10,16 +10,16 @@ public class Signer {
     public int id;
     private BLSPublicKey publicKey;
     private BLSPrivateKey privateKey;
-    
+
     public Signer(int id, BLSPublicKey publicKey, BLSPrivateKey privateKey) {
         this.id = id;
         this.publicKey = publicKey;
         this.privateKey = privateKey;
     }
-        
+
     public static List<Signer> keygenFromShares(int numSigners, Map<Integer, FieldElement> xShares, Params params) {
         List<Signer> signers = new ArrayList<>();
-        for(int i = 0; i < numSigners; i++) {
+        for (int i = 0; i < numSigners; i++) {
             int id = i + 1;
             FieldElement xi = xShares.remove(id);
             G1Point gxi = new G1Point(params.g.getValue().mul(xi.value));

@@ -1,58 +1,56 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <artifactId>Adrestus-build</artifactId>
-    <groupId>io.Adrestus.v1</groupId>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>Adrestus-build</artifactId>
+        <groupId>io.Adrestus.v1</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+    <artifactId>adrestus-crypto</artifactId>
     <version>1.0-SNAPSHOT</version>
-  </parent>
-
-  <artifactId>adrestus-crypto</artifactId>
-  <version>1.0-SNAPSHOT</version>
-  <packaging>jar</packaging>
-  <name>adrestus-crypto</name>
-  <!-- FIXME change it to the project's website -->
-  <url>http://www.example.com</url>
-
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.source>1.7</maven.compiler.source>
-    <maven.compiler.target>1.7</maven.compiler.target>
-    <spongycastle.version>1.58.0.0</spongycastle.version>
-    <util.version>1.0-SNAPSHOT</util.version>
-    <bcprov.version>1.70</bcprov.version>
-    <codec.version>1.15</codec.version>
-    <jna.version>5.12.1</jna.version>
-    <milagro.version>0.4.0</milagro.version>
-  </properties>
-  <dependencies>
-    <dependency>
-      <groupId>com.madgag.spongycastle</groupId>
-      <artifactId>core</artifactId>
-      <version>${spongycastle.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.bouncycastle</groupId>
-      <artifactId>bcprov-jdk15on</artifactId>
-      <version>${bcprov.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>commons-codec</groupId>
-      <artifactId>commons-codec</artifactId>
-      <version>${codec.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>net.java.dev.jna</groupId>
-      <artifactId>jna</artifactId>
-      <version>${jna.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.miracl.milagro.amcl</groupId>
-      <artifactId>milagro-crypto-java</artifactId>
-      <version>${milagro.version}</version>
-    </dependency>
-  </dependencies>
-
-  <build>
-  </build>
+    <packaging>jar</packaging>
+    <name>adrestus-crypto</name>
+    <!-- FIXME change it to the project's website -->
+    <url>http://www.example.com</url>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>1.7</maven.compiler.source>
+        <maven.compiler.target>1.7</maven.compiler.target>
+        <spongycastle.version>1.58.0.0</spongycastle.version>
+        <util.version>1.0-SNAPSHOT</util.version>
+        <bcprov.version>1.70</bcprov.version>
+        <codec.version>1.15</codec.version>
+        <jna.version>5.12.1</jna.version>
+        <milagro.version>0.4.0</milagro.version>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>com.madgag.spongycastle</groupId>
+            <artifactId>core</artifactId>
+            <version>${spongycastle.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk15on</artifactId>
+            <version>${bcprov.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>${codec.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.java.dev.jna</groupId>
+            <artifactId>jna</artifactId>
+            <version>${jna.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.miracl.milagro.amcl</groupId>
+            <artifactId>milagro-crypto-java</artifactId>
+            <version>${milagro.version}</version>
+        </dependency>
+    </dependencies>
+    <build>
+    </build>
 </project>

@@ -7,7 +7,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigInteger;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import static io.Adrestus.crypto.EncodeUtil.*;
 import static java.util.Arrays.copyOfRange;
@@ -323,9 +326,8 @@ public class RLP {
      * or {@link Integer#MAX_VALUE} in case if encoded length is greater
      *
      * @param lengthOfLength length of length in bytes
-     * @param msgData message
-     * @param pos position to parse from
-     *
+     * @param msgData        message
+     * @param pos            position to parse from
      * @return calculated length
      */
     private static int calcLength(int lengthOfLength, byte[] msgData, int pos) {
@@ -393,7 +395,6 @@ public class RLP {
      */
 
 
-
     /**
      * Get exactly one message payload
      */
@@ -401,8 +402,9 @@ public class RLP {
 
     /**
      * Compares supplied length information with maximum possible
-     * @param suppliedLength    Length info from header
-     * @param availableLength   Length of remaining object
+     *
+     * @param suppliedLength  Length info from header
+     * @param availableLength Length of remaining object
      * @throws RuntimeException if supplied length is bigger than available
      */
     private static void verifyLength(int suppliedLength, int availableLength) {
@@ -510,7 +512,7 @@ public class RLP {
         LList ret = new LList(data);
         int end = pos + length;
 
-        while(pos < end) {
+        while (pos < end) {
             int prefix = data[pos] & 0xFF;
             if (prefix == OFFSET_SHORT_ITEM) {  // 0x80
                 ret.add(pos, 0, false); // means no length or 0
@@ -657,7 +659,6 @@ public class RLP {
     }
 
 
-
     public static int calcElementPrefixSize(byte[] srcData) {
 
         if (ByteUtil.isNullOrZeroArray(srcData))
@@ -783,14 +784,13 @@ public class RLP {
     }
 
 
-    public static byte[] wrapList(byte[] ... data) {
+    public static byte[] wrapList(byte[]... data) {
         byte[][] elements = new byte[data.length][];
         for (int i = 0; i < data.length; i++) {
             elements[i] = encodeElement(data[i]);
         }
         return encodeList(elements);
     }
-
 
 
     /*
@@ -838,7 +838,7 @@ public class RLP {
         } else if ((data[index] & 0xFF) <= OFFSET_LONG_ITEM) {
 
             byte[] valueBytes = new byte[length];
-            System.arraycopy(data, index+1, valueBytes, 0, length);
+            System.arraycopy(data, index + 1, valueBytes, 0, length);
             return valueBytes;
 
             // [0xb8, 0xbf] - 56+ bytes item

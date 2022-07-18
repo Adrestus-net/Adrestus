@@ -1,21 +1,20 @@
 package io.Adrestus.crypto.bls.utils;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static io.Adrestus.crypto.bls.constants.Chains.expChain;
-import static io.Adrestus.crypto.bls.constants.Chains.mxChain;
-import static io.Adrestus.crypto.bls.constants.Constants.*;
-import static io.Adrestus.crypto.bls.constants.CurveUtil.*;
-import static io.Adrestus.crypto.bls.constants.FP2Immutable.*;
-
+import com.google.common.annotations.VisibleForTesting;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.bls.constants.Constants;
-import io.Adrestus.crypto.bls.constants.Constants.*;
-import com.google.common.annotations.VisibleForTesting;
 import io.Adrestus.crypto.bls.constants.FP2Immutable;
 import io.Adrestus.crypto.bls.model.JacobianPoint;
 import org.apache.milagro.amcl.BLS381.FP;
 import org.apache.milagro.amcl.BLS381.FP2;
 import org.apache.tuweni.bytes.Bytes;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static io.Adrestus.crypto.bls.constants.Chains.expChain;
+import static io.Adrestus.crypto.bls.constants.Chains.mxChain;
+import static io.Adrestus.crypto.bls.constants.Constants.*;
+import static io.Adrestus.crypto.bls.constants.CurveUtil.os2ip_modP;
+import static io.Adrestus.crypto.bls.constants.FP2Immutable.ONE;
 
 public class Helper {
     private static final int SHA256_HASH_SIZE = 32;

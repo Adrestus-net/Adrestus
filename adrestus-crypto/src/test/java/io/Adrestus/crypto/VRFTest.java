@@ -1,9 +1,9 @@
 package io.Adrestus.crypto;
 
 import io.Adrestus.crypto.bls.model.BLSKeyPair;
-import io.Adrestus.crypto.bls.model.Params;
 import io.Adrestus.crypto.bls.model.BLSPrivateKey;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
+import io.Adrestus.crypto.bls.model.Params;
 import io.Adrestus.crypto.vrf.engine.VrfEngine;
 import io.Adrestus.crypto.vrf.engine.VrfEngine2;
 import io.Adrestus.crypto.vrf.utils.VrfUtils;

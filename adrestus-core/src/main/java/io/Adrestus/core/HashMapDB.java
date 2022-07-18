@@ -18,7 +18,7 @@ public class HashMapDB<V> {
     }
 
 
-    public void put(byte[] key,byte[]  val) {
+    public void put(byte[] key, byte[] val) {
         writeLock.lock();
         try {
             if (val == null) {
@@ -99,8 +99,6 @@ public class HashMapDB<V> {
             writeLock.unlock();
         }
     }
-
-
 
 
     public TLongLongHashMap getStorage() {

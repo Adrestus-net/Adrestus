@@ -15,7 +15,7 @@ import java.util.Arrays;
 
 public class VrfEngine2 {
     public static final BIG order = new BIG(ROM.CURVE_Order);
-    
+
     public VrfEngine2() {
     }
 
@@ -150,19 +150,19 @@ public class VrfEngine2 {
 
         ECP publicKeyPoint = ECP.generator().mul(BIG.fromBytes(secretKey));
         ECP hPoint = hashToTryAndIncrement(publicKeyPoint, alpha);
-        
+
         if (hPoint == null) return null;
 
         byte[] hString = ConvertUtil.parseECPByte(hPoint);
         BIG secret = BIG.fromBytes(secretKey);
         ECP gammaPoint = hPoint.mul(secret);
-       
+
         BIG k = generateNonce(secretKey, hString);
 
         //ECP generator is a fixed G value generator
         ECP uPoint = ECP.generator().mul(k);
         ECP vPoint = hPoint.mul(k);
-       
+
         BIG c = hashPoints(new ECP[]{hPoint, gammaPoint, uPoint, vPoint});
         BIG.fromBytes(secretKey);
         k.add(BIG.mul2(c, secret));
@@ -213,7 +213,7 @@ public class VrfEngine2 {
             int gammaInt = ByteBuffer.wrap(Arrays.copyOfRange(pi, pi.length - 12, pi.length - 8)).getInt();
             int cSInt = ByteBuffer.wrap(Arrays.copyOfRange(pi, pi.length - 8, pi.length - 4)).getInt();
             int sSInt = ByteBuffer.wrap(Arrays.copyOfRange(pi, pi.length - 4, pi.length)).getInt();
-            
+
             byte[] gammaBytes = new byte[gammaInt];
             System.arraycopy(pi, 0, gammaBytes, 0, gammaInt);
             ECP gamma = ECP.fromBytes(gammaBytes);
@@ -223,7 +223,7 @@ public class VrfEngine2 {
             BIG c = BIG.fromBytes(cBytes);
 
             byte[] sBytes = new byte[sSInt - cSInt];
-          
+
             System.arraycopy(pi, cSInt, sBytes, 0, sBytes.length);
             BIG s = BIG.fromBytes(sBytes);
 
@@ -256,7 +256,7 @@ public class VrfEngine2 {
         cGamma.neg();
 
         sh.add(cGamma);
-      
+
         BIG derivedC = hashPoints(new ECP[]{hPoint, gammaPoint, sb, sh});
 
         if (!derivedC.equals(c)) {

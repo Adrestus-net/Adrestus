@@ -43,5 +43,5 @@ public class MerkleProofs {
     public void setTarget(MerkleNode target) {
         this.target = target;
     }
-    
+
 }

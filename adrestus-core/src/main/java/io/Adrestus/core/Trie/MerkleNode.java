@@ -8,8 +8,8 @@ public class MerkleNode {
 
     public MerkleNode(String TransactionHash) {
         this.TransactionHash = TransactionHash;
-        this.left=null;
-        this.right=null;
+        this.left = null;
+        this.right = null;
     }
 
     public MerkleNode() {
@@ -52,5 +52,5 @@ public class MerkleNode {
         this.root = root;
     }
 
-  
+
 }

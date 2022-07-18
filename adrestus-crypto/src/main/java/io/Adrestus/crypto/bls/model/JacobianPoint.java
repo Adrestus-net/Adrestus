@@ -1,9 +1,9 @@
 package io.Adrestus.crypto.bls.model;
 
-import java.util.Objects;
-
-import io.Adrestus.crypto.bls.constants.*;
+import io.Adrestus.crypto.bls.constants.FP2Immutable;
 import org.apache.milagro.amcl.BLS381.ECP2;
+
+import java.util.Objects;
 
 
 public final class JacobianPoint {
@@ -29,7 +29,7 @@ public final class JacobianPoint {
         this.z = z;
     }
 
-   public JacobianPoint(ECP2 p) {
+    public JacobianPoint(ECP2 p) {
         ECP2 q = new ECP2(p);
         if (!p.getz().isunity()) {
             // This is quicker than converting directly between homogeneous and Jacobian coordinates

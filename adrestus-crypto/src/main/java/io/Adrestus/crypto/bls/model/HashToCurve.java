@@ -1,11 +1,11 @@
 package io.Adrestus.crypto.bls.model;
 
 
-import java.nio.charset.StandardCharsets;
-
 import io.Adrestus.crypto.bls.constants.FP2Immutable;
 import org.apache.milagro.amcl.BLS381.ECP2;
 import org.apache.tuweni.bytes.Bytes;
+
+import java.nio.charset.StandardCharsets;
 
 import static io.Adrestus.crypto.bls.utils.Helper.*;
 

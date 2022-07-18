@@ -6,6 +6,7 @@ import java.security.Security;
 public class ProviderInstance {
     private static Provider CRYPTO_PROVIDER;
     private static volatile ProviderInstance instance;
+
     static {
         Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
         CRYPTO_PROVIDER = Security.getProvider("BC");
@@ -19,6 +20,7 @@ public class ProviderInstance {
             throw new IllegalStateException("Already initialized.");
         }
     }
+
     public static synchronized ProviderInstance getInstance() {
         if (instance == null) {
             synchronized (ProviderInstance.class) {
@@ -29,6 +31,7 @@ public class ProviderInstance {
         }
         return instance;
     }
+
     public static Provider getCryptoProvider() {
         return CRYPTO_PROVIDER;
     }

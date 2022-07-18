@@ -1,5 +1,5 @@
 package io.Adrestus.crypto;
-import org.apache.commons.codec.StringEncoder;
+
 import org.apache.commons.codec.binary.Base32;
 
 import java.nio.charset.StandardCharsets;
@@ -30,7 +30,7 @@ public class Base32Encoder {
      */
     public static String getString(final byte[] bytes) {
         final Base32 codec = new Base32();
-        return  codec.encodeAsString(bytes);
+        return codec.encodeAsString(bytes);
     }
 
 }

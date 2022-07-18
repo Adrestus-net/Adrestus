@@ -113,8 +113,8 @@ public class BLSSignature {
     }
 
     public static boolean fastAggregateVerify(List<BLSPublicKey> BLSPublicKeys, Bytes message, Signature signature) {
-        BLSPublicKey aggregated_pub=BLSPublicKey.aggregate(BLSPublicKeys);
-        return BLSSignature.verify(signature,message.toArray(),aggregated_pub);
+        BLSPublicKey aggregated_pub = BLSPublicKey.aggregate(BLSPublicKeys);
+        return BLSSignature.verify(signature, message.toArray(), aggregated_pub);
     }
 
 

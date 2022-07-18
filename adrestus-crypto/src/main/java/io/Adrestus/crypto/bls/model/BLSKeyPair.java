@@ -7,17 +7,18 @@ public class BLSKeyPair {
 
     private BLSPrivateKey PrivateKey;
     private BLSPublicKey PublicKey;
-    
-    
-    public BLSKeyPair(int entropy){
-        this.PrivateKey=new BLSPrivateKey(entropy);
-        this.PublicKey=new BLSPublicKey(this.PrivateKey);
+
+
+    public BLSKeyPair(int entropy) {
+        this.PrivateKey = new BLSPrivateKey(entropy);
+        this.PublicKey = new BLSPublicKey(this.PrivateKey);
     }
-    public BLSKeyPair(SecureRandom random){
-        this.PrivateKey=new BLSPrivateKey(random);
-        this.PublicKey=new BLSPublicKey(this.PrivateKey);
+
+    public BLSKeyPair(SecureRandom random) {
+        this.PrivateKey = new BLSPrivateKey(random);
+        this.PublicKey = new BLSPublicKey(this.PrivateKey);
     }
-    
+
     public BLSKeyPair(BLSPrivateKey privateKey, BLSPublicKey PublicKey) {
         this.PrivateKey = privateKey;
         this.PublicKey = PublicKey;

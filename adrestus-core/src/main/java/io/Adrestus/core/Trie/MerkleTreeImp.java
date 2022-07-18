@@ -22,7 +22,7 @@ public class MerkleTreeImp implements MerkleTree {
     public void my_generate(List<MerkleNode> dataBlocks) {
         ArrayList<MerkleNode> current = new ArrayList<MerkleNode>();
         for (int i = 0; i < dataBlocks.size(); i++) {
-            MerkleNode node=new MerkleNode(HashUtil.sha256(dataBlocks.get(i).getTransactionHash()));
+            MerkleNode node = new MerkleNode(HashUtil.sha256(dataBlocks.get(i).getTransactionHash()));
             current.add(node);
         }
 
@@ -32,12 +32,13 @@ public class MerkleTreeImp implements MerkleTree {
     public void my_generate2(List<MerkleNode> dataBlocks) {
         ArrayList<MerkleNode> current = new ArrayList<MerkleNode>();
         for (int i = 0; i < dataBlocks.size(); i++) {
-            MerkleNode node=new MerkleNode(HashUtil.sha256(dataBlocks.get(i).getTransactionHash()));
+            MerkleNode node = new MerkleNode(HashUtil.sha256(dataBlocks.get(i).getTransactionHash()));
             current.add(node);
         }
 
         buildTree2(current).result();
     }
+
     public void buildTree(ArrayList<MerkleNode> list) {
         if (list.size() == 1) {
             this.root = list.get(0);
@@ -121,7 +122,7 @@ public class MerkleTreeImp implements MerkleTree {
     public void build_proofs(List<MerkleNode> dataBlocks, MerkleNode current) {
         ArrayList<MerkleNode> current_list = new ArrayList<MerkleNode>();
         for (int i = 0; i < dataBlocks.size(); i++) {
-            MerkleNode node=new MerkleNode(HashUtil.sha256(dataBlocks.get(i).getTransactionHash()));
+            MerkleNode node = new MerkleNode(HashUtil.sha256(dataBlocks.get(i).getTransactionHash()));
             current_list.add(node);
         }
 
@@ -134,7 +135,7 @@ public class MerkleTreeImp implements MerkleTree {
     public void build_proofs2(List<MerkleNode> dataBlocks, MerkleNode current) {
         ArrayList<MerkleNode> current_list = new ArrayList<MerkleNode>();
         for (int i = 0; i < dataBlocks.size(); i++) {
-            MerkleNode node=new MerkleNode(HashUtil.sha256(dataBlocks.get(i).getTransactionHash()));
+            MerkleNode node = new MerkleNode(HashUtil.sha256(dataBlocks.get(i).getTransactionHash()));
             current_list.add(node);
         }
 
@@ -151,7 +152,7 @@ public class MerkleTreeImp implements MerkleTree {
                 position = i;
             }
         }
-        if(position==-1)
+        if (position == -1)
             System.out.println("problima");
         ArrayList<MerkleNode> iterate = new ArrayList<MerkleNode>();
         int i = 0;
@@ -201,7 +202,7 @@ public class MerkleTreeImp implements MerkleTree {
                 position = i;
             }
         }
-        if(position==-1)
+        if (position == -1)
             System.out.println("problima");
         ArrayList<MerkleNode> iterate = new ArrayList<MerkleNode>();
         MerkleNode node = new MerkleNode();
@@ -241,6 +242,7 @@ public class MerkleTreeImp implements MerkleTree {
         }
         return RecursiveOptimizer.more(() -> proofs2(iterate, node));
     }
+
     public String GenerateRoot(MerkleProofs proofs) {
         String hash = proofs.getTarget().getTransactionHash();
         for (int i = 0; i < proofs.getList_builder().size(); i++) {

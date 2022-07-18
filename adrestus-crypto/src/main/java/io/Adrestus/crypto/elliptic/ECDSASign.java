@@ -1,7 +1,5 @@
 package io.Adrestus.crypto.elliptic;
 
-import java.math.BigInteger;
-
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.PrimitiveUtil;
 import org.bouncycastle.crypto.digests.SHA256Digest;
@@ -11,6 +9,8 @@ import org.bouncycastle.math.ec.ECPoint;
 import org.bouncycastle.util.encoders.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.math.BigInteger;
 
 public class ECDSASign implements SignInterface {
 
