@@ -11,7 +11,6 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-;
 
 public class MerkleTreeTest {
     private MerkleTreeImp tree;

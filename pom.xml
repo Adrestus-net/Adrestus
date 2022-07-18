@@ -48,13 +48,13 @@
     </properties>
     <repositories>
         <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+        <repository>
             <id>keccakj</id>
             <name>keccakj</name>
             <url>https://repository.mulesoft.org/nexus/content/repositories/public</url>
-        </repository>
-        <repository>
-            <id>jitpack.io</id>
-            <url>https://jitpack.io</url>
         </repository>
     </repositories>
     <distributionManagement>
