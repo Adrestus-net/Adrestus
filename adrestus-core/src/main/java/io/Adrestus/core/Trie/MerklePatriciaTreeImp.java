@@ -1,7 +1,6 @@
 package io.Adrestus.core.Trie;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import io.Adrestus.core.HashMapDB;
 import io.Adrestus.crypto.ByteUtil;
 import io.Adrestus.crypto.FastByteComparisons;
 import io.Adrestus.crypto.HashUtil;

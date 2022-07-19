@@ -6,9 +6,16 @@ public class BlockTest {
 
     @Test
     public void block_test() {
-        var genesis= BlockFactory.getCoin(BlockType.GENESIS);
-        var regular= BlockFactory.getCoin(BlockType.REGULAR);
+     TransactionBlock t=new TransactionBlock(2);
+     t.accept(new Genesis());
+    }
 
-        genesis.forgeBlock(new TransactionBlock(3));
+    @Test
+    public void block_test2() {
+       DefaultFactory factory=new DefaultFactory(new TransactionBlock(3),new CommitteeBlock(6));
+       var genesis= (Genesis) factory.getBlock(BlockType.GENESIS);
+       var regural_block=factory.getBlock(BlockType.REGULAR);
+       factory.accept(genesis);
+       factory.accept(regural_block);
     }
 }

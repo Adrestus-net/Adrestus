@@ -1,4 +1,4 @@
-package io.Adrestus.core;
+package io.Adrestus.core.Trie;
 
 import gnu.trove.map.hash.TLongLongHashMap;
 

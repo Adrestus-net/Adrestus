@@ -27,7 +27,7 @@ public class ECKeyPairTest {
         String message = "message";
 
 
-        Sign.SignatureData signatureData = ecdsaSign.secp256SignMessage(message.getBytes(), ecKeyPair);
+        SignatureData signatureData = ecdsaSign.secp256SignMessage(message.getBytes(), ecKeyPair);
 
         byte[] hash = HashUtil.sha3(message.getBytes());
 

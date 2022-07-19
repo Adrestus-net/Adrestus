@@ -26,19 +26,19 @@ public class ECDSASign implements SignInterface {
      * @param keyPair
      * @return
      */
-    public Sign.SignatureData secp256SignMessage(byte[] message, ECKeyPair keyPair) {
-        Sign.SignatureData signatureData = signMessage(message, keyPair);
-        return new Sign.SignatureData(
+    public SignatureData secp256SignMessage(byte[] message, ECKeyPair keyPair) {
+        SignatureData signatureData = signMessage(message, keyPair);
+        return new SignatureData(
                 (byte) (signatureData.getV() - 27), signatureData.getR(), signatureData.getS());
     }
 
 
     public boolean secp256Verify(
-            byte[] hash, BigInteger publicKey, Sign.SignatureData signatureData) {
+            byte[] hash, BigInteger publicKey, SignatureData signatureData) {
         return verify(
                 hash,
                 publicKey,
-                new Sign.SignatureData(
+                new SignatureData(
                         (byte) (signatureData.getV() + 27),
                         signatureData.getR(),
                         signatureData.getS()));
@@ -46,7 +46,7 @@ public class ECDSASign implements SignInterface {
 
 
     @Override
-    public Sign.SignatureData signMessage(byte[] message, ECKeyPair keyPair) {
+    public SignatureData signMessage(byte[] message, ECKeyPair keyPair) {
         BigInteger privateKey = keyPair.getPrivateKey();
         BigInteger publicKey = keyPair.getPublicKey();
 
@@ -75,11 +75,11 @@ public class ECDSASign implements SignInterface {
         byte[] r = PrimitiveUtil.toBytesPadded(sig.getR(), 32);
         byte[] s = PrimitiveUtil.toBytesPadded(sig.getS(), 32);
 
-        return new Sign.SignatureData(v, r, s);
+        return new SignatureData(v, r, s);
     }
 
 
-    public boolean verify(byte[] hash, BigInteger publicKey, Sign.SignatureData signatureData) {
+    public boolean verify(byte[] hash, BigInteger publicKey, SignatureData signatureData) {
         ECDSASignature sig =
                 new ECDSASignature(
                         PrimitiveUtil.toBigInt(signatureData.getR()),

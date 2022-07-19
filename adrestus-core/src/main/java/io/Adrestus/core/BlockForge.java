@@ -1,6 +1,7 @@
 package io.Adrestus.core;
 
-public interface BlockForge<T extends AbstractBlock,R extends AbstractBlock> {
+public interface BlockForge{
 
-  R forgeBlock(T t);
+   void forgeTransactionBlock(TransactionBlock transactionBlock);
+   void forgeCommitteBlock(CommitteeBlock committeeBlock);
 }
