@@ -1,27 +1,25 @@
 package io.Adrestus.core;
 
-import io.Adrestus.crypto.elliptic.SignatureData;
+import io.activej.serializer.annotations.Serialize;
+
 import java.util.Objects;
 
-
-public class DelegateTransaction extends Transaction{
+public class DelegateTransaction extends Transaction {
 
     private String DelegatorAddress;
     private String ValidatorAddress;
 
-    public DelegateTransaction(TransactionStatus status, int zoneFrom, int zoneTo, int blockNumber, java.sql.Timestamp timestamp, String from, String to, double amount, double transactionFee, int nonce, SignatureData signature, String delegatorAddress, String validatorAddress, double amount1) {
-        super(status, zoneFrom, zoneTo, blockNumber, timestamp, from, to, amount, transactionFee, nonce, signature);
+
+    public DelegateTransaction(String delegatorAddress, String validatorAddress) {
         DelegatorAddress = delegatorAddress;
         ValidatorAddress = validatorAddress;
     }
 
-    public DelegateTransaction(TransactionStatus status, int zoneFrom, int zoneTo, int blockNumber, String from, String to, double amount, SignatureData signature, String delegatorAddress, String validatorAddress, double amount1) {
-        super(status, zoneFrom, zoneTo, blockNumber, from, to, amount, signature);
-        DelegatorAddress = delegatorAddress;
-        ValidatorAddress = validatorAddress;
+    public DelegateTransaction() {
+
     }
 
-
+    @Serialize
     public String getDelegatorAddress() {
         return DelegatorAddress;
     }
@@ -30,6 +28,7 @@ public class DelegateTransaction extends Transaction{
         DelegatorAddress = delegatorAddress;
     }
 
+    @Serialize
     public String getValidatorAddress() {
         return ValidatorAddress;
     }
@@ -57,6 +56,18 @@ public class DelegateTransaction extends Transaction{
         return "DelegateTransaction{" +
                 "DelegatorAddress='" + DelegatorAddress + '\'' +
                 ", ValidatorAddress='" + ValidatorAddress + '\'' +
+                ", Type=" + Type +
+                ", Status=" + Status +
+                ", ZoneFrom=" + ZoneFrom +
+                ", ZoneTo=" + ZoneTo +
+                ", timestamp='" + timestamp + '\'' +
+                ", BlockNumber=" + BlockNumber +
+                ", From='" + From + '\'' +
+                ", To='" + To + '\'' +
+                ", Amount=" + Amount +
+                ", TransactionFee=" + TransactionFee +
+                ", Nonce=" + Nonce +
+                ", Signature=" + Signature +
                 '}';
     }
 }

@@ -1,163 +1,44 @@
 package io.Adrestus.core;
 
-import io.Adrestus.crypto.elliptic.SignatureData;
-import io.Adrestus.util.GetTime;
-
-import java.sql.Timestamp;
-import java.util.Objects;
+import com.google.common.base.Objects;
+import io.Adrestus.crypto.elliptic.ECDSASignature;
+import io.activej.serializer.annotations.Serialize;
 
 public class Transaction {
 
 
-    private TransactionType Type;
-    private TransactionStatus Status;
-    private int ZoneFrom;
-    private int ZoneTo;
     private String Hash;
-    private int BlockNumber;
-    private Timestamp Timestamp;
-    private String From;
-    private String to;
-    private double Amount;
-    private double TransactionFee;
-    private int Nonce;
-    private SignatureData Signature;
+    public TransactionType Type;
+    public TransactionStatus Status;
+    public int ZoneFrom;
+    public int ZoneTo;
+    public String timestamp;
+    public int BlockNumber;
+    public String From;
+    public String To;
+    public double Amount;
+    public double TransactionFee;
+    public int Nonce;
+    public ECDSASignature Signature;
 
 
-    public Transaction(TransactionStatus status, int zoneFrom, int zoneTo, int blockNumber, java.sql.Timestamp timestamp, String from, String to, double amount, double transactionFee, int nonce, SignatureData signature) {
-        this.Status = status;
-        this.ZoneFrom = zoneFrom;
-        this.ZoneTo = zoneTo;
-        this.BlockNumber = blockNumber;
-        this.Timestamp = timestamp;
-        this.From = from;
-        this.to = to;
-        this.Amount = amount;
-        this.TransactionFee = transactionFee;
-        this.Nonce = nonce;
-        this.Signature = signature;
+    public Transaction() {
+        this.Hash = "";
+        this.Type = TransactionType.ORDINARY;
+        this.Status = TransactionStatus.PENDING;
+        this.ZoneFrom = 0;
+        this.ZoneTo = 0;
+        this.BlockNumber = 0;
+        this.timestamp = "";
+        this.From = "";
+        this.To = "";
+        this.Amount = 0;
+        this.TransactionFee = 0;
+        this.Nonce = 0;
+        this.Signature = new ECDSASignature();
     }
 
-    public Transaction(TransactionStatus status, int zoneFrom, int zoneTo, int blockNumber, String from, String to, double amount, SignatureData signature) {
-        this.Status = status;
-        this.ZoneFrom = zoneFrom;
-        this.ZoneTo = zoneTo;
-        this.BlockNumber = blockNumber;
-        this.From = from;
-        this.to = to;
-        this.Amount = amount;
-        this.Signature = signature;
-    }
-
-    public Transaction(TransactionType Type,TransactionStatus status, int zoneFrom, int blockNumber, String from,double Amount,int Nonce, SignatureData signature) {
-        this.Type=Type;
-        this.Status = status;
-        this.ZoneFrom = zoneFrom;
-        this.BlockNumber = blockNumber;
-        this.Timestamp= GetTime.GetTimeStamp();
-        this.From = from;
-        this.Amount=Amount;
-        this.Nonce=Nonce;
-        this.Signature = signature;
-    }
-
-    public TransactionStatus getStatus() {
-        return Status;
-    }
-
-    public void setStatus(TransactionStatus status) {
-        Status = status;
-    }
-
-    public int getZoneFrom() {
-        return ZoneFrom;
-    }
-
-    public void setZoneFrom(int zoneFrom) {
-        ZoneFrom = zoneFrom;
-    }
-
-    public int getZoneTo() {
-        return ZoneTo;
-    }
-
-    public void setZoneTo(int zoneTo) {
-        ZoneTo = zoneTo;
-    }
-
-    public String getHash() {
-        return Hash;
-    }
-
-    public void setHash(String hash) {
-        Hash = hash;
-    }
-
-    public int getBlockNumber() {
-        return BlockNumber;
-    }
-
-    public void setBlockNumber(int blockNumber) {
-        BlockNumber = blockNumber;
-    }
-
-    public java.sql.Timestamp getTimestamp() {
-        return Timestamp;
-    }
-
-    public void setTimestamp(java.sql.Timestamp timestamp) {
-        Timestamp = timestamp;
-    }
-
-    public String getFrom() {
-        return From;
-    }
-
-    public void setFrom(String from) {
-        From = from;
-    }
-
-    public String getTo() {
-        return to;
-    }
-
-    public void setTo(String to) {
-        this.to = to;
-    }
-
-    public double getAmount() {
-        return Amount;
-    }
-
-    public void setAmount(double amount) {
-        Amount = amount;
-    }
-
-    public double getTransactionFee() {
-        return TransactionFee;
-    }
-
-    public void setTransactionFee(double transactionFee) {
-        TransactionFee = transactionFee;
-    }
-
-    public int getNonce() {
-        return Nonce;
-    }
-
-    public void setNonce(int nonce) {
-        Nonce = nonce;
-    }
-
-    public SignatureData getSignature() {
-        return Signature;
-    }
-
-    public void setSignature(SignatureData signature) {
-        Signature = signature;
-    }
-
-
+    @Serialize
     public TransactionType getType() {
         return Type;
     }
@@ -166,31 +47,139 @@ public class Transaction {
         Type = type;
     }
 
+    @Serialize
+    public TransactionStatus getStatus() {
+        return Status;
+    }
+
+    public void setStatus(TransactionStatus status) {
+        Status = status;
+    }
+
+    @Serialize
+    public int getZoneFrom() {
+        return ZoneFrom;
+    }
+
+    public void setZoneFrom(int zoneFrom) {
+        ZoneFrom = zoneFrom;
+    }
+
+    @Serialize
+    public int getZoneTo() {
+        return ZoneTo;
+    }
+
+    public void setZoneTo(int zoneTo) {
+        ZoneTo = zoneTo;
+    }
+
+    @Serialize
+    public String getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(String timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    @Serialize
+    public int getBlockNumber() {
+        return BlockNumber;
+    }
+
+    public void setBlockNumber(int blockNumber) {
+        BlockNumber = blockNumber;
+    }
+
+    @Serialize
+    public String getFrom() {
+        return From;
+    }
+
+    public void setFrom(String from) {
+        From = from;
+    }
+
+    @Serialize
+    public String getTo() {
+        return To;
+    }
+
+    public void setTo(String to) {
+        To = to;
+    }
+
+    @Serialize
+    public double getAmount() {
+        return Amount;
+    }
+
+    public void setAmount(double amount) {
+        Amount = amount;
+    }
+
+    @Serialize
+    public double getTransactionFee() {
+        return TransactionFee;
+    }
+
+    public void setTransactionFee(double transactionFee) {
+        TransactionFee = transactionFee;
+    }
+
+    @Serialize
+    public int getNonce() {
+        return Nonce;
+    }
+
+    public void setNonce(int nonce) {
+        Nonce = nonce;
+    }
+
+    @Serialize
+    public ECDSASignature getSignature() {
+        return Signature;
+    }
+
+    public void setSignature(ECDSASignature signature) {
+        Signature = signature;
+    }
+
+    @Serialize
+    public String getHash() {
+        return Hash;
+    }
+
+    public void setHash(String hash) {
+        Hash = hash;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Transaction that = (Transaction) o;
-        return ZoneFrom == that.ZoneFrom && ZoneTo == that.ZoneTo && BlockNumber == that.BlockNumber && Double.compare(that.Amount, Amount) == 0 && Double.compare(that.TransactionFee, TransactionFee) == 0 && Nonce == that.Nonce && Type == that.Type && Status == that.Status && Objects.equals(Hash, that.Hash) && Objects.equals(Timestamp, that.Timestamp) && Objects.equals(From, that.From) && Objects.equals(to, that.to) && Objects.equals(Signature, that.Signature);
+        return ZoneFrom == that.ZoneFrom && ZoneTo == that.ZoneTo && BlockNumber == that.BlockNumber && Double.compare(that.Amount, Amount) == 0 && Double.compare(that.TransactionFee, TransactionFee) == 0 && Nonce == that.Nonce && Objects.equal(Hash, that.Hash) && Type == that.Type && Status == that.Status && Objects.equal(timestamp, that.timestamp) && Objects.equal(From, that.From) && Objects.equal(To, that.To) && Objects.equal(Signature, that.Signature);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(Type, Status, ZoneFrom, ZoneTo, Hash, BlockNumber, Timestamp, From, to, Amount, TransactionFee, Nonce, Signature);
+        return Objects.hashCode(Hash, Type, Status, ZoneFrom, ZoneTo, timestamp, BlockNumber, From, To, Amount, TransactionFee, Nonce, Signature);
     }
 
     @Override
     public String toString() {
         return "Transaction{" +
-                "Type=" + Type +
+                "Hash='" + Hash + '\'' +
+                ", Type=" + Type +
                 ", Status=" + Status +
                 ", ZoneFrom=" + ZoneFrom +
                 ", ZoneTo=" + ZoneTo +
-                ", Hash='" + Hash + '\'' +
+                ", timestamp='" + timestamp + '\'' +
                 ", BlockNumber=" + BlockNumber +
-                ", Timestamp=" + Timestamp +
                 ", From='" + From + '\'' +
-                ", to='" + to + '\'' +
+                ", To='" + To + '\'' +
                 ", Amount=" + Amount +
                 ", TransactionFee=" + TransactionFee +
                 ", Nonce=" + Nonce +

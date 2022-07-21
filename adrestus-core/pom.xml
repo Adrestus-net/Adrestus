@@ -20,6 +20,7 @@
         <maven.compiler.target>1.7</maven.compiler.target>
         <util.version>1.0-SNAPSHOT</util.version>
         <lombok.version>1.18.24</lombok.version>
+        <serializer.version>5.3</serializer.version>
     </properties>
     <repositories>
         <repository>
@@ -47,6 +48,12 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>${lombok.version}</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/io.activej/activej-serializer -->
+        <dependency>
+            <groupId>io.activej</groupId>
+            <artifactId>activej-serializer</artifactId>
+            <version>${serializer.version}</version>
         </dependency>
     </dependencies>
     <build>

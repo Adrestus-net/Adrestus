@@ -1,10 +1,10 @@
 package io.Adrestus.core;
 
-import io.Adrestus.crypto.elliptic.SignatureData;
+import io.activej.serializer.annotations.Serialize;
 
 import java.util.Objects;
 
-public class StakingTransaction extends Transaction{
+public class StakingTransaction extends Transaction {
     private String Name;
     private String Details;
     private String Website;
@@ -12,26 +12,10 @@ public class StakingTransaction extends Transaction{
     private double CommissionRate;
     private String ValidatorAddress;
 
-    public StakingTransaction(TransactionStatus status, int zoneFrom, int zoneTo, int blockNumber, java.sql.Timestamp timestamp, String from, String to, double amount, double transactionFee, int nonce, SignatureData signature, String name, double amount1, String details, String website, String identity, double commissionRate, String validatorAddress) {
-        super(status, zoneFrom, zoneTo, blockNumber, timestamp, from, to, amount, transactionFee, nonce, signature);
-        Name = name;
-        Details = details;
-        Website = website;
-        Identity = identity;
-        CommissionRate = commissionRate;
-        ValidatorAddress = validatorAddress;
+    public StakingTransaction() {
     }
 
-    public StakingTransaction(TransactionType Type, TransactionStatus status, int zoneFrom, int blockNumber, String from, int Nonce, SignatureData signature, String name, double amount, String details, String website, String identity, double commissionRate, String validatorAddress) {
-        super(Type, status, zoneFrom, blockNumber, from,amount, Nonce, signature);
-        Name = name;
-        Details = details;
-        Website = website;
-        Identity = identity;
-        CommissionRate = commissionRate;
-        ValidatorAddress = validatorAddress;
-    }
-
+    @Serialize
     public String getName() {
         return Name;
     }
@@ -40,6 +24,7 @@ public class StakingTransaction extends Transaction{
         Name = name;
     }
 
+    @Serialize
     public String getDetails() {
         return Details;
     }
@@ -48,6 +33,7 @@ public class StakingTransaction extends Transaction{
         Details = details;
     }
 
+    @Serialize
     public String getWebsite() {
         return Website;
     }
@@ -56,6 +42,7 @@ public class StakingTransaction extends Transaction{
         Website = website;
     }
 
+    @Serialize
     public String getIdentity() {
         return Identity;
     }
@@ -64,6 +51,7 @@ public class StakingTransaction extends Transaction{
         Identity = identity;
     }
 
+    @Serialize
     public double getCommissionRate() {
         return CommissionRate;
     }
@@ -72,6 +60,7 @@ public class StakingTransaction extends Transaction{
         CommissionRate = commissionRate;
     }
 
+    @Serialize
     public String getValidatorAddress() {
         return ValidatorAddress;
     }
@@ -103,6 +92,18 @@ public class StakingTransaction extends Transaction{
                 ", Identity='" + Identity + '\'' +
                 ", CommissionRate=" + CommissionRate +
                 ", ValidatorAddress='" + ValidatorAddress + '\'' +
+                ", Type=" + Type +
+                ", Status=" + Status +
+                ", ZoneFrom=" + ZoneFrom +
+                ", ZoneTo=" + ZoneTo +
+                ", timestamp='" + timestamp + '\'' +
+                ", BlockNumber=" + BlockNumber +
+                ", From='" + From + '\'' +
+                ", To='" + To + '\'' +
+                ", Amount=" + Amount +
+                ", TransactionFee=" + TransactionFee +
+                ", Nonce=" + Nonce +
+                ", Signature=" + Signature +
                 '}';
     }
 }

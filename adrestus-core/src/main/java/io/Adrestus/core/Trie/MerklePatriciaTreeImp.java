@@ -20,8 +20,6 @@ import static io.Adrestus.crypto.EncodeUtil.encodeList;
 import static io.Adrestus.util.RLP.EMPTY_ELEMENT_RLP;
 import static org.apache.commons.lang3.concurrent.ConcurrentUtils.constantFuture;
 
-;
-
 public class MerklePatriciaTreeImp implements PatriciaTree<byte[], byte[]> {
 
     private final static Object NULL_NODE = new Object();
@@ -415,12 +413,12 @@ public class MerklePatriciaTreeImp implements PatriciaTree<byte[], byte[]> {
         void doOnValue(byte[] nodeHash, MerklePatriciaTreeImp.Node node, byte[] key, byte[] value);
     }
 
-    private HashMapDB cache;
+    private final HashMapDB cache;
     private MerklePatriciaTreeImp.Node root;
     private boolean async = true;
 
     public MerklePatriciaTreeImp() {
-        this((byte[]) null);
+        this(null);
     }
 
     public MerklePatriciaTreeImp(byte[] root) {

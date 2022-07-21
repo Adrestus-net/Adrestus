@@ -1,17 +1,19 @@
 package io.Adrestus.core;
 
-import io.Adrestus.crypto.elliptic.SignatureData;
+import io.activej.serializer.annotations.Serialize;
 
-import java.util.Objects;
 
-public class RewardsTransaction extends Transaction{
+public class RewardsTransaction extends Transaction {
     private String DelegatorAddress;
 
-    public RewardsTransaction(TransactionStatus status, int zoneFrom, int blockNumber, String from, double Amount, int Nonce, SignatureData signature, String delegatorAddress) {
-        super(TransactionType.REWARDS, status, zoneFrom, blockNumber, from, Amount, Nonce, signature);
-        DelegatorAddress = delegatorAddress;
+    public RewardsTransaction(String DelegatorAddress) {
+        this.DelegatorAddress = DelegatorAddress;
     }
 
+    public RewardsTransaction() {
+    }
+
+    @Serialize
     public String getDelegatorAddress() {
         return DelegatorAddress;
     }
@@ -21,23 +23,21 @@ public class RewardsTransaction extends Transaction{
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-        RewardsTransaction that = (RewardsTransaction) o;
-        return Objects.equals(DelegatorAddress, that.DelegatorAddress);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), DelegatorAddress);
-    }
-
-    @Override
     public String toString() {
         return "RewardsTransaction{" +
                 "DelegatorAddress='" + DelegatorAddress + '\'' +
+                ", Type=" + Type +
+                ", Status=" + Status +
+                ", ZoneFrom=" + ZoneFrom +
+                ", ZoneTo=" + ZoneTo +
+                ", timestamp='" + timestamp + '\'' +
+                ", BlockNumber=" + BlockNumber +
+                ", From='" + From + '\'' +
+                ", To='" + To + '\'' +
+                ", Amount=" + Amount +
+                ", TransactionFee=" + TransactionFee +
+                ", Nonce=" + Nonce +
+                ", Signature=" + Signature +
                 '}';
     }
 }

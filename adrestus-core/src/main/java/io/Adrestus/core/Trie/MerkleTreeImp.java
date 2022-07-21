@@ -11,7 +11,7 @@ public class MerkleTreeImp implements MerkleTree {
     // private ArrayList<MekleeNode> proofs = new ArrayList<MekleeNode>();
 
     private MerkleProofs MerkleProofs;// = new MerkleProofs(new ArrayList<MerkleNode>());
-    private int pos = 0;
+    private final int pos = 0;
 
     @Override
     public boolean isMekleeNodeExisted(List<MerkleNode> list, String roothash, MerkleNode node) {

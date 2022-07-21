@@ -10,6 +10,9 @@ public class ECDSASignature {
 
     public ECPoint p;
 
+    public ECDSASignature() {
+    }
+
     public ECDSASignature(BigInteger r, BigInteger s, ECPoint p) {
         this.r = r;
         this.s = s;
