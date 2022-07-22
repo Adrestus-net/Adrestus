@@ -7,19 +7,19 @@ import io.activej.serializer.annotations.Serialize;
 public class Transaction {
 
 
-    private String Hash;
-    public TransactionType Type;
-    public TransactionStatus Status;
-    public int ZoneFrom;
-    public int ZoneTo;
-    public String timestamp;
-    public int BlockNumber;
-    public String From;
-    public String To;
-    public double Amount;
-    public double TransactionFee;
-    public int Nonce;
-    public ECDSASignature Signature;
+    protected String Hash;
+    protected  TransactionType Type;
+    protected  TransactionStatus Status;
+    protected  int ZoneFrom;
+    protected  int ZoneTo;
+    protected  String timestamp;
+    protected  int BlockNumber;
+    protected  String From;
+    protected  String To;
+    protected  double Amount;
+    protected  double TransactionFee;
+    protected  int Nonce;
+    protected  ECDSASignature Signature;
 
 
     public Transaction() {
@@ -36,6 +36,22 @@ public class Transaction {
         this.TransactionFee = 0;
         this.Nonce = 0;
         this.Signature = new ECDSASignature();
+    }
+
+    public Transaction(String hash, TransactionType type, TransactionStatus status, int zoneFrom, int zoneTo, String timestamp, int blockNumber, String from, String to, double amount, double transactionFee, int nonce, ECDSASignature signature) {
+        Hash = hash;
+        Type = type;
+        Status = status;
+        ZoneFrom = zoneFrom;
+        ZoneTo = zoneTo;
+        this.timestamp = timestamp;
+        BlockNumber = blockNumber;
+        From = from;
+        To = to;
+        Amount = amount;
+        TransactionFee = transactionFee;
+        Nonce = nonce;
+        Signature = signature;
     }
 
     @Serialize
@@ -168,6 +184,9 @@ public class Transaction {
         return Objects.hashCode(Hash, Type, Status, ZoneFrom, ZoneTo, timestamp, BlockNumber, From, To, Amount, TransactionFee, Nonce, Signature);
     }
 
+    public void d(){
+        System.out.println("transaction");
+    }
     @Override
     public String toString() {
         return "Transaction{" +

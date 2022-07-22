@@ -21,6 +21,7 @@
         <util.version>1.0-SNAPSHOT</util.version>
         <lombok.version>1.18.24</lombok.version>
         <serializer.version>5.3</serializer.version>
+        <disruptor.version>3.4.4</disruptor.version>
     </properties>
     <repositories>
         <repository>
@@ -49,11 +50,15 @@
             <artifactId>lombok</artifactId>
             <version>${lombok.version}</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/io.activej/activej-serializer -->
         <dependency>
             <groupId>io.activej</groupId>
             <artifactId>activej-serializer</artifactId>
             <version>${serializer.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.lmax</groupId>
+            <artifactId>disruptor</artifactId>
+            <version>${disruptor.version}</version>
         </dependency>
     </dependencies>
     <build>

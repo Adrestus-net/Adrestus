@@ -106,7 +106,7 @@ public class Sign {
         return signedMessageHashToKey(getEthereumMessageHash(message), signatureData);
     }
 
-    static BigInteger signedMessageHashToKey(byte[] messageHash, SignatureData signatureData)
+    public static BigInteger signedMessageHashToKey(byte[] messageHash, SignatureData signatureData)
             throws SignatureException {
 
         byte[] r = signatureData.getR();

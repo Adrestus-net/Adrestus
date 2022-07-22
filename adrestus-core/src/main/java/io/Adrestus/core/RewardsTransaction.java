@@ -1,5 +1,6 @@
 package io.Adrestus.core;
 
+import io.Adrestus.crypto.elliptic.ECDSASignature;
 import io.activej.serializer.annotations.Serialize;
 
 
@@ -8,6 +9,11 @@ public class RewardsTransaction extends Transaction {
 
     public RewardsTransaction(String DelegatorAddress) {
         this.DelegatorAddress = DelegatorAddress;
+    }
+
+    public RewardsTransaction(String hash, TransactionType type, TransactionStatus status, int zoneFrom, int zoneTo, String timestamp, int blockNumber, String from, String to, double amount, double transactionFee, int nonce, ECDSASignature signature, String delegatorAddress) {
+        super(hash, type, status, zoneFrom, zoneTo, timestamp, blockNumber, from, to, amount, transactionFee, nonce, signature);
+        DelegatorAddress = delegatorAddress;
     }
 
     public RewardsTransaction() {
@@ -21,7 +27,9 @@ public class RewardsTransaction extends Transaction {
     public void setDelegatorAddress(String delegatorAddress) {
         DelegatorAddress = delegatorAddress;
     }
-
+    public void d(){
+        System.out.println("reward");
+    }
     @Override
     public String toString() {
         return "RewardsTransaction{" +

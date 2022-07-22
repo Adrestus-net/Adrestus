@@ -1,5 +1,6 @@
 package io.Adrestus.core;
 
+import io.Adrestus.crypto.elliptic.ECDSASignature;
 import io.activej.serializer.annotations.Serialize;
 
 import java.util.Objects;
@@ -11,6 +12,25 @@ public class StakingTransaction extends Transaction {
     private String Identity;
     private double CommissionRate;
     private String ValidatorAddress;
+
+    public StakingTransaction(String hash, TransactionType type, TransactionStatus status, int zoneFrom, int zoneTo, String timestamp, int blockNumber, String from, String to, double amount, double transactionFee, int nonce, ECDSASignature signature, String name, String details, String website, String identity, double commissionRate, String validatorAddress) {
+        super(hash, type, status, zoneFrom, zoneTo, timestamp, blockNumber, from, to, amount, transactionFee, nonce, signature);
+        Name = name;
+        Details = details;
+        Website = website;
+        Identity = identity;
+        CommissionRate = commissionRate;
+        ValidatorAddress = validatorAddress;
+    }
+
+    public StakingTransaction(String name, String details, String website, String identity, double commissionRate, String validatorAddress) {
+        Name = name;
+        Details = details;
+        Website = website;
+        Identity = identity;
+        CommissionRate = commissionRate;
+        ValidatorAddress = validatorAddress;
+    }
 
     public StakingTransaction() {
     }
