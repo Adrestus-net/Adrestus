@@ -7,7 +7,7 @@ import io.activej.serializer.annotations.Serialize;
 public class Transaction {
 
 
-    protected String Hash;
+    protected  String Hash;
     protected  TransactionType Type;
     protected  TransactionStatus Status;
     protected  int ZoneFrom;

@@ -17,8 +17,8 @@ import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@BenchmarkMode({Mode.Throughput})
-@OutputTimeUnit(TimeUnit.SECONDS)
+@BenchmarkMode({Mode.AverageTime})
+@OutputTimeUnit(TimeUnit.NANOSECONDS)
 @State(Scope.Thread)
 public class ECKeyPaiMeasurements {
     private static byte[] hash;
@@ -34,35 +34,36 @@ public class ECKeyPaiMeasurements {
         ecdsaSign = new ECDSASign();
 
 
-        signatureData = ecdsaSign.secp256SignMessage(message.getBytes(), ecKeyPair);
-
         hash = HashUtil.sha3(message.getBytes());
+
+        signatureData = ecdsaSign.secp256SignMessage(message.getBytes(), ecKeyPair);
 
         ecKeyPair2 = Keys.createEcKeyPair(new SecureRandom("fd8cee9c1a3f3f57ab51b25740b24341ae093c8f697fde4df948050d3acd1700f6379d716104d2159e4912509c40ac81714d833e93b822e5ba0fadd68d5568a2".getBytes(StandardCharsets.UTF_8)));
 
         signature = ecKeyPair2.sign(message.getBytes());
     }
 
-    @Threads(1)
     @Benchmark
+    @Fork(jvmArgsAppend = {"-XX:+UseZGC"})
+    public static void ECDSA()  {
+        boolean verify = ecdsaSign.secp256Verify(hash, ecKeyPair.getPublicKey(), signatureData);
+        assertEquals(verify, true);
+    }
+
+    @Threads(1)
+    //@Benchmark
     public static void ECCDSA2(){
         boolean verify = ecKeyPair2.verify(message.getBytes(), signature);
 
         assertEquals(verify, true);
     }
 
-    @Threads(1)
-    @Benchmark
-    public static void ECDSA()  {
-        boolean verify = ecdsaSign.secp256Verify(hash, ecKeyPair.getPublicKey(), signatureData);
-        assertEquals(verify, true);
-    }
 
       @Test
      public void Test() throws RunnerException{
         final Options options = new OptionsBuilder()
                 .include(ECKeyPaiMeasurements.class.getSimpleName())
-                .measurementIterations(1)
+                .measurementIterations(10)
                 .forks(0)
                 .warmupIterations(1)
                 .build();

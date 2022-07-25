@@ -85,7 +85,38 @@ public class Sign {
         // We remove the prefix
         return new BigInteger(1, Arrays.copyOfRange(qBytes, 1, qBytes.length));
     }
+    public static BigInteger recoverFromSignature2(int recId, ECDSASignature sig, byte[] message) {
+        Assertions.verifyPrecondition(recId >= 0, "recId must be positive");
+        Assertions.verifyPrecondition(sig.getR().signum() >= 0, "r must be positive");
+        Assertions.verifyPrecondition(sig.getS().signum() >= 0, "s must be positive");
+        Assertions.verifyPrecondition(message != null, "message cannot be null");
 
+        BigInteger n = CURVE.getN(); // Curve order.
+        BigInteger i = BigInteger.valueOf((long) recId / 2);
+        BigInteger x = sig.getR().add(i.multiply(n));
+
+        BigInteger prime = SecP256K1Curve.q;
+        if (x.compareTo(prime) >= 0) {
+            return null;
+        }
+
+       ECPoint R = decompressKey(x, (recId & 1) == 1);
+
+      /*   if (!R.multiply(n).isInfinity()) {
+            return null;
+        }
+
+        BigInteger e = new BigInteger(1, message);
+
+        BigInteger eInv = BigInteger.ZERO.subtract(e).mod(n);
+        BigInteger rInv = sig.getR().modInverse(n);
+        BigInteger srInv = rInv.multiply(sig.getS()).mod(n);
+        BigInteger eInvrInv = rInv.multiply(eInv).mod(n);
+       // ECPoint q = ECAlgorithms.sumOfTwoMultiplies(CURVE.getG(), eInvrInv, R, srInv);*/
+        ECPoint q = ECAlgorithms.sumOfTwoMultiplies(CURVE.getG(), new BigInteger("89766047261045298149433371969253764937580361785973527933396373853991659848777"), R, new BigInteger("37381850894372326151990320276690648258401068988068323022702735027986977698791"));
+       // byte[] qBytes = q.getEncoded(false);
+        return new BigInteger("1");
+    }
     /**
      * Decompress a compressed public key (x co-ord and low-bit of y-coord).
      */

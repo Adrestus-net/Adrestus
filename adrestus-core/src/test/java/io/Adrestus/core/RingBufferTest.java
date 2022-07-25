@@ -7,7 +7,7 @@ public class RingBufferTest {
 
     @Test
     public void TransactionTest() {
-        TransactionEventPublisher publisher = new TransactionEventPublisher(10, 1024);
+        TransactionEventPublisher publisher = new TransactionEventPublisher(1024);
         Transaction tr = new RewardsTransaction("Delegator Address");
         tr.setAmount(100);
         publisher.start();

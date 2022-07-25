@@ -10,6 +10,7 @@ import io.Adrestus.core.RingBuffer.event.TransactionEvent;
 import io.Adrestus.core.RingBuffer.factory.TransactionEventFactory;
 import io.Adrestus.core.RingBuffer.handler.transactions.SignatureEventHandler;
 import io.Adrestus.core.Transaction;
+import io.Adrestus.util.ThreadCalculator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,10 +28,13 @@ public class TransactionEventPublisher implements Publisher<Transaction> {
     private final int jobQueueSize;
     private final int bufferSize;
     private final Disruptor<TransactionEvent> disruptor;
-    private final AtomicBoolean isRunning = new AtomicBoolean(true);
+    private final AtomicBoolean isRunning;
+    private final ThreadCalculator threadCalculator;
 
-    public TransactionEventPublisher(int numberOfWorkers, int jobQueueSize) {
-        this.numberOfWorkers = numberOfWorkers;
+    public TransactionEventPublisher(int jobQueueSize) {
+        this.isRunning = new AtomicBoolean(true);
+        this.threadCalculator = new ThreadCalculator();
+        this.numberOfWorkers = this.threadCalculator.calculateOptimalThreadCount();
         this.jobQueueSize = jobQueueSize;
         this.bufferSize = nextPowerOf2(this.jobQueueSize);
         this.executor = Executors.newFixedThreadPool(numberOfWorkers);
@@ -40,7 +44,7 @@ public class TransactionEventPublisher implements Publisher<Transaction> {
 
     @Override
     public void start() {
-        SignatureEventHandler signatureEventHandler=new SignatureEventHandler();
+        SignatureEventHandler signatureEventHandler = new SignatureEventHandler();
         disruptor.handleEventsWith(signatureEventHandler);
         disruptor.start();
     }
@@ -51,7 +55,6 @@ public class TransactionEventPublisher implements Publisher<Transaction> {
         try {
             TransactionEvent event = this.disruptor.getRingBuffer().get(sequence); // Get the entry in the Disruptor
             event.setTransaction(transaction); // Fill with data
-            event.getTransaction().toString();
         } finally {
             this.disruptor.getRingBuffer().publish(sequence);
         }
