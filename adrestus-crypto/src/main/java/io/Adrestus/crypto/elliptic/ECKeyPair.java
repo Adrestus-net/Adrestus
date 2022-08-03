@@ -1,6 +1,6 @@
 package io.Adrestus.crypto.elliptic;
 
-import io.Adrestus.crypto.PrimitiveUtil;
+import org.apache.commons.codec.binary.Hex;
 import org.bouncycastle.crypto.digests.SHA256Digest;
 import org.bouncycastle.crypto.params.ECPrivateKeyParameters;
 import org.bouncycastle.crypto.params.ECPublicKeyParameters;
@@ -11,6 +11,7 @@ import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPublicKey;
 
 import java.math.BigInteger;
 import java.security.KeyPair;
+import java.security.PublicKey;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -32,6 +33,7 @@ public class ECKeyPair {
     }
 
 
+    //compressed pub used to generate the address
     public static ECKeyPair create(KeyPair keyPair) {
         BCECPrivateKey privateKey = (BCECPrivateKey) keyPair.getPrivate();
         BCECPublicKey publicKey = (BCECPublicKey) keyPair.getPublic();
@@ -47,13 +49,9 @@ public class ECKeyPair {
     }
 
 
-    public static ECKeyPair create(BigInteger privateKey) {
-        return new ECKeyPair(privateKey, Sign.publicKeyFromPrivate(privateKey));
-    }
-
-
-    public static ECKeyPair create(byte[] privateKey) {
-        return create(PrimitiveUtil.toBigInt(privateKey));
+    private static String compress(PublicKey publicKey) {
+        StringBuilder sb = new StringBuilder(Hex.encodeHexString(publicKey.getEncoded()));
+        return sb.delete(0, 46).toString();
     }
 
     public ECDSASignature sign(byte[] hash) {

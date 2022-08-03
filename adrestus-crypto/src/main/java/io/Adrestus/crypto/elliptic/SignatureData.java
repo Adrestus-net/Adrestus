@@ -2,7 +2,7 @@ package io.Adrestus.crypto.elliptic;
 
 import java.util.Arrays;
 
-public  class SignatureData {
+public class SignatureData {
     private final byte v;
     private final byte[] r;
     private final byte[] s;

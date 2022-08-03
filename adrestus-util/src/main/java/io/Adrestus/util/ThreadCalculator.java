@@ -1,7 +1,7 @@
 package io.Adrestus.util;
 
 
-public class ThreadCalculator extends PoolSizeCalculator{
+public class ThreadCalculator extends PoolSizeCalculator {
 
     private int threadcount;
 

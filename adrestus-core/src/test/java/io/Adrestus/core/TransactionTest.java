@@ -1,7 +1,6 @@
 package io.Adrestus.core;
 
 import io.Adrestus.core.util.SerializationUtil;
-import io.Adrestus.crypto.elliptic.ECDSASignature;
 import org.junit.jupiter.api.Test;
 
 public class TransactionTest {
@@ -9,7 +8,7 @@ public class TransactionTest {
     @Test
     public void Transaction_test() {
 
-        SerializationUtil<Transaction> ser=new SerializationUtil<Transaction>(Transaction.class);
+        SerializationUtil<Transaction> ser = new SerializationUtil<Transaction>(Transaction.class);
         Transaction transaction = new Transaction();
         transaction.setAmount(100);
         transaction.setHash("Hash");
@@ -18,29 +17,32 @@ public class TransactionTest {
         System.out.println(copy.toString());
 
     }
+
     @Test
-    public void StakingTransaction_test(){
+    public void StakingTransaction_test() {
 
     }
+
     @Test
-    public void RewardTransaction_test(){
-        SerializationUtil<ToSend> serenc=new SerializationUtil<ToSend>(ToSend.class);
-        RewardsTransaction rewardsTransaction=new RewardsTransaction("Del");
+    public void RewardTransaction_test() {
+        SerializationUtil<ToSend> serenc = new SerializationUtil<ToSend>(ToSend.class);
+        RewardsTransaction rewardsTransaction = new RewardsTransaction("Del");
         //rewardsTransaction.setDelegatorAddress("Del");
         rewardsTransaction.setAmount(100);
         rewardsTransaction.setType(TransactionType.REWARDS);
-        ToSend sen=new ToSend(rewardsTransaction);
+        ToSend sen = new ToSend(rewardsTransaction);
         //sen.setTransaction(rewardsTransaction);
-       // System.out.println(sen.getTransaction().toString());
-        byte[] buffers =serenc.encode(sen);
+        // System.out.println(sen.getTransaction().toString());
+        byte[] buffers = serenc.encode(sen);
 
 
-        SerializationUtil<ToSend> serdec=new SerializationUtil<ToSend>(ToSend.class);
+        SerializationUtil<ToSend> serdec = new SerializationUtil<ToSend>(ToSend.class);
         ToSend copys = serenc.decode(buffers);
         System.out.println(copys.getTransaction().toString());
     }
+
     @Test
-    public void DelegateTransaction_test(){
+    public void DelegateTransaction_test() {
 
     }
 

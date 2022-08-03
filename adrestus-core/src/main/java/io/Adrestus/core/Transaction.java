@@ -7,19 +7,19 @@ import io.activej.serializer.annotations.Serialize;
 public class Transaction {
 
 
-    protected  String Hash;
-    protected  TransactionType Type;
-    protected  TransactionStatus Status;
-    protected  int ZoneFrom;
-    protected  int ZoneTo;
-    protected  String timestamp;
-    protected  int BlockNumber;
-    protected  String From;
-    protected  String To;
-    protected  double Amount;
-    protected  double TransactionFee;
-    protected  int Nonce;
-    protected  ECDSASignature Signature;
+    protected String Hash;
+    protected TransactionType Type;
+    protected TransactionStatus Status;
+    protected int ZoneFrom;
+    protected int ZoneTo;
+    protected String timestamp;
+    protected int BlockNumber;
+    protected String From;
+    protected String To;
+    protected double Amount;
+    protected double TransactionFee;
+    protected int Nonce;
+    protected ECDSASignature Signature;
 
 
     public Transaction() {
@@ -184,9 +184,10 @@ public class Transaction {
         return Objects.hashCode(Hash, Type, Status, ZoneFrom, ZoneTo, timestamp, BlockNumber, From, To, Amount, TransactionFee, Nonce, Signature);
     }
 
-    public void d(){
+    public void d() {
         System.out.println("transaction");
     }
+
     @Override
     public String toString() {
         return "Transaction{" +

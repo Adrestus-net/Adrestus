@@ -2,8 +2,6 @@ package io.Adrestus.core.RingBuffer.event;
 
 import io.Adrestus.core.Transaction;
 
-import java.io.Serializable;
-
 public class TransactionEvent {
     private Transaction transaction;
 

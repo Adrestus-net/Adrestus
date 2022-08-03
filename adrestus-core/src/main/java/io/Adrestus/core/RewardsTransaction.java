@@ -27,9 +27,11 @@ public class RewardsTransaction extends Transaction {
     public void setDelegatorAddress(String delegatorAddress) {
         DelegatorAddress = delegatorAddress;
     }
-    public void d(){
+
+    public void d() {
         System.out.println("reward");
     }
+
     @Override
     public String toString() {
         return "RewardsTransaction{" +

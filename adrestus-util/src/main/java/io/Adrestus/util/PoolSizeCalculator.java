@@ -42,7 +42,7 @@ public abstract class PoolSizeCalculator {
         BigDecimal waitTime = new BigDecimal(waittime);
         BigDecimal computeTime = new BigDecimal(cputime);
         BigDecimal numberOfCPU = new BigDecimal(Runtime.getRuntime().availableProcessors());
-        BigDecimal optimalthreadcount = numberOfCPU.multiply(round(new BigDecimal(1).add(waitTime.divide(computeTime,RoundingMode.HALF_UP)),0,true));
+        BigDecimal optimalthreadcount = numberOfCPU.multiply(round(new BigDecimal(1).add(waitTime.divide(computeTime, RoundingMode.HALF_UP)), 0, true));
        /* System.out.println("Number of CPU: " + numberOfCPU);
         System.out.println("Target utilization: " + osBean.getProcessCpuLoad());
         System.out.println("Elapsed time (nanos): " + (testtime * 1000000));
@@ -94,8 +94,8 @@ public abstract class PoolSizeCalculator {
         }
     }
 
-     private BigDecimal round(BigDecimal d, int scale, boolean roundUp) {
-         System.out.println("d"+d);
+    private BigDecimal round(BigDecimal d, int scale, boolean roundUp) {
+        System.out.println("d" + d);
         int mode = (roundUp) ? BigDecimal.ROUND_UP : BigDecimal.ROUND_DOWN;
         return d.setScale(scale, BigDecimal.ROUND_UP);
     }

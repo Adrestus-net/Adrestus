@@ -23,6 +23,7 @@
         <codec.version>1.15</codec.version>
         <jna.version>5.12.1</jna.version>
         <milagro.version>0.4.0</milagro.version>
+        <jnr.version>2.2.12</jnr.version>
     </properties>
     <dependencies>
         <dependency>
@@ -49,6 +50,11 @@
             <groupId>org.miracl.milagro.amcl</groupId>
             <artifactId>milagro-crypto-java</artifactId>
             <version>${milagro.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.jnr</groupId>
+            <artifactId>jnr-ffi</artifactId>
+            <version>${jnr.version}</version>
         </dependency>
     </dependencies>
     <build>

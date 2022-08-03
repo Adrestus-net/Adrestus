@@ -1,7 +1,5 @@
 package io.Adrestus.core.RingBuffer;
 
-import io.Adrestus.core.Transaction;
-
 public interface Publisher<T> {
     void start();
 

@@ -50,7 +50,7 @@ public class ECDSASign implements SignInterface {
         BigInteger privateKey = keyPair.getPrivateKey();
         BigInteger publicKey = keyPair.getPublicKey();
 
-        byte[] messageHash = HashUtil.sha3(message);
+        byte[] messageHash = HashUtil.sha256(message);
 
         ECDSASignature sig = sign(messageHash, privateKey);
 

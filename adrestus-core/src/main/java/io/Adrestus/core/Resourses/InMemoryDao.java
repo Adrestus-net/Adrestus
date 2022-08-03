@@ -6,7 +6,7 @@ import io.Adrestus.core.Transaction;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-public class InMemoryDao implements MemoryPool{
+public class InMemoryDao implements MemoryPool {
     private static TLongArrayList trove;
 
 
