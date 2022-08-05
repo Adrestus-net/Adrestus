@@ -5,11 +5,16 @@ import com.lmax.disruptor.TimeoutException;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 import com.lmax.disruptor.util.DaemonThreadFactory;
+import io.Adrestus.core.Resourses.InMemoryTreePoolmp;
+import io.Adrestus.core.Resourses.MemoryTreePool;
 import io.Adrestus.core.RingBuffer.Publisher;
 import io.Adrestus.core.RingBuffer.event.TransactionEvent;
 import io.Adrestus.core.RingBuffer.factory.TransactionEventFactory;
+import io.Adrestus.core.RingBuffer.handler.transactions.AmountEventHandler;
+import io.Adrestus.core.RingBuffer.handler.transactions.NonceEventHandler;
 import io.Adrestus.core.RingBuffer.handler.transactions.SignatureEventHandler;
 import io.Adrestus.core.Transaction;
+import io.Adrestus.util.BufferCapacity;
 import io.Adrestus.util.ThreadCalculator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +41,7 @@ public class TransactionEventPublisher implements Publisher<Transaction> {
         this.threadCalculator = new ThreadCalculator();
         this.numberOfWorkers = this.threadCalculator.calculateOptimalThreadCount();
         this.jobQueueSize = jobQueueSize;
-        this.bufferSize = nextPowerOf2(this.jobQueueSize);
+        this.bufferSize = BufferCapacity.nextPowerOf2(this.jobQueueSize);
         this.executor = Executors.newFixedThreadPool(numberOfWorkers);
         disruptor = new Disruptor<>(new TransactionEventFactory(), bufferSize, DaemonThreadFactory.INSTANCE, ProducerType.SINGLE, new BlockingWaitStrategy());
         LOG.info("Script engine worker pool created with " + numberOfWorkers + " threads");
@@ -44,8 +49,12 @@ public class TransactionEventPublisher implements Publisher<Transaction> {
 
     @Override
     public void start() {
+        MemoryTreePool patriciatree = new InMemoryTreePoolmp();
+
+        AmountEventHandler amountEventHandler = new AmountEventHandler(patriciatree);
+        NonceEventHandler nonceEventHandler = new NonceEventHandler(patriciatree);
         SignatureEventHandler signatureEventHandler = new SignatureEventHandler();
-        disruptor.handleEventsWith(signatureEventHandler);
+        disruptor.handleEventsWith(amountEventHandler, nonceEventHandler).then(signatureEventHandler);
         disruptor.start();
     }
 
@@ -90,11 +99,4 @@ public class TransactionEventPublisher implements Publisher<Transaction> {
         }
     }
 
-    private int nextPowerOf2(int maxQueueCapacity) {
-        int adjustedCapacity = maxQueueCapacity == 1 ? 1 : Integer.highestOneBit(maxQueueCapacity - 1) * 2;
-        if (adjustedCapacity != maxQueueCapacity) {
-            LOG.warn(String.format("Adjusting %d to nearest power of 2 ->  %d", maxQueueCapacity, adjustedCapacity));
-        }
-        return adjustedCapacity;
-    }
 }

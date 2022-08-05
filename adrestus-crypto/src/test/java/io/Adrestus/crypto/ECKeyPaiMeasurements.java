@@ -25,7 +25,6 @@ public class ECKeyPaiMeasurements {
     private static ECKeyPair ecKeyPair;
     private static ECDSASign ecdsaSign;
     private static SignatureData signatureData;
-    private static ECDSASignature2 ecdsaSignature2;
     private static String message = "verify test";
     private static ECKeyPair ecKeyPair2;
     private static ECDSASignature signature;
@@ -39,7 +38,6 @@ public class ECKeyPaiMeasurements {
         hash = HashUtil.sha256(message.getBytes());
 
         signatureData = ecdsaSign.secp256SignMessage(message.getBytes(), ecKeyPair);
-        ecdsaSignature2 = new ECDSASignature2(signatureData);
         ecKeyPair2 = Keys.createEcKeyPair(new SecureRandom("fd8cee9c1a3f3f57ab51b25740b24341ae093c8f697fde4df948050d3acd1700f6379d716104d2159e4912509c40ac81714d833e93b822e5ba0fadd68d5568a2".getBytes(StandardCharsets.UTF_8)));
 
         signature = ecKeyPair2.sign(message.getBytes());

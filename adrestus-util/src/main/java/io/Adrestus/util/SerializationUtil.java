@@ -1,4 +1,4 @@
-package io.Adrestus.core.util;
+package io.Adrestus.util;
 
 import io.activej.serializer.BinarySerializer;
 import io.activej.serializer.SerializerBuilder;

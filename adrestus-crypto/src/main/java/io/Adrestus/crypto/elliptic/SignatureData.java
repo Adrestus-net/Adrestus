@@ -3,10 +3,14 @@ package io.Adrestus.crypto.elliptic;
 import java.util.Arrays;
 
 public class SignatureData {
-    private final byte v;
-    private final byte[] r;
-    private final byte[] s;
-    private final byte[] pub;
+    private byte v;
+    private byte[] r;
+    private byte[] s;
+    private byte[] pub;
+
+
+    public SignatureData() {
+    }
 
     public SignatureData(byte v, byte[] r, byte[] s) {
         this.v = v;

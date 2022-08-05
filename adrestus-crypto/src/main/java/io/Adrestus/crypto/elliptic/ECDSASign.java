@@ -1,7 +1,9 @@
 package io.Adrestus.crypto.elliptic;
 
+import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.PrimitiveUtil;
+import io.Adrestus.crypto.WalletAddress;
 import org.bouncycastle.crypto.digests.SHA256Digest;
 import org.bouncycastle.crypto.params.ECPrivateKeyParameters;
 import org.bouncycastle.crypto.signers.HMacDSAKCalculator;
@@ -33,8 +35,17 @@ public class ECDSASign implements SignInterface {
     }
 
 
-    public boolean secp256Verify(
-            byte[] hash, BigInteger publicKey, SignatureData signatureData) {
+    public boolean secp256Verify(byte[] hash, BigInteger publicKey, SignatureData signatureData) {
+        return verify(
+                hash,
+                publicKey,
+                new SignatureData(
+                        (byte) (signatureData.getV() + 27),
+                        signatureData.getR(),
+                        signatureData.getS()));
+    }
+
+    public boolean secp256Verify(byte[] hash, String publicKey, SignatureData signatureData) {
         return verify(
                 hash,
                 publicKey,
@@ -87,6 +98,17 @@ public class ECDSASign implements SignInterface {
 
         BigInteger k = Sign.recoverFromSignature(signatureData.getV() - 27, sig, hash);
         return publicKey.equals(k);
+    }
+
+    public boolean verify(byte[] hash, String given_address, SignatureData signatureData) {
+        ECDSASignature sig =
+                new ECDSASignature(
+                        PrimitiveUtil.toBigInt(signatureData.getR()),
+                        PrimitiveUtil.toBigInt(signatureData.getS()));
+
+        BigInteger pubkey = Sign.recoverFromSignature(signatureData.getV() - 27, sig, hash);
+        String adddress = WalletAddress.generate_address((byte) AdrestusConfiguration.version, pubkey);
+        return given_address.equals(adddress);
     }
 
     public static ECDSASignature sign(byte[] transactionHash, BigInteger privateKey) {

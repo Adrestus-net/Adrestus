@@ -18,12 +18,18 @@
         <maven.compiler.source>1.7</maven.compiler.source>
         <maven.compiler.target>1.7</maven.compiler.target>
         <crypto.version>1.0-SNAPSHOT</crypto.version>
+        <serializer.version>5.3</serializer.version>
     </properties>
     <dependencies>
         <dependency>
             <groupId>io.Adrestus.v1</groupId>
             <artifactId>adrestus-crypto</artifactId>
             <version>${crypto.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.activej</groupId>
+            <artifactId>activej-serializer</artifactId>
+            <version>${serializer.version}</version>
         </dependency>
     </dependencies>
     <build>

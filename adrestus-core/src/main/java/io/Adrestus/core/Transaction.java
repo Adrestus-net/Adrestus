@@ -1,9 +1,12 @@
 package io.Adrestus.core;
 
 import com.google.common.base.Objects;
-import io.Adrestus.crypto.elliptic.ECDSASignature;
+import io.Adrestus.crypto.elliptic.SignatureData;
 import io.activej.serializer.annotations.Serialize;
+import io.activej.serializer.annotations.SerializeClass;
 
+
+@SerializeClass(subclasses = {RewardsTransaction.class, StakingTransaction.class, DelegateTransaction.class})
 public class Transaction {
 
 
@@ -17,9 +20,9 @@ public class Transaction {
     protected String From;
     protected String To;
     protected double Amount;
-    protected double TransactionFee;
+    protected double AmountWithTransactionFee;
     protected int Nonce;
-    protected ECDSASignature Signature;
+    protected SignatureData Signature;
 
 
     public Transaction() {
@@ -33,25 +36,25 @@ public class Transaction {
         this.From = "";
         this.To = "";
         this.Amount = 0;
-        this.TransactionFee = 0;
+        this.AmountWithTransactionFee = 0;
         this.Nonce = 0;
-        this.Signature = new ECDSASignature();
+        this.Signature = new SignatureData();
     }
 
-    public Transaction(String hash, TransactionType type, TransactionStatus status, int zoneFrom, int zoneTo, String timestamp, int blockNumber, String from, String to, double amount, double transactionFee, int nonce, ECDSASignature signature) {
-        Hash = hash;
-        Type = type;
-        Status = status;
-        ZoneFrom = zoneFrom;
-        ZoneTo = zoneTo;
+    public Transaction(String hash, TransactionType type, TransactionStatus status, int zoneFrom, int zoneTo, String timestamp, int blockNumber, String from, String to, double amount, double AmountWithTransactionFee, int nonce, SignatureData signature) {
+        this.Hash = hash;
+        this.Type = type;
+        this.Status = status;
+        this.ZoneFrom = zoneFrom;
+        this.ZoneTo = zoneTo;
         this.timestamp = timestamp;
-        BlockNumber = blockNumber;
-        From = from;
-        To = to;
-        Amount = amount;
-        TransactionFee = transactionFee;
-        Nonce = nonce;
-        Signature = signature;
+        this.BlockNumber = blockNumber;
+        this.From = from;
+        this.To = to;
+        this.Amount = amount;
+        this.AmountWithTransactionFee = AmountWithTransactionFee;
+        this.Nonce = nonce;
+        this.Signature = signature;
     }
 
     @Serialize
@@ -136,12 +139,12 @@ public class Transaction {
     }
 
     @Serialize
-    public double getTransactionFee() {
-        return TransactionFee;
+    public double getAmountWithTransactionFee() {
+        return AmountWithTransactionFee;
     }
 
-    public void setTransactionFee(double transactionFee) {
-        TransactionFee = transactionFee;
+    public void setAmountWithTransactionFee(double AmountWithTransactionFee) {
+        AmountWithTransactionFee = AmountWithTransactionFee;
     }
 
     @Serialize
@@ -154,11 +157,11 @@ public class Transaction {
     }
 
     @Serialize
-    public ECDSASignature getSignature() {
+    public SignatureData getSignature() {
         return Signature;
     }
 
-    public void setSignature(ECDSASignature signature) {
+    public void setSignature(SignatureData signature) {
         Signature = signature;
     }
 
@@ -176,16 +179,16 @@ public class Transaction {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Transaction that = (Transaction) o;
-        return ZoneFrom == that.ZoneFrom && ZoneTo == that.ZoneTo && BlockNumber == that.BlockNumber && Double.compare(that.Amount, Amount) == 0 && Double.compare(that.TransactionFee, TransactionFee) == 0 && Nonce == that.Nonce && Objects.equal(Hash, that.Hash) && Type == that.Type && Status == that.Status && Objects.equal(timestamp, that.timestamp) && Objects.equal(From, that.From) && Objects.equal(To, that.To) && Objects.equal(Signature, that.Signature);
+        return ZoneFrom == that.ZoneFrom && ZoneTo == that.ZoneTo && BlockNumber == that.BlockNumber && Double.compare(that.Amount, Amount) == 0 && Double.compare(that.AmountWithTransactionFee, AmountWithTransactionFee) == 0 && Nonce == that.Nonce && Objects.equal(Hash, that.Hash) && Type == that.Type && Status == that.Status && Objects.equal(timestamp, that.timestamp) && Objects.equal(From, that.From) && Objects.equal(To, that.To) && Objects.equal(Signature, that.Signature);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(Hash, Type, Status, ZoneFrom, ZoneTo, timestamp, BlockNumber, From, To, Amount, TransactionFee, Nonce, Signature);
+        return Objects.hashCode(Hash, Type, Status, ZoneFrom, ZoneTo, timestamp, BlockNumber, From, To, Amount, AmountWithTransactionFee, Nonce, Signature);
     }
 
-    public void d() {
-        System.out.println("transaction");
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
     }
 
     @Override
@@ -201,7 +204,7 @@ public class Transaction {
                 ", From='" + From + '\'' +
                 ", To='" + To + '\'' +
                 ", Amount=" + Amount +
-                ", TransactionFee=" + TransactionFee +
+                ", AmountWithTransactionFee=" + AmountWithTransactionFee +
                 ", Nonce=" + Nonce +
                 ", Signature=" + Signature +
                 '}';

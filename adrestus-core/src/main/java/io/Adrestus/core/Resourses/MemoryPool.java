@@ -10,9 +10,13 @@ public interface MemoryPool {
 
     Optional<Transaction> getById(int id) throws Exception;
 
-    boolean add(Transaction customer) throws Exception;
+    boolean add(Transaction transaction) throws Exception;
 
-    boolean update(Transaction customer) throws Exception;
+    boolean update(Transaction transaction) throws Exception;
 
-    boolean delete(Transaction customer) throws Exception;
+    boolean delete(Transaction transaction) throws Exception;
+
+    boolean checkHashExists(Transaction transaction) throws Exception;
+
+    boolean checkTimestamp(Transaction transaction) throws Exception;
 }

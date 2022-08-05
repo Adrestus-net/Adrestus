@@ -1,6 +1,6 @@
 package io.Adrestus.core;
 
-import io.Adrestus.core.util.SerializationUtil;
+import io.Adrestus.util.SerializationUtil;
 import org.junit.jupiter.api.Test;
 
 public class TransactionTest {

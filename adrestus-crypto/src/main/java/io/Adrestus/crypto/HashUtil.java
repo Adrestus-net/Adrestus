@@ -76,6 +76,17 @@ public class HashUtil {
         }
     }
 
+    public static String sha256_bytetoString(byte[] input) {
+        try {
+            MessageDigest sha256digest = MessageDigest.getInstance(HASH_256_ALGORITHM_NAME);
+            String result = Hex.toHexString(sha256digest.digest(input));
+            return result;
+        } catch (NoSuchAlgorithmException e) {
+            LOG.error("Can't find such algorithm", e);
+            throw new RuntimeException(e);
+        }
+    }
+
     public static byte[] sha256omit(byte[] input) {
         try {
             byte[] res = DigestUtils.sha256(input);

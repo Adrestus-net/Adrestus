@@ -1,41 +1,42 @@
 package io.Adrestus.core;
 
-import io.Adrestus.crypto.elliptic.ECDSASignature;
+import io.Adrestus.crypto.elliptic.SignatureData;
 import io.activej.serializer.annotations.Serialize;
 
 
 public class RewardsTransaction extends Transaction {
-    private String DelegatorAddress;
+    private String RecipientAddress;
 
-    public RewardsTransaction(String DelegatorAddress) {
-        this.DelegatorAddress = DelegatorAddress;
+    public RewardsTransaction(String RecipientAddress) {
+        this.RecipientAddress = RecipientAddress;
     }
 
-    public RewardsTransaction(String hash, TransactionType type, TransactionStatus status, int zoneFrom, int zoneTo, String timestamp, int blockNumber, String from, String to, double amount, double transactionFee, int nonce, ECDSASignature signature, String delegatorAddress) {
+    public RewardsTransaction(String hash, TransactionType type, TransactionStatus status, int zoneFrom, int zoneTo, String timestamp, int blockNumber, String from, String to, double amount, double transactionFee, int nonce, SignatureData signature, String RecipientAddress) {
         super(hash, type, status, zoneFrom, zoneTo, timestamp, blockNumber, from, to, amount, transactionFee, nonce, signature);
-        DelegatorAddress = delegatorAddress;
+        this.RecipientAddress = RecipientAddress;
     }
 
     public RewardsTransaction() {
     }
 
     @Serialize
-    public String getDelegatorAddress() {
-        return DelegatorAddress;
+    public String getRecipientAddress() {
+        return RecipientAddress;
     }
 
-    public void setDelegatorAddress(String delegatorAddress) {
-        DelegatorAddress = delegatorAddress;
+    public void setRecipientAddress(String RecipientAddress) {
+        this.RecipientAddress = RecipientAddress;
     }
 
-    public void d() {
-        System.out.println("reward");
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
     }
 
     @Override
     public String toString() {
         return "RewardsTransaction{" +
-                "DelegatorAddress='" + DelegatorAddress + '\'' +
+                "RecipientAddress='" + RecipientAddress + '\'' +
                 ", Type=" + Type +
                 ", Status=" + Status +
                 ", ZoneFrom=" + ZoneFrom +
@@ -45,7 +46,7 @@ public class RewardsTransaction extends Transaction {
                 ", From='" + From + '\'' +
                 ", To='" + To + '\'' +
                 ", Amount=" + Amount +
-                ", TransactionFee=" + TransactionFee +
+                ", AmountWithTransactionFee=" + AmountWithTransactionFee +
                 ", Nonce=" + Nonce +
                 ", Signature=" + Signature +
                 '}';

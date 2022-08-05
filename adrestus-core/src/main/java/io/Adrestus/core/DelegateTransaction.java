@@ -1,6 +1,6 @@
 package io.Adrestus.core;
 
-import io.Adrestus.crypto.elliptic.ECDSASignature;
+import io.Adrestus.crypto.elliptic.SignatureData;
 import io.activej.serializer.annotations.Serialize;
 
 import java.util.Objects;
@@ -16,7 +16,7 @@ public class DelegateTransaction extends Transaction {
         ValidatorAddress = validatorAddress;
     }
 
-    public DelegateTransaction(String hash, TransactionType type, TransactionStatus status, int zoneFrom, int zoneTo, String timestamp, int blockNumber, String from, String to, double amount, double transactionFee, int nonce, ECDSASignature signature, String delegatorAddress, String validatorAddress) {
+    public DelegateTransaction(String hash, TransactionType type, TransactionStatus status, int zoneFrom, int zoneTo, String timestamp, int blockNumber, String from, String to, double amount, double transactionFee, int nonce, SignatureData signature, String delegatorAddress, String validatorAddress) {
         super(hash, type, status, zoneFrom, zoneTo, timestamp, blockNumber, from, to, amount, transactionFee, nonce, signature);
         DelegatorAddress = delegatorAddress;
         ValidatorAddress = validatorAddress;
@@ -54,6 +54,11 @@ public class DelegateTransaction extends Transaction {
     }
 
     @Override
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
+
+    @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), DelegatorAddress, ValidatorAddress);
     }
@@ -72,7 +77,7 @@ public class DelegateTransaction extends Transaction {
                 ", From='" + From + '\'' +
                 ", To='" + To + '\'' +
                 ", Amount=" + Amount +
-                ", TransactionFee=" + TransactionFee +
+                ", AmountWithTransactionFee=" + AmountWithTransactionFee +
                 ", Nonce=" + Nonce +
                 ", Signature=" + Signature +
                 '}';
