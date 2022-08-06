@@ -8,11 +8,11 @@ import io.Adrestus.core.TransactionStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TimestampEventHandler implements EventHandler<TransactionEvent> {
-    private static Logger LOG = LoggerFactory.getLogger(TimestampEventHandler.class);
+public class ReplayEventHandler implements EventHandler<TransactionEvent> {
+    private static Logger LOG = LoggerFactory.getLogger(ReplayEventHandler.class);
     private final MemoryPool memoryPool;
 
-    public TimestampEventHandler(MemoryPool memoryPool) {
+    public ReplayEventHandler(MemoryPool memoryPool) {
         this.memoryPool = memoryPool;
     }
 

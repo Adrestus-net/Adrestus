@@ -1,7 +1,7 @@
 package io.Adrestus.core;
 
 public enum TransactionType {
-    ORDINARY("ORDINARY"),
+    REGULAR("REGULAR"),
     STAKING("STAKING"),
     DELEGATING("DELEGATING"),
     REWARDS("REWARDS");

@@ -53,7 +53,7 @@ public class TransactionEventPublisher implements Publisher<Transaction> {
 
         AmountEventHandler amountEventHandler = new AmountEventHandler(patriciatree);
         NonceEventHandler nonceEventHandler = new NonceEventHandler(patriciatree);
-        SignatureEventHandler signatureEventHandler = new SignatureEventHandler();
+        SignatureEventHandler signatureEventHandler = new SignatureEventHandler(executor);
         disruptor.handleEventsWith(amountEventHandler, nonceEventHandler).then(signatureEventHandler);
         disruptor.start();
     }

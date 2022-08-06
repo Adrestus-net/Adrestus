@@ -22,6 +22,7 @@
         <lombok.version>1.18.24</lombok.version>
         <serializer.version>5.3</serializer.version>
         <disruptor.version>3.4.4</disruptor.version>
+        <trove4j.version>3.0.3</trove4j.version>
     </properties>
     <repositories>
         <repository>
@@ -59,6 +60,11 @@
             <groupId>com.lmax</groupId>
             <artifactId>disruptor</artifactId>
             <version>${disruptor.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.trove4j</groupId>
+            <artifactId>trove4j</artifactId>
+            <version>${trove4j.version}</version>
         </dependency>
     </dependencies>
     <build>

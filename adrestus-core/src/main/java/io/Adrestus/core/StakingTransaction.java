@@ -33,6 +33,12 @@ public class StakingTransaction extends Transaction {
     }
 
     public StakingTransaction() {
+        Name = "";
+        Details = "";
+        Website = "";
+        Identity = "";
+        CommissionRate = 0;
+        ValidatorAddress = "";
     }
 
     @Serialize

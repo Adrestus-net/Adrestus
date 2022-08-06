@@ -6,8 +6,8 @@ import io.activej.serializer.annotations.Serialize;
 import io.activej.serializer.annotations.SerializeClass;
 
 
-@SerializeClass(subclasses = {RewardsTransaction.class, StakingTransaction.class, DelegateTransaction.class})
-public class Transaction {
+@SerializeClass(subclasses = {RegularTransaction.class,RewardsTransaction.class, StakingTransaction.class, DelegateTransaction.class})
+public abstract class Transaction {
 
 
     protected String Hash;
@@ -27,7 +27,7 @@ public class Transaction {
 
     public Transaction() {
         this.Hash = "";
-        this.Type = TransactionType.ORDINARY;
+        this.Type = TransactionType.REGULAR;
         this.Status = TransactionStatus.PENDING;
         this.ZoneFrom = 0;
         this.ZoneTo = 0;

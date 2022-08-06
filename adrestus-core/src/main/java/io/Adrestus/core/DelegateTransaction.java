@@ -23,7 +23,8 @@ public class DelegateTransaction extends Transaction {
     }
 
     public DelegateTransaction() {
-
+        DelegatorAddress = "";
+        ValidatorAddress = "";
     }
 
     @Serialize
