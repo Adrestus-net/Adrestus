@@ -1,6 +1,7 @@
 package io.Adrestus.core.RingBuffer.handler.transactions;
 
 import com.lmax.disruptor.EventHandler;
+import io.Adrestus.core.Resourses.IMemoryTreePool;
 import io.Adrestus.core.Resourses.MemoryTreePool;
 import io.Adrestus.core.RingBuffer.event.TransactionEvent;
 import io.Adrestus.core.Transaction;
@@ -13,17 +14,13 @@ import java.util.NoSuchElementException;
 
 public class AmountEventHandler implements EventHandler<TransactionEvent> {
     private static Logger LOG = LoggerFactory.getLogger(AmountEventHandler.class);
-    private MemoryTreePool memoryTreePool;
 
-    public AmountEventHandler(MemoryTreePool memoryTreePool) {
-        this.memoryTreePool = memoryTreePool;
-    }
 
     @Override
     public void onEvent(TransactionEvent transactionEvent, long l, boolean b) throws Exception {
         try {
             Transaction transaction = transactionEvent.getTransaction();
-            PatriciaTreeNode patriciaTreeNode = memoryTreePool.getByaddress(transaction.getFrom()).get();
+            PatriciaTreeNode patriciaTreeNode = MemoryTreePool.getInstance().getByaddress(transaction.getFrom()).get();
             if (patriciaTreeNode.getAmount() < transaction.getAmount()) {
                 LOG.info("Transaction amount is not sufficient");
                 transaction.setStatus(TransactionStatus.ABORT);

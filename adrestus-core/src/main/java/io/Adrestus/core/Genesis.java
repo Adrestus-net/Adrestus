@@ -10,7 +10,7 @@ public class Genesis implements BlockForge {
 
     @Override
     public void forgeTransactionBlock(TransactionBlock transactionBlock) {
-
+        System.out.println(transactionBlock.getHash());
     }
 
     @Override

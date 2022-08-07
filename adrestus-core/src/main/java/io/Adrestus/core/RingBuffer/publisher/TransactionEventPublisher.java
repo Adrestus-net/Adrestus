@@ -5,8 +5,8 @@ import com.lmax.disruptor.TimeoutException;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 import com.lmax.disruptor.util.DaemonThreadFactory;
-import io.Adrestus.core.Resourses.InMemoryTreePoolmp;
 import io.Adrestus.core.Resourses.MemoryTreePool;
+import io.Adrestus.core.Resourses.IMemoryTreePool;
 import io.Adrestus.core.RingBuffer.Publisher;
 import io.Adrestus.core.RingBuffer.event.TransactionEvent;
 import io.Adrestus.core.RingBuffer.factory.TransactionEventFactory;
@@ -49,10 +49,8 @@ public class TransactionEventPublisher implements Publisher<Transaction> {
 
     @Override
     public void start() {
-        MemoryTreePool patriciatree = new InMemoryTreePoolmp();
-
-        AmountEventHandler amountEventHandler = new AmountEventHandler(patriciatree);
-        NonceEventHandler nonceEventHandler = new NonceEventHandler(patriciatree);
+        AmountEventHandler amountEventHandler = new AmountEventHandler();
+        NonceEventHandler nonceEventHandler = new NonceEventHandler();
         SignatureEventHandler signatureEventHandler = new SignatureEventHandler(executor);
         disruptor.handleEventsWith(amountEventHandler, nonceEventHandler).then(signatureEventHandler);
         disruptor.start();

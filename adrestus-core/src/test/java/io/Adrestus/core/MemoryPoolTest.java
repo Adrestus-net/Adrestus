@@ -1,7 +1,7 @@
 package io.Adrestus.core;
 
-import io.Adrestus.core.Resourses.InMemoryDao;
 import io.Adrestus.core.Resourses.MemoryPool;
+import io.Adrestus.core.Resourses.IMemoryPool;
 import io.Adrestus.util.GetTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,35 +12,30 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class MemoryPoolTest {
-    private MemoryPool pool;
 
-    @BeforeEach
-    void setUp() throws Exception {
-        pool = new InMemoryDao();
-    }
     @Test
     public void add_mempool() throws Exception {
         Transaction transaction = new RegularTransaction();
         transaction.setAmount(100);
         transaction.setHash("Hash");
 
-        assertEquals(false, pool.add(transaction));
-        assertEquals(true, pool.add(transaction));
+        assertEquals(false, MemoryPool.getInstance().add(transaction));
+        assertEquals(true, MemoryPool.getInstance().add(transaction));
 
 
         Transaction transaction1 = new RegularTransaction();
         transaction1.setAmount(50);
         transaction1.setHash("Hash2");
 
-        assertEquals(false, pool.add(transaction1));
-        assertEquals(true, pool.add(transaction1));
+        assertEquals(false, MemoryPool.getInstance().add(transaction1));
+        assertEquals(true, MemoryPool.getInstance().add(transaction1));
 
         Transaction transaction3 = new RegularTransaction();
         transaction3.setAmount(50);
         transaction3.setHash("Hash2");
 
-        assertEquals(true, pool.add(transaction3));
-        pool.printAll();
+        assertEquals(true, MemoryPool.getInstance().add(transaction3));
+        MemoryPool.getInstance().printAll();
     }
 
     @Test
@@ -65,16 +60,16 @@ public class MemoryPoolTest {
         transaction4.setHash("Hash4");
 
 
-        pool.add(transaction1);
-        pool.add(transaction2);
-        pool.add(transaction3);
-        pool.add(transaction4);
+        MemoryPool.getInstance().add(transaction1);
+        MemoryPool.getInstance().add(transaction2);
+        MemoryPool.getInstance().add(transaction3);
+        MemoryPool.getInstance().add(transaction4);
 
         list.add(transaction3);
         list.add(transaction4);
 
-        pool.delete(list);
-        pool.printAll();
+        MemoryPool.getInstance().delete(list);
+        MemoryPool.getInstance().printAll();
     }
 
 
@@ -84,13 +79,13 @@ public class MemoryPoolTest {
         transaction1.setAmount(100);
         transaction1.setHash("Hash4");
 
-        pool.add(transaction1);
+        MemoryPool.getInstance().add(transaction1);
 
-        Optional<Transaction> res=pool.getTransactionByHash("Hash4");
+        Optional<Transaction> res=MemoryPool.getInstance().getTransactionByHash("Hash4");
         if(res.isPresent())
             System.out.println(res.get().toString());
 
-        pool.getAll().forEach(x-> System.out.println(x.toString()));
+        MemoryPool.getInstance().getAll().forEach(x-> System.out.println(x.toString()));
     }
 
     @Test
@@ -108,9 +103,9 @@ public class MemoryPoolTest {
         transaction2.setZoneFrom(1);
         transaction2.setTimestamp(GetTime.GetTimeStamp());
 
-        pool.add(transaction1);
+        MemoryPool.getInstance().add(transaction1);
 
-        assertEquals(true,pool.checkTimestamp(transaction2));
+        assertEquals(true,MemoryPool.getInstance().checkTimestamp(transaction2));
 
     }
 }

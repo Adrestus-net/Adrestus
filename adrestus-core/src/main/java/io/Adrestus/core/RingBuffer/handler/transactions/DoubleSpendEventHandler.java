@@ -1,6 +1,7 @@
 package io.Adrestus.core.RingBuffer.handler.transactions;
 
 import com.lmax.disruptor.EventHandler;
+import io.Adrestus.core.Resourses.IMemoryPool;
 import io.Adrestus.core.Resourses.MemoryPool;
 import io.Adrestus.core.RingBuffer.event.TransactionEvent;
 import io.Adrestus.core.Transaction;
@@ -10,17 +11,12 @@ import org.slf4j.LoggerFactory;
 
 public class DoubleSpendEventHandler implements EventHandler<TransactionEvent> {
     private static Logger LOG = LoggerFactory.getLogger(DoubleSpendEventHandler.class);
-    private final MemoryPool memoryPool;
-
-    public DoubleSpendEventHandler(MemoryPool memoryPool) {
-        this.memoryPool = memoryPool;
-    }
 
     @Override
     public void onEvent(TransactionEvent transactionEvent, long l, boolean b) throws Exception {
         try {
             Transaction transaction = transactionEvent.getTransaction();
-            if (memoryPool.checkHashExists(transaction)) {
+            if (MemoryPool.getInstance().checkHashExists(transaction)) {
                 LOG.info("Transaction abort Hash already exist in MemoryPool");
                 transaction.setStatus(TransactionStatus.ABORT);
             }
