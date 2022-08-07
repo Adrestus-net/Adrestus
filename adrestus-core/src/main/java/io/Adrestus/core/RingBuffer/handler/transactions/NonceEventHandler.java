@@ -24,7 +24,7 @@ public class NonceEventHandler implements EventHandler<TransactionEvent> {
     public void onEvent(TransactionEvent transactionEvent, long l, boolean b) throws Exception {
         try {
             Transaction transaction = transactionEvent.getTransaction();
-            PatriciaTreeNode patriciaTreeNode = memoryTreePool.getById(transaction.getFrom()).get();
+            PatriciaTreeNode patriciaTreeNode = memoryTreePool.getByaddress(transaction.getFrom()).get();
             if (patriciaTreeNode.getNonce() + 1 != transaction.getNonce()) {
                 LOG.info("Transaction nonce is not valid");
                 transaction.setStatus(TransactionStatus.ABORT);

@@ -3,6 +3,7 @@ package io.Adrestus.core;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.Adrestus.crypto.bls.model.Signature;
 
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -25,6 +26,13 @@ public class TransactionBlock extends AbstractBlock implements BlockFactory {
         this.Zone = zone;
         this.TransactionList = transactionList;
         this.TransactionProposer = transactionProposer;
+    }
+
+    public TransactionBlock(String hash, String previousHash, int size, int height, Timestamp timestamp) {
+        super(hash, previousHash, size, height, timestamp);
+    }
+
+    public TransactionBlock() {
     }
 
     @Override

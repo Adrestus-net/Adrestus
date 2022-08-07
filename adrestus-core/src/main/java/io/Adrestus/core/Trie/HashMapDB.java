@@ -1,20 +1,19 @@
 package io.Adrestus.core.Trie;
 
-import gnu.trove.map.hash.TLongLongHashMap;
-
-import java.nio.ByteBuffer;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class HashMapDB<V> {
-    protected final TLongLongHashMap storage;
+    protected final Map<byte[],byte[]> storage;
     protected ReadWriteLock rwLock = new ReentrantReadWriteLock();
     protected final Lock readLock = rwLock.readLock();
     protected final Lock writeLock = rwLock.writeLock();
 
     public HashMapDB() {
-        this.storage = new TLongLongHashMap();
+        this.storage = new HashMap<byte[],byte[]>();
     }
 
 
@@ -24,13 +23,7 @@ public class HashMapDB<V> {
             if (val == null) {
                 delete(key);
             } else {
-                ByteBuffer keybuff = ByteBuffer.allocate(key.length);
-                ByteBuffer valuebuff = ByteBuffer.allocate(val.length);
-                keybuff.put(key);
-                valuebuff.put(val);
-                keybuff.flip();//need flip
-                valuebuff.flip();
-                storage.put(keybuff.getLong(), valuebuff.getLong());
+                storage.put(key, val);
             }
         } finally {
             writeLock.unlock();
@@ -40,12 +33,10 @@ public class HashMapDB<V> {
     }
 
 
-    public long get(byte[] key) {
+    public byte[] get(byte[] key) {
         readLock.lock();
         try {
-            ByteBuffer keybuff = ByteBuffer.allocate(key.length);
-            keybuff.put(key);
-            return storage.get(keybuff.getLong());
+            return storage.get(key);
         } finally {
             readLock.unlock();
         }
@@ -55,9 +46,7 @@ public class HashMapDB<V> {
     public void delete(byte[] key) {
         writeLock.lock();
         try {
-            ByteBuffer keybuff = ByteBuffer.allocate(key.length);
-            keybuff.put(key);
-            storage.remove(keybuff.getLong());
+            storage.remove(key);
         } finally {
             writeLock.unlock();
         }
@@ -101,7 +90,7 @@ public class HashMapDB<V> {
     }
 
 
-    public TLongLongHashMap getStorage() {
+    public Map<byte[],byte[]> getStorage() {
         return storage;
     }
 }

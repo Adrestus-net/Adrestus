@@ -1,19 +1,22 @@
 package io.Adrestus.core.Trie;
 
 import com.google.common.base.Objects;
+import io.activej.serializer.annotations.Serialize;
 
 public class PatriciaTreeNode {
 
     private double amount;
     private int nonce;
-    private String timestamp;
 
-    public PatriciaTreeNode(double amount, int nonce, String timestamp) {
+    public PatriciaTreeNode(double amount, int nonce) {
         this.amount = amount;
         this.nonce = nonce;
-        this.timestamp = timestamp;
     }
 
+    public PatriciaTreeNode() {
+    }
+
+    @Serialize
     public double getAmount() {
         return amount;
     }
@@ -21,7 +24,7 @@ public class PatriciaTreeNode {
     public void setAmount(double amount) {
         this.amount = amount;
     }
-
+    @Serialize
     public int getNonce() {
         return nonce;
     }
@@ -30,26 +33,18 @@ public class PatriciaTreeNode {
         this.nonce = nonce;
     }
 
-    public String getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(String timestamp) {
-        this.timestamp = timestamp;
-    }
-
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         PatriciaTreeNode that = (PatriciaTreeNode) o;
-        return Double.compare(that.amount, amount) == 0 && nonce == that.nonce && Objects.equal(timestamp, that.timestamp);
+        return Double.compare(that.amount, amount) == 0 && nonce == that.nonce;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(amount, nonce, timestamp);
+        return Objects.hashCode(amount, nonce);
     }
 
     @Override
@@ -57,7 +52,6 @@ public class PatriciaTreeNode {
         return "PatriciaTreeNode{" +
                 "amount=" + amount +
                 ", nonce=" + nonce +
-                ", timestamp='" + timestamp + '\'' +
                 '}';
     }
 }

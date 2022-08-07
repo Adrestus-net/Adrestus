@@ -6,8 +6,8 @@ public class BlockTest {
 
     @Test
     public void block_test() {
-     /*TransactionBlock t=new TransactionBlock(2);
-     t.accept(new Genesis());*/
+     TransactionBlock t=new TransactionBlock();
+     t.accept(new Genesis());
     }
 
     @Test

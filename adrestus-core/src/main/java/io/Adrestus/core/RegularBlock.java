@@ -1,6 +1,6 @@
 package io.Adrestus.core;
 
-public class Block implements BlockForge {
+public class RegularBlock implements BlockForge {
 
 
     @Override

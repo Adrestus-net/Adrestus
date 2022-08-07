@@ -2,47 +2,66 @@ package io.Adrestus.core.Resourses;
 
 import io.Adrestus.core.Trie.MerklePatriciaTreeImp;
 import io.Adrestus.core.Trie.PatriciaTreeNode;
+import io.Adrestus.util.SerializationUtil;
+import org.apache.commons.codec.binary.Hex;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.stream.Stream;
 
 public class InMemoryTreePoolmp implements MemoryTreePool {
     private MerklePatriciaTreeImp patriciaTreeImp;
     private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
     private final Lock r = rwl.readLock();
     private final Lock w = rwl.writeLock();
+    private final SerializationUtil<PatriciaTreeNode> wrapper;
 
     public InMemoryTreePoolmp() {
-        patriciaTreeImp = new MerklePatriciaTreeImp();
+        this.patriciaTreeImp = new MerklePatriciaTreeImp();
+        this.wrapper = new SerializationUtil<>(PatriciaTreeNode.class);
     }
 
     @Override
-    public boolean store(String address, PatriciaTreeNode patriciaTreeNode) {
-        return false;
+    public void store(String address, PatriciaTreeNode patriciaTreeNode) {
+        w.lock();
+        try {
+            byte key[] = address.getBytes(StandardCharsets.UTF_8);
+            byte value[] = wrapper.encode(patriciaTreeNode);
+            patriciaTreeImp.put(key, value);
+        } finally {
+            w.unlock();
+        }
     }
 
     @Override
-    public boolean update(String address, PatriciaTreeNode patriciaTreeNode) {
-        return false;
+    public void update(String address, PatriciaTreeNode patriciaTreeNode) {
+        w.lock();
+        try {
+            byte key[] = address.getBytes(StandardCharsets.UTF_8);
+            byte value[] = wrapper.encode(patriciaTreeNode);
+            patriciaTreeImp.put(key, value);
+        } finally {
+            w.unlock();
+        }
     }
 
-    @Override
-    public Stream<PatriciaTreeNode> getAll() throws Exception {
-        return null;
-    }
 
     @Override
-    public Optional<PatriciaTreeNode> getById(String address) throws Exception {
-        System.out.println("waiting");
+    public Optional<PatriciaTreeNode> getByaddress(String address) throws Exception {
         r.lock();
-        //try {
-        System.out.println("Reading" + Thread.currentThread().getName());
-        Thread.sleep(10000);
-        r.unlock();
-        //  }
-        //finally { w.unlock(); }
-        return Optional.empty();
+        try {
+            byte key[] = address.getBytes(StandardCharsets.UTF_8);
+            byte value[] = patriciaTreeImp.get(key);
+            PatriciaTreeNode patriciaTreeNode = wrapper.decode(value);
+            return Optional.of(patriciaTreeNode);
+        } finally {
+            r.unlock();
+        }
+    }
+
+    @Override
+    public String getRootHash() throws Exception {
+        return Hex.encodeHexString(patriciaTreeImp.getRootHash());
     }
 }

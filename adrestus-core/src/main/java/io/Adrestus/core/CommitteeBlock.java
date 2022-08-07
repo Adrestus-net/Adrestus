@@ -6,11 +6,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class CommitteeBlock extends AbstractBlock implements BlockFactory {
-    private final String CommitteeProposer;
-    private final String VRF;
-    private final String VDF;
-    private final Map<BLSPublicKey, Double> StakingMap;
-    private final Map<Integer, HashMap<BLSPublicKey, String>> StructureMap;
+    private String CommitteeProposer;
+    private String VRF;
+    private String VDF;
+    private Map<BLSPublicKey, Double> StakingMap;
+    private Map<Integer, HashMap<BLSPublicKey, String>> StructureMap;
 
     public CommitteeBlock(String previousHash, int height, int Generation, String committeeProposer, String VRF, String VDF) {
         super(previousHash, height, Generation);
@@ -20,6 +20,10 @@ public class CommitteeBlock extends AbstractBlock implements BlockFactory {
         this.StakingMap = new HashMap<BLSPublicKey, Double>();
         this.StructureMap = new HashMap<Integer, HashMap<BLSPublicKey, String>>();
         Init();
+    }
+
+
+    public CommitteeBlock() {
     }
 
     private void Init() {

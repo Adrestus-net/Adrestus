@@ -459,9 +459,7 @@ public class MerklePatriciaTreeImp implements PatriciaTree<byte[], byte[]> {
     }
 
     private byte[] getHash(byte[] hash) {
-        ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
-        buffer.putLong(cache.get(hash));
-        return buffer.array();
+        return cache.get(hash);
     }
 
     private void addHash(byte[] hash, byte[] ret) {

@@ -4,9 +4,6 @@ package io.Adrestus.core.Trie;
 import static io.Adrestus.crypto.ByteUtil.EMPTY_BYTE_ARRAY;
 import static io.Adrestus.crypto.ByteUtil.toHexString;
 
-/**
- * Created by Anton Nashatyrev on 13.02.2017.
- */
 public final class TrieKey {
     public static final int ODD_OFFSET_FLAG = 0x1;
     public static final int TERMINATOR_FLAG = 0x2;

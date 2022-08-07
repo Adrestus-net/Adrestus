@@ -48,37 +48,62 @@ public class InMemoryDao implements MemoryPool {
 
     @Override
     public boolean add(Transaction transaction) throws Exception {
-        return check_add(transaction);
+        w.lock();
+        try {
+            return check_add(transaction);
+        } finally {
+            w.unlock();
+        }
     }
 
 
     @Override
     public void delete(List<Transaction> list_transaction) throws Exception {
-        memorypool.removeAll(list_transaction);
+        w.lock();
+        try {
+            memorypool.removeAll(list_transaction);
+        } finally {
+            w.unlock();
+        }
     }
 
     @Override
     public boolean checkHashExists(Transaction transaction) throws Exception {
-        int index = Collections.binarySearch(memorypool, transaction, hashComparator);
-        if (index >= 0)
-            return true;
-        else
-            return false;
+        r.lock();
+        try {
+            int index = Collections.binarySearch(memorypool, transaction, hashComparator);
+            if (index >= 0)
+                return true;
+            else
+                return false;
+        } finally {
+            r.unlock();
+        }
     }
 
     @Override
     public boolean checkTimestamp(Transaction transaction) throws Exception {
-        int index = Collections.binarySearch(memorypool, transaction, transactionReplayComparator);
-        if (index >= 0)
-            return true;
-        else
-            return false;
+        r.lock();
+        try {
+            int index = Collections.binarySearch(memorypool, transaction, transactionReplayComparator);
+            if (index >= 0)
+                return true;
+            else
+                return false;
+        } finally {
+            r.unlock();
+        }
     }
 
     @Override
     public void printAll() throws Exception {
-        for (int i = 0; i < memorypool.size(); i++) {
-            LOG.info(memorypool.get(i).toString());
+        r.lock();
+        try {
+            for (int i = 0; i < memorypool.size(); i++) {
+                LOG.info(memorypool.get(i).toString());
+            }
+        } finally {
+            r.unlock();
         }
     }
 
@@ -111,7 +136,7 @@ public class InMemoryDao implements MemoryPool {
 
             int val3 = time1.compareTo(time2);
 
-            return (val1 ==0  && val2==0 && val3 < 0) ? val1 : -1;
+            return (val1 == 0 && val2 == 0 && val3 < 0) ? val1 : -1;
         }
     }
 }

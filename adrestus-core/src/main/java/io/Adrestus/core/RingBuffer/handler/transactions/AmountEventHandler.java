@@ -23,7 +23,7 @@ public class AmountEventHandler implements EventHandler<TransactionEvent> {
     public void onEvent(TransactionEvent transactionEvent, long l, boolean b) throws Exception {
         try {
             Transaction transaction = transactionEvent.getTransaction();
-            PatriciaTreeNode patriciaTreeNode = memoryTreePool.getById(transaction.getFrom()).get();
+            PatriciaTreeNode patriciaTreeNode = memoryTreePool.getByaddress(transaction.getFrom()).get();
             if (patriciaTreeNode.getAmount() < transaction.getAmount()) {
                 LOG.info("Transaction amount is not sufficient");
                 transaction.setStatus(TransactionStatus.ABORT);

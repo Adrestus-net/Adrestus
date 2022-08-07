@@ -6,11 +6,11 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 public interface MemoryTreePool {
-    boolean store(String address, PatriciaTreeNode patriciaTreeNode);
+    void store(String address, PatriciaTreeNode patriciaTreeNode)throws Exception;
 
-    boolean update(String address, PatriciaTreeNode patriciaTreeNode);
+    void update(String address, PatriciaTreeNode patriciaTreeNode)throws Exception;
 
-    Stream<PatriciaTreeNode> getAll() throws Exception;
+    Optional<PatriciaTreeNode> getByaddress(String address) throws Exception;
 
-    Optional<PatriciaTreeNode> getById(String address) throws Exception;
+    String getRootHash() throws Exception;
 }

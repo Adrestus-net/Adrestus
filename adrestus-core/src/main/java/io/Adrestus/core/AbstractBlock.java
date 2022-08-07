@@ -26,6 +26,9 @@ public abstract class AbstractBlock {
         this.Generation = Generation;
     }
 
+    public AbstractBlock() {
+    }
+
     public String getHash() {
         return Hash;
     }
