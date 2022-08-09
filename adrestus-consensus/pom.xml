@@ -18,8 +18,20 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.7</maven.compiler.source>
         <maven.compiler.target>1.7</maven.compiler.target>
+        <core.version>1.0-SNAPSHOT</core.version>
+        <config.version>1.0-SNAPSHOT</config.version>
     </properties>
     <dependencies>
+        <dependency>
+            <groupId>io.Adrestus.v1</groupId>
+            <artifactId>adrestus-core</artifactId>
+            <version>${core.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.Adrestus.v1</groupId>
+            <artifactId>adrestus-config</artifactId>
+            <version>${config.version}</version>
+        </dependency>
     </dependencies>
     <build>
     </build>

@@ -5,7 +5,10 @@ import io.Adrestus.crypto.bls.utils.MultiSigFastUtils;
 import org.apache.tuweni.bytes.Bytes;
 import org.junit.jupiter.api.Test;
 import org.openjdk.jmh.annotations.*;
+import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
+import org.openjdk.jmh.runner.options.Options;
+import org.openjdk.jmh.runner.options.OptionsBuilder;
 
 import java.security.SecureRandom;
 import java.util.Arrays;
@@ -52,22 +55,22 @@ public class BLSMeasurementsTest {
 
         BLSKeyPair keyPair1 = new BLSKeyPair(sk1, vk1);
         BLSKeyPair keyPair2 = new BLSKeyPair(sk2, vk2);
-        BLSKeyPair keyPair3 = new BLSKeyPair(sk3, vk3);
-        List<BLSPublicKey> publicKeys = Arrays.asList(keyPair1.getPublicKey(), keyPair2.getPublicKey(), keyPair3.getPublicKey());
-        List<Signature> signatures = Arrays.asList(BLSSignature.sign(message.toArray(), keyPair1.getPrivateKey()), BLSSignature.sign(message.toArray(), keyPair2.getPrivateKey()), BLSSignature.sign(message.toArray(), keyPair3.getPrivateKey()));
+       // BLSKeyPair keyPair3 = new BLSKeyPair(sk3, vk3);
+        List<BLSPublicKey> publicKeys = Arrays.asList(keyPair1.getPublicKey(), keyPair2.getPublicKey());
+        List<Signature> signatures = Arrays.asList(BLSSignature.sign(message.toArray(), keyPair1.getPrivateKey()), BLSSignature.sign(message.toArray(), keyPair2.getPrivateKey()));
         Signature aggregatedSignature = BLSSignature.aggregate(signatures);
         assertEquals(true, BLSSignature.fastAggregateVerify(publicKeys, message, aggregatedSignature));
     }
 
     @Test
     public void maintest() throws RunnerException {
-    /* final Options options = new OptionsBuilder()
+     final Options options = new OptionsBuilder()
                 .include(BLSMeasurementsTest.class.getSimpleName())
-                .measurementIterations(10)
+                .measurementIterations(2)
                 .forks(0)
                 .warmupIterations(1)
                 .build();
 
-        new Runner(options).run();*/
+        new Runner(options).run();
     }
 }
