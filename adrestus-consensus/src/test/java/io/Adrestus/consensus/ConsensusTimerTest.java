@@ -9,8 +9,12 @@ public class ConsensusTimerTest {
     @Test
     public void consensus_timer_test() throws InterruptedException {
         ConsensusTimer c=new ConsensusTimer();
-        new Thread(c).start();
-        Thread.sleep(10000);
-        c.stopThread();
+        Thread thread=new Thread(c);
+        thread.setDaemon(false);
+        thread.start();
+       // thread.join();
+        System.out.println("w");
+       // Thread.sleep(10000);
+       // c.stopThread();
     }
 }

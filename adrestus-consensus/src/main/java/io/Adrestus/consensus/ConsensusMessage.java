@@ -7,6 +7,7 @@ import io.Adrestus.crypto.bls.model.Signature;
 import java.util.List;
 
 public class ConsensusMessage<T> {
+    private ConsensusMessageType type;
     private T data;
     private Signature signature;
     private List<BLSPublicKey> BLSPubKeyList;
@@ -62,23 +63,32 @@ public class ConsensusMessage<T> {
         SignatureList = signatureList;
     }
 
+    public ConsensusMessageType getType() {
+        return type;
+    }
+
+    public void setType(ConsensusMessageType type) {
+        this.type = type;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ConsensusMessage<?> that = (ConsensusMessage<?>) o;
-        return Objects.equal(data, that.data) && Objects.equal(signature, that.signature) && Objects.equal(BLSPubKeyList, that.BLSPubKeyList) && Objects.equal(SignatureList, that.SignatureList);
+        return type == that.type && Objects.equal(data, that.data) && Objects.equal(signature, that.signature) && Objects.equal(BLSPubKeyList, that.BLSPubKeyList) && Objects.equal(SignatureList, that.SignatureList);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(data, signature, BLSPubKeyList, SignatureList);
+        return Objects.hashCode(type, data, signature, BLSPubKeyList, SignatureList);
     }
 
     @Override
     public String toString() {
         return "ConsensusMessage{" +
-                "data=" + data +
+                "type=" + type +
+                ", data=" + data +
                 ", signature=" + signature +
                 ", BLSPubKeyList=" + BLSPubKeyList +
                 ", SignatureList=" + SignatureList +

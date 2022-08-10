@@ -1,13 +1,12 @@
 package io.Adrestus.consensus;
 
-public enum ConsensusMessageType {
-
-    ANNOUNCE("ANNOUNCE"),
-    PREPARE("PREPARE"),
-    COMMIT("COMMIT");
+public enum ConsensusRoleType {
+    SUPERVISOR("SUPERVISOR"),
+    ORGANIZER("ORGANIZER"),
+    VALIDATOR("VALIDATOR");
     private final String title;
 
-    ConsensusMessageType(String title) {
+    ConsensusRoleType(String title) {
         this.title = title;
     }
 

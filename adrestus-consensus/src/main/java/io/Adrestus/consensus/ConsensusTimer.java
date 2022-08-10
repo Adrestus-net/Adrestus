@@ -10,10 +10,11 @@ public class ConsensusTimer implements Runnable{
 
     private final Timer timer;
     private final ConsensusTask task;
-    private volatile boolean exit = true;
+    private volatile boolean exit;
     public ConsensusTimer() {
         this.timer = new Timer(ConsensusConfiguration.CONSENSUS);
         this.task=new ConsensusTask();
+        this.exit = true;
 
     }
 

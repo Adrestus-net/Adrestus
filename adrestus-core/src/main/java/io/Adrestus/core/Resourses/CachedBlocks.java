@@ -3,17 +3,32 @@ package io.Adrestus.core.Resourses;
 import com.google.common.base.Objects;
 import io.Adrestus.core.CommitteeBlock;
 import io.Adrestus.core.TransactionBlock;
+import io.Adrestus.core.Trie.MerklePatriciaTreeImp;
+import io.Adrestus.core.Trie.PatriciaTreeNode;
+import io.Adrestus.util.SerializationUtil;
 
 public class CachedBlocks {
-
+    private static volatile  CachedBlocks instance;
     private CommitteeBlock committeeBlock;
     private TransactionBlock transactionBlock;
 
-    public CachedBlocks(CommitteeBlock committeeBlock, TransactionBlock transactionBlock) {
-        this.committeeBlock = committeeBlock;
-        this.transactionBlock = transactionBlock;
+    private CachedBlocks() {
+        if (instance != null) {
+            throw new IllegalStateException("Already initialized.");
+        }
     }
-
+    public static CachedBlocks getInstance() {
+        var result = instance;
+        if (result == null) {
+            synchronized (CachedBlocks.class) {
+                result = instance;
+                if (result == null) {
+                    instance = result = new CachedBlocks();
+                }
+            }
+        }
+        return result;
+    }
     public CommitteeBlock getCommitteeBlock() {
         return committeeBlock;
     }
