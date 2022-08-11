@@ -1,6 +1,10 @@
 package io.Adrestus.consensus;
 
-public interface VRFConsensusPhase<T> extends BFTConsensusPhase<T>{
+import io.Adrestus.crypto.vrf.VRFMessage;
 
-    public void init();
+public interface VRFConsensusPhase<T> extends BFTConsensusPhase<T> {
+
+    public void Initialize(VRFMessage message) throws Exception;
+
+    public void AggregateVRF(VRFMessage message) throws Exception;
 }

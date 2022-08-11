@@ -6,14 +6,15 @@ import lombok.SneakyThrows;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class ConsensusTimer implements Runnable{
+public class ConsensusTimer implements Runnable {
 
     private final Timer timer;
     private final ConsensusTask task;
     private volatile boolean exit;
+
     public ConsensusTimer() {
         this.timer = new Timer(ConsensusConfiguration.CONSENSUS);
-        this.task=new ConsensusTask();
+        this.task = new ConsensusTask();
         this.exit = true;
 
     }
@@ -26,19 +27,21 @@ public class ConsensusTimer implements Runnable{
     public ConsensusTask getTask() {
         return task;
     }
+
     public void stopThread() {
         this.exit = false;
     }
+
     @SneakyThrows
     @Override
     public void run() {
-        this.timer.scheduleAtFixedRate(task,0,ConsensusConfiguration.CONSENSUS_TIMER);
-        while (exit){
+        this.timer.scheduleAtFixedRate(task, 0, ConsensusConfiguration.CONSENSUS_TIMER);
+        while (exit) {
             Thread.sleep(500);
         }
     }
 
-    protected final class ConsensusTask extends TimerTask{
+    protected final class ConsensusTask extends TimerTask {
 
 
         @Override
@@ -47,7 +50,7 @@ public class ConsensusTimer implements Runnable{
         }
 
         @Override
-        public boolean cancel(){
+        public boolean cancel() {
             super.cancel();
             return true;
         }

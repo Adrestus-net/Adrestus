@@ -6,7 +6,7 @@ import io.activej.serializer.annotations.Serialize;
 import io.activej.serializer.annotations.SerializeClass;
 
 
-@SerializeClass(subclasses = {RegularTransaction.class,RewardsTransaction.class, StakingTransaction.class, DelegateTransaction.class})
+@SerializeClass(subclasses = {RegularTransaction.class, RewardsTransaction.class, StakingTransaction.class, DelegateTransaction.class})
 public abstract class Transaction {
 
 

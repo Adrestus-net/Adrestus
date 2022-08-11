@@ -3,34 +3,33 @@ package io.Adrestus.consensus;
 import com.google.common.base.Objects;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.Adrestus.crypto.bls.model.Signature;
+import io.activej.serializer.annotations.Deserialize;
+import io.activej.serializer.annotations.Serialize;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ConsensusMessage<T> {
     private ConsensusMessageType type;
     private T data;
-    private Signature signature;
-    private List<BLSPublicKey> BLSPubKeyList;
-    private List<Signature> SignatureList;
+    private ChecksumData checksumData;
+    private List<ChecksumData> signatures;
 
-    public ConsensusMessage(T data, Signature signature, List<BLSPublicKey> BLSPubKeyList, List<Signature> signatureList) {
-        this.data = data;
-        this.signature = signature;
-        this.BLSPubKeyList = BLSPubKeyList;
-        SignatureList = signatureList;
-    }
 
-    public ConsensusMessage(T data) {
+    public ConsensusMessage(@Deserialize("data") T data) {
+        this.signatures = new ArrayList<>();
+        this.checksumData = new ChecksumData();
+        this.type = ConsensusMessageType.ANNOUNCE;
         this.data = data;
     }
 
-    public ConsensusMessage(Signature signature) {
-        this.signature = signature;
-    }
+    /*public ConsensusMessage() {
+        this.checksumData=new ChecksumData();
+        this.type=ConsensusMessageType.ANNOUNCE;
+        this.signatures = new ArrayList<>();
+    }*/
 
-    public ConsensusMessage() {
-    }
-
+    @Serialize
     public T getData() {
         return data;
     }
@@ -39,30 +38,25 @@ public class ConsensusMessage<T> {
         this.data = data;
     }
 
-    public Signature getSignature() {
-        return signature;
+    @Serialize
+    public ChecksumData getChecksumData() {
+        return checksumData;
     }
 
-    public void setSignature(Signature signature) {
-        this.signature = signature;
+    public void setChecksumData(ChecksumData checksumData) {
+        this.checksumData = checksumData;
     }
 
-    public List<BLSPublicKey> getBLSPubKeyList() {
-        return BLSPubKeyList;
+    @Serialize
+    public List<ChecksumData> getSignatures() {
+        return signatures;
     }
 
-    public void setBLSPubKeyList(List<BLSPublicKey> BLSPubKeyList) {
-        this.BLSPubKeyList = BLSPubKeyList;
+    public void setSignatures(List<ChecksumData> signatures) {
+        this.signatures = signatures;
     }
 
-    public List<Signature> getSignatureList() {
-        return SignatureList;
-    }
-
-    public void setSignatureList(List<Signature> signatureList) {
-        SignatureList = signatureList;
-    }
-
+    @Serialize
     public ConsensusMessageType getType() {
         return type;
     }
@@ -76,12 +70,12 @@ public class ConsensusMessage<T> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ConsensusMessage<?> that = (ConsensusMessage<?>) o;
-        return type == that.type && Objects.equal(data, that.data) && Objects.equal(signature, that.signature) && Objects.equal(BLSPubKeyList, that.BLSPubKeyList) && Objects.equal(SignatureList, that.SignatureList);
+        return type == that.type && Objects.equal(data, that.data) && Objects.equal(checksumData, that.checksumData) && Objects.equal(signatures, that.signatures);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(type, data, signature, BLSPubKeyList, SignatureList);
+        return Objects.hashCode(type, data, checksumData, signatures);
     }
 
     @Override
@@ -89,9 +83,60 @@ public class ConsensusMessage<T> {
         return "ConsensusMessage{" +
                 "type=" + type +
                 ", data=" + data +
-                ", signature=" + signature +
-                ", BLSPubKeyList=" + BLSPubKeyList +
-                ", SignatureList=" + SignatureList +
+                ", checksumData=" + checksumData +
+                ", signaturelist=" + signatures +
                 '}';
     }
+
+    public static class ChecksumData {
+        private Signature signature;
+        private BLSPublicKey blsPublicKey;
+
+        public ChecksumData(Signature signature, BLSPublicKey blsPublicKey) {
+            this.signature = signature;
+            this.blsPublicKey = blsPublicKey;
+        }
+
+        public ChecksumData() {
+        }
+
+        public Signature getSignature() {
+            return signature;
+        }
+
+        public void setSignature(Signature signature) {
+            this.signature = signature;
+        }
+
+        public BLSPublicKey getBlsPublicKey() {
+            return blsPublicKey;
+        }
+
+        public void setBlsPublicKey(BLSPublicKey blsPublicKey) {
+            this.blsPublicKey = blsPublicKey;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            ChecksumData that = (ChecksumData) o;
+            return Objects.equal(signature, that.signature) && Objects.equal(blsPublicKey, that.blsPublicKey);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hashCode(signature, blsPublicKey);
+        }
+
+
+        @Override
+        public String toString() {
+            return "ChecksumData{" +
+                    "signature=" + signature +
+                    ", blsPublicKey=" + blsPublicKey +
+                    '}';
+        }
+    }
+
 }

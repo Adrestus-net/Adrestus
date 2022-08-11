@@ -1,9 +1,7 @@
 package io.Adrestus.core;
 
 import io.Adrestus.core.Resourses.MemoryPool;
-import io.Adrestus.core.Resourses.IMemoryPool;
 import io.Adrestus.util.GetTime;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -41,7 +39,7 @@ public class MemoryPoolTest {
     @Test
     public void delete_mempool() throws Exception {
 
-        ArrayList<Transaction> list=new ArrayList<Transaction>();
+        ArrayList<Transaction> list = new ArrayList<Transaction>();
         Transaction transaction1 = new RegularTransaction();
         transaction1.setAmount(100);
         transaction1.setHash("Hash1");
@@ -81,11 +79,11 @@ public class MemoryPoolTest {
 
         MemoryPool.getInstance().add(transaction1);
 
-        Optional<Transaction> res=MemoryPool.getInstance().getTransactionByHash("Hash4");
-        if(res.isPresent())
+        Optional<Transaction> res = MemoryPool.getInstance().getTransactionByHash("Hash4");
+        if (res.isPresent())
             System.out.println(res.get().toString());
 
-        MemoryPool.getInstance().getAll().forEach(x-> System.out.println(x.toString()));
+        MemoryPool.getInstance().getAll().forEach(x -> System.out.println(x.toString()));
     }
 
     @Test
@@ -105,7 +103,7 @@ public class MemoryPoolTest {
 
         MemoryPool.getInstance().add(transaction1);
 
-        assertEquals(true,MemoryPool.getInstance().checkTimestamp(transaction2));
+        assertEquals(true, MemoryPool.getInstance().checkTimestamp(transaction2));
 
     }
 }

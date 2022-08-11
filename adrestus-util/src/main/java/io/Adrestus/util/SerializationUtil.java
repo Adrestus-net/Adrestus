@@ -1,17 +1,24 @@
 package io.Adrestus.util;
 
+import io.Adrestus.config.AdrestusConfiguration;
 import io.activej.serializer.BinarySerializer;
 import io.activej.serializer.SerializerBuilder;
+
+import java.lang.reflect.Type;
 
 public class SerializationUtil<T> {
 
     private Class type;
     private final BinarySerializer<T> serializer;
-    private static final byte[] buffer = new byte[1024];
+    private static final byte[] buffer = new byte[AdrestusConfiguration.BUFFER_SIZE];
 
     public SerializationUtil(Class type) {
         this.type = type;
         serializer = SerializerBuilder.create().build(this.type);
+    }
+
+    public SerializationUtil(Type type) {
+        serializer = SerializerBuilder.create().build(type);
     }
 
 

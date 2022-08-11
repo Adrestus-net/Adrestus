@@ -55,7 +55,7 @@ public class BLSMeasurementsTest {
 
         BLSKeyPair keyPair1 = new BLSKeyPair(sk1, vk1);
         BLSKeyPair keyPair2 = new BLSKeyPair(sk2, vk2);
-       // BLSKeyPair keyPair3 = new BLSKeyPair(sk3, vk3);
+        // BLSKeyPair keyPair3 = new BLSKeyPair(sk3, vk3);
         List<BLSPublicKey> publicKeys = Arrays.asList(keyPair1.getPublicKey(), keyPair2.getPublicKey());
         List<Signature> signatures = Arrays.asList(BLSSignature.sign(message.toArray(), keyPair1.getPrivateKey()), BLSSignature.sign(message.toArray(), keyPair2.getPrivateKey()));
         Signature aggregatedSignature = BLSSignature.aggregate(signatures);
@@ -64,7 +64,7 @@ public class BLSMeasurementsTest {
 
     @Test
     public void maintest() throws RunnerException {
-     final Options options = new OptionsBuilder()
+        final Options options = new OptionsBuilder()
                 .include(BLSMeasurementsTest.class.getSimpleName())
                 .measurementIterations(2)
                 .forks(0)

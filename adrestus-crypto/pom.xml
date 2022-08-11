@@ -25,6 +25,7 @@
         <milagro.version>0.4.0</milagro.version>
         <jnr.version>2.2.12</jnr.version>
         <config.version>1.0-SNAPSHOT</config.version>
+        <serializer.version>5.3</serializer.version>
     </properties>
     <dependencies>
         <dependency>
@@ -61,6 +62,11 @@
             <groupId>io.Adrestus.v1</groupId>
             <artifactId>adrestus-config</artifactId>
             <version>${config.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.activej</groupId>
+            <artifactId>activej-serializer</artifactId>
+            <version>${serializer.version}</version>
         </dependency>
     </dependencies>
     <build>

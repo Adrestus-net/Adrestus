@@ -1,7 +1,6 @@
 package io.Adrestus.core.RingBuffer.handler.transactions;
 
 import com.lmax.disruptor.EventHandler;
-import io.Adrestus.core.Resourses.IMemoryPool;
 import io.Adrestus.core.Resourses.MemoryPool;
 import io.Adrestus.core.RingBuffer.event.TransactionEvent;
 import io.Adrestus.core.Transaction;

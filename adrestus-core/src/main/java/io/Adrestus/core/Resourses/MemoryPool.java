@@ -54,6 +54,7 @@ public class MemoryPool implements IMemoryPool {
         }
         return result;
     }
+
     @Override
     public Stream<Transaction> getAll() throws Exception {
         return memorypool.stream();

@@ -14,7 +14,7 @@ public class GetTime {
     }
 
     public static Timestamp GetTimestampFromString(String parseDate) throws ParseException {
-        Date parsedDate =  sdf.parse(parseDate);
+        Date parsedDate = sdf.parse(parseDate);
         Timestamp timestamp = new java.sql.Timestamp(parsedDate.getTime());
         return timestamp;
     }

@@ -24,6 +24,7 @@ public class PatriciaTreeNode {
     public void setAmount(double amount) {
         this.amount = amount;
     }
+
     @Serialize
     public int getNonce() {
         return nonce;

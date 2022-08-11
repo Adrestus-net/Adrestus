@@ -1,8 +1,6 @@
 package io.Adrestus.core;
 
 import io.Adrestus.util.SerializationUtil;
-import io.activej.serializer.BinarySerializer;
-import io.activej.serializer.SerializerBuilder;
 import org.junit.jupiter.api.Test;
 
 public class TransactionTest {
@@ -24,12 +22,12 @@ public class TransactionTest {
     @Test
     public void StakingTransaction_test() {
         SerializationUtil<Transaction> serenc = new SerializationUtil<Transaction>(Transaction.class);
-        Transaction stakingTransaction=new StakingTransaction();
+        Transaction stakingTransaction = new StakingTransaction();
         stakingTransaction.setAmount(100);
         stakingTransaction.setType(TransactionType.STAKING);
-        byte[] buffer=serenc.encode(stakingTransaction);
+        byte[] buffer = serenc.encode(stakingTransaction);
 
-        Transaction copys=serenc.decode(buffer);
+        Transaction copys = serenc.decode(buffer);
         System.out.println(copys.toString());
     }
 
@@ -49,13 +47,13 @@ public class TransactionTest {
     public void DelegateTransaction_test() {
         SerializationUtil<Transaction> serenc = new SerializationUtil<Transaction>(Transaction.class);
         //byte[] buffer = new byte[200];
-       // BinarySerializer<DelegateTransaction> serenc = SerializerBuilder.create().build(DelegateTransaction.class);
-        Transaction delegateTransaction=new DelegateTransaction();
+        // BinarySerializer<DelegateTransaction> serenc = SerializerBuilder.create().build(DelegateTransaction.class);
+        Transaction delegateTransaction = new DelegateTransaction();
         delegateTransaction.setAmount(100);
         delegateTransaction.setType(TransactionType.DELEGATING);
-        byte[] buffer=serenc.encode(delegateTransaction);
+        byte[] buffer = serenc.encode(delegateTransaction);
 
-        Transaction copys=serenc.decode(buffer);
+        Transaction copys = serenc.decode(buffer);
         System.out.println(copys.toString());
 
     }

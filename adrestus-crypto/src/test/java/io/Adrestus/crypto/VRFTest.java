@@ -60,13 +60,13 @@ public class VRFTest {
 
         VrfEngine2 group = new VrfEngine2();
         byte[] msg = "this is a testsdjkfhsdjklglkifsjlgfsdfjklsd".getBytes();
-        byte[] pi = group.prove(sk.toBytes(), msg);
-        byte[] hash = group.proofToHash(pi);
+        byte[] ri = group.prove(sk.toBytes(), msg);
+        byte[] pi = group.proofToHash(ri);
         //System.out.println("1b: "+Hex.toHexString(pi));
         // System.out.println("2b: "+Hex.toHexString(hash));
-        byte[] beta = group.verify(vk.toBytes(), pi, msg);
+        byte[] beta = group.verify(vk.toBytes(), ri, msg);
         //  System.out.println(Hex.toHexString(beta));
-        assertEquals(Hex.toHexString(beta), Hex.toHexString(hash));
+        assertEquals(Hex.toHexString(beta), Hex.toHexString(pi));
     }
 
     @Test

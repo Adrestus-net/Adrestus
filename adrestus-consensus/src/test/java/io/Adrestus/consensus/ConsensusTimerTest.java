@@ -1,6 +1,5 @@
 package io.Adrestus.consensus;
 
-import io.Adrestus.crypto.elliptic.ECDSASignature;
 import org.junit.jupiter.api.Test;
 
 public class ConsensusTimerTest {
@@ -8,13 +7,13 @@ public class ConsensusTimerTest {
 
     @Test
     public void consensus_timer_test() throws InterruptedException {
-        ConsensusTimer c=new ConsensusTimer();
-        Thread thread=new Thread(c);
+        ConsensusTimer c = new ConsensusTimer();
+        Thread thread = new Thread(c);
         thread.setDaemon(false);
         thread.start();
-       // thread.join();
+        // thread.join();
         System.out.println("w");
-       // Thread.sleep(10000);
-       // c.stopThread();
+        // Thread.sleep(10000);
+        // c.stopThread();
     }
 }

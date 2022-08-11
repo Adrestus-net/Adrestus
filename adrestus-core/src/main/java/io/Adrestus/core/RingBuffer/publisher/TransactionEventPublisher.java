@@ -5,8 +5,6 @@ import com.lmax.disruptor.TimeoutException;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 import com.lmax.disruptor.util.DaemonThreadFactory;
-import io.Adrestus.core.Resourses.MemoryTreePool;
-import io.Adrestus.core.Resourses.IMemoryTreePool;
 import io.Adrestus.core.RingBuffer.Publisher;
 import io.Adrestus.core.RingBuffer.event.TransactionEvent;
 import io.Adrestus.core.RingBuffer.factory.TransactionEventFactory;

@@ -7,13 +7,13 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class HashMapDB<V> {
-    protected final Map<byte[],byte[]> storage;
+    protected final Map<byte[], byte[]> storage;
     protected ReadWriteLock rwLock = new ReentrantReadWriteLock();
     protected final Lock readLock = rwLock.readLock();
     protected final Lock writeLock = rwLock.writeLock();
 
     public HashMapDB() {
-        this.storage = new HashMap<byte[],byte[]>();
+        this.storage = new HashMap<byte[], byte[]>();
     }
 
 
@@ -90,7 +90,7 @@ public class HashMapDB<V> {
     }
 
 
-    public Map<byte[],byte[]> getStorage() {
+    public Map<byte[], byte[]> getStorage() {
         return storage;
     }
 }
