@@ -1,7 +1,7 @@
 package io.Adrestus.consensus;
 
 import com.google.common.reflect.TypeToken;
-import io.Adrestus.core.Resourses.CachedBlocks;
+import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.crypto.bls.model.BLSPrivateKey;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.Adrestus.crypto.bls.model.CachedBLSKeyPair;
@@ -12,6 +12,8 @@ import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Type;
 import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ConsensusVRFTest {
     private static SerializationUtil<ConsensusMessage> serialize;
@@ -26,8 +28,8 @@ public class ConsensusVRFTest {
     @Test
     public void ConsensusVRF() throws Exception {
 
-        CachedBlocks.getInstance().getCommitteeBlock().setHash("hash");
-        CachedBlocks.getInstance().getCommitteeBlock().setViewID(10);
+        CachedLatestBlocks.getInstance().getCommitteeBlock().setHash("hash");
+        CachedLatestBlocks.getInstance().getCommitteeBlock().setViewID(10);
 
 
         BLSPrivateKey sk = new BLSPrivateKey(new SecureRandom());
@@ -71,6 +73,7 @@ public class ConsensusVRFTest {
 
         byte[] buffer = serialize.encode(consensusMessage);
         ConsensusMessage<VRFMessage> fg = serialize.decode(buffer);
+
         validatorphase1.AnnouncePhase(consensusMessage);
         consensusMessage.getSignatures().add(consensusMessage.getChecksumData());
 
@@ -87,6 +90,32 @@ public class ConsensusVRFTest {
 
         organizerphase.PreparePhase(consensusMessage);
 
+
+        List<ConsensusMessage.ChecksumData>list=new ArrayList<>();
+
+        validatorphase1.PreparePhase(consensusMessage);
+        if (consensusMessage.getStatusType().equals(ConsensusStatusType.SUCCESS))
+            list.add(consensusMessage.getChecksumData());
+
+
+        sk = new BLSPrivateKey(new SecureRandom());
+        vk = new BLSPublicKey(sk);
+
+        CachedBLSKeyPair.getInstance().setPrivateKey(sk);
+        CachedBLSKeyPair.getInstance().setPublicKey(vk);
+
+
+        validatorphase1.PreparePhase(consensusMessage);
+        if (consensusMessage.getStatusType().equals(ConsensusStatusType.SUCCESS))
+            list.add(consensusMessage.getChecksumData());
+
+        consensusMessage.clear();
+        consensusMessage.setSignatures(list);
+        organizerphase.CommitPhase(consensusMessage);
+
+
+        validatorphase1.CommitPhase(consensusMessage);
+        validatorphase1.CommitPhase(consensusMessage);
 
     }
 }

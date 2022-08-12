@@ -4,12 +4,12 @@ import com.google.common.base.Objects;
 import io.Adrestus.core.CommitteeBlock;
 import io.Adrestus.core.TransactionBlock;
 
-public class CachedBlocks {
-    private static volatile CachedBlocks instance;
+public class CachedLatestBlocks {
+    private static volatile CachedLatestBlocks instance;
     private CommitteeBlock committeeBlock;
     private TransactionBlock transactionBlock;
 
-    private CachedBlocks() {
+    private CachedLatestBlocks() {
         if (instance != null) {
             throw new IllegalStateException("Already initialized.");
         } else {
@@ -18,13 +18,13 @@ public class CachedBlocks {
         }
     }
 
-    public static CachedBlocks getInstance() {
+    public static CachedLatestBlocks getInstance() {
         var result = instance;
         if (result == null) {
-            synchronized (CachedBlocks.class) {
+            synchronized (CachedLatestBlocks.class) {
                 result = instance;
                 if (result == null) {
-                    instance = result = new CachedBlocks();
+                    instance = result = new CachedLatestBlocks();
                 }
             }
         }
@@ -51,7 +51,7 @@ public class CachedBlocks {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        CachedBlocks that = (CachedBlocks) o;
+        CachedLatestBlocks that = (CachedLatestBlocks) o;
         return Objects.equal(committeeBlock, that.committeeBlock) && Objects.equal(transactionBlock, that.transactionBlock);
     }
 

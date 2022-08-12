@@ -10,7 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ConsensusMessage<T> {
-    private ConsensusMessageType type;
+    private ConsensusMessageType messageType;
+    private ConsensusStatusType statusType;
     private T data;
     private ChecksumData checksumData;
     private List<ChecksumData> signatures;
@@ -19,7 +20,8 @@ public class ConsensusMessage<T> {
     public ConsensusMessage(@Deserialize("data") T data) {
         this.signatures = new ArrayList<>();
         this.checksumData = new ChecksumData();
-        this.type = ConsensusMessageType.ANNOUNCE;
+        this.messageType = ConsensusMessageType.ANNOUNCE;
+        this.statusType=ConsensusStatusType.PENDING;
         this.data = data;
     }
 
@@ -57,34 +59,46 @@ public class ConsensusMessage<T> {
     }
 
     @Serialize
-    public ConsensusMessageType getType() {
-        return type;
+    public ConsensusMessageType getMessageType() {
+        return messageType;
     }
 
-    public void setType(ConsensusMessageType type) {
-        this.type = type;
+    public void setMessageType(ConsensusMessageType messageType) {
+        this.messageType = messageType;
+    }
+    @Serialize
+    public ConsensusStatusType getStatusType() {
+        return statusType;
     }
 
+    public void setStatusType(ConsensusStatusType statusType) {
+        this.statusType = statusType;
+    }
+
+    public void clear(){
+        this.signatures.clear();
+    }
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ConsensusMessage<?> that = (ConsensusMessage<?>) o;
-        return type == that.type && Objects.equal(data, that.data) && Objects.equal(checksumData, that.checksumData) && Objects.equal(signatures, that.signatures);
+        return messageType == that.messageType && statusType == that.statusType && Objects.equal(data, that.data) && Objects.equal(checksumData, that.checksumData) && Objects.equal(signatures, that.signatures);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(type, data, checksumData, signatures);
+        return Objects.hashCode(messageType, statusType, data, checksumData, signatures);
     }
 
     @Override
     public String toString() {
         return "ConsensusMessage{" +
-                "type=" + type +
+                "messageType=" + messageType +
+                ", statusType=" + statusType +
                 ", data=" + data +
                 ", checksumData=" + checksumData +
-                ", signaturelist=" + signatures +
+                ", signatures=" + signatures +
                 '}';
     }
 

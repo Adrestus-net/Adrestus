@@ -1,11 +1,16 @@
 package io.Adrestus.consensus;
 
+import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.core.CommitteeBlock;
-import io.Adrestus.core.Resourses.CachedBlocks;
+import io.Adrestus.core.Resourses.CachedLatestBlocks;
+import io.Adrestus.core.Resourses.CachedLatestRandomness;
 import io.Adrestus.core.RingBuffer.handler.transactions.DoubleSpendEventHandler;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.Adrestus.crypto.bls.model.BLSSignature;
 import io.Adrestus.crypto.bls.model.Signature;
+import io.Adrestus.crypto.vdf.VDFMessage;
+import io.Adrestus.crypto.vdf.engine.VdfEngine;
+import io.Adrestus.crypto.vdf.engine.VdfEnginePietrzak;
 import io.Adrestus.crypto.vrf.VRFMessage;
 import io.Adrestus.crypto.vrf.engine.VrfEngine2;
 import io.Adrestus.util.ByteUtil;
@@ -20,38 +25,71 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class OrganizerConsensusPhases {
-    private static Logger LOG = LoggerFactory.getLogger(DoubleSpendEventHandler.class);
 
-    protected static class ProposeVDF extends OrganizerConsensusPhases implements BFTConsensusPhase<String> {
-
-        @Override
-        public void AnnouncePhase(ConsensusMessage<String> data) {
-            System.out.println(data.toString());
+    protected static class ProposeVDF extends OrganizerConsensusPhases implements BFTConsensusPhase<VDFMessage> {
+        private static Logger LOG = LoggerFactory.getLogger(ProposeVDF.class);
+        private final VdfEngine vdf;
+        private final SerializationUtil<VDFMessage> serialize;
+        public ProposeVDF() {
+            vdf = new VdfEnginePietrzak(AdrestusConfiguration.PIERRZAK_BIT);
+            this.serialize = new SerializationUtil<VDFMessage>(VDFMessage.class);
         }
 
         @Override
-        public void PreparePhase(ConsensusMessage<String> data) {
-
+        public void AnnouncePhase(ConsensusMessage<VDFMessage> data) {
+            data.setMessageType(ConsensusMessageType.ANNOUNCE);
+            byte[] solution = vdf.solve(CachedLatestRandomness.getInstance().getpRnd(), CachedLatestBlocks.getInstance().getCommitteeBlock().getDifficulty());
+            data.getData().setVDFSolution(solution);
         }
 
         @Override
-        public void CommitPhase(ConsensusMessage<String> data) {
+        public void PreparePhase(ConsensusMessage<VDFMessage> data) {
+            data.setMessageType(ConsensusMessageType.PREPARE);
 
+            List<BLSPublicKey> publicKeys = data.getSignatures().stream().map(ConsensusMessage.ChecksumData::getBlsPublicKey).collect(Collectors.toList());
+            List<Signature> signature = data.getSignatures().stream().map(ConsensusMessage.ChecksumData::getSignature).collect(Collectors.toList());
+
+
+            Signature aggregatedSignature = BLSSignature.aggregate(signature);
+            Bytes message = Bytes.wrap(CachedLatestRandomness.getInstance().getRnd());
+            boolean verify = BLSSignature.fastAggregateVerify(publicKeys, message, aggregatedSignature);
+            if (!verify)
+                throw new IllegalArgumentException("Abort consensus phase BLS multi_signature is invalid during prepare phase");
+        }
+
+        @Override
+        public void CommitPhase(ConsensusMessage<VDFMessage> data) {
+            data.setMessageType(ConsensusMessageType.COMMIT);
+
+            List<BLSPublicKey> publicKeys = data.getSignatures().stream().map(ConsensusMessage.ChecksumData::getBlsPublicKey).collect(Collectors.toList());
+            List<Signature> signature = data.getSignatures().stream().map(ConsensusMessage.ChecksumData::getSignature).collect(Collectors.toList());
+
+
+            Signature aggregatedSignature = BLSSignature.aggregate(signature);
+            byte[] wrapp = serialize.encode(data.getData());
+            Bytes message = Bytes.wrap(wrapp);
+            boolean verify = BLSSignature.fastAggregateVerify(publicKeys, message, aggregatedSignature);
+            if (!verify)
+                throw new IllegalArgumentException("Abort consensus phase BLS multi_signature is invalid during commit phase");
+
+            //commit save to db
         }
     }
 
 
     protected static class ProposeVRF extends OrganizerConsensusPhases implements VRFConsensusPhase<VRFMessage> {
+        private static Logger LOG = LoggerFactory.getLogger(ProposeVRF.class);
         private VrfEngine2 group;
-        private SerializationUtil<VRFMessage> serialize;
+        private final SerializationUtil<VRFMessage> serialize;
 
         public ProposeVRF() {
             this.group = new VrfEngine2();
+            this.serialize = new SerializationUtil<VRFMessage>(VRFMessage.class);
         }
 
         @Override
         public void Initialize(VRFMessage message) {
-            message.setBlockHash(CachedBlocks.getInstance().getCommitteeBlock().getHash());
+            message.setBlockHash(CachedLatestBlocks.getInstance().getCommitteeBlock().getHash());
             message.setType(VRFMessage.vrfMessageType.INIT);
         }
 
@@ -65,8 +103,8 @@ public class OrganizerConsensusPhases {
             StringBuilder hashToVerify = new StringBuilder();
 
 
-            hashToVerify.append(CachedBlocks.getInstance().getCommitteeBlock().getHash());
-            hashToVerify.append(CachedBlocks.getInstance().getCommitteeBlock().getViewID());
+            hashToVerify.append(CachedLatestBlocks.getInstance().getCommitteeBlock().getHash());
+            hashToVerify.append(CachedLatestBlocks.getInstance().getCommitteeBlock().getViewID());
 
 
             for (int i = 0; i < list.size(); i++) {
@@ -93,13 +131,12 @@ public class OrganizerConsensusPhases {
 
         @Override
         public void AnnouncePhase(ConsensusMessage<VRFMessage> data) {
-            this.serialize = new SerializationUtil<VRFMessage>(VRFMessage.class);
-            data.setType(ConsensusMessageType.ANNOUNCE);
+            data.setMessageType(ConsensusMessageType.ANNOUNCE);
         }
 
         @Override
         public void PreparePhase(ConsensusMessage<VRFMessage> data) {
-            data.setType(ConsensusMessageType.PREPARE);
+            data.setMessageType(ConsensusMessageType.PREPARE);
 
             List<BLSPublicKey> publicKeys = data.getSignatures().stream().map(ConsensusMessage.ChecksumData::getBlsPublicKey).collect(Collectors.toList());
             List<Signature> signature = data.getSignatures().stream().map(ConsensusMessage.ChecksumData::getSignature).collect(Collectors.toList());
@@ -109,12 +146,25 @@ public class OrganizerConsensusPhases {
             Bytes message = Bytes.wrap(data.getData().getPrnd());
             boolean verify = BLSSignature.fastAggregateVerify(publicKeys, message, aggregatedSignature);
             if (!verify)
-                throw new IllegalArgumentException("Abort consensus phase BLS multi_signature is invalid");
+                throw new IllegalArgumentException("Abort consensus phase BLS multi_signature is invalid during prepare phase");
         }
 
         @Override
         public void CommitPhase(ConsensusMessage<VRFMessage> data) {
+            data.setMessageType(ConsensusMessageType.COMMIT);
 
+            List<BLSPublicKey> publicKeys = data.getSignatures().stream().map(ConsensusMessage.ChecksumData::getBlsPublicKey).collect(Collectors.toList());
+            List<Signature> signature = data.getSignatures().stream().map(ConsensusMessage.ChecksumData::getSignature).collect(Collectors.toList());
+
+
+            Signature aggregatedSignature = BLSSignature.aggregate(signature);
+            byte[] wrapp = serialize.encode(data.getData());
+            Bytes message = Bytes.wrap(wrapp);
+            boolean verify = BLSSignature.fastAggregateVerify(publicKeys, message, aggregatedSignature);
+            if (!verify)
+                throw new IllegalArgumentException("Abort consensus phase BLS multi_signature is invalid during commit phase");
+
+            //commit save to db
         }
 
 
