@@ -108,5 +108,13 @@
                 </configuration>
             </plugin>
         </plugins>
+        <resources>
+            <resource>
+                <directory>src/resources</directory>
+                <includes>
+                    <include>**/*.dll</include>
+                </includes>
+            </resource>
+        </resources>
     </build>
 </project>

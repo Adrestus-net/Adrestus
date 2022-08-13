@@ -5,6 +5,8 @@ import com.sun.jna.NativeLibrary;
 import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
 
+import java.io.File;
+
 /**
  * This class contains JNA mappings to libgmp functions
  * <p>
@@ -79,7 +81,8 @@ public class LibGMP {
      *       ./configure --disable-static --enable-shared --host=x86_64-w64-mingw32
      */
     static {//load any required libraries (for now libgmp only) by name
-        loadlib("C:\\Users\\User\\Dropbox\\WholeProjects\\PcDesktops\\IdeaProjects\\vdf\\libgmp");//linux use after building/installing libgmp
+        File file = new File(LibGMP.class.getResource("/libgmp.dll").getFile());
+        loadlib(file.getName());//linux use after building/installing libgmp
         //loadlib("libgmp-10");//windows build with mingw32
     }
 
@@ -119,13 +122,6 @@ public class LibGMP {
 
     public static native void __gmpz_clear(mpz_t x);//Free the space occupied by x
 
-    /**
-     * Integer arithmetic functions
-     *
-     * @param rop
-     * @param op1
-     * @param op2
-     */
     public static native void __gmpz_abs(mpz_t rop, mpz_t op);
 
     public static native void __gmpz_neg(mpz_t rop, mpz_t op);
