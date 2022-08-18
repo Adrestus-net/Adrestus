@@ -1,14 +1,13 @@
 package io.Adrestus.core.RingBuffer.handler.transactions;
 
-import com.lmax.disruptor.EventHandler;
 import io.Adrestus.core.Resourses.MemoryPool;
 import io.Adrestus.core.RingBuffer.event.TransactionEvent;
 import io.Adrestus.core.Transaction;
-import io.Adrestus.core.TransactionStatus;
+import io.Adrestus.core.StatusType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ReplayEventHandler implements EventHandler<TransactionEvent> {
+public class ReplayEventHandler extends TransactionEventHandler {
     private static Logger LOG = LoggerFactory.getLogger(ReplayEventHandler.class);
 
     @Override
@@ -17,7 +16,7 @@ public class ReplayEventHandler implements EventHandler<TransactionEvent> {
             Transaction transaction = transactionEvent.getTransaction();
             if (MemoryPool.getInstance().checkTimestamp(transaction)) {
                 LOG.info("Transaction abort Transaction with older timestamp exists for this source address");
-                transaction.setStatus(TransactionStatus.ABORT);
+                transaction.setStatus(StatusType.ABORT);
             }
         } catch (NullPointerException ex) {
             LOG.info("Transaction is empty");

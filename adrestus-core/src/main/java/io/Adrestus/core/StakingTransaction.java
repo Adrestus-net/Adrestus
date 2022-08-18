@@ -13,7 +13,7 @@ public class StakingTransaction extends Transaction {
     private double CommissionRate;
     private String ValidatorAddress;
 
-    public StakingTransaction(String hash, TransactionType type, TransactionStatus status, int zoneFrom, int zoneTo, String timestamp, int blockNumber, String from, String to, double amount, double transactionFee, int nonce, SignatureData signature, String name, String details, String website, String identity, double commissionRate, String validatorAddress) {
+    public StakingTransaction(String hash, TransactionType type, StatusType status, int zoneFrom, int zoneTo, String timestamp, int blockNumber, String from, String to, double amount, double transactionFee, int nonce, SignatureData signature, String name, String details, String website, String identity, double commissionRate, String validatorAddress) {
         super(hash, type, status, zoneFrom, zoneTo, timestamp, blockNumber, from, to, amount, transactionFee, nonce, signature);
         Name = name;
         Details = details;

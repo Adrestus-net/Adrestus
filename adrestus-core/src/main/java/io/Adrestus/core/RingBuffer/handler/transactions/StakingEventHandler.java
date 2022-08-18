@@ -1,14 +1,13 @@
 package io.Adrestus.core.RingBuffer.handler.transactions;
 
-import com.lmax.disruptor.EventHandler;
 import io.Adrestus.core.RingBuffer.event.TransactionEvent;
 import io.Adrestus.core.StakingTransaction;
 import io.Adrestus.core.Transaction;
-import io.Adrestus.core.TransactionStatus;
+import io.Adrestus.core.StatusType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class StakingEventHandler implements EventHandler<TransactionEvent> {
+public class StakingEventHandler extends TransactionEventHandler {
     private static Logger LOG = LoggerFactory.getLogger(StakingEventHandler.class);
 
     @Override
@@ -19,7 +18,7 @@ public class StakingEventHandler implements EventHandler<TransactionEvent> {
                 StakingTransaction stakingTransaction = (StakingTransaction) transaction;
                 if (stakingTransaction.getValidatorAddress().length() != 53) {
                     LOG.info("ValidatorAddress addresses is invalid please check again");
-                    transaction.setStatus(TransactionStatus.ABORT);
+                    transaction.setStatus(StatusType.ABORT);
                 }
             }
         } catch (NullPointerException ex) {

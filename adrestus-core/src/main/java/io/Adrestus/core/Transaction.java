@@ -12,7 +12,7 @@ public abstract class Transaction {
 
     protected String Hash;
     protected TransactionType Type;
-    protected TransactionStatus Status;
+    protected StatusType Status;
     protected int ZoneFrom;
     protected int ZoneTo;
     protected String timestamp;
@@ -28,7 +28,7 @@ public abstract class Transaction {
     public Transaction() {
         this.Hash = "";
         this.Type = TransactionType.REGULAR;
-        this.Status = TransactionStatus.PENDING;
+        this.Status = StatusType.PENDING;
         this.ZoneFrom = 0;
         this.ZoneTo = 0;
         this.BlockNumber = 0;
@@ -41,7 +41,7 @@ public abstract class Transaction {
         this.Signature = new SignatureData();
     }
 
-    public Transaction(String hash, TransactionType type, TransactionStatus status, int zoneFrom, int zoneTo, String timestamp, int blockNumber, String from, String to, double amount, double AmountWithTransactionFee, int nonce, SignatureData signature) {
+    public Transaction(String hash, TransactionType type, StatusType status, int zoneFrom, int zoneTo, String timestamp, int blockNumber, String from, String to, double amount, double AmountWithTransactionFee, int nonce, SignatureData signature) {
         this.Hash = hash;
         this.Type = type;
         this.Status = status;
@@ -67,11 +67,11 @@ public abstract class Transaction {
     }
 
     @Serialize
-    public TransactionStatus getStatus() {
+    public StatusType getStatus() {
         return Status;
     }
 
-    public void setStatus(TransactionStatus status) {
+    public void setStatus(StatusType status) {
         Status = status;
     }
 

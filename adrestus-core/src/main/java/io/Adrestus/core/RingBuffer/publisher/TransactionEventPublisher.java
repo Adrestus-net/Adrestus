@@ -1,5 +1,6 @@
 package io.Adrestus.core.RingBuffer.publisher;
 
+import com.google.common.base.Objects;
 import com.lmax.disruptor.BlockingWaitStrategy;
 import com.lmax.disruptor.TimeoutException;
 import com.lmax.disruptor.dsl.Disruptor;
@@ -8,15 +9,16 @@ import com.lmax.disruptor.util.DaemonThreadFactory;
 import io.Adrestus.core.RingBuffer.Publisher;
 import io.Adrestus.core.RingBuffer.event.TransactionEvent;
 import io.Adrestus.core.RingBuffer.factory.TransactionEventFactory;
-import io.Adrestus.core.RingBuffer.handler.transactions.AmountEventHandler;
-import io.Adrestus.core.RingBuffer.handler.transactions.NonceEventHandler;
-import io.Adrestus.core.RingBuffer.handler.transactions.SignatureEventHandler;
+import io.Adrestus.core.RingBuffer.handler.transactions.*;
 import io.Adrestus.core.Transaction;
 import io.Adrestus.util.BufferCapacity;
 import io.Adrestus.util.ThreadCalculator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -33,6 +35,8 @@ public class TransactionEventPublisher implements Publisher<Transaction> {
     private final Disruptor<TransactionEvent> disruptor;
     private final AtomicBoolean isRunning;
     private final ThreadCalculator threadCalculator;
+    private final List<TransactionEventHandler> group;
+
 
     public TransactionEventPublisher(int jobQueueSize) {
         this.isRunning = new AtomicBoolean(true);
@@ -41,16 +45,13 @@ public class TransactionEventPublisher implements Publisher<Transaction> {
         this.jobQueueSize = jobQueueSize;
         this.bufferSize = BufferCapacity.nextPowerOf2(this.jobQueueSize);
         this.executor = Executors.newFixedThreadPool(numberOfWorkers);
+        this.group=new ArrayList<TransactionEventHandler>();
         disruptor = new Disruptor<>(new TransactionEventFactory(), bufferSize, DaemonThreadFactory.INSTANCE, ProducerType.SINGLE, new BlockingWaitStrategy());
         LOG.info("Script engine worker pool created with " + numberOfWorkers + " threads");
     }
 
     @Override
     public void start() {
-        AmountEventHandler amountEventHandler = new AmountEventHandler();
-        NonceEventHandler nonceEventHandler = new NonceEventHandler();
-        SignatureEventHandler signatureEventHandler = new SignatureEventHandler(executor);
-        disruptor.handleEventsWith(amountEventHandler, nonceEventHandler).then(signatureEventHandler);
         disruptor.start();
     }
 
@@ -95,4 +96,134 @@ public class TransactionEventPublisher implements Publisher<Transaction> {
         }
     }
 
+    public TransactionEventPublisher withAddressSizeEventHandler(){
+        group.add(new AddressSizeEventHandler());
+        return this;
+    }
+    public TransactionEventPublisher withAmountEventHandler(){
+        group.add(new AmountEventHandler());
+        return this;
+    }
+
+    public TransactionEventPublisher withDelegateEventHandler(){
+        group.add(new DelegateEventHandler());
+        return this;
+    }
+
+    public TransactionEventPublisher withDoubleSpendEventHandler(){
+        group.add(new DoubleSpendEventHandler());
+        return this;
+    }
+
+    public TransactionEventPublisher withHashEventHandler(){
+        group.add(new DoubleSpendEventHandler());
+        return this;
+    }
+
+
+    public TransactionEventPublisher withNonceEventHandler(){
+        group.add(new NonceEventHandler());
+        return this;
+    }
+
+    public TransactionEventPublisher withReplayEventHandler(){
+        group.add(new ReplayEventHandler());
+        return this;
+    }
+
+    public TransactionEventPublisher withRewardEventHandler(){
+        group.add(new RewardEventHandler());
+        return this;
+    }
+
+    public TransactionEventPublisher withStakingEventHandler(){
+        group.add(new StakingEventHandler());
+        return this;
+    }
+
+    public TransactionEventPublisher withTransactionFeeEventHandler(){
+        group.add(new TransactionFeeEventHandler());
+        return this;
+    }
+
+    public TransactionEventPublisher mergeEvents(){
+        TransactionEventHandler[] events = new TransactionEventHandler[group.size()];
+        group.toArray(events);
+        disruptor.handleEventsWith(events);
+        return this;
+    }
+    public TransactionEventPublisher mergeEventsAndPassThen(SignatureEventHandler signatureEventHandler){
+        TransactionEventHandler[] events = new TransactionEventHandler[group.size()];
+        group.toArray(events);
+        signatureEventHandler.setExecutorService(executor);
+        disruptor.handleEventsWith(events).then(signatureEventHandler);
+        return this;
+    }
+
+
+    public static Logger getLOG() {
+        return LOG;
+    }
+
+    public static void setLOG(Logger LOG) {
+        TransactionEventPublisher.LOG = LOG;
+    }
+
+    public ExecutorService getExecutor() {
+        return executor;
+    }
+
+    public int getNumberOfWorkers() {
+        return numberOfWorkers;
+    }
+
+    public int getBufferSize() {
+        return bufferSize;
+    }
+
+    public Disruptor<TransactionEvent> getDisruptor() {
+        return disruptor;
+    }
+
+    public AtomicBoolean getIsRunning() {
+        return isRunning;
+    }
+
+    public ThreadCalculator getThreadCalculator() {
+        return threadCalculator;
+    }
+
+    public List<TransactionEventHandler> getGroup() {
+        return group;
+    }
+
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TransactionEventPublisher publisher = (TransactionEventPublisher) o;
+        return numberOfWorkers == publisher.numberOfWorkers && jobQueueSize == publisher.jobQueueSize && bufferSize == publisher.bufferSize && Objects.equal(droppedJobsCount, publisher.droppedJobsCount) && Objects.equal(executor, publisher.executor) && Objects.equal(disruptor, publisher.disruptor) && Objects.equal(isRunning, publisher.isRunning) && Objects.equal(threadCalculator, publisher.threadCalculator) && Objects.equal(group, publisher.group);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(droppedJobsCount, executor, numberOfWorkers, jobQueueSize, bufferSize, disruptor, isRunning, threadCalculator, group);
+    }
+
+    @Override
+    public String toString() {
+        return "TransactionEventPublisher{" +
+                "droppedJobsCount=" + droppedJobsCount +
+                ", executor=" + executor +
+                ", numberOfWorkers=" + numberOfWorkers +
+                ", jobQueueSize=" + jobQueueSize +
+                ", bufferSize=" + bufferSize +
+                ", disruptor=" + disruptor +
+                ", isRunning=" + isRunning +
+                ", threadCalculator=" + threadCalculator +
+                ", group=" + group +
+                '}';
+    }
 }

@@ -6,7 +6,7 @@ public class BlockTest {
 
     @Test
     public void block_test() {
-        TransactionBlock t = new TransactionBlock();
+        AbstractBlock t = new TransactionBlock();
         t.setHash("hash");
         t.accept(new Genesis());
     }

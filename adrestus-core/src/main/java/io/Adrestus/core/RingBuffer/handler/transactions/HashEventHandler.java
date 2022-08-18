@@ -1,15 +1,14 @@
 package io.Adrestus.core.RingBuffer.handler.transactions;
 
-import com.lmax.disruptor.EventHandler;
 import io.Adrestus.core.RingBuffer.event.TransactionEvent;
 import io.Adrestus.core.Transaction;
-import io.Adrestus.core.TransactionStatus;
+import io.Adrestus.core.StatusType;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.util.SerializationUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class HashEventHandler implements EventHandler<TransactionEvent> {
+public class HashEventHandler extends TransactionEventHandler {
     private static Logger LOG = LoggerFactory.getLogger(HashEventHandler.class);
     private final SerializationUtil<Transaction> wrapper;
 
@@ -28,7 +27,7 @@ public class HashEventHandler implements EventHandler<TransactionEvent> {
                 String result_hash = HashUtil.sha256_bytetoString(toHash);
                 if (!result_hash.equals(transaction.getHash())) {
                     LOG.info("Transaction hashes does not match");
-                    transaction.setStatus(TransactionStatus.ABORT);
+                    transaction.setStatus(StatusType.ABORT);
                 }
             }
 

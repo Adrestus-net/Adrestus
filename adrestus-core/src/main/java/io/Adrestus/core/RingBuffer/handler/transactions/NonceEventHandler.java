@@ -1,17 +1,16 @@
 package io.Adrestus.core.RingBuffer.handler.transactions;
 
-import com.lmax.disruptor.EventHandler;
 import io.Adrestus.core.Resourses.MemoryTreePool;
 import io.Adrestus.core.RingBuffer.event.TransactionEvent;
 import io.Adrestus.core.Transaction;
-import io.Adrestus.core.TransactionStatus;
+import io.Adrestus.core.StatusType;
 import io.Adrestus.core.Trie.PatriciaTreeNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.NoSuchElementException;
 
-public class NonceEventHandler implements EventHandler<TransactionEvent> {
+public class NonceEventHandler extends TransactionEventHandler {
     private static Logger LOG = LoggerFactory.getLogger(NonceEventHandler.class);
 
     @Override
@@ -21,7 +20,7 @@ public class NonceEventHandler implements EventHandler<TransactionEvent> {
             PatriciaTreeNode patriciaTreeNode = MemoryTreePool.getInstance().getByaddress(transaction.getFrom()).get();
             if (patriciaTreeNode.getNonce() + 1 != transaction.getNonce()) {
                 LOG.info("Transaction nonce is not valid");
-                transaction.setStatus(TransactionStatus.ABORT);
+                transaction.setStatus(StatusType.ABORT);
             }
         } catch (NoSuchElementException ex) {
             LOG.info("Transaction fields are empty");

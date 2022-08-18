@@ -1,13 +1,13 @@
 package io.Adrestus.core;
 
-public enum TransactionStatus {
+public enum StatusType {
     SUCCES("SUCCES"),
     FAILED("FAILED"),
     PENDING("PENDING"),
     ABORT("ABORT");
     private final String title;
 
-    TransactionStatus(String title) {
+    StatusType(String title) {
         this.title = title;
     }
 }

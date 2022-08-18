@@ -95,7 +95,6 @@ public abstract class PoolSizeCalculator {
     }
 
     private BigDecimal round(BigDecimal d, int scale, boolean roundUp) {
-        System.out.println("d" + d);
         int mode = (roundUp) ? BigDecimal.ROUND_UP : BigDecimal.ROUND_DOWN;
         return d.setScale(scale, BigDecimal.ROUND_UP);
     }

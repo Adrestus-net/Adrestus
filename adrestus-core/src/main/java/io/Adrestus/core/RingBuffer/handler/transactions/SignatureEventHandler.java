@@ -1,24 +1,50 @@
 package io.Adrestus.core.RingBuffer.handler.transactions;
 
-import com.lmax.disruptor.EventHandler;
 import io.Adrestus.core.RingBuffer.event.TransactionEvent;
+import io.Adrestus.core.StatusType;
 import io.Adrestus.core.Transaction;
-import io.Adrestus.core.TransactionStatus;
 import io.Adrestus.crypto.elliptic.ECDSASign;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
 
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
-public class SignatureEventHandler implements EventHandler<TransactionEvent> {
+public class SignatureEventHandler extends TransactionEventHandler {
     private static Logger LOG = LoggerFactory.getLogger(SignatureEventHandler.class);
-    private final ExecutorService executorService;
+
     private final ECDSASign ecdsaSign;
+    private final SignatureBehaviorType type;
+
+
+    private ExecutorService executorService;
+    private CountDownLatch latch;
 
     public SignatureEventHandler(ExecutorService executorService) {
         this.executorService = executorService;
         this.ecdsaSign = new ECDSASign();
+        this.type = SignatureBehaviorType.SIMPLE_TRANSACTIONS;
+    }
+
+    public SignatureEventHandler(SignatureBehaviorType type, CountDownLatch latch) {
+        this.type = type;
+        this.ecdsaSign = new ECDSASign();
+        this.latch = latch;
+    }
+
+    public SignatureEventHandler(SignatureBehaviorType type) {
+        this.type = type;
+        this.ecdsaSign = new ECDSASign();
+        this.latch = null;
+    }
+
+    public ExecutorService getExecutorService() {
+        return executorService;
+    }
+
+    public void setExecutorService(ExecutorService executorService) {
+        this.executorService = executorService;
     }
 
     @Override
@@ -48,10 +74,29 @@ public class SignatureEventHandler implements EventHandler<TransactionEvent> {
         public void run() {
             if (!ecdsaSign.secp256Verify(Hex.decode(transaction.getHash()), transaction.getFrom(), transaction.getSignature())) {
                 LOG.info("Transaction signature is not valid ABORT");
-                transaction.setStatus(TransactionStatus.ABORT);
+                transaction.setStatus(StatusType.ABORT);
+                if (type.equals(SignatureBehaviorType.BLOCK_TRANSACTIONS))
+                    latch.countDown();
                 return;
             }
-
+            transaction.setStatus(StatusType.SUCCES);
+            if (type.equals(SignatureBehaviorType.BLOCK_TRANSACTIONS)) {
+                latch.countDown();
+                return;
+            }
+            //store to mempool
         }
     }
+
+    public enum SignatureBehaviorType {
+        BLOCK_TRANSACTIONS("BLOCK_TRANSACTIONS"),
+        SIMPLE_TRANSACTIONS("SIMPLE_TRANSACTIONS");
+
+        private final String title;
+
+        SignatureBehaviorType(String title) {
+            this.title = title;
+        }
+    }
+
 }

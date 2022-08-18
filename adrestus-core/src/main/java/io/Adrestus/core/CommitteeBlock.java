@@ -1,12 +1,14 @@
 package io.Adrestus.core;
 
 import com.google.common.base.Objects;
+import io.Adrestus.core.RingBuffer.handler.blocks.DisruptorBlock;
+import io.Adrestus.core.RingBuffer.handler.blocks.DisruptorBlockVisitor;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class CommitteeBlock extends AbstractBlock implements BlockFactory {
+public class CommitteeBlock extends AbstractBlock implements BlockFactory, DisruptorBlock {
     private String CommitteeProposer;
     private String VRF;
     private String VDF;
@@ -44,6 +46,10 @@ public class CommitteeBlock extends AbstractBlock implements BlockFactory {
         visitor.forgeCommitteBlock(this);
     }
 
+    @Override
+    public void accept(DisruptorBlockVisitor disruptorBlockVisitor) {
+        disruptorBlockVisitor.visit(this);
+    }
 
     public String getCommitteeProposer() {
         return CommitteeProposer;
