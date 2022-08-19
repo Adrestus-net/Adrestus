@@ -47,7 +47,7 @@ public class MemoryTreePoolTest {
     @Test
     public void mempool_stress_test() throws Exception {
         PatriciaTreeNode treeNode = new PatriciaTreeNode(10, 1);
-        int size=10000;
+        int size = 10000;
         for (int i = 0; i < size; i++) {
             MemoryTreePool.getInstance().store(String.valueOf(i), treeNode);
         }

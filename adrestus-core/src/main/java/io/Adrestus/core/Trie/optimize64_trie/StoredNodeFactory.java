@@ -1,6 +1,10 @@
-package io.Adrestus.core.Trie.optimized;
+package io.Adrestus.core.Trie.optimize64_trie;
 
-import static java.lang.String.format;
+import io.Adrestus.util.RLP;
+import io.Adrestus.util.RLPException;
+import io.Adrestus.util.RLPInput;
+import org.apache.tuweni.bytes.Bytes;
+import org.apache.tuweni.bytes.Bytes32;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -8,11 +12,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import io.Adrestus.util.RLP;
-import io.Adrestus.util.RLPException;
-import io.Adrestus.util.RLPInput;
-import org.apache.tuweni.bytes.Bytes;
-import org.apache.tuweni.bytes.Bytes32;
+import static java.lang.String.format;
 
 public class StoredNodeFactory<V> implements NodeFactory<V> {
     @SuppressWarnings("rawtypes")

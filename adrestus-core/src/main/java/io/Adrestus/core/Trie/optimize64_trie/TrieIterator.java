@@ -1,11 +1,11 @@
-package io.Adrestus.core.Trie.optimized;
+package io.Adrestus.core.Trie.optimize64_trie;
+
+import org.apache.tuweni.bytes.Bytes;
+import org.apache.tuweni.bytes.Bytes32;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Iterator;
-
-import org.apache.tuweni.bytes.Bytes;
-import org.apache.tuweni.bytes.Bytes32;
 
 public class TrieIterator<V> implements PathNodeVisitor<V> {
 

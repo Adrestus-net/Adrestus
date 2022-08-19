@@ -12,17 +12,29 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  */
-package io.Adrestus.core.Trie.optimized;
+package io.Adrestus.core.Trie.optimize64_trie;
 
 import org.apache.tuweni.bytes.Bytes;
 
-interface PathNodeVisitor<V> {
+import java.util.List;
+import java.util.Optional;
 
-  Node<V> visit(ExtensionNode<V> extensionNode, Bytes path);
+public class Proof<V> {
 
-  Node<V> visit(BranchNode<V> branchNode, Bytes path);
+    private final Optional<V> value;
 
-  Node<V> visit(LeafNode<V> leafNode, Bytes path);
+    private final List<Bytes> proofRelatedNodes;
 
-  Node<V> visit(NullNode<V> nullNode, Bytes path);
+    public Proof(final Optional<V> value, final List<Bytes> proofRelatedNodes) {
+        this.value = value;
+        this.proofRelatedNodes = proofRelatedNodes;
+    }
+
+    public Optional<V> getValue() {
+        return value;
+    }
+
+    public List<Bytes> getProofRelatedNodes() {
+        return proofRelatedNodes;
+    }
 }

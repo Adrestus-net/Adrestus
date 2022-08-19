@@ -1,4 +1,4 @@
-package io.Adrestus.core.Trie.optimized;
+package io.Adrestus.core.Trie.optimize64_trie;
 
 import org.apache.tuweni.bytes.Bytes;
 import org.apache.tuweni.bytes.Bytes32;

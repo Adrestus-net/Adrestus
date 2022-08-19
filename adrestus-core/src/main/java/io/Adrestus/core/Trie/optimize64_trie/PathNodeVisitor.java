@@ -12,13 +12,17 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  */
-package io.Adrestus.core.Trie.optimized;
+package io.Adrestus.core.Trie.optimize64_trie;
 
 import org.apache.tuweni.bytes.Bytes;
-import org.apache.tuweni.bytes.Bytes32;
 
-import java.util.Optional;
+interface PathNodeVisitor<V> {
 
-public interface NodeLoader {
-  Optional<Bytes> getNode(Bytes location, Bytes32 hash);
+    Node<V> visit(ExtensionNode<V> extensionNode, Bytes path);
+
+    Node<V> visit(BranchNode<V> branchNode, Bytes path);
+
+    Node<V> visit(LeafNode<V> leafNode, Bytes path);
+
+    Node<V> visit(NullNode<V> nullNode, Bytes path);
 }

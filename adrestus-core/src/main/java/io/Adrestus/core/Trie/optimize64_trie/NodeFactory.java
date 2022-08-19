@@ -12,7 +12,7 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  */
-package io.Adrestus.core.Trie.optimized;
+package io.Adrestus.core.Trie.optimize64_trie;
 
 import org.apache.tuweni.bytes.Bytes;
 
@@ -21,11 +21,11 @@ import java.util.Optional;
 
 public interface NodeFactory<V> {
 
-  Node<V> createExtension(Bytes path, Node<V> child);
+    Node<V> createExtension(Bytes path, Node<V> child);
 
-  Node<V> createBranch(byte leftIndex, Node<V> left, byte rightIndex, Node<V> right);
+    Node<V> createBranch(byte leftIndex, Node<V> left, byte rightIndex, Node<V> right);
 
-  Node<V> createBranch(ArrayList<Node<V>> newChildren, Optional<V> value);
+    Node<V> createBranch(ArrayList<Node<V>> newChildren, Optional<V> value);
 
-  Node<V> createLeaf(Bytes path, V value);
+    Node<V> createLeaf(Bytes path, V value);
 }

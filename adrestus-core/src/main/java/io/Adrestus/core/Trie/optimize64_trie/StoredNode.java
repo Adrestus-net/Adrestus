@@ -1,12 +1,12 @@
-package io.Adrestus.core.Trie.optimized;
+package io.Adrestus.core.Trie.optimize64_trie;
 
-
-import java.util.List;
-import java.util.Optional;
 
 import io.Adrestus.util.RLP;
 import org.apache.tuweni.bytes.Bytes;
 import org.apache.tuweni.bytes.Bytes32;
+
+import java.util.List;
+import java.util.Optional;
 
 class StoredNode<V> implements Node<V> {
     private final StoredNodeFactory<V> nodeFactory;
@@ -20,13 +20,17 @@ class StoredNode<V> implements Node<V> {
         this.hash = hash;
     }
 
-    /** @return True if the node needs to be persisted. */
+    /**
+     * @return True if the node needs to be persisted.
+     */
     @Override
     public boolean isDirty() {
         return false;
     }
 
-    /** Marks the node as being modified (needs to be persisted); */
+    /**
+     * Marks the node as being modified (needs to be persisted);
+     */
     @Override
     public void markDirty() {
         throw new IllegalStateException(

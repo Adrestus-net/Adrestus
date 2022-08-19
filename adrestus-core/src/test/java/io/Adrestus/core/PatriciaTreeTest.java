@@ -3,13 +3,11 @@ package io.Adrestus.core;
 
 import io.Adrestus.core.Trie.MerklePatriciaTreeImp;
 import io.Adrestus.core.Trie.PatriciaTreeNode;
-import io.Adrestus.core.Trie.optimized.MerklePatriciaTrie;
-import io.Adrestus.core.Trie.optimized.SimpleMerklePatriciaTrie;
+import io.Adrestus.core.Trie.optimize64_trie.IMerklePatriciaTrie;
+import io.Adrestus.core.Trie.optimize64_trie.MerklePatriciaTrie;
 import org.apache.tuweni.bytes.Bytes;
-import org.apache.tuweni.bytes.Bytes32;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.spongycastle.util.encoders.Hex;
 
 import java.nio.charset.StandardCharsets;
 import java.util.function.Function;
@@ -19,17 +17,18 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class PatriciaTreeTest {
 
     private MerklePatriciaTreeImp trie;
-    protected MerklePatriciaTrie<Bytes, String> optimized;
-    protected MerklePatriciaTrie<Bytes, PatriciaTreeNode> optimized2;
+    protected IMerklePatriciaTrie<Bytes, String> optimized;
+    protected IMerklePatriciaTrie<Bytes, PatriciaTreeNode> optimized2;
     private Function<String, Bytes> valueSerializer;
-    private Function<PatriciaTreeNode,Bytes> valueSerializer2;
+    private Function<PatriciaTreeNode, Bytes> valueSerializer2;
+
     @BeforeEach
     void setUp() throws Exception {
         trie = new MerklePatriciaTreeImp();
         valueSerializer = value -> (value != null) ? Bytes.wrap(value.getBytes(StandardCharsets.UTF_8)) : null;
         valueSerializer2 = value -> (value != null) ? Bytes.wrap("".getBytes(StandardCharsets.UTF_8)) : null;
-        optimized=new SimpleMerklePatriciaTrie<Bytes, String>(valueSerializer);
-        optimized2=new SimpleMerklePatriciaTrie<Bytes, PatriciaTreeNode>(valueSerializer2);
+        optimized = new MerklePatriciaTrie<Bytes, String>(valueSerializer);
+        optimized2 = new MerklePatriciaTrie<Bytes, PatriciaTreeNode>(valueSerializer2);
     }
 
     @Test
@@ -52,7 +51,7 @@ public class PatriciaTreeTest {
     }
 
     @Test
-    public void optimized_patricia_tree(){
+    public void optimized_patricia_tree() {
         final Bytes key1 = Bytes.of(1, 5, 8, 9);
         final Bytes key2 = Bytes.of(1, 6, 1, 2);
         final Bytes key3 = Bytes.of(1, 6, 1, 3);
@@ -61,7 +60,7 @@ public class PatriciaTreeTest {
         optimized.put(key1, value1);
         final String hash1 = optimized.getRootHash().toHexString();
 
-        assertEquals("value1",optimized.get(key1).get());
+        assertEquals("value1", optimized.get(key1).get());
 
         final String value2 = "value2";
         optimized.put(key2, value2);
@@ -75,36 +74,36 @@ public class PatriciaTreeTest {
     }
 
     @Test
-    public void optimized_patricia_tree2(){
+    public void optimized_patricia_tree2() {
         final Bytes key1 = Bytes.of(1, 5, 8, 9);
 
 
-         PatriciaTreeNode node=new PatriciaTreeNode(2,3);
+        PatriciaTreeNode node = new PatriciaTreeNode(2, 3);
         final String hash = optimized2.getRootHash().toHexString();
-        assertEquals("0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",hash);
+        assertEquals("0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421", hash);
         optimized2.put(key1, node);
         final String hash1 = optimized2.getRootHash().toHexString();
-        assertEquals("0x1ba4b3ad7d229d2b852cc7277a1f79395383ab60fd6b257ff6dbd723047ed382",hash1);
-        assertEquals(node,optimized2.get(key1).get());
+        assertEquals("0x1ba4b3ad7d229d2b852cc7277a1f79395383ab60fd6b257ff6dbd723047ed382", hash1);
+        assertEquals(node, optimized2.get(key1).get());
     }
 
     @Test
-    public void stress_test_optimized_patricia_tree(){
-        String addres="ADR-AB2C-ARNW-4BYP-7CGJ-K6AD-OSNM-NC6Q-ET2C-6DEW-AAWY";
-        StringBuilder stringBuilder=new StringBuilder();
-        int size=1000000;
+    public void stress_test_optimized_patricia_tree() {
+        String addres = "ADR-AB2C-ARNW-4BYP-7CGJ-K6AD-OSNM-NC6Q-ET2C-6DEW-AAWY";
+        StringBuilder stringBuilder = new StringBuilder();
+        int size = 1000000;
         for (int i = 0; i < size; i++) {
             stringBuilder.append(addres);
             stringBuilder.append(String.valueOf(i));
-            optimized2.put(Bytes.wrap(stringBuilder.toString().getBytes(StandardCharsets.UTF_8)), new PatriciaTreeNode(i,i));
+            optimized2.put(Bytes.wrap(stringBuilder.toString().getBytes(StandardCharsets.UTF_8)), new PatriciaTreeNode(i, i));
             stringBuilder.setLength(0);
             optimized2.getRootHash();
         }
-         stringBuilder=new StringBuilder();
+        stringBuilder = new StringBuilder();
         for (int i = 0; i < size; i++) {
             stringBuilder.append(addres);
             stringBuilder.append(String.valueOf(i));
-            assertEquals(new PatriciaTreeNode(i,i), optimized2.get(Bytes.wrap(stringBuilder.toString().getBytes(StandardCharsets.UTF_8))).get());
+            assertEquals(new PatriciaTreeNode(i, i), optimized2.get(Bytes.wrap(stringBuilder.toString().getBytes(StandardCharsets.UTF_8))).get());
             stringBuilder.setLength(0);
         }
     }
