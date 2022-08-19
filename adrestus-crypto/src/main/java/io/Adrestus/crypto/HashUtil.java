@@ -17,6 +17,12 @@ import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.util.Random;
+import java.util.function.Supplier;
+
+import com.google.common.base.Suppliers;
+import org.apache.tuweni.bytes.Bytes;
+import org.apache.tuweni.bytes.Bytes32;
+
 
 import static io.Adrestus.crypto.ByteUtil.EMPTY_BYTE_ARRAY;
 import static java.util.Arrays.copyOfRange;
@@ -31,12 +37,22 @@ public class HashUtil {
     public static byte[] EMPTY_TRIE_HASH;
 
     private static Provider CRYPTO_PROVIDER;
-
+    public static final String KECCAK256_ALG = "KECCAK-256";
+    private static final Supplier<MessageDigest> KECCAK256_SUPPLIER =
+            Suppliers.memoize(() -> messageDigest(KECCAK256_ALG));
     private static final String HASH_256_ALGORITHM_NAME = "SHA-256";
     private static final String SHA3_HASH_256_ALGORITHM_NAME = "ETH-KECCAK-256";
     private static final String HASH_512_ALGORITHM_NAME = "ETH-KECCAK-512";
     private static final String HASH_256_HMAC = "HmacSHA256";
     private static SecureRandom random = new SecureRandom();
+
+    private static MessageDigest messageDigest(final String algorithm) {
+        try {
+            return MessageDigestFactory.create(algorithm);
+        } catch (final NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     static {
         Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
@@ -97,6 +113,26 @@ public class HashUtil {
         }
     }
 
+    /**
+     * Digest using keccak-256.
+     *
+     * @param input The input bytes to produce the digest for.
+     * @return A digest.
+     */
+    public static Bytes32 keccak256(final Bytes input) {
+        return Bytes32.wrap(digestUsingAlgorithm(input, KECCAK256_SUPPLIER));
+    }
+
+    private static byte[] digestUsingAlgorithm(
+            final Bytes input, final Supplier<MessageDigest> digestSupplier) {
+        try {
+            final MessageDigest digest = (MessageDigest) digestSupplier.get().clone();
+            input.update(digest);
+            return digest.digest();
+        } catch (final CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
+    }
     public static byte[] sha256(byte[] input, Provider provider) {
         try {
             MessageDigest sha256digest = MessageDigest.getInstance(HASH_256_ALGORITHM_NAME, provider);

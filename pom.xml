@@ -114,6 +114,11 @@
             <artifactId>tuweni-bytes</artifactId>
             <version>${tuweni.verison}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.tuweni</groupId>
+            <artifactId>tuweni-units</artifactId>
+            <version>${tuweni.verison}</version>
+        </dependency>
     </dependencies>
     <build>
         <pluginManagement>
