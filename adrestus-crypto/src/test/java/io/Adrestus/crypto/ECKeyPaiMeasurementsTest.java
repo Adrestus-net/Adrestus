@@ -9,17 +9,15 @@ import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 import org.spongycastle.util.encoders.Hex;
 
-import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.util.concurrent.TimeUnit;
 
-import static java.security.DrbgParameters.Capability.RESEED_ONLY;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @BenchmarkMode({Mode.Throughput})
 @OutputTimeUnit(TimeUnit.SECONDS)
 @State(Scope.Thread)
-public class ECKeyPaiMeasurements {
+public class ECKeyPaiMeasurementsTest {
     private static byte[] hash;
     private static ECKeyPair ecKeyPair;
     private static ECDSASign ecdsaSign;
@@ -67,7 +65,7 @@ public class ECKeyPaiMeasurements {
     @Test
     public void Test() throws RunnerException {
         final Options options = new OptionsBuilder()
-                .include(ECKeyPaiMeasurements.class.getSimpleName())
+                .include(ECKeyPaiMeasurementsTest.class.getSimpleName())
                 .measurementIterations(1)
                 .forks(0)
                 .warmupIterations(1)
