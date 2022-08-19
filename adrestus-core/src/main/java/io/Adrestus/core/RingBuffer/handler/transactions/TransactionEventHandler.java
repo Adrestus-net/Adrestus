@@ -5,5 +5,6 @@ import io.Adrestus.core.RingBuffer.event.TransactionEvent;
 
 public abstract class TransactionEventHandler implements EventHandler<TransactionEvent> {
     @Override
-    public void onEvent(TransactionEvent transactionEvent, long l, boolean b) throws Exception {}
+    public void onEvent(TransactionEvent transactionEvent, long l, boolean b) throws Exception {
+    }
 }

@@ -4,7 +4,6 @@ import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.core.CommitteeBlock;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedLatestRandomness;
-import io.Adrestus.core.RingBuffer.handler.transactions.DoubleSpendEventHandler;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.Adrestus.crypto.bls.model.BLSSignature;
 import io.Adrestus.crypto.bls.model.Signature;
@@ -30,6 +29,7 @@ public class OrganizerConsensusPhases {
         private static Logger LOG = LoggerFactory.getLogger(ProposeVDF.class);
         private final VdfEngine vdf;
         private final SerializationUtil<VDFMessage> serialize;
+
         public ProposeVDF() {
             vdf = new VdfEnginePietrzak(AdrestusConfiguration.PIERRZAK_BIT);
             this.serialize = new SerializationUtil<VDFMessage>(VDFMessage.class);

@@ -23,13 +23,13 @@ public class GenerationEventHandler implements BlockEventHandler<AbstractBlockEv
 
     @Override
     public void visit(CommitteeBlock committeeBlock) {
-        if (committeeBlock.getGeneration()!=CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration()+1)
+        if (committeeBlock.getGeneration() != CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration() + 1)
             LOG.info("CommitteeBlock Generation is not valid");
     }
 
     @Override
     public void visit(TransactionBlock transactionBlock) {
-        if (transactionBlock.getGeneration()!=CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration())
+        if (transactionBlock.getGeneration() != CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration())
             LOG.info("TransactionBlock Generation is not valid");
     }
 }

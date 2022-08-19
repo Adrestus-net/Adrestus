@@ -31,9 +31,9 @@ public abstract class AbstractBlock implements BlockFactory, DisruptorBlock {
         this.Generation = generation;
     }
 
-    public AbstractBlock(String Hash,String previousHash, int size,int height, Timestamp timestamp) {
-        this.Hash=Hash;
-        this.HeaderData = new Header(previousHash,timestamp);
+    public AbstractBlock(String Hash, String previousHash, int size, int height, Timestamp timestamp) {
+        this.Hash = Hash;
+        this.HeaderData = new Header(previousHash, timestamp);
         this.Height = height;
         this.Size = size;
     }
@@ -131,7 +131,7 @@ public abstract class AbstractBlock implements BlockFactory, DisruptorBlock {
     }
 
 
-    public final class Header{
+    public final class Header {
         private int Version;
         private String PreviousHash;
         private Timestamp timestamp;

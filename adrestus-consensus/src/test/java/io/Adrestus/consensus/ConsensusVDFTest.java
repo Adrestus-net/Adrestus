@@ -63,7 +63,7 @@ public class ConsensusVDFTest {
 
         organizerphase.PreparePhase(consensusMessage);
 
-        List<ConsensusMessage.ChecksumData> list=new ArrayList<>();
+        List<ConsensusMessage.ChecksumData> list = new ArrayList<>();
         validatorphase.PreparePhase(consensusMessage);
         if (consensusMessage.getStatusType().equals(ConsensusStatusType.SUCCESS))
             list.add(consensusMessage.getChecksumData());

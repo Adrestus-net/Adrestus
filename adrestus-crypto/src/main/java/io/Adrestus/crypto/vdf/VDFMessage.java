@@ -6,7 +6,7 @@ import io.activej.serializer.annotations.Serialize;
 import java.util.Arrays;
 
 public class VDFMessage {
-    private byte [] VDFSolution;
+    private byte[] VDFSolution;
 
     public VDFMessage(byte[] buffer) {
         this.VDFSolution = buffer;

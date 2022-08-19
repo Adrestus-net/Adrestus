@@ -91,7 +91,7 @@ public class ConsensusVRFTest {
         organizerphase.PreparePhase(consensusMessage);
 
 
-        List<ConsensusMessage.ChecksumData>list=new ArrayList<>();
+        List<ConsensusMessage.ChecksumData> list = new ArrayList<>();
 
         validatorphase1.PreparePhase(consensusMessage);
         if (consensusMessage.getStatusType().equals(ConsensusStatusType.SUCCESS))

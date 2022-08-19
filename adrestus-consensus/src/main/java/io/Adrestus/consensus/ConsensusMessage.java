@@ -21,7 +21,7 @@ public class ConsensusMessage<T> {
         this.signatures = new ArrayList<>();
         this.checksumData = new ChecksumData();
         this.messageType = ConsensusMessageType.ANNOUNCE;
-        this.statusType=ConsensusStatusType.PENDING;
+        this.statusType = ConsensusStatusType.PENDING;
         this.data = data;
     }
 
@@ -66,6 +66,7 @@ public class ConsensusMessage<T> {
     public void setMessageType(ConsensusMessageType messageType) {
         this.messageType = messageType;
     }
+
     @Serialize
     public ConsensusStatusType getStatusType() {
         return statusType;
@@ -75,9 +76,10 @@ public class ConsensusMessage<T> {
         this.statusType = statusType;
     }
 
-    public void clear(){
+    public void clear() {
         this.signatures.clear();
     }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

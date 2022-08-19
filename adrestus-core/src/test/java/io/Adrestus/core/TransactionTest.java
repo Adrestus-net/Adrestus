@@ -1,11 +1,24 @@
 package io.Adrestus.core;
 
+import io.Adrestus.crypto.WalletAddress;
+import io.Adrestus.crypto.elliptic.ECKeyPair;
+import io.Adrestus.crypto.elliptic.Keys;
+import io.Adrestus.crypto.mnemonic.Mnemonic;
+import io.Adrestus.crypto.mnemonic.MnemonicException;
+import io.Adrestus.crypto.mnemonic.Security;
+import io.Adrestus.crypto.mnemonic.WordList;
 import io.Adrestus.util.SerializationUtil;
 import org.junit.jupiter.api.Test;
 
+import java.security.InvalidAlgorithmParameterException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.SecureRandom;
+import java.util.ArrayList;
+
 public class TransactionTest {
 
-    @Test
+    //@Test
     public void Transaction_test() {
 
         SerializationUtil<Transaction> ser = new SerializationUtil<Transaction>(Transaction.class);
@@ -19,7 +32,7 @@ public class TransactionTest {
 
     }
 
-    @Test
+    // @Test
     public void StakingTransaction_test() {
         SerializationUtil<Transaction> serenc = new SerializationUtil<Transaction>(Transaction.class);
         Transaction stakingTransaction = new StakingTransaction();
@@ -31,7 +44,7 @@ public class TransactionTest {
         System.out.println(copys.toString());
     }
 
-    @Test
+    // @Test
     public void RewardTransaction_test() {
         SerializationUtil<Transaction> serenc = new SerializationUtil<Transaction>(Transaction.class);
         RewardsTransaction rewardsTransaction = new RewardsTransaction("Del");
@@ -43,7 +56,7 @@ public class TransactionTest {
         System.out.println(copys.toString());
     }
 
-    @Test
+    // @Test
     public void DelegateTransaction_test() {
         SerializationUtil<Transaction> serenc = new SerializationUtil<Transaction>(Transaction.class);
         //byte[] buffer = new byte[200];
@@ -58,5 +71,25 @@ public class TransactionTest {
 
     }
 
+
+    @Test
+    public void StressTesting() throws MnemonicException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException {
+        ArrayList<String> list = new ArrayList<>();
+        int version = 0x00;
+        int size = 100;
+        for (int i = 0; i < size; i++) {
+            Mnemonic mnem = new Mnemonic(Security.NORMAL, WordList.ENGLISH);
+            char[] mnemonic_sequence = mnem.create();
+            char[] passphrase = "p4ssphr4se".toCharArray();
+            byte[] key = mnem.createSeed(mnemonic_sequence, passphrase);
+            ECKeyPair ecKeyPair = Keys.createEcKeyPair(new SecureRandom(key));
+            String adddress = WalletAddress.generate_address((byte) version, ecKeyPair.getPublicKey());
+            list.add(adddress);
+        }
+
+        for (int i = 0; i < size - 1; i++) {
+
+        }
+    }
 
 }

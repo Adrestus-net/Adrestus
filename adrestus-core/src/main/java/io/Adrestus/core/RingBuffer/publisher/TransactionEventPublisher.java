@@ -18,7 +18,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -45,7 +44,7 @@ public class TransactionEventPublisher implements Publisher<Transaction> {
         this.jobQueueSize = jobQueueSize;
         this.bufferSize = BufferCapacity.nextPowerOf2(this.jobQueueSize);
         this.executor = Executors.newFixedThreadPool(numberOfWorkers);
-        this.group=new ArrayList<TransactionEventHandler>();
+        this.group = new ArrayList<TransactionEventHandler>();
         disruptor = new Disruptor<>(new TransactionEventFactory(), bufferSize, DaemonThreadFactory.INSTANCE, ProducerType.SINGLE, new BlockingWaitStrategy());
         LOG.info("Script engine worker pool created with " + numberOfWorkers + " threads");
     }
@@ -96,63 +95,65 @@ public class TransactionEventPublisher implements Publisher<Transaction> {
         }
     }
 
-    public TransactionEventPublisher withAddressSizeEventHandler(){
+    public TransactionEventPublisher withAddressSizeEventHandler() {
         group.add(new AddressSizeEventHandler());
         return this;
     }
-    public TransactionEventPublisher withAmountEventHandler(){
+
+    public TransactionEventPublisher withAmountEventHandler() {
         group.add(new AmountEventHandler());
         return this;
     }
 
-    public TransactionEventPublisher withDelegateEventHandler(){
+    public TransactionEventPublisher withDelegateEventHandler() {
         group.add(new DelegateEventHandler());
         return this;
     }
 
-    public TransactionEventPublisher withDoubleSpendEventHandler(){
+    public TransactionEventPublisher withDoubleSpendEventHandler() {
         group.add(new DoubleSpendEventHandler());
         return this;
     }
 
-    public TransactionEventPublisher withHashEventHandler(){
+    public TransactionEventPublisher withHashEventHandler() {
         group.add(new DoubleSpendEventHandler());
         return this;
     }
 
 
-    public TransactionEventPublisher withNonceEventHandler(){
+    public TransactionEventPublisher withNonceEventHandler() {
         group.add(new NonceEventHandler());
         return this;
     }
 
-    public TransactionEventPublisher withReplayEventHandler(){
+    public TransactionEventPublisher withReplayEventHandler() {
         group.add(new ReplayEventHandler());
         return this;
     }
 
-    public TransactionEventPublisher withRewardEventHandler(){
+    public TransactionEventPublisher withRewardEventHandler() {
         group.add(new RewardEventHandler());
         return this;
     }
 
-    public TransactionEventPublisher withStakingEventHandler(){
+    public TransactionEventPublisher withStakingEventHandler() {
         group.add(new StakingEventHandler());
         return this;
     }
 
-    public TransactionEventPublisher withTransactionFeeEventHandler(){
+    public TransactionEventPublisher withTransactionFeeEventHandler() {
         group.add(new TransactionFeeEventHandler());
         return this;
     }
 
-    public TransactionEventPublisher mergeEvents(){
+    public TransactionEventPublisher mergeEvents() {
         TransactionEventHandler[] events = new TransactionEventHandler[group.size()];
         group.toArray(events);
         disruptor.handleEventsWith(events);
         return this;
     }
-    public TransactionEventPublisher mergeEventsAndPassThen(SignatureEventHandler signatureEventHandler){
+
+    public TransactionEventPublisher mergeEventsAndPassThen(SignatureEventHandler signatureEventHandler) {
         TransactionEventHandler[] events = new TransactionEventHandler[group.size()];
         group.toArray(events);
         signatureEventHandler.setExecutorService(executor);
@@ -196,7 +197,6 @@ public class TransactionEventPublisher implements Publisher<Transaction> {
     public List<TransactionEventHandler> getGroup() {
         return group;
     }
-
 
 
     @Override

@@ -3,8 +3,6 @@ package io.Adrestus.core;
 import com.google.common.base.Objects;
 import io.Adrestus.core.RingBuffer.handler.blocks.DisruptorBlock;
 import io.Adrestus.core.RingBuffer.handler.blocks.DisruptorBlockVisitor;
-import io.Adrestus.crypto.bls.model.BLSPublicKey;
-import io.Adrestus.crypto.bls.model.Signature;
 
 import java.sql.Timestamp;
 import java.util.List;
@@ -38,6 +36,7 @@ public class TransactionBlock extends AbstractBlock implements BlockFactory, Dis
     public void accept(BlockForge visitor) {
         visitor.forgeTransactionBlock(this);
     }
+
     @Override
     public void accept(DisruptorBlockVisitor disruptorBlockVisitor) {
         disruptorBlockVisitor.visit(this);

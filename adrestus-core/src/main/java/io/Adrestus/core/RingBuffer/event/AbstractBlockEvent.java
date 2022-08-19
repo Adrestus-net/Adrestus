@@ -2,7 +2,7 @@ package io.Adrestus.core.RingBuffer.event;
 
 import io.Adrestus.core.AbstractBlock;
 
-public  class AbstractBlockEvent {
+public class AbstractBlockEvent {
     private AbstractBlock block;
 
 

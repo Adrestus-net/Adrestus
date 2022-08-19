@@ -34,6 +34,7 @@ public class ValidatorConsensusPhases {
         private static Logger LOG = LoggerFactory.getLogger(VerifyVDF.class);
         private final VdfEngine vdf;
         private final SerializationUtil<VDFMessage> serialize;
+
         public VerifyVDF() {
             vdf = new VdfEnginePietrzak(AdrestusConfiguration.PIERRZAK_BIT);
             serialize = new SerializationUtil<VDFMessage>(VDFMessage.class);
@@ -42,9 +43,9 @@ public class ValidatorConsensusPhases {
         @Override
         public void AnnouncePhase(ConsensusMessage<VDFMessage> data) {
             if (!data.getMessageType().equals(ConsensusMessageType.ANNOUNCE))
-                LOG.info("Organizer not send correct header message expected "+ConsensusMessageType.ANNOUNCE);
+                LOG.info("Organizer not send correct header message expected " + ConsensusMessageType.ANNOUNCE);
 
-            boolean verify=vdf.verify(CachedLatestRandomness.getInstance().getpRnd(), CachedLatestBlocks.getInstance().getCommitteeBlock().getDifficulty(), data.getData().getVDFSolution());
+            boolean verify = vdf.verify(CachedLatestRandomness.getInstance().getpRnd(), CachedLatestBlocks.getInstance().getCommitteeBlock().getDifficulty(), data.getData().getVDFSolution());
             if (!verify) {
                 LOG.info("Abort consensus phase VDF solution is invalid");
                 data.setStatusType(ConsensusStatusType.ABORT);
@@ -59,7 +60,7 @@ public class ValidatorConsensusPhases {
         @Override
         public void PreparePhase(ConsensusMessage<VDFMessage> data) {
             if (!data.getMessageType().equals(ConsensusMessageType.PREPARE))
-                LOG.info("Organizer not send correct header message expected "+ConsensusMessageType.PREPARE);
+                LOG.info("Organizer not send correct header message expected " + ConsensusMessageType.PREPARE);
 
             List<BLSPublicKey> publicKeys = data.getSignatures().stream().map(ConsensusMessage.ChecksumData::getBlsPublicKey).collect(Collectors.toList());
             List<Signature> signature = data.getSignatures().stream().map(ConsensusMessage.ChecksumData::getSignature).collect(Collectors.toList());
@@ -86,7 +87,7 @@ public class ValidatorConsensusPhases {
         @Override
         public void CommitPhase(ConsensusMessage<VDFMessage> data) {
             if (!data.getMessageType().equals(ConsensusMessageType.COMMIT)) {
-                LOG.info("Organizer not send correct header message expected "+ConsensusMessageType.COMMIT);
+                LOG.info("Organizer not send correct header message expected " + ConsensusMessageType.COMMIT);
                 data.setStatusType(ConsensusStatusType.ABORT);
                 return;
             }
@@ -148,7 +149,7 @@ public class ValidatorConsensusPhases {
         public void AnnouncePhase(ConsensusMessage<VRFMessage> data) throws Exception {
 
             if (!data.getMessageType().equals(ConsensusMessageType.ANNOUNCE))
-                throw new IllegalArgumentException("Organizer not send correct header message expected "+ConsensusMessageType.ANNOUNCE);
+                throw new IllegalArgumentException("Organizer not send correct header message expected " + ConsensusMessageType.ANNOUNCE);
 
 
             List<VRFMessage.VRFData> list = data.getData().getSigners();
@@ -194,7 +195,7 @@ public class ValidatorConsensusPhases {
         @Override
         public void PreparePhase(ConsensusMessage<VRFMessage> data) {
             if (!data.getMessageType().equals(ConsensusMessageType.PREPARE)) {
-                LOG.info("Organizer not send correct header message expected "+ConsensusMessageType.PREPARE);
+                LOG.info("Organizer not send correct header message expected " + ConsensusMessageType.PREPARE);
                 //  data.clear();
                 data.setStatusType(ConsensusStatusType.ABORT);
                 return;
@@ -224,7 +225,7 @@ public class ValidatorConsensusPhases {
         @Override
         public void CommitPhase(ConsensusMessage<VRFMessage> data) {
             if (!data.getMessageType().equals(ConsensusMessageType.COMMIT)) {
-                LOG.info("Organizer not send correct header message expected "+ConsensusMessageType.COMMIT);
+                LOG.info("Organizer not send correct header message expected " + ConsensusMessageType.COMMIT);
                 data.setStatusType(ConsensusStatusType.ABORT);
                 return;
             }

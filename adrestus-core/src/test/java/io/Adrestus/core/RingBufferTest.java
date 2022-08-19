@@ -1,6 +1,5 @@
 package io.Adrestus.core;
 
-import io.Adrestus.core.RingBuffer.factory.AbstractBlockEventFactory;
 import io.Adrestus.core.RingBuffer.publisher.BlockEventPublisher;
 import io.Adrestus.core.RingBuffer.publisher.TransactionEventPublisher;
 import org.junit.jupiter.api.Test;
@@ -23,8 +22,8 @@ public class RingBufferTest {
 
     @Test
     public void CommitBlockTest() throws InterruptedException {
-        BlockEventPublisher  publisher=new BlockEventPublisher(1024);
-        CommitteeBlock block=new CommitteeBlock();
+        BlockEventPublisher publisher = new BlockEventPublisher(1024);
+        CommitteeBlock block = new CommitteeBlock();
         block.setHash("hash");
 
 
@@ -38,8 +37,8 @@ public class RingBufferTest {
 
     //@Test
     public void TransactionBlockTest() throws InterruptedException {
-        BlockEventPublisher  publisher=new BlockEventPublisher(1024);
-        TransactionBlock block=new TransactionBlock();
+        BlockEventPublisher publisher = new BlockEventPublisher(1024);
+        TransactionBlock block = new TransactionBlock();
         block.setHash("hash");
 
         publisher.withHashHandler().mergeEvents();

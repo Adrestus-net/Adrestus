@@ -1,6 +1,7 @@
 package io.Adrestus.core.RingBuffer.publisher;
 
-import com.lmax.disruptor.*;
+import com.lmax.disruptor.BlockingWaitStrategy;
+import com.lmax.disruptor.TimeoutException;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 import com.lmax.disruptor.util.DaemonThreadFactory;
@@ -34,16 +35,17 @@ public class BlockEventPublisher<T> implements Publisher<AbstractBlock> {
         this.jobQueueSize = jobQueueSize;
         this.bufferSize = BufferCapacity.nextPowerOf2(this.jobQueueSize);
         //this.group=new ArrayList<AdrestusTransactionBlockEventHandler>();
-        this.group=new ArrayList<BlockEventHandler>();
+        this.group = new ArrayList<BlockEventHandler>();
         disruptor = new Disruptor<AbstractBlockEvent>(new AbstractBlockEventFactory(), bufferSize, DaemonThreadFactory.INSTANCE, ProducerType.SINGLE, new BlockingWaitStrategy());
     }
 
 
-    public BlockEventPublisher<T> withHashHandler(){
+    public BlockEventPublisher<T> withHashHandler() {
         group.add(new HeaderEventHandler());
         return this;
     }
-    public BlockEventPublisher mergeEvents(){
+
+    public BlockEventPublisher mergeEvents() {
         BlockEventHandler[] events = new BlockEventHandler[group.size()];
         group.toArray(events);
         disruptor.handleEventsWith(events);
@@ -64,7 +66,7 @@ public class BlockEventPublisher<T> implements Publisher<AbstractBlock> {
     public void publish(AbstractBlock block) {
         long sequence = this.disruptor.getRingBuffer().next();  // Grab the next sequence
         try {
-            AbstractBlockEvent event = (AbstractBlockEvent)this.disruptor.getRingBuffer().get(sequence); // Get the entry in the Disruptor
+            AbstractBlockEvent event = (AbstractBlockEvent) this.disruptor.getRingBuffer().get(sequence); // Get the entry in the Disruptor
             event.setBlock(block);
         } finally {
             this.disruptor.getRingBuffer().publish(sequence);

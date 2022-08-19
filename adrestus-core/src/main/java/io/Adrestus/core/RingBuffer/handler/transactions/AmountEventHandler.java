@@ -2,8 +2,8 @@ package io.Adrestus.core.RingBuffer.handler.transactions;
 
 import io.Adrestus.core.Resourses.MemoryTreePool;
 import io.Adrestus.core.RingBuffer.event.TransactionEvent;
-import io.Adrestus.core.Transaction;
 import io.Adrestus.core.StatusType;
+import io.Adrestus.core.Transaction;
 import io.Adrestus.core.Trie.PatriciaTreeNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

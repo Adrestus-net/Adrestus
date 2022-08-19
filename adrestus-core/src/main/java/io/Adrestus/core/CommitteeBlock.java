@@ -15,14 +15,15 @@ public class CommitteeBlock extends AbstractBlock implements BlockFactory, Disru
     private Map<BLSPublicKey, Double> StakingMap;
     private Map<Integer, HashMap<BLSPublicKey, String>> StructureMap;
     private int Difficulty;
-    public CommitteeBlock(String previousHash, int height, int Generation, String committeeProposer, String VRF, String VDF,int Difficulty) {
+
+    public CommitteeBlock(String previousHash, int height, int Generation, String committeeProposer, String VRF, String VDF, int Difficulty) {
         super(previousHash, height, Generation);
         CommitteeProposer = committeeProposer;
         this.VRF = VRF;
         this.VDF = VDF;
         this.StakingMap = new HashMap<BLSPublicKey, Double>();
         this.StructureMap = new HashMap<Integer, HashMap<BLSPublicKey, String>>();
-        this.Difficulty=Difficulty;
+        this.Difficulty = Difficulty;
         Init();
     }
 
