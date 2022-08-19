@@ -4,6 +4,7 @@ import com.sun.jna.Native;
 import com.sun.jna.NativeLibrary;
 import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
+import org.apache.commons.lang3.SystemUtils;
 
 import java.io.File;
 
@@ -81,7 +82,11 @@ public class LibGMP {
      *       ./configure --disable-static --enable-shared --host=x86_64-w64-mingw32
      */
     static {//load any required libraries (for now libgmp only) by name
-        File file = new File(LibGMP.class.getResource("/libgmp.dll").getFile());
+        File file=null;
+        if (SystemUtils.IS_OS_LINUX)
+            file = new File(LibGMP.class.getResource("/libgmp.so").getFile());
+        else if (SystemUtils.IS_OS_WINDOWS)
+            file = new File(LibGMP.class.getResource("/libgmp.dll").getFile());
         loadlib(file.getName());//linux use after building/installing libgmp
         //loadlib("libgmp-10");//windows build with mingw32
     }

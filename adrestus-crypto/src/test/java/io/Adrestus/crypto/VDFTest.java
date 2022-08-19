@@ -6,30 +6,33 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.spongycastle.util.encoders.Hex;
 
+import java.security.DrbgParameters;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.util.Random;
 
+import static java.security.DrbgParameters.Capability.RESEED_ONLY;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class VDFTest {
     private static byte[] challenge;
     private static long difficulty;
-    private static SecureRandom random;
+    private static Random random;
 
     @BeforeAll
     public static void Setup() {
         challenge = new byte[20];
         difficulty = 100;
-        random = new SecureRandom();
+        random = new Random();
         random.setSeed(200);
     }
 
     @Test
-    public void test_vdf() {
-
+    public void test_vdf() throws NoSuchAlgorithmException {
         random.nextBytes(challenge);
         VdfEngine vdf = new VdfEnginePietrzak(2048);
         byte[] solution = vdf.solve(challenge, difficulty);
-        assertEquals("003c27c656bd20796997ff0715e5e2dce3850f5bda38b2461c3a14026814b008c957dbabca624b54d51f5496b0acefc84749ed35a07b1cc26dead96289766740a0e1a9ac95d47eb402b5247a9b9225b0feda9c216ff59b1949f26aadaf8b38196a0fee56247337bf313446c2090ad6db356c47c5970a57f27246c799282733b6c7ffe5010b2b8c3486d5fe95c912918affb0edec2dff4f362f1cdd4981019c177d2bf62d1ff1b48309f43e242717e716e5c482d43d78fc30eb5f0e09ec0b0e8d88f9db71f37b1cbfb4e7de39b5dae7598f31c2f630e7bc6cb786ecf7e7dbaba2dbc8b686d0873fa5ac015fb8724e873279898de3164dc7ebc773a47d5d06f75fe03f", Hex.toHexString(solution));
+        assertEquals("0035e80b6a54563d78c34e365fd17f83fdb8946793b8d3c9fcda2bc257f57e806f72a8faee112a8b07c8cb4afa0d83a7f4e3bc87c4b2a63718a096f4bea1dc9fbb419c58131dc828ea9485ba24e8ef2ca5e68541545b859a106fc3d5da04ed6ede2614d7a7722334531cb4a8b9d6c2d50c68674c5e47b5eea2d89a720250fdf1d400134de5d604874b3c524a9ed4dfa4b892d8065d76f11d1d902561c56bc0960ed2f698caae3ab4c53e14b0cef2018313c6f4325944c44bebb56eb546871979b3242a938c9f3038e2ac2d9026b2c84867df2b2034aea6b2eec10c36b98975473a847cb004fb29a80e66777ed1e0feef4739b25a28defb6e1f7fc3e1e0985b2c6ecd", Hex.toHexString(solution));
         assertEquals(true, vdf.verify(challenge, difficulty, solution));
     }
 }
