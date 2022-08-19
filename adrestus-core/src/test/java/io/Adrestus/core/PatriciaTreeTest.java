@@ -2,6 +2,7 @@ package io.Adrestus.core;
 
 
 import io.Adrestus.core.Trie.MerklePatriciaTreeImp;
+import io.Adrestus.core.Trie.PatriciaTreeNode;
 import io.Adrestus.core.Trie.optimized.MerklePatriciaTrie;
 import io.Adrestus.core.Trie.optimized.SimpleMerklePatriciaTrie;
 import org.apache.tuweni.bytes.Bytes;
@@ -19,12 +20,16 @@ public class PatriciaTreeTest {
 
     private MerklePatriciaTreeImp trie;
     protected MerklePatriciaTrie<Bytes, String> optimized;
+    protected MerklePatriciaTrie<Bytes, PatriciaTreeNode> optimized2;
     private Function<String, Bytes> valueSerializer;
+    private Function<PatriciaTreeNode,Bytes> valueSerializer2;
     @BeforeEach
     void setUp() throws Exception {
         trie = new MerklePatriciaTreeImp();
         valueSerializer = value -> (value != null) ? Bytes.wrap(value.getBytes(StandardCharsets.UTF_8)) : null;
+        valueSerializer2 = value -> (value != null) ? Bytes.wrap("".getBytes(StandardCharsets.UTF_8)) : null;
         optimized=new SimpleMerklePatriciaTrie<Bytes, String>(valueSerializer);
+        optimized2=new SimpleMerklePatriciaTrie<Bytes, PatriciaTreeNode>(valueSerializer2);
     }
 
     @Test
@@ -66,5 +71,41 @@ public class PatriciaTreeTest {
 
         System.out.println(hash1);
         System.out.println(hash2);
+
+    }
+
+    @Test
+    public void optimized_patricia_tree2(){
+        final Bytes key1 = Bytes.of(1, 5, 8, 9);
+
+
+         PatriciaTreeNode node=new PatriciaTreeNode(2,3);
+        final String hash = optimized2.getRootHash().toHexString();
+        assertEquals("0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",hash);
+        optimized2.put(key1, node);
+        final String hash1 = optimized2.getRootHash().toHexString();
+        assertEquals("0x1ba4b3ad7d229d2b852cc7277a1f79395383ab60fd6b257ff6dbd723047ed382",hash1);
+        assertEquals(node,optimized2.get(key1).get());
+    }
+
+    @Test
+    public void stress_test_optimized_patricia_tree(){
+        String addres="ADR-AB2C-ARNW-4BYP-7CGJ-K6AD-OSNM-NC6Q-ET2C-6DEW-AAWY";
+        StringBuilder stringBuilder=new StringBuilder();
+        int size=1000000;
+        for (int i = 0; i < size; i++) {
+            stringBuilder.append(addres);
+            stringBuilder.append(String.valueOf(i));
+            optimized2.put(Bytes.wrap(stringBuilder.toString().getBytes(StandardCharsets.UTF_8)), new PatriciaTreeNode(i,i));
+            stringBuilder.setLength(0);
+            optimized2.getRootHash();
+        }
+         stringBuilder=new StringBuilder();
+        for (int i = 0; i < size; i++) {
+            stringBuilder.append(addres);
+            stringBuilder.append(String.valueOf(i));
+            assertEquals(new PatriciaTreeNode(i,i), optimized2.get(Bytes.wrap(stringBuilder.toString().getBytes(StandardCharsets.UTF_8))).get());
+            stringBuilder.setLength(0);
+        }
     }
 }
