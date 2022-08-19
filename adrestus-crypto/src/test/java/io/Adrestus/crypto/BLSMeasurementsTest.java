@@ -62,7 +62,7 @@ public class BLSMeasurementsTest {
         assertEquals(true, BLSSignature.fastAggregateVerify(publicKeys, message, aggregatedSignature));
     }
 
-    @Test
+   // @Test
     public void maintest() throws RunnerException {
         final Options options = new OptionsBuilder()
                 .include(BLSMeasurementsTest.class.getSimpleName())

@@ -44,7 +44,7 @@ public class ECKeyPaiMeasurements {
     }
 
     @Benchmark
-    @Threads(1000)
+    @Threads(6)
     @Fork(jvmArgsAppend = {"-XX:+UseZGC"})
     public static void ECDSA() {
         boolean verify = ecdsaSign.secp256Verify(hash, ecKeyPair.getPublicKey(), signatureData);
@@ -61,7 +61,7 @@ public class ECKeyPaiMeasurements {
     }
 
 
-    @Test
+    //@Test
     public void Test() throws RunnerException {
         final Options options = new OptionsBuilder()
                 .include(ECKeyPaiMeasurements.class.getSimpleName())
