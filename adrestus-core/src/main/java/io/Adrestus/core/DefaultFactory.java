@@ -12,7 +12,13 @@ public class DefaultFactory implements BlockFactory {
     }
 
     public void accept(BlockForge visitor) {
-        Arrays.stream(children).forEach(child -> child.accept(visitor));
+        Arrays.stream(children).forEach(child -> {
+            try {
+                child.accept(visitor);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     public BlockForge getBlock(BlockType type) {

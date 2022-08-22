@@ -9,6 +9,9 @@ public class BLSPublicKey {
 
     private G1Point point;
 
+    public BLSPublicKey() {
+    }
+
     public BLSPublicKey(G1Point point) {
         this.point = point;
     }

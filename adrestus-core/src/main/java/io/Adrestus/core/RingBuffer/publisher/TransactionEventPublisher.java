@@ -81,6 +81,21 @@ public class TransactionEventPublisher implements Publisher<Transaction> {
     }
 
     @Override
+    public void getJobSyncUntilRemainingCapacityZero() throws InterruptedException {
+        while (disruptor.getRingBuffer().remainingCapacity() != bufferSize) {
+            Thread.sleep(100);
+        }
+        try {
+            executor.shutdown();
+            executor.awaitTermination(5, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            LOG.trace("Executor shutdown interrupted", e);
+        } finally {
+            LOG.trace("Executor shutdown completed.");
+        }
+    }
+
+    @Override
     public void close() {
         LOG.trace("Shutting down executor...");
         isRunning.set(false);
@@ -116,7 +131,7 @@ public class TransactionEventPublisher implements Publisher<Transaction> {
     }
 
     public TransactionEventPublisher withHashEventHandler() {
-        group.add(new DoubleSpendEventHandler());
+        group.add(new HashEventHandler());
         return this;
     }
 

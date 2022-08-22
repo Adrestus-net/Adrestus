@@ -4,10 +4,17 @@ import io.Adrestus.core.Transaction;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.locks.Lock;
 import java.util.stream.Stream;
 
 public interface IMemoryPool {
-    Stream<Transaction> getAll() throws Exception;
+    Stream<Transaction> getAllStream() throws Exception;
+
+    List<Transaction> getAll() throws Exception;
+
+    Lock getR();
+
+    Lock getW();
 
     Optional<Transaction> getTransactionByHash(String hash) throws Exception;
 

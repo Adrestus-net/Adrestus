@@ -4,6 +4,7 @@ import com.google.common.base.Objects;
 import io.Adrestus.core.RingBuffer.handler.blocks.DisruptorBlock;
 import io.Adrestus.core.RingBuffer.handler.blocks.DisruptorBlockVisitor;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
+import io.activej.serializer.annotations.Serialize;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,9 +30,12 @@ public class CommitteeBlock extends AbstractBlock implements BlockFactory, Disru
 
 
     public CommitteeBlock() {
+        this.CommitteeProposer = "";
+        this.VRF = "";
+        this.VDF = "";
         this.StakingMap = new HashMap<BLSPublicKey, Double>();
         this.StructureMap = new HashMap<Integer, HashMap<BLSPublicKey, String>>();
-
+        this.Difficulty = 0;
         Init();
     }
 
@@ -52,6 +56,7 @@ public class CommitteeBlock extends AbstractBlock implements BlockFactory, Disru
         disruptorBlockVisitor.visit(this);
     }
 
+    @Serialize
     public String getCommitteeProposer() {
         return CommitteeProposer;
     }
@@ -60,6 +65,7 @@ public class CommitteeBlock extends AbstractBlock implements BlockFactory, Disru
         CommitteeProposer = committeeProposer;
     }
 
+    @Serialize
     public String getVRF() {
         return VRF;
     }
@@ -68,6 +74,7 @@ public class CommitteeBlock extends AbstractBlock implements BlockFactory, Disru
         this.VRF = VRF;
     }
 
+    @Serialize
     public String getVDF() {
         return VDF;
     }
@@ -76,6 +83,7 @@ public class CommitteeBlock extends AbstractBlock implements BlockFactory, Disru
         this.VDF = VDF;
     }
 
+    @Serialize
     public Map<BLSPublicKey, Double> getStakingMap() {
         return StakingMap;
     }
@@ -84,6 +92,7 @@ public class CommitteeBlock extends AbstractBlock implements BlockFactory, Disru
         StakingMap = stakingMap;
     }
 
+    @Serialize
     public Map<Integer, HashMap<BLSPublicKey, String>> getStructureMap() {
         return StructureMap;
     }
@@ -92,6 +101,7 @@ public class CommitteeBlock extends AbstractBlock implements BlockFactory, Disru
         StructureMap = structureMap;
     }
 
+    @Serialize
     public int getDifficulty() {
         return Difficulty;
     }
@@ -116,7 +126,8 @@ public class CommitteeBlock extends AbstractBlock implements BlockFactory, Disru
 
     @Override
     public String toString() {
-        return "CommitteeBlock{" +
+        return super.toString() +
+                "CommitteeBlock{" +
                 "CommitteeProposer='" + CommitteeProposer + '\'' +
                 ", VRF='" + VRF + '\'' +
                 ", VDF='" + VDF + '\'' +

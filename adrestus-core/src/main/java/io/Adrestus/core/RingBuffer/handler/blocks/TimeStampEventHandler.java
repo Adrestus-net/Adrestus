@@ -5,8 +5,12 @@ import io.Adrestus.core.CommitteeBlock;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.RingBuffer.event.AbstractBlockEvent;
 import io.Adrestus.core.TransactionBlock;
+import io.Adrestus.util.GetTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.sql.Timestamp;
+import java.text.ParseException;
 
 
 public class TimeStampEventHandler implements BlockEventHandler<AbstractBlockEvent>, DisruptorBlockVisitor {
@@ -24,13 +28,25 @@ public class TimeStampEventHandler implements BlockEventHandler<AbstractBlockEve
 
     @Override
     public void visit(CommitteeBlock committeeBlock) {
-        if (!committeeBlock.getHeaderData().getTimestamp().before(CachedLatestBlocks.getInstance().getCommitteeBlock().getHeaderData().getTimestamp()))
-            LOG.info("CommitteeBlock timestamp is not valid");
+        try {
+            Timestamp current = GetTime.GetTimestampFromString(committeeBlock.getHeaderData().getTimestamp());
+            Timestamp cached = GetTime.GetTimestampFromString(CachedLatestBlocks.getInstance().getCommitteeBlock().getHeaderData().getTimestamp());
+            if (!current.before(cached))
+                LOG.info("CommitteeBlock timestamp is not valid");
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void visit(TransactionBlock transactionBlock) {
-        if (!transactionBlock.getHeaderData().getTimestamp().before(CachedLatestBlocks.getInstance().getTransactionBlock().getHeaderData().getTimestamp()))
-            LOG.info("TransactionBlock timestamp is not valid");
+        try {
+            Timestamp current = GetTime.GetTimestampFromString(transactionBlock.getHeaderData().getTimestamp());
+            Timestamp cached = GetTime.GetTimestampFromString(CachedLatestBlocks.getInstance().getTransactionBlock().getHeaderData().getTimestamp());
+            if (!current.before(cached))
+                LOG.info("CommitteeBlock timestamp is not valid");
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
     }
 }

@@ -7,7 +7,7 @@ import io.activej.serializer.annotations.SerializeClass;
 
 
 @SerializeClass(subclasses = {RegularTransaction.class, RewardsTransaction.class, StakingTransaction.class, DelegateTransaction.class})
-public abstract class Transaction {
+public abstract class Transaction implements Cloneable {
 
 
     protected String Hash;
@@ -28,6 +28,22 @@ public abstract class Transaction {
     public Transaction() {
         this.Hash = "";
         this.Type = TransactionType.REGULAR;
+        this.Status = StatusType.PENDING;
+        this.ZoneFrom = 0;
+        this.ZoneTo = 0;
+        this.BlockNumber = 0;
+        this.timestamp = "";
+        this.From = "";
+        this.To = "";
+        this.Amount = 0;
+        this.AmountWithTransactionFee = 0;
+        this.Nonce = 0;
+        this.Signature = new SignatureData();
+    }
+
+    public Transaction(TransactionType type) {
+        this.Hash = "";
+        this.Type = type;
         this.Status = StatusType.PENDING;
         this.ZoneFrom = 0;
         this.ZoneTo = 0;
@@ -135,7 +151,7 @@ public abstract class Transaction {
     }
 
     public void setAmount(double amount) {
-        Amount = amount;
+        this.Amount = amount;
     }
 
     @Serialize
@@ -144,7 +160,7 @@ public abstract class Transaction {
     }
 
     public void setAmountWithTransactionFee(double AmountWithTransactionFee) {
-        AmountWithTransactionFee = AmountWithTransactionFee;
+        this.AmountWithTransactionFee = AmountWithTransactionFee;
     }
 
     @Serialize
@@ -153,7 +169,7 @@ public abstract class Transaction {
     }
 
     public void setNonce(int nonce) {
-        Nonce = nonce;
+        this.Nonce = nonce;
     }
 
     @Serialize
@@ -162,7 +178,7 @@ public abstract class Transaction {
     }
 
     public void setSignature(SignatureData signature) {
-        Signature = signature;
+        this.Signature = signature;
     }
 
     @Serialize
@@ -171,8 +187,9 @@ public abstract class Transaction {
     }
 
     public void setHash(String hash) {
-        Hash = hash;
+        this.Hash = hash;
     }
+
 
     @Override
     public boolean equals(Object o) {

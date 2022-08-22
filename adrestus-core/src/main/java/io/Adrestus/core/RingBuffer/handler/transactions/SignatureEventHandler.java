@@ -1,9 +1,11 @@
 package io.Adrestus.core.RingBuffer.handler.transactions;
 
+import io.Adrestus.core.Resourses.MemoryPool;
 import io.Adrestus.core.RingBuffer.event.TransactionEvent;
 import io.Adrestus.core.StatusType;
 import io.Adrestus.core.Transaction;
 import io.Adrestus.crypto.elliptic.ECDSASign;
+import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
@@ -50,6 +52,10 @@ public class SignatureEventHandler extends TransactionEventHandler {
     @Override
     public void onEvent(TransactionEvent transactionEvent, long l, boolean b) throws Exception {
         Transaction transaction = transactionEvent.getTransaction();
+        if (transaction.getStatus().equals(StatusType.ABORT)) {
+            LOG.info("Transaction Marked with status ABORT");
+            return;
+        }
         FinalizeTask task = new FinalizeTask();
         task.setTransaction((Transaction) transaction.clone());
         executorService.submit(task);
@@ -70,6 +76,7 @@ public class SignatureEventHandler extends TransactionEventHandler {
             this.transaction = transaction;
         }
 
+        @SneakyThrows
         @Override
         public void run() {
             if (!ecdsaSign.secp256Verify(Hex.decode(transaction.getHash()), transaction.getFrom(), transaction.getSignature())) {
@@ -84,7 +91,8 @@ public class SignatureEventHandler extends TransactionEventHandler {
                 latch.countDown();
                 return;
             }
-            //store to mempool
+            LOG.info("Transaction signature is  valid");
+            MemoryPool.getInstance().add(transaction);
         }
     }
 

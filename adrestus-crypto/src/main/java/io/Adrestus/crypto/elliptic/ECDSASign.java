@@ -61,9 +61,10 @@ public class ECDSASign implements SignInterface {
         BigInteger privateKey = keyPair.getPrivateKey();
         BigInteger publicKey = keyPair.getPublicKey();
 
-        byte[] messageHash = HashUtil.sha256(message);
+         //check this if need
+        //byte[] messageHash = HashUtil.sha256(message);
 
-        ECDSASignature sig = sign(messageHash, privateKey);
+        ECDSASignature sig = sign(message, privateKey);
 
         // Now we have to work backwards to figure out the recId needed to recover the signature.
 

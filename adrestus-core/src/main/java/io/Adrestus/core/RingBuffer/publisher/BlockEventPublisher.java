@@ -9,8 +9,7 @@ import io.Adrestus.core.AbstractBlock;
 import io.Adrestus.core.RingBuffer.Publisher;
 import io.Adrestus.core.RingBuffer.event.AbstractBlockEvent;
 import io.Adrestus.core.RingBuffer.factory.AbstractBlockEventFactory;
-import io.Adrestus.core.RingBuffer.handler.blocks.BlockEventHandler;
-import io.Adrestus.core.RingBuffer.handler.blocks.HeaderEventHandler;
+import io.Adrestus.core.RingBuffer.handler.blocks.*;
 import io.Adrestus.util.BufferCapacity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +20,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class BlockEventPublisher<T> implements Publisher<AbstractBlock> {
+public class BlockEventPublisher implements Publisher<AbstractBlock> {
     private static Logger LOG = LoggerFactory.getLogger(BlockEventPublisher.class);
     private final AtomicInteger droppedJobsCount = new AtomicInteger();
     private final Disruptor<AbstractBlockEvent> disruptor;
@@ -40,15 +39,40 @@ public class BlockEventPublisher<T> implements Publisher<AbstractBlock> {
     }
 
 
-    public BlockEventPublisher<T> withHashHandler() {
+    public BlockEventPublisher withGenerationHandler() {
+        group.add(new GenerationEventHandler());
+        return this;
+    }
+
+    public BlockEventPublisher withHashHandler() {
         group.add(new HeaderEventHandler());
+        return this;
+    }
+
+    public BlockEventPublisher withHeaderEventHandler() {
+        group.add(new HeaderEventHandler());
+        return this;
+    }
+
+    public BlockEventPublisher withHeightEventHandler() {
+        group.add(new HeightEventHandler());
+        return this;
+    }
+
+    public BlockEventPublisher withTimestampEventHandler() {
+        group.add(new TimeStampEventHandler());
+        return this;
+    }
+
+    public BlockEventPublisher withTransactionMerkleeEventHandler() {
+        group.add(new TransactionsMerkleeEventHandler());
         return this;
     }
 
     public BlockEventPublisher mergeEvents() {
         BlockEventHandler[] events = new BlockEventHandler[group.size()];
         group.toArray(events);
-        disruptor.handleEventsWith(events);
+        disruptor.handleEventsWith(events).then(new TransactionsSignatureEventHandler());
         return this;
     }
 
@@ -81,6 +105,13 @@ public class BlockEventPublisher<T> implements Publisher<AbstractBlock> {
     @Override
     public int getDroppedJobsCount() {
         return droppedJobsCount.get();
+    }
+
+    @Override
+    public void getJobSyncUntilRemainingCapacityZero() throws InterruptedException {
+        while (disruptor.getRingBuffer().remainingCapacity()!=bufferSize) {
+            Thread.sleep(100);
+        }
     }
 
     @Override

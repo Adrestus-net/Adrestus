@@ -56,9 +56,15 @@ public class MemoryPool implements IMemoryPool {
     }
 
     @Override
-    public Stream<Transaction> getAll() throws Exception {
+    public Stream<Transaction> getAllStream() throws Exception {
         return memorypool.stream();
     }
+
+    @Override
+    public List<Transaction> getAll() throws Exception {
+        return memorypool;
+    }
+
 
     @Override
     public Optional<Transaction> getTransactionByHash(String hash) throws Exception {
@@ -127,6 +133,36 @@ public class MemoryPool implements IMemoryPool {
         }
     }
 
+    public static Logger getLOG() {
+        return LOG;
+    }
+
+
+    public TransactionHashComparator getHashComparator() {
+        return hashComparator;
+    }
+
+    public TransactionReplayComparator getTransactionReplayComparator() {
+        return transactionReplayComparator;
+    }
+
+    public SerializationUtil<Transaction> getWrapper() {
+        return wrapper;
+    }
+
+    public ReentrantReadWriteLock getRwl() {
+        return rwl;
+    }
+
+    public Lock getR() {
+        return r;
+    }
+
+    public Lock getW() {
+        return w;
+    }
+
+
     private boolean check_add(Transaction transaction) {
         int index = Collections.binarySearch(memorypool, transaction, hashComparator);
         if (index >= 0)
@@ -156,7 +192,7 @@ public class MemoryPool implements IMemoryPool {
 
             int val3 = time1.compareTo(time2);
 
-            return (val1 == 0 && val2 == 0 && val3 < 0) ? val1 : -1;
+            return (val1 == 0 && val2 == 0 && val3 <= 0) ? val1 : -1;
         }
     }
 }

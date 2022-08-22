@@ -1,11 +1,72 @@
 package io.Adrestus.core;
 
+import io.Adrestus.config.AdrestusConfiguration;
+import io.Adrestus.core.Resourses.CachedLatestBlocks;
+import io.Adrestus.core.Resourses.MemoryPool;
+import io.Adrestus.core.RingBuffer.publisher.BlockEventPublisher;
+import io.Adrestus.core.Trie.MerkleNode;
+import io.Adrestus.core.Trie.MerkleTree;
+import io.Adrestus.core.Trie.MerkleTreeImp;
+import io.Adrestus.crypto.HashUtil;
+import io.Adrestus.util.GetTime;
+import io.Adrestus.util.SerializationUtil;
+
+import java.util.ArrayList;
+
 public class RegularBlock implements BlockForge {
 
+    private final SerializationUtil<AbstractBlock> encode;
+
+    public RegularBlock() {
+        encode = new SerializationUtil<AbstractBlock>(AbstractBlock.class);
+    }
 
     @Override
-    public void forgeTransactionBlock(TransactionBlock transactionBlock) {
+    public void forgeTransactionBlock(TransactionBlock transactionBlock) throws Exception {
+        BlockEventPublisher publisher = new BlockEventPublisher(1024);
 
+
+
+
+        publisher
+                .withGenerationHandler()
+                .withHashHandler()
+                .withHeaderEventHandler()
+                .withHeightEventHandler()
+                .withTimestampEventHandler()
+                .withTransactionMerkleeEventHandler()
+                .mergeEvents();
+
+
+
+        MerkleTree tree = new MerkleTreeImp();
+        ArrayList<MerkleNode> merkleNodeArrayList = new ArrayList<>();
+        transactionBlock.getHeaderData().setPreviousHash(CachedLatestBlocks.getInstance().getTransactionBlock().getHash());
+        transactionBlock.getHeaderData().setVersion(AdrestusConfiguration.version);
+        transactionBlock.getHeaderData().setTimestamp(GetTime.GetTimeStampInString());
+        transactionBlock.setStatustype(StatusType.PENDING);
+        transactionBlock.setHeight(CachedLatestBlocks.getInstance().getTransactionBlock().getHeight() + 1);
+        transactionBlock.setGeneration(CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration());
+        transactionBlock.setViewID(CachedLatestBlocks.getInstance().getTransactionBlock().getViewID() + 1);
+        transactionBlock.setZone(0);
+
+        try {
+            MemoryPool.getInstance().getW().lock();
+            transactionBlock.setTransactionList(MemoryPool.getInstance().getAll());
+            transactionBlock.getTransactionList().stream().forEach(x -> {
+                merkleNodeArrayList.add(new MerkleNode(x.getHash()));
+            });
+            tree.my_generate(merkleNodeArrayList);
+            transactionBlock.setMerkleRoot(tree.getRootHash());
+            byte [] tohash=encode.encode(transactionBlock);
+            transactionBlock.setHash(HashUtil.sha256_bytetoString(tohash));
+            publisher.start();
+            publisher.publish(transactionBlock);
+            publisher.getJobSyncUntilRemainingCapacityZero();
+
+        } finally {
+            MemoryPool.getInstance().getW().unlock();
+        }
     }
 
     @Override

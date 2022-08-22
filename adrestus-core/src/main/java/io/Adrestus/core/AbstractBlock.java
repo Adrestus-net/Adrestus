@@ -1,13 +1,18 @@
 package io.Adrestus.core;
 
 import com.google.common.base.Objects;
+import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.core.RingBuffer.handler.blocks.DisruptorBlock;
+import io.Adrestus.util.GetTime;
+import io.activej.serializer.annotations.Serialize;
+import io.activej.serializer.annotations.SerializeClass;
 
 import java.sql.Timestamp;
 
+@SerializeClass(subclasses = {CommitteeBlock.class, TransactionBlock.class})
 public abstract class AbstractBlock implements BlockFactory, DisruptorBlock {
 
-    private Header HeaderData;
+    private Header header;
     private StatusType Statustype;
     private String Hash;
     private int Size;
@@ -17,7 +22,7 @@ public abstract class AbstractBlock implements BlockFactory, DisruptorBlock {
 
 
     public AbstractBlock(Header headerData, String hash, int size, int height, int generation, int viewID) {
-        this.HeaderData = headerData;
+        this.header = headerData;
         this.Hash = hash;
         this.Size = size;
         this.Height = height;
@@ -26,21 +31,29 @@ public abstract class AbstractBlock implements BlockFactory, DisruptorBlock {
     }
 
     public AbstractBlock(String previousHash, int height, int generation) {
-        this.HeaderData = new Header(previousHash);
+        this.header = new Header(previousHash);
         this.Height = height;
         this.Generation = generation;
     }
 
-    public AbstractBlock(String Hash, String previousHash, int size, int height, Timestamp timestamp) {
+    public AbstractBlock(String Hash, String previousHash, int size, int height, String timestamp) {
         this.Hash = Hash;
-        this.HeaderData = new Header(previousHash, timestamp);
+        this.header = new Header(previousHash, timestamp);
         this.Height = height;
         this.Size = size;
     }
 
     public AbstractBlock() {
+        this.header=new Header();
+        this.Statustype=StatusType.PENDING;
+        this.Hash="";
+        this.Size=0;
+        this.Height=0;
+        this.Generation=0;
+        this.ViewID=0;
     }
 
+    @Serialize
     public String getHash() {
         return Hash;
     }
@@ -49,6 +62,7 @@ public abstract class AbstractBlock implements BlockFactory, DisruptorBlock {
         Hash = hash;
     }
 
+    @Serialize
     public int getSize() {
         return Size;
     }
@@ -57,7 +71,7 @@ public abstract class AbstractBlock implements BlockFactory, DisruptorBlock {
         Size = size;
     }
 
-
+    @Serialize
     public int getHeight() {
         return Height;
     }
@@ -66,6 +80,7 @@ public abstract class AbstractBlock implements BlockFactory, DisruptorBlock {
         Height = height;
     }
 
+    @Serialize
     public int getGeneration() {
         return Generation;
     }
@@ -74,6 +89,7 @@ public abstract class AbstractBlock implements BlockFactory, DisruptorBlock {
         Generation = generation;
     }
 
+    @Serialize
     public int getViewID() {
         return ViewID;
     }
@@ -82,15 +98,16 @@ public abstract class AbstractBlock implements BlockFactory, DisruptorBlock {
         ViewID = viewID;
     }
 
+    @Serialize
     public Header getHeaderData() {
-        return HeaderData;
+        return this.header;
     }
 
     public void setHeaderData(Header headerData) {
-        HeaderData = headerData;
+        this.header = headerData;
     }
 
-
+    @Serialize
     public StatusType getStatustype() {
         return Statustype;
     }
@@ -103,24 +120,24 @@ public abstract class AbstractBlock implements BlockFactory, DisruptorBlock {
         return super.clone();
     }
 
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         AbstractBlock that = (AbstractBlock) o;
-        return Size == that.Size && Height == that.Height && Generation == that.Generation && ViewID == that.ViewID && Objects.equal(HeaderData, that.HeaderData) && Statustype == that.Statustype && Objects.equal(Hash, that.Hash);
+        return Size == that.Size && Height == that.Height && Generation == that.Generation && ViewID == that.ViewID && Objects.equal(header, that.header) && Statustype == that.Statustype && Objects.equal(Hash, that.Hash);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(HeaderData, Statustype, Hash, Size, Height, Generation, ViewID);
+        return Objects.hashCode(header, Statustype, Hash, Size, Height, Generation, ViewID);
     }
-
 
     @Override
     public String toString() {
         return "AbstractBlock{" +
-                "HeaderData=" + HeaderData +
+                "header=" + header +
                 ", Statustype=" + Statustype +
                 ", Hash='" + Hash + '\'' +
                 ", Size=" + Size +
@@ -130,27 +147,33 @@ public abstract class AbstractBlock implements BlockFactory, DisruptorBlock {
                 '}';
     }
 
-
-    public final class Header {
+    public static class Header {
         private int Version;
         private String PreviousHash;
-        private Timestamp timestamp;
+        private String timestamp;
 
-        public Header(int version, String previousHash, Timestamp timestamp) {
+        public Header(int version, String previousHash, String timestamp) {
             this.Version = version;
             this.PreviousHash = previousHash;
             this.timestamp = timestamp;
         }
 
-        public Header(String previousHash, Timestamp timestamp) {
+        public Header(String previousHash, String timestamp) {
             this.PreviousHash = previousHash;
             this.timestamp = timestamp;
+        }
+
+        public Header() {
+            this.Version= AdrestusConfiguration.version;
+            this.PreviousHash="";
+            this.timestamp= "";
         }
 
         public Header(String previousHash) {
             PreviousHash = previousHash;
         }
 
+        @Serialize
         public int getVersion() {
             return Version;
         }
@@ -159,6 +182,7 @@ public abstract class AbstractBlock implements BlockFactory, DisruptorBlock {
             Version = version;
         }
 
+        @Serialize
         public String getPreviousHash() {
             return PreviousHash;
         }
@@ -167,11 +191,12 @@ public abstract class AbstractBlock implements BlockFactory, DisruptorBlock {
             PreviousHash = previousHash;
         }
 
-        public Timestamp getTimestamp() {
+        @Serialize
+        public String getTimestamp() {
             return timestamp;
         }
 
-        public void setTimestamp(Timestamp timestamp) {
+        public void setTimestamp(String timestamp) {
             this.timestamp = timestamp;
         }
 

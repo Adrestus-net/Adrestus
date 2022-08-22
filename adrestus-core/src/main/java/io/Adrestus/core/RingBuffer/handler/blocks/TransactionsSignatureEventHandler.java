@@ -34,15 +34,15 @@ public class TransactionsSignatureEventHandler implements BlockEventHandler<Abst
 
             publisher
                     .withAddressSizeEventHandler()
+                    .withAmountEventHandler()
                     .withDelegateEventHandler()
                     .withDoubleSpendEventHandler()
                     .withHashEventHandler()
+                    .withNonceEventHandler()
                     .withReplayEventHandler()
                     .withRewardEventHandler()
                     .withStakingEventHandler()
                     .withTransactionFeeEventHandler()
-                    .withNonceEventHandler()
-                    .withAmountEventHandler()
                     .mergeEventsAndPassThen(new SignatureEventHandler(SignatureEventHandler.SignatureBehaviorType.BLOCK_TRANSACTIONS, latch));
 
             publisher.start();

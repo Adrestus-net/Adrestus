@@ -3,8 +3,10 @@ package io.Adrestus.core;
 import com.google.common.base.Objects;
 import io.Adrestus.core.RingBuffer.handler.blocks.DisruptorBlock;
 import io.Adrestus.core.RingBuffer.handler.blocks.DisruptorBlockVisitor;
+import io.activej.serializer.annotations.Serialize;
 
-import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -25,15 +27,23 @@ public class TransactionBlock extends AbstractBlock implements BlockFactory, Dis
         this.TransactionProposer = transactionProposer;
     }
 
-    public TransactionBlock(String hash, String previousHash, int size, int height, Timestamp timestamp) {
+    public TransactionBlock(String hash, String previousHash, int size, int height, String timestamp) {
         super(hash, previousHash, size, height, timestamp);
     }
 
     public TransactionBlock() {
+        super();
+        this.Zone = 0;
+        this.TransactionList = new ArrayList<>();
+        this.StakingTransactionList = new ArrayList<>();
+        this.Inbound = new HashMap<>();
+        this.Outbound = new HashMap<>();
+        this.TransactionProposer = "";
+        this.MerkleRoot = "";
     }
 
     @Override
-    public void accept(BlockForge visitor) {
+    public void accept(BlockForge visitor) throws Exception {
         visitor.forgeTransactionBlock(this);
     }
 
@@ -42,6 +52,7 @@ public class TransactionBlock extends AbstractBlock implements BlockFactory, Dis
         disruptorBlockVisitor.visit(this);
     }
 
+    @Serialize
     public int getZone() {
         return Zone;
     }
@@ -50,6 +61,7 @@ public class TransactionBlock extends AbstractBlock implements BlockFactory, Dis
         Zone = zone;
     }
 
+    @Serialize
     public List<Transaction> getTransactionList() {
         return TransactionList;
     }
@@ -58,6 +70,7 @@ public class TransactionBlock extends AbstractBlock implements BlockFactory, Dis
         TransactionList = transactionList;
     }
 
+    @Serialize
     public List<StakingTransaction> getStakingTransactionList() {
         return StakingTransactionList;
     }
@@ -66,6 +79,7 @@ public class TransactionBlock extends AbstractBlock implements BlockFactory, Dis
         StakingTransactionList = stakingTransactionList;
     }
 
+    @Serialize
     public Map<Integer, InboundRelay> getInbound() {
         return Inbound;
     }
@@ -74,6 +88,7 @@ public class TransactionBlock extends AbstractBlock implements BlockFactory, Dis
         Inbound = inbound;
     }
 
+    @Serialize
     public Map<Integer, OutBoundRelay> getOutbound() {
         return Outbound;
     }
@@ -82,6 +97,7 @@ public class TransactionBlock extends AbstractBlock implements BlockFactory, Dis
         Outbound = outbound;
     }
 
+    @Serialize
     public String getTransactionProposer() {
         return TransactionProposer;
     }
@@ -90,6 +106,7 @@ public class TransactionBlock extends AbstractBlock implements BlockFactory, Dis
         TransactionProposer = transactionProposer;
     }
 
+    @Serialize
     public String getMerkleRoot() {
         return MerkleRoot;
     }
@@ -116,7 +133,8 @@ public class TransactionBlock extends AbstractBlock implements BlockFactory, Dis
 
     @Override
     public String toString() {
-        return "TransactionBlock{" +
+        return super.toString() +
+                "TransactionBlock{" +
                 "Zone=" + Zone +
                 ", TransactionList=" + TransactionList +
                 ", StakingTransactionList=" + StakingTransactionList +
@@ -128,7 +146,7 @@ public class TransactionBlock extends AbstractBlock implements BlockFactory, Dis
     }
 
 
-    private class InboundRelay {
+    public static class InboundRelay {
         private List<Receipt> Receipt;
         private String InboundMerkleRoot;
 
@@ -157,7 +175,7 @@ public class TransactionBlock extends AbstractBlock implements BlockFactory, Dis
         }
     }
 
-    private class OutBoundRelay {
+    public static class OutBoundRelay {
         private List<Integer> Outbound;
         private String OutboundMerkleRoot;
 

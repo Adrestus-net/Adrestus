@@ -8,14 +8,14 @@ import org.slf4j.LoggerFactory;
 
 public class TransactionFeeEventHandler extends TransactionEventHandler {
     private static Logger LOG = LoggerFactory.getLogger(TransactionFeeEventHandler.class);
-    private static final double FEES = 10;
-    private static final double PERCENT = 100;
+    private static final double FEES = 10.0;
+    private static final double PERCENT = 100.0;
 
     @Override
     public void onEvent(TransactionEvent transactionEvent, long l, boolean b) throws Exception {
         try {
             Transaction transaction = transactionEvent.getTransaction();
-            if (transaction.getAmountWithTransactionFee() != (FEES / PERCENT) * transaction.getAmount()) {
+            if (transaction.getAmountWithTransactionFee() != ((FEES / PERCENT) * transaction.getAmount())) {
                 LOG.info("Transaction fee calculator is incorrect");
                 transaction.setStatus(StatusType.ABORT);
             }

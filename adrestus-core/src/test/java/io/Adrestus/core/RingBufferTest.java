@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 
 public class RingBufferTest {
 
-    //@Test
+    @Test
     public void TransactionTest() throws InterruptedException {
         Transaction tr = new RewardsTransaction("Delegator Address");
         tr.setAmount(100);
@@ -16,7 +16,7 @@ public class RingBufferTest {
         publisher.withNonceEventHandler().withAmountEventHandler().mergeEvents();
         publisher.start();
         publisher.publish(tr);
-        Thread.sleep(20000);
+        Thread.sleep(5000);
     }
 
 
@@ -32,10 +32,10 @@ public class RingBufferTest {
         publisher.publish(block);
 
 
-        Thread.sleep(20000);
+        Thread.sleep(5000);
     }
 
-    //@Test
+    @Test
     public void TransactionBlockTest() throws InterruptedException {
         BlockEventPublisher publisher = new BlockEventPublisher(1024);
         TransactionBlock block = new TransactionBlock();

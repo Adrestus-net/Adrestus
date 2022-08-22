@@ -43,9 +43,8 @@ public class ECKeyPairTest {
         SignatureData signatureData = ecdsaSign.secp256SignMessage(message.getBytes(), ecKeyPair);
         String r = Hex.toHexString(signatureData.getR());
         String s = Hex.toHexString(signatureData.getS());
-        byte[] hash = HashUtil.sha256(message.getBytes());
 
-        boolean verify = ecdsaSign.secp256Verify(hash, ecKeyPair.getPublicKey(), signatureData);
+        boolean verify = ecdsaSign.secp256Verify(message.getBytes(StandardCharsets.UTF_8), ecKeyPair.getPublicKey(), signatureData);
 
         assertEquals(verify, true);
 

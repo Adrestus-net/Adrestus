@@ -6,6 +6,7 @@ import io.Adrestus.core.Trie.optimize64_trie.MerklePatriciaTrie;
 import org.apache.tuweni.bytes.Bytes;
 
 import java.nio.charset.StandardCharsets;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -26,7 +27,7 @@ public class MemoryTreePool implements IMemoryTreePool {
         if (instance != null) {
             throw new IllegalStateException("Already initialized.");
         } else {
-            valueSerializer = value -> (value != null) ? Bytes.wrap("".getBytes(StandardCharsets.UTF_8)) : null;
+            this.valueSerializer = value -> (value != null) ? Bytes.wrap("".getBytes(StandardCharsets.UTF_8)) : null;
             this.patriciaTreeImp = new MerklePatriciaTrie<Bytes, PatriciaTreeNode>(valueSerializer);
         }
     }

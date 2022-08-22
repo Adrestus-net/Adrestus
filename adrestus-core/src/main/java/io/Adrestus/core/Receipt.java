@@ -13,12 +13,12 @@ public class Receipt {
     private MerkleProofs Proofs;
 
     public Receipt(int height, int zoneFrom, int zoneTo, int position, Transaction transaction, MerkleProofs proofs) {
-        Height = height;
-        ZoneFrom = zoneFrom;
-        ZoneTo = zoneTo;
-        Position = position;
+        this.Height = height;
+        this.ZoneFrom = zoneFrom;
+        this.ZoneTo = zoneTo;
+        this.Position = position;
         this.transaction = transaction;
-        Proofs = proofs;
+        this.Proofs = proofs;
     }
 
     public int getHeight() {

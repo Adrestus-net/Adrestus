@@ -15,17 +15,23 @@ public class NonceEventHandler extends TransactionEventHandler {
 
     @Override
     public void onEvent(TransactionEvent transactionEvent, long l, boolean b) throws Exception {
+        Transaction transaction = null;
+        PatriciaTreeNode patriciaTreeNode = null;
         try {
-            Transaction transaction = transactionEvent.getTransaction();
-            PatriciaTreeNode patriciaTreeNode = MemoryTreePool.getInstance().getByaddress(transaction.getFrom()).get();
-            if (patriciaTreeNode.getNonce() + 1 != transaction.getNonce()) {
-                LOG.info("Transaction nonce is not valid");
-                transaction.setStatus(StatusType.ABORT);
-            }
+            transaction = transactionEvent.getTransaction();
+            patriciaTreeNode = MemoryTreePool.getInstance().getByaddress(transaction.getFrom()).get();
+
         } catch (NoSuchElementException ex) {
-            LOG.info("Transaction fields are empty");
+            LOG.info("State trie is empty we add address");
+            MemoryTreePool.getInstance().store(transaction.getFrom(), new PatriciaTreeNode(0, 0));
+            patriciaTreeNode = MemoryTreePool.getInstance().getByaddress(transaction.getFrom()).get();
         } catch (NullPointerException ex) {
             LOG.info("Transaction is empty");
+        }
+
+        if (patriciaTreeNode.getNonce() + 1 != transaction.getNonce()) {
+            LOG.info("Transaction nonce is not valid");
+            transaction.setStatus(StatusType.ABORT);
         }
     }
 }
