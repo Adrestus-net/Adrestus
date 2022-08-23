@@ -39,6 +39,10 @@ public class BlockEventPublisher implements Publisher<AbstractBlock> {
     }
 
 
+    public BlockEventPublisher withDuplicateHandler() {
+        group.add(new DuplicateEventHandler());
+        return this;
+    }
     public BlockEventPublisher withGenerationHandler() {
         group.add(new GenerationEventHandler());
         return this;

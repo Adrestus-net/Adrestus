@@ -54,6 +54,8 @@ public class SignatureEventHandler extends TransactionEventHandler {
         Transaction transaction = transactionEvent.getTransaction();
         if (transaction.getStatus().equals(StatusType.ABORT)) {
             LOG.info("Transaction Marked with status ABORT");
+            if (type.equals(SignatureBehaviorType.BLOCK_TRANSACTIONS))
+                latch.countDown();
             return;
         }
         FinalizeTask task = new FinalizeTask();
@@ -86,7 +88,6 @@ public class SignatureEventHandler extends TransactionEventHandler {
                     latch.countDown();
                 return;
             }
-            transaction.setStatus(StatusType.SUCCES);
             if (type.equals(SignatureBehaviorType.BLOCK_TRANSACTIONS)) {
                 latch.countDown();
                 return;

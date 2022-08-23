@@ -29,6 +29,7 @@ public class RegularBlock implements BlockForge {
 
 
         publisher
+                .withDuplicateHandler()
                 .withGenerationHandler()
                 .withHashHandler()
                 .withHeaderEventHandler()
@@ -51,7 +52,6 @@ public class RegularBlock implements BlockForge {
         transactionBlock.setZone(0);
 
         try {
-            MemoryPool.getInstance().getW().lock();
             transactionBlock.setTransactionList(MemoryPool.getInstance().getAll());
             transactionBlock.getTransactionList().stream().forEach(x -> {
                 merkleNodeArrayList.add(new MerkleNode(x.getHash()));
@@ -65,7 +65,7 @@ public class RegularBlock implements BlockForge {
             publisher.getJobSyncUntilRemainingCapacityZero();
 
         } finally {
-            MemoryPool.getInstance().getW().unlock();
+            publisher.close();
         }
     }
 

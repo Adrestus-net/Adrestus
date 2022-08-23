@@ -10,7 +10,7 @@ public class SerializationUtil<T> {
 
     private Class type;
     private final BinarySerializer<T> serializer;
-    private static final byte[] buffer = new byte[AdrestusConfiguration.BUFFER_SIZE];
+    private byte[] buffer;
 
     public SerializationUtil(Class type) {
         this.type = type;
@@ -31,6 +31,7 @@ public class SerializationUtil<T> {
     }
 
     public byte[] encode(T value) {
+        buffer = new byte[AdrestusConfiguration.BUFFER_SIZE];
         serializer.encode(buffer, 0, value);
         return buffer;
     }

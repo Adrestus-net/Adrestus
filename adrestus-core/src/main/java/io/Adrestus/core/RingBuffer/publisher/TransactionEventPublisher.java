@@ -6,6 +6,7 @@ import com.lmax.disruptor.TimeoutException;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 import com.lmax.disruptor.util.DaemonThreadFactory;
+import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.core.RingBuffer.Publisher;
 import io.Adrestus.core.RingBuffer.event.TransactionEvent;
 import io.Adrestus.core.RingBuffer.factory.TransactionEventFactory;
@@ -26,8 +27,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class TransactionEventPublisher implements Publisher<Transaction> {
     private static Logger LOG = LoggerFactory.getLogger(TransactionEventPublisher.class);
+    private ExecutorService executor;
     private final AtomicInteger droppedJobsCount = new AtomicInteger();
-    private final ExecutorService executor;
     private final int numberOfWorkers;
     private final int jobQueueSize;
     private final int bufferSize;
@@ -43,7 +44,11 @@ public class TransactionEventPublisher implements Publisher<Transaction> {
         this.numberOfWorkers = this.threadCalculator.calculateOptimalThreadCount();
         this.jobQueueSize = jobQueueSize;
         this.bufferSize = BufferCapacity.nextPowerOf2(this.jobQueueSize);
-        this.executor = Executors.newFixedThreadPool(numberOfWorkers);
+        try {
+            this.executor = Executors.newFixedThreadPool(numberOfWorkers);
+        }catch (IllegalArgumentException e){
+            this.executor = Executors.newFixedThreadPool(AdrestusConfiguration.CORES);
+        }
         this.group = new ArrayList<TransactionEventHandler>();
         disruptor = new Disruptor<>(new TransactionEventFactory(), bufferSize, DaemonThreadFactory.INSTANCE, ProducerType.SINGLE, new BlockingWaitStrategy());
         LOG.info("Script engine worker pool created with " + numberOfWorkers + " threads");

@@ -1,6 +1,7 @@
 package io.Adrestus.core;
 
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
+import io.Adrestus.core.Resourses.MemoryPool;
 import io.Adrestus.core.Resourses.MemoryTreePool;
 import io.Adrestus.core.RingBuffer.handler.transactions.SignatureEventHandler;
 import io.Adrestus.core.RingBuffer.publisher.TransactionEventPublisher;
@@ -136,12 +137,13 @@ public class BlockTest {
 
             SignatureData signatureData = ecdsaSign.secp256SignMessage(Hex.decode(transaction.getHash()), keypair.get(i));
             transaction.setSignature(signatureData);
-
-            publisher.publish(transaction);
+            MemoryPool.getInstance().add(transaction);
+           // publisher.publish(transaction);
             Thread.sleep(1000);
             //publisher.publish(transaction);
         }
         publisher.getJobSyncUntilRemainingCapacityZero();
+        publisher.close();
 
 
 
