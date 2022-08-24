@@ -57,19 +57,34 @@ public class MemoryPool implements IMemoryPool {
 
     @Override
     public Stream<Transaction> getAllStream() throws Exception {
-        return memorypool.stream();
+        r.lock();
+        try {
+            return memorypool.stream();
+        } finally {
+            r.unlock();
+        }
     }
 
     @Override
     public List<Transaction> getAll() throws Exception {
-        return memorypool;
+        r.lock();
+        try {
+            return memorypool;
+        } finally {
+            r.unlock();
+        }
     }
 
 
     @Override
     public Optional<Transaction> getTransactionByHash(String hash) throws Exception {
-        Optional<Transaction> result = memorypool.stream().filter(val -> val.getHash().equals(hash)).findFirst();
-        return result;
+        r.lock();
+        try {
+            Optional<Transaction> result = memorypool.stream().filter(val -> val.getHash().equals(hash)).findFirst();
+            return result;
+        } finally {
+            r.unlock();
+        }
     }
 
     @Override
@@ -90,6 +105,18 @@ public class MemoryPool implements IMemoryPool {
             memorypool.removeAll(list_transaction);
         } finally {
             w.unlock();
+        }
+    }
+
+    @Override
+    public void delete(Transaction transaction) throws Exception {
+        r.lock();
+        try {
+            int index = Collections.binarySearch(memorypool, transaction, hashComparator);
+            if (index >= 0)
+                memorypool.remove(index);
+        } finally {
+            r.unlock();
         }
     }
 

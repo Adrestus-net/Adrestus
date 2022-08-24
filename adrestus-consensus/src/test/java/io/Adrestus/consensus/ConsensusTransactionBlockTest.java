@@ -1,82 +1,46 @@
-package io.Adrestus.core;
+package io.Adrestus.consensus;
 
+import io.Adrestus.core.*;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
-import io.Adrestus.core.Resourses.MemoryPool;
 import io.Adrestus.core.Resourses.MemoryTreePool;
 import io.Adrestus.core.RingBuffer.handler.transactions.SignatureEventHandler;
 import io.Adrestus.core.RingBuffer.publisher.TransactionEventPublisher;
 import io.Adrestus.core.Trie.PatriciaTreeNode;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.WalletAddress;
+import io.Adrestus.crypto.bls.model.BLSPrivateKey;
+import io.Adrestus.crypto.bls.model.BLSPublicKey;
+import io.Adrestus.crypto.bls.model.CachedBLSKeyPair;
 import io.Adrestus.crypto.elliptic.ECDSASign;
 import io.Adrestus.crypto.elliptic.ECKeyPair;
 import io.Adrestus.crypto.elliptic.Keys;
 import io.Adrestus.crypto.elliptic.SignatureData;
 import io.Adrestus.crypto.mnemonic.Mnemonic;
+import io.Adrestus.crypto.mnemonic.MnemonicException;
 import io.Adrestus.crypto.mnemonic.Security;
 import io.Adrestus.crypto.mnemonic.WordList;
+import io.Adrestus.crypto.vdf.VDFMessage;
 import io.Adrestus.util.GetTime;
 import io.Adrestus.util.SerializationUtil;
-import org.checkerframework.checker.units.qual.C;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.spongycastle.util.encoders.Hex;
 
+import java.security.InvalidAlgorithmParameterException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-public class BlockTest {
-
-    @Test
-    public void block_test() throws Exception {
-        AbstractBlock t = new TransactionBlock();
-        t.setHash("hash");
-        t.accept(new Genesis());
-    }
-
-    //@Test
-    public void block_test2() {
-        DefaultFactory factory = new DefaultFactory(new TransactionBlock(), new CommitteeBlock());
-        var genesis = (Genesis) factory.getBlock(BlockType.GENESIS);
-        var regural_block = factory.getBlock(BlockType.REGULAR);
-        factory.accept(genesis);
-        factory.accept(regural_block);
-    }
-
-    @Test
-    public void commitee_block(){
-        SerializationUtil<CommitteeBlock> encode = new SerializationUtil<CommitteeBlock>(CommitteeBlock.class);
-        //byte[] buffer = new byte[200];
-        // BinarySerializer<DelegateTransaction> serenc = SerializerBuilder.create().build(DelegateTransaction.class);
-        CommitteeBlock block=new CommitteeBlock();
-        block.setHash("hash1");
-        block.setSize(1);
-        byte[] buffer = encode.encode(block);
-
-        CommitteeBlock copys = encode.decode(buffer);
-        System.out.println(copys.toString());
-        assertEquals(copys, block);
-    }
-
-    @Test
-     public void transaction_block(){
-        SerializationUtil<TransactionBlock> encode = new SerializationUtil<TransactionBlock>(TransactionBlock.class);
-        //byte[] buffer = new byte[200];
-        // BinarySerializer<DelegateTransaction> serenc = SerializerBuilder.create().build(DelegateTransaction.class);
-        TransactionBlock block=new TransactionBlock();
-        block.setHash("hash1");
-        block.setSize(1);
-        block.setZone(0);
-        byte[] buffer = encode.encode(block);
-
-        TransactionBlock copys = encode.decode(buffer);
-        System.out.println(copys.toString());
-        assertEquals(copys, block);
-    }
-
-    @Test
-    public void block_test3() throws Exception {
+public class ConsensusTransactionBlockTest {
+    private static SecureRandom random;
+    private static byte[] pRnd;
+    @BeforeAll
+    public static void setup() throws Exception {
+        pRnd = new byte[20];
+        random = new SecureRandom();
+        random.nextBytes(pRnd);
 
         TransactionEventPublisher publisher = new TransactionEventPublisher(1024);
 
@@ -155,12 +119,64 @@ public class BlockTest {
         prevblock.getHeaderData().setTimestamp(GetTime.GetTimeStampInString());
         CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
         CachedLatestBlocks.getInstance().setTransactionBlock(prevblock);
-        DefaultFactory factory = new DefaultFactory();
-        TransactionBlock transactionBlock=new TransactionBlock();
-        var regural_block = factory.getBlock(BlockType.REGULAR);
-        transactionBlock.accept(regural_block);
+    }
+    @Test
+    public void ConsensusTransactionTest() throws Exception {
+        ConsensusManager consensusManager = new ConsensusManager();
+        consensusManager.changeStateTo(ConsensusRoleType.SUPERVISOR);
 
-        if (transactionBlock.getStatustype().equals(StatusType.ABORT))
-            System.out.println("true");
+        BLSPrivateKey sk = new BLSPrivateKey(new SecureRandom());
+        BLSPublicKey vk = new BLSPublicKey(sk);
+
+        CachedBLSKeyPair.getInstance().setPrivateKey(sk);
+        CachedBLSKeyPair.getInstance().setPublicKey(vk);
+
+        var organizerphase =  consensusManager.getRole().manufacturePhases(ConsensusType.TRANSACTION_BLOCK);
+        ConsensusMessage<TransactionBlock> consensusMessage = new ConsensusMessage<>(new TransactionBlock());
+
+        organizerphase.AnnouncePhase(consensusMessage);
+
+        consensusManager.changeStateTo(ConsensusRoleType.VALIDATOR);
+        BFTConsensusPhase validatorphase = (BFTConsensusPhase) consensusManager.getRole().manufacturePhases(ConsensusType.TRANSACTION_BLOCK);
+
+
+        validatorphase.AnnouncePhase(consensusMessage);
+        if (consensusMessage.getStatusType().equals(ConsensusStatusType.SUCCESS))
+            consensusMessage.getSignatures().add(consensusMessage.getChecksumData());
+
+        sk = new BLSPrivateKey(new SecureRandom());
+        vk = new BLSPublicKey(sk);
+
+        CachedBLSKeyPair.getInstance().setPrivateKey(sk);
+        CachedBLSKeyPair.getInstance().setPublicKey(vk);
+
+        validatorphase.AnnouncePhase(consensusMessage);
+        if (consensusMessage.getStatusType().equals(ConsensusStatusType.SUCCESS))
+            consensusMessage.getSignatures().add(consensusMessage.getChecksumData());
+
+        organizerphase.PreparePhase(consensusMessage);
+
+        List<ConsensusMessage.ChecksumData> list = new ArrayList<>();
+        validatorphase.PreparePhase(consensusMessage);
+        if (consensusMessage.getStatusType().equals(ConsensusStatusType.SUCCESS))
+            list.add(consensusMessage.getChecksumData());
+
+        sk = new BLSPrivateKey(new SecureRandom());
+        vk = new BLSPublicKey(sk);
+
+        CachedBLSKeyPair.getInstance().setPrivateKey(sk);
+        CachedBLSKeyPair.getInstance().setPublicKey(vk);
+
+        validatorphase.PreparePhase(consensusMessage);
+        if (consensusMessage.getStatusType().equals(ConsensusStatusType.SUCCESS))
+            list.add(consensusMessage.getChecksumData());
+
+        consensusMessage.clear();
+        consensusMessage.setSignatures(list);
+
+        organizerphase.CommitPhase(consensusMessage);
+
+        validatorphase.CommitPhase(consensusMessage);
+        validatorphase.CommitPhase(consensusMessage);
     }
 }

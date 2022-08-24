@@ -22,6 +22,7 @@ public class SignatureEventHandler extends TransactionEventHandler {
 
     private ExecutorService executorService;
     private CountDownLatch latch;
+    private Transaction transaction;
 
     public SignatureEventHandler(ExecutorService executorService) {
         this.executorService = executorService;
@@ -51,7 +52,7 @@ public class SignatureEventHandler extends TransactionEventHandler {
 
     @Override
     public void onEvent(TransactionEvent transactionEvent, long l, boolean b) throws Exception {
-        Transaction transaction = transactionEvent.getTransaction();
+        transaction = transactionEvent.getTransaction();
         if (transaction.getStatus().equals(StatusType.ABORT)) {
             LOG.info("Transaction Marked with status ABORT");
             if (type.equals(SignatureBehaviorType.BLOCK_TRANSACTIONS))
@@ -59,13 +60,12 @@ public class SignatureEventHandler extends TransactionEventHandler {
             return;
         }
         FinalizeTask task = new FinalizeTask();
-        task.setTransaction((Transaction) transaction.clone());
         executorService.submit(task);
     }
 
 
     private class FinalizeTask implements Runnable {
-        private Transaction transaction;
+
 
         public FinalizeTask() {
         }
@@ -74,21 +74,20 @@ public class SignatureEventHandler extends TransactionEventHandler {
             return transaction;
         }
 
-        public void setTransaction(Transaction transaction) {
-            this.transaction = transaction;
-        }
 
         @SneakyThrows
         @Override
         public void run() {
             if (!ecdsaSign.secp256Verify(Hex.decode(transaction.getHash()), transaction.getFrom(), transaction.getSignature())) {
                 LOG.info("Transaction signature is not valid ABORT");
-                transaction.setStatus(StatusType.ABORT);
                 if (type.equals(SignatureBehaviorType.BLOCK_TRANSACTIONS))
                     latch.countDown();
+                transaction.setStatus(StatusType.ABORT);
+                MemoryPool.getInstance().delete(transaction);
                 return;
             }
             if (type.equals(SignatureBehaviorType.BLOCK_TRANSACTIONS)) {
+                LOG.info("Transaction signature is  valid");
                 latch.countDown();
                 return;
             }
