@@ -11,7 +11,7 @@ public interface Publisher<T> {
 
     int getDroppedJobsCount();
 
-    void  getJobSyncUntilRemainingCapacityZero() throws InterruptedException;
+    void getJobSyncUntilRemainingCapacityZero() throws InterruptedException;
 
     void close();
 }

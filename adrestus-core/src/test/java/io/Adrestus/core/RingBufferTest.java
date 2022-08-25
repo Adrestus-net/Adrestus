@@ -41,7 +41,7 @@ public class RingBufferTest {
         TransactionBlock block = new TransactionBlock();
         block.setHash("hash");
 
-        publisher.withHashHandler().mergeEvents();
+        publisher.withHashHandler().mergeEventsAndPassVerifySig();
         publisher.start();
         publisher.publish(block);
 

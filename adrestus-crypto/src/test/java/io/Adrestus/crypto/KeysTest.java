@@ -6,10 +6,8 @@ import org.junit.jupiter.api.Test;
 import org.spongycastle.util.encoders.Hex;
 
 import java.math.BigInteger;
-import java.nio.charset.StandardCharsets;
 import java.security.*;
 
-import static java.security.DrbgParameters.Capability.RESEED_ONLY;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -18,7 +16,7 @@ public class KeysTest {
 
     @Test
     public void testCreateSecp256k1KeyPair() throws InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException {
-        String mnemonic_code="fd8cee9c1a3f3f57ab51b25740b24341ae093c8f697fde4df948050d3acd1700f6379d716104d2159e4912509c40ac81714d833e93b822e5ba0fadd68d5568a2";
+        String mnemonic_code = "fd8cee9c1a3f3f57ab51b25740b24341ae093c8f697fde4df948050d3acd1700f6379d716104d2159e4912509c40ac81714d833e93b822e5ba0fadd68d5568a2";
         SecureRandom random = SecureRandom.getInstance("SHA1PRNG", "SUN");
         random.setSeed(Hex.decode(mnemonic_code));
 
@@ -42,14 +40,14 @@ public class KeysTest {
 
     @Test
     public void testCreateSecp256k1ECKeyPair() throws InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException {
-        String mnemonic_code="fd8cee9c1a3f3f57ab51b25740b24341ae093c8f697fde4df948050d3acd1700f6379d716104d2159e4912509c40ac81714d833e93b822e5ba0fadd68d5568a2";
+        String mnemonic_code = "fd8cee9c1a3f3f57ab51b25740b24341ae093c8f697fde4df948050d3acd1700f6379d716104d2159e4912509c40ac81714d833e93b822e5ba0fadd68d5568a2";
         SecureRandom random = SecureRandom.getInstance("SHA1PRNG", "SUN");
         random.setSeed(Hex.decode(mnemonic_code));
 
-        byte[]buffer=new byte[100];
+        byte[] buffer = new byte[100];
         random.nextBytes(buffer);
         System.out.println(Hex.toHexString(buffer));
-        assertEquals("56c015ffc097286d7a7df56ac009207b6c4dc1cc58d0f9f371f3b407cb3823f0a2e432f51e324accd2f3ade1b54c2a98d73faa2142545ee7013a2ee074db61d9034067d4cb75db7b3a13590da8f13d07aaf38c6930d7407020f1f06fbb9925ee83e0f609",Hex.toHexString(buffer));
+        assertEquals("56c015ffc097286d7a7df56ac009207b6c4dc1cc58d0f9f371f3b407cb3823f0a2e432f51e324accd2f3ade1b54c2a98d73faa2142545ee7013a2ee074db61d9034067d4cb75db7b3a13590da8f13d07aaf38c6930d7407020f1f06fbb9925ee83e0f609", Hex.toHexString(buffer));
         ECKeyPair ecKeyPair = Keys.createEcKeyPair(random);
         BigInteger privkey = ecKeyPair.getPrivateKey();
         BigInteger pubkey = ecKeyPair.getPublicKey();

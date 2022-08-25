@@ -38,8 +38,8 @@ public class ConsensusVRFTest {
         CachedBLSKeyPair.getInstance().setPrivateKey(sk);
         CachedBLSKeyPair.getInstance().setPublicKey(vk);
 
-        ConsensusManager consensusManager = new ConsensusManager();
-        consensusManager.changeStateTo(ConsensusRoleType.ORGANIZER);
+        ConsensusManager consensusManager = new ConsensusManager(true);
+        consensusManager.changeStateTo(ConsensusRoleType.SUPERVISOR);
 
         VRFConsensusPhase organizerphase = (VRFConsensusPhase) consensusManager.getRole().manufacturePhases(ConsensusType.VRF);
         VRFMessage organizer_message = new VRFMessage();

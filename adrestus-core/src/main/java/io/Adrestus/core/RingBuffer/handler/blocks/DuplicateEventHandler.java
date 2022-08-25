@@ -40,7 +40,7 @@ public class DuplicateEventHandler implements BlockEventHandler<AbstractBlockEve
                         .map(Map.Entry::getKey)
                         .collect(Collectors.toList());
 
-        if(!duplicates.isEmpty()){
+        if (!duplicates.isEmpty()) {
             LOG.info("Block contains duplicate transactions abort");
             transactionBlock.setStatustype(StatusType.ABORT);
         }

@@ -1,24 +1,26 @@
 package io.Adrestus.util;
 
-import java.math.BigInteger;
-import java.net.InetAddress;
-import java.util.function.BiConsumer;
-
 import org.apache.tuweni.bytes.Bytes;
 import org.apache.tuweni.bytes.MutableBytes;
 import org.apache.tuweni.units.bigints.UInt256Value;
 
+import java.math.BigInteger;
+import java.net.InetAddress;
+import java.util.function.BiConsumer;
+
 
 public interface RLPOutput {
 
-    /** Starts a new list. */
+    /**
+     * Starts a new list.
+     */
     void startList();
 
     /**
      * Ends the current list.
      *
      * @throws IllegalStateException if no list has been previously started with {@link #startList()}
-     *     (or any started had already be ended).
+     *                               (or any started had already be ended).
      */
     void endList();
 
@@ -143,7 +145,7 @@ public interface RLPOutput {
      *
      * @param b A value that must fit an unsigned byte.
      * @throws IllegalArgumentException if {@code b} does not fit an unsigned byte, that is if either
-     *     {@code b < 0} or {@code b > 0xFF}.
+     *                                  {@code b < 0} or {@code b > 0xFF}.
      */
     default void writeUnsignedByte(final int b) {
         writeBytes(Bytes.of(b));
@@ -154,7 +156,7 @@ public interface RLPOutput {
      *
      * @param s A value that must fit an unsigned 2-bytes short.
      * @throws IllegalArgumentException if {@code s} does not fit an unsigned 2-bytes short, that is
-     *     if either {@code s < 0} or {@code s > 0xFFFF}.
+     *                                  if either {@code s < 0} or {@code s > 0xFFFF}.
      */
     default void writeUnsignedShort(final int s) {
         writeBytes(Bytes.ofUnsignedShort(s));
@@ -165,7 +167,7 @@ public interface RLPOutput {
      *
      * @param i A value that must fit an unsigned 4-bytes integer.
      * @throws IllegalArgumentException if {@code i} does not fit an unsigned 4-bytes int, that is if
-     *     either {@code i < 0} or {@code i > 0xFFFFFFFFL}.
+     *                                  either {@code i < 0} or {@code i > 0xFFFFFFFFL}.
      */
     default void writeUnsignedInt(final long i) {
         writeBytes(Bytes.ofUnsignedInt(i));
@@ -194,10 +196,10 @@ public interface RLPOutput {
      * endList();
      * }</pre>
      *
-     * @param values A list of value of type {@code T}.
+     * @param values      A list of value of type {@code T}.
      * @param valueWriter A method that given a value of type {@code T} and an {@link RLPOutput},
-     *     writes this value to the output.
-     * @param <T> The type of values to write.
+     *                    writes this value to the output.
+     * @param <T>         The type of values to write.
      */
     default <T> void writeList(final Iterable<T> values, final BiConsumer<T, RLPOutput> valueWriter) {
         startList();

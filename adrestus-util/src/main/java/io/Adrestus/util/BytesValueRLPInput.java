@@ -1,9 +1,9 @@
 package io.Adrestus.util;
 
-import java.math.BigInteger;
-
 import org.apache.tuweni.bytes.Bytes;
 import org.apache.tuweni.bytes.Bytes32;
+
+import java.math.BigInteger;
 
 
 public class BytesValueRLPInput extends AbstractRLPInput {

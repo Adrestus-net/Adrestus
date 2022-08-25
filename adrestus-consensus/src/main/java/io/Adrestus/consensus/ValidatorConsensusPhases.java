@@ -256,8 +256,10 @@ public class ValidatorConsensusPhases {
     protected static class VerifyTransactionBlock extends ValidatorConsensusPhases implements BFTConsensusPhase<TransactionBlock> {
         private static Logger LOG = LoggerFactory.getLogger(VerifyTransactionBlock.class);
         private final SerializationUtil<AbstractBlock> serialize;
+        private final boolean DEBUG;
 
-        public VerifyTransactionBlock() {
+        public VerifyTransactionBlock(boolean DEBUG) {
+            this.DEBUG = DEBUG;
             serialize = new SerializationUtil<AbstractBlock>(AbstractBlock.class);
         }
 
@@ -293,6 +295,8 @@ public class ValidatorConsensusPhases {
             Signature sig = BLSSignature.sign(serialize.encode(data.getData()), CachedBLSKeyPair.getInstance().getPrivateKey());
             data.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
 
+            if (DEBUG)
+                return;
         }
 
         @Override
@@ -323,6 +327,9 @@ public class ValidatorConsensusPhases {
             byte[] message = serialize.encode(data.getData());
             Signature sig = BLSSignature.sign(message, CachedBLSKeyPair.getInstance().getPrivateKey());
             data.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
+
+            if (DEBUG)
+                return;
         }
 
         @Override
@@ -345,7 +352,8 @@ public class ValidatorConsensusPhases {
                 LOG.info("Abort consensus phase BLS multi_signature is invalid in prepare phase");
                 data.setStatusType(ConsensusStatusType.ABORT);
             }
-
+            if (DEBUG)
+                return;
             //commit save to db
         }
     }

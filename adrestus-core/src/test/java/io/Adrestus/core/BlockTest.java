@@ -1,7 +1,6 @@
 package io.Adrestus.core;
 
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
-import io.Adrestus.core.Resourses.MemoryPool;
 import io.Adrestus.core.Resourses.MemoryTreePool;
 import io.Adrestus.core.RingBuffer.handler.transactions.SignatureEventHandler;
 import io.Adrestus.core.RingBuffer.publisher.TransactionEventPublisher;
@@ -17,7 +16,6 @@ import io.Adrestus.crypto.mnemonic.Security;
 import io.Adrestus.crypto.mnemonic.WordList;
 import io.Adrestus.util.GetTime;
 import io.Adrestus.util.SerializationUtil;
-import org.checkerframework.checker.units.qual.C;
 import org.junit.jupiter.api.Test;
 import org.spongycastle.util.encoders.Hex;
 
@@ -45,11 +43,11 @@ public class BlockTest {
     }
 
     @Test
-    public void commitee_block(){
+    public void commitee_block() {
         SerializationUtil<CommitteeBlock> encode = new SerializationUtil<CommitteeBlock>(CommitteeBlock.class);
         //byte[] buffer = new byte[200];
         // BinarySerializer<DelegateTransaction> serenc = SerializerBuilder.create().build(DelegateTransaction.class);
-        CommitteeBlock block=new CommitteeBlock();
+        CommitteeBlock block = new CommitteeBlock();
         block.setHash("hash1");
         block.setSize(1);
         byte[] buffer = encode.encode(block);
@@ -60,11 +58,11 @@ public class BlockTest {
     }
 
     @Test
-     public void transaction_block(){
+    public void transaction_block() {
         SerializationUtil<TransactionBlock> encode = new SerializationUtil<TransactionBlock>(TransactionBlock.class);
         //byte[] buffer = new byte[200];
         // BinarySerializer<DelegateTransaction> serenc = SerializerBuilder.create().build(DelegateTransaction.class);
-        TransactionBlock block=new TransactionBlock();
+        TransactionBlock block = new TransactionBlock();
         block.setHash("hash1");
         block.setSize(1);
         block.setZone(0);
@@ -117,7 +115,7 @@ public class BlockTest {
             String adddress = WalletAddress.generate_address((byte) version, ecKeyPair.getPublicKey());
             addreses.add(adddress);
             keypair.add(ecKeyPair);
-            MemoryTreePool.getInstance().store(adddress,new PatriciaTreeNode(1000,0));
+            MemoryTreePool.getInstance().store(adddress, new PatriciaTreeNode(1000, 0));
         }
 
 
@@ -145,9 +143,8 @@ public class BlockTest {
         publisher.close();
 
 
-
-        TransactionBlock prevblock=new TransactionBlock();
-        CommitteeBlock committeeBlock=new CommitteeBlock();
+        TransactionBlock prevblock = new TransactionBlock();
+        CommitteeBlock committeeBlock = new CommitteeBlock();
         committeeBlock.setGeneration(1);
         committeeBlock.setViewID(1);
         prevblock.setHeight(1);
@@ -156,7 +153,7 @@ public class BlockTest {
         CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
         CachedLatestBlocks.getInstance().setTransactionBlock(prevblock);
         DefaultFactory factory = new DefaultFactory();
-        TransactionBlock transactionBlock=new TransactionBlock();
+        TransactionBlock transactionBlock = new TransactionBlock();
         var regural_block = factory.getBlock(BlockType.REGULAR);
         transactionBlock.accept(regural_block);
 

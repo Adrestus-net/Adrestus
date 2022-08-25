@@ -3,7 +3,10 @@ package io.Adrestus.crypto;
 
 //import io.Adrestus.util.RLP;
 
+import com.google.common.base.Suppliers;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.tuweni.bytes.Bytes;
+import org.apache.tuweni.bytes.Bytes32;
 import org.bouncycastle.jcajce.provider.digest.Keccak;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,11 +21,6 @@ import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.util.Random;
 import java.util.function.Supplier;
-
-import com.google.common.base.Suppliers;
-import org.apache.tuweni.bytes.Bytes;
-import org.apache.tuweni.bytes.Bytes32;
-
 
 import static io.Adrestus.crypto.ByteUtil.EMPTY_BYTE_ARRAY;
 import static java.util.Arrays.copyOfRange;
@@ -133,6 +131,7 @@ public class HashUtil {
             throw new RuntimeException(e);
         }
     }
+
     public static byte[] sha256(byte[] input, Provider provider) {
         try {
             MessageDigest sha256digest = MessageDigest.getInstance(HASH_256_ALGORITHM_NAME, provider);

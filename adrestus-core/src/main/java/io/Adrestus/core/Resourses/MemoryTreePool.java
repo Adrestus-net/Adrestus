@@ -6,7 +6,6 @@ import io.Adrestus.core.Trie.optimize64_trie.MerklePatriciaTrie;
 import org.apache.tuweni.bytes.Bytes;
 
 import java.nio.charset.StandardCharsets;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;

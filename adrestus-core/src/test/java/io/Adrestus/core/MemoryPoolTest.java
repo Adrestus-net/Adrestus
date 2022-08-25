@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class MemoryPoolTest {
@@ -22,9 +23,11 @@ public class MemoryPoolTest {
         transaction.setAmount(100);
         transaction.setHash("Hash");
         transaction.setTimestamp(GetTime.GetTimeStampInString());
+        int count= (int) MemoryPool.getInstance().getAllStream().count();
         MemoryPool.getInstance().add(transaction);
         MemoryPool.getInstance().add(transaction);
-        assertEquals(1, MemoryPool.getInstance().getAllStream().count());
+        assertEquals(count+1, MemoryPool.getInstance().getAllStream().count());
+        assertNotEquals(count+2, MemoryPool.getInstance().getAllStream().count());
     }
 
     @Test

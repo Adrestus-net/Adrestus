@@ -6,12 +6,9 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.spongycastle.util.encoders.Hex;
 
-import java.security.DrbgParameters;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.util.Random;
 
-import static java.security.DrbgParameters.Capability.RESEED_ONLY;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class VDFTest {

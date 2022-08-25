@@ -8,7 +8,8 @@ import org.apache.tuweni.bytes.MutableBytes;
  * nor any of its method are meant to be exposed publicly, they are too low level.
  */
 class RLPEncodingHelpers {
-    private RLPEncodingHelpers() {}
+    private RLPEncodingHelpers() {
+    }
 
     static boolean isSingleRLPByte(final Bytes value) {
         return value.size() == 1 && value.get(0) >= 0;
@@ -22,7 +23,9 @@ class RLPEncodingHelpers {
         return payloadSize <= 55;
     }
 
-    /** The encoded size of the provided value. */
+    /**
+     * The encoded size of the provided value.
+     */
     static int elementSize(final Bytes value) {
         if (isSingleRLPByte(value)) return 1;
 
@@ -31,7 +34,9 @@ class RLPEncodingHelpers {
         return 1 + sizeLength(value.size()) + value.size();
     }
 
-    /** The encoded size of a list given the encoded size of its payload. */
+    /**
+     * The encoded size of a list given the encoded size of its payload.
+     */
     static int listSize(final int payloadSize) {
         int size = 1 + payloadSize;
         if (!isShortList(payloadSize)) size += sizeLength(payloadSize);

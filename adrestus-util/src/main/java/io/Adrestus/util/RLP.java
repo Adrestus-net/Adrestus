@@ -3,6 +3,8 @@ package io.Adrestus.util;
 
 import io.Adrestus.crypto.ByteArrayWrapper;
 import io.Adrestus.crypto.ByteUtil;
+import org.apache.tuweni.bytes.Bytes;
+import org.apache.tuweni.bytes.MutableBytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,17 +13,14 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import static io.Adrestus.crypto.EncodeUtil.*;
+import static java.lang.String.format;
 import static java.util.Arrays.copyOfRange;
 import static org.spongycastle.util.Arrays.concatenate;
 import static org.spongycastle.util.BigIntegers.asUnsignedByteArray;
-import static java.lang.String.format;
 
-import java.util.function.Consumer;
-
-import org.apache.tuweni.bytes.Bytes;
-import org.apache.tuweni.bytes.MutableBytes;
 /**
  * Recursive Length Prefix (RLP) encoding.
  * <p>
@@ -70,7 +69,9 @@ public class RLP {
     private static final int OFFSET_SHORT_ITEM = 0x80;
     private static final int OFFSET_LONG_ITEM = 0xb7;
 
-    /** The RLP encoding of a single empty value, also known as RLP null. */
+    /**
+     * The RLP encoding of a single empty value, also known as RLP null.
+     */
     public static final Bytes NULL = encodeOne(Bytes.EMPTY);
 
     public static final Bytes EMPTY_LIST;
@@ -96,9 +97,9 @@ public class RLP {
      * @param encoded The RLP encoded data for which to create a {@link RLPInput}.
      * @return A newly created {@link RLPInput} to decode {@code encoded}.
      * @throws MalformedRLPInputException if {@code encoded} doesn't contain a single RLP encoded item
-     *     (item that can be a list itself). Note that more deeply nested corruption/malformation of
-     *     the input will not be detected by this method call, but will be later when the input is
-     *     read.
+     *                                    (item that can be a list itself). Note that more deeply nested corruption/malformation of
+     *                                    the input will not be detected by this method call, but will be later when the input is
+     *                                    read.
      */
     public static RLPInput input(final Bytes encoded) {
         return input(encoded, false);
@@ -179,7 +180,7 @@ public class RLP {
      * @param encodedValue The encoded RLP value.
      * @return The single value encoded in {@code encodedValue}.
      * @throws RLPException if {@code encodedValue} is not a valid RLP encoding or if it does not
-     *     contains a single non-list item.
+     *                      contains a single non-list item.
      */
     public static Bytes decodeOne(final Bytes encodedValue) {
         if (encodedValue.size() == 0) {
@@ -254,8 +255,6 @@ public class RLP {
         return RLPDecodingHelpers.rlpElementMetadata((index) -> value.get((int) index), value.size(), 0)
                 .getEncodedSize();
     }
-
-
 
 
     private static byte decodeOneByteItem(byte[] data, int index) {

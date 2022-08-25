@@ -29,8 +29,8 @@ public class ConsensusVDFTest {
         CachedLatestRandomness.getInstance().setpRnd(pRnd);
         CachedLatestBlocks.getInstance().getCommitteeBlock().setDifficulty(100);
 
-        ConsensusManager consensusManager = new ConsensusManager();
-        consensusManager.changeStateTo(ConsensusRoleType.ORGANIZER);
+        ConsensusManager consensusManager = new ConsensusManager(true);
+        consensusManager.changeStateTo(ConsensusRoleType.SUPERVISOR);
 
         BLSPrivateKey sk = new BLSPrivateKey(new SecureRandom());
         BLSPublicKey vk = new BLSPublicKey(sk);

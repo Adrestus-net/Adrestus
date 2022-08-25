@@ -1,6 +1,10 @@
 package io.Adrestus.util;
 
-import static com.google.common.base.Preconditions.checkState;
+import org.apache.tuweni.bytes.Bytes;
+import org.apache.tuweni.bytes.Bytes32;
+import org.apache.tuweni.bytes.MutableBytes;
+import org.apache.tuweni.bytes.MutableBytes32;
+import org.apache.tuweni.units.bigints.UInt256;
 
 import java.math.BigInteger;
 import java.net.InetAddress;
@@ -8,11 +12,7 @@ import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.function.Function;
 
-import org.apache.tuweni.bytes.Bytes;
-import org.apache.tuweni.bytes.Bytes32;
-import org.apache.tuweni.bytes.MutableBytes;
-import org.apache.tuweni.bytes.MutableBytes32;
-import org.apache.tuweni.units.bigints.UInt256;
+import static com.google.common.base.Preconditions.checkState;
 
 abstract class AbstractRLPInput implements RLPInput {
 
@@ -206,7 +206,7 @@ abstract class AbstractRLPInput implements RLPInput {
         final long end = Math.min(size, nextItem());
         final long realStart = Math.max(0, start - 4);
         final long realEnd = Math.min(size, end + 4);
-        return new Object[] {
+        return new Object[]{
                 start,
                 end,
                 realStart == 0 ? "" : "...",
@@ -422,9 +422,9 @@ abstract class AbstractRLPInput implements RLPInput {
      * Enters the list, but does not return the number of item of the entered list. This prevents
      * bouncing all around the file to read values that are probably not even used.
      *
-     * @see #enterList()
      * @param skipCount true if the element count is not required.
      * @return -1 if skipCount==true, otherwise, the number of item of the entered list.
+     * @see #enterList()
      */
     public int enterList(final boolean skipCount) {
         if (currentItem >= size) {

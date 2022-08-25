@@ -9,7 +9,9 @@ import java.util.function.LongUnaryOperator;
  */
 class RLPDecodingHelpers {
 
-    /** The kind of items an RLP item can be. */
+    /**
+     * The kind of items an RLP item can be.
+     */
     enum Kind {
         BYTE_ELEMENT,
         SHORT_ELEMENT,
@@ -42,7 +44,9 @@ class RLPDecodingHelpers {
         }
     }
 
-    /** Read from the provided offset a size of the provided length, assuming this is enough bytes. */
+    /**
+     * Read from the provided offset a size of the provided length, assuming this is enough bytes.
+     */
     static int extractSize(final IntUnaryOperator getter, final int offset, final int sizeLength) {
         int res = 0;
         int shift = 0;
@@ -53,7 +57,9 @@ class RLPDecodingHelpers {
         return res;
     }
 
-    /** Read from the provided offset a size of the provided length, assuming this is enough bytes. */
+    /**
+     * Read from the provided offset a size of the provided length, assuming this is enough bytes.
+     */
     private static int extractSizeFromLongItem(
             final LongUnaryOperator getter, final long offset, final int sizeLength) {
         if (sizeLength > 4) {
@@ -121,7 +127,9 @@ class RLPDecodingHelpers {
         return new RLPElementMetadata(kind, elementStart, payloadStart, payloadSize);
     }
 
-    /** The size of the item payload for a "long" item, given the length in bytes of the said size. */
+    /**
+     * The size of the item payload for a "long" item, given the length in bytes of the said size.
+     */
     private static int readLongSize(
             final LongUnaryOperator byteGetter,
             final long sizeOfRlpEncodedByteString,
@@ -167,7 +175,9 @@ class RLPDecodingHelpers {
             this.payloadSize = payloadSize;
         }
 
-        /** @return the size of the byte string holding the rlp-encoded value and metadata */
+        /**
+         * @return the size of the byte string holding the rlp-encoded value and metadata
+         */
         int getEncodedSize() {
             final long encodedSize = elementEnd() - elementStart + 1;
             try {

@@ -1,14 +1,14 @@
 package io.Adrestus.util;
 
+import org.apache.tuweni.bytes.Bytes;
+import org.apache.tuweni.bytes.Bytes32;
+import org.apache.tuweni.units.bigints.UInt256;
+
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
-
-import org.apache.tuweni.bytes.Bytes;
-import org.apache.tuweni.bytes.Bytes32;
-import org.apache.tuweni.units.bigints.UInt256;
 
 /**
  * An input used to decode data in RLP encoding.
@@ -35,7 +35,7 @@ import org.apache.tuweni.units.bigints.UInt256;
  * (by opposition to {@link #readLong}), but rather one that is "up to" 8 bytes.
  *
  * @see BytesValueRLPInput for a {@link RLPInput} that decode an RLP encoded value stored in a
- *     {@link Bytes}.
+ * {@link Bytes}.
  */
 public interface RLPInput {
 
@@ -80,7 +80,7 @@ public interface RLPInput {
      * should be the next method called.
      *
      * @return Whether all elements of the current list have been read but said list haven't been
-     *     "left" yet.
+     * "left" yet.
      */
     boolean isEndOfCurrentList();
 
@@ -97,7 +97,7 @@ public interface RLPInput {
      *
      * @return The number of item of the entered list.
      * @throws RLPException if the next item to read from this input is not a list, or the input is
-     *     corrupted.
+     *                      corrupted.
      */
     int enterList();
 
@@ -127,8 +127,8 @@ public interface RLPInput {
      *
      * @return The next scalar item of this input as a long value.
      * @throws RLPException if the next item to read is a list, the input is at the end of its current
-     *     list (and {@link #leaveList()} hasn't been called) or if the next item is either too big to
-     *     fit a long or has leading zeros.
+     *                      list (and {@link #leaveList()} hasn't been called) or if the next item is either too big to
+     *                      fit a long or has leading zeros.
      */
     long readLongScalar();
 
@@ -137,8 +137,8 @@ public interface RLPInput {
      *
      * @return The next scalar item of this input as an int value.
      * @throws RLPException if the next item to read is a list, the input is at the end of its current
-     *     list (and {@link #leaveList()} hasn't been called) or if the next item is either too big to
-     *     fit a long or has leading zeros.
+     *                      list (and {@link #leaveList()} hasn't been called) or if the next item is either too big to
+     *                      fit a long or has leading zeros.
      */
     int readIntScalar();
 
@@ -147,7 +147,7 @@ public interface RLPInput {
      *
      * @return The next scalar item of this input as a {@link BigInteger}.
      * @throws RLPException if the next item to read is a list, the input is at the end of its current
-     *     list (and {@link #leaveList()} hasn't been called) or if the next item has leading zeros.
+     *                      list (and {@link #leaveList()} hasn't been called) or if the next item has leading zeros.
      */
     BigInteger readBigIntegerScalar();
 
@@ -156,8 +156,8 @@ public interface RLPInput {
      *
      * @return The next scalar item of this input as a {@link UInt256}.
      * @throws RLPException if the next item to read is a list, the input is at the end of its current
-     *     list (and {@link #leaveList()} hasn't been called) or if the next item is either too big to
-     *     fit a {@link UInt256} or has leading zeros.
+     *                      list (and {@link #leaveList()} hasn't been called) or if the next item is either too big to
+     *                      fit a {@link UInt256} or has leading zeros.
      */
     UInt256 readUInt256Scalar();
 
@@ -166,8 +166,8 @@ public interface RLPInput {
      *
      * @return The byte corresponding to the next item of this input.
      * @throws RLPException if the next item to read is a list, the input is at the end of its current
-     *     list (and {@link #leaveList()} hasn't been called) or if the next item is not a single byte
-     *     long.
+     *                      list (and {@link #leaveList()} hasn't been called) or if the next item is not a single byte
+     *                      long.
      */
     byte readByte();
 
@@ -176,7 +176,7 @@ public interface RLPInput {
      *
      * @return The short corresponding to the next item of this input.
      * @throws RLPException if the next item to read is a list, the input is at the end of its current
-     *     list (and {@link #leaveList()} hasn't been called) or if the next item is not 2-bytes.
+     *                      list (and {@link #leaveList()} hasn't been called) or if the next item is not 2-bytes.
      */
     short readShort();
 
@@ -185,7 +185,7 @@ public interface RLPInput {
      *
      * @return The int corresponding to the next item of this input.
      * @throws RLPException if the next item to read is a list, the input is at the end of its current
-     *     list (and {@link #leaveList()} hasn't been called) or if the next item is not 4-bytes.
+     *                      list (and {@link #leaveList()} hasn't been called) or if the next item is not 4-bytes.
      */
     int readInt();
 
@@ -194,7 +194,7 @@ public interface RLPInput {
      *
      * @return The long corresponding to the next item of this input.
      * @throws RLPException if the next item to read is a list, the input is at the end of its current
-     *     list (and {@link #leaveList()} hasn't been called) or if the next item is not 8-bytes.
+     *                      list (and {@link #leaveList()} hasn't been called) or if the next item is not 8-bytes.
      */
     long readLong();
 
@@ -203,8 +203,8 @@ public interface RLPInput {
      *
      * @return The value of the next item interpreted as an unsigned byte.
      * @throws RLPException if the next item to read is a list, the input is at the end of its current
-     *     list (and {@link #leaveList()} hasn't been called) or if the next item is not a single byte
-     *     long.
+     *                      list (and {@link #leaveList()} hasn't been called) or if the next item is not a single byte
+     *                      long.
      */
     default int readUnsignedByte() {
         return readByte() & 0xFF;
@@ -215,7 +215,7 @@ public interface RLPInput {
      *
      * @return The value of the next item interpreted as an unsigned short.
      * @throws RLPException if the next item to read is a list, the input is at the end of its current
-     *     list (and {@link #leaveList()} hasn't been called) or if the next item is not 2-bytes.
+     *                      list (and {@link #leaveList()} hasn't been called) or if the next item is not 2-bytes.
      */
     default int readUnsignedShort() {
         return readShort() & 0xFFFF;
@@ -226,7 +226,7 @@ public interface RLPInput {
      *
      * @return The value of the next item interpreted as an unsigned int.
      * @throws RLPException if the next item to read is a list, the input is at the end of its current
-     *     list (and {@link #leaveList()} hasn't been called) or if the next item is not 4-bytes.
+     *                      list (and {@link #leaveList()} hasn't been called) or if the next item is not 4-bytes.
      */
     default long readUnsignedInt() {
         return (readInt()) & 0xFFFFFFFFL;
@@ -237,8 +237,8 @@ public interface RLPInput {
      *
      * @return The inet address corresponding to the next item of this input.
      * @throws RLPException if the next item to read is a list, the input is at the end of its current
-     *     list (and {@link #leaveList()} hasn't been called) or if the next item is neither 4 nor 16
-     *     bytes.
+     *                      list (and {@link #leaveList()} hasn't been called) or if the next item is neither 4 nor 16
+     *                      bytes.
      */
     InetAddress readInetAddress();
 
@@ -247,7 +247,7 @@ public interface RLPInput {
      *
      * @return The next item read of this input.
      * @throws RLPException if the next item to read is a list or the input is at the end of its
-     *     current list (and {@link #leaveList()} hasn't been called).
+     *                      current list (and {@link #leaveList()} hasn't been called).
      */
     Bytes readBytes();
 
@@ -256,8 +256,8 @@ public interface RLPInput {
      *
      * @return The next item read of this input.
      * @throws RLPException if the next item to read is a list, the input is at the end of its current
-     *     list (and {@link #leaveList()} hasn't been called) or the next element is not exactly 32
-     *     bytes.
+     *                      list (and {@link #leaveList()} hasn't been called) or the next element is not exactly 32
+     *                      bytes.
      */
     Bytes32 readBytes32();
 
@@ -272,11 +272,11 @@ public interface RLPInput {
      * from an item with strictly more or less than 2 bytes).
      *
      * @param mapper The mapper to apply to the read value.
-     * @param <T> The type of the result.
+     * @param <T>    The type of the result.
      * @return The next item read from this input, mapped through {@code mapper}.
      * @throws RLPException if the next item to read is a list, the input is at the end of its current
-     *     list (and {@link #leaveList()} hasn't been called) or {@code mapper} throws an exception
-     *     when applied.
+     *                      list (and {@link #leaveList()} hasn't been called) or {@code mapper} throws an exception
+     *                      when applied.
      */
     <T> T readBytes(Function<Bytes, T> mapper);
 
@@ -297,7 +297,9 @@ public interface RLPInput {
      */
     Bytes raw();
 
-    /** Resets this RLP input to the start. */
+    /**
+     * Resets this RLP input to the start.
+     */
     void reset();
 
     /**
@@ -311,10 +313,10 @@ public interface RLPInput {
      * Reads a full list from the input given a method that knows how to read its elements.
      *
      * @param valueReader A method that can decode a single list element.
-     * @param <T> The type of the elements of the decoded list.
+     * @param <T>         The type of the elements of the decoded list.
      * @return The next list of this input, where elements are decoded using {@code valueReader}.
      * @throws RLPException is the next item to read is not a list, of if any error happens when
-     *     applying {@code valueReader} to read elements of the list.
+     *                      applying {@code valueReader} to read elements of the list.
      */
     default <T> List<T> readList(final Function<RLPInput, T> valueReader) {
         final int size = enterList();

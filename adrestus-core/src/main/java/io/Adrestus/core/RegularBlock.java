@@ -26,8 +26,6 @@ public class RegularBlock implements BlockForge {
         BlockEventPublisher publisher = new BlockEventPublisher(1024);
 
 
-
-
         publisher
                 .withDuplicateHandler()
                 .withGenerationHandler()
@@ -36,8 +34,7 @@ public class RegularBlock implements BlockForge {
                 .withHeightEventHandler()
                 .withTimestampEventHandler()
                 .withTransactionMerkleeEventHandler()
-                .mergeEvents();
-
+                .mergeEventsAndPassVerifySig();
 
 
         MerkleTree tree = new MerkleTreeImp();
@@ -58,7 +55,7 @@ public class RegularBlock implements BlockForge {
             });
             tree.my_generate(merkleNodeArrayList);
             transactionBlock.setMerkleRoot(tree.getRootHash());
-            byte [] tohash=encode.encode(transactionBlock);
+            byte[] tohash = encode.encode(transactionBlock);
             transactionBlock.setHash(HashUtil.sha256_bytetoString(tohash));
             publisher.start();
             publisher.publish(transactionBlock);

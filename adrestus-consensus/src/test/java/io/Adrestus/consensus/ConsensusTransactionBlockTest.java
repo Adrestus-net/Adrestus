@@ -16,19 +16,14 @@ import io.Adrestus.crypto.elliptic.ECKeyPair;
 import io.Adrestus.crypto.elliptic.Keys;
 import io.Adrestus.crypto.elliptic.SignatureData;
 import io.Adrestus.crypto.mnemonic.Mnemonic;
-import io.Adrestus.crypto.mnemonic.MnemonicException;
 import io.Adrestus.crypto.mnemonic.Security;
 import io.Adrestus.crypto.mnemonic.WordList;
-import io.Adrestus.crypto.vdf.VDFMessage;
 import io.Adrestus.util.GetTime;
 import io.Adrestus.util.SerializationUtil;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.spongycastle.util.encoders.Hex;
 
-import java.security.InvalidAlgorithmParameterException;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +31,7 @@ import java.util.List;
 public class ConsensusTransactionBlockTest {
     private static SecureRandom random;
     private static byte[] pRnd;
+
     @BeforeAll
     public static void setup() throws Exception {
         pRnd = new byte[20];
@@ -81,7 +77,7 @@ public class ConsensusTransactionBlockTest {
             String adddress = WalletAddress.generate_address((byte) version, ecKeyPair.getPublicKey());
             addreses.add(adddress);
             keypair.add(ecKeyPair);
-            MemoryTreePool.getInstance().store(adddress,new PatriciaTreeNode(1000,0));
+            MemoryTreePool.getInstance().store(adddress, new PatriciaTreeNode(1000, 0));
         }
 
 
@@ -109,9 +105,8 @@ public class ConsensusTransactionBlockTest {
         publisher.close();
 
 
-
-        TransactionBlock prevblock=new TransactionBlock();
-        CommitteeBlock committeeBlock=new CommitteeBlock();
+        TransactionBlock prevblock = new TransactionBlock();
+        CommitteeBlock committeeBlock = new CommitteeBlock();
         committeeBlock.setGeneration(1);
         committeeBlock.setViewID(1);
         prevblock.setHeight(1);
@@ -120,10 +115,11 @@ public class ConsensusTransactionBlockTest {
         CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
         CachedLatestBlocks.getInstance().setTransactionBlock(prevblock);
     }
+
     @Test
     public void ConsensusTransactionTest() throws Exception {
-        ConsensusManager consensusManager = new ConsensusManager();
-        consensusManager.changeStateTo(ConsensusRoleType.SUPERVISOR);
+        ConsensusManager consensusManager = new ConsensusManager(true);
+        consensusManager.changeStateTo(ConsensusRoleType.ORGANIZER);
 
         BLSPrivateKey sk = new BLSPrivateKey(new SecureRandom());
         BLSPublicKey vk = new BLSPublicKey(sk);
@@ -131,7 +127,7 @@ public class ConsensusTransactionBlockTest {
         CachedBLSKeyPair.getInstance().setPrivateKey(sk);
         CachedBLSKeyPair.getInstance().setPublicKey(vk);
 
-        var organizerphase =  consensusManager.getRole().manufacturePhases(ConsensusType.TRANSACTION_BLOCK);
+        var organizerphase = consensusManager.getRole().manufacturePhases(ConsensusType.TRANSACTION_BLOCK);
         ConsensusMessage<TransactionBlock> consensusMessage = new ConsensusMessage<>(new TransactionBlock());
 
         organizerphase.AnnouncePhase(consensusMessage);

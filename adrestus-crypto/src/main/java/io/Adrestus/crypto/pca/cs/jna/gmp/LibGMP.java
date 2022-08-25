@@ -82,7 +82,7 @@ public class LibGMP {
      *       ./configure --disable-static --enable-shared --host=x86_64-w64-mingw32
      */
     static {//load any required libraries (for now libgmp only) by name
-        File file=null;
+        File file = null;
         if (SystemUtils.IS_OS_LINUX)
             file = new File(LibGMP.class.getResource("/libgmp.so").getFile());
         else if (SystemUtils.IS_OS_WINDOWS)

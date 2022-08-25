@@ -3,7 +3,6 @@ package io.Adrestus.crypto;
 import io.Adrestus.crypto.bls.model.*;
 import io.Adrestus.crypto.bls.utils.MultiSigFastUtils;
 import org.apache.tuweni.bytes.Bytes;
-import org.junit.jupiter.api.Test;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
@@ -62,7 +61,7 @@ public class BLSMeasurementsTest {
         assertEquals(true, BLSSignature.fastAggregateVerify(publicKeys, message, aggregatedSignature));
     }
 
-   // @Test
+    // @Test
     public void maintest() throws RunnerException {
         final Options options = new OptionsBuilder()
                 .include(BLSMeasurementsTest.class.getSimpleName())

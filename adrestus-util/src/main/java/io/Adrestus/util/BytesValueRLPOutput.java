@@ -3,7 +3,9 @@ package io.Adrestus.util;
 import org.apache.tuweni.bytes.Bytes;
 import org.apache.tuweni.bytes.MutableBytes;
 
-/** An {@link RLPOutput} that writes RLP encoded data to a {@link Bytes}. */
+/**
+ * An {@link RLPOutput} that writes RLP encoded data to a {@link Bytes}.
+ */
 public class BytesValueRLPOutput extends AbstractRLPOutput {
     /**
      * Computes the final encoded data.

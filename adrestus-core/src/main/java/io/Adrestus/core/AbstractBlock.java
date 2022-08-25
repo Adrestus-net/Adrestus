@@ -3,11 +3,8 @@ package io.Adrestus.core;
 import com.google.common.base.Objects;
 import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.core.RingBuffer.handler.blocks.DisruptorBlock;
-import io.Adrestus.util.GetTime;
 import io.activej.serializer.annotations.Serialize;
 import io.activej.serializer.annotations.SerializeClass;
-
-import java.sql.Timestamp;
 
 @SerializeClass(subclasses = {CommitteeBlock.class, TransactionBlock.class})
 public abstract class AbstractBlock implements BlockFactory, DisruptorBlock {
@@ -44,13 +41,13 @@ public abstract class AbstractBlock implements BlockFactory, DisruptorBlock {
     }
 
     public AbstractBlock() {
-        this.header=new Header();
-        this.Statustype=StatusType.PENDING;
-        this.Hash="";
-        this.Size=0;
-        this.Height=0;
-        this.Generation=0;
-        this.ViewID=0;
+        this.header = new Header();
+        this.Statustype = StatusType.PENDING;
+        this.Hash = "";
+        this.Size = 0;
+        this.Height = 0;
+        this.Generation = 0;
+        this.ViewID = 0;
     }
 
     @Serialize
@@ -164,9 +161,9 @@ public abstract class AbstractBlock implements BlockFactory, DisruptorBlock {
         }
 
         public Header() {
-            this.Version= AdrestusConfiguration.version;
-            this.PreviousHash="";
-            this.timestamp= "";
+            this.Version = AdrestusConfiguration.version;
+            this.PreviousHash = "";
+            this.timestamp = "";
         }
 
         public Header(String previousHash) {

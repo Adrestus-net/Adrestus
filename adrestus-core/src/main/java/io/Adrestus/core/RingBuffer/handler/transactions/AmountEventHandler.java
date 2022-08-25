@@ -16,15 +16,15 @@ public class AmountEventHandler extends TransactionEventHandler {
 
     @Override
     public void onEvent(TransactionEvent transactionEvent, long l, boolean b) throws Exception {
-        Transaction transaction=null;
-        PatriciaTreeNode patriciaTreeNode=null;
+        Transaction transaction = null;
+        PatriciaTreeNode patriciaTreeNode = null;
         try {
             transaction = transactionEvent.getTransaction();
             patriciaTreeNode = MemoryTreePool.getInstance().getByaddress(transaction.getFrom()).get();
 
         } catch (NoSuchElementException ex) {
             LOG.info("State trie is empty we add address");
-            MemoryTreePool.getInstance().store(transaction.getFrom(),new PatriciaTreeNode(0,0));
+            MemoryTreePool.getInstance().store(transaction.getFrom(), new PatriciaTreeNode(0, 0));
             patriciaTreeNode = MemoryTreePool.getInstance().getByaddress(transaction.getFrom()).get();
         } catch (NullPointerException ex) {
             LOG.info("Transaction is empty");

@@ -1,7 +1,6 @@
 package io.Adrestus.crypto.elliptic;
 
 import io.Adrestus.config.AdrestusConfiguration;
-import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.PrimitiveUtil;
 import io.Adrestus.crypto.WalletAddress;
 import org.bouncycastle.crypto.digests.SHA256Digest;
@@ -61,7 +60,7 @@ public class ECDSASign implements SignInterface {
         BigInteger privateKey = keyPair.getPrivateKey();
         BigInteger publicKey = keyPair.getPublicKey();
 
-         //check this if need
+        //check this if need
         //byte[] messageHash = HashUtil.sha256(message);
 
         ECDSASignature sig = sign(message, privateKey);

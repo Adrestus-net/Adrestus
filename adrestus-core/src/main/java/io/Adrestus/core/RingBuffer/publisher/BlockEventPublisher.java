@@ -43,6 +43,7 @@ public class BlockEventPublisher implements Publisher<AbstractBlock> {
         group.add(new DuplicateEventHandler());
         return this;
     }
+
     public BlockEventPublisher withGenerationHandler() {
         group.add(new GenerationEventHandler());
         return this;
@@ -74,6 +75,12 @@ public class BlockEventPublisher implements Publisher<AbstractBlock> {
     }
 
     public BlockEventPublisher mergeEvents() {
+        BlockEventHandler[] events = new BlockEventHandler[group.size()];
+        group.toArray(events);
+        disruptor.handleEventsWith(events);
+        return this;
+    }
+    public BlockEventPublisher mergeEventsAndPassVerifySig() {
         BlockEventHandler[] events = new BlockEventHandler[group.size()];
         group.toArray(events);
         disruptor.handleEventsWith(events).then(new TransactionsSignatureEventHandler());
@@ -113,7 +120,7 @@ public class BlockEventPublisher implements Publisher<AbstractBlock> {
 
     @Override
     public void getJobSyncUntilRemainingCapacityZero() throws InterruptedException {
-        while (disruptor.getRingBuffer().remainingCapacity()!=bufferSize) {
+        while (disruptor.getRingBuffer().remainingCapacity() != bufferSize) {
             Thread.sleep(100);
         }
     }

@@ -5,12 +5,12 @@ import java.util.Map;
 
 public class Organizer implements ConsensusRole {
     private final Map<ConsensusType, OrganizerConsensusPhases> organizer_map;
+    private boolean DEBUG;
 
-    public Organizer() {
+    public Organizer(boolean DEBUG) {
+        this.DEBUG=DEBUG;
         organizer_map = new EnumMap<>(ConsensusType.class);
-        organizer_map.put(ConsensusType.VDF, new OrganizerConsensusPhases.ProposeVDF());
-        organizer_map.put(ConsensusType.VRF, new OrganizerConsensusPhases.ProposeVRF());
-        organizer_map.put(ConsensusType.COMMITTEE_BLOCK, new OrganizerConsensusPhases.ProposeCommitteeBlock());
+        organizer_map.put(ConsensusType.TRANSACTION_BLOCK, new OrganizerConsensusPhases.ProposeTransactionBlock(this.DEBUG));
     }
 
     @Override

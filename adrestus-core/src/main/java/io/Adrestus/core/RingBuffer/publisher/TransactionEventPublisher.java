@@ -46,7 +46,7 @@ public class TransactionEventPublisher implements Publisher<Transaction> {
         this.bufferSize = BufferCapacity.nextPowerOf2(this.jobQueueSize);
         try {
             this.executor = Executors.newFixedThreadPool(numberOfWorkers);
-        }catch (IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             this.executor = Executors.newFixedThreadPool(AdrestusConfiguration.CORES);
         }
         this.group = new ArrayList<TransactionEventHandler>();

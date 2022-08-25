@@ -9,7 +9,11 @@ import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 import org.spongycastle.util.encoders.Hex;
 
-import java.security.*;
+import java.nio.charset.StandardCharsets;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.SecureRandom;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -28,7 +32,7 @@ public class ECKeyPaiMeasurementsTest {
 
     @Setup(Level.Trial)
     public static void setup() throws InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException {
-        String mnemonic_code="fd8cee9c1a3f3f57ab51b25740b24341ae093c8f697fde4df948050d3acd1700f6379d716104d2159e4912509c40ac81714d833e93b822e5ba0fadd68d5568a2";
+        String mnemonic_code = "fd8cee9c1a3f3f57ab51b25740b24341ae093c8f697fde4df948050d3acd1700f6379d716104d2159e4912509c40ac81714d833e93b822e5ba0fadd68d5568a2";
         SecureRandom random = SecureRandom.getInstance("SHA1PRNG", "SUN");
         random.setSeed(Hex.decode(mnemonic_code));
 
@@ -36,7 +40,8 @@ public class ECKeyPaiMeasurementsTest {
         ecdsaSign = new ECDSASign();
 
 
-        hash = HashUtil.sha256(message.getBytes());
+        hash=message.getBytes(StandardCharsets.UTF_8);
+        //hash = HashUtil.sha256(message.getBytes());
 
         signatureData = ecdsaSign.secp256SignMessage(message.getBytes(), ecKeyPair);
         ecKeyPair2 = Keys.createEcKeyPair(random);

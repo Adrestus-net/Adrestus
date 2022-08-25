@@ -133,8 +133,8 @@ public class ServerClientTest {
         SimpleClient adrestusClient4 = new SimpleClient("localhost");
         (new Thread() {
             public void run() {
-                List<Bytes> lis=adrestusServer.receiveData(4);
-                lis.forEach(x-> System.out.println(new String(x.toArray())));
+                List<Bytes> lis = adrestusServer.receiveData(4);
+                lis.forEach(x -> System.out.println(new String(x.toArray())));
             }
         }).start();
         Thread.sleep(500);
@@ -161,8 +161,8 @@ public class ServerClientTest {
         //AdrestusClient adrestusClient4 = new AdrestusClient("localhost");
         (new Thread() {
             public void run() {
-                List<Bytes> lis=adrestusServer.receiveData(4);
-                lis.forEach(x-> System.out.println(new String(x.toArray())));
+                List<Bytes> lis = adrestusServer.receiveData(4);
+                lis.forEach(x -> System.out.println(new String(x.toArray())));
             }
         }).start();
         Thread.sleep(500);
@@ -188,16 +188,15 @@ public class ServerClientTest {
         SimpleClient adrestusClient2 = new SimpleClient("localhost");
         (new Thread() {
             public void run() {
-                List<Bytes> lis=adrestusServer.receiveData(4);
-                if(lis.isEmpty())
+                List<Bytes> lis = adrestusServer.receiveData(4);
+                if (lis.isEmpty())
                     return;
-                lis.forEach(x-> System.out.println(new String(x.toArray())));
+                lis.forEach(x -> System.out.println(new String(x.toArray())));
             }
         }).start();
         Thread.sleep(500);
         adrestusClient1.publishMessage("1".getBytes(StandardCharsets.UTF_8));
         adrestusClient2.publishMessage("2".getBytes(StandardCharsets.UTF_8));
-
 
 
         adrestusClient1.close();

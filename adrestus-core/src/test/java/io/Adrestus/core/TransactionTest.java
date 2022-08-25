@@ -11,7 +11,6 @@ import io.Adrestus.crypto.elliptic.ECKeyPair;
 import io.Adrestus.crypto.elliptic.Keys;
 import io.Adrestus.crypto.elliptic.SignatureData;
 import io.Adrestus.crypto.mnemonic.Mnemonic;
-import io.Adrestus.crypto.mnemonic.MnemonicException;
 import io.Adrestus.crypto.mnemonic.Security;
 import io.Adrestus.crypto.mnemonic.WordList;
 import io.Adrestus.util.GetTime;
@@ -19,10 +18,6 @@ import io.Adrestus.util.SerializationUtil;
 import org.junit.jupiter.api.Test;
 import org.spongycastle.util.encoders.Hex;
 
-import java.nio.charset.StandardCharsets;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 
@@ -46,7 +41,7 @@ public class TransactionTest {
 
     }
 
-     @Test
+    @Test
     public void StakingTransaction_test() {
         SerializationUtil<Transaction> serenc = new SerializationUtil<Transaction>(Transaction.class);
         Transaction stakingTransaction = new StakingTransaction();
@@ -59,7 +54,7 @@ public class TransactionTest {
         assertEquals(copys, stakingTransaction);
     }
 
-     @Test
+    @Test
     public void RewardTransaction_test() {
         SerializationUtil<Transaction> serenc = new SerializationUtil<Transaction>(Transaction.class);
         RewardsTransaction rewardsTransaction = new RewardsTransaction("Del");
@@ -129,7 +124,7 @@ public class TransactionTest {
             String adddress = WalletAddress.generate_address((byte) version, ecKeyPair.getPublicKey());
             addreses.add(adddress);
             keypair.add(ecKeyPair);
-            MemoryTreePool.getInstance().store(adddress,new PatriciaTreeNode(1000,0));
+            MemoryTreePool.getInstance().store(adddress, new PatriciaTreeNode(1000, 0));
         }
 
 

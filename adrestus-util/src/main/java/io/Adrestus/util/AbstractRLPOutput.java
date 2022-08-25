@@ -1,14 +1,14 @@
 package io.Adrestus.util;
 
-import static com.google.common.base.Preconditions.checkState;
+import org.apache.tuweni.bytes.Bytes;
+import org.apache.tuweni.bytes.MutableBytes;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.List;
 
-import org.apache.tuweni.bytes.Bytes;
-import org.apache.tuweni.bytes.MutableBytes;
+import static com.google.common.base.Preconditions.checkState;
 
 abstract class AbstractRLPOutput implements RLPOutput {
     private static final Bytes LIST_MARKER = Bytes.wrap(new byte[0]);
@@ -86,7 +86,7 @@ abstract class AbstractRLPOutput implements RLPOutput {
      *
      * @return The size of the RLP-encoded data written to this output.
      * @throws IllegalStateException if some opened list haven't been closed (the output is not valid
-     *     as is).
+     *                               as is).
      */
     public int encodedSize() {
         checkState(stackSize == 1, "A list has been entered (startList()) but not left (endList())");
