@@ -1,12 +1,12 @@
 
 <div id="banner" style="overflow: hidden; display: flex; justify-content:space-around;">
-        <div class="" style="max-width: 20%; max-height: 20%;">
+        <div class="" style="width="200"">
             <img src="./files/blocckhain.gif">
         </div>
-        <div class="" style="max-width: 100%; max-height: 100%;">
+        <div class="" style="width="200"">
             <img src="./files/logo.jpg">
         </div>
-        <div class="" style="max-width: 20%; max-height: 20%;">
+        <div class="" style="width="200"">
             <img src="./files/blocckhain.gif">
         </div>
     </div>
