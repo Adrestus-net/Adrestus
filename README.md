@@ -1,13 +1,13 @@
 
  <div id="banner">
         <div class="inline-block">
-            <img src="./files/blocckhain.gif">
+            <img width="100" src="./files/blocckhain.gif">
         </div>
        <div class="inline-block">
-            <img src="./files/logo.jpg">
+            <img width="100" src="./files/logo.jpg">
         </div>
         <div class="inline-block">
-            <img src="./files/blocckhain.gif">
+            <img width="100" src="./files/blocckhain.gif">
         </div>
     </div>
 <h1 align="center">
