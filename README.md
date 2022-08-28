@@ -1,12 +1,12 @@
 
-<div id="banner" style="overflow: hidden; display: flex; justify-content:space-around;">
-        <div class="" style="width="200"">
+ <div id="banner">
+        <div class="inline-block">
             <img src="./files/blocckhain.gif">
         </div>
-        <div class="" style="width="200"">
+       <div class="inline-block">
             <img src="./files/logo.jpg">
         </div>
-        <div class="" style="width="200"">
+        <div class="inline-block">
             <img src="./files/blocckhain.gif">
         </div>
     </div>
@@ -31,7 +31,7 @@
 - [Resources](#Resources)
 - [License](#License)
 
-## What's Adrestus?
+# What's Adrestus?
 
 Adrestus is a project dedicated to building the infrastructure for a truly decentralized Internet.
 
@@ -160,7 +160,7 @@ $ docker run -d --name="java-Adrestus" \
 
 This will mount the `output-directory` and `logs` directories on the host, the docker.sh tool can also be used to simplify the use of docker.
 
-#Package Organization
+# Package Organization
 The main folders are:
 
 | Folder   | Content                          |
@@ -174,7 +174,7 @@ The main folders are:
 | `util`    | The [util](util) dependency.       |
 
 
-#Project Layout
+# Project Layout
 `Adrestus`  is split into various maven subpackages. The following packages provide core functionality to the Adrestus ecosystem, as well as other tools and commands:
 
 * `config` Holds configuration parameters. These include parameters used locally by the node as well as parameters that must be agreed upon by the protocol.
@@ -193,7 +193,7 @@ The main folders are:
 * `util` It includes helper functions or static methods that the project needs to build the core infrastructure
 
 
-#Progress
+# Progress
 ### Done
 - ✅ Cryptography
     - ✅ Mnemonic codes
