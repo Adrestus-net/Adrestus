@@ -119,7 +119,7 @@ public class MemoryPoolTest {
 
         Thread.sleep(1000);
         Transaction transaction2 = new RegularTransaction();
-        transaction2.setHash("Hash6");
+        transaction2.setHash("Hash5");
         transaction2.setFrom("Address1");
         transaction2.setZoneFrom(1);
         transaction2.setTimestamp(GetTime.GetTimeStampInString());
