@@ -105,12 +105,13 @@ public class MemoryPoolTest {
         if (res.isPresent())
             System.out.println(res.get().toString());
 
-        MemoryPool.getInstance().getAll().forEach(x -> System.out.println(x.toString()));
+      //  MemoryPool.getInstance().getAll().forEach(x -> System.out.println(x.toString()));
     }
 
     @Test
   //  @Order(5)
     public void mempool_timestamp_check() throws Exception {
+        MemoryPool.getInstance().getAll().clear();
         Transaction transaction1 = new RegularTransaction();
         transaction1.setHash("Hash5");
         transaction1.setFrom("Address1");
