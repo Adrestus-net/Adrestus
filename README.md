@@ -13,8 +13,7 @@
   Java implementation of Adrestus Protocol
 </h1>
 <h4 align="center">Let’s Take Money Into The 21st Century with <a href="https://www.adrestus.net/">Adrestus</a>.</h4>
-</body>
-</html>
+
 
 ## Table of Contents
 - [What’s Adrestus?](#What’s-Adrestus)
