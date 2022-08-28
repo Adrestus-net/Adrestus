@@ -1,35 +1,12 @@
-<html>
-<head>
-<style>
-* {
-  box-sizing: border-box;
-}
-
-.column {
-  float: left;
-  width: 33.33%;
-  padding: 5px;
-}
-
-/* Clearfix (clear floats) */
-.row::after {
-  content: "";
-  clear: both;
-  display: table;
-}
-</style>
-</head>
-<body>
-
-<div class="row">
-  <div class="column">
-    <img src="./files/blocckhain.gif" alt="Snow" style="width:100%">
+<div class="row" style="box-sizing: border-box;">
+  <div class="column" style="box-sizing: border-box;float: left;width: 33.33%;padding: 5px;">
+    <img src="https://github.com/Adrestus-net/Adrestus/blob/master/files/blocckhain.gif" alt="Snow" style="width: 100%;box-sizing: border-box;">
   </div>
-  <div class="column">
-    <img src="./files/logo.jpg" alt="Forest" style="width:100%">
+  <div class="column" style="box-sizing: border-box;float: left;width: 33.33%;padding: 5px;">
+    <img src="./files/logo.jpg" alt="Forest" style="width: 100%;box-sizing: border-box;">
   </div>
-  <div class="column">
-     <img width="200" src="./files/blocckhain.gif">
+  <div class="column" style="box-sizing: border-box;float: left;width: 33.33%;padding: 5px;">
+     <img width="200" src="https://github.com/Adrestus-net/Adrestus/blob/master/files/blocckhain.gif" style="box-sizing: border-box;">
   </div>
 </div>
 <h1 align="center">
