@@ -1,9 +1,9 @@
 <div class="row" style="box-sizing: border-box;">
   <div class="column" style="box-sizing: border-box;float: left;width: 33.33%;padding: 5px;">
-    <img src="https://github.com/Adrestus-net/Adrestus/blob/master/files/blocckhain.gif" alt="Snow" style="width: 100%;box-sizing: border-box;">
+    <img src="https://github.com/Adrestus-net/Adrestus/blob/master/files/blocckhain.gif" alt="Snow" width="200">
   </div>
   <div class="column" style="box-sizing: border-box;float: left;width: 33.33%;padding: 5px;">
-    <img src="./files/logo.jpg" alt="Forest" style="width: 100%;box-sizing: border-box;">
+    <img src="./files/logo.jpg" alt="Forest" width="200">
   </div>
   <div class="column" style="box-sizing: border-box;float: left;width: 33.33%;padding: 5px;">
      <img width="200" src="https://github.com/Adrestus-net/Adrestus/blob/master/files/blocckhain.gif" style="box-sizing: border-box;">
