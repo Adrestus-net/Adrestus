@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 public class MemoryPoolTest {
 
     @Test
-    @Order(1)
+    //@Order(1)
     public void chek_duplicate() throws Exception {
         Transaction transaction = new RegularTransaction();
         transaction.setAmount(100);
@@ -31,7 +31,7 @@ public class MemoryPoolTest {
     }
 
     @Test
-    @Order(2)
+    //@Order(2)
     public void add_mempool() throws Exception {
         Transaction transaction = new RegularTransaction();
         transaction.setAmount(101);
@@ -53,11 +53,11 @@ public class MemoryPoolTest {
         transaction3.setHash("Hash2");
         transaction.setTimestamp(GetTime.GetTimeStampInString());
         assertEquals(true, MemoryPool.getInstance().add(transaction3));
-        MemoryPool.getInstance().printAll();
+      //  MemoryPool.getInstance().printAll();
     }
 
     @Test
-    @Order(4)
+   // @Order(4)
     public void delete_mempool() throws Exception {
 
         ArrayList<Transaction> list = new ArrayList<Transaction>();
@@ -88,12 +88,12 @@ public class MemoryPoolTest {
         list.add(transaction4);
 
         MemoryPool.getInstance().delete(list);
-        MemoryPool.getInstance().printAll();
+        //MemoryPool.getInstance().printAll();
     }
 
 
     @Test
-    @Order(3)
+   // @Order(3)
     public void mempool_get_by_hash() throws Exception {
         Transaction transaction1 = new RegularTransaction();
         transaction1.setAmount(100);
@@ -109,7 +109,7 @@ public class MemoryPoolTest {
     }
 
     @Test
-    @Order(5)
+  //  @Order(5)
     public void mempool_timestamp_check() throws Exception {
         Transaction transaction1 = new RegularTransaction();
         transaction1.setHash("Hash5");
@@ -126,7 +126,7 @@ public class MemoryPoolTest {
 
         MemoryPool.getInstance().add(transaction1);
         MemoryPool.getInstance().add(transaction2);
-
+        MemoryPool.getInstance().printAll();
         assertEquals(true, MemoryPool.getInstance().checkTimestamp(transaction2));
 
     }
