@@ -1,12 +1,12 @@
 <div class="row" style="box-sizing: border-box;">
   <div class="column" style="box-sizing: border-box;float: left;width: 33.33%;padding: 5px;">
-    <img src="https://github.com/Adrestus-net/Adrestus/blob/master/files/blocckhain.gif" alt="Snow" width="200">
+    <img src="https://github.com/Adrestus-net/Adrestus/blob/master/files/blocckhain.gif" alt="Snow" width="100">
   </div>
   <div class="column" style="box-sizing: border-box;float: left;width: 33.33%;padding: 5px;">
-    <img src="./files/logo.jpg" alt="Forest" width="200">
+    <img src="./files/logo.jpg" alt="Forest"width="100">
   </div>
   <div class="column" style="box-sizing: border-box;float: left;width: 33.33%;padding: 5px;">
-     <img width="200" src="https://github.com/Adrestus-net/Adrestus/blob/master/files/blocckhain.gif" style="box-sizing: border-box;">
+     <img width="100" src="https://github.com/Adrestus-net/Adrestus/blob/master/files/blocckhain.gif" style="box-sizing: border-box;">
   </div>
 </div>
 <h1 align="center">
