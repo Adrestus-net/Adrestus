@@ -1,11 +1,17 @@
+
+<div id="banner" style="overflow: hidden; display: flex; justify-content:space-around;">
+        <div class="" style="max-width: 20%; max-height: 20%;">
+            <img src="./files/blocckhain.gif">
+        </div>
+        <div class="" style="max-width: 100%; max-height: 100%;">
+            <img src="./files/logo.jpg">
+        </div>
+        <div class="" style="max-width: 20%; max-height: 20%;">
+            <img src="./files/blocckhain.gif">
+        </div>
+    </div>
 <h1 align="center">
-  <br>
-    <img align="left"  width="200" src="/files/blocckhain.gif">
-    <img width="150" src="./files/logo.jpg">
-    <img align="right"  width="200" src="../files/blocckhain.gif">
-  <br>
   Java implementation of Adrestus Protocol
-  <br>
 </h1>
 <h4 align="center">Let’s Take Money Into The 21st Century with <a href="https://www.adrestus.net/">Adrestus</a>.</h4>
 
@@ -166,6 +172,8 @@ The main folders are:
 | `network`    | The [network](network) dependency.       |
 | `protocol`    | The [protocol](protocol) dependency.       |
 | `util`    | The [util](util) dependency.       |
+
+
 #Project Layout
 `Adrestus`  is split into various maven subpackages. The following packages provide core functionality to the Adrestus ecosystem, as well as other tools and commands:
 
@@ -263,7 +271,7 @@ If you'd like to contribute to java-Adrestus, please see the [Contribution Guide
 
 Please fork, fix, commit and send a pull request for the maintainers to review and merge into the main code base. If you wish to submit more complex changes though, please check up with the core developers first here on github, to ensure those changes are in line with the general philosophy of the project and/or get some early feedback which can make both your efforts much lighter as well as our review and merge procedures quick and simple.
 
-#Resources
+# Resources
 * [Website](https://www.adrestus.net/) java-Asrestus official website.
 * [Documentation](https://www.sciencedirect.com/science/article/pii/S2096720922000343) Adrestus official technical documentation website.
 
