@@ -1,9 +1,32 @@
-version: 2.1
-
-orbs:
-  maven: circleci/maven@0.0.12
-
-workflows:
-  maven_test:
+version: 2.1 # use CircleCI 2.1
+jobs: # a collection of steps
+  build: # runs not using Workflows must have a `build` job as entry point
+    working_directory: ~/Adrestus # directory where steps will run
+    docker: # run the steps with Docker
+      - image: circleci/openjdk:8-jdk-stretch # ...with this image as the primary container; this is where all `steps` will run
+    steps: # a collection of executable commands
+        - checkout # check out source code to working directory
+        - restore_cache: # restore the saved cache after the first run or if `pom.xml` has changed
+            # Read about caching dependencies: https://circleci.com/docs/2.0/caching/
+            key: Adrestus-{{ checksum "pom.xml" }}
+        - run: mvn dependency:go-offline # gets the project dependencies
+        - save_cache: # saves the project dependencies
+            paths:
+              - ~/.m2
+            key: Adrestus-{{ checksum "pom.xml" }}
+        - run: mvn clean install -U
+workflows: # The following yaml will schedule this maven build operation to run every day at 12:00am UTC
+  version: 2
+  commit:
     jobs:
-      - maven/test # checkout, build, test, and upload test results
+      - build
+  nightly:
+    triggers:
+      - schedule:
+          cron: "0 0 * * *"
+          filters:
+            branches:
+              only:
+                - master      
+    jobs:
+      - build
