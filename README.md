@@ -1,10 +1,9 @@
-<table>
-    <tr>
-        <td><img src="https://github.com/Adrestus-net/Adrestus/blob/master/files/blocckhain.gif" alt="Snow" width="200"></td>
-        <td><img src="./files/logo.jpg" alt="Forest"width="100"></td>
-        <td> <img width="100" src="https://github.com/Adrestus-net/Adrestus/blob/master/files/blocckhain.gif" style="box-sizing: border-box;"></td>
-    </tr>
-</table>
+<h1 align="center">
+    <br>
+      <img align="left" src="https://github.com/Adrestus-net/Adrestus/blob/master/files/blocckhain.gif" alt="Snow" width="200"></td>
+      <img src="./files/logo.jpg" alt="Forest"width="100"></td>
+      <img align="right" width="100" src="https://github.com/Adrestus-net/Adrestus/blob/master/files/blocckhain.gif" style="box-sizing: border-box;"></td>
+   <br>
 <h1 align="center">
   Java implementation of Adrestus Protocol
 </h1>
