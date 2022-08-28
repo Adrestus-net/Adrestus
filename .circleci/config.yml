@@ -1,4 +1,7 @@
 version: 2.1 # use CircleCI 2.1
+dependencies:
+  override:
+    - mvn -DskipTests clean install dependency:resolve-plugins dependency:go-offline
 jobs: # a collection of steps
   build: # runs not using Workflows must have a `build` job as entry point
     parallelism: 10
@@ -19,13 +22,13 @@ jobs: # a collection of steps
            path: target/surefire-reports
         - restore_cache: # restore the saved cache after the first run or if `pom.xml` has changed
             keys:
-            - v1-dependencies-{{ checksum "pom.xml" }} # appends cache key with a hash of pom.xml file
+            - v1-dependencies-{{ checksum "../pom.xml" }} # appends cache key with a hash of pom.xml file
             - v1-dependencies- # fallback in case previous cache key is not found
         - run: mvn dependency:go-offline # gets the project dependencies
         - save_cache: # saves the project dependencies
             paths:
               - ~/.m2
-            key: v1-dependencies-{{ checksum "pom.xml" }}
+            key: v1-dependencies-{{ checksum "../pom.xml" }}
         - run: mvn clean install -U
 workflows: # The following yaml will schedule this maven build operation to run every day at 12:00am UTC
   version: 2
