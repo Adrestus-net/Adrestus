@@ -1,15 +1,33 @@
+<style>
+* {
+  box-sizing: border-box;
+}
 
- <div id="banner">
-        <div class="inline-block">
-            <img width="100" src="./files/blocckhain.gif">
-        </div>
-       <div class="inline-block">
-            <img width="100" src="./files/logo.jpg">
-        </div>
-        <div class="inline-block">
-            <img width="100" src="./files/blocckhain.gif">
-        </div>
-    </div>
+.column {
+  float: left;
+  width: 33.33%;
+  padding: 5px;
+}
+
+/* Clearfix (clear floats) */
+.row::after {
+  content: "";
+  clear: both;
+  display: table;
+}
+</style>
+
+<div class="row">
+  <div class="column">
+    <img src="./files/blocckhain.gif" alt="Snow" style="width:100%">
+  </div>
+  <div class="column">
+    <img src="./files/logo.jpg" alt="Forest" style="width:100%">
+  </div>
+  <div class="column">
+     <img width="200" src="./files/blocckhain.gif">
+  </div>
+</div>
 <h1 align="center">
   Java implementation of Adrestus Protocol
 </h1>
