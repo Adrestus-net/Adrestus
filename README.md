@@ -23,9 +23,12 @@
 ![](https://tokei.rs/b1/github/Adrestus-net/Adrestus)
 [![License](https://img.shields.io/badge/license-Apache-green.svg)](https://github.com/Adrestus-net/Adrestus/blob/master/LICENSE)
 
-  <a style="display:flex; justify-content:left;" href="">![Github stats](https://github-readme-stats.vercel.app/api?username=Adrestus&theme=blue-green)</a>
-  <a style="display:flex; justify-content:right;"  href="">![Github stats2](https://github-readme-streak-stats.herokuapp.com/?user=Adrestus&theme=blue-green)</a>
-  
+<div align="center">
+
+  <a  href="">![Github stats](https://github-readme-stats.vercel.app/api?username=Adrestus&theme=blue-green)(https://github.com/Adrestus-net/Adrestus)</a>
+  <a  href="">![Github stats2](https://github-readme-streak-stats.herokuapp.com/?user=Adrestus&theme=blue-green)(https://github.com/Adrestus-net/Adrestus)</
+</div>
+
 ## Table of Contents
 - [What’s Adrestus?](#What’s-Adrestus)
 - [Building the Source Code](#Building-the-source)
