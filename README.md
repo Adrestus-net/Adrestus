@@ -10,8 +10,9 @@
 <h4 align="center">Let’s Take Money Into The 21st Century with <a href="https://www.adrestus.net/">Adrestus</a>.</h4>
 
 ![GitHub Stats](https://komarev.com/ghpvc/?username=Adrestus-net)
-![Hits](https://hitcounter.pythonanywhere.com/count/tag.svg?url=https://github.com/Adrestus-net/Adrestus)
-[![star this repo](http://githubbadges.com/star.svg?user=Adrestus-net&repo=Adrestus.svg&style=flat&color=fff&background=007ec6)]()
+[![GitHub stars](https://badgen.net/github/stars/Adrestus-net/Adrestus/)](https://github.com/Adrestus-net/Adrestus)
+[![GitHub forks](https://badgen.net/github/forks/Adrestus-net/Adrestus/)](https://github.com/Adrestus-net/Adrestus)
+[![GitHub contributors](https://badgen.net/github/contributors/Adrestus-net/Adrestus/)](https://github.com/Adrestus-net/Adrestus)
 [![GitHub Issues](https://img.shields.io/github/issues/Adrestus-net/Adrestus.svg)](https://github.com/Adrestus-net/Adrestus/issues)
 [![GitHub pull requests](https://img.shields.io/github/issues-pr/Adrestus-net/Adrestus.svg)](https://github.com/Adrestus-net/Adrestus/pulls)
 [![GitHub commit](https://img.shields.io/github/last-commit/Adrestus-net/Adrestus.svg)]()
