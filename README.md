@@ -9,7 +9,7 @@
 </h1>
 <h4 align="center">Let’s Take Money Into The 21st Century with <a href="https://www.adrestus.net/">Adrestus</a>.</h4>
 
-[![GitHub code-lines](https://tokei.rs/b1/github/Adrestus-net/Adrestus)]
+[![GitHub code-lines](https://tokei.rs/b1/github/Adrestus-net/Adrestus)
 ![GitHub Stats](https://komarev.com/ghpvc/?username=Adrestus-net)
 [![GitHub stars](https://badgen.net/github/stars/Adrestus-net/Adrestus/)](https://github.com/Adrestus-net/Adrestus)
 [![GitHub forks](https://badgen.net/github/forks/Adrestus-net/Adrestus/)](https://github.com/Adrestus-net/Adrestus)
