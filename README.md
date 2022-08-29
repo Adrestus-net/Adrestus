@@ -9,7 +9,6 @@
 </h1>
 <h4 align="center">Let’s Take Money Into The 21st Century with <a href="https://www.adrestus.net/">Adrestus</a>.</h4>
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 [![star this repo](http://githubbadges.com/star.svg?user=Adrestus-net&repo=Adrestus.svg&style=flat&color=fff&background=007ec6)]()
 [![GitHub Issues](https://img.shields.io/github/issues/Adrestus-net/Adrestus.svg)](https://github.com/Adrestus-net/Adrestus/issues)
 [![GitHub pull requests](https://img.shields.io/github/issues-pr/Adrestus-net/Adrestus.svg)](https://github.com/Adrestus-net/Adrestus/pulls)
@@ -18,7 +17,7 @@
 [![GitHub size](https://img.shields.io/github/directory-file-count/Adrestus-net/Adrestus.svg)]()
 [![GitHub code-size](https://img.shields.io/github/languages/code-size/Adrestus-net/Adrestus.svg)]()
 [![GitHub repo-size](https://img.shields.io/github/repo-size/Adrestus-net/Adrestus.svg)]()
-[![GitHub lines](https://img.shields.io/tokei/lines/github/Adrestus-net/Adrestus.svg)]()
+![](https://tokei.rs/b1/github/Adrestus-net/Adrestus)
 [![License](https://img.shields.io/badge/license-Apache-green.svg)](https://github.com/Adrestus-net/Adrestus/blob/master/LICENSE)
 
 ## Table of Contents
