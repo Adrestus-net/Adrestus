@@ -20,7 +20,6 @@ install:
       export PATH="$JAVA_HOME:$PATH";
   - sh: |
       export CI_OPT_MVN_MULTI_STAGE_BUILD="false";
-      source circ.sh;
   #  A host on cloud
   #sudo adduser --home /restricted/rsync_user rsync_user;
   #
