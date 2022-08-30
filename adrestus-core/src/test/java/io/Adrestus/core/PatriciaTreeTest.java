@@ -33,17 +33,19 @@ public class PatriciaTreeTest {
 
     @Test
     public void patricia_tree_insert() {
-        for (int i = 0; i < 10000; i++) {
+        int size=1000;
+        for (int i = 0; i < size; i++) {
             trie.put(String.valueOf(i).getBytes(StandardCharsets.UTF_8), String.valueOf(i).getBytes(StandardCharsets.UTF_8));
         }
     }
 
     @Test
     public void patricia_tree_get() {
-        for (int i = 0; i < 10000; i++) {
+        int size=1000;
+        for (int i = 0; i < size; i++) {
             trie.put(String.valueOf(i).getBytes(StandardCharsets.UTF_8), String.valueOf(i).getBytes(StandardCharsets.UTF_8));
         }
-        for (int i = 0; i < 10000; i++) {
+        for (int i = 0; i < size; i++) {
             assertEquals(String.valueOf(i), new String(trie.get(String.valueOf(i).getBytes(StandardCharsets.UTF_8))));
         }
         /*trie.put("dog".getBytes(StandardCharsets.UTF_8),"value".getBytes(StandardCharsets.UTF_8));
@@ -91,7 +93,7 @@ public class PatriciaTreeTest {
     public void stress_test_optimized_patricia_tree() {
         String addres = "ADR-AB2C-ARNW-4BYP-7CGJ-K6AD-OSNM-NC6Q-ET2C-6DEW-AAWY";
         StringBuilder stringBuilder = new StringBuilder();
-        int size = 1000000;
+        int size = 1000;
         for (int i = 0; i < size; i++) {
             stringBuilder.append(addres);
             stringBuilder.append(String.valueOf(i));
