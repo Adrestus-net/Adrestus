@@ -148,6 +148,7 @@ public class ServerClientTest {
         adrestusClient2.close();
         adrestusClient3.close();
         adrestusClient4.close();
+        adrestusServer.close();
 
     }
 
@@ -175,6 +176,7 @@ public class ServerClientTest {
         adrestusClient1.close();
         adrestusClient2.close();
         adrestusClient3.close();
+        adrestusServer.close();
         //adrestusClient4.close();
         Thread.sleep(4000);
 
@@ -201,6 +203,7 @@ public class ServerClientTest {
 
         adrestusClient1.close();
         adrestusClient2.close();
+        adrestusServer.close();
         Thread.sleep(4000);
 
     }
