@@ -4,6 +4,7 @@
       <img src="./files/logo.jpg" alt="Forest"width="200"></td>
       <img align="right" width="200" src="https://github.com/Adrestus-net/Adrestus/blob/master/files/blocckhain.gif" style="box-sizing: border-box;"></td>
    <br>
+</h1>
 <h1 align="center">
   Java implementation of Adrestus Protocol
 </h1>
