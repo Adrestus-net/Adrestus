@@ -211,15 +211,20 @@ public class MemoryPool implements IMemoryPool {
         @SneakyThrows
         @Override
         public int compare(Transaction t1, Transaction t2) {
-            int val1 = t1.getFrom().compareTo(t2.getFrom());
-            int val2 = Integer.valueOf(t1.getZoneFrom()).compareTo(Integer.valueOf(t2.getZoneFrom()));
+            try {
+                int val1 = t1.getFrom().compareTo(t2.getFrom());
+                int val2 = Integer.valueOf(t1.getZoneFrom()).compareTo(Integer.valueOf(t2.getZoneFrom()));
 
-            Timestamp time1 = GetTime.GetTimestampFromString(t1.getTimestamp());
-            Timestamp time2 = GetTime.GetTimestampFromString(t2.getTimestamp());
+                Timestamp time1 = GetTime.GetTimestampFromString(t1.getTimestamp());
+                Timestamp time2 = GetTime.GetTimestampFromString(t2.getTimestamp());
 
-            int val3 = time1.compareTo(time2);
+                int val3 = time1.compareTo(time2);
 
-            return (val1 == 0 && val2 == 0 && val3 <= 0) ? val1 : -1;
+                return (val1 == 0 && val2 == 0 && val3 <= 0) ? val1 : -1;
+            } catch (Exception e) {
+                LOG.info(e.toString());
+                return 0;
+            }
         }
     }
 }
