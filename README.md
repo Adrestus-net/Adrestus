@@ -10,8 +10,8 @@
 <h4 align="center">Let’s Take Money Into The 21st Century with <a href="https://www.adrestus.net/">Adrestus</a>.</h4>
 
 ![codecov](https://ci.appveyor.com/api/projects/status/github/Adrestus-net/Adrestus?branch=master&svg=true)
-[![codecov](https://codecov.io/github/Adrestus-net/Adrestus/branch/master/graph/badge.svg?token=1d910d2b-5749-4c90-bc7d-e8e4b3185606)(https://app.codecov.io/gh/Adrestus-net/Adrestus)
-[![GitHub code-lines](https://tokei.rs/b1/github/Adrestus-net/Adrestus)
+![codecov](https://codecov.io/github/Adrestus-net/Adrestus/branch/master/graph/badge.svg?token=1d910d2b-5749-4c90-bc7d-e8e4b3185606)(https://app.codecov.io/gh/Adrestus-net/Adrestus)
+![GitHub code-lines](https://tokei.rs/b1/github/Adrestus-net/Adrestus)
 [![GitHub Stats](https://komarev.com/ghpvc/?username=Adrestus-net)
 [![GitHub stars](https://badgen.net/github/stars/Adrestus-net/Adrestus/)](https://github.com/Adrestus-net/Adrestus)
 [![GitHub forks](https://badgen.net/github/forks/Adrestus-net/Adrestus/)](https://github.com/Adrestus-net/Adrestus)
