@@ -2,6 +2,7 @@ package io.Adrestus.crypto.bls.model;
 
 import io.Adrestus.crypto.HashUtil;
 import org.apache.milagro.amcl.BLS381.ECP;
+import org.spongycastle.util.encoders.Hex;
 
 import java.util.List;
 
@@ -10,6 +11,7 @@ public class BLSPublicKey {
     private G1Point point;
 
     public BLSPublicKey() {
+        this.point=new G1Point();
     }
 
     public BLSPublicKey(G1Point point) {
@@ -37,7 +39,7 @@ public class BLSPublicKey {
     }
 
     public String toRaw() {
-        return this.point.getValue().toString();
+        return Hex.toHexString(toBytes());
     }
 
     public static BLSPublicKey aggregate(List<BLSPublicKey> keys) {
@@ -62,5 +64,12 @@ public class BLSPublicKey {
 
     public void setPoint(G1Point point) {
         this.point = point;
+    }
+
+    @Override
+    public String toString() {
+        return "BLSPublicKey{" +
+                "point=" + point +
+                '}';
     }
 }

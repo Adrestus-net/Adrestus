@@ -2,20 +2,32 @@ package io.Adrestus.core;
 
 import io.Adrestus.core.RingBuffer.publisher.BlockEventPublisher;
 import io.Adrestus.core.RingBuffer.publisher.TransactionEventPublisher;
+import io.Adrestus.crypto.HashUtil;
+import io.Adrestus.util.GetTime;
+import io.Adrestus.util.SerializationUtil;
 import org.junit.jupiter.api.Test;
 
 public class RingBufferTest {
 
     @Test
     public void TransactionTest() throws InterruptedException {
-        Transaction tr = new RewardsTransaction("Delegator Address");
-        tr.setAmount(100);
+        SerializationUtil<Transaction> serenc = new SerializationUtil<Transaction>(Transaction.class);
 
+        Transaction transaction = new RewardsTransaction("Delegator Address");
+        transaction.setStatus(StatusType.PENDING);
+        transaction.setTimestamp(GetTime.GetTimeStampInString());
+        transaction.setZoneFrom(0);
+        transaction.setZoneTo(0);
+        transaction.setAmount(100);
+        transaction.setAmountWithTransactionFee(transaction.getAmount() * (10.0 / 100.0));
+        transaction.setNonce(1);
+        byte byf[] = serenc.encode(transaction);
+        transaction.setHash(HashUtil.sha256_bytetoString(byf));
         TransactionEventPublisher publisher = new TransactionEventPublisher(1024);
 
-        publisher.withNonceEventHandler().withAmountEventHandler().mergeEvents();
+        publisher.withNonceEventHandler().withHashEventHandler().mergeEvents();
         publisher.start();
-        publisher.publish(tr);
+        publisher.publish(transaction);
         Thread.sleep(5000);
     }
 
@@ -46,6 +58,6 @@ public class RingBufferTest {
         publisher.publish(block);
 
 
-        Thread.sleep(20000);
+        Thread.sleep(5000);
     }
 }

@@ -56,6 +56,8 @@ public class ServerClientTest {
         adrestusServer.publishMessage("Message".getBytes(StandardCharsets.UTF_8));
         // adrestusClient1.receiveData();
         System.out.println("sad");
+        Thread.sleep(10);
+        adrestusClient1.close();
         adrestusServer.close();
     }
 
@@ -77,7 +79,8 @@ public class ServerClientTest {
         }).start();
         Thread.sleep(6000);
         adrestusServer.publishMessage("Message".getBytes(StandardCharsets.UTF_8));
-        // adrestusClient1.receiveData();
+        Thread.sleep(10);
+        adrestusClient1.close();
         adrestusServer.close();
     }
 
@@ -119,6 +122,12 @@ public class ServerClientTest {
 
         Thread.sleep(2000);
         adrestusServer.publishMessage("Message".getBytes(StandardCharsets.UTF_8));
+        Thread.sleep(10);
+        adrestusClient1.close();
+        adrestusClient2.close();
+        adrestusClient3.close();
+        adrestusClient4.close();
+        adrestusServer.close();
         adrestusServer.close();
 
     }

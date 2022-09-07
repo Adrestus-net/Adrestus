@@ -22,6 +22,10 @@ public class ThreadCalculator extends PoolSizeCalculator {
         this.threadcount = threadcount;
     }
 
+    public int calculateOptimalThreadCount() {
+        return Runtime.getRuntime().availableProcessors() * 2;
+    }
+
     @Override
     public String toString() {
         return "ThreadCalculator{" +

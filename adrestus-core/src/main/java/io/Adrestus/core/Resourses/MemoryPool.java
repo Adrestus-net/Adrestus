@@ -109,6 +109,11 @@ public class MemoryPool implements IMemoryPool {
     }
 
     @Override
+    public void clear() throws Exception {
+        memorypool.clear();
+    }
+
+    @Override
     public void delete(Transaction transaction) throws Exception {
         r.lock();
         try {

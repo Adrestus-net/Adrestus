@@ -23,14 +23,12 @@ public class HeaderEventHandler implements BlockEventHandler<AbstractBlockEvent>
 
     @Override
     public void visit(CommitteeBlock committeeBlock) {
-        System.out.println(committeeBlock.toString());
         if (!committeeBlock.getHeaderData().getPreviousHash().equals(CachedLatestBlocks.getInstance().getCommitteeBlock().getHash()))
             LOG.info("CommitteeBlock hashes does not match");
     }
 
     @Override
     public void visit(TransactionBlock transactionBlock) {
-        System.out.println(transactionBlock.toString());
         if (!transactionBlock.getHeaderData().getPreviousHash().equals(CachedLatestBlocks.getInstance().getTransactionBlock().getHash()))
             LOG.info("TransactionBlock hashes does not match");
     }

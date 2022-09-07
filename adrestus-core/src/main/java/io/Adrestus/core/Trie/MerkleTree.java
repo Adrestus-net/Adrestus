@@ -12,5 +12,7 @@ public interface MerkleTree {
 
     void my_generate(List<MerkleNode> list);
 
+    void  my_generate2(List<MerkleNode> dataBlocks);
+
     boolean isMekleeNodeExisted(List<MerkleNode> list, String roothash, MerkleNode node);
 }

@@ -6,7 +6,9 @@ import io.Adrestus.core.RingBuffer.handler.blocks.DisruptorBlockVisitor;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.activej.serializer.annotations.Serialize;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class CommitteeBlock extends AbstractBlock implements BlockFactory, DisruptorBlock {
@@ -14,16 +16,16 @@ public class CommitteeBlock extends AbstractBlock implements BlockFactory, Disru
     private String VRF;
     private String VDF;
     private Map<BLSPublicKey, Double> StakingMap;
-    private Map<Integer, HashMap<BLSPublicKey, String>> StructureMap;
+    private Map<Integer, LinkedHashMap<BLSPublicKey, String>> StructureMap;
     private int Difficulty;
 
     public CommitteeBlock(String previousHash, int height, int Generation, String committeeProposer, String VRF, String VDF, int Difficulty) {
         super(previousHash, height, Generation);
-        CommitteeProposer = committeeProposer;
+        this.CommitteeProposer = committeeProposer;
         this.VRF = VRF;
         this.VDF = VDF;
         this.StakingMap = new HashMap<BLSPublicKey, Double>();
-        this.StructureMap = new HashMap<Integer, HashMap<BLSPublicKey, String>>();
+        this.StructureMap = new HashMap<Integer, LinkedHashMap<BLSPublicKey, String>>();
         this.Difficulty = Difficulty;
         Init();
     }
@@ -34,16 +36,16 @@ public class CommitteeBlock extends AbstractBlock implements BlockFactory, Disru
         this.VRF = "";
         this.VDF = "";
         this.StakingMap = new HashMap<BLSPublicKey, Double>();
-        this.StructureMap = new HashMap<Integer, HashMap<BLSPublicKey, String>>();
+        this.StructureMap = new HashMap<Integer, LinkedHashMap<BLSPublicKey, String>>();
         this.Difficulty = 0;
         Init();
     }
 
     private void Init() {
-        StructureMap.put(1, new HashMap<BLSPublicKey, String>());
-        StructureMap.put(2, new HashMap<BLSPublicKey, String>());
-        StructureMap.put(3, new HashMap<BLSPublicKey, String>());
-        StructureMap.put(4, new HashMap<BLSPublicKey, String>());
+        this.StructureMap.put(1, new LinkedHashMap<BLSPublicKey, String>());
+        this.StructureMap.put(2, new LinkedHashMap<BLSPublicKey, String>());
+        this.StructureMap.put(3, new LinkedHashMap<BLSPublicKey, String>());
+        this.StructureMap.put(4, new LinkedHashMap<BLSPublicKey, String>());
     }
 
     @Override
@@ -93,11 +95,29 @@ public class CommitteeBlock extends AbstractBlock implements BlockFactory, Disru
     }
 
     @Serialize
-    public Map<Integer, HashMap<BLSPublicKey, String>> getStructureMap() {
+    public Map<Integer, LinkedHashMap<BLSPublicKey, String>> getStructureMap() {
         return StructureMap;
     }
 
-    public void setStructureMap(Map<Integer, HashMap<BLSPublicKey, String>> structureMap) {
+    public int getPublicKeyIndex(int zone, BLSPublicKey pub_key) {
+        int pos = new ArrayList<BLSPublicKey>(getStructureMap().get(zone).keySet()).indexOf(pub_key);
+        return pos;
+    }
+
+    public int getIndexofPublicKey(int zone, BLSPublicKey pub_key) {
+        int pos = new ArrayList<BLSPublicKey>(getStructureMap().get(zone).keySet()).indexOf(pub_key);
+        return pos;
+    }
+
+    public BLSPublicKey getPublicKeyByIndex(int zone, int index) {
+        return new ArrayList<BLSPublicKey>(getStructureMap().get(zone).keySet()).get(index);
+    }
+
+    public String getValue(int zone, BLSPublicKey blsPublicKey) {
+        return getStructureMap().get(zone).get(blsPublicKey);
+    }
+
+    public void setStructureMap(Map<Integer, LinkedHashMap<BLSPublicKey, String>> structureMap) {
         StructureMap = structureMap;
     }
 

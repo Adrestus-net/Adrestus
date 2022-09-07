@@ -3,6 +3,7 @@ package io.Adrestus.core;
 import com.google.common.base.Objects;
 import io.Adrestus.core.RingBuffer.handler.blocks.DisruptorBlock;
 import io.Adrestus.core.RingBuffer.handler.blocks.DisruptorBlockVisitor;
+import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.activej.serializer.annotations.Serialize;
 
 import java.util.ArrayList;
@@ -17,6 +18,7 @@ public class TransactionBlock extends AbstractBlock implements BlockFactory, Dis
     private Map<Integer, InboundRelay> Inbound;
     private Map<Integer, OutBoundRelay> Outbound;
     private String TransactionProposer;
+    private BLSPublicKey LeaderPublicKey;
     private String MerkleRoot;
 
 
@@ -33,6 +35,7 @@ public class TransactionBlock extends AbstractBlock implements BlockFactory, Dis
 
     public TransactionBlock() {
         super();
+        this.LeaderPublicKey=new BLSPublicKey();
         this.Zone = 0;
         this.TransactionList = new ArrayList<>();
         this.StakingTransactionList = new ArrayList<>();
@@ -115,6 +118,15 @@ public class TransactionBlock extends AbstractBlock implements BlockFactory, Dis
         MerkleRoot = merkleRoot;
     }
 
+    @Serialize
+    public BLSPublicKey getLeaderPublicKey() {
+        return LeaderPublicKey;
+    }
+
+    public void setLeaderPublicKey(BLSPublicKey leaderPublicKey) {
+        LeaderPublicKey = leaderPublicKey;
+    }
+
 
     @Override
     public boolean equals(Object o) {
@@ -122,18 +134,17 @@ public class TransactionBlock extends AbstractBlock implements BlockFactory, Dis
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
         TransactionBlock that = (TransactionBlock) o;
-        return Zone == that.Zone && Objects.equal(TransactionList, that.TransactionList) && Objects.equal(StakingTransactionList, that.StakingTransactionList) && Objects.equal(Inbound, that.Inbound) && Objects.equal(Outbound, that.Outbound) && Objects.equal(TransactionProposer, that.TransactionProposer) && Objects.equal(MerkleRoot, that.MerkleRoot);
+        return Zone == that.Zone && Objects.equal(TransactionList, that.TransactionList) && Objects.equal(StakingTransactionList, that.StakingTransactionList) && Objects.equal(Inbound, that.Inbound) && Objects.equal(Outbound, that.Outbound) && Objects.equal(TransactionProposer, that.TransactionProposer) && Objects.equal(LeaderPublicKey.toRaw(), that.LeaderPublicKey.toRaw()) && Objects.equal(MerkleRoot, that.MerkleRoot);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(super.hashCode(), Zone, TransactionList, StakingTransactionList, Inbound, Outbound, TransactionProposer, MerkleRoot);
+        return Objects.hashCode(super.hashCode(), Zone, TransactionList, StakingTransactionList, Inbound, Outbound, TransactionProposer, LeaderPublicKey, MerkleRoot);
     }
-
 
     @Override
     public String toString() {
-        return super.toString() +
+        return super.toString()+" "+
                 "TransactionBlock{" +
                 "Zone=" + Zone +
                 ", TransactionList=" + TransactionList +
@@ -141,10 +152,10 @@ public class TransactionBlock extends AbstractBlock implements BlockFactory, Dis
                 ", Inbound=" + Inbound +
                 ", Outbound=" + Outbound +
                 ", TransactionProposer='" + TransactionProposer + '\'' +
+                ", LeaderPublicKey=" + LeaderPublicKey +
                 ", MerkleRoot='" + MerkleRoot + '\'' +
                 '}';
     }
-
 
     public static class InboundRelay {
         private List<Receipt> Receipt;

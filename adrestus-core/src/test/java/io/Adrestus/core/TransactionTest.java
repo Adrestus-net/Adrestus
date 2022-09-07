@@ -1,5 +1,7 @@
 package io.Adrestus.core;
 
+import io.Adrestus.core.Resourses.CachedLatestBlocks;
+import io.Adrestus.core.Resourses.MemoryPool;
 import io.Adrestus.core.Resourses.MemoryTreePool;
 import io.Adrestus.core.RingBuffer.handler.transactions.SignatureEventHandler;
 import io.Adrestus.core.RingBuffer.publisher.TransactionEventPublisher;
@@ -15,15 +17,33 @@ import io.Adrestus.crypto.mnemonic.Security;
 import io.Adrestus.crypto.mnemonic.WordList;
 import io.Adrestus.util.GetTime;
 import io.Adrestus.util.SerializationUtil;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.spongycastle.util.encoders.Hex;
 
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TransactionTest {
+
+    @BeforeAll
+    public static void setup() throws Exception {
+        MemoryPool.getInstance().clear();
+        TransactionBlock prevblock = new TransactionBlock();
+        CommitteeBlock committeeBlock = new CommitteeBlock();
+        committeeBlock.setGeneration(1);
+        committeeBlock.setViewID(1);
+        prevblock.setHeight(1);
+        prevblock.setHash("hash");
+        prevblock.getHeaderData().setTimestamp(GetTime.GetTimeStampInString());
+        CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
+        CachedLatestBlocks.getInstance().setTransactionBlock(prevblock);
+        await().atMost(100, TimeUnit.MILLISECONDS);
+    }
 
     @Test
     public void Transaction_test() {
@@ -146,7 +166,7 @@ public class TransactionTest {
             transaction.setSignature(signatureData);
 
             publisher.publish(transaction);
-            Thread.sleep(1000);
+            await().atMost(100, TimeUnit.MILLISECONDS);
             //publisher.publish(transaction);
         }
         publisher.getJobSyncUntilRemainingCapacityZero();

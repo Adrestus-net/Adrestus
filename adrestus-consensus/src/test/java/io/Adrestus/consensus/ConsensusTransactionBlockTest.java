@@ -27,12 +27,28 @@ import org.spongycastle.util.encoders.Hex;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.awaitility.Awaitility.await;
 
 public class ConsensusTransactionBlockTest {
     private static SecureRandom random;
     private static byte[] pRnd;
 
     @BeforeAll
+    public static void pre_setup(){
+        TransactionBlock prevblock = new TransactionBlock();
+        CommitteeBlock committeeBlock = new CommitteeBlock();
+        committeeBlock.setGeneration(1);
+        committeeBlock.setViewID(1);
+        prevblock.setHeight(1);
+        prevblock.setHash("hash");
+        prevblock.getHeaderData().setTimestamp(GetTime.GetTimeStampInString());
+        CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
+        CachedLatestBlocks.getInstance().setTransactionBlock(prevblock);
+        await().atMost(1, SECONDS);
+    }
     public static void setup() throws Exception {
         pRnd = new byte[20];
         random = new SecureRandom();
@@ -81,6 +97,7 @@ public class ConsensusTransactionBlockTest {
         }
 
 
+
         for (int i = 0; i < size - 1; i++) {
             Transaction transaction = new RegularTransaction();
             transaction.setFrom(addreses.get(i));
@@ -98,26 +115,21 @@ public class ConsensusTransactionBlockTest {
             SignatureData signatureData = ecdsaSign.secp256SignMessage(Hex.decode(transaction.getHash()), keypair.get(i));
             transaction.setSignature(signatureData);
             //MemoryPool.getInstance().add(transaction);
+            System.out.println(transaction.toString());
             publisher.publish(transaction);
-            Thread.sleep(1000);
+            await().atMost(100, TimeUnit.MILLISECONDS);
         }
         publisher.getJobSyncUntilRemainingCapacityZero();
         publisher.close();
 
 
-        TransactionBlock prevblock = new TransactionBlock();
-        CommitteeBlock committeeBlock = new CommitteeBlock();
-        committeeBlock.setGeneration(1);
-        committeeBlock.setViewID(1);
-        prevblock.setHeight(1);
-        prevblock.setHash("hash");
-        prevblock.getHeaderData().setTimestamp(GetTime.GetTimeStampInString());
-        CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
-        CachedLatestBlocks.getInstance().setTransactionBlock(prevblock);
     }
 
     @Test
     public void ConsensusTransactionTest() throws Exception {
+
+        setup();
+
         ConsensusManager consensusManager = new ConsensusManager(true);
         consensusManager.changeStateTo(ConsensusRoleType.ORGANIZER);
 
@@ -128,7 +140,8 @@ public class ConsensusTransactionBlockTest {
         CachedBLSKeyPair.getInstance().setPublicKey(vk);
 
         var organizerphase = consensusManager.getRole().manufacturePhases(ConsensusType.TRANSACTION_BLOCK);
-        ConsensusMessage<TransactionBlock> consensusMessage = new ConsensusMessage<>(new TransactionBlock());
+        TransactionBlock transactionBlock=new TransactionBlock();
+        ConsensusMessage<TransactionBlock> consensusMessage = new ConsensusMessage<>(transactionBlock);
 
         organizerphase.AnnouncePhase(consensusMessage);
 

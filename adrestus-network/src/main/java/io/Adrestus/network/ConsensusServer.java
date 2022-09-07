@@ -6,11 +6,14 @@ import org.zeromq.SocketType;
 import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
 
+import java.net.InetSocketAddress;
+import java.net.Socket;
+
 import static io.Adrestus.config.ConsensusConfiguration.*;
 
-public class AdrestusServer {
+public class ConsensusServer {
 
-    private static Logger LOG = LoggerFactory.getLogger(AdrestusServer.class);
+    private static Logger LOG = LoggerFactory.getLogger(ConsensusServer.class);
 
     private final ZContext ctx;
     private final String IP;
@@ -18,7 +21,7 @@ public class AdrestusServer {
     private final ZMQ.Socket collector;
 
 
-    public AdrestusServer(String IP) {
+    public ConsensusServer(String IP) {
         this.IP = IP;
         this.ctx = new ZContext();
         this.publisher = ctx.createSocket(SocketType.PUB);
@@ -27,6 +30,29 @@ public class AdrestusServer {
         this.publisher.bind("tcp://" + IP + ":" + PUBLISHER_PORT);
         this.collector.bind("tcp://" + IP + ":" + COLLECTOR_PORT);
         this.collector.setReceiveTimeOut(CONSENSUS_TIMEOUT);
+    }
+
+    public ConsensusServer() {
+        this.IP = findIP();
+        this.ctx = new ZContext();
+        this.publisher = ctx.createSocket(SocketType.PUB);
+        this.collector = ctx.createSocket(SocketType.PULL);
+
+        this.publisher.bind("tcp://" + IP + ":" + PUBLISHER_PORT);
+        this.collector.bind("tcp://" + IP + ":" + COLLECTOR_PORT);
+        this.collector.setReceiveTimeOut(CONSENSUS_TIMEOUT);
+    }
+
+
+    private String findIP() {
+        try {
+            Socket socket = new Socket();
+            socket.connect(new InetSocketAddress("google.com", 80));
+            return socket.getLocalAddress().getHostAddress();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        throw new IllegalArgumentException("Make sure you intern connection is working");
     }
 
     public void publishMessage(byte[] data) {
@@ -38,7 +64,6 @@ public class AdrestusServer {
         try {
             data = collector.recv();
         } catch (Exception e) {
-            e.printStackTrace();
             LOG.info("Socket Closed");
         }
         return data;
@@ -49,7 +74,7 @@ public class AdrestusServer {
     }
 
     public static void setLOG(Logger LOG) {
-        AdrestusServer.LOG = LOG;
+        ConsensusServer.LOG = LOG;
     }
 
     public ZContext getCtx() {

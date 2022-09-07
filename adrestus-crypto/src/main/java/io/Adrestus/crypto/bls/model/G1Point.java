@@ -98,4 +98,11 @@ public class G1Point {
     public void setValue(ECP value) {
         this.value = value;
     }
+
+    @Override
+    public String toString() {
+        return "G1Point{" +
+                "value=" + value +
+                '}';
+    }
 }

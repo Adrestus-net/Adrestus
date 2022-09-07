@@ -20,6 +20,7 @@
         <maven.compiler.target>1.7</maven.compiler.target>
         <core.version>1.0-SNAPSHOT</core.version>
         <config.version>1.0-SNAPSHOT</config.version>
+        <network.version>1.0-SNAPSHOT</network.version>
     </properties>
     <dependencies>
         <dependency>
@@ -31,6 +32,11 @@
             <groupId>io.Adrestus.v1</groupId>
             <artifactId>adrestus-config</artifactId>
             <version>${config.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.Adrestus.v1</groupId>
+            <artifactId>adrestus-network</artifactId>
+            <version>${network.version}</version>
         </dependency>
     </dependencies>
     <build>

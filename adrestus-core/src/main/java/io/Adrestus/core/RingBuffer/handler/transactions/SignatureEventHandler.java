@@ -22,7 +22,7 @@ public class SignatureEventHandler extends TransactionEventHandler {
 
     private ExecutorService executorService;
     private CountDownLatch latch;
-    private Transaction transaction;
+
 
     public SignatureEventHandler(ExecutorService executorService) {
         this.executorService = executorService;
@@ -52,22 +52,23 @@ public class SignatureEventHandler extends TransactionEventHandler {
 
     @Override
     public void onEvent(TransactionEvent transactionEvent, long l, boolean b) throws Exception {
-        transaction = transactionEvent.getTransaction();
+        Transaction transaction = transactionEvent.getTransaction();
         if (transaction.getStatus().equals(StatusType.ABORT)) {
             LOG.info("Transaction Marked with status ABORT");
             if (type.equals(SignatureBehaviorType.BLOCK_TRANSACTIONS))
                 latch.countDown();
             return;
         }
-        FinalizeTask task = new FinalizeTask();
+        FinalizeTask task = new FinalizeTask((Transaction) transaction.clone());
         executorService.submit(task);
     }
 
 
     private class FinalizeTask implements Runnable {
+        private Transaction transaction;
 
-
-        public FinalizeTask() {
+        public FinalizeTask(Transaction transaction) {
+            this.transaction=transaction;
         }
 
         public Transaction getTransaction() {
@@ -87,11 +88,11 @@ public class SignatureEventHandler extends TransactionEventHandler {
                 return;
             }
             if (type.equals(SignatureBehaviorType.BLOCK_TRANSACTIONS)) {
-                LOG.info("Transaction signature is  valid");
+                LOG.info("Transaction signature is  valid: "+transaction.getHash());
                 latch.countDown();
                 return;
             }
-            LOG.info("Transaction signature is  valid");
+            LOG.info("Transaction signature is  valid: "+transaction.getHash());
             MemoryPool.getInstance().add(transaction);
         }
     }

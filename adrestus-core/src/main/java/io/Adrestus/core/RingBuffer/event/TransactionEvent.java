@@ -2,7 +2,7 @@ package io.Adrestus.core.RingBuffer.event;
 
 import io.Adrestus.core.Transaction;
 
-public class TransactionEvent {
+public class TransactionEvent implements Cloneable {
     private Transaction transaction;
 
     public TransactionEvent(Transaction transaction) {
@@ -20,4 +20,7 @@ public class TransactionEvent {
         this.transaction = transaction;
     }
 
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
 }

@@ -20,6 +20,7 @@ public class TimeStampEventHandler implements BlockEventHandler<AbstractBlockEve
     public void onEvent(AbstractBlockEvent blockEvent, long l, boolean b) throws Exception {
         try {
             AbstractBlock block = blockEvent.getBlock();
+
             block.accept(this);
         } catch (NullPointerException ex) {
             LOG.info("Block is empty");
@@ -43,8 +44,9 @@ public class TimeStampEventHandler implements BlockEventHandler<AbstractBlockEve
         try {
             Timestamp current = GetTime.GetTimestampFromString(transactionBlock.getHeaderData().getTimestamp());
             Timestamp cached = GetTime.GetTimestampFromString(CachedLatestBlocks.getInstance().getTransactionBlock().getHeaderData().getTimestamp());
+
             if (!cached.before(current))
-                LOG.info("CommitteeBlock timestamp is not valid");
+                LOG.info("TransactionBlock timestamp is not valid");
         } catch (ParseException e) {
             e.printStackTrace();
         }

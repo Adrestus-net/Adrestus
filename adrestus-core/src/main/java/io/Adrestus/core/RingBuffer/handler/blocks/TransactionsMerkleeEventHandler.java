@@ -34,7 +34,7 @@ public class TransactionsMerkleeEventHandler implements BlockEventHandler<Abstra
                 list.add(new MerkleNode(x.getHash()));
             });
 
-            tree.my_generate(list);
+            tree.my_generate2(list);
 
 
             if (!tree.getRootHash().equals(block.getMerkleRoot())) {

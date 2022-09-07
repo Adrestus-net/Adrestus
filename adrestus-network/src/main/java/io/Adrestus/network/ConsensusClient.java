@@ -5,12 +5,14 @@ import org.slf4j.LoggerFactory;
 import org.zeromq.SocketType;
 import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
+import org.zeromq.ZSocket;
+import zmq.SocketBase;
 
 import static io.Adrestus.config.ConsensusConfiguration.*;
 
-public class AdrestusClient {
+public class ConsensusClient {
 
-    private static Logger LOG = LoggerFactory.getLogger(AdrestusClient.class);
+    private static Logger LOG = LoggerFactory.getLogger(ConsensusClient.class);
     private volatile boolean terminate;
     private final String IP;
     private ZContext ctx;
@@ -18,7 +20,7 @@ public class AdrestusClient {
     private final ZMQ.Socket push;
 
 
-    public AdrestusClient(String IP) {
+    public ConsensusClient(String IP) {
         this.ctx = new ZContext();
         this.IP = IP;
         this.terminate = false;

@@ -2,6 +2,7 @@ package io.Adrestus.core.RingBuffer.publisher;
 
 import com.google.common.base.Objects;
 import com.lmax.disruptor.BlockingWaitStrategy;
+import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.TimeoutException;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
@@ -37,6 +38,7 @@ public class TransactionEventPublisher implements Publisher<Transaction> {
     private final ThreadCalculator threadCalculator;
     private final List<TransactionEventHandler> group;
 
+    private RingBuffer<TransactionEvent> ringBuffer;
 
     public TransactionEventPublisher(int jobQueueSize) {
         this.isRunning = new AtomicBoolean(true);
@@ -56,18 +58,16 @@ public class TransactionEventPublisher implements Publisher<Transaction> {
 
     @Override
     public void start() {
-        disruptor.start();
+
+        ringBuffer = disruptor.start();
     }
 
     @Override
     public void publish(Transaction transaction) {
-        long sequence = this.disruptor.getRingBuffer().next();  // Grab the next sequence
-        try {
-            TransactionEvent event = this.disruptor.getRingBuffer().get(sequence); // Get the entry in the Disruptor
-            event.setTransaction(transaction); // Fill with data
-        } finally {
-            this.disruptor.getRingBuffer().publish(sequence);
-        }
+        long sequence = ringBuffer.next();  // Grab the next sequence
+        TransactionEvent event = ringBuffer.get(sequence); // Get the entry in the Disruptor
+        event.setTransaction(transaction); // Fill with data
+        ringBuffer.publish(sequence);
     }
 
     @Override

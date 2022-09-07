@@ -7,6 +7,7 @@ import io.Adrestus.core.RingBuffer.publisher.TransactionEventPublisher;
 import io.Adrestus.core.Trie.PatriciaTreeNode;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.WalletAddress;
+import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.Adrestus.crypto.elliptic.ECDSASign;
 import io.Adrestus.crypto.elliptic.ECKeyPair;
 import io.Adrestus.crypto.elliptic.Keys;
@@ -16,16 +17,33 @@ import io.Adrestus.crypto.mnemonic.Security;
 import io.Adrestus.crypto.mnemonic.WordList;
 import io.Adrestus.util.GetTime;
 import io.Adrestus.util.SerializationUtil;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.spongycastle.util.encoders.Hex;
 
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class BlockTest {
 
+
+    @BeforeAll
+    public static void setup(){
+        TransactionBlock prevblock = new TransactionBlock();
+        CommitteeBlock committeeBlock = new CommitteeBlock();
+        committeeBlock.setGeneration(1);
+        committeeBlock.setViewID(1);
+        prevblock.setHeight(1);
+        prevblock.setHash("hash");
+        prevblock.getHeaderData().setTimestamp(GetTime.GetTimeStampInString());
+        CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
+        CachedLatestBlocks.getInstance().setTransactionBlock(prevblock);
+        await().atMost(100, TimeUnit.MILLISECONDS);
+    }
     @Test
     public void block_test() throws Exception {
         AbstractBlock t = new TransactionBlock();
@@ -63,7 +81,7 @@ public class BlockTest {
         //byte[] buffer = new byte[200];
         // BinarySerializer<DelegateTransaction> serenc = SerializerBuilder.create().build(DelegateTransaction.class);
         TransactionBlock block = new TransactionBlock();
-        block.setHash("hash1");
+        block.setHash("hash10");
         block.setSize(1);
         block.setZone(0);
         byte[] buffer = encode.encode(block);
@@ -75,7 +93,6 @@ public class BlockTest {
 
     @Test
     public void block_test3() throws Exception {
-
         TransactionEventPublisher publisher = new TransactionEventPublisher(1024);
 
         publisher
@@ -137,21 +154,12 @@ public class BlockTest {
             transaction.setSignature(signatureData);
             //MemoryPool.getInstance().add(transaction);
             publisher.publish(transaction);
-            Thread.sleep(1000);
+            await().atMost(100, TimeUnit.MILLISECONDS);
         }
         publisher.getJobSyncUntilRemainingCapacityZero();
         publisher.close();
 
 
-        TransactionBlock prevblock = new TransactionBlock();
-        CommitteeBlock committeeBlock = new CommitteeBlock();
-        committeeBlock.setGeneration(1);
-        committeeBlock.setViewID(1);
-        prevblock.setHeight(1);
-        prevblock.setHash("hash");
-        prevblock.getHeaderData().setTimestamp(GetTime.GetTimeStampInString());
-        CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
-        CachedLatestBlocks.getInstance().setTransactionBlock(prevblock);
         DefaultFactory factory = new DefaultFactory();
         TransactionBlock transactionBlock = new TransactionBlock();
         var regural_block = factory.getBlock(BlockType.REGULAR);

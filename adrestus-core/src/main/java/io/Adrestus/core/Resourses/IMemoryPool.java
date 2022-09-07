@@ -29,4 +29,6 @@ public interface IMemoryPool {
     boolean checkTimestamp(Transaction transaction) throws Exception;
 
     void printAll() throws Exception;
+
+    void clear() throws Exception;
 }

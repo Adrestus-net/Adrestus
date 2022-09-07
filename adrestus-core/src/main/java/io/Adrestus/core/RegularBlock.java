@@ -10,10 +10,13 @@ import io.Adrestus.core.Trie.MerkleTreeImp;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.util.GetTime;
 import io.Adrestus.util.SerializationUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 
 public class RegularBlock implements BlockForge {
+    private static Logger LOG = LoggerFactory.getLogger(RegularBlock.class);
 
     private final SerializationUtil<AbstractBlock> encode;
 
@@ -53,7 +56,7 @@ public class RegularBlock implements BlockForge {
             transactionBlock.getTransactionList().stream().forEach(x -> {
                 merkleNodeArrayList.add(new MerkleNode(x.getHash()));
             });
-            tree.my_generate(merkleNodeArrayList);
+            tree.my_generate2(merkleNodeArrayList);
             transactionBlock.setMerkleRoot(tree.getRootHash());
             byte[] tohash = encode.encode(transactionBlock);
             transactionBlock.setHash(HashUtil.sha256_bytetoString(tohash));

@@ -153,4 +153,32 @@ public class BLSTest {
         Signature aggregatedSignature = BLSSignature.aggregate(signatures);
         assertEquals(false, BLSSignature.aggregateVerify(publicKeys, messages, aggregatedSignature));
     }
+
+    @Test
+    @Order(7)
+    public void bls_key_test() {
+        BLSPrivateKey sk1 = new BLSPrivateKey(new SecureRandom());
+        BLSPublicKey vk1 = new BLSPublicKey(sk1);
+
+        String b = vk1.toRaw();
+        BLSPublicKey copy = BLSPublicKey.fromByte(Hex.decode(b));
+
+
+        byte[] msg = "Test_Message".getBytes();
+        Signature bls_sig = BLSSignature.sign(msg, sk1);
+        assertEquals(true, BLSSignature.verify(bls_sig, msg, vk1));
+        assertEquals(true, BLSSignature.verify(bls_sig, msg, copy));
+    }
+
+    @Test
+    @Order(8)
+    public void bls_key_test_equals() {
+        BLSPrivateKey sk1 = new BLSPrivateKey(new SecureRandom());
+        BLSPublicKey vk1 = new BLSPublicKey(sk1);
+
+        String b = vk1.toRaw();
+        BLSPublicKey copy = BLSPublicKey.fromByte(Hex.decode(b));
+
+        assertEquals(vk1.toRaw(), copy.toRaw());
+    }
 }
