@@ -10,21 +10,24 @@
 </h1>
 <h4 align="center">Let’s Take Money Into The 21st Century with <a href="https://www.adrestus.net/">Adrestus</a>.</h4>
 
-![build-status](https://ci.appveyor.com/api/projects/status/github/Adrestus-net/Adrestus?branch=master&svg=true)
-[![codecov](https://codecov.io/github/Adrestus-net/Adrestus/branch/master/graph/badge.svg?token=1d910d2b-5749-4c90-bc7d-e8e4b3185606)](https://app.codecov.io/gh/Adrestus-net/Adrestus)
-[![Lines-of-Code](https://hitsofcode.com/github/Adrestus-net/Adrestus)](https://github.com/Adrestus-net/Adrestus)
-![GitHub Stats](https://komarev.com/ghpvc/?username=Adrestus-net)
-[![GitHub stars](https://badgen.net/github/stars/Adrestus-net/Adrestus/)](https://github.com/Adrestus-net/Adrestus)
-[![GitHub forks](https://badgen.net/github/forks/Adrestus-net/Adrestus/)](https://github.com/Adrestus-net/Adrestus)
-[![GitHub contributors](https://badgen.net/github/contributors/Adrestus-net/Adrestus/)](https://github.com/Adrestus-net/Adrestus)
-[![GitHub Issues](https://img.shields.io/github/issues/Adrestus-net/Adrestus.svg)](https://github.com/Adrestus-net/Adrestus/issues)
-[![GitHub pull requests](https://img.shields.io/github/issues-pr/Adrestus-net/Adrestus.svg)](https://github.com/Adrestus-net/Adrestus/pulls)
-[![GitHub commit](https://img.shields.io/github/last-commit/Adrestus-net/Adrestus.svg)]()
-[![GitHub chat](https://img.shields.io/gitter/room/Adrestus-net/Adrestus.svg)](https://github.com/Adrestus-net/Adrestus/discussions/)
-[![GitHub size](https://img.shields.io/github/directory-file-count/Adrestus-net/Adrestus.svg)]()
-[![GitHub code-size](https://img.shields.io/github/languages/code-size/Adrestus-net/Adrestus.svg)]()
-[![GitHub repo-size](https://img.shields.io/github/repo-size/Adrestus-net/Adrestus.svg)]()
-[![License](https://img.shields.io/badge/license-Apache-green.svg)](https://github.com/Adrestus-net/Adrestus/blob/master/LICENSE)
+<div align="center">
+    
+<a href="">![build-status](https://ci.appveyor.com/api/projects/status/github/Adrestus-net/Adrestus?branch=master&svg=true)</a>
+<a href="">[![codecov](https://codecov.io/github/Adrestus-net/Adrestus/branch/master/graph/badge.svg?token=1d910d2b-5749-4c90-bc7d-e8e4b3185606)](https://app.codecov.io/gh/Adrestus-net/Adrestus)</a>
+<a href="">[![Lines-of-Code](https://hitsofcode.com/github/Adrestus-net/Adrestus)](https://github.com/Adrestus-net/Adrestus)</a>
+<a href="">![GitHub Stats](https://komarev.com/ghpvc/?username=Adrestus-net)</a>
+<a href="">[![GitHub stars](https://badgen.net/github/stars/Adrestus-net/Adrestus/)](https://github.com/Adrestus-net/Adrestus)</a>
+<a href="">[![GitHub forks](https://badgen.net/github/forks/Adrestus-net/Adrestus/)](https://github.com/Adrestus-net/Adrestus)</a>
+<a href="">[![GitHub contributors](https://badgen.net/github/contributors/Adrestus-net/Adrestus/)](https://github.com/Adrestus-net/Adrestus)</a>
+<a href="">[![GitHub Issues](https://img.shields.io/github/issues/Adrestus-net/Adrestus.svg)](https://github.com/Adrestus-net/Adrestus/issues)</a>
+<a href="">[![GitHub pull requests](https://img.shields.io/github/issues-pr/Adrestus-net/Adrestus.svg)](https://github.com/Adrestus-net/Adrestus/pulls)</a>
+<a href="">[![GitHub commit](https://img.shields.io/github/last-commit/Adrestus-net/Adrestus.svg)]()</a>
+<a href="">[![GitHub chat](https://img.shields.io/gitter/room/Adrestus-net/Adrestus.svg)](https://github.com/Adrestus-net/Adrestus/discussions/)</a>
+<a href="">[![GitHub size](https://img.shields.io/github/directory-file-count/Adrestus-net/Adrestus.svg)]()</a>
+<a href="">[![GitHub code-size](https://img.shields.io/github/languages/code-size/Adrestus-net/Adrestus.svg)]()</a>
+<a href="">[![GitHub repo-size](https://img.shields.io/github/repo-size/Adrestus-net/Adrestus.svg)]()</a>
+<a href="">[![License](https://img.shields.io/badge/license-Apache-green.svg)](https://github.com/Adrestus-net/Adrestus/blob/master/LICENSE)</a>
+</div>
 
 <div align="center">
 
@@ -81,7 +84,7 @@ Clone the repo and switch to the `master` branch
   ```
 then run the following command to build java-Adrestus, the `adrestus-1.0-SNAPSHOT-jar-with-dependencies.jar` file can be found in `java-Adrestus/build/libs/` after build successful.
 ```bash
-$ ./gradlew clean build -x test
+$ .mvn clean build -x test
 ```
 
 ## Install Java on Linux Platforms
