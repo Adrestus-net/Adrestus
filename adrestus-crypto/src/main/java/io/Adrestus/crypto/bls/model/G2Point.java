@@ -1,6 +1,8 @@
 package io.Adrestus.crypto.bls.model;
 
 import io.Adrestus.crypto.bls.utils.CommonUtils;
+import io.activej.serializer.annotations.Deserialize;
+import io.activej.serializer.annotations.Serialize;
 import org.apache.milagro.amcl.BLS381.ECP2;
 
 import java.util.ArrayList;
@@ -130,6 +132,7 @@ public class G2Point {
         return r;
     }
 
+    @Serialize
     public ECP2 getValue() {
         return value;
     }

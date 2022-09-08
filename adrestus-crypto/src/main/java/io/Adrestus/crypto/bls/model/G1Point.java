@@ -2,6 +2,8 @@ package io.Adrestus.crypto.bls.model;
 
 import io.Adrestus.crypto.bls.constants.Constants;
 import io.Adrestus.crypto.bls.utils.CommonUtils;
+import io.activej.serializer.annotations.Deserialize;
+import io.activej.serializer.annotations.Serialize;
 import org.apache.milagro.amcl.BLS381.ECP;
 
 import java.util.ArrayList;
@@ -91,6 +93,7 @@ public class G1Point {
         return r;
     }
 
+    @Serialize
     public ECP getValue() {
         return value;
     }

@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
 
-public class ConsensusServerClient {
+public class ConsensusServerClientTest {
 
     @Test
     public void test_subscribe() throws InterruptedException {

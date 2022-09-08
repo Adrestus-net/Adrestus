@@ -1,6 +1,7 @@
 package io.Adrestus.crypto.bls.model;
 
 import io.Adrestus.crypto.HashUtil;
+import io.activej.serializer.annotations.Serialize;
 import org.apache.milagro.amcl.BLS381.ECP;
 import org.spongycastle.util.encoders.Hex;
 
@@ -58,6 +59,7 @@ public class BLSPublicKey {
     }
 
 
+    @Serialize
     public G1Point getPoint() {
         return point;
     }

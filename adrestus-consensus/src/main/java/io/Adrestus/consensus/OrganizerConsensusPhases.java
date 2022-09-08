@@ -75,8 +75,11 @@ public class OrganizerConsensusPhases {
                 return;
 
             Signature sig = BLSSignature.sign(block_serialize.encode(data.getData()), CachedBLSKeyPair.getInstance().getPrivateKey());
-            data.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
+            data.getChecksumData().setBlsPublicKey(CachedBLSKeyPair.getInstance().getPublicKey());
+            data.getChecksumData().setSignature(sig);
+            //data.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
             byte[] toSend = consensus_serialize.encode(data);
+            ConsensusMessage asd=consensus_serialize.decode(toSend);
             consensusServer.publishMessage(toSend);
         }
 

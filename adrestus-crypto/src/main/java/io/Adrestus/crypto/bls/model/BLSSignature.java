@@ -27,13 +27,21 @@ public class BLSSignature {
     public static Signature sign(byte[] msg, BLSPrivateKey sigKey) {
         G2Point hashPoint = hashMessage(msg);
         ECP2 ecp2 = hashPoint.getValue().mul(sigKey.getX().value);
-        return new Signature(new G2Point(ecp2));
+        G2Point g2Point=new G2Point();
+        g2Point.setValue(ecp2);
+        Signature signature=new Signature();
+        signature.setPoint(g2Point);
+        return signature;
     }
 
     public static Signature sign(BLSPrivateKey PrivateKey, Bytes message) {
         G2Point hashInGroup2 = new G2Point(HashToCurve.hashToG2(message));
         ECP2 ecp2 = hashInGroup2.getValue().mul(PrivateKey.getX().value);
-        return new Signature(new G2Point(ecp2));
+        G2Point g2Point=new G2Point();
+        g2Point.setValue(ecp2);
+        Signature signature=new Signature();
+        signature.setPoint(g2Point);
+        return signature;
     }
 
     public static boolean verify(Signature sig, byte[] msg, BLSPublicKey publicKey, Params params) {
