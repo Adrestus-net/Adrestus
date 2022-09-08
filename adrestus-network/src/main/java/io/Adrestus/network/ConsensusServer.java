@@ -30,6 +30,7 @@ public class ConsensusServer {
         this.publisher.bind("tcp://" + IP + ":" + PUBLISHER_PORT);
         this.collector.bind("tcp://" + IP + ":" + COLLECTOR_PORT);
         this.collector.setReceiveTimeOut(CONSENSUS_TIMEOUT);
+        this.publisher.setSendTimeOut(CONSENSUS_TIMEOUT);
     }
 
     public ConsensusServer() {
@@ -40,6 +41,7 @@ public class ConsensusServer {
 
         this.publisher.bind("tcp://" + IP + ":" + PUBLISHER_PORT);
         this.collector.bind("tcp://" + IP + ":" + COLLECTOR_PORT);
+        this.publisher.setSendTimeOut(CONSENSUS_TIMEOUT);
         this.collector.setReceiveTimeOut(CONSENSUS_TIMEOUT);
     }
 
