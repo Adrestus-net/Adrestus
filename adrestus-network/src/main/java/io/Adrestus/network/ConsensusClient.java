@@ -5,8 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.zeromq.SocketType;
 import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
-import org.zeromq.ZSocket;
-import zmq.SocketBase;
+
 
 import static io.Adrestus.config.ConsensusConfiguration.*;
 

@@ -18,7 +18,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.7</maven.compiler.source>
         <maven.compiler.target>1.7</maven.compiler.target>
-        <jeromq.version>0.5.2</jeromq.version>
+        <jeromq.version>0.5.3-SNAPSHOT</jeromq.version>
         <config.version>1.0-SNAPSHOT</config.version>
     </properties>
     <dependencies>

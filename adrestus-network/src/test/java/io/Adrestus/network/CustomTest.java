@@ -28,18 +28,13 @@ public class CustomTest {
                     }
                 }
             }).start();
-            (new Thread() {
-                public void run() {
-                    try {
-                        Thread.sleep(3000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    consensusServer.publishMessage("1".getBytes(StandardCharsets.UTF_8));
-                }
-            }).start();
 
-
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            consensusServer.publishMessage("1".getBytes(StandardCharsets.UTF_8));
             latch.await();
             //consensusServer.publishMessage("1".getBytes(StandardCharsets.UTF_8));
         } catch (AssertionError e) {
