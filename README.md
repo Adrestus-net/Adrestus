@@ -1,3 +1,5 @@
+
+<div>
 <h1 align="center">
     <br>
       <img align="left" src="https://github.com/Adrestus-net/Adrestus/blob/master/files/blocckhain.gif" alt="Snow" width="200"></td>
@@ -5,9 +7,12 @@
       <img align="right" width="200" src="https://github.com/Adrestus-net/Adrestus/blob/master/files/blocckhain.gif" style="box-sizing: border-box;"></td>
    <br>
 </h1>
+</div>
+<div>
 <h2 align="center">
   Java implementation of Adrestus Protocol
 </h2>
+</div>
 <h4 align="center">Let’s Take Money Into The 21st Century with <a href="https://www.adrestus.net/">Adrestus</a>.</h4>
 
 <div align="center">
