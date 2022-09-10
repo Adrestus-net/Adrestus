@@ -5,9 +5,9 @@
       <img align="right" width="200" src="https://github.com/Adrestus-net/Adrestus/blob/master/files/blocckhain.gif" style="box-sizing: border-box;"></td>
    <br>
 </h1>
-<h1 align="center">
+<h2 align="center">
   Java implementation of Adrestus Protocol
-</h1>
+</h2>
 <h4 align="center">Let’s Take Money Into The 21st Century with <a href="https://www.adrestus.net/">Adrestus</a>.</h4>
 
 <div align="center">
