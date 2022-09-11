@@ -10,7 +10,9 @@ import org.apache.milagro.amcl.BLS381.ECP;
 import org.junit.jupiter.api.Test;
 import org.spongycastle.util.encoders.Hex;
 
+import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
+import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -24,7 +26,7 @@ public class SerializeBLSTest {
         ECP ecp = ECP.generator().mul(sk.getX().value);
         byte[]buff=new byte[1024];
         ecp.toBytes(buff,true);
-        String d= Hex.toHexString(buff);
+        String d= Arrays.toString(buff);
         G1Point g1Point = new G1Point(ecp);
         //g1Point.setValue(ecp);
         BinarySerializer<G1Point> enc = SerializerBuilder.create().build(G1Point.class);
