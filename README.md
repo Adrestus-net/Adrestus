@@ -18,6 +18,7 @@
 <div align="center">
     
 <a href="">![build-status](https://ci.appveyor.com/api/projects/status/github/Adrestus-net/Adrestus?branch=master&svg=true)</a>
+ <a href="">[![Scc Count Badge](https://sloc.xyz/github/Adrestus-net/Adrestus/?category=lines)](https://github.com/Adrestus-net/Adrestus/)</a>
 <a href="">[![codecov](https://codecov.io/github/Adrestus-net/Adrestus/branch/master/graph/badge.svg?token=1d910d2b-5749-4c90-bc7d-e8e4b3185606)](https://app.codecov.io/gh/Adrestus-net/Adrestus)</a>
 <a href="">[![Lines-of-Code](https://hitsofcode.com/github/Adrestus-net/Adrestus)](https://github.com/Adrestus-net/Adrestus)</a>
 <a href="">![GitHub Stats](https://komarev.com/ghpvc/?username=Adrestus-net)</a>
