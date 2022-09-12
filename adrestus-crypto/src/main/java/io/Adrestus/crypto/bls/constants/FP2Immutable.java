@@ -1,8 +1,10 @@
 package io.Adrestus.crypto.bls.constants;
 
-import org.apache.milagro.amcl.BLS381.BIG;
-import org.apache.milagro.amcl.BLS381.FP;
-import org.apache.milagro.amcl.BLS381.FP2;
+
+
+import io.Adrestus.crypto.bls.BLS381.BIG;
+import io.Adrestus.crypto.bls.BLS381.FP;
+import io.Adrestus.crypto.bls.BLS381.FP2;
 
 import java.util.Objects;
 

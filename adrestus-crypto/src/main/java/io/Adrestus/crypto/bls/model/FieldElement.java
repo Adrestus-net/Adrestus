@@ -1,12 +1,12 @@
 package io.Adrestus.crypto.bls.model;
 
 import io.Adrestus.crypto.HashUtil;
+import io.Adrestus.crypto.bls.BLS381.BIG;
+import io.Adrestus.crypto.bls.BLS381.DBIG;
+import io.Adrestus.crypto.bls.BLS381.ECP;
 import io.Adrestus.crypto.bls.constants.Constants;
 import io.Adrestus.crypto.bls.constants.CurveUtil;
 import io.Adrestus.crypto.bls.utils.BigNumberUtils;
-import org.apache.milagro.amcl.BLS381.BIG;
-import org.apache.milagro.amcl.BLS381.DBIG;
-import org.apache.milagro.amcl.BLS381.ECP;
 import org.apache.milagro.amcl.RAND;
 
 import java.security.SecureRandom;

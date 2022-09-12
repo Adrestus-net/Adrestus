@@ -3,8 +3,10 @@ package io.Adrestus.util;
 import io.Adrestus.config.AdrestusConfiguration;
 import io.activej.serializer.BinarySerializer;
 import io.activej.serializer.SerializerBuilder;
-
+import io.activej.serializer.SerializerDef;
+import io.activej.types.scanner.TypeScannerRegistry;
 import java.lang.reflect.Type;
+import java.util.List;
 
 public class SerializationUtil<T> {
 
@@ -19,6 +21,14 @@ public class SerializationUtil<T> {
 
     public SerializationUtil(Type type) {
         serializer = SerializerBuilder.create().build(type);
+    }
+
+    public SerializationUtil(Class clas, List<Mapping> list) {
+        SerializerBuilder builder = SerializerBuilder.create();
+        list.forEach(val -> {
+            builder.with(val.type, val.serializerDefMapping);
+        });
+        serializer = builder.build(clas);
     }
 
 
@@ -40,4 +50,22 @@ public class SerializationUtil<T> {
         return serializer.decode(buffer, 0);
     }
 
+
+    public static final class Mapping {
+        private final Type type;
+        private final TypeScannerRegistry.Mapping<SerializerDef> serializerDefMapping;
+
+        public Mapping(Type type, TypeScannerRegistry.Mapping<SerializerDef> serializerDefMapping) {
+            this.type = type;
+            this.serializerDefMapping = serializerDefMapping;
+        }
+
+        public Type getType() {
+            return type;
+        }
+
+        public TypeScannerRegistry.Mapping<SerializerDef> getSerializerDefMapping() {
+            return serializerDefMapping;
+        }
+    }
 }

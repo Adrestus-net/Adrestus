@@ -1,10 +1,10 @@
 package io.Adrestus.crypto.bls.model;
 
 import io.Adrestus.crypto.HashUtil;
+import io.Adrestus.crypto.bls.BLS381.ECP;
 import io.Adrestus.crypto.bls.constants.Constants;
 import io.Adrestus.crypto.bls.utils.CommonUtils;
-import org.apache.milagro.amcl.BLS381.ECP;
-import org.apache.milagro.amcl.BLS381.ECP2;
+import io.Adrestus.crypto.bls.BLS381.ECP2;
 import org.apache.tuweni.bytes.Bytes;
 
 import java.util.HashSet;
@@ -27,21 +27,13 @@ public class BLSSignature {
     public static Signature sign(byte[] msg, BLSPrivateKey sigKey) {
         G2Point hashPoint = hashMessage(msg);
         ECP2 ecp2 = hashPoint.getValue().mul(sigKey.getX().value);
-        G2Point g2Point = new G2Point();
-        g2Point.setValue(ecp2);
-        Signature signature = new Signature();
-        signature.setPoint(g2Point);
-        return signature;
+        return new Signature(new G2Point(ecp2));
     }
 
     public static Signature sign(BLSPrivateKey PrivateKey, Bytes message) {
         G2Point hashInGroup2 = new G2Point(HashToCurve.hashToG2(message));
         ECP2 ecp2 = hashInGroup2.getValue().mul(PrivateKey.getX().value);
-        G2Point g2Point = new G2Point();
-        g2Point.setValue(ecp2);
-        Signature signature = new Signature();
-        signature.setPoint(g2Point);
-        return signature;
+        return new Signature(new G2Point(ecp2));
     }
 
     public static boolean verify(Signature sig, byte[] msg, BLSPublicKey publicKey, Params params) {

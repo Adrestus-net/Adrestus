@@ -1,7 +1,7 @@
 package io.Adrestus.crypto.bls.constants;
 
-import org.apache.milagro.amcl.BLS381.BIG;
-import org.apache.milagro.amcl.BLS381.FP;
+
+import io.Adrestus.crypto.bls.BLS381.*;
 
 import static io.Adrestus.crypto.bls.constants.CurveUtil.fpFromHex;
 import static io.Adrestus.crypto.bls.constants.CurveUtil.negate;

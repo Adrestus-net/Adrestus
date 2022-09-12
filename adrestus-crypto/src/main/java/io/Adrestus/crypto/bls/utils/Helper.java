@@ -2,11 +2,11 @@ package io.Adrestus.crypto.bls.utils;
 
 import com.google.common.annotations.VisibleForTesting;
 import io.Adrestus.crypto.HashUtil;
+import io.Adrestus.crypto.bls.BLS381.FP;
+import io.Adrestus.crypto.bls.BLS381.FP2;
 import io.Adrestus.crypto.bls.constants.Constants;
 import io.Adrestus.crypto.bls.constants.FP2Immutable;
 import io.Adrestus.crypto.bls.model.JacobianPoint;
-import org.apache.milagro.amcl.BLS381.FP;
-import org.apache.milagro.amcl.BLS381.FP2;
 import org.apache.tuweni.bytes.Bytes;
 
 import static com.google.common.base.Preconditions.checkArgument;

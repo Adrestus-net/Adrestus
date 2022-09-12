@@ -371,6 +371,32 @@ public final class ECP {
         for (int i = 0; i < BIG.MODBYTES; i++) b[i + BIG.MODBYTES + 1] = t[i];
     }
 
+    public byte[] getBytes(byte[] b, boolean compress) {
+        byte[] t = new byte[BIG.MODBYTES];
+        ECP W = new ECP(this);
+        W.affine();
+
+        W.x.redc().toBytes(t);
+        for (int i = 0; i < BIG.MODBYTES; i++) b[i + 1] = t[i];
+
+        if (CURVETYPE == MONTGOMERY) {
+            b[0] = 0x06;
+            return b;
+        }
+
+        if (compress) {
+            b[0] = 0x02;
+            if (y.redc().parity() == 1) b[0] = 0x03;
+            return b;
+        }
+
+        b[0] = 0x04;
+
+        W.y.redc().toBytes(t);
+        for (int i = 0; i < BIG.MODBYTES; i++) b[i + BIG.MODBYTES + 1] = t[i];
+        return b;
+    }
+
     /* convert from byte array to point */
     public static ECP fromBytes(byte[] b) {
         byte[] t = new byte[BIG.MODBYTES];

@@ -1,7 +1,7 @@
 package io.Adrestus.crypto.bls.model;
 
+import io.Adrestus.crypto.bls.BLS381.ECP2;
 import io.Adrestus.crypto.bls.constants.FP2Immutable;
-import org.apache.milagro.amcl.BLS381.ECP2;
 
 import java.util.Objects;
 

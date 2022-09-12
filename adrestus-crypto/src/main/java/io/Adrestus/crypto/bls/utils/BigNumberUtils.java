@@ -1,7 +1,8 @@
 package io.Adrestus.crypto.bls.utils;
 
+import io.Adrestus.crypto.bls.BLS381.*;
 import io.Adrestus.crypto.bls.constants.Constants;
-import org.apache.milagro.amcl.BLS381.*;
+
 
 public class BigNumberUtils {
 

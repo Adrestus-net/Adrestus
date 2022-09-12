@@ -1,9 +1,9 @@
 package io.Adrestus.crypto.bls.constants;
 
+import io.Adrestus.crypto.bls.BLS381.BIG;
+import io.Adrestus.crypto.bls.BLS381.FP;
+import io.Adrestus.crypto.bls.BLS381.ROM;
 import io.Adrestus.crypto.bls.model.FieldElement;
-import org.apache.milagro.amcl.BLS381.BIG;
-import org.apache.milagro.amcl.BLS381.FP;
-import org.apache.milagro.amcl.BLS381.ROM;
 import org.apache.tuweni.bytes.Bytes;
 
 import static com.google.common.base.Preconditions.checkArgument;

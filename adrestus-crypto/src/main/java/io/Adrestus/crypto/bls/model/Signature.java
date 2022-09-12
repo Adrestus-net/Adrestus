@@ -1,5 +1,6 @@
 package io.Adrestus.crypto.bls.model;
 
+import io.activej.serializer.annotations.Deserialize;
 import io.activej.serializer.annotations.Serialize;
 
 import java.util.Objects;
@@ -9,7 +10,7 @@ public class Signature {
     private G2Point point;
     private Supplier<G2Point> supplier_point;
 
-    public Signature(G2Point point) {
+    public Signature(@Deserialize("point") G2Point point) {
         this.point = point;
     }
 

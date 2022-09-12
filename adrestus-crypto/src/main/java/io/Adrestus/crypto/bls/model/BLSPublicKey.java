@@ -1,8 +1,9 @@
 package io.Adrestus.crypto.bls.model;
 
 import io.Adrestus.crypto.HashUtil;
+import io.Adrestus.crypto.bls.BLS381.ECP;
+import io.activej.serializer.annotations.Deserialize;
 import io.activej.serializer.annotations.Serialize;
-import org.apache.milagro.amcl.BLS381.ECP;
 import org.spongycastle.util.encoders.Hex;
 
 import java.util.List;
@@ -15,7 +16,7 @@ public class BLSPublicKey {
         this.point = new G1Point();
     }
 
-    public BLSPublicKey(G1Point point) {
+    public BLSPublicKey(@Deserialize("point") G1Point point) {
         this.point = point;
     }
 
