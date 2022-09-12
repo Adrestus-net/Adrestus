@@ -223,9 +223,8 @@ public class ServerClientTest {
         (new Thread() {
             public void run() {
                 List<Bytes> lis = adrestusServer.receiveData(4);
-                if (lis.isEmpty())
-                    return;
-                lis.forEach(x -> System.out.println(new String(x.toArray())));
+                if (!lis.isEmpty())
+                    lis.forEach(x -> System.out.println(new String(x.toArray())));
             }
         }).start();
         Thread.sleep(500);
@@ -237,6 +236,5 @@ public class ServerClientTest {
         adrestusClient2.close();
         adrestusServer.close();
         Thread.sleep(4000);
-
     }
 }
