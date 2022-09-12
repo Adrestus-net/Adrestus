@@ -8,7 +8,7 @@ public class Organizer implements ConsensusRole {
     private boolean DEBUG;
 
     public Organizer(boolean DEBUG) {
-        this.DEBUG=DEBUG;
+        this.DEBUG = DEBUG;
         organizer_map = new EnumMap<>(ConsensusType.class);
         organizer_map.put(ConsensusType.TRANSACTION_BLOCK, new OrganizerConsensusPhases.ProposeTransactionBlock(this.DEBUG));
     }

@@ -108,14 +108,14 @@ public class ConsensusMessage<T> {
         private Signature signature;
         private BLSPublicKey blsPublicKey;
 
-        public ChecksumData(Signature signature,BLSPublicKey blsPublicKey) {
+        public ChecksumData(Signature signature, BLSPublicKey blsPublicKey) {
             this.signature = signature;
             this.blsPublicKey = blsPublicKey;
         }
 
         public ChecksumData() {
-            this.signature=new Signature();
-            this.blsPublicKey=new BLSPublicKey();
+            this.signature = new Signature();
+            this.blsPublicKey = new BLSPublicKey();
         }
 
 

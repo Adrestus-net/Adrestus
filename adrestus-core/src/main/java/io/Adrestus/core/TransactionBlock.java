@@ -35,7 +35,7 @@ public class TransactionBlock extends AbstractBlock implements BlockFactory, Dis
 
     public TransactionBlock() {
         super();
-        this.LeaderPublicKey=new BLSPublicKey();
+        this.LeaderPublicKey = new BLSPublicKey();
         this.Zone = 0;
         this.TransactionList = new ArrayList<>();
         this.StakingTransactionList = new ArrayList<>();
@@ -144,7 +144,7 @@ public class TransactionBlock extends AbstractBlock implements BlockFactory, Dis
 
     @Override
     public String toString() {
-        return super.toString()+" "+
+        return super.toString() + " " +
                 "TransactionBlock{" +
                 "Zone=" + Zone +
                 ", TransactionList=" + TransactionList +

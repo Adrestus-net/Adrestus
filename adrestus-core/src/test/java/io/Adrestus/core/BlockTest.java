@@ -7,7 +7,6 @@ import io.Adrestus.core.RingBuffer.publisher.TransactionEventPublisher;
 import io.Adrestus.core.Trie.PatriciaTreeNode;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.WalletAddress;
-import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.Adrestus.crypto.elliptic.ECDSASign;
 import io.Adrestus.crypto.elliptic.ECKeyPair;
 import io.Adrestus.crypto.elliptic.Keys;
@@ -32,7 +31,7 @@ public class BlockTest {
 
 
     @BeforeAll
-    public static void setup(){
+    public static void setup() {
         TransactionBlock prevblock = new TransactionBlock();
         CommitteeBlock committeeBlock = new CommitteeBlock();
         committeeBlock.setGeneration(1);
@@ -44,6 +43,7 @@ public class BlockTest {
         CachedLatestBlocks.getInstance().setTransactionBlock(prevblock);
         await().atMost(100, TimeUnit.MILLISECONDS);
     }
+
     @Test
     public void block_test() throws Exception {
         AbstractBlock t = new TransactionBlock();

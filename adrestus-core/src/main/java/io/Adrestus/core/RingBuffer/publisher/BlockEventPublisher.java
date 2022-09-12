@@ -80,6 +80,7 @@ public class BlockEventPublisher implements Publisher<AbstractBlock> {
         disruptor.handleEventsWith(events);
         return this;
     }
+
     public BlockEventPublisher mergeEventsAndPassVerifySig() {
         BlockEventHandler[] events = new BlockEventHandler[group.size()];
         group.toArray(events);

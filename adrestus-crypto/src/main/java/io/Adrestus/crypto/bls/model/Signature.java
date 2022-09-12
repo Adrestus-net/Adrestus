@@ -33,6 +33,7 @@ public class Signature {
         point.getValue().add(signature.point.getValue());
         return new Signature(point);
     }
+
     @Serialize
     public Supplier<G2Point> getSupplier_point() {
         return supplier_point;

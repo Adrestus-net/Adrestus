@@ -28,6 +28,7 @@ public class MerkleTreeImp implements MerkleTree {
 
         buildTree(current);
     }
+
     @Override
     public void my_generate2(List<MerkleNode> dataBlocks) {
         ArrayList<MerkleNode> current = new ArrayList<MerkleNode>();

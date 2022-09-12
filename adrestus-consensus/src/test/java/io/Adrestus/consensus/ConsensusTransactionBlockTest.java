@@ -37,7 +37,7 @@ public class ConsensusTransactionBlockTest {
     private static byte[] pRnd;
 
     @BeforeAll
-    public static void pre_setup(){
+    public static void pre_setup() {
         TransactionBlock prevblock = new TransactionBlock();
         CommitteeBlock committeeBlock = new CommitteeBlock();
         committeeBlock.setGeneration(1);
@@ -49,6 +49,7 @@ public class ConsensusTransactionBlockTest {
         CachedLatestBlocks.getInstance().setTransactionBlock(prevblock);
         await().atMost(1, SECONDS);
     }
+
     public static void setup() throws Exception {
         pRnd = new byte[20];
         random = new SecureRandom();
@@ -97,7 +98,6 @@ public class ConsensusTransactionBlockTest {
         }
 
 
-
         for (int i = 0; i < size - 1; i++) {
             Transaction transaction = new RegularTransaction();
             transaction.setFrom(addreses.get(i));
@@ -140,7 +140,7 @@ public class ConsensusTransactionBlockTest {
         CachedBLSKeyPair.getInstance().setPublicKey(vk);
 
         var organizerphase = consensusManager.getRole().manufacturePhases(ConsensusType.TRANSACTION_BLOCK);
-        TransactionBlock transactionBlock=new TransactionBlock();
+        TransactionBlock transactionBlock = new TransactionBlock();
         ConsensusMessage<TransactionBlock> consensusMessage = new ConsensusMessage<>(transactionBlock);
 
         organizerphase.AnnouncePhase(consensusMessage);

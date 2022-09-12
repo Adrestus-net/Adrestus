@@ -17,7 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Type;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -79,7 +78,7 @@ public class OrganizerConsensusPhases {
             data.getChecksumData().setSignature(sig);
             //data.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
             byte[] toSend = consensus_serialize.encode(data);
-            ConsensusMessage asd=consensus_serialize.decode(toSend);
+            ConsensusMessage asd = consensus_serialize.decode(toSend);
             consensusServer.publishMessage(toSend);
         }
 

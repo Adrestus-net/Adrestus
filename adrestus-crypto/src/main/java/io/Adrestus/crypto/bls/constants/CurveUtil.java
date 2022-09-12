@@ -1,9 +1,9 @@
 package io.Adrestus.crypto.bls.constants;
 
 import io.Adrestus.crypto.bls.model.FieldElement;
-import io.Adrestus.crypto.bls.model.G1Point;
-import io.Adrestus.crypto.bls.model.G2Point;
-import org.apache.milagro.amcl.BLS381.*;
+import org.apache.milagro.amcl.BLS381.BIG;
+import org.apache.milagro.amcl.BLS381.FP;
+import org.apache.milagro.amcl.BLS381.ROM;
 import org.apache.tuweni.bytes.Bytes;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -11,8 +11,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 public class CurveUtil {
     public static final BIG P = new BIG(ROM.Modulus);
     public static final FieldElement curveOrder = new FieldElement(new BIG(ROM.CURVE_Order));
-    public static final G1Point g1Generator = new G1Point(ECP.generator());
-    public static final G2Point g2Generator = new G2Point(ECP2.generator());
     private static final int SIZE_OF_BIG = BIG.MODBYTES;
 
     // The field modulus

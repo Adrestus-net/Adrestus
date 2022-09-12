@@ -6,7 +6,6 @@ import org.zeromq.SocketType;
 import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
 
-
 import static io.Adrestus.config.ConsensusConfiguration.*;
 
 public class ConsensusClient {

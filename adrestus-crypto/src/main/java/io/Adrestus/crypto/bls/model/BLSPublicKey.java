@@ -12,7 +12,7 @@ public class BLSPublicKey {
     private G1Point point;
 
     public BLSPublicKey() {
-        this.point=new G1Point();
+        this.point = new G1Point();
     }
 
     public BLSPublicKey(G1Point point) {

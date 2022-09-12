@@ -3,7 +3,6 @@ package io.Adrestus.core;
 import io.Adrestus.core.Resourses.MemoryPool;
 import io.Adrestus.util.GetTime;
 import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
@@ -23,11 +22,11 @@ public class MemoryPoolTest {
         transaction.setAmount(100);
         transaction.setHash("Hash");
         transaction.setTimestamp(GetTime.GetTimeStampInString());
-        int count= (int) MemoryPool.getInstance().getAllStream().count();
+        int count = (int) MemoryPool.getInstance().getAllStream().count();
         MemoryPool.getInstance().add(transaction);
         MemoryPool.getInstance().add(transaction);
-        assertEquals(count+1, MemoryPool.getInstance().getAllStream().count());
-        assertNotEquals(count+2, MemoryPool.getInstance().getAllStream().count());
+        assertEquals(count + 1, MemoryPool.getInstance().getAllStream().count());
+        assertNotEquals(count + 2, MemoryPool.getInstance().getAllStream().count());
     }
 
     @Test
@@ -53,11 +52,11 @@ public class MemoryPoolTest {
         transaction3.setHash("Hash2");
         transaction.setTimestamp(GetTime.GetTimeStampInString());
         assertEquals(true, MemoryPool.getInstance().add(transaction3));
-      //  MemoryPool.getInstance().printAll();
+        //  MemoryPool.getInstance().printAll();
     }
 
     @Test
-   // @Order(4)
+    // @Order(4)
     public void delete_mempool() throws Exception {
 
         ArrayList<Transaction> list = new ArrayList<Transaction>();
@@ -93,7 +92,7 @@ public class MemoryPoolTest {
 
 
     @Test
-   // @Order(3)
+    // @Order(3)
     public void mempool_get_by_hash() throws Exception {
         Transaction transaction1 = new RegularTransaction();
         transaction1.setAmount(100);
@@ -105,11 +104,11 @@ public class MemoryPoolTest {
         if (res.isPresent())
             System.out.println(res.get().toString());
 
-      //  MemoryPool.getInstance().getAll().forEach(x -> System.out.println(x.toString()));
+        //  MemoryPool.getInstance().getAll().forEach(x -> System.out.println(x.toString()));
     }
 
     @Test
-  //  @Order(5)
+    //  @Order(5)
     public void mempool_timestamp_check() throws Exception {
         MemoryPool.getInstance().getAll().clear();
         Transaction transaction1 = new RegularTransaction();

@@ -68,7 +68,7 @@ public class SignatureEventHandler extends TransactionEventHandler {
         private Transaction transaction;
 
         public FinalizeTask(Transaction transaction) {
-            this.transaction=transaction;
+            this.transaction = transaction;
         }
 
         public Transaction getTransaction() {
@@ -88,11 +88,11 @@ public class SignatureEventHandler extends TransactionEventHandler {
                 return;
             }
             if (type.equals(SignatureBehaviorType.BLOCK_TRANSACTIONS)) {
-                LOG.info("Transaction signature is  valid: "+transaction.getHash());
+                LOG.info("Transaction signature is  valid: " + transaction.getHash());
                 latch.countDown();
                 return;
             }
-            LOG.info("Transaction signature is  valid: "+transaction.getHash());
+            LOG.info("Transaction signature is  valid: " + transaction.getHash());
             MemoryPool.getInstance().add(transaction);
         }
     }

@@ -40,7 +40,7 @@ public class ECKeyPaiMeasurementsTest {
         ecdsaSign = new ECDSASign();
 
 
-        hash=message.getBytes(StandardCharsets.UTF_8);
+        hash = message.getBytes(StandardCharsets.UTF_8);
         //hash = HashUtil.sha256(message.getBytes());
 
         signatureData = ecdsaSign.secp256SignMessage(message.getBytes(), ecKeyPair);

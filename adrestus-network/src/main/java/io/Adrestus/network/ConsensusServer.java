@@ -6,10 +6,8 @@ import org.zeromq.SocketType;
 import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
 
-
 import java.net.InetSocketAddress;
 import java.net.Socket;
-
 
 import static io.Adrestus.config.ConsensusConfiguration.*;
 
@@ -61,7 +59,7 @@ public class ConsensusServer {
     }
 
     public void publishMessage(byte[] data) {
-        publisher.send(data,1);
+        publisher.send(data, 1);
     }
 
     public byte[] receiveData() {

@@ -13,18 +13,18 @@ jobs: # a collection of steps
     docker: # run the steps with Docker
       - image: circleci/openjdk:11-jdk-stretch # ...with this image as the primary container; this is where all `steps` will run
     steps: # a collection of executable commands
-        - checkout # check out source code to working directory
-        - store_test_results: # We use this timing data to optimize the future runs
-           path: target/surefire-reports
-        - restore_cache: # restore the saved cache after the first run or if `pom.xml` has changed
-            keys:
+      - checkout # check out source code to working directory
+      - store_test_results: # We use this timing data to optimize the future runs
+          path: target/surefire-reports
+      - restore_cache: # restore the saved cache after the first run or if `pom.xml` has changed
+          keys:
             - v1-dependencies-{{ checksum "pom.xml" }} # appends cache key with a hash of pom.xml file
             - v1-dependencies- # fallback in case previous cache key is not found
-        - run: mvn clean install -U
-        - save_cache: # saves the project dependencies
-            paths:
-              - ~/.m2
-            key: v1-dependencies-{{ checksum "pom.xml" }}
+      - run: mvn clean install -U
+      - save_cache: # saves the project dependencies
+          paths:
+            - ~/.m2
+          key: v1-dependencies-{{ checksum "pom.xml" }}
 workflows: # The following yaml will schedule this maven build operation to run every day at 12:00am UTC
   version: 2
   commit:
@@ -37,13 +37,13 @@ workflows: # The following yaml will schedule this maven build operation to run 
           filters:
             branches:
               only:
-                - master      
+                - master
     jobs:
       - build
 
 build-then-test:
-    jobs:
-      - build
-      - test:
-          requires:
-            - build
+  jobs:
+    - build
+    - test:
+        requires:
+          - build

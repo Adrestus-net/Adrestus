@@ -33,7 +33,7 @@ public class PatriciaTreeTest {
 
     @Test
     public void patricia_tree_insert() {
-        int size=1000;
+        int size = 1000;
         for (int i = 0; i < size; i++) {
             trie.put(String.valueOf(i).getBytes(StandardCharsets.UTF_8), String.valueOf(i).getBytes(StandardCharsets.UTF_8));
         }
@@ -41,7 +41,7 @@ public class PatriciaTreeTest {
 
     @Test
     public void patricia_tree_get() {
-        int size=1000;
+        int size = 1000;
         for (int i = 0; i < size; i++) {
             trie.put(String.valueOf(i).getBytes(StandardCharsets.UTF_8), String.valueOf(i).getBytes(StandardCharsets.UTF_8));
         }

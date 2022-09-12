@@ -1,12 +1,11 @@
 package io.Adrestus.consensus;
 
-import io.Adrestus.core.*;
+import io.Adrestus.core.CommitteeBlock;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.MemoryTreePool;
-import io.Adrestus.core.RingBuffer.handler.transactions.SignatureEventHandler;
-import io.Adrestus.core.RingBuffer.publisher.TransactionEventPublisher;
+import io.Adrestus.core.Transaction;
+import io.Adrestus.core.TransactionBlock;
 import io.Adrestus.core.Trie.PatriciaTreeNode;
-import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.WalletAddress;
 import io.Adrestus.crypto.bls.model.BLSPrivateKey;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
@@ -14,7 +13,6 @@ import io.Adrestus.crypto.bls.model.CachedBLSKeyPair;
 import io.Adrestus.crypto.elliptic.ECDSASign;
 import io.Adrestus.crypto.elliptic.ECKeyPair;
 import io.Adrestus.crypto.elliptic.Keys;
-import io.Adrestus.crypto.elliptic.SignatureData;
 import io.Adrestus.crypto.mnemonic.Mnemonic;
 import io.Adrestus.crypto.mnemonic.Security;
 import io.Adrestus.crypto.mnemonic.WordList;
@@ -22,7 +20,6 @@ import io.Adrestus.util.GetTime;
 import io.Adrestus.util.SerializationUtil;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.spongycastle.util.encoders.Hex;
 
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -30,9 +27,6 @@ import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
-import static org.awaitility.Awaitility.await;
 
 public class ConsensusTimerTest {
 
@@ -208,7 +202,7 @@ public class ConsensusTimerTest {
             return;
 
         CountDownLatch latch = new CountDownLatch(5);
-        ConsensusTimer c = new ConsensusTimer(latch,addreses,keypair);
+        ConsensusTimer c = new ConsensusTimer(latch, addreses, keypair);
         latch.await();
         c.getTask().cancel();
         c.getTimer().cancel();

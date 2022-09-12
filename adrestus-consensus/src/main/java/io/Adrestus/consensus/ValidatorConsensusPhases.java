@@ -19,7 +19,6 @@ import io.Adrestus.crypto.vdf.engine.VdfEnginePietrzak;
 import io.Adrestus.crypto.vrf.VRFMessage;
 import io.Adrestus.crypto.vrf.engine.VrfEngine2;
 import io.Adrestus.network.ConsensusClient;
-import io.Adrestus.network.ConsensusServer;
 import io.Adrestus.util.ByteUtil;
 import io.Adrestus.util.SerializationUtil;
 import org.apache.tuweni.bytes.Bytes;
@@ -28,7 +27,6 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -270,16 +268,16 @@ public class ValidatorConsensusPhases {
         private ConsensusClient consensusClient;
         private BLSPublicKey leader_bls;
         private int current;
+
         public VerifyTransactionBlock(boolean DEBUG) {
             this.DEBUG = DEBUG;
             if (!DEBUG) {
-                this.current = CachedLatestBlocks.getInstance().getCommitteeBlock().getPublicKeyIndex(1,CachedLatestBlocks.getInstance().getTransactionBlock().getLeaderPublicKey());
-                if (current ==CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().size()) {
+                this.current = CachedLatestBlocks.getInstance().getCommitteeBlock().getPublicKeyIndex(1, CachedLatestBlocks.getInstance().getTransactionBlock().getLeaderPublicKey());
+                if (current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().size()) {
                     this.leader_bls = CachedLatestBlocks.getInstance().getCommitteeBlock().getPublicKeyByIndex(1, 0);
                     this.consensusClient = new ConsensusClient(CachedLatestBlocks.getInstance().getCommitteeBlock().getValue(1, this.leader_bls));
-                }
-                else {
-                    this.leader_bls = CachedLatestBlocks.getInstance().getCommitteeBlock().getPublicKeyByIndex(1,current + 1);
+                } else {
+                    this.leader_bls = CachedLatestBlocks.getInstance().getCommitteeBlock().getPublicKeyByIndex(1, current + 1);
                     this.consensusClient = new ConsensusClient(CachedLatestBlocks.getInstance().getCommitteeBlock().getValue(1, this.leader_bls));
                 }
 
@@ -292,7 +290,7 @@ public class ValidatorConsensusPhases {
         public void AnnouncePhase(ConsensusMessage<TransactionBlock> data) throws InterruptedException {
 
             if (!DEBUG) {
-                CountDownLatch latch=new CountDownLatch(1);
+                CountDownLatch latch = new CountDownLatch(1);
                 final byte[][] receive = {null};
                 (new Thread() {
                     public void run() {
@@ -365,7 +363,7 @@ public class ValidatorConsensusPhases {
         public void PreparePhase(ConsensusMessage<TransactionBlock> data) throws InterruptedException {
 
             if (!DEBUG) {
-                CountDownLatch latch=new CountDownLatch(1);
+                CountDownLatch latch = new CountDownLatch(1);
                 final byte[][] receive = {null};
                 (new Thread() {
                     public void run() {
@@ -439,7 +437,7 @@ public class ValidatorConsensusPhases {
         public void CommitPhase(ConsensusMessage<TransactionBlock> data) throws InterruptedException {
 
             if (!DEBUG) {
-                CountDownLatch latch=new CountDownLatch(1);
+                CountDownLatch latch = new CountDownLatch(1);
                 final byte[][] receive = {null};
                 (new Thread() {
                     public void run() {
@@ -495,9 +493,9 @@ public class ValidatorConsensusPhases {
                 return;
 
             if (current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().size() - 1)
-                data.getData().setLeaderPublicKey(CachedLatestBlocks.getInstance().getCommitteeBlock().getPublicKeyByIndex(1,0));
+                data.getData().setLeaderPublicKey(CachedLatestBlocks.getInstance().getCommitteeBlock().getPublicKeyByIndex(1, 0));
             else {
-                data.getData().setLeaderPublicKey(CachedLatestBlocks.getInstance().getCommitteeBlock().getPublicKeyByIndex(1,current+1));
+                data.getData().setLeaderPublicKey(CachedLatestBlocks.getInstance().getCommitteeBlock().getPublicKeyByIndex(1, current + 1));
             }
             CachedLatestBlocks.getInstance().setTransactionBlock(data.getData());
             //commit save to db
