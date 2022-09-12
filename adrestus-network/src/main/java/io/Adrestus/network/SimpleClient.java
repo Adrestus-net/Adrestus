@@ -55,7 +55,7 @@ public class SimpleClient {
     }
 
     public byte[] receiveData() {
-        this.timer.scheduleAtFixedRate(task, ConsensusConfiguration.CONSENSUS_TIMEOUT, ConsensusConfiguration.CONSENSUS_TIMEOUT);
+        this.timer.scheduleAtFixedRate(task, ConsensusConfiguration.CONSENSUS_TEST_TIMEOUT, ConsensusConfiguration.CONSENSUS_TEST_TIMEOUT);
         this.subscriber.subscribe("".getBytes(StandardCharsets.UTF_8));
         byte[] data = null;
         try {
@@ -70,7 +70,7 @@ public class SimpleClient {
     }
 
     public void close() {
-        if (!terminate) {
+        if (!ctx.isEmpty()) {
             this.subscriber.close();
             this.push.close();
             this.ctx.close();

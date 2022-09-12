@@ -8,6 +8,7 @@ public class ConsensusServerClientTest {
 
     @Test
     public void test_subscribe() throws InterruptedException {
+        System.out.println("test_subscribe");
         ConsensusServer adrestusServer = new ConsensusServer("localhost");
 
         ConsensusClient adrestusClient1 = new ConsensusClient("localhost");
@@ -53,6 +54,7 @@ public class ConsensusServerClientTest {
 
     @Test
     public void test_subscribe_with_delay() throws InterruptedException {
+        System.out.println("test_subscribe_with_delay");
         ConsensusServer adrestusServer = new ConsensusServer("localhost");
 
         ConsensusClient adrestusClient1 = new ConsensusClient("localhost");
@@ -110,6 +112,7 @@ public class ConsensusServerClientTest {
 
     @Test
     public void test_client_push_Server() throws InterruptedException {
+        System.out.println("test_client_push_Server");
         ConsensusServer adrestusServer = new ConsensusServer("localhost");
 
         ConsensusClient adrestusClient1 = new ConsensusClient("localhost");
@@ -181,6 +184,7 @@ public class ConsensusServerClientTest {
 
     @Test
     public void test_client_push_Server2() throws InterruptedException {
+        System.out.println("test_client_push_Server2");
         ConsensusServer adrestusServer = new ConsensusServer("localhost");
 
         ConsensusClient adrestusClient1 = new ConsensusClient("localhost");
@@ -219,6 +223,7 @@ public class ConsensusServerClientTest {
 
     @Test
     public void endless_server() throws InterruptedException {
+        System.out.println("endless_server");
         try {
             ConsensusServer consensusServer = new ConsensusServer("localhost");
 
@@ -240,6 +245,7 @@ public class ConsensusServerClientTest {
 
     @Test
     public void test_client_push_Server2_with_dealy() throws InterruptedException {
+        System.out.println("test_client_push_Server2_with_dealy");
         try {
             ConsensusServer consensusServer = new ConsensusServer("localhost");
 
@@ -283,6 +289,7 @@ public class ConsensusServerClientTest {
 
     @Test
     public void Server_push_to_client_with_delay() throws InterruptedException {
+        System.out.println("Server_push_to_client_with_delay");
         try {
             ConsensusServer consensusServer = new ConsensusServer("localhost");
 

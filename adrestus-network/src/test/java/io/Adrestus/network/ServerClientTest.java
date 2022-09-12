@@ -17,6 +17,7 @@ public class ServerClientTest {
 
     @Test
     public void simple_test() throws InterruptedException {
+        System.out.println("SimpleTest");
         ZContext ctx = new ZContext();
         String IP = "localhost";
         Socket pub = ctx.createSocket(SocketType.PUB);
@@ -43,6 +44,7 @@ public class ServerClientTest {
 
     @Test
     public void test_with_no_delays0() throws InterruptedException {
+        System.out.println("test_with_no_delays0");
         SimpleServer adrestusServer = new SimpleServer("localhost");
 
 
@@ -63,6 +65,7 @@ public class ServerClientTest {
 
     @Test
     public void test_with_with_delays() throws InterruptedException {
+        System.out.println("test_with_with_delays");
         SimpleServer adrestusServer = new SimpleServer("localhost");
 
 
@@ -86,6 +89,7 @@ public class ServerClientTest {
 
     @Test
     public void test_with_no_delays() throws InterruptedException {
+        System.out.println("test_with_no_delays");
         SimpleServer adrestusServer = new SimpleServer("localhost");
 
         SimpleClient adrestusClient1 = new SimpleClient("localhost");
@@ -97,30 +101,46 @@ public class ServerClientTest {
         (new Thread() {
             public void run() {
                 byte[] res = adrestusClient1.receiveData();
-                System.out.println(new String(res));
+                if (res == null) {
+                    System.out.println("not receive");
+                } else {
+                    System.out.println(new String(res));
+                }
             }
         }).start();
         (new Thread() {
             public void run() {
                 byte[] res = adrestusClient2.receiveData();
-                System.out.println(new String(res));
+                if (res == null) {
+                    System.out.println("not receive");
+                } else {
+                    System.out.println(new String(res));
+                }
             }
         }).start();
         (new Thread() {
             public void run() {
                 byte[] res = adrestusClient3.receiveData();
-                System.out.println(new String(res));
+                if (res == null) {
+                    System.out.println("not receive");
+                } else {
+                    System.out.println(new String(res));
+                }
             }
         }).start();
         (new Thread() {
             public void run() {
                 byte[] res = adrestusClient4.receiveData();
-                System.out.println(new String(res));
+                if (res == null) {
+                    System.out.println("not receive");
+                } else {
+                    System.out.println(new String(res));
+                }
             }
         }).start();
 
 
-        Thread.sleep(2000);
+        Thread.sleep(3000);
         adrestusServer.publishMessage("Message".getBytes(StandardCharsets.UTF_8));
         Thread.sleep(10);
         adrestusClient1.close();
@@ -134,6 +154,7 @@ public class ServerClientTest {
 
     @Test
     public void client_push_to_server() throws InterruptedException {
+        System.out.println("client_push_to_server");
         SimpleServer adrestusServer = new SimpleServer("localhost");
 
         SimpleClient adrestusClient1 = new SimpleClient("localhost");
@@ -163,6 +184,7 @@ public class ServerClientTest {
 
     @Test
     public void client_push_to_byzantine_server() throws InterruptedException {
+        System.out.println("client_push_to_byzantine_server");
         SimpleServer adrestusServer = new SimpleServer("localhost");
 
         SimpleClient adrestusClient1 = new SimpleClient("localhost");
@@ -193,6 +215,7 @@ public class ServerClientTest {
 
     @Test
     public void client_push_to_byzantine_server2() throws InterruptedException {
+        System.out.println("client_push_to_byzantine_server2");
         SimpleServer adrestusServer = new SimpleServer("localhost");
 
         SimpleClient adrestusClient1 = new SimpleClient("localhost");
