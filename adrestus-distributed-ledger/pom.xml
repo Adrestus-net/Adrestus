@@ -18,12 +18,18 @@
         <maven.compiler.source>1.7</maven.compiler.source>
         <maven.compiler.target>1.7</maven.compiler.target>
         <paldb.version>1.2.0</paldb.version>
+        <rocksdb.version>7.4.5</rocksdb.version>
     </properties>
     <dependencies>
         <dependency>
             <groupId>com.linkedin.paldb</groupId>
             <artifactId>paldb</artifactId>
             <version>${paldb.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.rocksdb</groupId>
+            <artifactId>rocksdbjni</artifactId>
+            <version>${rocksdb.version}</version>
         </dependency>
     </dependencies>
 </project>

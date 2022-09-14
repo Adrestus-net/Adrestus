@@ -1,5 +1,6 @@
 package io.Adrestus.crypto.bls.mapper;
 
+import io.Adrestus.crypto.bls.BLS381.BIG;
 import io.Adrestus.crypto.bls.BLS381.ECP2;
 import io.activej.codegen.expression.Expression;
 import io.activej.codegen.expression.Variable;
@@ -12,6 +13,8 @@ import static io.activej.serializer.impl.SerializerExpressions.*;
 import static io.activej.serializer.impl.SerializerExpressions.readBytes;
 
 public class ECP2mapper extends AbstractSerializerDef {
+    private static final int ARRAY_LEN = 4*(BIG.MODBYTES + 1);
+    private static final Expression ARRAY_EXPRESSION = value(new byte[ARRAY_LEN]);
 
     @Override
     public Class<?> getEncodeType() {
@@ -25,7 +28,7 @@ public class ECP2mapper extends AbstractSerializerDef {
                               final Expression ecp,
                               final int version,
                               final CompatibilityLevel compatibilityLevel) {
-        Expression expression = call(ecp, "getBytes",value(new byte[1024]));
+        Expression expression = call(ecp, "getBytes",ARRAY_EXPRESSION);
         return let(expression, bytes -> sequence(
                 writeVarInt(buf, pos, length(bytes)),
                 writeBytes(buf, pos, bytes)));
