@@ -1,27 +1,24 @@
 package io.distributedLedger;
 
-import java.util.function.Supplier;
-
 public enum DatabaseType {
 
-    PAL_DB(PalDBConnectionManager::getInstance),
-    ROCKS_DB(RocksDBConnectionManager::getInstance);
+    LEVEL_DB("LEVEL_DB"),
+    ROCKS_DB("ROCKS_DB");
 
-    private final IDriver constructor;
+    private final String title;
 
-
-    DatabaseType(IDriver constructor) {
-        this.constructor = constructor;
+    DatabaseType(String title) {
+        this.title = title;
     }
 
-    public IDriver getConstructor() {
-        return constructor;
+    public String getTitle() {
+        return title;
     }
 
     @Override
     public String toString() {
         return "DatabaseType{" +
-                "constructor=" + constructor +
+                "title='" + title + '\'' +
                 '}';
     }
 }

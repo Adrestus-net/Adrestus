@@ -18,7 +18,10 @@
         <maven.compiler.source>1.7</maven.compiler.source>
         <maven.compiler.target>1.7</maven.compiler.target>
         <paldb.version>1.2.0</paldb.version>
-        <rocksdb.version>7.4.5</rocksdb.version>
+        <rocksdb.version>7.5.3</rocksdb.version>
+        <config.version>1.0-SNAPSHOT</config.version>
+        <util.version>1.0-SNAPSHOT</util.version>
+        <core.version>1.0-SNAPSHOT</core.version>
     </properties>
     <dependencies>
         <dependency>
@@ -30,6 +33,21 @@
             <groupId>org.rocksdb</groupId>
             <artifactId>rocksdbjni</artifactId>
             <version>${rocksdb.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.Adrestus.v1</groupId>
+            <artifactId>adrestus-crypto</artifactId>
+            <version>${config.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.Adrestus.v1</groupId>
+            <artifactId>adrestus-util</artifactId>
+            <version>${config.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.Adrestus.v1</groupId>
+            <artifactId>adrestus-core</artifactId>
+            <version>${core.version}</version>
         </dependency>
     </dependencies>
 </project>

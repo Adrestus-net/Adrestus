@@ -46,6 +46,12 @@ public class SerializationUtil<T> {
         return buffer;
     }
 
+    public byte[] encode(T value,int size) {
+        buffer = new byte[size];
+        serializer.encode(buffer, 0, value);
+        return buffer;
+    }
+
     public T decode(byte[] buffer) {
         return serializer.decode(buffer, 0);
     }
