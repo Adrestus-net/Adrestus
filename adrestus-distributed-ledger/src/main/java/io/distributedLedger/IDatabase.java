@@ -1,5 +1,6 @@
 package io.distributedLedger;
 
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
 
@@ -15,7 +16,7 @@ public interface IDatabase<K, V> {
      * @param key of value.
      * @param value that should be persisted.
      */
-    void save(K key, V value);
+    void save(K key, Object value);
 
     void saveAll(Map<K,V>map);
     /**
@@ -44,5 +45,13 @@ public interface IDatabase<K, V> {
     boolean delete_db();
 
     Map<K,V>findBetweenRange(K key);
+
+    int findDBsize();
+
+    boolean  isEmpty();
+
+    boolean isOpen();
+
+    void compact();
 
 }

@@ -1,15 +1,16 @@
 package io.distributedLedger.exception;
 
-public final class SaveFailedException extends DatabaseIOException {
+public abstract class DatabaseIOException extends Exception {
 
-    public SaveFailedException(final String message) {
+    public DatabaseIOException(final String message) {
         super(message);
     }
 
-    public SaveFailedException(
+    public DatabaseIOException(
             final String message,
             final Throwable throwable
     ) {
         super(message, throwable);
     }
 }
+

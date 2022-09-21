@@ -1,6 +1,6 @@
 package io.distributedLedger.exception;
 
-public final class FindFailedException extends RocksIOException {
+public final class FindFailedException extends DatabaseIOException {
 
     public FindFailedException(final String message) {
         super(message);

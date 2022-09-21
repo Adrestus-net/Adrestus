@@ -19,6 +19,7 @@
         <maven.compiler.target>1.7</maven.compiler.target>
         <paldb.version>1.2.0</paldb.version>
         <rocksdb.version>7.5.3</rocksdb.version>
+        <leveldb.version>0.12</leveldb.version>
         <config.version>1.0-SNAPSHOT</config.version>
         <util.version>1.0-SNAPSHOT</util.version>
         <core.version>1.0-SNAPSHOT</core.version>
@@ -48,6 +49,11 @@
             <groupId>io.Adrestus.v1</groupId>
             <artifactId>adrestus-core</artifactId>
             <version>${core.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.iq80.leveldb</groupId>
+            <artifactId>leveldb</artifactId>
+            <version>${leveldb.version}</version>
         </dependency>
     </dependencies>
 </project>

@@ -1,12 +1,8 @@
 package io.distributedLedger;
 
-import com.linkedin.paldb.api.PalDB;
-import com.linkedin.paldb.api.StoreReader;
 import io.Adrestus.config.Directory;
 import io.Adrestus.util.SerializationUtil;
-import io.distributedLedger.exception.DeserializationException;
-import io.distributedLedger.exception.FindFailedException;
-import io.distributedLedger.exception.SaveFailedException;
+import io.distributedLedger.exception.*;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.SerializationException;
 import org.rocksdb.*;
@@ -119,10 +115,11 @@ public class RocksDBConnectionManager<K, V> implements IDriver<RocksDBConnection
         return bbtc;
     }
 
+    @SneakyThrows
     @Override
     public void load_connection() {
         w.lock();
-        dbFile = new File(Directory.getConfigPath(),CONNECTION_NAME);
+        dbFile = new File(Directory.getConfigPath(), CONNECTION_NAME);
         try {
             dbFile.createNewFile();
             rocksDB = RocksDB.open(options, Directory.getConfigPath());
@@ -130,6 +127,7 @@ public class RocksDBConnectionManager<K, V> implements IDriver<RocksDBConnection
             LOGGER.error("Path to create file is incorrect. {}", e.getMessage());
         } catch (Exception e) {
             LOGGER.error("RocksDB exception caught. {}", e.getMessage());
+            throw new EmptyFailedException(e.getMessage());
         } finally {
             w.unlock();
         }
@@ -137,7 +135,7 @@ public class RocksDBConnectionManager<K, V> implements IDriver<RocksDBConnection
 
     @SneakyThrows
     @Override
-    public void save(K key, V value) {
+    public void save(K key, Object value) {
         w.lock();
         try {
 
@@ -175,7 +173,7 @@ public class RocksDBConnectionManager<K, V> implements IDriver<RocksDBConnection
         } catch (final RocksDBException exception) {
             LOGGER.error("RocksDBException occurred during save operation. {}", exception.getMessage());
             throw new SaveFailedException(exception.getMessage(), exception);
-        }finally {
+        } finally {
             w.unlock();
         }
 
@@ -190,29 +188,66 @@ public class RocksDBConnectionManager<K, V> implements IDriver<RocksDBConnection
             final byte[] serializedKey = keyMapper.encode(key);
             final byte[] bytes = rocksDB.get(serializedKey);
             return (Optional<V>) Optional.ofNullable(valueMapper.decode(bytes));
+        } catch (final NullPointerException exception) {
+            LOGGER.info("Key value not exists in Database return empty");
+            return Optional.empty();
         } catch (final SerializationException exception) {
             LOGGER.error("Serialization exception occurred during findByKey operation. {}", exception.getMessage());
         } catch (final RocksDBException exception) {
-             LOGGER.error("RocksDBException occurred during findByKey operation. {}", exception.getMessage());
-             throw new FindFailedException(exception.getMessage(), exception);
-         }finally {
+            LOGGER.error("RocksDBException occurred during findByKey operation. {}", exception.getMessage());
+            throw new FindFailedException(exception.getMessage(), exception);
+        } finally {
             r.unlock();
         }
         return Optional.empty();
     }
 
+    @SneakyThrows
     @Override
     public void deleteByKey(K key) {
+        w.lock();
+        try {
+            final byte[] serializedKey = keyMapper.encode(key);
+            rocksDB.delete(serializedKey);
+        } catch (final SerializationException exception) {
+            LOGGER.error("Serialization exception occurred during findByKey operation. {}", exception.getMessage());
+            throw exception;
+        } catch (final RocksDBException exception) {
+            LOGGER.error("RocksDBException occurred during deleteByKey operation. {}", exception.getMessage());
+            throw new DeleteFailedException(exception.getMessage(), exception);
+        } finally {
+            w.unlock();
+        }
     }
 
+    @SneakyThrows
     @Override
     public void deleteAll() {
         w.lock();
         try {
-            instance = null;
-            dbFile.delete();
+            final RocksIterator iterator = rocksDB.newIterator();
+
+            iterator.seekToFirst();
+            final byte[] firstKey = getKey(iterator);
+
+            iterator.seekToLast();
+            final byte[] lastKey = getKey(iterator);
+
+            if (firstKey != null || lastKey != null) {
+                rocksDB.deleteRange(firstKey, lastKey);
+                rocksDB.delete(lastKey);
+            }
+            rocksDB.close();
+
+            RocksDB.destroyDB(Directory.getConfigPath(), options);
+        } catch (NullPointerException exception) {
+            LOGGER.error("RocksDBException occurred during delete_db operation. {}", exception.getMessage());
+        } catch (final RocksDBException exception) {
+            LOGGER.error("RocksDBException occurred during deleteAll operation. {}", exception.getMessage());
+            throw new DeleteAllFailedException(exception.getMessage(), exception);
         } finally {
             w.unlock();
+            instance = null;
         }
     }
 
@@ -226,32 +261,131 @@ public class RocksDBConnectionManager<K, V> implements IDriver<RocksDBConnection
         }
     }
 
+    @SneakyThrows
     @Override
     public boolean delete_db() {
         w.lock();
         try {
+            final RocksIterator iterator = rocksDB.newIterator();
+
+            iterator.seekToFirst();
+            final byte[] firstKey = getKey(iterator);
+
+            iterator.seekToLast();
+            final byte[] lastKey = getKey(iterator);
+
+
+            if (firstKey != null || lastKey != null) {
+                rocksDB.deleteRange(firstKey, lastKey);
+                rocksDB.delete(lastKey);
+            }
             rocksDB.close();
+
+            RocksDB.destroyDB(Directory.getConfigPath(), options);
+
+        } catch (NullPointerException exception) {
+            LOGGER.error("RocksDBException occurred during delete_db operation. {}", exception.getMessage());
+        } catch (final RocksDBException exception) {
+            LOGGER.error("RocksDBException occurred during deleteAll operation. {}", exception.getMessage());
+            throw new DeleteAllFailedException(exception.getMessage(), exception);
+        } finally {
+            w.unlock();
             instance = null;
-            return dbFile.delete();
+        }
+        return dbFile.delete();
+    }
+
+    private byte[] getKey(final RocksIterator iterator) {
+        if (!iterator.isValid()) {
+            return null;
+        }
+        return iterator.key();
+    }
+
+    @SneakyThrows
+    @Override
+    public Map<K, V> findBetweenRange(K key) {
+        r.lock();
+        Map<Object, Object> hashmap = new HashMap<>();
+        try {
+            final RocksIterator iterator = rocksDB.newIterator();
+            iterator.seek(keyMapper.encode(key));
+            do {
+                byte[] serializedKey = iterator.key();
+                byte[] serializedValue = iterator.value();
+                hashmap.put(keyMapper.decode(serializedKey), valueMapper.decode(serializedValue));
+                iterator.next();
+            } while (iterator.isValid());
+        } catch (final SerializationException exception) {
+            LOGGER.error("Serialization exception occurred during findByKey operation. {}", exception.getMessage());
+        } finally {
+            r.unlock();
+        }
+        return (Map<K, V>) hashmap;
+    }
+
+    @SneakyThrows
+    @Override
+    public int findDBsize() {
+        r.lock();
+        try {
+            final RocksIterator start_iterator = rocksDB.newIterator();
+            start_iterator.seekToFirst();
+
+            int entries = 0;
+
+            while (start_iterator.isValid()) {
+                entries++;
+                start_iterator.next();
+            }
+            return entries;
+        } finally {
+            r.unlock();
+        }
+    }
+
+    @Override
+    public boolean isEmpty() {
+        r.lock();
+        try {
+
+            try (RocksIterator itr = rocksDB.newIterator()) {
+                itr.seekToFirst();
+
+                return !itr.isValid();
+            } catch (Exception e) {
+                LOGGER.error("Unable to extract information from database " + this.toString() + ".", e);
+            }
+        } finally {
+            r.unlock();
+        }
+
+        return true;
+    }
+
+    @Override
+    public void compact() {
+        w.lock();
+        try {
+            try {
+                rocksDB.compactRange(new byte[]{(byte) 0x00}, new byte[]{(byte) 0xff});
+            } catch (RocksDBException e) {
+                LOGGER.error("Cannot compact data.");
+                e.printStackTrace();
+            }
         } finally {
             w.unlock();
         }
     }
 
     @Override
-    public Map<K, V> findBetweenRange(K key) {
+    public boolean isOpen() {
         r.lock();
-        Map<K, V> hashmap = new HashMap<>();
         try {
-            StoreReader reader = PalDB.createReader(dbFile);
-            Iterable<Map.Entry<K, V>> iterable = reader.iterable();
-            for (Map.Entry<K, V> entry : iterable) {
-                hashmap.put(entry.getKey(), entry.getValue());
-            }
-            reader.close();
+            return rocksDB != null;
         } finally {
             r.unlock();
         }
-        return hashmap;
     }
+
 }

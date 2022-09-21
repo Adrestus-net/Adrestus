@@ -1,16 +1,15 @@
 package io.distributedLedger.exception;
 
-public abstract class RocksIOException extends Exception {
+public class EmptyFailedException extends DatabaseIOException {
 
-    public RocksIOException(final String message) {
+    public EmptyFailedException(final String message) {
         super(message);
     }
 
-    public RocksIOException(
+    public EmptyFailedException(
             final String message,
             final Throwable throwable
     ) {
         super(message, throwable);
     }
 }
-

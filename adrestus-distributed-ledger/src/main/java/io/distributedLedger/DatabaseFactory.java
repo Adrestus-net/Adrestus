@@ -14,7 +14,7 @@ public class DatabaseFactory {
 
         switch (type) {
             case LEVEL_DB:
-                return (IDatabase) LevelDBConnectionManager.getInstance(value);
+                return (IDatabase) LevelDBConnectionManager.getInstance(key,value);
             case ROCKS_DB:
                 return (IDatabase) RocksDBConnectionManager.getInstance(key,value);
             default:

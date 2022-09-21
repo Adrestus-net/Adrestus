@@ -1,6 +1,6 @@
 package io.distributedLedger.exception;
 
-public final class DeleteFailedException extends RocksIOException {
+public final class DeleteFailedException extends DatabaseIOException {
 
     public DeleteFailedException(final String message) {
         super(message);
