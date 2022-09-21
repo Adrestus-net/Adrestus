@@ -5,6 +5,7 @@ import io.activej.serializer.BinarySerializer;
 import io.activej.serializer.SerializerBuilder;
 import io.activej.serializer.SerializerDef;
 import io.activej.types.scanner.TypeScannerRegistry;
+
 import java.lang.reflect.Type;
 import java.util.List;
 
@@ -46,7 +47,7 @@ public class SerializationUtil<T> {
         return buffer;
     }
 
-    public byte[] encode(T value,int size) {
+    public byte[] encode(T value, int size) {
         buffer = new byte[size];
         serializer.encode(buffer, 0, value);
         return buffer;

@@ -3,7 +3,6 @@ package io.distributedLedger;
 import io.Adrestus.config.Directory;
 import io.Adrestus.core.Transaction;
 import io.Adrestus.util.SerializationUtil;
-import io.activej.serializer.annotations.Serialize;
 import io.distributedLedger.exception.*;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.SerializationException;
@@ -14,7 +13,6 @@ import org.iq80.leveldb.Options;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;

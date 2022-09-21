@@ -3,8 +3,6 @@ package io.distributedLedger.Constants;
 public final class LevelDBConstants {
 
 
-
-
     /**
      * The maximum allocated file descriptor that will be allocated per database, therefore the
      * total amount of file descriptors that are required is {@code NUM_DB * max_fd_open_alloc}

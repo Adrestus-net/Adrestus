@@ -16,7 +16,7 @@ public class LevelDBTransactionWrapper {
         this.from = new ArrayList<>();
         this.to = new ArrayList<>();
         this.fromhashComparator = new LevelDBTransactionWrapper.TransactionHashComparator();
-        this.tohashComparator= new LevelDBTransactionWrapper.TransactionHashComparator();
+        this.tohashComparator = new LevelDBTransactionWrapper.TransactionHashComparator();
     }
 
     @Serialize

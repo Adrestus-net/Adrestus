@@ -1,7 +1,6 @@
 package io.Adrestus.crypto.bls.constants;
 
 
-
 import io.Adrestus.crypto.bls.BLS381.BIG;
 import io.Adrestus.crypto.bls.BLS381.FP;
 import io.Adrestus.crypto.bls.BLS381.FP2;

@@ -1,6 +1,5 @@
 package io.distributedLedger;
 
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
 
@@ -13,12 +12,13 @@ public interface IDatabase<K, V> {
     /**
      * Inserts key-value pair into RocksDB.
      *
-     * @param key of value.
+     * @param key   of value.
      * @param value that should be persisted.
      */
     void save(K key, Object value);
 
-    void saveAll(Map<K,V>map);
+    void saveAll(Map<K, V> map);
+
     /**
      * Try to find value for a given key.
      *
@@ -36,7 +36,6 @@ public interface IDatabase<K, V> {
 
     /**
      * Deletes all entities from RocksDB.
-     *
      */
     void deleteAll();
 
@@ -44,11 +43,11 @@ public interface IDatabase<K, V> {
 
     boolean delete_db();
 
-    Map<K,V>findBetweenRange(K key);
+    Map<K, V> findBetweenRange(K key);
 
     int findDBsize();
 
-    boolean  isEmpty();
+    boolean isEmpty();
 
     boolean isOpen();
 

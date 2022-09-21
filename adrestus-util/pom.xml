@@ -19,6 +19,7 @@
         <maven.compiler.target>1.7</maven.compiler.target>
         <crypto.version>1.0-SNAPSHOT</crypto.version>
         <serializer.version>5.3</serializer.version>
+        <jol.version>0.16</jol.version>
     </properties>
     <dependencies>
         <dependency>
@@ -30,6 +31,16 @@
             <groupId>io.activej</groupId>
             <artifactId>activej-serializer</artifactId>
             <version>${serializer.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openjdk.jol</groupId>
+            <artifactId>jol-core</artifactId>
+            <version>${jol.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.jbellis</groupId>
+            <artifactId>jamm</artifactId>
+            <version>0.3.3</version>
         </dependency>
     </dependencies>
     <build>

@@ -9,8 +9,6 @@ import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.Adrestus.crypto.bls.model.BLSSignature;
 import io.Adrestus.crypto.bls.model.Signature;
 import io.Adrestus.util.SerializationUtil;
-import io.activej.serializer.BinarySerializer;
-import io.activej.serializer.SerializerBuilder;
 import org.junit.jupiter.api.Test;
 
 import java.security.SecureRandom;
@@ -26,12 +24,12 @@ public class SerializeBLSTest {
     public void serialize_g1point() {
         BLSPrivateKey sk = new BLSPrivateKey(new SecureRandom());
         BLSPublicKey vk = new BLSPublicKey(sk);
-        List<SerializationUtil.Mapping> list=new ArrayList<>();
-        list.add(new SerializationUtil.Mapping(ECP.class,ctx->new ECPmapper()));
-        list.add(new SerializationUtil.Mapping(ECP2.class, ctx->new ECP2mapper()));
-        SerializationUtil<BLSPublicKey> ser = new SerializationUtil<BLSPublicKey>(BLSPublicKey.class,list);
-        byte []data=ser.encode(vk);
-        BLSPublicKey copy=ser.decode(data);
+        List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
+        list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
+        SerializationUtil<BLSPublicKey> ser = new SerializationUtil<BLSPublicKey>(BLSPublicKey.class, list);
+        byte[] data = ser.encode(vk);
+        BLSPublicKey copy = ser.decode(data);
         System.out.println(copy.toString());
         byte[] msg = "Test_Message".getBytes();
         Signature bls_sig = BLSSignature.sign(msg, sk);
@@ -43,16 +41,16 @@ public class SerializeBLSTest {
     public void serialize_g2point() {
         BLSPrivateKey sk = new BLSPrivateKey(new SecureRandom());
         BLSPublicKey vk = new BLSPublicKey(sk);
-        List<SerializationUtil.Mapping> list=new ArrayList<>();
-        list.add(new SerializationUtil.Mapping(ECP.class,ctx->new ECPmapper()));
-        list.add(new SerializationUtil.Mapping(ECP2.class, ctx->new ECP2mapper()));
+        List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
+        list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
 
-        SerializationUtil<Signature> ser = new SerializationUtil<Signature>(Signature.class,list);
+        SerializationUtil<Signature> ser = new SerializationUtil<Signature>(Signature.class, list);
         byte[] msg = "Test_Message".getBytes();
         Signature bls_sig = BLSSignature.sign(msg, sk);
 
-        byte []data=ser.encode(bls_sig);
-        Signature copy=ser.decode(data);
+        byte[] data = ser.encode(bls_sig);
+        Signature copy = ser.decode(data);
 
         assertEquals(true, BLSSignature.verify(copy, msg, vk));
     }

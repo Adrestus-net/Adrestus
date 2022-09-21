@@ -2,9 +2,9 @@ package io.Adrestus.crypto.bls.model;
 
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.bls.BLS381.ECP;
+import io.Adrestus.crypto.bls.BLS381.ECP2;
 import io.Adrestus.crypto.bls.constants.Constants;
 import io.Adrestus.crypto.bls.utils.CommonUtils;
-import io.Adrestus.crypto.bls.BLS381.ECP2;
 import org.apache.tuweni.bytes.Bytes;
 
 import java.util.HashSet;

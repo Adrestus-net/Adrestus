@@ -78,14 +78,14 @@ public class LevelDBConnectionTest {
         assertEquals("values", value.get());
 
         database.deleteByKey("key");
-        assertEquals(0,database.findDBsize());
+        assertEquals(0, database.findDBsize());
         database.delete_db();
 
     }
 
     @Test
-    public void TransactionTest(){
-        IDatabase<String,LevelDBTransactionWrapper> database = new DatabaseFactory(String.class, LevelDBTransactionWrapper.class).getDatabase(DatabaseType.LEVEL_DB);
+    public void TransactionTest() {
+        IDatabase<String, LevelDBTransactionWrapper> database = new DatabaseFactory(String.class, LevelDBTransactionWrapper.class).getDatabase(DatabaseType.LEVEL_DB);
         Transaction transaction = new RegularTransaction();
         transaction.setAmount(100);
         transaction.setHash("Hash");
@@ -98,17 +98,17 @@ public class LevelDBConnectionTest {
         transaction2.setFrom("3");
         transaction2.setTo("1");
 
-        database.save("1",transaction);
-        Optional<LevelDBTransactionWrapper>wrapper=database.findByKey("1");
+        database.save("1", transaction);
+        Optional<LevelDBTransactionWrapper> wrapper = database.findByKey("1");
         System.out.println(wrapper.get().toString());
-        database.save("1",transaction);
-        database.save("1",transaction2);
-        database.save("1",transaction2);
-     //   database.save("1",transaction2);
-        Optional<LevelDBTransactionWrapper>wrapper2=database.findByKey("1");
+        database.save("1", transaction);
+        database.save("1", transaction2);
+        database.save("1", transaction2);
+        //   database.save("1",transaction2);
+        Optional<LevelDBTransactionWrapper> wrapper2 = database.findByKey("1");
 
         System.out.println(wrapper2.get().toString());
-        assertEquals(1,wrapper2.get().getFrom().size());
-        assertEquals(1,wrapper2.get().getTo().size());
+        assertEquals(1, wrapper2.get().getFrom().size());
+        assertEquals(1, wrapper2.get().getTo().size());
     }
 }

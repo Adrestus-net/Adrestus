@@ -4,7 +4,6 @@ package io.Adrestus.crypto.bls.utils;
 import io.Adrestus.crypto.bls.BLS381.BIG;
 import io.Adrestus.crypto.bls.model.FieldElement;
 
-
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
