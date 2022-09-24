@@ -13,6 +13,10 @@ public class MerkleTreeImp implements MerkleTree {
     private MerkleProofs MerkleProofs;// = new MerkleProofs(new ArrayList<MerkleNode>());
     private final int pos = 0;
 
+    public MerkleTreeImp() {
+        this.root=new MerkleNode("");
+    }
+
     @Override
     public boolean isMekleeNodeExisted(List<MerkleNode> list, String roothash, MerkleNode node) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
@@ -20,6 +24,9 @@ public class MerkleTreeImp implements MerkleTree {
 
     @Override
     public void my_generate(List<MerkleNode> dataBlocks) {
+        if (dataBlocks.isEmpty())
+            return;
+
         ArrayList<MerkleNode> current = new ArrayList<MerkleNode>();
         for (int i = 0; i < dataBlocks.size(); i++) {
             MerkleNode node = new MerkleNode(HashUtil.sha256(dataBlocks.get(i).getTransactionHash()));
@@ -31,6 +38,9 @@ public class MerkleTreeImp implements MerkleTree {
 
     @Override
     public void my_generate2(List<MerkleNode> dataBlocks) {
+        if (dataBlocks.isEmpty())
+            return;
+
         ArrayList<MerkleNode> current = new ArrayList<MerkleNode>();
         for (int i = 0; i < dataBlocks.size(); i++) {
             MerkleNode node = new MerkleNode(HashUtil.sha256(dataBlocks.get(i).getTransactionHash()));

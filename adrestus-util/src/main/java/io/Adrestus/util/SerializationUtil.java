@@ -7,6 +7,7 @@ import io.activej.serializer.SerializerDef;
 import io.activej.types.scanner.TypeScannerRegistry;
 
 import java.lang.reflect.Type;
+import java.util.Arrays;
 import java.util.List;
 
 public class SerializationUtil<T> {
@@ -50,7 +51,25 @@ public class SerializationUtil<T> {
     public byte[] encode(T value, int size) {
         buffer = new byte[size];
         serializer.encode(buffer, 0, value);
+        byte[]test=trim(buffer);
         return buffer;
+    }
+
+    public static byte[] trim(byte[] data) {
+        int idx = 0;
+        while (idx < data.length) {
+            if (data[idx] != 0) {
+                break;
+            }
+            idx++;
+        }
+        byte[] trimmedData;
+        if (idx > 0 && idx < data.length) {
+            trimmedData = Arrays.copyOfRange(data, idx, data.length);
+        } else {
+            trimmedData = data;
+        }
+        return trimmedData;
     }
 
     public T decode(byte[] buffer) {

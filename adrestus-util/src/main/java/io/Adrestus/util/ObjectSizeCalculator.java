@@ -83,6 +83,7 @@ public class ObjectSizeCalculator {
      * retains.
      * @throws UnsupportedOperationException if the current vm memory layout cannot be detected.
      */
+    @SuppressWarnings("unchecked")
     public static long getObjectSize(final Object obj) throws UnsupportedOperationException {
         return obj == null ? 0 : new ObjectSizeCalculator(CurrentLayout.SPEC).calculateObjectSize(obj);
     }
@@ -138,6 +139,7 @@ public class ObjectSizeCalculator {
      * @return the total allocated size of the object and all other objects it
      * retains.
      */
+    @SuppressWarnings("unchecked")
     public synchronized long calculateObjectSize(final Object obj) {
         // Breadth-first traversal instead of naive depth-first with recursive
         // implementation, so we don't blow the stack traversing long linked lists.
@@ -364,7 +366,7 @@ public class ObjectSizeCalculator {
      */
     public static MemoryLayoutSpecification getEffectiveMemoryLayoutSpecification() {
         final String vmName = System.getProperty("java.vm.name");
-        if (vmName == null || !vmName.startsWith("Java HotSpot(TM) ")) {
+        if (vmName == null || (!vmName.startsWith("OpenJDK ") && !vmName.startsWith("Java HotSpot(TM) "))) {
             throw new UnsupportedOperationException(
                     "ObjectSizeCalculator only supported on HotSpot VM");
         }
