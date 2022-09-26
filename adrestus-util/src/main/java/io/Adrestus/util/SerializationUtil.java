@@ -7,18 +7,69 @@ import io.activej.serializer.SerializerDef;
 import io.activej.types.scanner.TypeScannerRegistry;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class SerializationUtil<T> {
 
+
     private Class type;
     private final BinarySerializer<T> serializer;
-    private byte[] buffer;
+    private static byte[] buffer;
+    private static Integer size[];
+
+    static {
+        ObjectSizeCalculator.disableAccessWarnings();
+        Init();
+    }
 
     public SerializationUtil(Class type) {
+
         this.type = type;
         serializer = SerializerBuilder.create().build(this.type);
+    }
+
+    private static void Init() {
+        ArrayList<Integer> list = new ArrayList<>();
+        int sum = 0;
+        int count = 0;
+        int mul=count+2;
+        list.add(1024);
+        while (sum <= AdrestusConfiguration.MAXIMU_BLOCK_SIZE) {
+            list.add(list.get(0)*mul);
+            sum = list.get(count);
+            count++;
+            mul++;
+        }
+        size=list.stream().toArray(Integer[]::new);
+    }
+
+    private static int search(int value) {
+
+        if(value < size[0]) {
+            return size[0];
+        }
+        if(value > size[size.length-1]) {
+            return size[size.length-1];
+        }
+
+        int lo = 0;
+        int hi = size.length - 1;
+
+        while (lo <= hi) {
+            int mid = (hi + lo) / 2;
+
+            if (value < size[mid]) {
+                hi = mid - 1;
+            } else if (value > size[mid]) {
+                lo = mid + 1;
+            } else {
+                return size[mid];
+            }
+        }
+        // lo == hi + 1
+        return size[lo];
     }
 
     public SerializationUtil(Type type) {
@@ -43,7 +94,8 @@ public class SerializationUtil<T> {
     }
 
     public byte[] encode(T value) {
-        buffer = new byte[AdrestusConfiguration.BUFFER_SIZE];
+        int buff_size=search((int)(ObjectSizeCalculator.getObjectSize(value)));
+        buffer = new byte[buff_size];
         serializer.encode(buffer, 0, value);
         return buffer;
     }
@@ -51,7 +103,7 @@ public class SerializationUtil<T> {
     public byte[] encode(T value, int size) {
         buffer = new byte[size];
         serializer.encode(buffer, 0, value);
-        byte[]test=trim(buffer);
+        byte[] test = trim(buffer);
         return buffer;
     }
 

@@ -1,5 +1,7 @@
 package io.Adrestus.util;
 
+import sun.misc.Unsafe;
+
 import java.lang.reflect.*;
 import java.util.*;
 
@@ -346,6 +348,7 @@ public class ObjectSizeCalculator {
     static Method getMax = null;
 
     static {
+        disableAccessWarnings();
         try {
             managementFactory = Class.forName("java.lang.management.ManagementFactory");
             memoryPoolMXBean = Class.forName("java.lang.management.MemoryPoolMXBean");
@@ -496,5 +499,20 @@ public class ObjectSizeCalculator {
                 return 8;
             }
         };
+    }
+
+    @SuppressWarnings("unchecked")
+    public static void disableAccessWarnings() {
+        try {
+            Class unsafeClass = Class.forName("sun.misc.Unsafe");
+            Field field = unsafeClass.getDeclaredField("theUnsafe");
+            field.setAccessible(true);
+            Unsafe u = (Unsafe) field.get(null);
+
+            Class cls = Class.forName("jdk.internal.module.IllegalAccessLogger");
+            Field logger = cls.getDeclaredField("logger");
+            u.putObjectVolatile(cls, u.staticFieldOffset(logger), null);
+        } catch (Exception ignored) {
+        }
     }
 }

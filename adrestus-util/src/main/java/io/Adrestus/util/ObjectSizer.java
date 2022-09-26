@@ -2,14 +2,18 @@ package io.Adrestus.util;
 
 import sun.misc.Unsafe;
 
+import java.io.FilterOutputStream;
+import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class ObjectSizer {
+@SuppressWarnings({"serial", "deprecation", "rawtypes", "unchecked"})
+public class ObjectSizer implements Serializable {
 
     public static final Unsafe us = getUnsafe();
 
@@ -19,6 +23,8 @@ public class ObjectSizer {
         return retainedSize(obj, new HashMap<Object, Object>());
     }
 
+
+    @SuppressWarnings({"serial", "deprecation", "rawtypes", "unchecked"})
     private static int retainedSize(Object obj, HashMap<Object, Object> calculated) {
         try {
             if (obj == null)
@@ -43,15 +49,83 @@ public class ObjectSizer {
                         continue;
                     f.setAccessible(true);
                     Object ref = f.get(obj);
+
                     if (ref != null && !isCalculated(calculated, ref)) {
                         int referentSize = retainedSize(ref, calculated);
                         objectsize += referentSize;
                     }
                 }
+
                 return objectsize;
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+    @SuppressWarnings("unchecked")
+    public void suppressWarning() throws Exception
+    {
+        Field f = FilterOutputStream.class.getDeclaredField("out");
+        Runnable r = () -> { f.setAccessible(true); synchronized(this) { this.notify(); }};
+        Object errorOutput;
+        synchronized (this)
+        {
+            synchronized (System.err) //lock System.err to delay the warning
+            {
+                new Thread(r).start(); //One of these 2 threads will
+                new Thread(r).start(); //hang, the other will succeed.
+                this.wait(); //Wait 1st thread to end.
+                errorOutput = f.get(System.err); //Field is now accessible, set
+                f.set(System.err, null); // it to null to suppress the warning
+
+            } //release System.err to allow 2nd thread to complete.
+            this.wait(); //Wait 2nd thread to end.
+            f.set(System.err, errorOutput); //Restore System.err
+        }
+    }
+    @SuppressWarnings("unchecked")
+    public static void disableAccessWarnings() {
+        try {
+            Class unsafeClass = Class.forName("sun.misc.Unsafe");
+            Field field = unsafeClass.getDeclaredField("theUnsafe");
+            field.setAccessible(true);
+            Unsafe u = (Unsafe) field.get(null);
+
+            Class cls = Class.forName("jdk.internal.module.IllegalAccessLogger");
+            Field logger = cls.getDeclaredField("logger");
+            u.putObjectVolatile(cls, u.staticFieldOffset(logger), null);
+        } catch (Exception ignored) {
+        }
+    }
+
+    public static void redirectToStdOut() {
+        try {
+
+            // get Unsafe
+            Class<?> unsafeClass = Class.forName("sun.misc.Unsafe");
+            Field field = unsafeClass.getDeclaredField("theUnsafe");
+            field.setAccessible(true);
+            Object unsafe = field.get(null);
+
+            // get Unsafe's methods
+            Method getObjectVolatile = unsafeClass.getDeclaredMethod("getObjectVolatile", Object.class, long.class);
+            Method putObject = unsafeClass.getDeclaredMethod("putObject", Object.class, long.class, Object.class);
+            Method staticFieldOffset = unsafeClass.getDeclaredMethod("staticFieldOffset", Field.class);
+            Method objectFieldOffset = unsafeClass.getDeclaredMethod("objectFieldOffset", Field.class);
+
+            // get information about the global logger instance and warningStream fields
+            Class<?> loggerClass = Class.forName("jdk.internal.module.IllegalAccessLogger");
+            Field loggerField = loggerClass.getDeclaredField("logger");
+            Field warningStreamField = loggerClass.getDeclaredField("warningStream");
+
+            Long loggerOffset = (Long) staticFieldOffset.invoke(unsafe, loggerField);
+            Long warningStreamOffset = (Long) objectFieldOffset.invoke(unsafe, warningStreamField);
+
+            // get the global logger instance
+            Object theLogger = getObjectVolatile.invoke(unsafe, loggerClass, loggerOffset);
+            // replace the warningStream with System.out
+            putObject.invoke(unsafe, theLogger, warningStreamOffset, System.out);
+        } catch (Throwable ignored) {
         }
     }
 
@@ -132,13 +206,21 @@ public class ObjectSizer {
         return (value & 0x7) > 0 ? (value & ~0x7) + 8 : value;
     }
 
-    private static Unsafe getUnsafe() {
+    public static sun.misc.Unsafe UNSAFE;
+
+    public static Unsafe getUnsafe() {
+        Object theUnsafe = null;
+        Exception exception = null;
         try {
-            Field f = Unsafe.class.getDeclaredField("theUnsafe");
+            Class<?> uc = Class.forName("sun.misc.Unsafe");
+            Field f = uc.getDeclaredField("theUnsafe");
             f.setAccessible(true);
-            return (Unsafe) f.get(Unsafe.class);
+            theUnsafe = f.get(uc);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            exception = e;
         }
+        UNSAFE = (sun.misc.Unsafe) theUnsafe;
+        if (UNSAFE == null) throw new Error("Could not obtain access to sun.misc.Unsafe", exception);
+        return UNSAFE;
     }
 }

@@ -4,8 +4,11 @@ import org.junit.jupiter.api.Test;
 import org.openjdk.jol.info.ClassLayout;
 import org.openjdk.jol.info.GraphLayout;
 
-public class InstrumentationTest {
 
+public class InstrumentationTest {
+static {
+    ObjectSizeCalculator.disableAccessWarnings();
+}
 
    // @Test
     public void StressTest() throws InterruptedException {
@@ -27,8 +30,8 @@ public class InstrumentationTest {
     }
 
     @Test
-    public void measure_bytes() {
-
+    public void measure_bytes() throws Exception {
+        SerializationUtil<Just4Test> serializationUtils = new SerializationUtil<Just4Test>(Just4Test.class);
         Just4Test o1 = new Just4Test("example", "example2");
         //Test o2=new Test("example","example2");
         int size = 3;
@@ -36,6 +39,8 @@ public class InstrumentationTest {
             o1.getList().add("Value" + String.valueOf(i));
         }
 
+        //ObjectSizer.getUnsafe();
+        //ObjectSizer.disableAccessWarnings();
         System.out.println("size of int: " + ObjectSizer.retainedSize(o1));
         System.out.println("size of int: " + ObjectSizeCalculator.getObjectSize(o1));
         System.out.println("size of int: " + ClassLayout.parseInstance(o1).toPrintable());
