@@ -108,7 +108,7 @@ public class ConsensusMessage<T> {
         private Signature signature;
         private BLSPublicKey blsPublicKey;
 
-        public ChecksumData(Signature signature, BLSPublicKey blsPublicKey) {
+        public ChecksumData(@Deserialize("signature") Signature signature, @Deserialize("blsPublicKey") BLSPublicKey blsPublicKey) {
             this.signature = signature;
             this.blsPublicKey = blsPublicKey;
         }
@@ -118,7 +118,7 @@ public class ConsensusMessage<T> {
             this.blsPublicKey = new BLSPublicKey();
         }
 
-
+        @Serialize
         public Signature getSignature() {
             return signature;
         }
@@ -127,7 +127,7 @@ public class ConsensusMessage<T> {
             this.signature = signature;
         }
 
-
+        @Serialize
         public BLSPublicKey getBlsPublicKey() {
             return blsPublicKey;
         }

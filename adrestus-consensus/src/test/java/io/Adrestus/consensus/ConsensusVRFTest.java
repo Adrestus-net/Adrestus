@@ -71,12 +71,12 @@ public class ConsensusVRFTest {
         organizerphase.AnnouncePhase(consensusMessage);
 
 
-        byte[] buffer = serialize.encode(consensusMessage);
-        ConsensusMessage<VRFMessage> fg = serialize.decode(buffer);
 
         validatorphase1.AnnouncePhase(consensusMessage);
         consensusMessage.getSignatures().add(consensusMessage.getChecksumData());
 
+        byte[] buffer = serialize.encode(consensusMessage);
+        ConsensusMessage<VRFMessage> fg = serialize.decode(buffer);
 
         sk = new BLSPrivateKey(new SecureRandom());
         vk = new BLSPublicKey(sk);

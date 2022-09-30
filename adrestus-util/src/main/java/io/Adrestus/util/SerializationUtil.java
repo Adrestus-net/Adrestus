@@ -30,6 +30,27 @@ public class SerializationUtil<T> {
         serializer = SerializerBuilder.create().build(this.type);
     }
 
+
+    public SerializationUtil(Type type) {
+        serializer = SerializerBuilder.create().build(type);
+    }
+
+    public SerializationUtil(Type type, List<Mapping> list) {
+        SerializerBuilder builder = SerializerBuilder.create();
+        list.forEach(val -> {
+            builder.with(val.type, val.serializerDefMapping);
+        });
+        serializer = builder.build(type);
+    }
+    public SerializationUtil(Class clas, List<Mapping> list) {
+        SerializerBuilder builder = SerializerBuilder.create();
+        list.forEach(val -> {
+            builder.with(val.type, val.serializerDefMapping);
+        });
+        serializer = builder.build(clas);
+    }
+
+
     private static void Init() {
         ArrayList<Integer> list = new ArrayList<>();
         int sum = 0;
@@ -71,19 +92,6 @@ public class SerializationUtil<T> {
         // lo == hi + 1
         return size[lo];
     }
-
-    public SerializationUtil(Type type) {
-        serializer = SerializerBuilder.create().build(type);
-    }
-
-    public SerializationUtil(Class clas, List<Mapping> list) {
-        SerializerBuilder builder = SerializerBuilder.create();
-        list.forEach(val -> {
-            builder.with(val.type, val.serializerDefMapping);
-        });
-        serializer = builder.build(clas);
-    }
-
 
     public Class getType() {
         return type;

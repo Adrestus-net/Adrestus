@@ -50,7 +50,7 @@ public class ECKeyPaiMeasurementsTest {
     }
 
     @Benchmark
-    @Threads(6)
+    @Threads(16)
     @Fork(jvmArgsAppend = {"-XX:+UseZGC"})
     public static void ECDSA() {
         boolean verify = ecdsaSign.secp256Verify(hash, ecKeyPair.getPublicKey(), signatureData);
