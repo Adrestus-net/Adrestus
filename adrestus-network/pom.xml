@@ -20,6 +20,8 @@
         <maven.compiler.target>1.7</maven.compiler.target>
         <jeromq.version>0.5.3-SNAPSHOT</jeromq.version>
         <config.version>1.0-SNAPSHOT</config.version>
+        <activej-net.version>5.4.3</activej-net.version>
+        <activej-csp.version>5.4.3</activej-csp.version>
     </properties>
     <dependencies>
         <dependency>
@@ -37,6 +39,16 @@
             <groupId>io.Adrestus.v1</groupId>
             <artifactId>adrestus-config</artifactId>
             <version>${config.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.activej</groupId>
+            <artifactId>activej-net</artifactId>
+            <version>${activej-net.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.activej</groupId>
+            <artifactId>activej-csp</artifactId>
+            <version>${activej-csp.version}</version>
         </dependency>
     </dependencies>
 </project>
