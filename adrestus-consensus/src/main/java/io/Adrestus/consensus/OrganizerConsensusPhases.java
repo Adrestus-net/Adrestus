@@ -30,6 +30,8 @@ public class OrganizerConsensusPhases {
     protected static class ProposeTransactionBlock extends OrganizerConsensusPhases implements BFTConsensusPhase<TransactionBlock> {
         private static final Type fluentType = new TypeToken<ConsensusMessage<TransactionBlock>>() {
         }.getType();
+
+
         private static Logger LOG = LoggerFactory.getLogger(ProposeTransactionBlock.class);
 
         private final DefaultFactory factory;
@@ -101,7 +103,7 @@ public class OrganizerConsensusPhases {
                         else {
                             ConsensusMessage<TransactionBlock> received = consensus_serialize.decode(receive);
                             if (!CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).containsKey(received.getChecksumData().getBlsPublicKey())) {
-                                LOG.info("Validator does not exist on consensus... Ignore");
+                                LOG.info("PreparePhase: Validator does not exist on consensus... Ignore");
                                 i--;
                             } else {
                                 data.getSignatures().add(received.getChecksumData());
@@ -110,7 +112,7 @@ public class OrganizerConsensusPhases {
                             }
                         }
                     } catch (IllegalArgumentException e) {
-                        LOG.info("Problem at message deserialization");
+                        LOG.info("PreparePhase: Problem at message deserialization");
                         data.setStatusType(ConsensusStatusType.ABORT);
                         cleanup();
                         return;
@@ -119,7 +121,7 @@ public class OrganizerConsensusPhases {
 
 
                 if (N > F) {
-                    LOG.info("Byzantine network not meet requirements abort");
+                    LOG.info("PreparePhase: Byzantine network not meet requirements abort");
                     data.setStatusType(ConsensusStatusType.ABORT);
                     cleanup();
                     return;
@@ -150,16 +152,17 @@ public class OrganizerConsensusPhases {
         public void CommitPhase(ConsensusMessage<TransactionBlock> data) {
             if (!DEBUG) {
                 int i = N;
+                data.getSignatures().clear();
                 while (i > 0) {
                     byte[] receive = consensusServer.receiveData();
                     try {
                         if (receive == null) {
-                            LOG.info("Not Receiving from Validators");
+                            LOG.info("CommitPhase: Not Receiving from Validators");
                             i--;
                         } else {
                             ConsensusMessage<TransactionBlock> received = consensus_serialize.decode(receive);
                             if (!CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).containsKey(received.getChecksumData().getBlsPublicKey())) {
-                                LOG.info("Validator does not exist on consensus... Ignore");
+                                LOG.info("CommitPhase: Validator does not exist on consensus... Ignore");
                                 i--;
                             } else {
                                 data.getSignatures().add(received.getChecksumData());
@@ -168,7 +171,7 @@ public class OrganizerConsensusPhases {
                             }
                         }
                     } catch (IllegalArgumentException e) {
-                        LOG.info("Problem at message deserialization");
+                        LOG.info("CommitPhase: Problem at message deserialization");
                         data.setStatusType(ConsensusStatusType.ABORT);
                         cleanup();
                         return;
@@ -177,7 +180,7 @@ public class OrganizerConsensusPhases {
 
 
                 if (N > F) {
-                    LOG.info("Byzantine network not meet requirements abort");
+                    LOG.info("CommitPhase: Byzantine network not meet requirements abort");
                     data.setStatusType(ConsensusStatusType.ABORT);
                     cleanup();
                     return;
@@ -193,7 +196,7 @@ public class OrganizerConsensusPhases {
             Bytes message = Bytes.wrap(block_serialize.encode(data.getData()));
             boolean verify = BLSSignature.fastAggregateVerify(publicKeys, message, aggregatedSignature);
             if (!verify)
-                throw new IllegalArgumentException("Abort consensus phase BLS multi_signature is invalid during commit phase");
+                throw new IllegalArgumentException("CommitPhase: Abort consensus phase BLS multi_signature is invalid during commit phase");
 
             //commit save to db
 
@@ -212,6 +215,7 @@ public class OrganizerConsensusPhases {
             }
             CachedLatestBlocks.getInstance().setTransactionBlock(data.getData());
             cleanup();
+            LOG.info("Block is finalized with Success");
         }
 
         private void cleanup() {
