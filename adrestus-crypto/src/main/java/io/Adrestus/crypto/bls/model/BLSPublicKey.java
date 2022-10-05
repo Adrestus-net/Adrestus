@@ -1,11 +1,13 @@
 package io.Adrestus.crypto.bls.model;
 
+import com.google.common.primitives.Ints;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.bls.BLS381.ECP;
 import io.activej.serializer.annotations.Deserialize;
 import io.activej.serializer.annotations.Serialize;
 import org.spongycastle.util.encoders.Hex;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class BLSPublicKey {
@@ -60,6 +62,20 @@ public class BLSPublicKey {
     }
 
 
+    @Override
+    public boolean equals(Object v) {
+        boolean retVal = false;
+
+        if (v instanceof BLSPublicKey) {
+            BLSPublicKey ptr = (BLSPublicKey) v;
+            retVal = Arrays.equals(ptr.toBytes(),this.toBytes());
+        }
+        return retVal;
+    }
+    @Override
+    public int hashCode() {
+        return Ints.fromByteArray(this.toBytes());
+    }
     @Serialize
     public G1Point getPoint() {
         return point;
