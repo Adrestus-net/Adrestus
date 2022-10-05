@@ -372,22 +372,14 @@ public class ValidatorConsensusPhases {
         public void PreparePhase(ConsensusMessage<TransactionBlock> data) throws InterruptedException {
 
             if (!DEBUG) {
-                CountDownLatch latch = new CountDownLatch(1);
-                final byte[][] receive = {null};
-                (new Thread() {
-                    public void run() {
-                        receive[0] = consensusClient.receiveData();
-                        latch.countDown();
-                    }
-                }).start();
-                latch.await();
-                if (receive[0] == null) {
+                byte[] receive = consensusClient.receiveData();
+                if (receive == null) {
                     LOG.info("Leader is not active fail to send message");
                     data.setStatusType(ConsensusStatusType.ABORT);
                     return;
-                } else {
+                }else {
                     try {
-                        data = consensus_serialize.decode(receive[0]);
+                        data = consensus_serialize.decode(receive);
                         if (!data.getChecksumData().getBlsPublicKey().toRaw().equals(leader_bls.toRaw())) {
                             LOG.info("This is not the valid leader for this round");
                             data.setStatusType(ConsensusStatusType.ABORT);
@@ -446,22 +438,14 @@ public class ValidatorConsensusPhases {
         public void CommitPhase(ConsensusMessage<TransactionBlock> data) throws InterruptedException {
 
             if (!DEBUG) {
-                CountDownLatch latch = new CountDownLatch(1);
-                final byte[][] receive = {null};
-                (new Thread() {
-                    public void run() {
-                        receive[0] = consensusClient.receiveData();
-                        latch.countDown();
-                    }
-                }).start();
-                latch.await();
-                if (receive[0] == null) {
+                byte[] receive = consensusClient.receiveData();
+                if (receive == null) {
                     LOG.info("Leader is not active fail to send message");
                     data.setStatusType(ConsensusStatusType.ABORT);
                     return;
                 } else {
                     try {
-                        data = consensus_serialize.decode(receive[0]);
+                        data = consensus_serialize.decode(receive);
                         if (!data.getChecksumData().getBlsPublicKey().toRaw().equals(leader_bls.toRaw())) {
                             LOG.info("This is not the valid leader for this round");
                             data.setStatusType(ConsensusStatusType.ABORT);
