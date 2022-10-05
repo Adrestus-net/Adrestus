@@ -11,9 +11,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 public class SerializationUtil<T> {
 
 
+    private static final byte[] END_BYTES = "\r\n".getBytes(UTF_8);
     private Class type;
     private final BinarySerializer<T> serializer;
     private static byte[] buffer;
@@ -42,6 +45,7 @@ public class SerializationUtil<T> {
         });
         serializer = builder.build(type);
     }
+
     public SerializationUtil(Class clas, List<Mapping> list) {
         SerializerBuilder builder = SerializerBuilder.create();
         list.forEach(val -> {
@@ -55,24 +59,24 @@ public class SerializationUtil<T> {
         ArrayList<Integer> list = new ArrayList<>();
         int sum = 0;
         int count = 0;
-        int mul=count+2;
+        int mul = count + 2;
         list.add(1024);
         while (sum <= AdrestusConfiguration.MAXIMU_BLOCK_SIZE) {
-            list.add(list.get(0)*mul);
+            list.add(list.get(0) * mul);
             sum = list.get(count);
             count++;
             mul++;
         }
-        size=list.stream().toArray(Integer[]::new);
+        size = list.stream().toArray(Integer[]::new);
     }
 
     private static int search(int value) {
 
-        if(value < size[0]) {
+        if (value < size[0]) {
             return size[0];
         }
-        if(value > size[size.length-1]) {
-            return size[size.length-1];
+        if (value > size[size.length - 1]) {
+            return size[size.length - 1];
         }
 
         int lo = 0;
@@ -102,7 +106,7 @@ public class SerializationUtil<T> {
     }
 
     public byte[] encode(T value) {
-        int buff_size=search((int)(ObjectSizeCalculator.getObjectSize(value)));
+        int buff_size = search((int) (ObjectSizeCalculator.getObjectSize(value)));
         buffer = new byte[buff_size];
         serializer.encode(buffer, 0, value);
         return buffer;
@@ -112,6 +116,18 @@ public class SerializationUtil<T> {
         buffer = new byte[size];
         serializer.encode(buffer, 0, value);
         byte[] test = trim(buffer);
+        return buffer;
+    }
+
+    public byte[] encodeWithTerminatedBytes(T value) {
+        int buff_size = search((int) (ObjectSizeCalculator.getObjectSize(value)));
+        buffer = new byte[buff_size];
+        serializer.encode(buffer, 0, value);
+        int j = buffer.length - 1;
+        for (int i = END_BYTES.length - 1; i > 0; i--) {
+            buffer[j] = END_BYTES[i];
+            j--;
+        }
         return buffer;
     }
 

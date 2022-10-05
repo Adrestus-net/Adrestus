@@ -39,7 +39,7 @@ public class TransactionChannelTest {
     public void simple_test() throws InterruptedException, IOException {
 
         TCPTransactionConsumer<byte[]> print = x -> {
-            System.out.println("Server Message:" + new String(x));
+            System.out.println("Callback" + new String(x));
         };
 
         (new Thread() {
@@ -51,7 +51,8 @@ public class TransactionChannelTest {
                 }
             }
         }).start();
-        Thread.sleep(100);
+
+        Thread.sleep(2000);
         System.out.println("Connecting to server at localhost (port 9922)...");
         eventloop.connect(new InetSocketAddress("localhost", TransactionConfigOptions.TRANSACTION_PORT), (socketChannel, e) -> {
             if (e == null) {
@@ -63,12 +64,15 @@ public class TransactionChannelTest {
                 }
 
 
+                latch = new CountDownLatch(ITERATIONS);
                 BinaryChannelSupplier bufsSupplier = BinaryChannelSupplier.of(ChannelSupplier.ofSocket(socket));
                 loop(0,
                         i -> i <= ITERATIONS,
                         i -> loadData(i).then(bytes -> socket.write(ByteBuf.wrapForReading(bytes))).then(()->bufsSupplier.needMoreData())
                                 .map($2 -> i + 1))
                         .whenComplete(socket::close);
+               // eventloop.execute(() -> socket.close());
+                //socket.close();
 
             } else {
                 System.out.printf("Could not connect to server, make sure it is started: %s%n", e);
@@ -82,5 +86,11 @@ public class TransactionChannelTest {
     private static @NotNull Promise<byte[]> loadData(int i) {
         byte[] concatBytes = ArrayUtils.addAll((String.valueOf(i)+REQUEST_MSG).getBytes(UTF_8),"\r\n".getBytes(UTF_8));
         return Promise.of(concatBytes);
+    }
+    private static @NotNull Promise<String> count(byte[] bytes) {
+        Promise<Void> first=socket.write(ByteBuf.wrapForReading(bytes));
+        //Promise<Integer> secondNumber = Promises.delay(100, 10);
+        //Promise<String> strPromise = first.combine(secondNumber, Integer::sum);
+        return Promise.of("");
     }
 }

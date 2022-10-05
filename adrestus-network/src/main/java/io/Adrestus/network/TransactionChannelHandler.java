@@ -23,7 +23,7 @@ import static io.activej.promise.Promises.repeat;
 
 public class TransactionChannelHandler<T> {
     private static final Eventloop eventloop = Eventloop.create().withCurrentThread();
-    private static final ByteBufsDecoder<ByteBuf> DECODER = ByteBufsDecoder.ofCrTerminatedBytes(1024);
+    private static final ByteBufsDecoder<ByteBuf> DECODER = ByteBufsDecoder.ofCrlfTerminatedBytes(2048);
     private String IP;
     private final InetSocketAddress ADDRESS;
     private static final String RESPONSE_MSG = "PONG";
@@ -52,7 +52,7 @@ public class TransactionChannelHandler<T> {
                     BinaryChannelSupplier bufsSupplier = BinaryChannelSupplier.of(ChannelSupplier.ofSocket(socket));
                     repeat(() ->
                             bufsSupplier
-                                    .decodeStream(ByteBufsDecoder.ofCrlfTerminatedBytes())
+                                    .decodeStream(DECODER)
                                     .peek(buf -> callback.accept((T) buf.asArray()))
                                     .streamTo(ChannelConsumer.ofSocket(socket))
                                     .map($ -> true)

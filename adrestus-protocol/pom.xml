@@ -15,12 +15,41 @@
     <packaging>jar</packaging>
     <name>adrestus-protocol</name>
     <url>http://maven.apache.org</url>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <crypto.version>1.0-SNAPSHOT</crypto.version>
+        <core.version>1.0-SNAPSHOT</core.version>
+        <consenus.version>1.0-SNAPSHOT</consenus.version>
+        <network.version>1.0-SNAPSHOT</network.version>
+    </properties>
     <dependencies>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>3.8.1</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.Adrestus.v1</groupId>
+            <artifactId>adrestus-crypto</artifactId>
+            <version>${crypto.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.Adrestus.v1</groupId>
+            <artifactId>adrestus-core</artifactId>
+            <version>${core.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.Adrestus.v1</groupId>
+            <artifactId>adrestus-consensus</artifactId>
+            <version>${consenus.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.Adrestus.v1</groupId>
+            <artifactId>adrestus-network</artifactId>
+            <version>${network.version}</version>
         </dependency>
     </dependencies>
 </project>
