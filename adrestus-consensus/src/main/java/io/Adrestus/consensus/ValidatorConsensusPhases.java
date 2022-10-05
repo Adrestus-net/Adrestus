@@ -9,6 +9,10 @@ import io.Adrestus.core.Resourses.CachedLatestRandomness;
 import io.Adrestus.core.RingBuffer.publisher.BlockEventPublisher;
 import io.Adrestus.core.StatusType;
 import io.Adrestus.core.TransactionBlock;
+import io.Adrestus.crypto.bls.BLS381.ECP;
+import io.Adrestus.crypto.bls.BLS381.ECP2;
+import io.Adrestus.crypto.bls.mapper.ECP2mapper;
+import io.Adrestus.crypto.bls.mapper.ECPmapper;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.Adrestus.crypto.bls.model.BLSSignature;
 import io.Adrestus.crypto.bls.model.CachedBLSKeyPair;
@@ -27,6 +31,7 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -283,7 +288,11 @@ public class ValidatorConsensusPhases {
 
             }
             this.block_serialize = new SerializationUtil<AbstractBlock>(AbstractBlock.class);
-            this.consensus_serialize = new SerializationUtil<ConsensusMessage>(fluentType);
+            List<SerializationUtil.Mapping> list = new ArrayList<>();
+            list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
+            list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
+            Type fluentType = new TypeToken<ConsensusMessage<TransactionBlock>>() {}.getType();
+            this.consensus_serialize = new SerializationUtil<ConsensusMessage>(fluentType,list);
         }
 
         @Override
