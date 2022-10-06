@@ -153,8 +153,8 @@ public class ConsensusMessage<T> {
         @Override
         public String toString() {
             return "ChecksumData{" +
-                    "signature=" + signature +
-                    ", blsPublicKey=" + blsPublicKey +
+                    "signature=" + signature.getPoint().getValue().toString() +
+                    ", blsPublicKey=" + blsPublicKey.toString() +
                     '}';
         }
     }

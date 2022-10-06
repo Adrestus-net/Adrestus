@@ -66,10 +66,11 @@ public class OrganizerConsensusPhases {
                 }
             }
 
-            this.block_serialize = new SerializationUtil<AbstractBlock>(AbstractBlock.class);
+
             List<SerializationUtil.Mapping> list = new ArrayList<>();
             list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
             list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
+            this.block_serialize = new SerializationUtil<AbstractBlock>(AbstractBlock.class,list);
             this.consensus_serialize = new SerializationUtil<ConsensusMessage>(fluentType,list);
             this.N = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().size();
             this.F = (this.N - 1) / 3;
@@ -83,9 +84,12 @@ public class OrganizerConsensusPhases {
             if (DEBUG)
                 return;
 
+            byte[] message = block_serialize.encode(data.getData());
+            System.out.println(message.length);
             Signature sig = BLSSignature.sign(block_serialize.encode(data.getData()), CachedBLSKeyPair.getInstance().getPrivateKey());
             data.getChecksumData().setBlsPublicKey(CachedBLSKeyPair.getInstance().getPublicKey());
             data.getChecksumData().setSignature(sig);
+
             //data.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
             byte[] toSend = consensus_serialize.encode(data);
             consensusServer.publishMessage(toSend);
