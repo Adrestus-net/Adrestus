@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.zeromq.SocketType;
 import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
+import zmq.poll.PollItem;
 
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -32,6 +33,14 @@ public class ConsensusServer {
         this.collector.bind("tcp://" + IP + ":" + COLLECTOR_PORT);
         this.collector.setReceiveTimeOut(CONSENSUS_TIMEOUT);
         this.publisher.setSendTimeOut(CONSENSUS_TIMEOUT);
+     /*   ZMQ.Poller poller = ctx.createPoller(1);
+        poller.register(publisher, ZMQ.Poller.POLLOUT);
+        int rc = -1;
+        while (rc == -1) {
+            rc = poller.poll(1000);
+        }
+        poller.pollout(2);*/
+//      poller.getItem(2).getSocket().send("yellow");
     }
 
     public ConsensusServer() {
@@ -59,7 +68,7 @@ public class ConsensusServer {
     }
 
     public void publishMessage(byte[] data) {
-        publisher.send(data, 1);
+        publisher.send(data, 0);
     }
 
     public byte[] receiveData() {

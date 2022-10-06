@@ -1,5 +1,4 @@
 package io.Adrestus.network;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zeromq.SocketType;
@@ -11,7 +10,6 @@ import static io.Adrestus.config.ConsensusConfiguration.*;
 public class ConsensusClient {
 
     private static Logger LOG = LoggerFactory.getLogger(ConsensusClient.class);
-    private volatile boolean terminate;
     private final String IP;
     private ZContext ctx;
     private final ZMQ.Socket subscriber;
@@ -21,31 +19,38 @@ public class ConsensusClient {
     public ConsensusClient(String IP) {
         this.ctx = new ZContext();
         this.IP = IP;
-        this.terminate = false;
         this.subscriber = ctx.createSocket(SocketType.SUB);
         this.push = ctx.createSocket(SocketType.PUSH);
-
         this.subscriber.connect("tcp://" + IP + ":" + SUBSCRIBER_PORT);
         this.subscriber.subscribe(ZMQ.SUBSCRIPTION_ALL);
         this.subscriber.setReceiveTimeOut(CONSENSUS_TIMEOUT);
+        blockUntilConnected();
         this.push.connect("tcp://" + IP + ":" + COLLECTOR_PORT);
     }
 
+
+    private void blockUntilConnected() {
+        ZMQ.Poller poller = ctx.createPoller(1);
+        poller.register(this.subscriber, ZMQ.Poller.POLLIN);
+        int rc = -1;
+        while (rc == -1) {
+            rc = poller.poll(1000);
+        }
+        poller.pollin(3);
+    }
 
     public void pushMessage(byte[] data) {
         push.send(data);
     }
 
     public byte[] receiveData() {
-        byte[] data = subscriber.recv(0);
+        byte[] data = subscriber.recv();
         return data;
     }
 
     public void close() {
-        if (!terminate) {
-            this.subscriber.close();
-            this.push.close();
-            this.ctx.close();
-        }
+        this.subscriber.close();
+        this.push.close();
+        this.ctx.close();
     }
 }

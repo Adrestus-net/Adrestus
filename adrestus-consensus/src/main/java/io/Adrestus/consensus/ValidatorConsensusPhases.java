@@ -477,7 +477,7 @@ public class ValidatorConsensusPhases {
             if (DEBUG)
                 return;
 
-            if (current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().size() - 1)
+            if (current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().size())
                 data.getData().setLeaderPublicKey(CachedLatestBlocks.getInstance().getCommitteeBlock().getPublicKeyByIndex(1, 0));
             else {
                 data.getData().setLeaderPublicKey(CachedLatestBlocks.getInstance().getCommitteeBlock().getPublicKeyByIndex(1, current + 1));
