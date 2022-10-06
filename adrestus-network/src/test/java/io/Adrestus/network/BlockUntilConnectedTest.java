@@ -28,12 +28,12 @@ public class BlockUntilConnectedTest {
         }).start();
 
 
-        Thread.sleep(2000);
+        Thread.sleep(8000);
 
         //server started
         ConsensusServer Server = new ConsensusServer("localhost");
 
-        Thread.sleep(60);
+        Thread.sleep(100);
         Server.publishMessage("Message".getBytes(StandardCharsets.UTF_8));
         Server.publishMessage("Message".getBytes(StandardCharsets.UTF_8));
         Server.publishMessage("Message".getBytes(StandardCharsets.UTF_8));

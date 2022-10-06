@@ -36,7 +36,7 @@ public class ConsensusClient {
         while (rc == -1) {
             rc = poller.poll(1000);
         }
-        poller.pollin(3);
+        poller.pollin(0);
     }
 
     public void pushMessage(byte[] data) {

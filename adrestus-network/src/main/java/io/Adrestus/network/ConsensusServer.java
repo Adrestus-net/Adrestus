@@ -33,14 +33,6 @@ public class ConsensusServer {
         this.collector.bind("tcp://" + IP + ":" + COLLECTOR_PORT);
         this.collector.setReceiveTimeOut(CONSENSUS_TIMEOUT);
         this.publisher.setSendTimeOut(CONSENSUS_TIMEOUT);
-     /*   ZMQ.Poller poller = ctx.createPoller(1);
-        poller.register(publisher, ZMQ.Poller.POLLOUT);
-        int rc = -1;
-        while (rc == -1) {
-            rc = poller.poll(1000);
-        }
-        poller.pollout(2);*/
-//      poller.getItem(2).getSocket().send("yellow");
     }
 
     public ConsensusServer() {

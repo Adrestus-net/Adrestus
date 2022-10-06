@@ -70,7 +70,7 @@ public class OrganizerConsensusPhases {
             this.N = 1;
             this.F = (this.N - 1) / 3;
             try {
-                Thread.sleep(60);
+                Thread.sleep(1060);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
