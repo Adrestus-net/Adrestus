@@ -287,11 +287,11 @@ public class ValidatorConsensusPhases {
                 }
 
             }
-            this.block_serialize = new SerializationUtil<AbstractBlock>(AbstractBlock.class);
             List<SerializationUtil.Mapping> list = new ArrayList<>();
             list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
             list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
             Type fluentType = new TypeToken<ConsensusMessage<TransactionBlock>>() {}.getType();
+            this.block_serialize = new SerializationUtil<AbstractBlock>(AbstractBlock.class,list);
             this.consensus_serialize = new SerializationUtil<ConsensusMessage>(fluentType,list);
         }
 
