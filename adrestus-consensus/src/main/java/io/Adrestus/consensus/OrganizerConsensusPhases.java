@@ -60,7 +60,7 @@ public class OrganizerConsensusPhases {
                     this.consensusServer = new ConsensusServer(CachedLatestBlocks.getInstance().getCommitteeBlock().getValue(1, this.leader_bls));
                 }
                 try {
-                    Thread.sleep(2000);
+                    Thread.sleep(13000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -144,6 +144,11 @@ public class OrganizerConsensusPhases {
 
             Signature sig = BLSSignature.sign(block_serialize.encode(data.getData()), CachedBLSKeyPair.getInstance().getPrivateKey());
             data.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
+
+            this.N = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().size();
+            this.F = (this.N - 1) / 3;
+            data.getSignatures().clear();
+
             byte[] toSend = consensus_serialize.encode(data);
             consensusServer.publishMessage(toSend);
         }
@@ -152,7 +157,6 @@ public class OrganizerConsensusPhases {
         public void CommitPhase(ConsensusMessage<TransactionBlock> data) {
             if (!DEBUG) {
                 int i = N;
-                data.getSignatures().clear();
                 while (i > 0) {
                     byte[] receive = consensusServer.receiveData();
                     try {
