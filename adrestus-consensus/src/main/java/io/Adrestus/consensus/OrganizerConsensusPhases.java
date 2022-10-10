@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 
 public class OrganizerConsensusPhases {
@@ -38,7 +39,7 @@ public class OrganizerConsensusPhases {
         private final SerializationUtil<AbstractBlock> block_serialize;
         private final SerializationUtil<ConsensusMessage> consensus_serialize;
         private final boolean DEBUG;
-
+        private final CountDownLatch latch;
 
         private int N;
         private int F;
@@ -50,14 +51,18 @@ public class OrganizerConsensusPhases {
         public ProposeTransactionBlock(boolean DEBUG) {
             this.DEBUG = DEBUG;
             this.factory = new DefaultFactory();
+            //this.N = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().size();
+            this.N = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().size();
+            this.F = (this.N - 1) / 3;
+            this.latch = new CountDownLatch(N);
             if (!DEBUG) {
                 this.current = CachedLatestBlocks.getInstance().getCommitteeBlock().getPublicKeyIndex(1, CachedLatestBlocks.getInstance().getTransactionBlock().getLeaderPublicKey());
                 if (current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().size()) {
                     this.leader_bls = CachedLatestBlocks.getInstance().getCommitteeBlock().getPublicKeyByIndex(1, 0);
-                    this.consensusServer = new ConsensusServer(CachedLatestBlocks.getInstance().getCommitteeBlock().getValue(1, this.leader_bls));
+                    this.consensusServer = new ConsensusServer(CachedLatestBlocks.getInstance().getCommitteeBlock().getValue(1, this.leader_bls), latch);
                 } else {
                     this.leader_bls = CachedLatestBlocks.getInstance().getCommitteeBlock().getPublicKeyByIndex(1, current + 1);
-                    this.consensusServer = new ConsensusServer(CachedLatestBlocks.getInstance().getCommitteeBlock().getValue(1, this.leader_bls));
+                    this.consensusServer = new ConsensusServer(CachedLatestBlocks.getInstance().getCommitteeBlock().getValue(1, this.leader_bls), latch);
                 }
             }
 
@@ -65,15 +70,8 @@ public class OrganizerConsensusPhases {
             List<SerializationUtil.Mapping> list = new ArrayList<>();
             list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
             list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
-            this.block_serialize = new SerializationUtil<AbstractBlock>(AbstractBlock.class,list);
-            this.consensus_serialize = new SerializationUtil<ConsensusMessage>(fluentType,list);
-            this.N = 1;
-            this.F = (this.N - 1) / 3;
-            try {
-                Thread.sleep(1060);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            this.block_serialize = new SerializationUtil<AbstractBlock>(AbstractBlock.class, list);
+            this.consensus_serialize = new SerializationUtil<ConsensusMessage>(fluentType, list);
         }
 
         @Override
@@ -149,7 +147,7 @@ public class OrganizerConsensusPhases {
             Signature sig = BLSSignature.sign(block_serialize.encode(data.getData()), CachedBLSKeyPair.getInstance().getPrivateKey());
             data.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
 
-            this.N =1;
+            this.N = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().size();
             this.F = (this.N - 1) / 3;
 
             byte[] toSend = consensus_serialize.encode(data);
@@ -222,6 +220,18 @@ public class OrganizerConsensusPhases {
                 data.getData().setLeaderPublicKey(CachedLatestBlocks.getInstance().getCommitteeBlock().getPublicKeyByIndex(1, current + 1));
             }
             CachedLatestBlocks.getInstance().setTransactionBlock(data.getData());
+
+            this.N = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().size();
+            this.F = (this.N - 1) / 3;
+            int i = N;
+            while (i > 0) {
+                try {
+                    consensusServer.receiveStringData();
+                } catch (NullPointerException ex) {
+                } finally {
+                    i--;
+                }
+            }
             cleanup();
             LOG.info("Block is finalized with Success");
         }

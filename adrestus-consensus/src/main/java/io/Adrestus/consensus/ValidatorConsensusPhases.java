@@ -34,8 +34,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
+
+import static io.Adrestus.config.ConsensusConfiguration.HEARTBEAT_MESSAGE;
 
 public class ValidatorConsensusPhases {
 
@@ -290,21 +291,29 @@ public class ValidatorConsensusPhases {
             List<SerializationUtil.Mapping> list = new ArrayList<>();
             list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
             list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
-            Type fluentType = new TypeToken<ConsensusMessage<TransactionBlock>>() {}.getType();
-            this.block_serialize = new SerializationUtil<AbstractBlock>(AbstractBlock.class,list);
-            this.consensus_serialize = new SerializationUtil<ConsensusMessage>(fluentType,list);
+            Type fluentType = new TypeToken<ConsensusMessage<TransactionBlock>>() {
+            }.getType();
+            this.block_serialize = new SerializationUtil<AbstractBlock>(AbstractBlock.class, list);
+            this.consensus_serialize = new SerializationUtil<ConsensusMessage>(fluentType, list);
         }
 
         @Override
         public void AnnouncePhase(ConsensusMessage<TransactionBlock> data) throws InterruptedException {
 
             if (!DEBUG) {
+                consensusClient.send_heartbeat(HEARTBEAT_MESSAGE);
+                String heartbeat = consensusClient.rec_heartbeat();
+                if (heartbeat == null) {
+                    LOG.info("AnnouncePhase: heartbeat message is null");
+                    data.setStatusType(ConsensusStatusType.ABORT);
+                    return;
+                }
                 byte[] receive = consensusClient.receiveData();
                 if (receive == null) {
                     LOG.info("AnnouncePhase: Leader is not active fail to send message");
                     data.setStatusType(ConsensusStatusType.ABORT);
                     return;
-                }else {
+                } else {
                     try {
                         data = consensus_serialize.decode(receive);
                         if (!data.getChecksumData().getBlsPublicKey().toRaw().equals(leader_bls.toRaw())) {
@@ -369,7 +378,7 @@ public class ValidatorConsensusPhases {
                     LOG.info("PreparePhase: Leader is not active fail to send message");
                     data.setStatusType(ConsensusStatusType.ABORT);
                     return;
-                }else {
+                } else {
                     try {
                         data = consensus_serialize.decode(receive);
                         if (!data.getChecksumData().getBlsPublicKey().toRaw().equals(leader_bls.toRaw())) {
@@ -484,6 +493,9 @@ public class ValidatorConsensusPhases {
             }
             CachedLatestBlocks.getInstance().setTransactionBlock(data.getData());
             //commit save to db
+
+            consensusClient.send_heartbeat(HEARTBEAT_MESSAGE);
+            LOG.info("Block is finalized with Success");
         }
     }
 

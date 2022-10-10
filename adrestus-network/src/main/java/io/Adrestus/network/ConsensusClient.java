@@ -14,27 +14,39 @@ public class ConsensusClient {
     private ZContext ctx;
     private final ZMQ.Socket subscriber;
     private final ZMQ.Socket push;
-
+    private final ZMQ.Socket connected;
 
     public ConsensusClient(String IP) {
         this.ctx = new ZContext();
         this.IP = IP;
         this.subscriber = ctx.createSocket(SocketType.SUB);
         this.push = ctx.createSocket(SocketType.PUSH);
+        this.connected=ctx.createSocket(SocketType.REQ);
+
+
         this.subscriber.connect("tcp://" + IP + ":" + SUBSCRIBER_PORT);
+        this.connected.connect("tcp://" + IP + ":" + CONNECTED_PORT);
         this.subscriber.subscribe(ZMQ.SUBSCRIPTION_ALL);
         this.subscriber.setReceiveTimeOut(CONSENSUS_TIMEOUT);
-        blockUntilConnected();
+        PollIn();
         this.push.connect("tcp://" + IP + ":" + COLLECTOR_PORT);
     }
 
-
-    private void blockUntilConnected() {
+    public void PollOut() {
+        ZMQ.Poller poller = ctx.createPoller(1);
+        poller.register(this.subscriber, ZMQ.Poller.POLLOUT);
+        int rc = -1;
+        while (rc == -1) {
+            rc = poller.poll(15000);
+        }
+        poller.pollout(0);
+    }
+    public void PollIn() {
         ZMQ.Poller poller = ctx.createPoller(1);
         poller.register(this.subscriber, ZMQ.Poller.POLLIN);
         int rc = -1;
         while (rc == -1) {
-            rc = poller.poll(1000);
+            rc = poller.poll(1);
         }
         poller.pollin(0);
     }
@@ -46,6 +58,14 @@ public class ConsensusClient {
     public byte[] receiveData() {
         byte[] data = subscriber.recv();
         return data;
+    }
+
+    public String rec_heartbeat(){
+        return this.connected.recvStr(0);
+    }
+
+    public void send_heartbeat(String data){
+        this.connected.send(data);
     }
 
     public void close() {

@@ -7,4 +7,5 @@ public class AdrestusConfiguration {
     public static final int CORES = Runtime.getRuntime().availableProcessors();
 
     public static final int MAXIMU_BLOCK_SIZE = 10000000;
+
 }

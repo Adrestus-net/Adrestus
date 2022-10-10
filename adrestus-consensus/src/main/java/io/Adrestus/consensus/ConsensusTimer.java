@@ -67,7 +67,9 @@ public class ConsensusTimer {
         } else if (CachedBLSKeyPair.getInstance().getPublicKey().equals(keyList.get(3))) {
             SaveTransactions(6, 7);
         } else if (CachedBLSKeyPair.getInstance().getPublicKey().equals(keyList.get(4))) {
-            SaveTransactions(8, 9);
+            SaveTransactions(8, 8);
+        } else if (CachedBLSKeyPair.getInstance().getPublicKey().equals(keyList.get(5))) {
+            SaveTransactions(9, 9);
         }
 
     }

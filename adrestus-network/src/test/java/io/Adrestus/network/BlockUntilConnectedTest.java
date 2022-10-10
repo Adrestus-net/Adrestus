@@ -3,9 +3,31 @@ package io.Adrestus.network;
 import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.CountDownLatch;
 
 public class BlockUntilConnectedTest {
-    @Test
+
+    //@Test
+    public void simple_test2() throws InterruptedException {
+        int N = 2;
+        int F = 0;
+
+        CountDownLatch latch = new CountDownLatch(N);
+        //server started
+        ConsensusServer Server = new ConsensusServer("192.168.1.106", latch);
+
+        latch.await();
+        if (Server.getPeers_not_connected() >= N - F) {
+            System.out.println("Close with no send");
+            Server.close();
+            return;
+        } else if (Server.getPeers_not_connected() < N - F) {
+            Thread.sleep(1000);
+            Server.publishMessage("Message".getBytes(StandardCharsets.UTF_8));
+            Server.close();
+        }
+    }
+    //@Test
     public void simple_test() throws InterruptedException {
 
 

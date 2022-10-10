@@ -13,5 +13,8 @@ public class ConsensusConfiguration {
     public static final String PUBLISHER_PORT = "5557";
     public static final String SUBSCRIBER_PORT = "5557";
     public static final String COLLECTOR_PORT = "5558";
+    public static final String CONNECTED_PORT = "5559";
+
+    public static final String HEARTBEAT_MESSAGE="1";
 
 }

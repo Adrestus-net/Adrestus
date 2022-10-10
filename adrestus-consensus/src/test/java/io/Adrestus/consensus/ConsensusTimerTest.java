@@ -51,6 +51,9 @@ public class ConsensusTimerTest {
     private static BLSPrivateKey sk5;
     private static BLSPublicKey vk5;
 
+    private static BLSPrivateKey sk6;
+    private static BLSPublicKey vk6;
+
     @BeforeAll
     public static void construct() throws Exception {
 
@@ -69,6 +72,9 @@ public class ConsensusTimerTest {
 
         sk5 = new BLSPrivateKey(5);
         vk5 = new BLSPublicKey(sk5);
+
+        sk6 = new BLSPrivateKey(5);
+        vk6 = new BLSPublicKey(sk6);
 
         int version = 0x00;
         addreses = new ArrayList<>();
@@ -157,8 +163,8 @@ public class ConsensusTimerTest {
         prevblock.setHeight(1);
         prevblock.setHash("hash");
         prevblock.getHeaderData().setTimestamp(GetTime.GetTimeStampInString());
-        prevblock.setTransactionProposer(vk5.toRaw());
-        prevblock.setLeaderPublicKey(vk5);
+        prevblock.setTransactionProposer(vk6.toRaw());
+        prevblock.setLeaderPublicKey(vk6);
         CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
         CachedLatestBlocks.getInstance().setTransactionBlock(prevblock);
 
@@ -166,7 +172,8 @@ public class ConsensusTimerTest {
         CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).put(vk2, "192.168.1.110");
         CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).put(vk3, "192.168.1.112");
         CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).put(vk4, "192.168.1.115");
-        CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).put(vk5, "192.168.1.104");
+        CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).put(vk5, "192.168.1.116");
+        CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).put(vk6, "192.168.1.104");
     }
 
 
@@ -193,6 +200,9 @@ public class ConsensusTimerTest {
                 } else if (vk5.equals(entry.getKey())) {
                     CachedBLSKeyPair.getInstance().setPrivateKey(sk5);
                     CachedBLSKeyPair.getInstance().setPublicKey(vk5);
+                } else if (vk6.equals(entry.getKey())) {
+                    CachedBLSKeyPair.getInstance().setPrivateKey(sk6);
+                    CachedBLSKeyPair.getInstance().setPublicKey(vk6);
                 }
                 hit = 1;
                 break;
