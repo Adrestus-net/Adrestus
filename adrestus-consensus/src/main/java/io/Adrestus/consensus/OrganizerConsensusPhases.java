@@ -52,7 +52,7 @@ public class OrganizerConsensusPhases {
             this.DEBUG = DEBUG;
             this.factory = new DefaultFactory();
             //this.N = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().size();
-            this.N = 2;
+            this.N = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().size();
             this.F = (this.N - 1) / 3;
             this.latch = new CountDownLatch(N);
             if (!DEBUG) {
@@ -147,7 +147,7 @@ public class OrganizerConsensusPhases {
             Signature sig = BLSSignature.sign(block_serialize.encode(data.getData()), CachedBLSKeyPair.getInstance().getPrivateKey());
             data.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
 
-            this.N = 2;
+            this.N = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().size();
             this.F = (this.N - 1) / 3;
 
             byte[] toSend = consensus_serialize.encode(data);
@@ -221,7 +221,7 @@ public class OrganizerConsensusPhases {
             }
             CachedLatestBlocks.getInstance().setTransactionBlock(data.getData());
 
-            this.N = 2;
+            this.N = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().size();
             this.F = (this.N - 1) / 3;
             int i = N;
             while (i > 0) {
