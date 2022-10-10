@@ -279,7 +279,7 @@ public class ValidatorConsensusPhases {
             this.DEBUG = DEBUG;
             if (!DEBUG) {
                 this.current = CachedLatestBlocks.getInstance().getCommitteeBlock().getPublicKeyIndex(1, CachedLatestBlocks.getInstance().getTransactionBlock().getLeaderPublicKey());
-                if (current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().size()) {
+                if (current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).size()-1) {
                     this.leader_bls = CachedLatestBlocks.getInstance().getCommitteeBlock().getPublicKeyByIndex(1, 0);
                     this.consensusClient = new ConsensusClient(CachedLatestBlocks.getInstance().getCommitteeBlock().getValue(1, this.leader_bls));
                 } else {

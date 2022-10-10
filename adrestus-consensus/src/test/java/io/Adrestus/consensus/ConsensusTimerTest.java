@@ -184,7 +184,6 @@ public class ConsensusTimerTest {
         String IP = socket.getLocalAddress().getHostAddress();
         int hit = 0;
         for (Map.Entry<BLSPublicKey, String> entry : CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).entrySet()) {
-            System.out.println(entry.getValue());
             if (IP.equals(entry.getValue())) {
                 if (vk1.equals(entry.getKey())) {
                     CachedBLSKeyPair.getInstance().setPrivateKey(sk1);
@@ -211,7 +210,7 @@ public class ConsensusTimerTest {
         }
         if (hit == 0)
             return;
-
+        
         CountDownLatch latch = new CountDownLatch(5);
         ConsensusTimer c = new ConsensusTimer(latch, addreses, keypair);
         latch.await();
