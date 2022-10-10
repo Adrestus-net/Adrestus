@@ -214,7 +214,7 @@ public class OrganizerConsensusPhases {
             byte[] toSend = consensus_serialize.encode(data);
             consensusServer.publishMessage(toSend);
 
-            if (current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).size())
+            if (current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).size()-1)
                 data.getData().setLeaderPublicKey(CachedLatestBlocks.getInstance().getCommitteeBlock().getPublicKeyByIndex(1, 0));
             else {
                 data.getData().setLeaderPublicKey(CachedLatestBlocks.getInstance().getCommitteeBlock().getPublicKeyByIndex(1, current + 1));
