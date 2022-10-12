@@ -7,10 +7,11 @@ import io.activej.serializer.annotations.Deserialize;
 import io.activej.serializer.annotations.Serialize;
 import org.spongycastle.util.encoders.Hex;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class BLSPublicKey {
+public class BLSPublicKey implements Cloneable {
 
     private G1Point point;
 
@@ -47,10 +48,11 @@ public class BLSPublicKey {
     }
 
     public static BLSPublicKey aggregate(List<BLSPublicKey> keys) {
-        return keys.isEmpty()
-                ? new BLSPublicKey(new G1Point())
-                : keys.stream().reduce(BLSPublicKey::combine).get();
+        List<BLSPublicKey> cloned_keys = new ArrayList<BLSPublicKey>();
+        keys.stream().forEach(x -> cloned_keys.add(x.clone()));
+        return keys.isEmpty() ? new BLSPublicKey(new G1Point()) : cloned_keys.stream().reduce(BLSPublicKey::combine).get();
     }
+
 
     public BLSPublicKey combine(BLSPublicKey pk) {
         point.getValue().add(pk.point.getValue());
@@ -68,17 +70,24 @@ public class BLSPublicKey {
 
         if (v instanceof BLSPublicKey) {
             BLSPublicKey ptr = (BLSPublicKey) v;
-            retVal = Arrays.equals(ptr.toBytes(),this.toBytes());
+            retVal = Arrays.equals(ptr.toBytes(), this.toBytes());
         }
         return retVal;
     }
+
     @Override
     public int hashCode() {
         return Ints.fromByteArray(this.toBytes());
     }
+
     @Serialize
     public G1Point getPoint() {
         return point;
+    }
+
+    @Override
+    protected BLSPublicKey clone() {
+        return new BLSPublicKey(new G1Point(point));
     }
 
     public void setPoint(G1Point point) {

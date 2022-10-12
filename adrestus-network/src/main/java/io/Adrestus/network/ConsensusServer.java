@@ -86,11 +86,26 @@ public class ConsensusServer {
     }
 
     public void BlockUntilConnected() {
+        this.timer = new Timer(ConsensusConfiguration.CONSENSUS);
+        this.task = new ConnectedTaskTimeout();
         this.timer.scheduleAtFixedRate(task, CONSENSUS_TIMEOUT, CONSENSUS_TIMEOUT);
         while (latch.getCount() > 0 && !terminate) {
             String rec = receiveStringData();
             System.out.println(rec);
             connected.send(HEARTBEAT_MESSAGE.getBytes(StandardCharsets.UTF_8));
+            latch.countDown();
+            setPeers_not_connected((int) latch.getCount());
+        }
+        task.cancel();
+        timer.purge();
+    }
+
+    public void BlockUntilConnected(CountDownLatch latch) {
+        this.timer.scheduleAtFixedRate(task, CONSENSUS_TIMEOUT, CONSENSUS_TIMEOUT);
+        while (latch.getCount() > 0 && !terminate) {
+            String rec = receiveStringData();
+            System.out.println(rec);
+            //connected.send(HEARTBEAT_MESSAGE.getBytes(StandardCharsets.UTF_8));
             latch.countDown();
             setPeers_not_connected((int) latch.getCount());
         }
@@ -116,7 +131,7 @@ public class ConsensusServer {
     public byte[] receiveData() {
         byte[] data = null;
         try {
-            data = collector.recv();
+            data = collector.recv(0);
         } catch (Exception e) {
             LOG.info("Socket Closed");
         }

@@ -1,15 +1,18 @@
 package io.Adrestus.crypto.bls.model;
 
+import io.Adrestus.crypto.bls.BLS381.BIG;
 import io.Adrestus.crypto.bls.BLS381.ECP;
 import io.Adrestus.crypto.bls.constants.Constants;
 import io.Adrestus.crypto.bls.utils.CommonUtils;
 import io.activej.serializer.annotations.Deserialize;
 import io.activej.serializer.annotations.Serialize;
+import org.apache.tuweni.bytes.Bytes;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class G1Point {
+    private static final int fpPointSize = BIG.MODBYTES;
 
     private ECP value;
 

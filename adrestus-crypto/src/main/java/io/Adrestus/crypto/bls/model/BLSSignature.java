@@ -94,18 +94,16 @@ public class BLSSignature {
         for (Bytes message : messages) {
             if (!set.add(message)) return false;
         }
-        List<G2Point> hashesInG2 = messages.stream().map(m -> new G2Point(HashToCurve.hashToG2(Bytes.wrap(m)))).collect(Collectors.toList());
+        List<G2Point> hashesInG2 = messages.stream().map(m -> new G2Point(HashToCurve.hashToG2(m))).collect(Collectors.toList());
 
-        checkArgument(
-                BLSPublicKeys.size() == hashesInG2.size(),
-                "List of public keys and list of messages differ in length");
+        checkArgument(BLSPublicKeys.size() == hashesInG2.size(), "List of public keys and list of messages differ in length");
         checkArgument(BLSPublicKeys.size() > 0, "List of public keys is empty");
         try {
             GTPoint gt1 = GTPoint.pair(BLSPublicKeys.get(0).getPoint(), hashesInG2.get(0));
             for (int i = 1; i < BLSPublicKeys.size(); i++) {
                 gt1 = gt1.mul(GTPoint.pair(BLSPublicKeys.get(i).getPoint(), hashesInG2.get(i)));
             }
-            GTPoint gt2 = GTPoint.pair(new G1Point(ECP.generator()), signature.getSupplier_point().get());
+            GTPoint gt2 = GTPoint.pair(new G1Point(ECP.generator()), signature.getPoint());
             return gt2.equals(gt1);
         } catch (RuntimeException e) {
             return false;
@@ -114,6 +112,7 @@ public class BLSSignature {
 
     public static boolean fastAggregateVerify(List<BLSPublicKey> BLSPublicKeys, Bytes message, Signature signature) {
         BLSPublicKey aggregated_pub = BLSPublicKey.aggregate(BLSPublicKeys);
+
         return BLSSignature.verify(signature, message.toArray(), aggregated_pub);
     }
 

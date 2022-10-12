@@ -1,0 +1,69 @@
+package io.Adrestus.core;
+
+import io.Adrestus.crypto.bls.model.*;
+import io.Adrestus.util.SerializationUtil;
+import org.apache.tuweni.bytes.Bytes;
+import org.junit.jupiter.api.Test;
+
+import java.util.Arrays;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class StressBLSTest {
+    private static BLSPrivateKey sk1;
+    private static BLSPublicKey vk1;
+
+    private static BLSPrivateKey sk2;
+    private static BLSPublicKey vk2;
+
+    private static BLSPrivateKey sk3;
+    private static BLSPublicKey vk3;
+
+    private static BLSPrivateKey sk4;
+    private static BLSPublicKey vk4;
+    @Test
+    public void Test(){
+        SerializationUtil<TransactionBlock> ser = new SerializationUtil<TransactionBlock>(TransactionBlock.class);
+        sk1 = new BLSPrivateKey(1);
+        vk1 = new BLSPublicKey(sk1);
+
+        sk2 = new BLSPrivateKey(2);
+        vk2 = new BLSPublicKey(sk2);
+
+        sk3 = new BLSPrivateKey(3);
+        vk3 = new BLSPublicKey(sk3);
+
+        sk4 = new BLSPrivateKey(4);
+        vk4 = new BLSPublicKey(sk4);
+
+        BLSKeyPair keyPair1 = new BLSKeyPair(sk1, vk1);
+        BLSKeyPair keyPair2 = new BLSKeyPair(sk2, vk2);
+        BLSKeyPair keyPair3 = new BLSKeyPair(sk3, vk3);
+       // BLSKeyPair keyPair4 = new BLSKeyPair(sk4, vk4);
+
+
+        TransactionBlock block=new TransactionBlock();
+        block.setHash("sadsadas");
+
+        Bytes message=Bytes.wrap(ser.encode(block));
+
+        List<BLSPublicKey> publicKeys = Arrays.asList(keyPair1.getPublicKey(), keyPair2.getPublicKey());
+        List<BLSPublicKey> publicKeys2 = Arrays.asList(vk1, vk2);
+
+        assertEquals(publicKeys,publicKeys2);
+        List<Signature> signatures = Arrays.asList(BLSSignature.sign(message.toArray(), keyPair1.getPrivateKey()), BLSSignature.sign(message.toArray(), keyPair2.getPrivateKey()));
+        Signature aggregatedSignature = BLSSignature.aggregate(signatures);
+        BLSSignature.fastAggregateVerify(publicKeys, message, aggregatedSignature);
+        BLSSignature.fastAggregateVerify(publicKeys, message, aggregatedSignature);
+        assertEquals(true, BLSSignature.fastAggregateVerify(publicKeys, message, aggregatedSignature));
+        assertEquals(true, BLSSignature.fastAggregateVerify(publicKeys, message, aggregatedSignature));
+
+        byte[]b=ser.encode(block);
+        TransactionBlock copy=ser.decode(b);
+        assertEquals(copy,block);
+        Bytes message2=Bytes.wrap(ser.encode(copy));
+
+        assertEquals(true, BLSSignature.fastAggregateVerify(publicKeys, message2, aggregatedSignature));
+    }
+}

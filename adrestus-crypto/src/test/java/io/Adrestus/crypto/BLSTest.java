@@ -69,6 +69,7 @@ public class BLSTest {
         Signature sig2 = BLSSignature.sign(msg, keypair2.getPrivateKey());
         Signature sig = MultiSigFastUtils.mergeSignature(new Signature[]{sig1, sig2}, new BLSPublicKey[]{keypair1.getPublicKey(), keypair2.getPublicKey()});
         assertEquals(true, MultiSigFastUtils.verify(sig, msg, new BLSPublicKey[]{keypair1.getPublicKey(), keypair2.getPublicKey()}));
+        assertEquals(true, MultiSigFastUtils.verify(sig, msg, new BLSPublicKey[]{keypair1.getPublicKey(), keypair2.getPublicKey()}));
     }
 
     @Test
@@ -134,7 +135,9 @@ public class BLSTest {
     @Test
     @Order(6)
     public void succeedsWhenAggregateVerifyWithRepeatedMessagesReturnsFalse() {
-        Bytes message = Bytes.wrap("Hello, world 1!".getBytes(UTF_8));
+        Bytes message1 = Bytes.wrap("Hello, world 1!".getBytes(UTF_8));
+        Bytes message2 = Bytes.wrap("Hello, world 2!".getBytes(UTF_8));
+        Bytes message3 = Bytes.wrap("Hello, world 3!".getBytes(UTF_8));
         BLSPrivateKey sk1 = new BLSPrivateKey(new SecureRandom());
         BLSPublicKey vk1 = new BLSPublicKey(sk1);
 
@@ -147,9 +150,9 @@ public class BLSTest {
         BLSKeyPair keyPair1 = new BLSKeyPair(sk1, vk1);
         BLSKeyPair keyPair2 = new BLSKeyPair(sk2, vk2);
         BLSKeyPair keyPair3 = new BLSKeyPair(sk3, vk3);
-        List<Bytes> messages = Arrays.asList(message, message, message);
-        List<BLSPublicKey> publicKeys = Arrays.asList(keyPair1.getPublicKey(), keyPair2.getPublicKey(), keyPair3.getPublicKey());
-        List<Signature> signatures = Arrays.asList(BLSSignature.sign(message.toArray(), keyPair1.getPrivateKey()), BLSSignature.sign(message.toArray(), keyPair2.getPrivateKey()), BLSSignature.sign(message.toArray(), keyPair3.getPrivateKey()));
+        List<Bytes> messages = Arrays.asList(message1, message2,message3);
+        List<BLSPublicKey> publicKeys = Arrays.asList(keyPair1.getPublicKey(), keyPair2.getPublicKey(),keyPair3.getPublicKey());
+        List<Signature> signatures = Arrays.asList(BLSSignature.sign(message1.toArray(), keyPair1.getPrivateKey()), BLSSignature.sign(message2.toArray(), keyPair2.getPrivateKey()),BLSSignature.sign(message3.toArray(), keyPair3.getPrivateKey()));
         Signature aggregatedSignature = BLSSignature.aggregate(signatures);
         assertEquals(false, BLSSignature.aggregateVerify(publicKeys, messages, aggregatedSignature));
     }
