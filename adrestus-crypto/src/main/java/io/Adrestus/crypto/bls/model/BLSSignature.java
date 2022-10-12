@@ -7,6 +7,7 @@ import io.Adrestus.crypto.bls.constants.Constants;
 import io.Adrestus.crypto.bls.utils.CommonUtils;
 import org.apache.tuweni.bytes.Bytes;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -81,11 +82,13 @@ public class BLSSignature {
     }
 
     public static Signature aggregate(List<Signature> signatures) {
-        return aggregate(signatures.stream());
+        return Signature.aggregate(signatures);
     }
 
     public static Signature aggregate(Stream<Signature> signatures) {
-        return signatures.reduce(Signature::combine).orElseGet(() -> new Signature(new G2Point()));
+        ArrayList<Signature> cloned_keys = new ArrayList<Signature>();
+        signatures.forEach(x -> cloned_keys.add((Signature) x.clone()));
+        return cloned_keys.stream().reduce(Signature::combine).orElseGet(() -> new Signature(new G2Point()));
     }
 
 

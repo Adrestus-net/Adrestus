@@ -48,22 +48,27 @@ public class StressBLSTest {
 
         Bytes message=Bytes.wrap(ser.encode(block));
 
-        List<BLSPublicKey> publicKeys = Arrays.asList(keyPair1.getPublicKey(), keyPair2.getPublicKey());
-        List<BLSPublicKey> publicKeys2 = Arrays.asList(vk1, vk2);
+        List<BLSPublicKey> publicKeys = Arrays.asList(keyPair1.getPublicKey(), keyPair2.getPublicKey(),keyPair3.getPublicKey());
+        List<Signature> signatures = Arrays.asList(BLSSignature.sign(message.toArray(), keyPair1.getPrivateKey()), BLSSignature.sign(message.toArray(), keyPair2.getPrivateKey()),BLSSignature.sign(message.toArray(), keyPair3.getPrivateKey()));
 
-        assertEquals(publicKeys,publicKeys2);
-        List<Signature> signatures = Arrays.asList(BLSSignature.sign(message.toArray(), keyPair1.getPrivateKey()), BLSSignature.sign(message.toArray(), keyPair2.getPrivateKey()));
+
         Signature aggregatedSignature = BLSSignature.aggregate(signatures);
-        BLSSignature.fastAggregateVerify(publicKeys, message, aggregatedSignature);
-        BLSSignature.fastAggregateVerify(publicKeys, message, aggregatedSignature);
+
         assertEquals(true, BLSSignature.fastAggregateVerify(publicKeys, message, aggregatedSignature));
         assertEquals(true, BLSSignature.fastAggregateVerify(publicKeys, message, aggregatedSignature));
 
         byte[]b=ser.encode(block);
         TransactionBlock copy=ser.decode(b);
-        assertEquals(copy,block);
         Bytes message2=Bytes.wrap(ser.encode(copy));
 
         assertEquals(true, BLSSignature.fastAggregateVerify(publicKeys, message2, aggregatedSignature));
+
+        List<Signature> signatures2 = Arrays.asList(BLSSignature.sign(message.toArray(), keyPair1.getPrivateKey()), BLSSignature.sign(message.toArray(), keyPair2.getPrivateKey()),BLSSignature.sign(message.toArray(), keyPair3.getPrivateKey()));
+        Signature aggregatedSignature2 = BLSSignature.aggregate(signatures2);
+
+        Signature aggregatedSignature3 = BLSSignature.aggregate(signatures2);
+
+        assertEquals(true, BLSSignature.fastAggregateVerify(publicKeys, message2, aggregatedSignature2));
+        assertEquals(true, BLSSignature.fastAggregateVerify(publicKeys, message2, aggregatedSignature3));
     }
 }

@@ -8,7 +8,7 @@ import io.activej.serializer.annotations.Serialize;
 import java.util.ArrayList;
 import java.util.List;
 
-public class G2Point {
+public class G2Point implements Cloneable {
 
     private ECP2 value;
 
@@ -130,6 +130,15 @@ public class G2Point {
             }
         }
         return r;
+    }
+
+    @Override
+    protected Object clone()  {
+        try {
+            return super.clone();
+        } catch (CloneNotSupportedException e) {
+           return null;
+        }
     }
 
     @Serialize

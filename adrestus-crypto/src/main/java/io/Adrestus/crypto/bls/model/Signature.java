@@ -3,10 +3,12 @@ package io.Adrestus.crypto.bls.model;
 import io.activej.serializer.annotations.Deserialize;
 import io.activej.serializer.annotations.Serialize;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
 
-public class Signature {
+public class Signature implements Cloneable{
     private G2Point point;
     private Supplier<G2Point> supplier_point;
 
@@ -30,6 +32,11 @@ public class Signature {
         this.point = point;
     }
 
+    public static Signature aggregate(List<Signature> signatures) {
+        ArrayList<Signature> cloned_keys = new ArrayList<Signature>();
+        signatures.forEach(x -> cloned_keys.add((Signature) x.clone()));
+        return cloned_keys.isEmpty() ? new Signature(new G2Point()) : cloned_keys.stream().reduce(Signature::combine).get();
+    }
     public Signature combine(Signature signature) {
         point.getValue().add(signature.point.getValue());
         return new Signature(point);
@@ -50,6 +57,11 @@ public class Signature {
         if (o == null || getClass() != o.getClass()) return false;
         Signature signature = (Signature) o;
         return Objects.equals(point, signature.point) && Objects.equals(supplier_point, signature.supplier_point);
+    }
+
+    @Override
+    protected Signature clone() {
+        return new Signature(new G2Point(point));
     }
 
     @Override
