@@ -19,14 +19,14 @@ public class ConsensusClient {
     public ConsensusClient(String IP) {
         this.ctx = new ZContext();
         this.IP = IP;
-        this.subscriber = ctx.createSocket(SocketType.SUB);
+        this.subscriber = ctx.createSocket(SocketType.PULL);
         this.push = ctx.createSocket(SocketType.PUSH);
         this.connected=ctx.createSocket(SocketType.REQ);
 
 
         this.subscriber.connect("tcp://" + IP + ":" + SUBSCRIBER_PORT);
         this.connected.connect("tcp://" + IP + ":" + CONNECTED_PORT);
-        this.subscriber.subscribe(ZMQ.SUBSCRIPTION_ALL);
+       // this.subscriber.subscribe(ZMQ.SUBSCRIPTION_ALL);
         this.subscriber.setReceiveTimeOut(CONSENSUS_TIMEOUT);
         PollIn();
         this.push.connect("tcp://" + IP + ":" + COLLECTOR_PORT);

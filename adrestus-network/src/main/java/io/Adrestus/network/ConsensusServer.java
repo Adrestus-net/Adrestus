@@ -44,6 +44,9 @@ public class ConsensusServer {
         this.collector = ctx.createSocket(SocketType.PULL);
         this.connected = ctx.createSocket(SocketType.REP);
 
+
+        this.publisher.setRcvHWM(10000);
+        this.publisher.setSndHWM(10000);
         this.publisher.setHeartbeatIvl(2);
 
 
@@ -66,6 +69,7 @@ public class ConsensusServer {
         this.publisher = ctx.createSocket(SocketType.PUB);
         this.publisher.setHeartbeatIvl(2);
         this.collector = ctx.createSocket(SocketType.PULL);
+
 
         this.publisher.bind("tcp://" + IP + ":" + PUBLISHER_PORT);
         this.collector.bind("tcp://" + IP + ":" + COLLECTOR_PORT);
@@ -111,6 +115,16 @@ public class ConsensusServer {
         }
         task.cancel();
         timer.purge();
+    }
+
+    public void PollOut() {
+        ZMQ.Poller poller = ctx.createPoller(1);
+        poller.register(this.publisher, ZMQ.Poller.POLLOUT);
+        int rc = -1;
+        while (rc == -1) {
+            rc = poller.poll(15000);
+        }
+        poller.pollout(0);
     }
 
     private String findIP() {

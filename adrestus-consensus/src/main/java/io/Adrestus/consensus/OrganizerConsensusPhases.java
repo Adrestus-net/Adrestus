@@ -72,11 +72,6 @@ public class OrganizerConsensusPhases {
             list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
             this.block_serialize = new SerializationUtil<AbstractBlock>(AbstractBlock.class, list);
             this.consensus_serialize = new SerializationUtil<ConsensusMessage>(fluentType, list);
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
         }
 
         @Override
@@ -95,6 +90,7 @@ public class OrganizerConsensusPhases {
 
             //data.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
             byte[] toSend = consensus_serialize.encode(data);
+            consensusServer.PollOut();
             consensusServer.publishMessage(toSend);
         }
 
@@ -159,6 +155,7 @@ public class OrganizerConsensusPhases {
 
 
             byte[] toSend = consensus_serialize.encode(data);
+            consensusServer.PollOut();
             consensusServer.publishMessage(toSend);
         }
 
@@ -225,6 +222,7 @@ public class OrganizerConsensusPhases {
             int i = N;
 
             byte[] toSend = consensus_serialize.encode(data);
+            consensusServer.PollOut();
             consensusServer.publishMessage(toSend);
 
             if (current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).size()-1)
