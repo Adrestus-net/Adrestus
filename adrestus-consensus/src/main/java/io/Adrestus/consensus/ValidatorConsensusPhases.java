@@ -301,7 +301,6 @@ public class ValidatorConsensusPhases {
         public void AnnouncePhase(ConsensusMessage<TransactionBlock> data) throws InterruptedException {
 
             if (!DEBUG) {
-                consensusClient.PollIn();
                 consensusClient.send_heartbeat(HEARTBEAT_MESSAGE);
                 String heartbeat = consensusClient.rec_heartbeat();
                 if (heartbeat == null) {
@@ -374,7 +373,6 @@ public class ValidatorConsensusPhases {
         public void PreparePhase(ConsensusMessage<TransactionBlock> data) throws InterruptedException {
 
             if (!DEBUG) {
-                consensusClient.PollIn();
                 byte[] receive = consensusClient.receiveData();
                 if (receive == null) {
                     LOG.info("PreparePhase: Leader is not active fail to send message");
@@ -441,7 +439,6 @@ public class ValidatorConsensusPhases {
         public void CommitPhase(ConsensusMessage<TransactionBlock> data) throws InterruptedException {
 
             if (!DEBUG) {
-                consensusClient.PollIn();
                 byte[] receive = consensusClient.receiveData();
                 if (receive == null) {
                     LOG.info("CommitPhase: Leader is not active fail to send message");

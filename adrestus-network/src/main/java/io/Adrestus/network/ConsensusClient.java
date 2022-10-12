@@ -23,6 +23,8 @@ public class ConsensusClient {
         this.push = ctx.createSocket(SocketType.PUSH);
         this.connected=ctx.createSocket(SocketType.REQ);
 
+        this.subscriber.setRcvHWM(10000);
+        this.subscriber.setSndHWM(10000);
 
         this.subscriber.connect("tcp://" + IP + ":" + SUBSCRIBER_PORT);
         this.connected.connect("tcp://" + IP + ":" + CONNECTED_PORT);
