@@ -45,10 +45,7 @@ public class ConsensusServer {
         this.connected = ctx.createSocket(SocketType.REP);
 
 
-        this.publisher.setHWM(50000);
-        this.publisher.setConflate(true);
-        this.publisher.setLinger(1);
-        this.publisher.setHeartbeatIvl(2);
+        this.publisher.setHWM(10000);
 
 
         this.publisher.bind("tcp://" + IP + ":" + PUBLISHER_PORT);

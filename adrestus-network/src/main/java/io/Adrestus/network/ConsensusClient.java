@@ -17,7 +17,7 @@ public class ConsensusClient {
     private static Logger LOG = LoggerFactory.getLogger(ConsensusClient.class);
     private int MESSAGES = 3;
     private int MAX_MESSAGES = 6;
-    private static final int MAX_AVAILABLE = 1;
+    private static final int MAX_AVAILABLE = 3;
 
     private final Semaphore available;
     private final String IP;
@@ -37,6 +37,12 @@ public class ConsensusClient {
         this.push = ctx.createSocket(SocketType.PUSH);
         this.connected = ctx.createSocket(SocketType.REQ);
 
+
+        this.subscriber.setReceiveBufferSize(10000);
+        this.subscriber.setLinger(-1);
+        this.subscriber.setHWM(10000);
+        this.subscriber.setRcvHWM(1);
+        this.subscriber.setConflate(true);
 
         this.subscriber.connect("tcp://" + IP + ":" + SUBSCRIBER_PORT);
         this.connected.connect("tcp://" + IP + ":" + CONNECTED_PORT);
@@ -78,12 +84,7 @@ public class ConsensusClient {
 
     @SneakyThrows
     public byte[] deque_message() {
-        if (message_deque.isEmpty()) {
-            //  System.out.println("wait");
-            while (available.availablePermits() == 0) {
-            }
-            //  available.acquire();
-        }
+        while (message_deque.isEmpty()) {}
         System.out.println("take");
         return message_deque.pollFirst();
     }
@@ -94,18 +95,16 @@ public class ConsensusClient {
             public void run() {
                 byte[] data = {1};
                 while (MESSAGES > 0 && MAX_MESSAGES > 0) {
-                    if (message_deque.isEmpty()) {
-                        available.acquire();
-                        System.out.println("acquire");
-                        data = subscriber.recv();
-                        if (data != null) {
-                            message_deque.add(data);
-                            MESSAGES--;
-                        }
-                        System.out.println("receive" + MESSAGES);
-                        available.release();
-                        MAX_MESSAGES--;
+                    //available.acquire();
+                    System.out.println("acquire");
+                    data = subscriber.recv();
+                    if (data != null) {
+                        message_deque.add(data);
+                        MESSAGES--;
                     }
+                    System.out.println("receive" + MESSAGES);
+                    MAX_MESSAGES--;
+                    // available.release();
                 }
                 if (data == null)
                     System.out.println("null");

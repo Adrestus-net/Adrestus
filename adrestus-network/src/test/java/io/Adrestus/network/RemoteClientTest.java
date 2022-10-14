@@ -1,12 +1,15 @@
 package io.Adrestus.network;
 
+import org.junit.jupiter.api.Test;
+
 import java.nio.charset.StandardCharsets;
 
 public class RemoteClientTest {
 
 
-    // @Test
+    //@Test
     public void simple_test2() throws InterruptedException {
+
         (new Thread() {
             int i = 0;
 
@@ -21,6 +24,7 @@ public class RemoteClientTest {
 
             }
         }).start();
+
         (new Thread() {
             int i = 0;
 

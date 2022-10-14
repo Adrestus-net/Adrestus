@@ -52,7 +52,7 @@ public class OrganizerConsensusPhases {
             this.DEBUG = DEBUG;
             this.factory = new DefaultFactory();
             //this.N = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).size()-1;
-            this.N = 1;
+          this.N = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).size()-1;
             this.F = (this.N - 1) / 3;
             this.latch = new CountDownLatch(N);
             if (!DEBUG) {
@@ -124,7 +124,7 @@ public class OrganizerConsensusPhases {
 
 
                 if (N > F) {
-                    LOG.info("PreparePhase: Byzantine network not meet requirements abort");
+                    LOG.info("PreparePhase: Byzantine network not meet requirements abort "+String.valueOf(N));
                     data.setStatusType(ConsensusStatusType.ABORT);
                     cleanup();
                     return;
@@ -148,7 +148,7 @@ public class OrganizerConsensusPhases {
             Signature sig = BLSSignature.sign(block_serialize.encode(data.getData()), CachedBLSKeyPair.getInstance().getPrivateKey());
             data.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
 
-            this.N = 1;
+         this.N = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).size()-1;
             this.F = (this.N - 1) / 3;
 
 
@@ -188,7 +188,7 @@ public class OrganizerConsensusPhases {
 
 
                 if (N > F) {
-                    LOG.info("CommitPhase: Byzantine network not meet requirements abort");
+                    LOG.info("CommitPhase: Byzantine network not meet requirements abort "+String.valueOf(N));
                     data.setStatusType(ConsensusStatusType.ABORT);
                     cleanup();
                     return;
@@ -214,7 +214,7 @@ public class OrganizerConsensusPhases {
             Signature sig = BLSSignature.sign(block_serialize.encode(data.getData()), CachedBLSKeyPair.getInstance().getPrivateKey());
             data.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
 
-            this.N = 1;
+         this.N = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).size()-1;
             this.F = (this.N - 1) / 3;
             int i = N;
 
