@@ -62,14 +62,18 @@ public class ObjectSizer implements Serializable {
             throw new RuntimeException(e);
         }
     }
+
     @SuppressWarnings("unchecked")
-    public void suppressWarning() throws Exception
-    {
+    public void suppressWarning() throws Exception {
         Field f = FilterOutputStream.class.getDeclaredField("out");
-        Runnable r = () -> { f.setAccessible(true); synchronized(this) { this.notify(); }};
+        Runnable r = () -> {
+            f.setAccessible(true);
+            synchronized (this) {
+                this.notify();
+            }
+        };
         Object errorOutput;
-        synchronized (this)
-        {
+        synchronized (this) {
             synchronized (System.err) //lock System.err to delay the warning
             {
                 new Thread(r).start(); //One of these 2 threads will
@@ -83,6 +87,7 @@ public class ObjectSizer implements Serializable {
             f.set(System.err, errorOutput); //Restore System.err
         }
     }
+
     @SuppressWarnings("unchecked")
     public static void disableAccessWarnings() {
         try {

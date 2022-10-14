@@ -52,12 +52,12 @@ public class OrganizerConsensusPhases {
             this.DEBUG = DEBUG;
             this.factory = new DefaultFactory();
             //this.N = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).size()-1;
-            this.N = 3;
+            this.N = 1;
             this.F = (this.N - 1) / 3;
             this.latch = new CountDownLatch(N);
             if (!DEBUG) {
                 this.current = CachedLatestBlocks.getInstance().getCommitteeBlock().getPublicKeyIndex(1, CachedLatestBlocks.getInstance().getTransactionBlock().getLeaderPublicKey());
-                if (current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).size()-1) {
+                if (current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).size() - 1) {
                     this.leader_bls = CachedLatestBlocks.getInstance().getCommitteeBlock().getPublicKeyByIndex(1, 0);
                     this.consensusServer = new ConsensusServer(CachedLatestBlocks.getInstance().getCommitteeBlock().getValue(1, this.leader_bls), latch);
                 } else {
@@ -90,7 +90,6 @@ public class OrganizerConsensusPhases {
 
             //data.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
             byte[] toSend = consensus_serialize.encode(data);
-            consensusServer.PollOut();
             consensusServer.publishMessage(toSend);
         }
 
@@ -104,8 +103,7 @@ public class OrganizerConsensusPhases {
                         if (receive == null) {
                             LOG.info("PreparePhase: Null message from validators");
                             i--;
-                        }
-                        else {
+                        } else {
                             ConsensusMessage<TransactionBlock> received = consensus_serialize.decode(receive);
                             if (!CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).containsKey(received.getChecksumData().getBlsPublicKey())) {
                                 LOG.info("PreparePhase: Validator does not exist on consensus... Ignore");
@@ -150,12 +148,11 @@ public class OrganizerConsensusPhases {
             Signature sig = BLSSignature.sign(block_serialize.encode(data.getData()), CachedBLSKeyPair.getInstance().getPrivateKey());
             data.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
 
-            this.N = 3;
+            this.N = 1;
             this.F = (this.N - 1) / 3;
 
 
             byte[] toSend = consensus_serialize.encode(data);
-            consensusServer.PollOut();
             consensusServer.publishMessage(toSend);
         }
 
@@ -217,15 +214,14 @@ public class OrganizerConsensusPhases {
             Signature sig = BLSSignature.sign(block_serialize.encode(data.getData()), CachedBLSKeyPair.getInstance().getPrivateKey());
             data.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
 
-            this.N = 3;
+            this.N = 1;
             this.F = (this.N - 1) / 3;
             int i = N;
 
             byte[] toSend = consensus_serialize.encode(data);
-            consensusServer.PollOut();
             consensusServer.publishMessage(toSend);
 
-            if (current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).size()-1)
+            if (current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).size() - 1)
                 data.getData().setLeaderPublicKey(CachedLatestBlocks.getInstance().getCommitteeBlock().getPublicKeyByIndex(1, 0));
             else {
                 data.getData().setLeaderPublicKey(CachedLatestBlocks.getInstance().getCommitteeBlock().getPublicKeyByIndex(1, current + 1));

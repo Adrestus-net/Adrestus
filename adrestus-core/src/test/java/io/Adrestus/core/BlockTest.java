@@ -15,7 +15,6 @@ import io.Adrestus.crypto.mnemonic.Mnemonic;
 import io.Adrestus.crypto.mnemonic.Security;
 import io.Adrestus.crypto.mnemonic.WordList;
 import io.Adrestus.util.GetTime;
-import io.Adrestus.util.ObjectSizeCalculator;
 import io.Adrestus.util.SerializationUtil;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;

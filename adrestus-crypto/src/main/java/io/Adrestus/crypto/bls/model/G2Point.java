@@ -133,11 +133,11 @@ public class G2Point implements Cloneable {
     }
 
     @Override
-    protected Object clone()  {
+    protected Object clone() {
         try {
             return super.clone();
         } catch (CloneNotSupportedException e) {
-           return null;
+            return null;
         }
     }
 

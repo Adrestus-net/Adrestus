@@ -126,7 +126,7 @@ public class ConsensusTimer {
             int target = CachedLatestBlocks.getInstance().getCommitteeBlock().getPublicKeyIndex(1, CachedBLSKeyPair.getInstance().getPublicKey());
             int current = CachedLatestBlocks.getInstance().getCommitteeBlock().getPublicKeyIndex(1, CachedLatestBlocks.getInstance().getTransactionBlock().getLeaderPublicKey());
 
-            if (target == current + 1 || (target == 0 && current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).size()-1)) {
+            if (target == current + 1 || (target == 0 && current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).size() - 1)) {
                 LOG.info("ORGANIZER State");
                 chooser();
                 consensusManager.changeStateTo(ConsensusRoleType.ORGANIZER);

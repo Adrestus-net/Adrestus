@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
 
-public class Signature implements Cloneable{
+public class Signature implements Cloneable {
     private G2Point point;
     private Supplier<G2Point> supplier_point;
 
@@ -37,6 +37,7 @@ public class Signature implements Cloneable{
         signatures.forEach(x -> cloned_keys.add((Signature) x.clone()));
         return cloned_keys.isEmpty() ? new Signature(new G2Point()) : cloned_keys.stream().reduce(Signature::combine).get();
     }
+
     public Signature combine(Signature signature) {
         point.getValue().add(signature.point.getValue());
         return new Signature(point);

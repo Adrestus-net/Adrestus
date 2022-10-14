@@ -210,7 +210,7 @@ public class ConsensusTimerTest {
         }
         if (hit == 0)
             return;
-        
+
         CountDownLatch latch = new CountDownLatch(5);
         ConsensusTimer c = new ConsensusTimer(latch, addreses, keypair);
         latch.await();

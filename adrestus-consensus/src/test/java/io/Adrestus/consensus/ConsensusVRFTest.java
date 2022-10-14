@@ -71,7 +71,6 @@ public class ConsensusVRFTest {
         organizerphase.AnnouncePhase(consensusMessage);
 
 
-
         validatorphase1.AnnouncePhase(consensusMessage);
         consensusMessage.getSignatures().add(consensusMessage.getChecksumData());
 

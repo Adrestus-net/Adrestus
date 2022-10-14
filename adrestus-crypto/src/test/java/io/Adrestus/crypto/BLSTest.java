@@ -150,9 +150,9 @@ public class BLSTest {
         BLSKeyPair keyPair1 = new BLSKeyPair(sk1, vk1);
         BLSKeyPair keyPair2 = new BLSKeyPair(sk2, vk2);
         BLSKeyPair keyPair3 = new BLSKeyPair(sk3, vk3);
-        List<Bytes> messages = Arrays.asList(message1, message2,message3);
-        List<BLSPublicKey> publicKeys = Arrays.asList(keyPair1.getPublicKey(), keyPair2.getPublicKey(),keyPair3.getPublicKey());
-        List<Signature> signatures = Arrays.asList(BLSSignature.sign(message1.toArray(), keyPair1.getPrivateKey()), BLSSignature.sign(message2.toArray(), keyPair2.getPrivateKey()),BLSSignature.sign(message3.toArray(), keyPair3.getPrivateKey()));
+        List<Bytes> messages = Arrays.asList(message1, message2, message3);
+        List<BLSPublicKey> publicKeys = Arrays.asList(keyPair1.getPublicKey(), keyPair2.getPublicKey(), keyPair3.getPublicKey());
+        List<Signature> signatures = Arrays.asList(BLSSignature.sign(message1.toArray(), keyPair1.getPrivateKey()), BLSSignature.sign(message2.toArray(), keyPair2.getPrivateKey()), BLSSignature.sign(message3.toArray(), keyPair3.getPrivateKey()));
         Signature aggregatedSignature = BLSSignature.aggregate(signatures);
         assertEquals(false, BLSSignature.aggregateVerify(publicKeys, messages, aggregatedSignature));
     }

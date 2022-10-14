@@ -1,7 +1,5 @@
 package io.Adrestus.network;
 
-import org.junit.jupiter.api.Test;
-
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CountDownLatch;
 
@@ -27,17 +25,19 @@ public class BlockUntilConnectedTest {
             Server.close();
         }
     }
+
     //@Test
     public void simple_test() throws InterruptedException {
 
 
         //client already started and block until server is connected
         (new Thread() {
-            int i=0;
+            int i = 0;
+
             public void run() {
                 ConsensusClient Client = new ConsensusClient("localhost");
                 while (true) {
-                    if(i==3){
+                    if (i == 3) {
                         System.out.println("break");
                         Client.close();
                         break;

@@ -14,7 +14,7 @@ public class MerkleTreeImp implements MerkleTree {
     private final int pos = 0;
 
     public MerkleTreeImp() {
-        this.root=new MerkleNode("");
+        this.root = new MerkleNode("");
     }
 
     @Override

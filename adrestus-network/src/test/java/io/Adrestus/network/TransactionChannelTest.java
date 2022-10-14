@@ -2,7 +2,6 @@ package io.Adrestus.network;
 
 import io.Adrestus.config.TransactionConfigOptions;
 import io.activej.bytebuf.ByteBuf;
-import io.activej.csp.ChannelConsumer;
 import io.activej.csp.ChannelSupplier;
 import io.activej.csp.binary.BinaryChannelSupplier;
 import io.activej.csp.binary.ByteBufsDecoder;
@@ -10,20 +9,16 @@ import io.activej.eventloop.Eventloop;
 import io.activej.net.socket.tcp.AsyncTcpSocket;
 import io.activej.net.socket.tcp.AsyncTcpSocketNio;
 import io.activej.promise.Promise;
-import io.activej.promise.Promises;
 import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.time.Duration;
 import java.util.concurrent.CountDownLatch;
 
-import static io.activej.bytebuf.ByteBufStrings.encodeAscii;
 import static io.activej.eventloop.Eventloop.getCurrentEventloop;
 import static io.activej.promise.Promises.loop;
-import static io.activej.promise.Promises.mapTuple;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class TransactionChannelTest {
@@ -35,6 +30,7 @@ public class TransactionChannelTest {
     private static final int ITERATIONS = 5;
     static CountDownLatch latch;
     static AsyncTcpSocket socket;
+
     @Test
     public void simple_test() throws InterruptedException, IOException {
 
@@ -68,10 +64,10 @@ public class TransactionChannelTest {
                 BinaryChannelSupplier bufsSupplier = BinaryChannelSupplier.of(ChannelSupplier.ofSocket(socket));
                 loop(0,
                         i -> i <= ITERATIONS,
-                        i -> loadData(i).then(bytes -> socket.write(ByteBuf.wrapForReading(bytes))).then(()->bufsSupplier.needMoreData())
+                        i -> loadData(i).then(bytes -> socket.write(ByteBuf.wrapForReading(bytes))).then(() -> bufsSupplier.needMoreData())
                                 .map($2 -> i + 1))
                         .whenComplete(socket::close);
-               // eventloop.execute(() -> socket.close());
+                // eventloop.execute(() -> socket.close());
                 //socket.close();
 
             } else {
@@ -84,11 +80,12 @@ public class TransactionChannelTest {
     }
 
     private static @NotNull Promise<byte[]> loadData(int i) {
-        byte[] concatBytes = ArrayUtils.addAll((String.valueOf(i)+REQUEST_MSG).getBytes(UTF_8),"\r\n".getBytes(UTF_8));
+        byte[] concatBytes = ArrayUtils.addAll((String.valueOf(i) + REQUEST_MSG).getBytes(UTF_8), "\r\n".getBytes(UTF_8));
         return Promise.of(concatBytes);
     }
+
     private static @NotNull Promise<String> count(byte[] bytes) {
-        Promise<Void> first=socket.write(ByteBuf.wrapForReading(bytes));
+        Promise<Void> first = socket.write(ByteBuf.wrapForReading(bytes));
         //Promise<Integer> secondNumber = Promises.delay(100, 10);
         //Promise<String> strPromise = first.combine(secondNumber, Integer::sum);
         return Promise.of("");

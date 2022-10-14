@@ -27,13 +27,13 @@ import java.util.ArrayList;
 
 import static io.activej.eventloop.Eventloop.getCurrentEventloop;
 import static io.activej.promise.Promises.loop;
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class TransactionChannelTest {
     private static final InetSocketAddress ADDRESS = new InetSocketAddress("localhost", TransactionConfigOptions.TRANSACTION_PORT);
     private static Eventloop eventloop = Eventloop.create().withCurrentThread();
     private static SerializationUtil<Transaction> serenc;
     static AsyncTcpSocket socket;
+
     @BeforeAll
     public static void setup() throws InterruptedException {
         TCPTransactionConsumer<byte[]> print = x -> {
@@ -50,15 +50,16 @@ public class TransactionChannelTest {
         }).start();
         Thread.sleep(100);
     }
+
     @Test
-    public void NetworkChannelTest(){
+    public void NetworkChannelTest() {
 
 
         serenc = new SerializationUtil<Transaction>(Transaction.class);
-        int size=10;
+        int size = 10;
 
-        ArrayList<Transaction>list=new ArrayList<>();
-        for (int j=0;j<size;j++) {
+        ArrayList<Transaction> list = new ArrayList<>();
+        for (int j = 0; j < size; j++) {
             Transaction transaction = new RegularTransaction();
             transaction.setFrom("ADR-ADML-SVUG-O7QD-R5IA-HWBD-XUGY-TVJA-3KAG-HLBI-G5EC");
             transaction.setTo("ADR-ADWE-NMZY-K4DI-WZBZ-ARSA-BI3N-AI3C-S744-5L5E-F4BR");
@@ -74,34 +75,34 @@ public class TransactionChannelTest {
 
             list.add(transaction);
         }
-            //byte transaction_hash[] = serenc.encodeWithTerminatedBytes(transaction);
-            //Transaction copy=serenc.decode(transaction_hash);
-            //int a=1;
-            eventloop.connect(new InetSocketAddress("localhost", TransactionConfigOptions.TRANSACTION_PORT), (socketChannel, e) -> {
-                        if (e == null) {
-                            System.out.println("Connected to server, enter some text and send it by pressing 'Enter'.");
-                            try {
-                                socket = AsyncTcpSocketNio.wrapChannel(getCurrentEventloop(), socketChannel, null);
-                            } catch (IOException ioException) {
-                                throw new RuntimeException(ioException);
-                            }
-                        BinaryChannelSupplier bufsSupplier = BinaryChannelSupplier.of(ChannelSupplier.ofSocket(socket));
-                        loop(0,
-                                i -> i < list.size(),
-                                i -> loadData(list.get(i)).then(bytes -> socket.write(ByteBuf.wrapForReading((bytes)))).then(()->bufsSupplier.needMoreData())
-                                        .map($2 -> i + 1))
-                                .whenComplete(socket::close);
-                        } else {
-                            System.out.printf("Could not connect to server, make sure it is started: %s%n", e);
-                        }
-            });
-            System.out.println("send");
-            eventloop.run();
+        //byte transaction_hash[] = serenc.encodeWithTerminatedBytes(transaction);
+        //Transaction copy=serenc.decode(transaction_hash);
+        //int a=1;
+        eventloop.connect(new InetSocketAddress("localhost", TransactionConfigOptions.TRANSACTION_PORT), (socketChannel, e) -> {
+            if (e == null) {
+                System.out.println("Connected to server, enter some text and send it by pressing 'Enter'.");
+                try {
+                    socket = AsyncTcpSocketNio.wrapChannel(getCurrentEventloop(), socketChannel, null);
+                } catch (IOException ioException) {
+                    throw new RuntimeException(ioException);
+                }
+                BinaryChannelSupplier bufsSupplier = BinaryChannelSupplier.of(ChannelSupplier.ofSocket(socket));
+                loop(0,
+                        i -> i < list.size(),
+                        i -> loadData(list.get(i)).then(bytes -> socket.write(ByteBuf.wrapForReading((bytes)))).then(() -> bufsSupplier.needMoreData())
+                                .map($2 -> i + 1))
+                        .whenComplete(socket::close);
+            } else {
+                System.out.printf("Could not connect to server, make sure it is started: %s%n", e);
+            }
+        });
+        System.out.println("send");
+        eventloop.run();
     }
 
     private static @NotNull Promise<byte[]> loadData(Transaction transaction) {
         byte transaction_hash[] = serenc.encode(transaction);
-        byte[] concatBytes = ArrayUtils.addAll(transaction_hash,"\r\n".getBytes());
+        byte[] concatBytes = ArrayUtils.addAll(transaction_hash, "\r\n".getBytes());
         return Promise.of(concatBytes);
     }
 }

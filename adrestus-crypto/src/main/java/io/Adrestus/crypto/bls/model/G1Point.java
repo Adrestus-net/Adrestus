@@ -6,7 +6,6 @@ import io.Adrestus.crypto.bls.constants.Constants;
 import io.Adrestus.crypto.bls.utils.CommonUtils;
 import io.activej.serializer.annotations.Deserialize;
 import io.activej.serializer.annotations.Serialize;
-import org.apache.tuweni.bytes.Bytes;
 
 import java.util.ArrayList;
 import java.util.List;

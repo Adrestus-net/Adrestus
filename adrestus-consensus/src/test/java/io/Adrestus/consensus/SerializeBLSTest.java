@@ -71,22 +71,23 @@ public class SerializeBLSTest {
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
         list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
-        Type fluentType = new TypeToken<ConsensusMessage<VRFMessage>>() {}.getType();
-        SerializationUtil<ConsensusMessage> serialize = new SerializationUtil<ConsensusMessage>(fluentType,list);
+        Type fluentType = new TypeToken<ConsensusMessage<VRFMessage>>() {
+        }.getType();
+        SerializationUtil<ConsensusMessage> serialize = new SerializationUtil<ConsensusMessage>(fluentType, list);
         ////////////////////
 
-        VRFMessage vrfMessage=new VRFMessage();
+        VRFMessage vrfMessage = new VRFMessage();
         vrfMessage.setType(VRFMessage.vrfMessageType.INIT);
         ConsensusMessage<VRFMessage> consensusMessage = new ConsensusMessage<>(vrfMessage);
         consensusMessage.setMessageType(ConsensusMessageType.COMMIT);
-        ConsensusMessage.ChecksumData checksumData=new ConsensusMessage.ChecksumData();
+        ConsensusMessage.ChecksumData checksumData = new ConsensusMessage.ChecksumData();
         checksumData.setSignature(bls_sig);
         checksumData.setBlsPublicKey(vk);
         consensusMessage.setChecksumData(checksumData);
 
         byte[] buffer = serialize.encode(consensusMessage);
         ConsensusMessage<VRFMessage> copy = serialize.decode(buffer);
-        boolean debug=true;
+        boolean debug = true;
 
     }
 

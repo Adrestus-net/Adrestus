@@ -6,11 +6,11 @@ import org.openjdk.jol.info.GraphLayout;
 
 
 public class InstrumentationTest {
-static {
-    ObjectSizeCalculator.disableAccessWarnings();
-}
+    static {
+        ObjectSizeCalculator.disableAccessWarnings();
+    }
 
-   // @Test
+    // @Test
     public void StressTest() throws InterruptedException {
         int loop = 10;
         SerializationUtil<Just4Test> serializationUtil = new SerializationUtil<Just4Test>(Just4Test.class);
@@ -21,7 +21,7 @@ static {
                 o1.getList().add("Value" + String.valueOf(i));
             }
             long full_size = ObjectSizeCalculator.getObjectSize(o1);
-            int buffer_size = (int)full_size;
+            int buffer_size = (int) full_size;
             byte[] data = serializationUtil.encode(o1);
             Just4Test copy = serializationUtil.decode(data);
             loop = loop + 10;
