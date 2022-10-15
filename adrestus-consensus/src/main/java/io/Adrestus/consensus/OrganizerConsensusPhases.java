@@ -240,7 +240,6 @@ public class OrganizerConsensusPhases {
             }
             cleanup();
             LOG.info("Block is finalized with Success");
-            MemoryPool.getInstance().clear();
         }
 
         private void cleanup() {

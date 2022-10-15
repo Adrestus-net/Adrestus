@@ -500,7 +500,6 @@ public class ValidatorConsensusPhases {
 
             consensusClient.send_heartbeat(HEARTBEAT_MESSAGE);
             LOG.info("Block is finalized with Success");
-            MemoryPool.getInstance().clear();
         }
     }
 

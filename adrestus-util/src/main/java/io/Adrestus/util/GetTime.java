@@ -6,9 +6,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class GetTime {
-    private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-
+    private static final String FORMAT_STRING = "yyyy-MM-dd HH:mm:ss.SSS";
     public static String GetTimeStampInString() {
+        SimpleDateFormat sdf = new SimpleDateFormat(FORMAT_STRING);
         Timestamp timestamp = new Timestamp(System.currentTimeMillis());
         return sdf.format(timestamp);
     }
@@ -19,6 +19,7 @@ public class GetTime {
     }
 
     public static Timestamp GetTimestampFromString(String parseDate) throws ParseException {
+        SimpleDateFormat sdf = new SimpleDateFormat(FORMAT_STRING);
         Date parsedDate = sdf.parse(parseDate);
         Timestamp timestamp = new java.sql.Timestamp(parsedDate.getTime());
         return timestamp;
