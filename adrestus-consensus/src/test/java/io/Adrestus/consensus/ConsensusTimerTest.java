@@ -163,17 +163,17 @@ public class ConsensusTimerTest {
         prevblock.setHeight(1);
         prevblock.setHash("hash");
         prevblock.getHeaderData().setTimestamp(GetTime.GetTimeStampInString());
-        prevblock.setTransactionProposer(vk6.toRaw());
-        prevblock.setLeaderPublicKey(vk6);
+        prevblock.setTransactionProposer(vk5.toRaw());
+        prevblock.setLeaderPublicKey(vk5);
         CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
         CachedLatestBlocks.getInstance().setTransactionBlock(prevblock);
 
         CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).put(vk1, "192.168.1.106");
         CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).put(vk2, "192.168.1.110");
         CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).put(vk3, "192.168.1.112");
-        CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).put(vk4, "192.168.1.115");
+       // CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).put(vk4, "192.168.1.115");
         CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).put(vk5, "192.168.1.116");
-        CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).put(vk6, "192.168.1.104");
+       // CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).put(vk6, "192.168.1.104");
     }
 
 

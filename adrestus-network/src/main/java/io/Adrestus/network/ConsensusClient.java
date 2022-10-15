@@ -85,7 +85,7 @@ public class ConsensusClient {
     @SneakyThrows
     public byte[] deque_message() {
         while (message_deque.isEmpty()) {}
-        System.out.println("take");
+       // System.out.println("take");
         return message_deque.pollFirst();
     }
 
@@ -96,13 +96,13 @@ public class ConsensusClient {
                 byte[] data = {1};
                 while (MESSAGES > 0 && MAX_MESSAGES > 0) {
                     //available.acquire();
-                    System.out.println("acquire");
+           //         System.out.println("acquire");
                     data = subscriber.recv();
                     if (data != null) {
                         message_deque.add(data);
                         MESSAGES--;
                     }
-                    System.out.println("receive" + MESSAGES);
+                   // System.out.println("receive" + MESSAGES);
                     MAX_MESSAGES--;
                     // available.release();
                 }

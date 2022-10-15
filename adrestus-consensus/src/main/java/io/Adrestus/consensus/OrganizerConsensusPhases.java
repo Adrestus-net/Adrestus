@@ -5,6 +5,7 @@ import io.Adrestus.core.AbstractBlock;
 import io.Adrestus.core.BlockType;
 import io.Adrestus.core.DefaultFactory;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
+import io.Adrestus.core.Resourses.MemoryPool;
 import io.Adrestus.core.TransactionBlock;
 import io.Adrestus.crypto.bls.BLS381.ECP;
 import io.Adrestus.crypto.bls.BLS381.ECP2;
@@ -39,8 +40,9 @@ public class OrganizerConsensusPhases {
         private final SerializationUtil<AbstractBlock> block_serialize;
         private final SerializationUtil<ConsensusMessage> consensus_serialize;
         private final boolean DEBUG;
-        private final CountDownLatch latch;
 
+
+        private CountDownLatch latch;
         private int N;
         private int F;
 
@@ -51,11 +53,11 @@ public class OrganizerConsensusPhases {
         public ProposeTransactionBlock(boolean DEBUG) {
             this.DEBUG = DEBUG;
             this.factory = new DefaultFactory();
+            if (!DEBUG) {
             //this.N = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).size()-1;
-          this.N = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).size()-1;
+            this.N = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).size()-1;
             this.F = (this.N - 1) / 3;
             this.latch = new CountDownLatch(N);
-            if (!DEBUG) {
                 this.current = CachedLatestBlocks.getInstance().getCommitteeBlock().getPublicKeyIndex(1, CachedLatestBlocks.getInstance().getTransactionBlock().getLeaderPublicKey());
                 if (current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).size() - 1) {
                     this.leader_bls = CachedLatestBlocks.getInstance().getCommitteeBlock().getPublicKeyByIndex(1, 0);
@@ -238,6 +240,11 @@ public class OrganizerConsensusPhases {
             }
             cleanup();
             LOG.info("Block is finalized with Success");
+            try {
+                MemoryPool.getInstance().clear();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         private void cleanup() {

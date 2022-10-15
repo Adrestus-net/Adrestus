@@ -30,5 +30,5 @@ public interface IMemoryPool {
 
     void printAll() throws Exception;
 
-    void clear() throws Exception;
+    void clear();
 }

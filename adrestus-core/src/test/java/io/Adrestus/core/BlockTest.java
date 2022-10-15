@@ -106,6 +106,7 @@ public class BlockTest {
                 .withRewardEventHandler()
                 .withStakingEventHandler()
                 .withTransactionFeeEventHandler()
+                .withTimestampEventHandler()
                 .mergeEventsAndPassThen(new SignatureEventHandler(SignatureEventHandler.SignatureBehaviorType.SIMPLE_TRANSACTIONS));
         publisher.start();
 

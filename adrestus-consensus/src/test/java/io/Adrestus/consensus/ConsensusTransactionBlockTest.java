@@ -68,6 +68,7 @@ public class ConsensusTransactionBlockTest {
                 .withRewardEventHandler()
                 .withStakingEventHandler()
                 .withTransactionFeeEventHandler()
+                .withTimestampEventHandler()
                 .mergeEventsAndPassThen(new SignatureEventHandler(SignatureEventHandler.SignatureBehaviorType.SIMPLE_TRANSACTIONS));
         publisher.start();
 

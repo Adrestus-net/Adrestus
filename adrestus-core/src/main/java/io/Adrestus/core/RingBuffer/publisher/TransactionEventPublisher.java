@@ -166,6 +166,11 @@ public class TransactionEventPublisher implements Publisher<Transaction> {
         return this;
     }
 
+    public TransactionEventPublisher withTimestampEventHandler(){
+        group.add(new TimestampEventHandler());
+        return this;
+    }
+
     public TransactionEventPublisher mergeEvents() {
         TransactionEventHandler[] events = new TransactionEventHandler[group.size()];
         group.toArray(events);

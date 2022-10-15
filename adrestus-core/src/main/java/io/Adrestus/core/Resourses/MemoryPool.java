@@ -109,7 +109,7 @@ public class MemoryPool implements IMemoryPool {
     }
 
     @Override
-    public void clear() throws Exception {
+    public void clear(){
         memorypool.clear();
     }
 
