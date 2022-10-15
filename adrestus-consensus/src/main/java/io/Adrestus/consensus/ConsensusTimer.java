@@ -98,6 +98,7 @@ public class ConsensusTimer {
             transaction.setTo(addreses.get(i + 1));
             transaction.setStatus(StatusType.PENDING);
             transaction.setTimestamp(GetTime.GetTimeStampInString());
+            Thread.sleep(10);
             transaction.setZoneFrom(0);
             transaction.setZoneTo(0);
             transaction.setAmount(100);

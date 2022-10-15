@@ -11,34 +11,37 @@ public class ConsensusServerClientTest {
         System.out.println("test_subscribe");
         ConsensusServer adrestusServer = new ConsensusServer("localhost");
 
-        ConsensusClient adrestusClient1 = new ConsensusClient("localhost");
-        ConsensusClient adrestusClient2 = new ConsensusClient("localhost");
-        ConsensusClient adrestusClient3 = new ConsensusClient("localhost");
-        ConsensusClient adrestusClient4 = new ConsensusClient("localhost");
-
 
         (new Thread() {
             public void run() {
+                ConsensusClient adrestusClient1 = new ConsensusClient("localhost");
                 byte[] res = adrestusClient1.receiveData();
                 System.out.println(new String(res));
+                adrestusClient1.close();
             }
         }).start();
         (new Thread() {
             public void run() {
+                ConsensusClient adrestusClient2 = new ConsensusClient("localhost");
                 byte[] res = adrestusClient2.receiveData();
                 System.out.println(new String(res));
+                adrestusClient2.close();
             }
         }).start();
         (new Thread() {
             public void run() {
+                ConsensusClient adrestusClient3 = new ConsensusClient("localhost");
                 byte[] res = adrestusClient3.receiveData();
                 System.out.println(new String(res));
+                adrestusClient3.close();
             }
         }).start();
         (new Thread() {
             public void run() {
+                ConsensusClient adrestusClient4 = new ConsensusClient("localhost");
                 byte[] res = adrestusClient4.receiveData();
                 System.out.println(new String(res));
+                adrestusClient4.close();
             }
         }).start();
 
@@ -46,10 +49,6 @@ public class ConsensusServerClientTest {
         Thread.sleep(2000);
         adrestusServer.publishMessage("Message".getBytes(StandardCharsets.UTF_8));
         adrestusServer.close();
-        adrestusClient1.close();
-        adrestusClient2.close();
-        adrestusClient3.close();
-        adrestusClient4.close();
     }
 
     @Test
@@ -57,46 +56,48 @@ public class ConsensusServerClientTest {
         System.out.println("test_subscribe_with_delay");
         ConsensusServer adrestusServer = new ConsensusServer("localhost");
 
-        ConsensusClient adrestusClient1 = new ConsensusClient("localhost");
-        ConsensusClient adrestusClient2 = new ConsensusClient("localhost");
-        ConsensusClient adrestusClient3 = new ConsensusClient("localhost");
-        ConsensusClient adrestusClient4 = new ConsensusClient("localhost");
-
-
         (new Thread() {
             public void run() {
+                ConsensusClient adrestusClient1 = new ConsensusClient("localhost");
                 byte[] res = adrestusClient1.receiveData();
                 if (res == null)
                     System.out.println("Timeout caught not receiving");
                 else
                     System.out.println(new String(res));
+                adrestusClient1.close();
             }
         }).start();
         (new Thread() {
             public void run() {
+                ConsensusClient adrestusClient2 = new ConsensusClient("localhost");
                 byte[] res = adrestusClient2.receiveData();
                 if (res == null)
                     System.out.println("Timeout caught not receiving");
                 else
                     System.out.println(new String(res));
+                adrestusClient2.close();
             }
         }).start();
         (new Thread() {
             public void run() {
+                ConsensusClient adrestusClient3 = new ConsensusClient("localhost");
                 byte[] res = adrestusClient3.receiveData();
                 if (res == null)
                     System.out.println("Timeout caught not receiving");
                 else
                     System.out.println(new String(res));
+                adrestusClient3.close();
             }
         }).start();
         (new Thread() {
             public void run() {
+                ConsensusClient adrestusClient4 = new ConsensusClient("localhost");
                 byte[] res = adrestusClient4.receiveData();
                 if (res == null)
                     System.out.println("Timeout caught not receiving");
                 else
                     System.out.println(new String(res));
+                adrestusClient4.close();
             }
         }).start();
 
@@ -104,10 +105,7 @@ public class ConsensusServerClientTest {
         Thread.sleep(5000);
         adrestusServer.publishMessage("Message".getBytes(StandardCharsets.UTF_8));
         adrestusServer.close();
-        adrestusClient1.close();
-        adrestusClient2.close();
-        adrestusClient3.close();
-        adrestusClient4.close();
+
     }
 
     @Test
@@ -293,23 +291,21 @@ public class ConsensusServerClientTest {
         try {
             ConsensusServer consensusServer = new ConsensusServer("localhost");
 
-            ConsensusClient consensusClient1 = new ConsensusClient("localhost");
-
             (new Thread() {
                 public void run() {
+                    ConsensusClient consensusClient1 = new ConsensusClient("localhost");
                     byte[] res = consensusClient1.receiveData();
                     if (res == null)
                         System.out.println("Timeout caught not receiving");
                     else
                         System.out.println(new String(res));
-
+                    consensusClient1.close();
                 }
             }).start();
 
             Thread.sleep(7000);
             consensusServer.publishMessage("1".getBytes(StandardCharsets.UTF_8));
             consensusServer.close();
-            consensusClient1.close();
         } catch (AssertionError e) {
             System.out.println("Server_push_to_client_with_delay");
         }
