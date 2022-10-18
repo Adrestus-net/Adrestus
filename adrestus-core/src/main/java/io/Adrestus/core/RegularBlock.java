@@ -71,6 +71,12 @@ public class RegularBlock implements BlockForge {
 
     @Override
     public void forgeCommitteBlock(CommitteeBlock committeeBlock) {
-
+        BlockEventPublisher publisher = new BlockEventPublisher(1024);
+        publisher
+                .withHashHandler()
+                .withTimestampEventHandler()
+                .withHeightEventHandler()
+                .withGenerationHandler()
+                .mergeEvents();
     }
 }

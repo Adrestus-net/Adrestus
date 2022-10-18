@@ -20,7 +20,6 @@ public class TimeStampEventHandler implements BlockEventHandler<AbstractBlockEve
     public void onEvent(AbstractBlockEvent blockEvent, long l, boolean b) throws Exception {
         try {
             AbstractBlock block = blockEvent.getBlock();
-
             block.accept(this);
         } catch (NullPointerException ex) {
             LOG.info("Block is empty");

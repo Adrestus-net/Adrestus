@@ -169,4 +169,9 @@ public class BlockTest {
         if (transactionBlock.getStatustype().equals(StatusType.ABORT))
             System.out.println("true");
     }
+
+
+    public void commit_block_test(){
+
+    }
 }
