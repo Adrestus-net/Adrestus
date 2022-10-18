@@ -63,11 +63,11 @@ public class ServerClientTest {
     }
 
     @Test
-    public void test_with_with_delays() throws InterruptedException {
+    public void test_with_delays() throws InterruptedException {
         System.out.println("test_with_with_delays");
         SimpleServer adrestusServer = new SimpleServer("localhost");
 
-
+        CountDownLatch latch=new CountDownLatch(1);
         SimpleClient adrestusClient1 = new SimpleClient("localhost");
         (new Thread() {
             public void run() {
@@ -78,12 +78,14 @@ public class ServerClientTest {
                     System.out.println(new String(data));
                 }
                 adrestusClient1.close();
+                latch.countDown();
             }
         }).start();
         Thread.sleep(6000);
         adrestusServer.publishMessage("Message".getBytes(StandardCharsets.UTF_8));
         Thread.sleep(10);
         adrestusServer.close();
+        latch.await();
     }
 
     @Test
