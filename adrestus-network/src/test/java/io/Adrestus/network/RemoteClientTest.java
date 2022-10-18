@@ -1,7 +1,5 @@
 package io.Adrestus.network;
 
-import org.junit.jupiter.api.Test;
-
 import java.nio.charset.StandardCharsets;
 
 public class RemoteClientTest {
