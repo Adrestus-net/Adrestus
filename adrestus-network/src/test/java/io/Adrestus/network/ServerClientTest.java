@@ -9,6 +9,7 @@ import org.zeromq.ZMQ.Socket;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 import static io.Adrestus.config.ConsensusConfiguration.PUBLISHER_PORT;
 import static io.Adrestus.config.ConsensusConfiguration.SUBSCRIBER_PORT;
@@ -52,14 +53,12 @@ public class ServerClientTest {
         (new Thread() {
             public void run() {
                 System.out.println(new String(adrestusClient1.receiveData()));
+                adrestusClient1.close();
             }
         }).start();
         Thread.sleep(1000);
         adrestusServer.publishMessage("Message".getBytes(StandardCharsets.UTF_8));
-        // adrestusClient1.receiveData();
-        System.out.println("sad");
         Thread.sleep(10);
-        adrestusClient1.close();
         adrestusServer.close();
     }
 
@@ -78,12 +77,12 @@ public class ServerClientTest {
                 } else {
                     System.out.println(new String(data));
                 }
+                adrestusClient1.close();
             }
         }).start();
         Thread.sleep(6000);
         adrestusServer.publishMessage("Message".getBytes(StandardCharsets.UTF_8));
         Thread.sleep(10);
-        adrestusClient1.close();
         adrestusServer.close();
     }
 
@@ -106,6 +105,7 @@ public class ServerClientTest {
                 } else {
                     System.out.println(new String(res));
                 }
+                adrestusClient1.close();
             }
         }).start();
         (new Thread() {
@@ -116,6 +116,7 @@ public class ServerClientTest {
                 } else {
                     System.out.println(new String(res));
                 }
+                adrestusClient2.close();
             }
         }).start();
         (new Thread() {
@@ -126,6 +127,7 @@ public class ServerClientTest {
                 } else {
                     System.out.println(new String(res));
                 }
+                adrestusClient3.close();
             }
         }).start();
         (new Thread() {
@@ -136,6 +138,7 @@ public class ServerClientTest {
                 } else {
                     System.out.println(new String(res));
                 }
+                adrestusClient4.close();
             }
         }).start();
 
@@ -143,11 +146,6 @@ public class ServerClientTest {
         Thread.sleep(3000);
         adrestusServer.publishMessage("Message".getBytes(StandardCharsets.UTF_8));
         Thread.sleep(10);
-        adrestusClient1.close();
-        adrestusClient2.close();
-        adrestusClient3.close();
-        adrestusClient4.close();
-        adrestusServer.close();
         adrestusServer.close();
 
     }
@@ -165,6 +163,7 @@ public class ServerClientTest {
             public void run() {
                 List<Bytes> lis = adrestusServer.receiveData(4);
                 lis.forEach(x -> System.out.println(new String(x.toArray())));
+                adrestusServer.close();
             }
         }).start();
         Thread.sleep(500);
@@ -178,7 +177,6 @@ public class ServerClientTest {
         adrestusClient2.close();
         adrestusClient3.close();
         adrestusClient4.close();
-        adrestusServer.close();
 
     }
 
@@ -191,10 +189,13 @@ public class ServerClientTest {
         SimpleClient adrestusClient2 = new SimpleClient("localhost");
         SimpleClient adrestusClient3 = new SimpleClient("localhost");
         //AdrestusClient adrestusClient4 = new AdrestusClient("localhost");
+        CountDownLatch latch=new CountDownLatch(1);
         (new Thread() {
             public void run() {
                 List<Bytes> lis = adrestusServer.receiveData(4);
                 lis.forEach(x -> System.out.println(new String(x.toArray())));
+                adrestusServer.close();
+                latch.countDown();
             }
         }).start();
         Thread.sleep(500);
@@ -207,10 +208,9 @@ public class ServerClientTest {
         adrestusClient1.close();
         adrestusClient2.close();
         adrestusClient3.close();
-        adrestusServer.close();
         //adrestusClient4.close();
         Thread.sleep(4000);
-
+        latch.await();
     }
 
     @Test
@@ -220,11 +220,14 @@ public class ServerClientTest {
 
         SimpleClient adrestusClient1 = new SimpleClient("localhost");
         SimpleClient adrestusClient2 = new SimpleClient("localhost");
+        CountDownLatch latch=new CountDownLatch(1);
         (new Thread() {
             public void run() {
                 List<Bytes> lis = adrestusServer.receiveData(4);
                 if (!lis.isEmpty())
                     lis.forEach(x -> System.out.println(new String(x.toArray())));
+                adrestusServer.close();
+                latch.countDown();
             }
         }).start();
         Thread.sleep(500);
@@ -234,7 +237,7 @@ public class ServerClientTest {
 
         adrestusClient1.close();
         adrestusClient2.close();
-        adrestusServer.close();
         Thread.sleep(4000);
+        latch.await();
     }
 }
