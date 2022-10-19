@@ -4,10 +4,10 @@ import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import io.Adrestus.p2p.kademlia.common.NettyBigIntegerExternalNode;
 import io.Adrestus.p2p.kademlia.common.NettyConnectionInfo;
-import io.ep2p.kademlia.model.FindNodeAnswer;
-import io.ep2p.kademlia.node.Node;
-import io.ep2p.kademlia.protocol.MessageType;
-import io.ep2p.kademlia.protocol.message.*;
+import io.Adrestus.p2p.kademlia.model.FindNodeAnswer;
+import io.Adrestus.p2p.kademlia.node.Node;
+import io.Adrestus.p2p.kademlia.protocol.MessageType;
+import io.Adrestus.p2p.kademlia.protocol.message.*;
 import lombok.SneakyThrows;
 
 import java.io.Serializable;

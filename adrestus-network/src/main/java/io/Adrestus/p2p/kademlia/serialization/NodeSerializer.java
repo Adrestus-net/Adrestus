@@ -5,7 +5,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import io.Adrestus.p2p.kademlia.common.NettyConnectionInfo;
-import io.ep2p.kademlia.node.Node;
+import io.Adrestus.p2p.kademlia.node.Node;
 
 import java.lang.reflect.Type;
 import java.math.BigInteger;

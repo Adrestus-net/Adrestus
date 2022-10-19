@@ -2,7 +2,7 @@ package io.Adrestus.p2p.kademlia.server;
 
 import io.Adrestus.p2p.kademlia.common.NettyConnectionInfo;
 import io.Adrestus.p2p.kademlia.factory.NettyServerInitializerFactory;
-import io.ep2p.kademlia.node.DHTKademliaNodeAPI;
+import io.Adrestus.p2p.kademlia.node.DHTKademliaNodeAPI;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
@@ -21,7 +21,6 @@ import java.math.BigInteger;
 
 
 @Getter
-@Slf4j
 public class KademliaNodeServer<K extends Serializable, V extends Serializable> {
     private static Logger log = LoggerFactory.getLogger(KademliaNodeServer.class);
 

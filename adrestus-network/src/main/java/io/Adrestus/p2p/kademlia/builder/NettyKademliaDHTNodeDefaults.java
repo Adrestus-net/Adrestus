@@ -8,10 +8,10 @@ import io.Adrestus.p2p.kademlia.factory.NettyServerInitializerFactory;
 import io.Adrestus.p2p.kademlia.server.KademliaNodeServer;
 import io.Adrestus.p2p.kademlia.server.filter.KademliaMainHandlerFilter;
 import io.Adrestus.p2p.kademlia.server.filter.NettyKademliaServerFilterChain;
-import io.ep2p.kademlia.NodeSettings;
-import io.ep2p.kademlia.table.Bucket;
-import io.ep2p.kademlia.table.DefaultRoutingTableFactory;
-import io.ep2p.kademlia.table.RoutingTableFactory;
+import io.Adrestus.p2p.kademlia.NodeSettings;
+import io.Adrestus.p2p.kademlia.table.Bucket;
+import io.Adrestus.p2p.kademlia.table.DefaultRoutingTableFactory;
+import io.Adrestus.p2p.kademlia.table.RoutingTableFactory;
 
 import java.io.Serializable;
 import java.math.BigInteger;

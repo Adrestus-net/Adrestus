@@ -6,8 +6,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
 import com.google.gson.reflect.TypeToken;
 import io.Adrestus.p2p.kademlia.common.NettyConnectionInfo;
-import io.ep2p.kademlia.model.FindNodeAnswer;
-import io.ep2p.kademlia.node.external.ExternalNode;
+import io.Adrestus.p2p.kademlia.model.FindNodeAnswer;
+import io.Adrestus.p2p.kademlia.node.external.ExternalNode;
 
 import java.lang.reflect.Type;
 import java.math.BigInteger;

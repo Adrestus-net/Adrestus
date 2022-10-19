@@ -1,7 +1,7 @@
 package io.Adrestus.p2p.kademlia.server.filter;
 
 import io.Adrestus.p2p.kademlia.common.NettyConnectionInfo;
-import io.ep2p.kademlia.node.DHTKademliaNodeAPI;
+import io.Adrestus.p2p.kademlia.node.DHTKademliaNodeAPI;
 import io.netty.channel.ChannelHandlerContext;
 
 import java.io.Serializable;

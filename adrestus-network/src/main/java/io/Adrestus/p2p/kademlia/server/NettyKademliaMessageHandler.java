@@ -4,7 +4,7 @@ import io.Adrestus.p2p.kademlia.common.NettyConnectionInfo;
 import io.Adrestus.p2p.kademlia.server.filter.Context;
 import io.Adrestus.p2p.kademlia.server.filter.NettyKademliaServerFilter;
 import io.Adrestus.p2p.kademlia.server.filter.NettyKademliaServerFilterChain;
-import io.ep2p.kademlia.node.DHTKademliaNodeAPI;
+import io.Adrestus.p2p.kademlia.node.DHTKademliaNodeAPI;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -12,7 +12,6 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +22,6 @@ import java.util.List;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 
 
-@Slf4j
 public class NettyKademliaMessageHandler<K extends Serializable, V extends Serializable> extends SimpleChannelInboundHandler<FullHttpRequest> {
     private static Logger log = LoggerFactory.getLogger(NettyKademliaMessageHandler.class);
     private final NettyKademliaServerFilterChain<K, V> filterChain;

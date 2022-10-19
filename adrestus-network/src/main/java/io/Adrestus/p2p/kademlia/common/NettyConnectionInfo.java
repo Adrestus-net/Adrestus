@@ -1,7 +1,7 @@
 package io.Adrestus.p2p.kademlia.common;
 
 import com.google.common.base.Objects;
-import io.ep2p.kademlia.connection.ConnectionInfo;
+import io.Adrestus.p2p.kademlia.connection.ConnectionInfo;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

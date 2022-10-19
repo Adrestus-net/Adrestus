@@ -2,9 +2,9 @@ package io.Adrestus.p2p.kademlia;
 
 import io.Adrestus.p2p.kademlia.common.NettyConnectionInfo;
 import io.Adrestus.p2p.kademlia.server.KademliaNodeServer;
-import io.ep2p.kademlia.node.DHTKademliaNodeAPI;
-import io.ep2p.kademlia.node.DHTKademliaNodeAPIDecorator;
-import io.ep2p.kademlia.node.Node;
+import io.Adrestus.p2p.kademlia.node.DHTKademliaNodeAPI;
+import io.Adrestus.p2p.kademlia.node.DHTKademliaNodeAPIDecorator;
+import io.Adrestus.p2p.kademlia.node.Node;
 import lombok.Getter;
 import lombok.SneakyThrows;
 

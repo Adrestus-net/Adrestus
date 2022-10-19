@@ -5,10 +5,10 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import io.Adrestus.p2p.kademlia.common.NettyBigIntegerExternalNode;
 import io.Adrestus.p2p.kademlia.serialization.*;
-import io.ep2p.kademlia.model.FindNodeAnswer;
-import io.ep2p.kademlia.node.Node;
-import io.ep2p.kademlia.node.external.ExternalNode;
-import io.ep2p.kademlia.protocol.message.*;
+import io.Adrestus.p2p.kademlia.model.FindNodeAnswer;
+import io.Adrestus.p2p.kademlia.node.Node;
+import io.Adrestus.p2p.kademlia.node.external.ExternalNode;
+import io.Adrestus.p2p.kademlia.protocol.message.*;
 
 import java.io.Serializable;
 

@@ -3,7 +3,7 @@ package io.Adrestus.p2p.kademlia.factory;
 import io.Adrestus.p2p.kademlia.common.NettyConnectionInfo;
 import io.Adrestus.p2p.kademlia.server.NettyKademliaMessageHandler;
 import io.Adrestus.p2p.kademlia.server.filter.NettyKademliaServerFilterChain;
-import io.ep2p.kademlia.node.DHTKademliaNodeAPI;
+import io.Adrestus.p2p.kademlia.node.DHTKademliaNodeAPI;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.FullHttpRequest;
 

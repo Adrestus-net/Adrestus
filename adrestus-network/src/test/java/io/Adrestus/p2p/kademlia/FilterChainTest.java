@@ -1,6 +1,6 @@
 package io.Adrestus.p2p.kademlia;
 
-import io.ep2p.kademlia.NodeSettings;
+import io.Adrestus.p2p.kademlia.NodeSettings;
 import io.Adrestus.p2p.kademlia.builder.NettyKademliaDHTNodeBuilder;
 import io.Adrestus.p2p.kademlia.client.NettyMessageSender;
 import io.Adrestus.p2p.kademlia.common.NettyConnectionInfo;
@@ -9,9 +9,9 @@ import io.Adrestus.p2p.kademlia.factory.KademliaMessageHandlerFactory;
 import io.Adrestus.p2p.kademlia.server.filter.KademliaMainHandlerFilter;
 import io.Adrestus.p2p.kademlia.server.filter.NettyKademliaServerFilter;
 import io.Adrestus.p2p.kademlia.server.filter.NettyKademliaServerFilterChain;
-import io.ep2p.kademlia.node.KeyHashGenerator;
-import io.ep2p.kademlia.repository.KademliaRepository;
-import io.ep2p.kademlia.util.BoundedHashUtil;
+import io.Adrestus.p2p.kademlia.node.KeyHashGenerator;
+import io.Adrestus.p2p.kademlia.repository.KademliaRepository;
+import io.Adrestus.p2p.kademlia.util.BoundedHashUtil;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;

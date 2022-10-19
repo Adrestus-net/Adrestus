@@ -1,16 +1,16 @@
 package io.Adrestus.p2p.kademlia;
 
 
-import io.ep2p.kademlia.NodeSettings;
-import io.ep2p.kademlia.exception.DuplicateStoreRequest;
-import io.ep2p.kademlia.model.LookupAnswer;
-import io.ep2p.kademlia.model.StoreAnswer;
+import io.Adrestus.p2p.kademlia.NodeSettings;
+import io.Adrestus.p2p.kademlia.exception.DuplicateStoreRequest;
+import io.Adrestus.p2p.kademlia.model.LookupAnswer;
+import io.Adrestus.p2p.kademlia.model.StoreAnswer;
 import io.Adrestus.p2p.kademlia.builder.NettyKademliaDHTNodeBuilder;
 import io.Adrestus.p2p.kademlia.client.NettyMessageSender;
 import io.Adrestus.p2p.kademlia.common.NettyConnectionInfo;
-import io.ep2p.kademlia.node.KeyHashGenerator;
-import io.ep2p.kademlia.repository.KademliaRepository;
-import io.ep2p.kademlia.util.BoundedHashUtil;
+import io.Adrestus.p2p.kademlia.node.KeyHashGenerator;
+import io.Adrestus.p2p.kademlia.repository.KademliaRepository;
+import io.Adrestus.p2p.kademlia.util.BoundedHashUtil;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
@@ -22,6 +22,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class DHTTest {
 

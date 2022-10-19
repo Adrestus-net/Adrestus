@@ -3,7 +3,7 @@ package io.Adrestus.p2p.kademlia.server.filter;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import io.Adrestus.p2p.kademlia.common.NettyConnectionInfo;
-import io.ep2p.kademlia.protocol.message.KademliaMessage;
+import io.Adrestus.p2p.kademlia.protocol.message.KademliaMessage;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.FullHttpRequest;
@@ -23,7 +23,6 @@ import static io.netty.handler.codec.http.HttpHeaderValues.APPLICATION_JSON;
 import static io.netty.handler.codec.http.HttpResponseStatus.BAD_REQUEST;
 
 
-@Slf4j
 public class KademliaMainHandlerFilter<K extends Serializable, V extends Serializable> extends NettyKademliaServerFilter<K, V> {
     private static Logger log = LoggerFactory.getLogger(KademliaMainHandlerFilter.class);
 

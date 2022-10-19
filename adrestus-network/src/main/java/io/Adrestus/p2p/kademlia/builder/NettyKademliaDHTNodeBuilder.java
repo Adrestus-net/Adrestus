@@ -6,15 +6,16 @@ import io.Adrestus.p2p.kademlia.factory.GsonFactory;
 import io.Adrestus.p2p.kademlia.factory.KademliaMessageHandlerFactory;
 import io.Adrestus.p2p.kademlia.factory.NettyServerInitializerFactory;
 import io.Adrestus.p2p.kademlia.server.KademliaNodeServer;
-import io.ep2p.kademlia.NodeSettings;
-import io.ep2p.kademlia.connection.MessageSender;
-import io.ep2p.kademlia.node.DHTKademliaNode;
-import io.ep2p.kademlia.node.DHTKademliaNodeAPI;
-import io.ep2p.kademlia.node.KeyHashGenerator;
-import io.ep2p.kademlia.repository.KademliaRepository;
-import io.ep2p.kademlia.table.Bucket;
-import io.ep2p.kademlia.table.RoutingTable;
+import io.Adrestus.p2p.kademlia.NodeSettings;
+import io.Adrestus.p2p.kademlia.connection.MessageSender;
+import io.Adrestus.p2p.kademlia.node.DHTKademliaNode;
+import io.Adrestus.p2p.kademlia.node.DHTKademliaNodeAPI;
+import io.Adrestus.p2p.kademlia.node.KeyHashGenerator;
+import io.Adrestus.p2p.kademlia.repository.KademliaRepository;
+import io.Adrestus.p2p.kademlia.table.Bucket;
+import io.Adrestus.p2p.kademlia.table.RoutingTable;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.io.Serializable;
 import java.math.BigInteger;
@@ -23,6 +24,7 @@ import java.util.List;
 
 
 @Getter
+@Setter
 public class NettyKademliaDHTNodeBuilder<K extends Serializable, V extends Serializable> {
     private final BigInteger id;
     private final NettyConnectionInfo connectionInfo;
@@ -77,6 +79,11 @@ public class NettyKademliaDHTNodeBuilder<K extends Serializable, V extends Seria
 
     public NettyKademliaDHTNodeBuilder<K, V> gsonFactory(GsonFactory gsonFactory) {
         this.gsonFactory = gsonFactory;
+        return this;
+    }
+
+    public NettyKademliaDHTNodeBuilder<K,V> withNodeSettings(NodeSettings nodeSettings){
+        this.nodeSettings=nodeSettings;
         return this;
     }
 

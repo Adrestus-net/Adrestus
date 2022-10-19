@@ -2,8 +2,8 @@ package io.Adrestus.p2p.kademlia.serialization;
 
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
-import io.ep2p.kademlia.model.StoreAnswer;
-import io.ep2p.kademlia.protocol.message.DHTStoreResultKademliaMessage;
+import io.Adrestus.p2p.kademlia.model.StoreAnswer;
+import io.Adrestus.p2p.kademlia.protocol.message.DHTStoreResultKademliaMessage;
 
 import java.io.Serializable;
 import java.lang.reflect.Type;

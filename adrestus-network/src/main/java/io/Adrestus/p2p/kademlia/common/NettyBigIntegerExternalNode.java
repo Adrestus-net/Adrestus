@@ -1,7 +1,7 @@
 package io.Adrestus.p2p.kademlia.common;
 
 import com.google.common.base.Objects;
-import io.ep2p.kademlia.node.Node;
+import io.Adrestus.p2p.kademlia.node.Node;
 import lombok.*;
 
 import java.math.BigInteger;

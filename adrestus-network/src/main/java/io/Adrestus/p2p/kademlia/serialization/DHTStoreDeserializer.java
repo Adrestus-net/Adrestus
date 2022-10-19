@@ -4,7 +4,7 @@ import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import io.Adrestus.p2p.kademlia.common.NettyBigIntegerExternalNode;
 import io.Adrestus.p2p.kademlia.common.NettyConnectionInfo;
-import io.ep2p.kademlia.protocol.message.DHTStoreKademliaMessage;
+import io.Adrestus.p2p.kademlia.protocol.message.DHTStoreKademliaMessage;
 
 import java.io.Serializable;
 import java.lang.reflect.Type;

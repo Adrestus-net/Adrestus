@@ -4,9 +4,9 @@ import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import io.Adrestus.p2p.kademlia.common.NettyBigIntegerExternalNode;
 import io.Adrestus.p2p.kademlia.common.NettyConnectionInfo;
-import io.ep2p.kademlia.node.Node;
-import io.ep2p.kademlia.node.external.BigIntegerExternalNode;
-import io.ep2p.kademlia.node.external.ExternalNode;
+import io.Adrestus.p2p.kademlia.node.Node;
+import io.Adrestus.p2p.kademlia.node.external.BigIntegerExternalNode;
+import io.Adrestus.p2p.kademlia.node.external.ExternalNode;
 
 import java.lang.reflect.Type;
 import java.math.BigInteger;
