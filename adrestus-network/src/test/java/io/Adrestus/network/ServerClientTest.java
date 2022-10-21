@@ -33,14 +33,13 @@ public class ServerClientTest {
         (new Thread() {
             public void run() {
                 System.out.println("SUB: " + new String(sub.recv()));
+                sub.close();
             }
         }).start();
         Thread.sleep(100);
         pub.send("Hello, world!".getBytes(StandardCharsets.UTF_8));
         Thread.sleep(100);
-        sub.close();
         pub.close();
-        ctx.close();
     }
 
     @Test
