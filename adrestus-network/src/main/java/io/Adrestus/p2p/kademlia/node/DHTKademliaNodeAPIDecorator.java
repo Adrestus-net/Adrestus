@@ -2,6 +2,7 @@ package io.Adrestus.p2p.kademlia.node;
 
 import io.Adrestus.p2p.kademlia.connection.ConnectionInfo;
 import io.Adrestus.p2p.kademlia.exception.DuplicateStoreRequest;
+import io.Adrestus.p2p.kademlia.exception.NotExistStoreRequest;
 import io.Adrestus.p2p.kademlia.model.LookupAnswer;
 import io.Adrestus.p2p.kademlia.model.StoreAnswer;
 import io.Adrestus.p2p.kademlia.repository.KademliaRepository;
@@ -24,7 +25,10 @@ public abstract class DHTKademliaNodeAPIDecorator<ID extends Number, C extends C
     public Future<LookupAnswer<ID, K, V>> lookup(K key) {
         return ((DHTKademliaNodeAPI<ID, C, K, V>) getKademliaNode()).lookup(key);
     }
-
+    @Override
+    public Future<StoreAnswer<ID, K>> remove(K key) throws NotExistStoreRequest {
+        return ((DHTKademliaNodeAPI<ID, C, K, V>) getKademliaNode()).remove(key);
+    }
     @Override
     public KademliaRepository<K, V> getKademliaRepository() {
         return ((DHTKademliaNodeAPI<ID, C, K, V>) getKademliaNode()).getKademliaRepository();

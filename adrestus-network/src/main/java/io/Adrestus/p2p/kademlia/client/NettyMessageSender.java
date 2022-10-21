@@ -3,8 +3,8 @@ package io.Adrestus.p2p.kademlia.client;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import io.Adrestus.p2p.kademlia.common.NettyConnectionInfo;
-import io.Adrestus.p2p.kademlia.factory.GsonFactory;
 import io.Adrestus.p2p.kademlia.connection.MessageSender;
+import io.Adrestus.p2p.kademlia.factory.GsonFactory;
 import io.Adrestus.p2p.kademlia.node.KademliaNodeAPI;
 import io.Adrestus.p2p.kademlia.node.Node;
 import io.Adrestus.p2p.kademlia.protocol.MessageType;
@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.Serializable;
 import java.math.BigInteger;
+import java.net.ConnectException;
 import java.net.SocketTimeoutException;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
@@ -69,6 +70,29 @@ public class NettyMessageSender<K extends Serializable, V extends Serializable> 
             String responseStr = Objects.requireNonNull(response.body()).string();
             return gson.fromJson(responseStr, new TypeToken<KademliaMessage<BigInteger, NettyConnectionInfo, Serializable>>() {
             }.getType());
+        } catch (ConnectException ex) {
+            log.error("Socket cant connect to " + caller.getId());
+            return new KademliaMessage<BigInteger, NettyConnectionInfo, I>() {
+                @Override
+                public I getData() {
+                    return null;
+                }
+
+                @Override
+                public String getType() {
+                    return MessageType.EMPTY;
+                }
+
+                @Override
+                public Node<BigInteger, NettyConnectionInfo> getNode() {
+                    return receiver;
+                }
+
+                @Override
+                public boolean isAlive() {
+                    return !(ex instanceof ConnectException);
+                }
+            };
         } catch (IOException e) {
             log.error("Failed to send message to " + caller.getId(), e);
             return new KademliaMessage<BigInteger, NettyConnectionInfo, I>() {

@@ -7,13 +7,17 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
 public class NettyConnectionInfo implements ConnectionInfo {
     private String host;
     private int port;
+
+    public NettyConnectionInfo(String host, int port) {
+        this.host = host;
+        this.port = port;
+    }
+
+    public NettyConnectionInfo() {
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -26,5 +30,21 @@ public class NettyConnectionInfo implements ConnectionInfo {
     @Override
     public int hashCode() {
         return Objects.hashCode(getHost(), getPort());
+    }
+
+    public String getHost() {
+        return host;
+    }
+
+    public void setHost(String host) {
+        this.host = host;
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
     }
 }

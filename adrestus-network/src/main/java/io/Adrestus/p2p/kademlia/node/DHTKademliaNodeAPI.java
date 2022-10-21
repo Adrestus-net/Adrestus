@@ -2,6 +2,7 @@ package io.Adrestus.p2p.kademlia.node;
 
 import io.Adrestus.p2p.kademlia.connection.ConnectionInfo;
 import io.Adrestus.p2p.kademlia.exception.DuplicateStoreRequest;
+import io.Adrestus.p2p.kademlia.exception.NotExistStoreRequest;
 import io.Adrestus.p2p.kademlia.model.LookupAnswer;
 import io.Adrestus.p2p.kademlia.model.StoreAnswer;
 import io.Adrestus.p2p.kademlia.repository.KademliaRepository;
@@ -36,4 +37,10 @@ public interface DHTKademliaNodeAPI<ID extends Number, C extends ConnectionInfo,
      * @return KeyHashGenerator of this node
      */
     KeyHashGenerator<ID, K> getKeyHashGenerator();
+
+    /**
+     * @param key Serializable key of the data to look up
+     * @return Future object of StoreAnswer, contains result status and node that stored the data
+     */
+    Future<StoreAnswer<ID, K>> remove(K key)  throws NotExistStoreRequest;
 }

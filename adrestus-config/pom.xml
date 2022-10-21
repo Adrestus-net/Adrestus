@@ -16,6 +16,7 @@
     <url>http://maven.apache.org</url>
     <properties>
         <appdirs.version>1.2.1</appdirs.version>
+        <crypto.version>1.0-SNAPSHOT</crypto.version>
     </properties>
     <dependencies>
         <dependency>

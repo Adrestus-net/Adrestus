@@ -14,7 +14,7 @@ public class Constants {
     final public static int CHUNK = 64;
 
     final public static int GROUP_G1_SIZE = (2 * MODBYTES + 1);
-
+    final public static int GROUP_G2_SIZE = (4 * BIG.MODBYTES);
     final public static int FIELD_ELEMENT_SIZE = MODBYTES;
 
     final public static int CURVE_B_I = 4;

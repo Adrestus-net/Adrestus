@@ -8,6 +8,7 @@ import io.Adrestus.p2p.kademlia.connection.ConnectionInfo;
 import io.Adrestus.p2p.kademlia.connection.MessageSender;
 import io.Adrestus.p2p.kademlia.exception.DuplicateStoreRequest;
 import io.Adrestus.p2p.kademlia.exception.HandlerNotFoundException;
+import io.Adrestus.p2p.kademlia.exception.NotExistStoreRequest;
 import io.Adrestus.p2p.kademlia.model.FindNodeAnswer;
 import io.Adrestus.p2p.kademlia.model.LookupAnswer;
 import io.Adrestus.p2p.kademlia.model.StoreAnswer;
@@ -150,6 +151,39 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
         return futureAnswer;
     }
 
+    @Override
+    public Future<StoreAnswer<ID, K>> remove(K key) throws NotExistStoreRequest {
+        if(!isRunning())
+            throw new IllegalStateException("Node is not running");
+
+
+        final DHTKademliaNode<ID, C, K, V> self = this;
+
+        ListenableFuture<StoreAnswer<ID, K>> futureAnswer = this.getListeningExecutorService().submit(
+                new Callable<StoreAnswer<ID, K>>() {
+                    public StoreAnswer<ID, K> call() {
+                        StoreAnswer<ID, K> storeAnswer = handleRemove(self, self, key,0);
+                        if (storeAnswer.getResult().equals(StoreAnswer.Result.STORED)
+                                || storeAnswer.getResult().equals(StoreAnswer.Result.PASSED)
+                                || storeAnswer.getResult().equals(StoreAnswer.Result.FAILED)){
+                            return storeAnswer;
+                        }
+                        storeAnswer.watch();
+                        return storeAnswer;
+                    }
+                });
+
+        futureAnswer.addListener(() -> {
+            StoreAnswer<ID, K> storeAnswer = storeMap.remove(key);
+            if (storeAnswer != null){
+                storeAnswer.finishWatch();
+            }
+            this.lookupFutureMap.remove(key);
+            this.lookupAnswerMap.remove(key);
+        }, this.cleanupExecutor);
+
+        return futureAnswer;
+    }
     protected LookupAnswer<ID, K, V> handleLookup(Node<ID, C> caller, Node<ID, C> requester, K key, int currentTry){
         // Check if current node contains data
         if(kademliaRepository.contains(key)){
@@ -167,6 +201,20 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
         //Otherwise, ask closest node we know to key
         return getDataFromClosestNodes(caller, requester, key, currentTry);
     }
+
+    protected StoreAnswer<ID, K> handleRemove(Node<ID, C> caller, Node<ID, C> requester, K key, int currentTry){
+        if(kademliaRepository.contains(key)) {
+            kademliaRepository.remove(key);
+            return getNewStoreAnswer(key, StoreAnswer.Result.PASSED, this);
+        }
+
+        // If max tries has reached then return failed
+        if (currentTry == getNodeSettings().getIdentifierSize()){
+            return getNewStoreAnswer(key, StoreAnswer.Result.FAILED, this);
+        }
+        return getNewStoreAnswer(key, StoreAnswer.Result.FAILED, this);
+    }
+
 
 
     protected StoreAnswer<ID, K> handleStore(Node<ID, C> caller, Node<ID, C> requester, K key, V value){

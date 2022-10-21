@@ -1,9 +1,11 @@
 package io.Adrestus.crypto.bls.model;
 
+import io.Adrestus.crypto.bls.constants.Constants;
 import io.activej.serializer.annotations.Deserialize;
 import io.activej.serializer.annotations.Serialize;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
@@ -17,6 +19,7 @@ public class Signature implements Cloneable {
     }
 
     public Signature() {
+        this.point=new G2Point();
     }
 
     public Signature(Supplier<G2Point> supplier_point) {
@@ -57,7 +60,7 @@ public class Signature implements Cloneable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Signature signature = (Signature) o;
-        return Objects.equals(point, signature.point) && Objects.equals(supplier_point, signature.supplier_point);
+        return Arrays.equals(point.tobytes(), signature.point.tobytes());
     }
 
     @Override

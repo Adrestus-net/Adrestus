@@ -43,7 +43,6 @@ public class DHTTest {
         KeyHashGenerator<BigInteger, String> keyHashGenerator = key -> new BoundedHashUtil(NodeSettings.Default.IDENTIFIER_SIZE).hash(key.hashCode(), BigInteger.class);
 
         nettyMessageSender1 = new NettyMessageSender<>();
-        nettyMessageSender2 = new NettyMessageSender<>();
 
         // node 1
         node1 = new NettyKademliaDHTNodeBuilder<>(
@@ -68,10 +67,9 @@ public class DHTTest {
 
     @AfterAll
     public static void cleanup(){
-        nettyMessageSender1.stop();
-        nettyMessageSender2.stop();
-        node1.stop();
         node2.stop();
+        node1.stop();
+        nettyMessageSender1.stop();
     }
 
     @Test
