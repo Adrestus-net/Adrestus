@@ -168,12 +168,13 @@ public class AdrestusNodeTest {
         ).withNodeSettings(settings).build();
         node2.registerMessageHandler(MessageType.PONG, handler);
         System.out.println("Bootstrapped? " + node2.start(node1).get(1, TimeUnit.SECONDS));
-        node2.store("V",seridata);
-        while (true){
-            Thread.sleep(500);
-            System.out.println(node2.lookup("V").get().getValue().toString());
-            int i=1;
-        }
+        node2.store("V",kademliaData);
+        Thread.sleep(3000);
+        KademliaData cp=node1.lookup("V").get().getValue();
+        KademliaData cp2=node2.lookup("V").get().getValue();
+        System.out.println(cp.toString());
+        assertEquals(seridata,cp);
+        assertEquals(seridata,cp2);
     }
 
     public static class SampleRepository implements KademliaRepository<String, KademliaData> {

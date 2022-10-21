@@ -8,6 +8,7 @@ import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.Adrestus.crypto.bls.model.Signature;
 import io.Adrestus.crypto.elliptic.SignatureData;
 import jdk.swing.interop.SwingInterOpUtils;
+import org.identityconnectors.common.StringUtil;
 
 import java.io.Serializable;
 import java.lang.reflect.Type;
@@ -88,7 +89,7 @@ public class KademliaData implements Serializable,Cloneable{
         ValidatorBlSPublicKey = validatorBlSPublicKey;
     }
 
-    public static final class ValidatorAddressData{
+    public static final class ValidatorAddressData implements Serializable{
         private String Address;
         private BigInteger ECDSAPublicKey;
         private SignatureData ECDSASignature;
@@ -141,9 +142,18 @@ public class KademliaData implements Serializable,Cloneable{
         public int hashCode() {
             return Objects.hashCode(Address, ECDSAPublicKey, ECDSASignature);
         }
+
+        @Override
+        public String toString() {
+            return "ValidatorAddressData{" +
+                    "Address='" + Address + '\'' +
+                    ", ECDSAPublicKey=" + ECDSAPublicKey +
+                    ", ECDSASignature=" + ECDSASignature +
+                    '}';
+        }
     }
 
-    public static final class BootstrapNodeProofs implements Cloneable{
+    public static final class BootstrapNodeProofs implements Serializable,Cloneable{
         private BLSPublicKey blsPublicKey;
         private Signature signature;
 
@@ -183,7 +193,7 @@ public class KademliaData implements Serializable,Cloneable{
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             BootstrapNodeProofs that = (BootstrapNodeProofs) o;
-            return Objects.equal(blsPublicKey.getPoint().getValue(), that.blsPublicKey.getPoint().getValue()) && Objects.equal(signature, that.signature);
+            return Objects.equal(blsPublicKey, that.blsPublicKey) && Objects.equal(signature, that.signature);
         }
 
         @Override
@@ -196,6 +206,15 @@ public class KademliaData implements Serializable,Cloneable{
         public int hashCode() {
             return Objects.hashCode(blsPublicKey, signature);
         }
+
+
+        @Override
+        public String toString() {
+            return "BootstrapNodeProofs{" +
+                    "blsPublicKey=" + blsPublicKey +
+                    ", signature=" + signature +
+                    '}';
+        }
     }
 
 
@@ -204,7 +223,7 @@ public class KademliaData implements Serializable,Cloneable{
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         KademliaData that = (KademliaData) o;
-        return Objects.equal(Hash, that.Hash) && Objects.equal(addressData, that.addressData) && Objects.equal(bootstrapNodeProofs, that.bootstrapNodeProofs);
+        return Hash.equals(that.Hash) && Objects.equal(addressData, that.addressData) && Objects.equal(bootstrapNodeProofs, that.bootstrapNodeProofs);
     }
 
     @Override
@@ -222,7 +241,7 @@ public class KademliaData implements Serializable,Cloneable{
     public String toString() {
         return "KademliaData{" +
                 "Hash='" + Hash + '\'' +
-                ", ValidatorBlSPublicKey=" + ValidatorBlSPublicKey.getPoint().getValue() +
+                ", ValidatorBlSPublicKey=" + ValidatorBlSPublicKey.toString() +
                 ", addressData=" + addressData +
                 ", bootstrapNodeProofs=" + bootstrapNodeProofs +
                 '}';
