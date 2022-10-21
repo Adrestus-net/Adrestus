@@ -67,9 +67,9 @@ public class ServerClientTest {
         SimpleServer adrestusServer = new SimpleServer("localhost");
 
         CountDownLatch latch=new CountDownLatch(1);
-        SimpleClient adrestusClient1 = new SimpleClient("localhost");
         (new Thread() {
             public void run() {
+                SimpleClient adrestusClient1 = new SimpleClient("localhost");
                 byte[] data = adrestusClient1.receiveData();
                 if (data == null) {
                     System.out.println("not receive");
@@ -154,17 +154,19 @@ public class ServerClientTest {
     @Test
     public void client_push_to_server() throws InterruptedException {
         System.out.println("client_push_to_server");
-        SimpleServer adrestusServer = new SimpleServer("localhost");
 
         SimpleClient adrestusClient1 = new SimpleClient("localhost");
         SimpleClient adrestusClient2 = new SimpleClient("localhost");
         SimpleClient adrestusClient3 = new SimpleClient("localhost");
         SimpleClient adrestusClient4 = new SimpleClient("localhost");
+        CountDownLatch latch=new CountDownLatch(1);
         (new Thread() {
             public void run() {
+                SimpleServer adrestusServer = new SimpleServer("localhost");
                 List<Bytes> lis = adrestusServer.receiveData(4);
                 lis.forEach(x -> System.out.println(new String(x.toArray())));
                 adrestusServer.close();
+                latch.countDown();
             }
         }).start();
         Thread.sleep(500);
@@ -178,13 +180,13 @@ public class ServerClientTest {
         adrestusClient2.close();
         adrestusClient3.close();
         adrestusClient4.close();
+        latch.await();
 
     }
 
     @Test
     public void client_push_to_byzantine_server() throws InterruptedException {
         System.out.println("client_push_to_byzantine_server");
-        SimpleServer adrestusServer = new SimpleServer("localhost");
 
         SimpleClient adrestusClient1 = new SimpleClient("localhost");
         SimpleClient adrestusClient2 = new SimpleClient("localhost");
@@ -193,6 +195,7 @@ public class ServerClientTest {
         CountDownLatch latch=new CountDownLatch(1);
         (new Thread() {
             public void run() {
+                SimpleServer adrestusServer = new SimpleServer("localhost");
                 List<Bytes> lis = adrestusServer.receiveData(4);
                 lis.forEach(x -> System.out.println(new String(x.toArray())));
                 adrestusServer.close();
@@ -209,21 +212,19 @@ public class ServerClientTest {
         adrestusClient1.close();
         adrestusClient2.close();
         adrestusClient3.close();
-        //adrestusClient4.close();
-        Thread.sleep(4000);
         latch.await();
     }
 
     @Test
     public void client_push_to_byzantine_server2() throws InterruptedException {
         System.out.println("client_push_to_byzantine_server2");
-        SimpleServer adrestusServer = new SimpleServer("localhost");
 
         SimpleClient adrestusClient1 = new SimpleClient("localhost");
         SimpleClient adrestusClient2 = new SimpleClient("localhost");
         CountDownLatch latch=new CountDownLatch(1);
         (new Thread() {
             public void run() {
+                SimpleServer adrestusServer = new SimpleServer("localhost");
                 List<Bytes> lis = adrestusServer.receiveData(4);
                 if (!lis.isEmpty())
                     lis.forEach(x -> System.out.println(new String(x.toArray())));
@@ -238,7 +239,6 @@ public class ServerClientTest {
 
         adrestusClient1.close();
         adrestusClient2.close();
-        Thread.sleep(4000);
         latch.await();
     }
 }

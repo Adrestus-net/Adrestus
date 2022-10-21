@@ -1,20 +1,37 @@
 package io.Adrestus.p2p.kademlia.repository;
 
 import com.google.common.base.Objects;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.Adrestus.crypto.bls.model.Signature;
 import io.Adrestus.crypto.elliptic.SignatureData;
 import jdk.swing.interop.SwingInterOpUtils;
 
 import java.io.Serializable;
+import java.lang.reflect.Type;
 import java.math.BigInteger;
 import java.util.Arrays;
 
-public class KademliaData implements Serializable,Cloneable {
+public class KademliaData implements Serializable,Cloneable{
     private String Hash;
     private BLSPublicKey ValidatorBlSPublicKey;
     private ValidatorAddressData addressData;
     private BootstrapNodeProofs bootstrapNodeProofs;
+
+
+    public KademliaData() {
+    }
+
+    public KademliaData(String hash) {
+        this.Hash = hash;
+    }
+
+    public KademliaData(String hash, BLSPublicKey validatorBlSPublicKey) {
+        Hash = hash;
+        ValidatorBlSPublicKey = validatorBlSPublicKey;
+    }
 
     public KademliaData(String hash, ValidatorAddressData addressData, BootstrapNodeProofs bootstrapNodeProofs) {
         this.Hash = hash;
@@ -44,7 +61,7 @@ public class KademliaData implements Serializable,Cloneable {
     }
 
     public void setHash(String hash) {
-        Hash = hash;
+        this.Hash = hash;
     }
 
     public ValidatorAddressData getAddressData() {
@@ -200,10 +217,12 @@ public class KademliaData implements Serializable,Cloneable {
     {
         return super.clone();
     }
+
     @Override
     public String toString() {
         return "KademliaData{" +
                 "Hash='" + Hash + '\'' +
+                ", ValidatorBlSPublicKey=" + ValidatorBlSPublicKey.getPoint().getValue() +
                 ", addressData=" + addressData +
                 ", bootstrapNodeProofs=" + bootstrapNodeProofs +
                 '}';

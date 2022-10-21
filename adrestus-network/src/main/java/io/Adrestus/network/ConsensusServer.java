@@ -76,7 +76,8 @@ public class ConsensusServer {
     }
 
     public ConsensusServer() {
-        this.IP = findIP();
+       //this.IP = IPFinder.getExternalIP();
+        this.IP = IPFinder.getLocalIP();
         this.ctx = new ZContext();
         this.publisher = ctx.createSocket(SocketType.PUB);
         this.collector = ctx.createSocket(SocketType.PULL);
@@ -125,16 +126,6 @@ public class ConsensusServer {
         poller.pollout(0);
     }
 
-    private String findIP() {
-        try {
-            Socket socket = new Socket();
-            socket.connect(new InetSocketAddress("google.com", 80));
-            return socket.getLocalAddress().getHostAddress();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        throw new IllegalArgumentException("Make sure you intern connection is working");
-    }
 
     public void publishMessage(byte[] data) {
         publisher.send(data, 0);
