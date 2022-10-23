@@ -1,7 +1,7 @@
 package io.Adrestus.p2p.kademlia.node;
 
 import com.google.common.base.Objects;
-import io.Adrestus.p2p.kademlia.NodeSettings;
+import io.Adrestus.config.NodeSettings;
 import io.Adrestus.p2p.kademlia.connection.ConnectionInfo;
 import io.Adrestus.p2p.kademlia.connection.MessageSender;
 import io.Adrestus.p2p.kademlia.exception.HandlerNotFoundException;
@@ -11,7 +11,6 @@ import io.Adrestus.p2p.kademlia.protocol.message.FindNodeRequestMessage;
 import io.Adrestus.p2p.kademlia.protocol.message.KademliaMessage;
 import io.Adrestus.p2p.kademlia.protocol.message.PingKademliaMessage;
 import io.Adrestus.p2p.kademlia.protocol.message.ShutdownKademliaMessage;
-import io.Adrestus.p2p.kademlia.server.KademliaNodeServer;
 import io.Adrestus.p2p.kademlia.table.Bucket;
 import io.Adrestus.p2p.kademlia.table.RoutingTable;
 import lombok.Getter;

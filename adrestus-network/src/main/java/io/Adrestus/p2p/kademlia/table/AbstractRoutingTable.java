@@ -7,7 +7,7 @@
 package io.Adrestus.p2p.kademlia.table;
 
 
-import io.Adrestus.p2p.kademlia.NodeSettings;
+import io.Adrestus.config.NodeSettings;
 import io.Adrestus.p2p.kademlia.connection.ConnectionInfo;
 import io.Adrestus.p2p.kademlia.exception.FullBucketException;
 import io.Adrestus.p2p.kademlia.model.FindNodeAnswer;

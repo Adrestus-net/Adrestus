@@ -1,4 +1,6 @@
 package io.Adrestus.p2p.kademlia;
+import io.Adrestus.config.KademliaConfiguration;
+import io.Adrestus.config.NodeSettings;
 import io.Adrestus.p2p.kademlia.helpers.EmptyConnectionInfo;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -12,7 +14,6 @@ import io.Adrestus.p2p.kademlia.table.DefaultRoutingTableFactory;
 import io.Adrestus.p2p.kademlia.table.RoutingTableFactory;
 import io.Adrestus.p2p.kademlia.util.KadDistanceUtil;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -23,23 +24,23 @@ public class NodesJoiningTest {
     public void canPeersJoinNetwork() throws InterruptedException, ExecutionException {
         TestMessageSenderAPI<Integer, EmptyConnectionInfo> messageSenderAPI = new TestMessageSenderAPI<>();
 
-        NodeSettings.Default.IDENTIFIER_SIZE = 4;
-        NodeSettings.Default.BUCKET_SIZE = 100;
-        NodeSettings.Default.PING_SCHEDULE_TIME_VALUE = 5;
-        NodeSettings nodeSettings = NodeSettings.Default.build();
+        KademliaConfiguration.IDENTIFIER_SIZE = 4;
+        KademliaConfiguration.BUCKET_SIZE = 100;
+        KademliaConfiguration.PING_SCHEDULE_TIME_VALUE = 5;
 
-        RoutingTableFactory<Integer, EmptyConnectionInfo, Bucket<Integer, EmptyConnectionInfo>> routingTableFactory = new DefaultRoutingTableFactory<>(nodeSettings);
+        NodeSettings.getInstance();
+        RoutingTableFactory<Integer, EmptyConnectionInfo, Bucket<Integer, EmptyConnectionInfo>> routingTableFactory = new DefaultRoutingTableFactory<>(NodeSettings.getInstance());
 
 
         // Bootstrap Node
-        KademliaNodeAPI<Integer, EmptyConnectionInfo> bootstrapNode = new KademliaNode<>(0, new EmptyConnectionInfo(), routingTableFactory.getRoutingTable(0), messageSenderAPI, nodeSettings);
+        KademliaNodeAPI<Integer, EmptyConnectionInfo> bootstrapNode = new KademliaNode<>(0, new EmptyConnectionInfo(), routingTableFactory.getRoutingTable(0), messageSenderAPI, NodeSettings.getInstance());
         messageSenderAPI.registerNode(bootstrapNode);
         bootstrapNode.start();
 
         // Other nodes
         KademliaNodeAPI<Integer, EmptyConnectionInfo> nextNode=null;
-        for(int i = 1; i < Math.pow(2, NodeSettings.Default.IDENTIFIER_SIZE); i++){
-            nextNode = new KademliaNode<>(i, new EmptyConnectionInfo(), routingTableFactory.getRoutingTable(i), messageSenderAPI, nodeSettings);
+        for(int i = 1; i < Math.pow(2, NodeSettings.getInstance().getIdentifierSize()); i++){
+            nextNode = new KademliaNode<>(i, new EmptyConnectionInfo(), routingTableFactory.getRoutingTable(i), messageSenderAPI, NodeSettings.getInstance());
             messageSenderAPI.registerNode(nextNode);
             Assertions.assertTrue(nextNode.start(bootstrapNode).get(), "Failed to bootstrap the node with ID " + i);
 
@@ -48,12 +49,12 @@ public class NodesJoiningTest {
         // Wait and test if all nodes join
         CountDownLatch countDownLatch = new CountDownLatch(1);
         new Thread(() -> {
-            while (messageSenderAPI.map.size() < Math.pow(2, NodeSettings.Default.IDENTIFIER_SIZE)){
+            while (messageSenderAPI.map.size() < Math.pow(2, NodeSettings.getInstance().getIdentifierSize())){
                 //wait
             }
             countDownLatch.countDown();
         }).start();
-        boolean await = countDownLatch.await(NodeSettings.Default.PING_SCHEDULE_TIME_VALUE + 1, NodeSettings.Default.PING_SCHEDULE_TIME_UNIT);
+        boolean await = countDownLatch.await(NodeSettings.getInstance().getPingScheduleTimeValue() + 1, NodeSettings.getInstance().pingScheduleTimeUnit);
         Assertions.assertTrue(await);
 
         System.out.println("All nodes tried registry in the right time");

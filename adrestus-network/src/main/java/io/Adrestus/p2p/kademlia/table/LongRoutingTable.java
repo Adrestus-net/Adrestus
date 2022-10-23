@@ -7,7 +7,7 @@
 package io.Adrestus.p2p.kademlia.table;
 
 
-import io.Adrestus.p2p.kademlia.NodeSettings;
+import io.Adrestus.config.NodeSettings;
 import io.Adrestus.p2p.kademlia.connection.ConnectionInfo;
 
 public class LongRoutingTable<C extends ConnectionInfo> extends AbstractRoutingTable<Long, C, LongBucket<C>> {

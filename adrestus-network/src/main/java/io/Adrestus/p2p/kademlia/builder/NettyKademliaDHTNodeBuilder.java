@@ -6,7 +6,7 @@ import io.Adrestus.p2p.kademlia.factory.GsonFactory;
 import io.Adrestus.p2p.kademlia.factory.KademliaMessageHandlerFactory;
 import io.Adrestus.p2p.kademlia.factory.NettyServerInitializerFactory;
 import io.Adrestus.p2p.kademlia.server.KademliaNodeServer;
-import io.Adrestus.p2p.kademlia.NodeSettings;
+import io.Adrestus.config.NodeSettings;
 import io.Adrestus.p2p.kademlia.connection.MessageSender;
 import io.Adrestus.p2p.kademlia.node.DHTKademliaNode;
 import io.Adrestus.p2p.kademlia.node.DHTKademliaNodeAPI;

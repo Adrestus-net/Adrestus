@@ -8,7 +8,7 @@ import io.Adrestus.p2p.kademlia.factory.NettyServerInitializerFactory;
 import io.Adrestus.p2p.kademlia.server.KademliaNodeServer;
 import io.Adrestus.p2p.kademlia.server.filter.KademliaMainHandlerFilter;
 import io.Adrestus.p2p.kademlia.server.filter.NettyKademliaServerFilterChain;
-import io.Adrestus.p2p.kademlia.NodeSettings;
+import io.Adrestus.config.NodeSettings;
 import io.Adrestus.p2p.kademlia.table.Bucket;
 import io.Adrestus.p2p.kademlia.table.DefaultRoutingTableFactory;
 import io.Adrestus.p2p.kademlia.table.RoutingTableFactory;
@@ -36,7 +36,7 @@ public class NettyKademliaDHTNodeDefaults {
 
         pipelines.add(builder -> {
             if (builder.getNodeSettings() == null) {
-                builder.nodeSettings(NodeSettings.Default.build());
+                builder.nodeSettings(NodeSettings.getInstance());
             }
         });
 

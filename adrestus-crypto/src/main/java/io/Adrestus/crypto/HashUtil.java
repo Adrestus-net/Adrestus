@@ -39,6 +39,7 @@ public class HashUtil {
     private static final Supplier<MessageDigest> KECCAK256_SUPPLIER =
             Suppliers.memoize(() -> messageDigest(KECCAK256_ALG));
     private static final String HASH_256_ALGORITHM_NAME = "SHA-256";
+    private static final String HASH_MD5_ALGORITHM_NAME = "MD5";
     private static final String SHA3_HASH_256_ALGORITHM_NAME = "ETH-KECCAK-256";
     private static final String HASH_512_ALGORITHM_NAME = "ETH-KECCAK-512";
     private static final String HASH_256_HMAC = "HmacSHA256";
@@ -88,6 +89,36 @@ public class HashUtil {
             LOG.error("Can't find such algorithm", e);
             throw new RuntimeException(e);
         }
+    }
+
+    public static String convertIPtoHex(String ip,int bits) {
+        try {
+            MessageDigest md5digest = MessageDigest.getInstance(HASH_MD5_ALGORITHM_NAME);
+            byte[] hased_data= md5digest.digest(ip.getBytes(StandardCharsets.UTF_8));
+            StringBuilder hex=new StringBuilder(convertStringToHex(Hex.toHexString(hased_data)));
+            return hex.substring(0,bits);
+        } catch (NoSuchAlgorithmException e) {
+            LOG.error("Can't find such algorithm", e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static String convertStringToHex(String str) {
+
+        StringBuffer hex = new StringBuffer();
+
+        // loop chars one by one
+        for (char temp : str.toCharArray()) {
+
+            // convert char to int, for char `a` decimal 97
+            int decimal = (int) temp;
+
+            // convert int to hex, for decimal 97 hex 61
+            hex.append(Integer.toHexString(decimal));
+        }
+
+        return hex.toString();
+
     }
 
     public static String sha256_bytetoString(byte[] input) {

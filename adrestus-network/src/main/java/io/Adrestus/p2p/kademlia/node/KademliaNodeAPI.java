@@ -1,6 +1,6 @@
 package io.Adrestus.p2p.kademlia.node;
 
-import io.Adrestus.p2p.kademlia.NodeSettings;
+import io.Adrestus.config.NodeSettings;
 import io.Adrestus.p2p.kademlia.connection.ConnectionInfo;
 import io.Adrestus.p2p.kademlia.connection.MessageSender;
 import io.Adrestus.p2p.kademlia.exception.HandlerNotFoundException;

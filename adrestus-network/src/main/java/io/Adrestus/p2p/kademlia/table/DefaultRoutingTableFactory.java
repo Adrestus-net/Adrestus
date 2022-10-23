@@ -1,6 +1,6 @@
 package io.Adrestus.p2p.kademlia.table;
 
-import io.Adrestus.p2p.kademlia.NodeSettings;
+import io.Adrestus.config.NodeSettings;
 import io.Adrestus.p2p.kademlia.connection.ConnectionInfo;
 
 import java.math.BigInteger;
@@ -9,7 +9,7 @@ public class DefaultRoutingTableFactory<ID extends Number, C extends ConnectionI
     private final NodeSettings nodeSettings;
 
     public DefaultRoutingTableFactory() {
-        this(NodeSettings.Default.build());
+        this(NodeSettings.getInstance());
     }
 
     public DefaultRoutingTableFactory(NodeSettings nodeSettings) {

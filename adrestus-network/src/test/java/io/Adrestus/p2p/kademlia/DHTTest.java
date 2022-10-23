@@ -1,7 +1,8 @@
 package io.Adrestus.p2p.kademlia;
 
 
-import io.Adrestus.p2p.kademlia.NodeSettings;
+import io.Adrestus.config.KademliaConfiguration;
+import io.Adrestus.config.NodeSettings;
 import io.Adrestus.p2p.kademlia.exception.DuplicateStoreRequest;
 import io.Adrestus.p2p.kademlia.model.LookupAnswer;
 import io.Adrestus.p2p.kademlia.model.StoreAnswer;
@@ -11,6 +12,7 @@ import io.Adrestus.p2p.kademlia.common.NettyConnectionInfo;
 import io.Adrestus.p2p.kademlia.node.KeyHashGenerator;
 import io.Adrestus.p2p.kademlia.repository.KademliaRepository;
 import io.Adrestus.p2p.kademlia.util.BoundedHashUtil;
+import io.Adrestus.p2p.kademlia.util.LoggerKademlia;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
@@ -36,11 +38,13 @@ public class DHTTest {
     @SneakyThrows
     @BeforeAll
     public static void init() {
-        NodeSettings.Default.IDENTIFIER_SIZE = 4;
-        NodeSettings.Default.BUCKET_SIZE = 100;
-        NodeSettings.Default.PING_SCHEDULE_TIME_VALUE = 5;
+        KademliaConfiguration.IDENTIFIER_SIZE = 4;
+        KademliaConfiguration.BUCKET_SIZE = 100;
+        KademliaConfiguration.PING_SCHEDULE_TIME_VALUE = 5;
+        NodeSettings.getInstance();
 
-        KeyHashGenerator<BigInteger, String> keyHashGenerator = key -> new BoundedHashUtil(NodeSettings.Default.IDENTIFIER_SIZE).hash(key.hashCode(), BigInteger.class);
+        LoggerKademlia.setLevelOFF();
+        KeyHashGenerator<BigInteger, String> keyHashGenerator = key -> new BoundedHashUtil(NodeSettings.getInstance().getIdentifierSize()).hash(key.hashCode(), BigInteger.class);
 
         nettyMessageSender1 = new NettyMessageSender<>();
 
@@ -50,7 +54,7 @@ public class DHTTest {
                 new NettyConnectionInfo("127.0.0.1", 8081),
                 new SampleRepository(),
                 keyHashGenerator
-        ).build();
+        ).withNodeSettings(NodeSettings.getInstance()).build();
         node1.start();
 
 
@@ -60,7 +64,7 @@ public class DHTTest {
                 new NettyConnectionInfo("127.0.0.1", 8082),
                 new SampleRepository(),
                 keyHashGenerator
-        ).build();
+        ).withNodeSettings(NodeSettings.getInstance()).build();
         System.out.println("Bootstrapped? " + node2.start(node1).get(5, TimeUnit.SECONDS));
 
     }

@@ -1,7 +1,9 @@
 package io.Adrestus.p2p.kademlia;
 
+import com.google.common.net.InetAddresses;
 import com.google.gson.Gson;
 import io.Adrestus.config.KademliaConfiguration;
+import io.Adrestus.config.NodeSettings;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.WalletAddress;
 import io.Adrestus.crypto.bls.model.BLSPrivateKey;
@@ -16,7 +18,7 @@ import io.Adrestus.p2p.kademlia.builder.NettyKademliaDHTNodeBuilder;
 import io.Adrestus.p2p.kademlia.client.NettyMessageSender;
 import io.Adrestus.p2p.kademlia.common.NettyConnectionInfo;
 import io.Adrestus.p2p.kademlia.exception.DuplicateStoreRequest;
-import io.Adrestus.p2p.kademlia.model.LookupAnswer;
+import io.Adrestus.p2p.kademlia.model.StoreAnswer;
 import io.Adrestus.p2p.kademlia.node.DHTBootstrapNode;
 import io.Adrestus.p2p.kademlia.node.DHTRegularNode;
 import io.Adrestus.p2p.kademlia.node.KademliaNodeAPI;
@@ -30,18 +32,17 @@ import io.Adrestus.p2p.kademlia.repository.KademliaData;
 import io.Adrestus.p2p.kademlia.repository.KademliaRepository;
 import io.Adrestus.p2p.kademlia.util.BoundedHashUtil;
 import org.apache.commons.codec.binary.StringUtils;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.spongycastle.util.encoders.Hex;
 
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.SecureRandom;
+import java.security.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -116,32 +117,47 @@ public class AdrestusNodeTest {
         System.out.println("done");
     }
     @Test
-    public void test_1() throws ExecutionException, InterruptedException, TimeoutException, DuplicateStoreRequest {
-        /*DHTBootstrapNode bootstrapNode=new DHTBootstrapNode(new NettyConnectionInfo(KademliaConfiguration.BootstrapNodeIP,KademliaConfiguration.BootstrapNodePORT));
-        bootstrapNode.start();
+    public void stress_test_networkID() throws ExecutionException, InterruptedException, TimeoutException, DuplicateStoreRequest {
+        // node 2
+        Random random = new Random();
+        int count=10;
 
-        DHTRegularNode regularNode=new DHTRegularNode(new NettyConnectionInfo("localhost",KademliaConfiguration.PORT));
-        regularNode.start();
-        regularNode.getRegular_node().store("localhost",new KademliaData("hash"));
+        KeyHashGenerator<BigInteger, String> keyHashGenerator = key -> new BoundedHashUtil( NodeSettings.getInstance().getIdentifierSize()).hash(key.hashCode(), BigInteger.class);
+        while (count>0) {
+            String ipString1 = InetAddresses.fromInteger(random.nextInt()).getHostAddress();
+            String ipString2 = InetAddresses.fromInteger(random.nextInt()).getHostAddress();
+            BigInteger id1 = new BigInteger(HashUtil.convertIPtoHex(ipString1,16));
+            BigInteger id2 = new BigInteger(HashUtil.convertIPtoHex(ipString2,16));
+           // BigInteger id1 = new BigInteger("1354");
+           // BigInteger id2 = new BigInteger("2369");
+            DHTBootstrapNode dhtBootstrapNode = new DHTBootstrapNode(
+                    new NettyConnectionInfo(KademliaConfiguration.BootstrapNodeIP, KademliaConfiguration.BootstrapNodePORT),id1,keyHashGenerator);
+            dhtBootstrapNode.start();
 
-        while (true){
-            Thread.sleep(1000);
-            // System.out.println(bootstrapNode.getBootStrapNode().lookup("localhost").get().getValue().toString());
-        }*/
+            DHTRegularNode regularNode = new DHTRegularNode(
+                    new NettyConnectionInfo(KademliaConfiguration.BootstrapNodeIP, KademliaConfiguration.PORT),id2,keyHashGenerator);
+            regularNode.start(dhtBootstrapNode);
 
+            Thread.sleep(2000);
+            StoreAnswer<BigInteger, String> storeAnswer = regularNode.getRegular_node().store("V", kademliaData).get(5, TimeUnit.SECONDS);
+            KademliaData cp = regularNode.getRegular_node().lookup("V").get().getValue();
+            KademliaData cp2 = dhtBootstrapNode.getBootStrapNode().lookup("V").get().getValue();
+            assertEquals(seridata, cp);
+            assertEquals(seridata, cp2);
+
+            regularNode.getRegular_node().stop();
+            dhtBootstrapNode.getBootStrapNode().stop();
+            count--;
+        }
+    }
+
+    //@Test
+    public void test2() throws InterruptedException, DuplicateStoreRequest, ExecutionException, TimeoutException {
         LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
         Logger rootLogger = loggerContext.getLogger("io.netty");
         rootLogger.setLevel(ch.qos.logback.classic.Level.OFF);
-        NodeSettings.Default.IDENTIFIER_SIZE = 4;
-        NodeSettings.Default.BUCKET_SIZE = 100;
-        NodeSettings.Default.PING_SCHEDULE_TIME_VALUE = 1;
-        NodeSettings.Default.MAXIMUM_STORE_AND_LOOKUP_TIMEOUT_VALUE=1;
-        NodeSettings.Default.MAXIMUM_STORE_AND_LOOKUP_TIMEOUT_TIME_UNIT=TimeUnit.SECONDS;
-        NodeSettings.Default.ENABLED_FIRST_STORE_REQUEST_FORCE_PASS=true;
-        NodeSettings.Default.PING_SCHEDULE_TIME_UNIT= TimeUnit.SECONDS;
-        NodeSettings.Default.PING_SCHEDULE_TIME_VALUE=2;
-        NodeSettings settings=NodeSettings.Default.build();
-        KeyHashGenerator<BigInteger, String> keyHashGenerator = key ->  new BoundedHashUtil(NodeSettings.Default.IDENTIFIER_SIZE).hash(key.hashCode(), BigInteger.class);
+
+        KeyHashGenerator<BigInteger, String> keyHashGenerator = key ->  new BoundedHashUtil(NodeSettings.getInstance().getIdentifierSize()).hash(key.hashCode(), BigInteger.class);
         nettyMessageSender1 = new NettyMessageSender<>();
 
         MessageHandler<BigInteger, NettyConnectionInfo> handler = new PongMessageHandler<BigInteger, NettyConnectionInfo>() {
@@ -157,7 +173,7 @@ public class AdrestusNodeTest {
                 new NettyConnectionInfo("127.0.0.1", 8081),
                 new SampleRepository(),
                 keyHashGenerator
-        ).withNodeSettings(settings).build();
+        ).withNodeSettings(NodeSettings.getInstance()).build();
         node1.start();
         // node 2
         node2 = new NettyKademliaDHTNodeBuilder<>(
@@ -165,18 +181,15 @@ public class AdrestusNodeTest {
                 new NettyConnectionInfo("127.0.0.1", 8082),
                 new SampleRepository(),
                 keyHashGenerator
-        ).withNodeSettings(settings).build();
+        ).withNodeSettings(NodeSettings.getInstance()).build();
         node2.registerMessageHandler(MessageType.PONG, handler);
-        System.out.println("Bootstrapped? " + node2.start(node1).get(1, TimeUnit.SECONDS));
+        System.out.println("Bootstrapped? " + node2.start(node1).get(5, TimeUnit.SECONDS));
         node2.store("V",kademliaData);
         Thread.sleep(3000);
         KademliaData cp=node1.lookup("V").get().getValue();
-        KademliaData cp2=node2.lookup("V").get().getValue();
         System.out.println(cp.toString());
         assertEquals(seridata,cp);
-        assertEquals(seridata,cp2);
     }
-
     public static class SampleRepository implements KademliaRepository<String, KademliaData> {
         protected final Map<String, KademliaData> data = new HashMap<>();
 
@@ -199,6 +212,17 @@ public class AdrestusNodeTest {
         @Override
         public boolean contains(String key) {
             return data.containsKey(key);
+        }
+    }
+
+    private static BigInteger calcHash(byte[] bytes) {
+        try {
+            MessageDigest m = MessageDigest.getInstance("SHA-1");
+            m.update(bytes);
+            return new BigInteger(1, m.digest());
+        } catch (NoSuchAlgorithmException ex) {
+           ex.printStackTrace();
+           return null;
         }
     }
 }
