@@ -12,12 +12,11 @@ import io.Adrestus.p2p.kademlia.connection.ConnectionInfo;
 import io.Adrestus.p2p.kademlia.exception.FullBucketException;
 import io.Adrestus.p2p.kademlia.model.FindNodeAnswer;
 import io.Adrestus.p2p.kademlia.node.Node;
+import io.Adrestus.p2p.kademlia.node.external.ExternalNode;
 import io.Adrestus.p2p.kademlia.util.FindNodeAnswerReducer;
 import lombok.NoArgsConstructor;
 
-import java.util.Collections;
-import java.util.Date;
-import java.util.Vector;
+import java.util.*;
 
 /**
  * @param <ID> Number type of node ID between supported types
@@ -27,18 +26,18 @@ import java.util.Vector;
 @NoArgsConstructor
 public abstract class AbstractRoutingTable<ID extends Number, C extends ConnectionInfo, B extends Bucket<ID, C>> implements RoutingTable<ID, C, B> {
   /* Bucket list */
-  protected Vector<B> buckets;
+  protected ArrayList<B> buckets;
   /* Id of the routing table owner (node id) */
   protected ID id;
-  protected NodeSettings nodeSettings;
+  protected transient NodeSettings nodeSettings;
 
   /**
    * @param id Node id of the table owner
    */
-  public AbstractRoutingTable(ID id, NodeSettings nodeSettings) {
+  protected AbstractRoutingTable(ID id, NodeSettings nodeSettings) {
     this.id = id;
     this.nodeSettings = nodeSettings;
-    buckets = new Vector<>();
+    buckets = new ArrayList<>();
     for (int i = 0; i < nodeSettings.getIdentifierSize() + 1; i++) {
       buckets.add(createBucketOfId(i));
     }
@@ -54,19 +53,26 @@ public abstract class AbstractRoutingTable<ID extends Number, C extends Connecti
    */
   public boolean update(Node<ID, C> node) throws FullBucketException {
     //Setting last seen date on node
-    node.setLastSeen(new Date());
+
+    ExternalNode<ID, C> externalNode;
+
+    if (!(node instanceof ExternalNode))
+      externalNode = this.getExternalNode(node);
+    else
+      externalNode = (ExternalNode<ID, C>) node;
+
+    externalNode.setLastSeen(new Date());
     Bucket<ID, C> bucket = this.findBucket(node.getId());
     if (bucket.contains(node)) {
-      //If the element is already in the bucket, we update it and push it to the front of the bucket.
-      bucket.pushToFront(node.getId());
+      // If the element is already in the bucket, we update it and push it to the front of the bucket.
+      bucket.pushToFront(externalNode);
       return false;
     } else if (bucket.size() < this.nodeSettings.getBucketSize()) {
-      bucket.add(node);
+      bucket.add(externalNode);
       return true;
     }
     throw new FullBucketException();
   }
-
 
   @Override
   public synchronized void forceUpdate(Node<ID, C> node) {
@@ -77,6 +83,9 @@ public abstract class AbstractRoutingTable<ID extends Number, C extends Connecti
       Date date = null;
       ID oldestNode = null;
       for (ID nodeId : bucket.getNodeIds()) {
+        if (nodeId.equals(this.id)){
+          continue;
+        }
         if (date == null || bucket.getNode(nodeId).getLastSeen().before(date)){
           date = bucket.getNode(nodeId).getLastSeen();
           oldestNode = nodeId;
@@ -111,7 +120,7 @@ public abstract class AbstractRoutingTable<ID extends Number, C extends Connecti
 
     // Loop over every bucket (max common.BucketSize or lte identifier size) and add it to answer
     for (int i = 1; findNodeAnswer.size() < this.nodeSettings.getBucketSize() && ((bucket.getId() - i) >= 0 ||
-                                    (bucket.getId() + i) <= this.nodeSettings.getIdentifierSize()); i++) {
+            (bucket.getId() + i) <= this.nodeSettings.getIdentifierSize()); i++) {
       //Check the previous buckets
       if (bucket.getId() - i >= 0) {
         Bucket<ID, C> bucketP = this.buckets.get(bucket.getId() - i);
@@ -140,7 +149,7 @@ public abstract class AbstractRoutingTable<ID extends Number, C extends Connecti
     return bucket.contains(nodeId);
   }
 
-  public Vector<B> getBuckets() {
+  public List<B> getBuckets() {
     return buckets;
   }
 

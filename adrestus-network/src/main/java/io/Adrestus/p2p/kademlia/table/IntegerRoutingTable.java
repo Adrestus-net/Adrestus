@@ -9,6 +9,9 @@ package io.Adrestus.p2p.kademlia.table;
 
 import io.Adrestus.config.NodeSettings;
 import io.Adrestus.p2p.kademlia.connection.ConnectionInfo;
+import io.Adrestus.p2p.kademlia.node.Node;
+import io.Adrestus.p2p.kademlia.node.external.ExternalNode;
+import io.Adrestus.p2p.kademlia.node.external.IntegerExternalNode;
 
 public class IntegerRoutingTable<C extends ConnectionInfo> extends AbstractRoutingTable<Integer, C, Bucket<Integer, C>> {
 
@@ -21,6 +24,11 @@ public class IntegerRoutingTable<C extends ConnectionInfo> extends AbstractRouti
   @Override
   protected IntegerBucket<C> createBucketOfId(int i) {
     return new IntegerBucket<>(i);
+  }
+
+  @Override
+  public ExternalNode<Integer, C> getExternalNode(Node<Integer, C> node) {
+    return new IntegerExternalNode<>(node, this.getDistance(node.getId()));
   }
 
   /**
@@ -50,8 +58,13 @@ public class IntegerRoutingTable<C extends ConnectionInfo> extends AbstractRouti
 
   /* Finds the corresponding bucket in a routing table for a given identifier */
   public Bucket<Integer, C> findBucket(Integer id) {
-    int xorNumber = (int) id ^ this.id;
+    int xorNumber = this.getDistance(id);
     int prefix = this.getNodePrefix(xorNumber);
     return buckets.get(prefix);
+  }
+
+  @Override
+  public Integer getDistance(Integer id) {
+    return id ^ this.id;
   }
 }

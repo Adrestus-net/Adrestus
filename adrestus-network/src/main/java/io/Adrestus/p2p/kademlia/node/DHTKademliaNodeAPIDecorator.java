@@ -26,10 +26,6 @@ public abstract class DHTKademliaNodeAPIDecorator<ID extends Number, C extends C
         return ((DHTKademliaNodeAPI<ID, C, K, V>) getKademliaNode()).lookup(key);
     }
     @Override
-    public Future<StoreAnswer<ID, K>> remove(K key) throws NotExistStoreRequest {
-        return ((DHTKademliaNodeAPI<ID, C, K, V>) getKademliaNode()).remove(key);
-    }
-    @Override
     public KademliaRepository<K, V> getKademliaRepository() {
         return ((DHTKademliaNodeAPI<ID, C, K, V>) getKademliaNode()).getKademliaRepository();
     }

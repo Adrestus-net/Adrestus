@@ -8,10 +8,9 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.FullHttpRequest;
 
 import java.io.Serializable;
-import java.math.BigInteger;
 
 public interface KademliaMessageHandlerFactory<K extends Serializable, V extends Serializable> {
-    SimpleChannelInboundHandler<FullHttpRequest> getKademliaMessageHandler(DHTKademliaNodeAPI<BigInteger, NettyConnectionInfo, K, V> dhtKademliaNodeAPI);
+    SimpleChannelInboundHandler<FullHttpRequest> getKademliaMessageHandler(DHTKademliaNodeAPI<Long, NettyConnectionInfo, K, V> dhtKademliaNodeAPI);
 
     class DefaultKademliaMessageHandlerFactory<K extends Serializable, V extends Serializable> implements KademliaMessageHandlerFactory<K, V> {
         private final NettyKademliaServerFilterChain<K, V> filterChain;
@@ -21,7 +20,7 @@ public interface KademliaMessageHandlerFactory<K extends Serializable, V extends
         }
 
         @Override
-        public SimpleChannelInboundHandler<FullHttpRequest> getKademliaMessageHandler(DHTKademliaNodeAPI<BigInteger, NettyConnectionInfo, K, V> dhtKademliaNodeAPI) {
+        public SimpleChannelInboundHandler<FullHttpRequest> getKademliaMessageHandler(DHTKademliaNodeAPI<Long, NettyConnectionInfo, K, V> dhtKademliaNodeAPI) {
             return new NettyKademliaMessageHandler<>(dhtKademliaNodeAPI, this.filterChain);
         }
 

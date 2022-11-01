@@ -12,8 +12,8 @@ public class KademliaConfiguration {
     public static final int BootstrapNodePORT = 8080;
     public static final BigInteger BootstrapNodeID = new BigInteger("66346363773430373210313937353263626337313262653530646163623130613265323036646538");
 
-    public static int IDENTIFIER_SIZE = 128;
-    public static int BUCKET_SIZE = 128;
+    public static int IDENTIFIER_SIZE = 3;
+    public static int BUCKET_SIZE = 10;
     public static int MAXIMUM_STORE_AND_LOOKUP_TIMEOUT_VALUE = 1;
     public static TimeUnit MAXIMUM_STORE_AND_LOOKUP_TIMEOUT_TIME_UNIT = TimeUnit.SECONDS;
     public static boolean ENABLED_FIRST_STORE_REQUEST_FORCE_PASS = true;

@@ -10,17 +10,16 @@ import io.Adrestus.p2p.kademlia.model.FindNodeAnswer;
 import io.Adrestus.p2p.kademlia.node.external.ExternalNode;
 
 import java.lang.reflect.Type;
-import java.math.BigInteger;
 import java.util.List;
 
-public class FindNodeAnswerDeserializer implements JsonDeserializer<FindNodeAnswer<BigInteger, NettyConnectionInfo>> {
+public class FindNodeAnswerDeserializer implements JsonDeserializer<FindNodeAnswer<Long, NettyConnectionInfo>> {
     @Override
-    public FindNodeAnswer<BigInteger, NettyConnectionInfo> deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
-        FindNodeAnswer<BigInteger, NettyConnectionInfo> findNodeAnswer = new FindNodeAnswer<>();
-        findNodeAnswer.setDestinationId(jsonElement.getAsJsonObject().get("destination_id").getAsBigInteger());
+    public FindNodeAnswer<Long, NettyConnectionInfo> deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
+        FindNodeAnswer<Long, NettyConnectionInfo> findNodeAnswer = new FindNodeAnswer<>();
+        findNodeAnswer.setDestinationId(jsonElement.getAsJsonObject().get("destination_id").getAsLong());
         findNodeAnswer.setNodes(jsonDeserializationContext.deserialize(
                 jsonElement.getAsJsonObject().get("nodes").getAsJsonArray(),
-                new TypeToken<List<ExternalNode<BigInteger, NettyConnectionInfo>>>() {
+                new TypeToken<List<ExternalNode<Long, NettyConnectionInfo>>>() {
                 }.getType()
         ));
         return findNodeAnswer;

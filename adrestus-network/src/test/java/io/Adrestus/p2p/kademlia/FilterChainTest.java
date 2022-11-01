@@ -3,12 +3,13 @@ package io.Adrestus.p2p.kademlia;
 import io.Adrestus.config.KademliaConfiguration;
 import io.Adrestus.config.NodeSettings;
 import io.Adrestus.p2p.kademlia.builder.NettyKademliaDHTNodeBuilder;
-import io.Adrestus.p2p.kademlia.client.NettyMessageSender;
+import io.Adrestus.p2p.kademlia.client.OkHttpMessageSender;
 import io.Adrestus.p2p.kademlia.common.NettyConnectionInfo;
 import io.Adrestus.p2p.kademlia.factory.GsonFactory;
 import io.Adrestus.p2p.kademlia.factory.KademliaMessageHandlerFactory;
 import io.Adrestus.p2p.kademlia.node.KeyHashGenerator;
 import io.Adrestus.p2p.kademlia.repository.KademliaRepository;
+import io.Adrestus.p2p.kademlia.serialization.GsonMessageSerializer;
 import io.Adrestus.p2p.kademlia.server.filter.KademliaMainHandlerFilter;
 import io.Adrestus.p2p.kademlia.server.filter.NettyKademliaServerFilter;
 import io.Adrestus.p2p.kademlia.server.filter.NettyKademliaServerFilterChain;
@@ -21,7 +22,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -31,7 +31,7 @@ import java.util.concurrent.TimeoutException;
 
 
 public class FilterChainTest {
-    private static NettyMessageSender<String, String> nettyMessageSender1;
+    private static OkHttpMessageSender<String, String> nettyMessageSender1;
     private static NettyKademliaDHTNode<String, String> node1;
 
     private static class EmptyFilter extends NettyKademliaServerFilter<String, String> {
@@ -45,13 +45,13 @@ public class FilterChainTest {
         KademliaConfiguration.BUCKET_SIZE = 100;
         KademliaConfiguration.PING_SCHEDULE_TIME_VALUE = 5;
         NodeSettings.getInstance();
-        KeyHashGenerator<BigInteger, String> keyHashGenerator = key -> new BoundedHashUtil(NodeSettings.getInstance().getIdentifierSize()).hash(key.hashCode(), BigInteger.class);
+        KeyHashGenerator<Long, String> keyHashGenerator = key -> new BoundedHashUtil(NodeSettings.getInstance().getIdentifierSize()).hash(key.hashCode(), Long.class);
 
-        nettyMessageSender1 = new NettyMessageSender<>();
+        nettyMessageSender1 = new OkHttpMessageSender<>();
 
         // node 1
         node1 = new NettyKademliaDHTNodeBuilder<>(
-                BigInteger.valueOf(1),
+                Long.valueOf(1),
                 new NettyConnectionInfo("127.0.0.1", 8081),
                 new SampleRepository(),
                 keyHashGenerator
@@ -73,11 +73,11 @@ public class FilterChainTest {
 
         NettyKademliaServerFilterChain<String, String> filterChain = new NettyKademliaServerFilterChain<>();
         filterChain.addFilter(new EmptyFilter());
-        filterChain.addFilter(new KademliaMainHandlerFilter<>(new GsonFactory.DefaultGsonFactory<>().gson()));
+        filterChain.addFilter(new KademliaMainHandlerFilter<>(new GsonMessageSerializer<>(new GsonFactory.DefaultGsonFactory<>().gsonBuilder())));
 
 
         NettyKademliaDHTNode<String, String> node2 = new NettyKademliaDHTNodeBuilder<>(
-                BigInteger.valueOf(2),
+                2L,
                 new NettyConnectionInfo("127.0.0.1", 8082),
                 new SampleRepository(),
                 node1.getKeyHashGenerator()

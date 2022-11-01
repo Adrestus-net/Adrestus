@@ -30,13 +30,6 @@ public class BucketHelper {
             }
         }
 
-        if(bucket instanceof BigIntegerBucket){
-            for (BigInteger id : ((Bucket<BigInteger, C>) bucket).getNodeIds()) {
-                Node<BigInteger, C> node = ((Bucket<BigInteger, C>) bucket).getNode(id);
-                BigInteger destination1 = (BigInteger) destination;
-                answer.add((ExternalNode<ID, C>) new BigIntegerExternalNode<>(node, destination1.xor(id)));
-            }
-        }
 
     }
 

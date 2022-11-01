@@ -4,17 +4,13 @@ import io.Adrestus.p2p.kademlia.connection.ConnectionInfo;
 import io.Adrestus.p2p.kademlia.exception.FullBucketException;
 import io.Adrestus.p2p.kademlia.model.FindNodeAnswer;
 import io.Adrestus.p2p.kademlia.node.Node;
+import io.Adrestus.p2p.kademlia.node.external.ExternalNode;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Vector;
 
 public interface RoutingTable<ID extends Number, C extends ConnectionInfo, B extends Bucket<ID, C>> extends Serializable {
-    /**
-     * Returns an identifier which is in a specific bucket of a routing table
-     * @param id id of the routing table owner
-     * @param prefix id of the bucket where we want that identifier to be
-     */
-    ID getIdInPrefix(ID id, int prefix);
 
     /**
      * Returns the corresponding node prefix for a given id
@@ -59,6 +55,14 @@ public interface RoutingTable<ID extends Number, C extends ConnectionInfo, B ext
 
     boolean contains(ID nodeId);
 
-    Vector<B> getBuckets();
+    List<B> getBuckets();
+
+    ID getDistance(ID id);
+
+    default ExternalNode<ID,C> getExternalNode() {
+        return getExternalNode();
+    }
+
+    ExternalNode<ID,C> getExternalNode(Node<ID,C> node);
 
 }

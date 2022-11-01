@@ -4,8 +4,9 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 import io.Adrestus.config.KademliaConfiguration;
 import io.Adrestus.config.NodeSettings;
+import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.p2p.kademlia.builder.NettyKademliaDHTNodeBuilder;
-import io.Adrestus.p2p.kademlia.client.NettyMessageSender;
+import io.Adrestus.p2p.kademlia.client.OkHttpMessageSender;
 import io.Adrestus.p2p.kademlia.common.NettyConnectionInfo;
 import io.Adrestus.p2p.kademlia.exception.DuplicateStoreRequest;
 import io.Adrestus.p2p.kademlia.exception.NotExistStoreRequest;
@@ -25,7 +26,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
 
-import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -35,7 +35,7 @@ import java.util.concurrent.TimeoutException;
 
 public class NodeTest {
 
-    private static NettyMessageSender<String, String> nettyMessageSender1;
+    private static OkHttpMessageSender<String, String> nettyMessageSender1;
 
     private static NettyKademliaDHTNode<String, String> node1;
     private static NettyKademliaDHTNode<String, String> node2;
@@ -57,31 +57,31 @@ public class NodeTest {
         Logger rootLogger = loggerContext.getLogger("io.netty");
         rootLogger.setLevel(ch.qos.logback.classic.Level.OFF);
 
-        KeyHashGenerator<BigInteger, String> keyHashGenerator = key -> new BoundedHashUtil(NodeSettings.getInstance().getIdentifierSize()).hash(key.hashCode(), BigInteger.class);
+        KeyHashGenerator<Long, String> keyHashGenerator = key -> new BoundedHashUtil(NodeSettings.getInstance().getIdentifierSize()).hash(new Long(HashUtil.convertIPtoHex(String.valueOf(key.hashCode()),16)), Long.class);
 
 
-        MessageHandler<BigInteger, NettyConnectionInfo> handler = new PongMessageHandler<BigInteger, NettyConnectionInfo>() {
+        MessageHandler<Long, NettyConnectionInfo> handler = new PongMessageHandler<Long, NettyConnectionInfo>() {
             @Override
-            public <I extends KademliaMessage<BigInteger, NettyConnectionInfo, ?>, O extends KademliaMessage<BigInteger, NettyConnectionInfo, ?>> O doHandle(KademliaNodeAPI<BigInteger, NettyConnectionInfo> kademliaNode, I message) {
+            public <I extends KademliaMessage<Long, NettyConnectionInfo, ?>, O extends KademliaMessage<Long, NettyConnectionInfo, ?>> O doHandle(KademliaNodeAPI<Long, NettyConnectionInfo> kademliaNode, I message) {
                 kademliaNode.getRoutingTable().getBuckets().stream().forEach(x -> System.out.println(x.toString()));
-                return (O) doHandle(kademliaNode, (PongKademliaMessage<BigInteger, NettyConnectionInfo>) message);
+                return (O) doHandle(kademliaNode, (PongKademliaMessage<Long, NettyConnectionInfo>) message);
             }
         };
-        nettyMessageSender1 = new NettyMessageSender<>();
+        nettyMessageSender1 = new OkHttpMessageSender<>();
 
         node1 = new NettyKademliaDHTNodeBuilder<>(
-                BigInteger.valueOf(1),
+                Long.valueOf(1),
                 new NettyConnectionInfo("127.0.0.1", 8081),
                 new SampleRepository(),
                 keyHashGenerator
         ).withNodeSettings(NodeSettings.getInstance()).build();
-        node1.registerMessageHandler(MessageType.PONG, handler);
+       // node1.registerMessageHandler(MessageType.PONG, handler);
         node1.start();
 
 
         // node 2
         node2 = new NettyKademliaDHTNodeBuilder<>(
-                BigInteger.valueOf(2),
+                Long.valueOf(2),
                 new NettyConnectionInfo("127.0.0.1", 8082),
                 new SampleRepository(),
                 keyHashGenerator
@@ -90,7 +90,7 @@ public class NodeTest {
         System.out.println("Bootstrapped? " + node2.start(node1).get(1, TimeUnit.SECONDS));
 
         node3 = new NettyKademliaDHTNodeBuilder<>(
-                BigInteger.valueOf(3),
+                Long.valueOf(3),
                 new NettyConnectionInfo("127.0.0.1", 8083),
                 new SampleRepository(),
                 keyHashGenerator
@@ -99,7 +99,7 @@ public class NodeTest {
         System.out.println("Bootstrapped? " + node3.start(node1).get(1, TimeUnit.SECONDS));
 
         node4 = new NettyKademliaDHTNodeBuilder<>(
-                BigInteger.valueOf(4),
+                Long.valueOf(4),
                 new NettyConnectionInfo("127.0.0.1", 8084),
                 new SampleRepository(),
                 keyHashGenerator
@@ -109,7 +109,7 @@ public class NodeTest {
 
 
         node5 = new NettyKademliaDHTNodeBuilder<>(
-                BigInteger.valueOf(5),
+                Long.valueOf(5),
                 new NettyConnectionInfo("127.0.0.1", 8085),
                 new SampleRepository(),
                 keyHashGenerator
@@ -120,34 +120,38 @@ public class NodeTest {
 
     @Test
     public void test_one() throws ExecutionException, InterruptedException, TimeoutException, DuplicateStoreRequest, NotExistStoreRequest {
-        StoreAnswer<BigInteger, String> storeAnswer = node5.store("K", "V").get();
+        StoreAnswer<Long, String> storeAnswer = node5.store("K", "V").get();
         System.out.println(storeAnswer.toString());
         System.out.println(storeAnswer.getResult());
         System.out.println(storeAnswer.getNodeId());
 
-        LookupAnswer<BigInteger, String, String> k = node1.lookup("K").get();
-        //node1.getKademliaNode().getRoutingTable().findClosest(BigInteger.valueOf(3)).getNodes().stream().forEach(x-> System.out.println(x.toString()));
+        LookupAnswer<Long, String, String> k = node1.lookup("K").get();
+        //node1.getKademliaNode().getRoutingTable().findClosest(Long.valueOf(3)).getNodes().stream().forEach(x-> System.out.println(x.toString()));
         //node1.getKademliaNode().getRoutingTable().getBuckets().stream().forEach(x-> System.out.println(x.getNodeIds().toString()));
         // node2.getKademliaNode().getRoutingTable().getBuckets().stream().forEach(x-> System.out.println(x.getNodeIds().toString()));
-        //node2.getKademliaNode().getRoutingTable().findClosest(BigInteger.valueOf(3)).getNodes().stream().forEach(x-> System.out.println(x.toString()));
+        //node2.getKademliaNode().getRoutingTable().findClosest(Long.valueOf(3)).getNodes().stream().forEach(x-> System.out.println(x.toString()));
         System.out.println(k.getResult());
         System.out.println(k.getValue());
         node4.store("ena", "dio");
+        node4.store("F", "dio");
         Thread.sleep(2000);
-        node5.stopNow();
-        StoreAnswer<BigInteger, String> storeAnswer2 = node4.store("G", "M").get();
-        node4.remove("G").get();
-        System.out.println(storeAnswer.toString());
-        System.out.println(storeAnswer.getResult());
-        System.out.println(storeAnswer.getNodeId());
+        node4.store("gg", "M");
+        node5.store("D", "sad");
         Thread.sleep(4000);
 
-        System.out.println(node1.lookup("ena").get().getValue());
-        LookupAnswer<BigInteger, String, String> k2 = node2.lookup("G").get();
-        //node1.getKademliaNode().getRoutingTable().findClosest(BigInteger.valueOf(3)).getNodes().stream().forEach(x-> System.out.println(x.toString()));
+        System.out.println(node1.lookup("gg").get().getValue());
+        System.out.println(node2.lookup("gg").get().getValue());
+        System.out.println(node3.lookup("gg").get().getValue());
+        System.out.println(node4.lookup("gg").get().getValue());
+        System.out.println(node5.lookup("gg").get().getValue());
+        LookupAnswer<Long, String, String> k2 = node2.lookup("D").get();
+        LookupAnswer<Long, String, String> k3 = node3.lookup("D").get();
+        LookupAnswer<Long, String, String> k4 = node4.lookup("D").get();
+        LookupAnswer<Long, String, String> k5 = node5.lookup("D").get();
+        //node1.getKademliaNode().getRoutingTable().findClosest(Long.valueOf(3)).getNodes().stream().forEach(x-> System.out.println(x.toString()));
         //node1.getKademliaNode().getRoutingTable().getBuckets().stream().forEach(x-> System.out.println(x.getNodeIds().toString()));
         // node2.getKademliaNode().getRoutingTable().getBuckets().stream().forEach(x-> System.out.println(x.getNodeIds().toString()));
-        //node2.getKademliaNode().getRoutingTable().findClosest(BigInteger.valueOf(3)).getNodes().stream().forEach(x-> System.out.println(x.toString()));
+        //node2.getKademliaNode().getRoutingTable().findClosest(Long.valueOf(3)).getNodes().stream().forEach(x-> System.out.println(x.toString()));
         System.out.println(k2.getResult());
         System.out.println(k2.getValue());
         int y = 1;
@@ -155,6 +159,8 @@ public class NodeTest {
 
     @AfterAll
     public static void cleanup() {
+        if (node5 != null)
+            node5.stop();
         if (node4 != null)
             node4.stop();
         if (node3 != null)

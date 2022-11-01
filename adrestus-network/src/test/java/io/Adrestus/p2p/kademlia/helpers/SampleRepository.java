@@ -5,26 +5,26 @@ import io.Adrestus.p2p.kademlia.repository.KademliaRepository;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SampleRepository implements KademliaRepository<Integer, String> {
-    protected final Map<Integer, String> data = new HashMap<>();
+public class SampleRepository implements KademliaRepository<Long, String> {
+    protected final Map<Long, String> data = new HashMap<>();
 
     @Override
-    public void store(Integer key, String value) {
+    public void store(Long key, String value) {
         data.putIfAbsent(key, value);
     }
 
     @Override
-    public String get(Integer key) {
+    public String get(Long key) {
         return data.get(key);
     }
 
     @Override
-    public void remove(Integer key) {
+    public void remove(Long key) {
         data.remove(key);
     }
 
     @Override
-    public boolean contains(Integer key) {
+    public boolean contains(Long key) {
         return data.containsKey(key);
     }
 }

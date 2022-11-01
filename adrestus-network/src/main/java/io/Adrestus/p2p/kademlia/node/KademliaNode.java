@@ -15,11 +15,8 @@ import io.Adrestus.p2p.kademlia.table.Bucket;
 import io.Adrestus.p2p.kademlia.table.RoutingTable;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
@@ -28,9 +25,6 @@ import static io.Adrestus.p2p.kademlia.util.KadDistanceUtil.getReferencedNodes;
 
 @Slf4j
 public class KademliaNode<ID extends Number, C extends ConnectionInfo> implements KademliaNodeAPI<ID, C> {
-
-    private static Logger log = LoggerFactory.getLogger(KademliaNode.class);
-
     @Getter
     private final ID id;
     @Getter
@@ -38,17 +32,17 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
     @Getter
     private final RoutingTable<ID, C, Bucket<ID, C>> routingTable;
     @Getter
-    private final MessageSender<ID, C> messageSender;
+    private final transient MessageSender<ID, C> messageSender;
     @Getter
-    private final NodeSettings nodeSettings;
+    private final transient NodeSettings nodeSettings;
 
     @Getter
-    private final ExecutorService executorService;
+    private final transient ExecutorService executorService;
     @Getter
-    private final ScheduledExecutorService scheduledExecutorService;
+    private final transient ScheduledExecutorService scheduledExecutorService;
 
     //** None Accessible Fields **//
-    protected final Map<String, MessageHandler<ID, C>> messageHandlerRegistry = new ConcurrentHashMap<>();
+    protected final transient Map<String, MessageHandler<ID, C>> messageHandlerRegistry = new ConcurrentHashMap<>();
     private volatile boolean isRunning;
 
 
@@ -107,7 +101,9 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
 
     @Override
     public KademliaMessage<ID, C, ? extends Serializable> onMessage(KademliaMessage<ID, C, ? extends Serializable> message) throws HandlerNotFoundException {
-        assert message != null;
+        if (message == null) {
+            throw new IllegalArgumentException("Message can not be null");
+        }
         MessageHandler<ID, C> messageHandler = messageHandlerRegistry.get(message.getType());
         if (messageHandler == null)
             throw new HandlerNotFoundException(message.getType());
@@ -128,18 +124,13 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
         return handler;
     }
 
-    @Override
-    public void setLastSeen(Date date) {
-        // Nothing to do here
-    }
-
 
     //***************************//
     //** None-API methods here **//
     //***************************//
 
     protected void gracefulShutdown(){
-        getReferencedNodes(this).forEach(node -> getMessageSender().sendMessage(this, node, new ShutdownKademliaMessage<>()));
+        getReferencedNodes(this).forEach(node -> getMessageSender().sendAsyncMessage(this, node, new ShutdownKademliaMessage<>()));
     }
 
     protected void init(){
@@ -167,7 +158,7 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
                 completableFuture.complete(true);
             } catch (Exception e) {
                 completableFuture.complete(false);
-                log.error(e.getMessage(), e);
+                logger.error(e.getMessage(), e);
             }
         });
 
@@ -187,7 +178,7 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
                             KademliaMessage<ID, C, ?> response = getMessageSender().sendMessage(caller, node, message);
                             onMessage(response);
                         } catch (HandlerNotFoundException e) {
-                            log.error(e.getMessage(), e);
+                            logger.error(e.getMessage(), e);
                         }
                     });
                 },

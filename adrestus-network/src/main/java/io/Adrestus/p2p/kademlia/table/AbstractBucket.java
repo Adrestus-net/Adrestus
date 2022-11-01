@@ -8,6 +8,7 @@ package io.Adrestus.p2p.kademlia.table;
 
 import io.Adrestus.p2p.kademlia.connection.ConnectionInfo;
 import io.Adrestus.p2p.kademlia.node.Node;
+import io.Adrestus.p2p.kademlia.node.external.ExternalNode;
 
 import java.util.List;
 import java.util.Map;
@@ -21,8 +22,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class AbstractBucket<ID extends Number, C extends ConnectionInfo> implements Bucket<ID, C> {
   private static final long serialVersionUID = -6049494618368168254L;
   protected final int id;
-  protected final List<ID> nodeIds;
-  protected final Map<ID, Node<ID, C>> nodeMap = new ConcurrentHashMap<>();
+  protected final CopyOnWriteArrayList<ID> nodeIds;
+  protected final ConcurrentHashMap<ID, ExternalNode<ID, C>> nodeMap = new ConcurrentHashMap<>();
 
   /**
    * Create a bucket for prefix `id`
@@ -53,7 +54,7 @@ public class AbstractBucket<ID extends Number, C extends ConnectionInfo> impleme
    * @param node to add to this bucket
    */
   @Override
-  public void add(Node<ID, C> node) {
+  public void add(ExternalNode<ID, C> node) {
     nodeIds.add(0,node.getId());
     nodeMap.put(node.getId(), node);
   }
@@ -69,17 +70,15 @@ public class AbstractBucket<ID extends Number, C extends ConnectionInfo> impleme
     nodeMap.remove(nodeId);
   }
 
-  /**
-   * @param id of the node to push
-   */
   @Override
-  public synchronized void pushToFront(ID id) {
-    nodeIds.remove(id);
-    nodeIds.add(0, id);
+  public synchronized void pushToFront(ExternalNode<ID, C> node) {
+    nodeIds.remove(node.getId());
+    nodeIds.add(0, node.getId());
+    nodeMap.get(node.getId()).setLastSeen(node.getLastSeen());
   }
 
   @Override
-  public Node<ID, C> getNode(ID id) {
+  public ExternalNode<ID, C> getNode(ID id) {
     return nodeMap.get(id);
   }
 

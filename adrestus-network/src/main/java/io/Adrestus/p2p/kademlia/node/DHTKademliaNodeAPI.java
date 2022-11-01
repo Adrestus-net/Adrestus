@@ -11,7 +11,7 @@ import java.io.Serializable;
 import java.util.concurrent.Future;
 
 /**
- * KademliaNodeAPI for DHT operations, extends KademliaNodeAPI<ID, C>
+ * KademliaNodeAPI for DHT operations, extends KademliaNodeAPI
  * @param <ID> Type of the node ID
  * @param <C> Type of the node ConnectionInfo
  * @param <K> Type of the serializable Key
@@ -37,10 +37,4 @@ public interface DHTKademliaNodeAPI<ID extends Number, C extends ConnectionInfo,
      * @return KeyHashGenerator of this node
      */
     KeyHashGenerator<ID, K> getKeyHashGenerator();
-
-    /**
-     * @param key Serializable key of the data to look up
-     * @return Future object of StoreAnswer, contains result status and node that stored the data
-     */
-    Future<StoreAnswer<ID, K>> remove(K key)  throws NotExistStoreRequest;
 }

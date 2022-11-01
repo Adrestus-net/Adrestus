@@ -7,7 +7,7 @@ import io.Adrestus.p2p.kademlia.exception.DuplicateStoreRequest;
 import io.Adrestus.p2p.kademlia.model.LookupAnswer;
 import io.Adrestus.p2p.kademlia.model.StoreAnswer;
 import io.Adrestus.p2p.kademlia.builder.NettyKademliaDHTNodeBuilder;
-import io.Adrestus.p2p.kademlia.client.NettyMessageSender;
+import io.Adrestus.p2p.kademlia.client.OkHttpMessageSender;
 import io.Adrestus.p2p.kademlia.common.NettyConnectionInfo;
 import io.Adrestus.p2p.kademlia.node.KeyHashGenerator;
 import io.Adrestus.p2p.kademlia.repository.KademliaRepository;
@@ -19,7 +19,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -29,8 +28,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class DHTTest {
 
-    private static NettyMessageSender<String, String> nettyMessageSender1;
-    private static NettyMessageSender<String, String> nettyMessageSender2;
+    private static OkHttpMessageSender<String, String> nettyMessageSender1;
+    private static OkHttpMessageSender<String, String> nettyMessageSender2;
     private static NettyKademliaDHTNode<String, String> node1;
     private static NettyKademliaDHTNode<String, String> node2;
 
@@ -44,13 +43,13 @@ public class DHTTest {
         NodeSettings.getInstance();
 
         LoggerKademlia.setLevelOFF();
-        KeyHashGenerator<BigInteger, String> keyHashGenerator = key -> new BoundedHashUtil(NodeSettings.getInstance().getIdentifierSize()).hash(key.hashCode(), BigInteger.class);
+        KeyHashGenerator<Long, String> keyHashGenerator = key -> new BoundedHashUtil(NodeSettings.getInstance().getIdentifierSize()).hash(key.hashCode(), Long.class);
 
-        nettyMessageSender1 = new NettyMessageSender<>();
+        nettyMessageSender1 = new OkHttpMessageSender<>();
 
         // node 1
         node1 = new NettyKademliaDHTNodeBuilder<>(
-                BigInteger.valueOf(1),
+                Long.valueOf(1),
                 new NettyConnectionInfo("127.0.0.1", 8081),
                 new SampleRepository(),
                 keyHashGenerator
@@ -60,7 +59,7 @@ public class DHTTest {
 
         // node 2
         node2 = new NettyKademliaDHTNodeBuilder<>(
-                BigInteger.valueOf(2),
+                Long.valueOf(2),
                 new NettyConnectionInfo("127.0.0.1", 8082),
                 new SampleRepository(),
                 keyHashGenerator
@@ -81,10 +80,10 @@ public class DHTTest {
         String[] values = new String[]{"V", "ABC", "SOME VALUE"};
         for (String v : values){
             System.out.println("Testing DHT for K: " + v.hashCode() + " & V: " + v);
-            StoreAnswer<BigInteger, String> storeAnswer = node2.store("" + v.hashCode(), v).get();
+            StoreAnswer<Long, String> storeAnswer = node2.store("" + v.hashCode(), v).get();
             Assertions.assertEquals(StoreAnswer.Result.STORED, storeAnswer.getResult());
 
-            LookupAnswer<BigInteger, String, String> lookupAnswer = node1.lookup("" + v.hashCode()).get();
+            LookupAnswer<Long, String, String> lookupAnswer = node1.lookup("" + v.hashCode()).get();
             Assertions.assertEquals(LookupAnswer.Result.FOUND, lookupAnswer.getResult());
             Assertions.assertEquals(lookupAnswer.getValue(), v);
             System.out.println("Node " + node1.getId() + " found " + v.hashCode() + " from " + lookupAnswer.getNodeId());
@@ -99,8 +98,8 @@ public class DHTTest {
 
     @Test
     void testNetworkKnowledge(){
-        Assertions.assertTrue(node1.getRoutingTable().contains(BigInteger.valueOf(2)));
-        Assertions.assertTrue(node2.getRoutingTable().contains(BigInteger.valueOf(1)));
+        Assertions.assertTrue(node1.getRoutingTable().contains(Long.valueOf(2)));
+        Assertions.assertTrue(node2.getRoutingTable().contains(Long.valueOf(1)));
     }
 
     public static class SampleRepository implements KademliaRepository<String, String> {
