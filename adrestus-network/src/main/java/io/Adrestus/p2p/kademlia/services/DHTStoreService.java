@@ -28,6 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
+
 public class DHTStoreService<ID extends Number, C extends ConnectionInfo, K extends Serializable, V extends Serializable> implements MessageHandler<ID, C> {
     private final DHTKademliaNodeAPI<ID, C, K, V> dhtKademliaNode;
     private final ListeningExecutorService listeningExecutorService;
@@ -55,16 +56,16 @@ public class DHTStoreService<ID extends Number, C extends ConnectionInfo, K exte
 
 
         ListenableFuture<StoreAnswer<ID, K>> futureAnswer = this.listeningExecutorService.submit(
-                () -> {
-                    StoreAnswer<ID, K> storeAnswer = handleStore(this.dhtKademliaNode, this.dhtKademliaNode, key, value);
-                    // If immediately failed or stored, then return, otherwise watch storeAnswer
-                    if (storeAnswer.getResult().equals(StoreAnswer.Result.STORED) || storeAnswer.getResult().equals(StoreAnswer.Result.FAILED)){
-                        return storeAnswer;
-                    }
-                    storeMap.put(key, storeAnswer);
-                    storeAnswer.watch();
+            () -> {
+                StoreAnswer<ID, K> storeAnswer = handleStore(this.dhtKademliaNode, this.dhtKademliaNode, key, value);
+                // If immediately failed or stored, then return, otherwise watch storeAnswer
+                if (storeAnswer.getResult().equals(StoreAnswer.Result.STORED) || storeAnswer.getResult().equals(StoreAnswer.Result.FAILED)){
                     return storeAnswer;
                 }
+                storeMap.put(key, storeAnswer);
+                storeAnswer.watch();
+                return storeAnswer;
+            }
         );
 
         futureAnswer.addListener(() -> {

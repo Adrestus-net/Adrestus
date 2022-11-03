@@ -4,6 +4,7 @@ package io.Adrestus.p2p.kademlia;
 import io.Adrestus.config.KademliaConfiguration;
 import io.Adrestus.config.NodeSettings;
 import io.Adrestus.p2p.kademlia.exception.DuplicateStoreRequest;
+import io.Adrestus.p2p.kademlia.exception.UnsupportedBoundingException;
 import io.Adrestus.p2p.kademlia.model.LookupAnswer;
 import io.Adrestus.p2p.kademlia.model.StoreAnswer;
 import io.Adrestus.p2p.kademlia.builder.NettyKademliaDHTNodeBuilder;
@@ -19,6 +20,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -43,13 +45,19 @@ public class DHTTest {
         NodeSettings.getInstance();
 
         LoggerKademlia.setLevelOFF();
-        KeyHashGenerator<Long, String> keyHashGenerator = key -> new BoundedHashUtil(NodeSettings.getInstance().getIdentifierSize()).hash(key.hashCode(), Long.class);
+        KeyHashGenerator<BigInteger, String> keyHashGenerator = key -> {
+            try {
+                return new BoundedHashUtil(NodeSettings.getInstance().getIdentifierSize()).hash(key.hashCode(), BigInteger.class);
+            } catch (UnsupportedBoundingException e) {
+               return null;
+            }
+        };
 
         nettyMessageSender1 = new OkHttpMessageSender<>();
 
         // node 1
         node1 = new NettyKademliaDHTNodeBuilder<>(
-                Long.valueOf(1),
+                BigInteger.valueOf(1),
                 new NettyConnectionInfo("127.0.0.1", 8081),
                 new SampleRepository(),
                 keyHashGenerator
@@ -59,7 +67,7 @@ public class DHTTest {
 
         // node 2
         node2 = new NettyKademliaDHTNodeBuilder<>(
-                Long.valueOf(2),
+                BigInteger.valueOf(2),
                 new NettyConnectionInfo("127.0.0.1", 8082),
                 new SampleRepository(),
                 keyHashGenerator
@@ -80,10 +88,10 @@ public class DHTTest {
         String[] values = new String[]{"V", "ABC", "SOME VALUE"};
         for (String v : values){
             System.out.println("Testing DHT for K: " + v.hashCode() + " & V: " + v);
-            StoreAnswer<Long, String> storeAnswer = node2.store("" + v.hashCode(), v).get();
+            StoreAnswer<BigInteger, String> storeAnswer = node2.store("" + v.hashCode(), v).get();
             Assertions.assertEquals(StoreAnswer.Result.STORED, storeAnswer.getResult());
 
-            LookupAnswer<Long, String, String> lookupAnswer = node1.lookup("" + v.hashCode()).get();
+            LookupAnswer<BigInteger, String, String> lookupAnswer = node1.lookup("" + v.hashCode()).get();
             Assertions.assertEquals(LookupAnswer.Result.FOUND, lookupAnswer.getResult());
             Assertions.assertEquals(lookupAnswer.getValue(), v);
             System.out.println("Node " + node1.getId() + " found " + v.hashCode() + " from " + lookupAnswer.getNodeId());
@@ -98,8 +106,8 @@ public class DHTTest {
 
     @Test
     void testNetworkKnowledge(){
-        Assertions.assertTrue(node1.getRoutingTable().contains(Long.valueOf(2)));
-        Assertions.assertTrue(node2.getRoutingTable().contains(Long.valueOf(1)));
+        Assertions.assertTrue(node1.getRoutingTable().contains(BigInteger.valueOf(2)));
+        Assertions.assertTrue(node2.getRoutingTable().contains(BigInteger.valueOf(1)));
     }
 
     public static class SampleRepository implements KademliaRepository<String, String> {

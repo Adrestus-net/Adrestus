@@ -1,5 +1,4 @@
 package io.Adrestus.p2p.kademlia.util;
-
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 import org.slf4j.LoggerFactory;

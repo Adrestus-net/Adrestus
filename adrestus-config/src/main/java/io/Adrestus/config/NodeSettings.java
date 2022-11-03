@@ -18,6 +18,7 @@ public class NodeSettings implements Serializable {
     public TimeUnit pingScheduleTimeUnit;
     public int dhtExecutorPoolSize;
     public int dhtScheduledExecutorPoolSize;
+    public int ScheduledExecutorPoolSize;
     public int maximumStoreAndLookupTimeoutValue;
     public TimeUnit maximumStoreAndGetTimeoutTimeUnit;
     public boolean enabledFirstStoreRequestForcePass;
@@ -57,6 +58,7 @@ public class NodeSettings implements Serializable {
         NodeSettings.getInstance().setMaximumStoreAndLookupTimeoutValue(KademliaConfiguration.MAXIMUM_STORE_AND_LOOKUP_TIMEOUT_VALUE);
         NodeSettings.getInstance().setMaximumStoreAndGetTimeoutTimeUnit(KademliaConfiguration.MAXIMUM_STORE_AND_LOOKUP_TIMEOUT_TIME_UNIT);
         NodeSettings.getInstance().setEnabledFirstStoreRequestForcePass(KademliaConfiguration.ENABLED_FIRST_STORE_REQUEST_FORCE_PASS);
+        NodeSettings.getInstance().setScheduledExecutorPoolSize(KademliaConfiguration.SCHEDULED_EXECUTOR_POOL_SIZE);
         return NodeSettings.getInstance();
     }
 
@@ -158,5 +160,13 @@ public class NodeSettings implements Serializable {
 
     public void setEnabledFirstStoreRequestForcePass(boolean enabledFirstStoreRequestForcePass) {
         this.enabledFirstStoreRequestForcePass = enabledFirstStoreRequestForcePass;
+    }
+
+    public int getScheduledExecutorPoolSize() {
+        return ScheduledExecutorPoolSize;
+    }
+
+    public void setScheduledExecutorPoolSize(int scheduledExecutorPoolSize) {
+        ScheduledExecutorPoolSize = scheduledExecutorPoolSize;
     }
 }

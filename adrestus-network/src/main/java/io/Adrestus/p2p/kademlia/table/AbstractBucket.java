@@ -11,7 +11,6 @@ import io.Adrestus.p2p.kademlia.node.Node;
 import io.Adrestus.p2p.kademlia.node.external.ExternalNode;
 
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -70,6 +69,9 @@ public class AbstractBucket<ID extends Number, C extends ConnectionInfo> impleme
     nodeMap.remove(nodeId);
   }
 
+  /**
+   * @param node the node to push
+   */
   @Override
   public synchronized void pushToFront(ExternalNode<ID, C> node) {
     nodeIds.remove(node.getId());

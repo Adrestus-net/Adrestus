@@ -7,7 +7,6 @@ import io.Adrestus.p2p.kademlia.node.Node;
 import io.Adrestus.p2p.kademlia.node.external.ExternalNode;
 
 import java.util.List;
-import java.util.Vector;
 
 public abstract class RoutingTableDecorator<ID extends Number, C extends ConnectionInfo, B extends Bucket<ID, C>> implements RoutingTable<ID, C, B> {
 
@@ -17,6 +16,11 @@ public abstract class RoutingTableDecorator<ID extends Number, C extends Connect
         this.routingTable = routingTable;
     }
 
+
+    @Override
+    public ID getIdInPrefix(ID id, int prefix) {
+        return this.routingTable.getIdInPrefix(id, prefix);
+    }
 
     @Override
     public int getNodePrefix(ID id) {

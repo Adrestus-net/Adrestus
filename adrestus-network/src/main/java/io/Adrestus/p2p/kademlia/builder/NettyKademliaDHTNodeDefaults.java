@@ -1,5 +1,6 @@
 package io.Adrestus.p2p.kademlia.builder;
 
+import io.Adrestus.config.NodeSettings;
 import io.Adrestus.p2p.kademlia.client.OkHttpMessageSender;
 import io.Adrestus.p2p.kademlia.common.NettyConnectionInfo;
 import io.Adrestus.p2p.kademlia.factory.GsonFactory;
@@ -9,12 +10,12 @@ import io.Adrestus.p2p.kademlia.serialization.GsonMessageSerializer;
 import io.Adrestus.p2p.kademlia.server.KademliaNodeServer;
 import io.Adrestus.p2p.kademlia.server.filter.KademliaMainHandlerFilter;
 import io.Adrestus.p2p.kademlia.server.filter.NettyKademliaServerFilterChain;
-import io.Adrestus.config.NodeSettings;
 import io.Adrestus.p2p.kademlia.table.Bucket;
 import io.Adrestus.p2p.kademlia.table.DefaultRoutingTableFactory;
 import io.Adrestus.p2p.kademlia.table.RoutingTableFactory;
 
 import java.io.Serializable;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,7 +43,7 @@ public class NettyKademliaDHTNodeDefaults {
 
         pipelines.add(builder -> {
             if (builder.getRoutingTable() == null) {
-                RoutingTableFactory<Long, NettyConnectionInfo, Bucket<Long, NettyConnectionInfo>> routingTableFactory = new DefaultRoutingTableFactory<>(builder.getNodeSettings());
+                RoutingTableFactory<BigInteger, NettyConnectionInfo, Bucket<BigInteger, NettyConnectionInfo>> routingTableFactory = new DefaultRoutingTableFactory<>(builder.getNodeSettings());
                 builder.routingTable(routingTableFactory.getRoutingTable(builder.getId()));
             }
         });
@@ -55,14 +56,14 @@ public class NettyKademliaDHTNodeDefaults {
 
         pipelines.add(builder -> {
             if (builder.getMessageSender() == null) {
-                builder.messageSender( new OkHttpMessageSender<>(new GsonMessageSerializer<>(builder.getGsonFactory().gson().newBuilder())));
+                builder.messageSender( new OkHttpMessageSender<>(new GsonMessageSerializer<>(builder.getGsonFactory().gsonBuilder())));
             }
         });
 
         pipelines.add(builder -> {
             if (builder.getKademliaMessageHandlerFactory() == null) {
                 NettyKademliaServerFilterChain<K, V> filterChain = new NettyKademliaServerFilterChain<>();
-                filterChain.addFilter(new KademliaMainHandlerFilter<>(new GsonMessageSerializer<>(builder.getGsonFactory().gson().newBuilder())));
+                filterChain.addFilter(new KademliaMainHandlerFilter<>(new GsonMessageSerializer<>(builder.getGsonFactory().gsonBuilder())));
                 builder.kademliaMessageHandlerFactory(new KademliaMessageHandlerFactory.DefaultKademliaMessageHandlerFactory<>(filterChain));
             }
         });

@@ -10,9 +10,11 @@ import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 
 import java.io.Serializable;
+import java.math.BigInteger;
+
 
 public class DefaultNettyServerInitializer<K extends Serializable, V extends Serializable> extends ChannelInitializer<SocketChannel> implements NettyServerInitializer<K, V> {
-    protected DHTKademliaNodeAPI<Long, NettyConnectionInfo, K, V> dhtKademliaNodeAPI;
+    protected DHTKademliaNodeAPI<BigInteger, NettyConnectionInfo, K, V> dhtKademliaNodeAPI;
     private final KademliaMessageHandlerFactory<K, V> kademliaMessageHandlerFactory;
 
     public DefaultNettyServerInitializer(KademliaMessageHandlerFactory<K, V> kademliaMessageHandlerFactory) {
@@ -20,7 +22,7 @@ public class DefaultNettyServerInitializer<K extends Serializable, V extends Ser
     }
 
     @Override
-    public void registerKademliaNode(DHTKademliaNodeAPI<Long, NettyConnectionInfo, K, V> dhtKademliaNodeAPI) {
+    public void registerKademliaNode(DHTKademliaNodeAPI<BigInteger, NettyConnectionInfo, K, V> dhtKademliaNodeAPI) {
         this.dhtKademliaNodeAPI = dhtKademliaNodeAPI;
     }
 

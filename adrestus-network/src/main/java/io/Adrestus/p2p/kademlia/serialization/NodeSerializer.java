@@ -9,7 +9,6 @@ import io.Adrestus.p2p.kademlia.node.Node;
 
 import java.lang.reflect.Type;
 import java.math.BigInteger;
-import java.util.Date;
 
 public class NodeSerializer implements JsonSerializer<Node<BigInteger, NettyConnectionInfo>> {
     @Override

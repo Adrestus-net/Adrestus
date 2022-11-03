@@ -18,14 +18,15 @@ import io.Adrestus.p2p.kademlia.protocol.message.EmptyKademliaMessage;
 import io.Adrestus.p2p.kademlia.protocol.message.KademliaMessage;
 import io.Adrestus.p2p.kademlia.util.DateUtil;
 import io.Adrestus.p2p.kademlia.util.NodeUtil;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+
 
 public class DHTLookupService<ID extends Number, C extends ConnectionInfo, K extends Serializable, V extends Serializable> implements MessageHandler<ID, C> {
     private final Map<K, Future<LookupAnswer<ID, K, V>>> lookupFutureMap = new ConcurrentHashMap<>();

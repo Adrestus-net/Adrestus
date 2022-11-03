@@ -2,9 +2,11 @@ package io.Adrestus.p2p.kademlia;
 
 import io.Adrestus.config.KademliaConfiguration;
 import io.Adrestus.config.NodeSettings;
+import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.p2p.kademlia.builder.NettyKademliaDHTNodeBuilder;
 import io.Adrestus.p2p.kademlia.client.OkHttpMessageSender;
 import io.Adrestus.p2p.kademlia.common.NettyConnectionInfo;
+import io.Adrestus.p2p.kademlia.exception.UnsupportedBoundingException;
 import io.Adrestus.p2p.kademlia.factory.GsonFactory;
 import io.Adrestus.p2p.kademlia.factory.KademliaMessageHandlerFactory;
 import io.Adrestus.p2p.kademlia.node.KeyHashGenerator;
@@ -22,6 +24,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -45,13 +48,19 @@ public class FilterChainTest {
         KademliaConfiguration.BUCKET_SIZE = 100;
         KademliaConfiguration.PING_SCHEDULE_TIME_VALUE = 5;
         NodeSettings.getInstance();
-        KeyHashGenerator<Long, String> keyHashGenerator = key -> new BoundedHashUtil(NodeSettings.getInstance().getIdentifierSize()).hash(key.hashCode(), Long.class);
+        KeyHashGenerator<BigInteger, String> keyHashGenerator = key -> {
+            try {
+                return new BoundedHashUtil(NodeSettings.getInstance().getIdentifierSize()).hash(new BigInteger(HashUtil.convertIPtoHex(key, 16)), BigInteger.class);
+            } catch (UnsupportedBoundingException e) {
+                throw new IllegalArgumentException("Key hash generator not valid");
+            }
+        };
 
         nettyMessageSender1 = new OkHttpMessageSender<>();
 
         // node 1
         node1 = new NettyKademliaDHTNodeBuilder<>(
-                Long.valueOf(1),
+                BigInteger.valueOf(1),
                 new NettyConnectionInfo("127.0.0.1", 8081),
                 new SampleRepository(),
                 keyHashGenerator
@@ -77,7 +86,7 @@ public class FilterChainTest {
 
 
         NettyKademliaDHTNode<String, String> node2 = new NettyKademliaDHTNodeBuilder<>(
-                2L,
+                BigInteger.valueOf(2),
                 new NettyConnectionInfo("127.0.0.1", 8082),
                 new SampleRepository(),
                 node1.getKeyHashGenerator()

@@ -2,7 +2,6 @@ package io.Adrestus.p2p.kademlia.node;
 
 import io.Adrestus.p2p.kademlia.connection.ConnectionInfo;
 import io.Adrestus.p2p.kademlia.exception.DuplicateStoreRequest;
-import io.Adrestus.p2p.kademlia.exception.NotExistStoreRequest;
 import io.Adrestus.p2p.kademlia.model.LookupAnswer;
 import io.Adrestus.p2p.kademlia.model.StoreAnswer;
 import io.Adrestus.p2p.kademlia.repository.KademliaRepository;

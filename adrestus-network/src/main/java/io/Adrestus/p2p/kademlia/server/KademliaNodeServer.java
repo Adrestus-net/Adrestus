@@ -13,15 +13,14 @@ import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
+import java.math.BigInteger;
 
 
 @Getter
+@Slf4j
 public class KademliaNodeServer<K extends Serializable, V extends Serializable> {
-    private static Logger log = LoggerFactory.getLogger(KademliaNodeServer.class);
 
     private final int port;
     private final String host;
@@ -42,7 +41,7 @@ public class KademliaNodeServer<K extends Serializable, V extends Serializable> 
         this(null, port, factory);
     }
 
-    public synchronized void run(DHTKademliaNodeAPI<Long, NettyConnectionInfo, K, V> dhtKademliaNodeAPI) throws InterruptedException {
+    public synchronized void run(DHTKademliaNodeAPI<BigInteger, NettyConnectionInfo, K, V> dhtKademliaNodeAPI) throws InterruptedException {
         assert !running;
 
         this.bossGroup = new NioEventLoopGroup();
@@ -65,7 +64,7 @@ public class KademliaNodeServer<K extends Serializable, V extends Serializable> 
             this.bindFuture = bind.sync();
 
         } catch (InterruptedException e) {
-            log.error("Kademlia Node Server interrupted", e);
+            logger.error("Kademlia Node Server interrupted", e);
             stop();
             throw e;
         }
@@ -74,7 +73,7 @@ public class KademliaNodeServer<K extends Serializable, V extends Serializable> 
 
     public synchronized void stop() throws InterruptedException {
         this.running = false;
-        if (bossGroup != null && workerGroup != null) {
+        if (bossGroup != null && workerGroup != null){
             bossGroup.shutdownGracefully().sync();
             workerGroup.shutdownGracefully().sync();
         }

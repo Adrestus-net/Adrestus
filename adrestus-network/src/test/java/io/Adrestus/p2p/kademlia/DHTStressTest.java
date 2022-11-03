@@ -17,6 +17,7 @@ import io.Adrestus.crypto.elliptic.SignatureData;
 import io.Adrestus.p2p.kademlia.client.OkHttpMessageSender;
 import io.Adrestus.p2p.kademlia.common.NettyConnectionInfo;
 import io.Adrestus.p2p.kademlia.exception.DuplicateStoreRequest;
+import io.Adrestus.p2p.kademlia.exception.UnsupportedBoundingException;
 import io.Adrestus.p2p.kademlia.model.FindNodeAnswer;
 import io.Adrestus.p2p.kademlia.model.StoreAnswer;
 import io.Adrestus.p2p.kademlia.node.DHTBootstrapNode;
@@ -29,6 +30,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.spongycastle.util.encoders.Hex;
 
+import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
@@ -106,17 +108,23 @@ public class DHTStressTest {
     @Test
     public void test() throws DuplicateStoreRequest, ExecutionException, InterruptedException, TimeoutException {
         Random random = new Random();
-        int count = 10;
-        KeyHashGenerator<Long, String> keyHashGenerator =key -> new BoundedHashUtil(NodeSettings.getInstance().getIdentifierSize()).hash(new Long(HashUtil.convertIPtoHex(key,16)), Long.class);
+        int count = 2;
+        KeyHashGenerator<BigInteger, String> keyHashGenerator = key -> {
+            try {
+                return new BoundedHashUtil(NodeSettings.getInstance().getIdentifierSize()).hash(key.hashCode(), BigInteger.class);
+            } catch (UnsupportedBoundingException e) {
+                return null;
+            }
+        };
         while (count > 0) {
             String ipString1 = InetAddresses.fromInteger(random.nextInt()).getHostAddress();
             String ipString2 = InetAddresses.fromInteger(random.nextInt()).getHostAddress();
             String ipString3 = InetAddresses.fromInteger(random.nextInt()).getHostAddress();
             String ipString4 = InetAddresses.fromInteger(random.nextInt()).getHostAddress();
-            Long id1 = new Long(HashUtil.convertIPtoHex(ipString1, 16));
-            Long id2 = new Long(HashUtil.convertIPtoHex(ipString2, 16));
-            Long id3 = new Long(HashUtil.convertIPtoHex(ipString3, 16));
-            Long id4 = new Long(HashUtil.convertIPtoHex(ipString4, 16));
+            BigInteger id1 = new BigInteger(HashUtil.convertIPtoHex(ipString1, 16));
+            BigInteger id2 = new BigInteger(HashUtil.convertIPtoHex(ipString2, 16));
+            BigInteger id3 = new BigInteger(HashUtil.convertIPtoHex(ipString3, 16));
+            BigInteger id4 = new BigInteger(HashUtil.convertIPtoHex(ipString4, 16));
 
 
             nettyMessageSender1 = new OkHttpMessageSender<>();
@@ -141,9 +149,9 @@ public class DHTStressTest {
                     new NettyConnectionInfo(KademliaConfiguration.BootstrapNodeIP, KademliaConfiguration.PORT+2), id4,keyHashGenerator);
             regularNode3.start(dhtBootstrapNode);
 
-            StoreAnswer<Long, String> storeAnswer = regularNode.getRegular_node().store("V", seridata).get(5, TimeUnit.SECONDS);
-            StoreAnswer<Long, String> storeAnswer2 = regularNode2.getRegular_node().store("F", seridata).get(5, TimeUnit.SECONDS);
-            StoreAnswer<Long, String> storeAnswer3 = regularNode3.getRegular_node().store("G", seridata).get(5, TimeUnit.SECONDS);
+            StoreAnswer<BigInteger, String> storeAnswer = regularNode.getRegular_node().store("V", seridata).get(5, TimeUnit.SECONDS);
+            StoreAnswer<BigInteger, String> storeAnswer2 = regularNode2.getRegular_node().store("F", seridata).get(5, TimeUnit.SECONDS);
+            StoreAnswer<BigInteger, String> storeAnswer3 = regularNode3.getRegular_node().store("G", seridata).get(5, TimeUnit.SECONDS);
             Thread.sleep(3000);
             KademliaData cp = regularNode.getRegular_node().lookup("V").get(5, TimeUnit.SECONDS).getValue();
             KademliaData cp2 = regularNode2.getRegular_node().lookup("V").get(5, TimeUnit.SECONDS).getValue();
@@ -154,7 +162,7 @@ public class DHTStressTest {
             assertEquals(seridata, cp3);
             assertEquals(seridata, cp4);
 
-            FindNodeAnswer<Long,NettyConnectionInfo> sa=regularNode2.getRegular_node().getRoutingTable().findClosest(id3);
+            FindNodeAnswer<BigInteger,NettyConnectionInfo> sa=regularNode2.getRegular_node().getRoutingTable().findClosest(id3);
             System.out.println("Done:"+count);
             nettyMessageSender1.stop();
             nettyMessageSender2.stop();

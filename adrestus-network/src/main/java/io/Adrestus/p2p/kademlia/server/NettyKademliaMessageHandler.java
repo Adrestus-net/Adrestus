@@ -1,10 +1,10 @@
 package io.Adrestus.p2p.kademlia.server;
 
 import io.Adrestus.p2p.kademlia.common.NettyConnectionInfo;
+import io.Adrestus.p2p.kademlia.node.DHTKademliaNodeAPI;
 import io.Adrestus.p2p.kademlia.server.filter.Context;
 import io.Adrestus.p2p.kademlia.server.filter.NettyKademliaServerFilter;
 import io.Adrestus.p2p.kademlia.server.filter.NettyKademliaServerFilterChain;
-import io.Adrestus.p2p.kademlia.node.DHTKademliaNodeAPI;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -12,21 +12,21 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.Serializable;
+import java.math.BigInteger;
 import java.util.List;
 
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 
 
+@Slf4j
 public class NettyKademliaMessageHandler<K extends Serializable, V extends Serializable> extends SimpleChannelInboundHandler<FullHttpRequest> {
-    private static Logger log = LoggerFactory.getLogger(NettyKademliaMessageHandler.class);
     private final NettyKademliaServerFilterChain<K, V> filterChain;
-    private final DHTKademliaNodeAPI<Long, NettyConnectionInfo, K, V> dhtKademliaNodeAPI;
+    private final DHTKademliaNodeAPI<BigInteger, NettyConnectionInfo, K, V> dhtKademliaNodeAPI;
 
-    public NettyKademliaMessageHandler(DHTKademliaNodeAPI<Long, NettyConnectionInfo, K, V> dhtKademliaNodeAPI, NettyKademliaServerFilterChain<K, V> filterChain) {
+    public NettyKademliaMessageHandler(DHTKademliaNodeAPI<BigInteger, NettyConnectionInfo, K, V> dhtKademliaNodeAPI, NettyKademliaServerFilterChain<K, V> filterChain) {
         this.filterChain = filterChain;
         this.dhtKademliaNodeAPI = dhtKademliaNodeAPI;
     }
@@ -34,10 +34,10 @@ public class NettyKademliaMessageHandler<K extends Serializable, V extends Seria
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, FullHttpRequest request) {
         List<NettyKademliaServerFilter<K, V>> filters = filterChain.getFilters();
-        if (filters.isEmpty()) {
-            log.error("Filter Chain is empty. Closing connection.");
-            channelHandlerContext.channel().close();
-            return;
+        if (filters.isEmpty()){
+             logger.error("Filter Chain is empty. Closing connection.");
+             channelHandlerContext.channel().close();
+             return;
         }
 
         Context<K, V> context = new Context.ContextImpl<>(channelHandlerContext, dhtKademliaNodeAPI);

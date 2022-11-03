@@ -3,7 +3,6 @@ package io.Adrestus.p2p.kademlia.factory;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import io.Adrestus.p2p.kademlia.common.NettyExternalNode;
 import io.Adrestus.p2p.kademlia.model.FindNodeAnswer;
 import io.Adrestus.p2p.kademlia.node.Node;
 import io.Adrestus.p2p.kademlia.node.external.ExternalNode;
@@ -16,10 +15,12 @@ import java.io.Serializable;
 
 public interface GsonFactory {
     Gson gson();
+    GsonBuilder gsonBuilder();
 
     class DefaultGsonFactory<K extends Serializable, V extends Serializable> implements GsonFactory {
 
-        public GsonBuilder gsonBuilder() {
+        @Override
+        public GsonBuilder gsonBuilder(){
             GsonBuilder gsonBuilder = new GsonBuilder();
             return gsonBuilder
                     .enableComplexMapKeySerialization()

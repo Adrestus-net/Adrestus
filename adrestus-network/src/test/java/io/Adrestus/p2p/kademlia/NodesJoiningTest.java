@@ -27,7 +27,7 @@ public class NodesJoiningTest {
         KademliaConfiguration.IDENTIFIER_SIZE = 4;
         KademliaConfiguration.BUCKET_SIZE = 100;
         KademliaConfiguration.PING_SCHEDULE_TIME_VALUE = 5;
-
+        Thread.sleep(2000);
         NodeSettings.getInstance();
         RoutingTableFactory<Integer, EmptyConnectionInfo, Bucket<Integer, EmptyConnectionInfo>> routingTableFactory = new DefaultRoutingTableFactory<>(NodeSettings.getInstance());
 
@@ -36,28 +36,13 @@ public class NodesJoiningTest {
         KademliaNodeAPI<Integer, EmptyConnectionInfo> bootstrapNode = new KademliaNode<>(0, new EmptyConnectionInfo(), routingTableFactory.getRoutingTable(0), messageSenderAPI, NodeSettings.getInstance());
         messageSenderAPI.registerNode(bootstrapNode);
         bootstrapNode.start();
-
+        System.out.println(NodeSettings.getInstance().getIdentifierSize());
         // Other nodes
-        KademliaNodeAPI<Integer, EmptyConnectionInfo> nextNode=null;
         for(int i = 1; i < Math.pow(2, NodeSettings.getInstance().getIdentifierSize()); i++){
-            nextNode = new KademliaNode<>(i, new EmptyConnectionInfo(), routingTableFactory.getRoutingTable(i), messageSenderAPI, NodeSettings.getInstance());
+            KademliaNodeAPI<Integer, EmptyConnectionInfo> nextNode = new KademliaNode<>(i, new EmptyConnectionInfo(), routingTableFactory.getRoutingTable(i), messageSenderAPI, NodeSettings.getInstance());
             messageSenderAPI.registerNode(nextNode);
             Assertions.assertTrue(nextNode.start(bootstrapNode).get(), "Failed to bootstrap the node with ID " + i);
-
         }
-
-        // Wait and test if all nodes join
-        CountDownLatch countDownLatch = new CountDownLatch(1);
-        new Thread(() -> {
-            while (messageSenderAPI.map.size() < Math.pow(2, NodeSettings.getInstance().getIdentifierSize())){
-                //wait
-            }
-            countDownLatch.countDown();
-        }).start();
-        boolean await = countDownLatch.await(NodeSettings.getInstance().getPingScheduleTimeValue() + 1, NodeSettings.getInstance().pingScheduleTimeUnit);
-        Assertions.assertTrue(await);
-
-        System.out.println("All nodes tried registry in the right time");
 
         Thread.sleep(2000);
 

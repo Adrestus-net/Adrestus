@@ -14,7 +14,7 @@ import io.Adrestus.p2p.kademlia.serialization.FindNodeAnswerDeserializer;
 import io.Adrestus.p2p.kademlia.serialization.NodeDeserializer;
 import io.Adrestus.p2p.kademlia.serialization.NodeSerializer;
 
-public final class SingletonGsonFactory implements GsonFactory {
+public final class SingletonGsonFactory {
     private static volatile SingletonGsonFactory instance;
     private static volatile Gson gson;
 
@@ -50,7 +50,6 @@ public final class SingletonGsonFactory implements GsonFactory {
         return instance;
     }
 
-    @Override
     public Gson gson() {
         return gson;
     }

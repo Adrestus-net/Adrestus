@@ -21,6 +21,7 @@ import io.Adrestus.p2p.kademlia.client.OkHttpMessageSender;
 import io.Adrestus.p2p.kademlia.common.NettyConnectionInfo;
 import io.Adrestus.p2p.kademlia.exception.DuplicateStoreRequest;
 import io.Adrestus.p2p.kademlia.exception.FullBucketException;
+import io.Adrestus.p2p.kademlia.exception.UnsupportedBoundingException;
 import io.Adrestus.p2p.kademlia.model.FindNodeAnswer;
 import io.Adrestus.p2p.kademlia.model.LookupAnswer;
 import io.Adrestus.p2p.kademlia.model.StoreAnswer;
@@ -40,12 +41,14 @@ import io.Adrestus.p2p.kademlia.table.DefaultRoutingTableFactory;
 import io.Adrestus.p2p.kademlia.table.RoutingTable;
 import io.Adrestus.p2p.kademlia.table.RoutingTableFactory;
 import io.Adrestus.p2p.kademlia.util.BoundedHashUtil;
+import io.Adrestus.p2p.kademlia.util.LoggerKademlia;
 import org.apache.commons.codec.binary.StringUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
 
+import java.math.BigInteger;
 import java.security.*;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -120,30 +123,34 @@ public class AdrestusNodeTest {
     }
     @Test
     public void shouldAnswerWithTrue() throws InterruptedException, ExecutionException {
-
+        LoggerKademlia.setLevelOFF();
         int port = 1080;
         NodeSettings.getInstance();
-        KeyHashGenerator<Long, String> keyHashGenerator = key -> {
-            return new BoundedHashUtil(NodeSettings.getInstance().getIdentifierSize()).hash(key.hashCode(), Long.class);
+        KeyHashGenerator<BigInteger, String> keyHashGenerator = key -> {
+            try {
+                return new BoundedHashUtil(NodeSettings.getInstance().getIdentifierSize()).hash(new BigInteger(HashUtil.convertIPtoHex(key, 16)), BigInteger.class);
+            } catch (UnsupportedBoundingException e) {
+                throw new IllegalArgumentException("Key hash generator not valid");
+            }
         };
 
         // node 1
         NettyKademliaDHTNode<String, KademliaData> bootsrtap = new NettyKademliaDHTNodeBuilder<>(
-                7L,
+                BigInteger.valueOf(1),
                 new NettyConnectionInfo("127.0.0.1", port),
                 new SampleRepository(),
                 keyHashGenerator
         ).build();
         bootsrtap.start();
 
-        RoutingTableFactory<Long, NettyConnectionInfo, Bucket<Long, NettyConnectionInfo>> routingTableFactory = new DefaultRoutingTableFactory<>();
+        RoutingTableFactory<BigInteger, NettyConnectionInfo, Bucket<BigInteger, NettyConnectionInfo>> routingTableFactory = new DefaultRoutingTableFactory<>();
 
         port = port + 1;
         ArrayList<NettyKademliaDHTNode<String, KademliaData>> list = new ArrayList<>();
-        for (long i = 0; i < 7; i++) {
-            RoutingTable<Long, NettyConnectionInfo, Bucket<Long, NettyConnectionInfo>> routingTable = routingTableFactory.getRoutingTable(i);
+        for (int i = 0; i < 8; i++) {
+            RoutingTable<BigInteger, NettyConnectionInfo, Bucket<BigInteger, NettyConnectionInfo>> routingTable = routingTableFactory.getRoutingTable(BigInteger.valueOf(i));
             NettyKademliaDHTNode<String, KademliaData> nextnode = new NettyKademliaDHTNodeBuilder<>(
-                    i,
+                    BigInteger.valueOf(i),
                     new NettyConnectionInfo("127.0.0.1", port + (int) i),
                     new SampleRepository(),
                     keyHashGenerator
@@ -156,8 +163,13 @@ public class AdrestusNodeTest {
         list.get(4).getRoutingTable().getBuckets().forEach(bucket -> {
             System.out.println("Bucket [" + bucket.getId() + "] -> " + bucket.getNodeIds());
         });
+        list.get(3).stop();
+        Thread.sleep(8000);
+        list.get(4).getRoutingTable().getBuckets().forEach(bucket -> {
+            System.out.println("Bucket [" + bucket.getId() + "] -> " + bucket.getNodeIds());
+        });
 
-        int i=1;
+        list.forEach(x->x.stop());
     }
     //@Test
     public void stress_test_networkID() throws ExecutionException, InterruptedException, TimeoutException, DuplicateStoreRequest, FullBucketException {
@@ -170,44 +182,44 @@ public class AdrestusNodeTest {
         while (count > 0) {
             String ipString1 = InetAddresses.fromInteger(random.nextInt()).getHostAddress();
             String ipString2 = InetAddresses.fromInteger(random.nextInt()).getHostAddress();
-           // Long id1 = new Long(HashUtil.convertIPtoHex(ipString1, 16));
-           // Long id2 = new Long(HashUtil.convertIPtoHex(ipString2, 16));
-             Long id1 = new Long("0");
-            // Long id2 = new Long("6166366639633865");
+           // BigInteger id1 = BigInteger.valueOf(HashUtil.convertIPtoHex(ipString1, 16));
+           // BigInteger id2 = BigInteger.valueOf(HashUtil.convertIPtoHex(ipString2, 16));
+             BigInteger id1 = BigInteger.valueOf(0);
+            // BigInteger id2 = BigInteger.valueOf("6166366639633865");
             DHTBootstrapNode dhtBootstrapNode = new DHTBootstrapNode(new NettyConnectionInfo(KademliaConfiguration.BootstrapNodeIP, KademliaConfiguration.BootstrapNodePORT), id1);
             dhtBootstrapNode.start();
 
-            RoutingTableFactory<Long, NettyConnectionInfo, Bucket<Long, NettyConnectionInfo>> routingTableFactory = new DefaultRoutingTableFactory<>();
+            RoutingTableFactory<BigInteger, NettyConnectionInfo, Bucket<BigInteger, NettyConnectionInfo>> routingTableFactory = new DefaultRoutingTableFactory<>();
             DHTRegularNode  regularNode =
-                    new DHTRegularNode(new NettyConnectionInfo(KademliaConfiguration.BootstrapNodeIP, 8082), new Long(String.valueOf(1)));
-            regularNode.start(dhtBootstrapNode,routingTableFactory.getRoutingTable(new Long(1)));
+                    new DHTRegularNode(new NettyConnectionInfo(KademliaConfiguration.BootstrapNodeIP, 8083), BigInteger.valueOf(1));
+            regularNode.start(dhtBootstrapNode,routingTableFactory.getRoutingTable(BigInteger.valueOf(1)));
 
-            List<Bucket<Long,NettyConnectionInfo>>asd1= regularNode.getRegular_node().getRoutingTable().getBuckets();
+            List<Bucket<BigInteger,NettyConnectionInfo>>asd1= regularNode.getRegular_node().getRoutingTable().getBuckets();
 
-            DHTRegularNode  regularNode2 = new DHTRegularNode(new NettyConnectionInfo(KademliaConfiguration.BootstrapNodeIP, 8083), new Long(String.valueOf(2)));
-            regularNode2.start(dhtBootstrapNode,routingTableFactory.getRoutingTable(new Long(2)));
+            DHTRegularNode  regularNode2 = new DHTRegularNode(new NettyConnectionInfo(KademliaConfiguration.BootstrapNodeIP, 8084), BigInteger.valueOf(2));
+            regularNode2.start(dhtBootstrapNode,routingTableFactory.getRoutingTable(BigInteger.valueOf(2)));
 
-            List<Bucket<Long,NettyConnectionInfo>>asd2= regularNode2.getRegular_node().getRoutingTable().getBuckets();
+            List<Bucket<BigInteger,NettyConnectionInfo>>asd2= regularNode2.getRegular_node().getRoutingTable().getBuckets();
 
-            DHTRegularNode  regularNode3 = new DHTRegularNode(new NettyConnectionInfo(KademliaConfiguration.BootstrapNodeIP, 8084), new Long(String.valueOf(3)));
-            regularNode3.start(dhtBootstrapNode,routingTableFactory.getRoutingTable(new Long(3)));
+            DHTRegularNode  regularNode3 = new DHTRegularNode(new NettyConnectionInfo(KademliaConfiguration.BootstrapNodeIP, 8085), BigInteger.valueOf(3));
+            regularNode3.start(dhtBootstrapNode,routingTableFactory.getRoutingTable(BigInteger.valueOf(3)));
 
-            List<Bucket<Long,NettyConnectionInfo>>asd3= regularNode3.getRegular_node().getRoutingTable().getBuckets();
+            List<Bucket<BigInteger,NettyConnectionInfo>>asd3= regularNode3.getRegular_node().getRoutingTable().getBuckets();
 
-            DHTRegularNode  regularNode4 = new DHTRegularNode(new NettyConnectionInfo(KademliaConfiguration.BootstrapNodeIP, 8085), new Long(String.valueOf(4)));
-            regularNode4.start(dhtBootstrapNode,routingTableFactory.getRoutingTable(new Long(4)));
+            DHTRegularNode  regularNode4 = new DHTRegularNode(new NettyConnectionInfo(KademliaConfiguration.BootstrapNodeIP, 8086), BigInteger.valueOf(4));
+            regularNode4.start(dhtBootstrapNode,routingTableFactory.getRoutingTable(BigInteger.valueOf(4)));
 
-            DHTRegularNode  regularNode5 = new DHTRegularNode(new NettyConnectionInfo(KademliaConfiguration.BootstrapNodeIP, 8086), new Long(String.valueOf(5)));
-            regularNode5.start(dhtBootstrapNode,routingTableFactory.getRoutingTable(new Long(5)));
+            DHTRegularNode  regularNode5 = new DHTRegularNode(new NettyConnectionInfo(KademliaConfiguration.BootstrapNodeIP, 8087), BigInteger.valueOf(5));
+            regularNode5.start(dhtBootstrapNode,routingTableFactory.getRoutingTable(BigInteger.valueOf(5)));
 
-            DHTRegularNode  regularNode6 = new DHTRegularNode(new NettyConnectionInfo(KademliaConfiguration.BootstrapNodeIP, 8087), new Long(String.valueOf(6)));
-            regularNode6.start(dhtBootstrapNode,routingTableFactory.getRoutingTable(new Long(6)));
+            DHTRegularNode  regularNode6 = new DHTRegularNode(new NettyConnectionInfo(KademliaConfiguration.BootstrapNodeIP, 8088), BigInteger.valueOf(6));
+            regularNode6.start(dhtBootstrapNode,routingTableFactory.getRoutingTable(BigInteger.valueOf(6)));
 
-            DHTRegularNode  regularNode7 = new DHTRegularNode(new NettyConnectionInfo(KademliaConfiguration.BootstrapNodeIP, 8088), new Long(String.valueOf(7)));
-            regularNode7.start(dhtBootstrapNode,routingTableFactory.getRoutingTable(new Long(7)));
+            DHTRegularNode  regularNode7 = new DHTRegularNode(new NettyConnectionInfo(KademliaConfiguration.BootstrapNodeIP, 8089), BigInteger.valueOf(7));
+            regularNode7.start(dhtBootstrapNode,routingTableFactory.getRoutingTable(BigInteger.valueOf(7)));
 
-            DHTRegularNode  regularNode8= new DHTRegularNode(new NettyConnectionInfo(KademliaConfiguration.BootstrapNodeIP, 8089), new Long(String.valueOf(8)));
-            regularNode8.start(dhtBootstrapNode,routingTableFactory.getRoutingTable(new Long(8)));
+            DHTRegularNode  regularNode8= new DHTRegularNode(new NettyConnectionInfo(KademliaConfiguration.BootstrapNodeIP, 8090), BigInteger.valueOf(8));
+            regularNode8.start(dhtBootstrapNode,routingTableFactory.getRoutingTable(BigInteger.valueOf(8)));
 
 
             //regularNode4.getRegular_node().getRoutingTable().update(regularNode.getRegular_node());
@@ -215,33 +227,40 @@ public class AdrestusNodeTest {
            // regularNode4.getRegular_node().getRoutingTable().update(regularNode3.getRegular_node());
 
             //regularNode4.getRegular_node().getRoutingTable().update(regularNode.getRegular_node());
-            List<Bucket<Long,NettyConnectionInfo>> bucket_of_node4= regularNode4.getRegular_node().getRoutingTable().getBuckets();
-            FindNodeAnswer<Long,NettyConnectionInfo> sa=regularNode2.getRegular_node().getRoutingTable().findClosest(new Long("2"));
-            List<Bucket<Long,NettyConnectionInfo>>asd5= regularNode5.getRegular_node().getRoutingTable().getBuckets();
-            List<Bucket<Long,NettyConnectionInfo>>asd6= regularNode6.getRegular_node().getRoutingTable().getBuckets();
-            List<Bucket<Long,NettyConnectionInfo>>asd7= regularNode7.getRegular_node().getRoutingTable().getBuckets();
-            List<Bucket<Long,NettyConnectionInfo>>asd8= regularNode8.getRegular_node().getRoutingTable().getBuckets();
+            List<Bucket<BigInteger,NettyConnectionInfo>> bucket_of_node4= regularNode4.getRegular_node().getRoutingTable().getBuckets();
+            FindNodeAnswer<BigInteger,NettyConnectionInfo> sa=regularNode2.getRegular_node().getRoutingTable().findClosest(BigInteger.valueOf(2));
+            List<Bucket<BigInteger,NettyConnectionInfo>>asd5= regularNode5.getRegular_node().getRoutingTable().getBuckets();
+            List<Bucket<BigInteger,NettyConnectionInfo>>asd6= regularNode6.getRegular_node().getRoutingTable().getBuckets();
+            List<Bucket<BigInteger,NettyConnectionInfo>>asd7= regularNode7.getRegular_node().getRoutingTable().getBuckets();
+            List<Bucket<BigInteger,NettyConnectionInfo>>asd8= regularNode8.getRegular_node().getRoutingTable().getBuckets();
 
-            RoutingTable<Long,NettyConnectionInfo,Bucket<Long,NettyConnectionInfo>> table=regularNode4.getRegular_node().getRoutingTable();
-            List<Bucket<Long,NettyConnectionInfo>>bootsrap= dhtBootstrapNode.getBootStrapNode().getRoutingTable().getBuckets();
+            RoutingTable<BigInteger,NettyConnectionInfo,Bucket<BigInteger,NettyConnectionInfo>> table=regularNode4.getRegular_node().getRoutingTable();
+            List<Bucket<BigInteger,NettyConnectionInfo>>bootsrap= dhtBootstrapNode.getBootStrapNode().getRoutingTable().getBuckets();
 
-            StoreAnswer<Long, String> storeAnswer = dhtBootstrapNode.getBootStrapNode().store("V", kademliaData).get(5, TimeUnit.SECONDS);
-            StoreAnswer<Long, String> storeAnswer1 = regularNode2.getRegular_node().store("F", kademliaData).get(5, TimeUnit.SECONDS);
-            StoreAnswer<Long, String> storeAnswer2 = regularNode3.getRegular_node().store("S", kademliaData).get(5, TimeUnit.SECONDS);
-            StoreAnswer<Long, String> storeAnswer3 = regularNode4.getRegular_node().store("D", kademliaData).get(5, TimeUnit.SECONDS);
+            StoreAnswer<BigInteger, String> storeAnswer = dhtBootstrapNode.getBootStrapNode().store("V", kademliaData).get(5, TimeUnit.SECONDS);
+            StoreAnswer<BigInteger, String> storeAnswer1 = regularNode2.getRegular_node().store("F", kademliaData).get(5, TimeUnit.SECONDS);
+            StoreAnswer<BigInteger, String> storeAnswer2 = regularNode3.getRegular_node().store("S", kademliaData).get(5, TimeUnit.SECONDS);
+            StoreAnswer<BigInteger, String> storeAnswer3 = regularNode4.getRegular_node().store("D", kademliaData).get(5, TimeUnit.SECONDS);
 
             Thread.sleep(5000);
 
             KademliaData cp1 = regularNode.getRegular_node().lookup("V").get().getValue();
             KademliaData cp2 = regularNode2.getRegular_node().lookup("V").get().getValue();
-            LookupAnswer<Long, String, KademliaData> LOK=regularNode3.getRegular_node().lookup("V").get();
+            LookupAnswer<BigInteger, String, KademliaData> LOK=regularNode3.getRegular_node().lookup("V").get();
             KademliaData cp4 =  regularNode4.getRegular_node().lookup("V").get().getValue();
             KademliaData cp5 = dhtBootstrapNode.getBootStrapNode().lookup("V").get().getValue();
             KademliaRepository<String,KademliaData>asd23= regularNode.getRegular_node().getKademliaRepository();
             assertEquals(seridata, cp1);
           //  assertEquals(seridata, cp2);
-            regularNode.getRegular_node().stop();
-            dhtBootstrapNode.getBootStrapNode().stop();
+            regularNode8.getRegular_node().stopNow();
+            regularNode7.getRegular_node().stopNow();
+            regularNode6.getRegular_node().stopNow();
+            regularNode5.getRegular_node().stopNow();
+            regularNode4.getRegular_node().stopNow();
+            regularNode3.getRegular_node().stopNow();
+            regularNode2.getRegular_node().stopNow();
+            regularNode.getRegular_node().stopNow();
+            dhtBootstrapNode.getBootStrapNode().stopNow();
             count--;
         }
     }
@@ -252,19 +271,25 @@ public class AdrestusNodeTest {
         Logger rootLogger = loggerContext.getLogger("io.netty");
         rootLogger.setLevel(ch.qos.logback.classic.Level.OFF);
 
-        KeyHashGenerator<Long, String> keyHashGenerator = key -> new BoundedHashUtil(NodeSettings.getInstance().getIdentifierSize()).hash(key.hashCode(), Long.class);
+        KeyHashGenerator<BigInteger, String> keyHashGenerator = key -> {
+            try {
+                return new BoundedHashUtil(NodeSettings.getInstance().getIdentifierSize()).hash(new BigInteger(HashUtil.convertIPtoHex(key, 16)), BigInteger.class);
+            } catch (UnsupportedBoundingException e) {
+                throw new IllegalArgumentException("Key hash generator not valid");
+            }
+        };
         nettyMessageSender1 = new OkHttpMessageSender<>();
 
-        MessageHandler<Long, NettyConnectionInfo> handler = new PongMessageHandler<Long, NettyConnectionInfo>() {
+        MessageHandler<BigInteger, NettyConnectionInfo> handler = new PongMessageHandler<BigInteger, NettyConnectionInfo>() {
             @Override
-            public <I extends KademliaMessage<Long, NettyConnectionInfo, ?>, O extends KademliaMessage<Long, NettyConnectionInfo, ?>> O doHandle(KademliaNodeAPI<Long, NettyConnectionInfo> kademliaNode, I message) {
+            public <I extends KademliaMessage<BigInteger, NettyConnectionInfo, ?>, O extends KademliaMessage<BigInteger, NettyConnectionInfo, ?>> O doHandle(KademliaNodeAPI<BigInteger, NettyConnectionInfo> kademliaNode, I message) {
                 kademliaNode.getRoutingTable().getBuckets().stream().forEach(x -> System.out.println(x.toString()));
-                return (O) doHandle(kademliaNode, (PongKademliaMessage<Long, NettyConnectionInfo>) message);
+                return (O) doHandle(kademliaNode, (PongKademliaMessage<BigInteger, NettyConnectionInfo>) message);
             }
         };
 
         node1 = new NettyKademliaDHTNodeBuilder<>(
-                Long.valueOf(1),
+                BigInteger.valueOf(1),
                 new NettyConnectionInfo("127.0.0.1", 8081),
                 new SampleRepository(),
                 keyHashGenerator
@@ -272,7 +297,7 @@ public class AdrestusNodeTest {
         node1.start();
         // node 2
         node2 = new NettyKademliaDHTNodeBuilder<>(
-                Long.valueOf(2),
+                BigInteger.valueOf(2),
                 new NettyConnectionInfo("127.0.0.1", 8082),
                 new SampleRepository(),
                 keyHashGenerator
@@ -291,7 +316,6 @@ public class AdrestusNodeTest {
 
         @Override
         public void store(String key, KademliaData value) {
-
             data.putIfAbsent(key, value);
         }
 

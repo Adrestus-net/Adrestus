@@ -16,7 +16,10 @@ import io.Adrestus.p2p.kademlia.node.external.ExternalNode;
 import io.Adrestus.p2p.kademlia.util.FindNodeAnswerReducer;
 import lombok.NoArgsConstructor;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 
 /**
  * @param <ID> Number type of node ID between supported types
@@ -120,7 +123,7 @@ public abstract class AbstractRoutingTable<ID extends Number, C extends Connecti
 
     // Loop over every bucket (max common.BucketSize or lte identifier size) and add it to answer
     for (int i = 1; findNodeAnswer.size() < this.nodeSettings.getBucketSize() && ((bucket.getId() - i) >= 0 ||
-            (bucket.getId() + i) <= this.nodeSettings.getIdentifierSize()); i++) {
+                                    (bucket.getId() + i) <= this.nodeSettings.getIdentifierSize()); i++) {
       //Check the previous buckets
       if (bucket.getId() - i >= 0) {
         Bucket<ID, C> bucketP = this.buckets.get(bucket.getId() - i);

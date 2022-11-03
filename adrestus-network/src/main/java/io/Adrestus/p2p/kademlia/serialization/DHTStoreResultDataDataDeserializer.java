@@ -5,7 +5,6 @@ import com.google.gson.reflect.TypeToken;
 import io.Adrestus.p2p.kademlia.model.StoreAnswer;
 import io.Adrestus.p2p.kademlia.protocol.message.DHTStoreResultKademliaMessage;
 
-
 import java.io.Serializable;
 import java.lang.reflect.Type;
 
