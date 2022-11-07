@@ -17,8 +17,8 @@ public class PingMessageHandler<ID extends Number, C extends ConnectionInfo> ext
         return (O) doHandle(kademliaNode, (PingKademliaMessage<ID, C>) message);
     }
 
-    protected PongKademliaMessage<ID, C> doHandle(KademliaNodeAPI<ID, C> kademliaNode, PingKademliaMessage<ID, C> message){
-        if (kademliaNode.isRunning()){
+    protected PongKademliaMessage<ID, C> doHandle(KademliaNodeAPI<ID, C> kademliaNode, PingKademliaMessage<ID, C> message) {
+        if (kademliaNode.isRunning()) {
             try {
                 kademliaNode.getRoutingTable().update(message.getNode());
             } catch (FullBucketException e) {

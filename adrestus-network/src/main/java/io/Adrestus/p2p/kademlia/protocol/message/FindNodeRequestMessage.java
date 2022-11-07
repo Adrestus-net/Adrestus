@@ -8,7 +8,7 @@ public class FindNodeRequestMessage<ID extends Number, C extends ConnectionInfo>
         super(MessageType.FIND_NODE_REQ);
     }
 
-    public ID getDestinationId(){
+    public ID getDestinationId() {
         return this.getData();
     }
 }

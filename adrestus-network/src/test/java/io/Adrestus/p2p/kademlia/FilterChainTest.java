@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
@@ -128,6 +129,11 @@ public class FilterChainTest {
         @Override
         public boolean contains(String key) {
             return data.containsKey(key);
+        }
+
+        @Override
+        public List<String> getList() {
+            return null;
         }
     }
 }

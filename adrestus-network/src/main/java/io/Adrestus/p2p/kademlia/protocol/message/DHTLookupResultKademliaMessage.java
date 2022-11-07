@@ -24,7 +24,7 @@ public class DHTLookupResultKademliaMessage<ID extends Number, C extends Connect
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class DHTLookupResult<K extends Serializable, V extends Serializable> implements Serializable{
+    public static class DHTLookupResult<K extends Serializable, V extends Serializable> implements Serializable {
         private LookupAnswer.Result result;
         private K key;
         private V value;

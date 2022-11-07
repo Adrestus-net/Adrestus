@@ -7,6 +7,7 @@ import java.io.Serializable;
 
 /**
  * Model to hold base API call reply answer
+ *
  * @param <ID> Number type of node ID between supported types
  */
 @Getter

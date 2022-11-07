@@ -11,17 +11,17 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class HashingTest {
 
     @Test
-    public void test1(){
+    public void test1() {
         Random random = new Random();
-        int count=10000;
+        int count = 10000;
 
-        while (count>0) {
+        while (count > 0) {
             String ipString = InetAddresses.fromInteger(random.nextInt()).getHostAddress();
-            String res = HashUtil.convertIPtoHex(ipString,4);
+            String res = HashUtil.convertIPtoHex(ipString, 4);
 
             BigInteger a = new BigInteger(res);
             count--;
-            assertEquals(4,res.length());
+            assertEquals(4, res.length());
         }
     }
 }

@@ -66,7 +66,7 @@ public class ServerClientTest {
         System.out.println("test_with_with_delays");
         SimpleServer adrestusServer = new SimpleServer("localhost");
 
-        CountDownLatch latch=new CountDownLatch(1);
+        CountDownLatch latch = new CountDownLatch(1);
         (new Thread() {
             public void run() {
                 SimpleClient adrestusClient1 = new SimpleClient("localhost");
@@ -159,7 +159,7 @@ public class ServerClientTest {
         SimpleClient adrestusClient2 = new SimpleClient("localhost");
         SimpleClient adrestusClient3 = new SimpleClient("localhost");
         SimpleClient adrestusClient4 = new SimpleClient("localhost");
-        CountDownLatch latch=new CountDownLatch(1);
+        CountDownLatch latch = new CountDownLatch(1);
         (new Thread() {
             public void run() {
                 SimpleServer adrestusServer = new SimpleServer("localhost");
@@ -192,7 +192,7 @@ public class ServerClientTest {
         SimpleClient adrestusClient2 = new SimpleClient("localhost");
         SimpleClient adrestusClient3 = new SimpleClient("localhost");
         //AdrestusClient adrestusClient4 = new AdrestusClient("localhost");
-        CountDownLatch latch=new CountDownLatch(1);
+        CountDownLatch latch = new CountDownLatch(1);
         (new Thread() {
             public void run() {
                 SimpleServer adrestusServer = new SimpleServer("localhost");
@@ -221,7 +221,7 @@ public class ServerClientTest {
 
         SimpleClient adrestusClient1 = new SimpleClient("localhost");
         SimpleClient adrestusClient2 = new SimpleClient("localhost");
-        CountDownLatch latch=new CountDownLatch(1);
+        CountDownLatch latch = new CountDownLatch(1);
         (new Thread() {
             public void run() {
                 SimpleServer adrestusServer = new SimpleServer("localhost");

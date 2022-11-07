@@ -6,6 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  * External node with ID of type Long
+ *
  * @param <C> Your implementation of connection info
  */
 public class LongExternalNode<C extends ConnectionInfo> extends ExternalNode<Long, C> {

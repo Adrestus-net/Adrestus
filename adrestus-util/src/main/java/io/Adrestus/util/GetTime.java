@@ -7,6 +7,7 @@ import java.util.Date;
 
 public class GetTime {
     private static final String FORMAT_STRING = "yyyy-MM-dd HH:mm:ss.SSS";
+
     public static String GetTimeStampInString() {
         SimpleDateFormat sdf = new SimpleDateFormat(FORMAT_STRING);
         Timestamp timestamp = new Timestamp(System.currentTimeMillis());

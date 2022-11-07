@@ -18,22 +18,22 @@ public class BoundedHashUtil {
 
     @SuppressWarnings("unchecked")
     public <I extends Number, O extends Number> O hash(I input, Class<O> oClass) throws UnsupportedBoundingException {
-        if(oClass.equals(Long.class)){
+        if (oClass.equals(Long.class)) {
             long i = ((Long) input) << -maxSize >>> -maxSize;
             return (O) Long.valueOf(i);
         }
 
-        if(oClass.equals(Integer.class)){
+        if (oClass.equals(Integer.class)) {
             int i = ((Integer) input) << -maxSize >>> -maxSize;
             return (O) Integer.valueOf(i);
         }
 
-        if(oClass.equals(BigInteger.class)){
-            if(input.getClass() == BigInteger.class)
+        if (oClass.equals(BigInteger.class)) {
+            if (input.getClass() == BigInteger.class)
                 return (O) input;
-            else if(input.getClass() == Integer.class) {
+            else if (input.getClass() == Integer.class) {
                 return (O) BigInteger.valueOf((Integer) input);
-            }else if (input.getClass() == Long.class){
+            } else if (input.getClass() == Long.class) {
                 return (O) BigInteger.valueOf((Long) input);
             }
             return (O) input;

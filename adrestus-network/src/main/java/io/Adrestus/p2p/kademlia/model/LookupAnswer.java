@@ -6,9 +6,10 @@ import java.io.Serializable;
 
 /**
  * Model for lookup request response possibly containing value of requested key
+ *
  * @param <ID> Number type of node ID between supported types
- * @param <K> Type of storage key
- * @param <V> Type of storage value
+ * @param <K>  Type of storage key
+ * @param <V>  Type of storage value
  */
 @Builder
 @AllArgsConstructor

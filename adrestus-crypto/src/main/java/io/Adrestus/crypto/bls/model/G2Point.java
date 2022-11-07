@@ -1,6 +1,5 @@
 package io.Adrestus.crypto.bls.model;
 
-import io.Adrestus.crypto.bls.BLS381.BIG;
 import io.Adrestus.crypto.bls.BLS381.ECP2;
 import io.Adrestus.crypto.bls.constants.Constants;
 import io.Adrestus.crypto.bls.utils.CommonUtils;
@@ -134,11 +133,12 @@ public class G2Point implements Cloneable {
         return r;
     }
 
-    public byte[] tobytes(){
+    public byte[] tobytes() {
         byte[] bufs = new byte[Constants.GROUP_G2_SIZE];
         this.value.toBytes(bufs);
         return bufs;
     }
+
     @Override
     protected Object clone() {
         try {

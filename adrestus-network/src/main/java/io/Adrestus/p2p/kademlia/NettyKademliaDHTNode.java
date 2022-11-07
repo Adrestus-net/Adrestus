@@ -39,14 +39,14 @@ public class NettyKademliaDHTNode<K extends Serializable, V extends Serializable
 
     @Override
     @SneakyThrows
-    public void stop(){
+    public void stop() {
         super.stop();
         kademliaNodeServer.stop();
     }
 
     @Override
     @SneakyThrows
-    public void stopNow(){
+    public void stopNow() {
         super.stopNow();
         kademliaNodeServer.stop();
     }

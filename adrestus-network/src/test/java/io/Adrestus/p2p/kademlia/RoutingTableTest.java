@@ -7,7 +7,10 @@ import io.Adrestus.p2p.kademlia.helpers.EmptyConnectionInfo;
 import io.Adrestus.p2p.kademlia.helpers.TestMessageSenderAPI;
 import io.Adrestus.p2p.kademlia.node.KademliaNode;
 import io.Adrestus.p2p.kademlia.node.KademliaNodeAPI;
-import io.Adrestus.p2p.kademlia.table.*;
+import io.Adrestus.p2p.kademlia.table.Bucket;
+import io.Adrestus.p2p.kademlia.table.DefaultRoutingTableFactory;
+import io.Adrestus.p2p.kademlia.table.RoutingTable;
+import io.Adrestus.p2p.kademlia.table.RoutingTableFactory;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -31,11 +34,11 @@ public class RoutingTableTest {
         messageSenderAPI.registerNode(bootstrapNode);
         bootstrapNode.start();
 
-        RoutingTable<Integer, EmptyConnectionInfo, Bucket<Integer, EmptyConnectionInfo>> routingTable=routingTableFactory.getRoutingTable(4);
-        ArrayList< KademliaNodeAPI<Integer, EmptyConnectionInfo>>list =new ArrayList<>();
+        RoutingTable<Integer, EmptyConnectionInfo, Bucket<Integer, EmptyConnectionInfo>> routingTable = routingTableFactory.getRoutingTable(4);
+        ArrayList<KademliaNodeAPI<Integer, EmptyConnectionInfo>> list = new ArrayList<>();
         // Other nodes
-        KademliaNodeAPI<Integer, EmptyConnectionInfo> nextNode=null;
-        for(int i = 1; i < Math.pow(2, NodeSettings.getInstance().getIdentifierSize()); i++){
+        KademliaNodeAPI<Integer, EmptyConnectionInfo> nextNode = null;
+        for (int i = 1; i < Math.pow(2, NodeSettings.getInstance().getIdentifierSize()); i++) {
             nextNode =
                     new KademliaNode<>(i, new EmptyConnectionInfo(), routingTableFactory.getRoutingTable(i), messageSenderAPI, NodeSettings.getInstance());
             messageSenderAPI.registerNode(nextNode);

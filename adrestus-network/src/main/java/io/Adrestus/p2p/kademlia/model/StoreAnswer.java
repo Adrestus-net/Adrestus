@@ -6,8 +6,9 @@ import java.io.Serializable;
 
 /**
  * Model for store request reply
+ *
  * @param <ID> Number type of node ID between supported types
- * @param <K> Type of storage key
+ * @param <K>  Type of storage key
  */
 @Getter
 @Setter

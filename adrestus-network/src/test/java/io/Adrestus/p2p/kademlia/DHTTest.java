@@ -3,13 +3,13 @@ package io.Adrestus.p2p.kademlia;
 
 import io.Adrestus.config.KademliaConfiguration;
 import io.Adrestus.config.NodeSettings;
+import io.Adrestus.p2p.kademlia.builder.NettyKademliaDHTNodeBuilder;
+import io.Adrestus.p2p.kademlia.client.OkHttpMessageSender;
+import io.Adrestus.p2p.kademlia.common.NettyConnectionInfo;
 import io.Adrestus.p2p.kademlia.exception.DuplicateStoreRequest;
 import io.Adrestus.p2p.kademlia.exception.UnsupportedBoundingException;
 import io.Adrestus.p2p.kademlia.model.LookupAnswer;
 import io.Adrestus.p2p.kademlia.model.StoreAnswer;
-import io.Adrestus.p2p.kademlia.builder.NettyKademliaDHTNodeBuilder;
-import io.Adrestus.p2p.kademlia.client.OkHttpMessageSender;
-import io.Adrestus.p2p.kademlia.common.NettyConnectionInfo;
 import io.Adrestus.p2p.kademlia.node.KeyHashGenerator;
 import io.Adrestus.p2p.kademlia.repository.KademliaRepository;
 import io.Adrestus.p2p.kademlia.util.BoundedHashUtil;
@@ -22,11 +22,10 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigInteger;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class DHTTest {
 
@@ -49,7 +48,7 @@ public class DHTTest {
             try {
                 return new BoundedHashUtil(NodeSettings.getInstance().getIdentifierSize()).hash(key.hashCode(), BigInteger.class);
             } catch (UnsupportedBoundingException e) {
-               return null;
+                return null;
             }
         };
 
@@ -77,7 +76,7 @@ public class DHTTest {
     }
 
     @AfterAll
-    public static void cleanup(){
+    public static void cleanup() {
         node2.stop();
         node1.stop();
         nettyMessageSender1.stop();
@@ -86,7 +85,7 @@ public class DHTTest {
     @Test
     void testDhtStoreLookup() throws DuplicateStoreRequest, ExecutionException, InterruptedException {
         String[] values = new String[]{"V", "ABC", "SOME VALUE"};
-        for (String v : values){
+        for (String v : values) {
             System.out.println("Testing DHT for K: " + v.hashCode() + " & V: " + v);
             StoreAnswer<BigInteger, String> storeAnswer = node2.store("" + v.hashCode(), v).get();
             Assertions.assertEquals(StoreAnswer.Result.STORED, storeAnswer.getResult());
@@ -105,7 +104,7 @@ public class DHTTest {
     }
 
     @Test
-    void testNetworkKnowledge(){
+    void testNetworkKnowledge() {
         Assertions.assertTrue(node1.getRoutingTable().contains(BigInteger.valueOf(2)));
         Assertions.assertTrue(node2.getRoutingTable().contains(BigInteger.valueOf(1)));
     }
@@ -131,6 +130,11 @@ public class DHTTest {
         @Override
         public boolean contains(String key) {
             return data.containsKey(key);
+        }
+
+        @Override
+        public List<String> getList() {
+            return null;
         }
     }
 }

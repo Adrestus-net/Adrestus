@@ -18,7 +18,7 @@ public interface NettyServerInitializerFactory<K extends Serializable, V extends
             this.kademliaMessageHandlerFactory = kademliaMessageHandlerFactory;
         }
 
-        public NettyServerInitializer<K, V> getKademliaNodeServerInitializerAPI(){
+        public NettyServerInitializer<K, V> getKademliaNodeServerInitializerAPI() {
             return new DefaultNettyServerInitializer<>(
                     this.kademliaMessageHandlerFactory
             );

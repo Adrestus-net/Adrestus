@@ -1,6 +1,5 @@
 package io.Adrestus.crypto.bls.model;
 
-import io.Adrestus.crypto.bls.constants.Constants;
 import io.activej.serializer.annotations.Deserialize;
 import io.activej.serializer.annotations.Serialize;
 
@@ -19,7 +18,7 @@ public class Signature implements Cloneable {
     }
 
     public Signature() {
-        this.point=new G2Point();
+        this.point = new G2Point();
     }
 
     public Signature(Supplier<G2Point> supplier_point) {

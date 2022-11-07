@@ -9,7 +9,7 @@ public class GeneralResponseMessageHandler<ID extends Number, C extends Connecti
     @Override
     @SuppressWarnings("unchecked")
     public <I extends KademliaMessage<ID, C, ?>, O extends KademliaMessage<ID, C, ?>> O handle(KademliaNodeAPI<ID, C> kademliaNode, I message) {
-        if (!message.isAlive()){
+        if (!message.isAlive()) {
             kademliaNode.getRoutingTable().delete(message.getNode());
             return (O) new EmptyKademliaMessage<ID, C>();
         }
@@ -17,7 +17,7 @@ public class GeneralResponseMessageHandler<ID extends Number, C extends Connecti
     }
 
     @SuppressWarnings("unchecked")
-    protected <I extends KademliaMessage<ID, C, ?>, O extends KademliaMessage<ID, C, ?>> O doHandle(KademliaNodeAPI<ID,C> kademliaNode, I message) {
+    protected <I extends KademliaMessage<ID, C, ?>, O extends KademliaMessage<ID, C, ?>> O doHandle(KademliaNodeAPI<ID, C> kademliaNode, I message) {
         return (O) new EmptyKademliaMessage<ID, C>();
     }
 

@@ -18,7 +18,7 @@ public class PongMessageHandler<ID extends Number, C extends ConnectionInfo> ext
         return (O) doHandle(kademliaNode, (PongKademliaMessage<ID, C>) message);
     }
 
-    protected EmptyKademliaMessage<ID, C> doHandle(KademliaNodeAPI<ID, C> kademliaNode, @NotNull PongKademliaMessage<ID, C> message){
+    protected EmptyKademliaMessage<ID, C> doHandle(KademliaNodeAPI<ID, C> kademliaNode, @NotNull PongKademliaMessage<ID, C> message) {
         try {
             RoutingTableUtil.softUpdate(kademliaNode, message.getNode());
         } catch (HandlerNotFoundException e) {

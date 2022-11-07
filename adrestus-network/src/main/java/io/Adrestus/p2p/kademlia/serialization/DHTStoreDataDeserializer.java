@@ -19,7 +19,8 @@ public class DHTStoreDataDeserializer<K extends Serializable, V extends Serializ
     public DHTStoreKademliaMessage.DHTData<BigInteger, NettyConnectionInfo, K, V> deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
         DHTStoreKademliaMessage.DHTData<BigInteger, NettyConnectionInfo, K, V> dhtData = new DHTStoreKademliaMessage.DHTData<>();
         JsonObject jsonObject = jsonElement.getAsJsonObject();
-        dhtData.setKey(jsonDeserializationContext.deserialize(jsonObject.get("key"), new TypeToken<K>() {}.getType()));
+        dhtData.setKey(jsonDeserializationContext.deserialize(jsonObject.get("key"), new TypeToken<K>() {
+        }.getType()));
         try {
             dhtData.setValue(SingletonGsonFactory.getInstance().gson().fromJson(jsonObject.get("value"), new TypeToken<KademliaData>() {
             }.getType()));

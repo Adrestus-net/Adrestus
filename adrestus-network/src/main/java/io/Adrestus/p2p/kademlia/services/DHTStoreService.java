@@ -56,21 +56,21 @@ public class DHTStoreService<ID extends Number, C extends ConnectionInfo, K exte
 
 
         ListenableFuture<StoreAnswer<ID, K>> futureAnswer = this.listeningExecutorService.submit(
-            () -> {
-                StoreAnswer<ID, K> storeAnswer = handleStore(this.dhtKademliaNode, this.dhtKademliaNode, key, value);
-                // If immediately failed or stored, then return, otherwise watch storeAnswer
-                if (storeAnswer.getResult().equals(StoreAnswer.Result.STORED) || storeAnswer.getResult().equals(StoreAnswer.Result.FAILED)){
+                () -> {
+                    StoreAnswer<ID, K> storeAnswer = handleStore(this.dhtKademliaNode, this.dhtKademliaNode, key, value);
+                    // If immediately failed or stored, then return, otherwise watch storeAnswer
+                    if (storeAnswer.getResult().equals(StoreAnswer.Result.STORED) || storeAnswer.getResult().equals(StoreAnswer.Result.FAILED)) {
+                        return storeAnswer;
+                    }
+                    storeMap.put(key, storeAnswer);
+                    storeAnswer.watch();
                     return storeAnswer;
                 }
-                storeMap.put(key, storeAnswer);
-                storeAnswer.watch();
-                return storeAnswer;
-            }
         );
 
         futureAnswer.addListener(() -> {
             StoreAnswer<ID, K> storeAnswer = storeMap.remove(key);
-            if (storeAnswer != null){
+            if (storeAnswer != null) {
                 storeAnswer.finishWatch();
             }
         }, this.cleanupExecutor);
@@ -78,12 +78,12 @@ public class DHTStoreService<ID extends Number, C extends ConnectionInfo, K exte
         return futureAnswer;
     }
 
-    public void cleanUp(){
+    public void cleanUp() {
         this.storeMap.forEach((k, idkStoreAnswer) -> idkStoreAnswer.finishWatch());
         this.storeMap.clear();
     }
 
-    protected StoreAnswer<ID, K> handleStore(Node<ID, C> caller, Node<ID, C> requester, K key, V value){
+    protected StoreAnswer<ID, K> handleStore(Node<ID, C> caller, Node<ID, C> requester, K key, V value) {
         StoreAnswer<ID, K> storeAnswer;
         ID hash = this.dhtKademliaNode.getKeyHashGenerator().generateHash(key);
 
@@ -91,7 +91,7 @@ public class DHTStoreService<ID extends Number, C extends ConnectionInfo, K exte
         // But the origin request is by this node, then persist it
         // The closest node we know to the key knows us as the closest know to the key and not themselves (?!?)
         // Useful only in case of nodeSettings.isEnabledFirstStoreRequestForcePass()
-        if (!caller.getId().equals(this.dhtKademliaNode.getId()) && requester.getId().equals(this.dhtKademliaNode.getId())){
+        if (!caller.getId().equals(this.dhtKademliaNode.getId()) && requester.getId().equals(this.dhtKademliaNode.getId())) {
             return doStore(key, value);
         }
 
@@ -102,22 +102,22 @@ public class DHTStoreService<ID extends Number, C extends ConnectionInfo, K exte
         storeAnswer = storeDataToClosestNode(caller, requester, findNodeAnswer.getNodes(), key, value);
 
 
-        if(storeAnswer.getResult().equals(StoreAnswer.Result.FAILED)){
+        if (storeAnswer.getResult().equals(StoreAnswer.Result.FAILED)) {
             storeAnswer = doStore(key, value);
         }
         return storeAnswer;
     }
 
-    protected StoreAnswer<ID, K> doStore(K key, V value){
+    protected StoreAnswer<ID, K> doStore(K key, V value) {
         this.dhtKademliaNode.getKademliaRepository().store(key, value);
         return getNewStoreAnswer(key, StoreAnswer.Result.STORED, this.dhtKademliaNode);
     }
 
-    protected StoreAnswer<ID, K> storeDataToClosestNode(Node<ID, C> caller, Node<ID, C> requester, List<ExternalNode<ID, C>> externalNodeList, K key, V value){
+    protected StoreAnswer<ID, K> storeDataToClosestNode(Node<ID, C> caller, Node<ID, C> requester, List<ExternalNode<ID, C>> externalNodeList, K key, V value) {
         Date date = DateUtil.getDateOfSecondsAgo(this.dhtKademliaNode.getNodeSettings().getMaximumLastSeenAgeToConsiderAlive());
         for (ExternalNode<ID, C> externalNode : externalNodeList) {
             //if current node is the closest node, store the value (Scenario A)
-            if(externalNode.getId().equals(this.dhtKademliaNode.getId())){
+            if (externalNode.getId().equals(this.dhtKademliaNode.getId())) {
                 this.dhtKademliaNode.getKademliaRepository().store(key, value);
                 return getNewStoreAnswer(key, StoreAnswer.Result.STORED, this.dhtKademliaNode);
             }
@@ -132,14 +132,14 @@ public class DHTStoreService<ID extends Number, C extends ConnectionInfo, K exte
 
             if (requester.getId().equals(externalNode.getId()) && requester.getId().equals(caller.getId())
                     && this.dhtKademliaNode.getNodeSettings().isEnabledFirstStoreRequestForcePass()
-            ){
+            ) {
                 continue;
             }
 
             // otherwise, try next closest node in routing table
             // if close node is alive, tell it to store the data
             // to know if it's alive the last seen should either be close or we ping and check the result
-            if(NodeUtil.recentlySeenOrAlive(this.dhtKademliaNode, externalNode, date)){
+            if (NodeUtil.recentlySeenOrAlive(this.dhtKademliaNode, externalNode, date)) {
                 KademliaMessage<ID, C, Serializable> response = this.dhtKademliaNode.getMessageSender().sendMessage(
                         this.dhtKademliaNode,
                         externalNode,
@@ -147,7 +147,7 @@ public class DHTStoreService<ID extends Number, C extends ConnectionInfo, K exte
                                 new DHTStoreKademliaMessage.DHTData<>(requester, key, value)
                         )
                 );
-                if (response.isAlive()){
+                if (response.isAlive()) {
                     return getNewStoreAnswer(key, StoreAnswer.Result.PASSED, requester);
                 }
             }
@@ -160,7 +160,7 @@ public class DHTStoreService<ID extends Number, C extends ConnectionInfo, K exte
     protected EmptyKademliaMessage<ID, C> handleStoreResult(DHTStoreResultKademliaMessage<ID, C, K> message) {
         DHTStoreResultKademliaMessage.DHTStoreResult<K> data = message.getData();
         StoreAnswer<ID, K> storeAnswer = this.storeMap.get(data.getKey());
-        if (storeAnswer != null){
+        if (storeAnswer != null) {
             storeAnswer.setNodeId(message.getNode().getId());
             storeAnswer.setResult(data.getResult());
             storeAnswer.setAlive(true);
@@ -169,7 +169,7 @@ public class DHTStoreService<ID extends Number, C extends ConnectionInfo, K exte
         return new EmptyKademliaMessage<>();
     }
 
-    protected EmptyKademliaMessage<ID, C> handleStoreRequest(DHTStoreKademliaMessage<ID,C,K,V> dhtStoreKademliaMessage){
+    protected EmptyKademliaMessage<ID, C> handleStoreRequest(DHTStoreKademliaMessage<ID, C, K, V> dhtStoreKademliaMessage) {
         this.handlerExecutorService.submit(() -> {
             DHTStoreKademliaMessage.DHTData<ID, C, K, V> data = dhtStoreKademliaMessage.getData();
             StoreAnswer<ID, K> storeAnswer = handleStore(dhtStoreKademliaMessage.getNode(), data.getRequester(), data.getKey(), data.getValue());
@@ -187,7 +187,7 @@ public class DHTStoreService<ID extends Number, C extends ConnectionInfo, K exte
     }
 
 
-    protected StoreAnswer<ID, K> getNewStoreAnswer(K k, StoreAnswer.Result result, Node<ID, C> node){
+    protected StoreAnswer<ID, K> getNewStoreAnswer(K k, StoreAnswer.Result result, Node<ID, C> node) {
         StoreAnswer<ID, K> storeAnswer = new StoreAnswer<>();
         storeAnswer.setAlive(true);
         storeAnswer.setNodeId(node.getId());
@@ -199,7 +199,7 @@ public class DHTStoreService<ID extends Number, C extends ConnectionInfo, K exte
     @Override
     @SuppressWarnings("unchecked")
     public <I extends KademliaMessage<ID, C, ?>, O extends KademliaMessage<ID, C, ?>> O handle(KademliaNodeAPI<ID, C> kademliaNode, I message) {
-        if (message.isAlive()){
+        if (message.isAlive()) {
             this.dhtKademliaNode.getRoutingTable().forceUpdate(message.getNode());
         }
         switch (message.getType()) {

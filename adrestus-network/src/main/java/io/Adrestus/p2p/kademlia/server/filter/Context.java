@@ -10,6 +10,7 @@ import java.math.BigInteger;
 
 public interface Context<K extends Serializable, V extends Serializable> {
     ChannelHandlerContext getChannelHandlerContext();
+
     DHTKademliaNodeAPI<BigInteger, NettyConnectionInfo, K, V> getDhtKademliaNodeApi();
 
     class ContextImpl<K extends Serializable, V extends Serializable> implements Context<K, V> {

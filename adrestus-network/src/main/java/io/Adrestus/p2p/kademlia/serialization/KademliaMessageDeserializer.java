@@ -21,25 +21,35 @@ public class KademliaMessageDeserializer<K extends Serializable, V extends Seria
     private final Map<String, Class<?>> messageClassRegistry = new ConcurrentHashMap<>();
 
     public KademliaMessageDeserializer() {
-        this.registerDataType(MessageType.DHT_LOOKUP, new TypeToken<DHTLookupKademliaMessage.DHTLookup<BigInteger, NettyConnectionInfo, K>>(){}.getType());
+        this.registerDataType(MessageType.DHT_LOOKUP, new TypeToken<DHTLookupKademliaMessage.DHTLookup<BigInteger, NettyConnectionInfo, K>>() {
+        }.getType());
         this.registerMessageClass(MessageType.DHT_LOOKUP, DHTLookupKademliaMessage.class);
-        this.registerDataType(MessageType.DHT_LOOKUP_RESULT, new TypeToken<DHTLookupResultKademliaMessage.DHTLookupResult<K, V>>(){}.getType());
+        this.registerDataType(MessageType.DHT_LOOKUP_RESULT, new TypeToken<DHTLookupResultKademliaMessage.DHTLookupResult<K, V>>() {
+        }.getType());
         this.registerMessageClass(MessageType.DHT_LOOKUP_RESULT, DHTLookupResultKademliaMessage.class);
-        this.registerDataType(MessageType.DHT_STORE, new TypeToken<DHTStoreKademliaMessage.DHTData<BigInteger, NettyConnectionInfo, K, V>>(){}.getType());
+        this.registerDataType(MessageType.DHT_STORE, new TypeToken<DHTStoreKademliaMessage.DHTData<BigInteger, NettyConnectionInfo, K, V>>() {
+        }.getType());
         this.registerMessageClass(MessageType.DHT_STORE, DHTStoreKademliaMessage.class);
-        this.registerDataType(MessageType.DHT_STORE_RESULT, new TypeToken<DHTStoreResultKademliaMessage.DHTStoreResult<K>>(){}.getType());
+        this.registerDataType(MessageType.DHT_STORE_RESULT, new TypeToken<DHTStoreResultKademliaMessage.DHTStoreResult<K>>() {
+        }.getType());
         this.registerMessageClass(MessageType.DHT_STORE_RESULT, DHTStoreResultKademliaMessage.class);
-        this.registerDataType(MessageType.FIND_NODE_REQ, new TypeToken<BigInteger>(){}.getType());
+        this.registerDataType(MessageType.FIND_NODE_REQ, new TypeToken<BigInteger>() {
+        }.getType());
         this.registerMessageClass(MessageType.FIND_NODE_REQ, FindNodeRequestMessage.class);
-        this.registerDataType(MessageType.FIND_NODE_RES, new TypeToken<FindNodeAnswer<BigInteger, NettyConnectionInfo>>(){}.getType());
+        this.registerDataType(MessageType.FIND_NODE_RES, new TypeToken<FindNodeAnswer<BigInteger, NettyConnectionInfo>>() {
+        }.getType());
         this.registerMessageClass(MessageType.FIND_NODE_RES, FindNodeResponseMessage.class);
-        this.registerDataType(MessageType.PING, new TypeToken<String>(){}.getType());
+        this.registerDataType(MessageType.PING, new TypeToken<String>() {
+        }.getType());
         this.registerMessageClass(MessageType.PING, PingKademliaMessage.class);
-        this.registerDataType(MessageType.PONG, new TypeToken<String>(){}.getType());
+        this.registerDataType(MessageType.PONG, new TypeToken<String>() {
+        }.getType());
         this.registerMessageClass(MessageType.PONG, PongKademliaMessage.class);
-        this.registerDataType(MessageType.SHUTDOWN, new TypeToken<String>(){}.getType());
+        this.registerDataType(MessageType.SHUTDOWN, new TypeToken<String>() {
+        }.getType());
         this.registerMessageClass(MessageType.SHUTDOWN, ShutdownKademliaMessage.class);
-        this.registerDataType(MessageType.EMPTY, new TypeToken<String>(){}.getType());
+        this.registerDataType(MessageType.EMPTY, new TypeToken<String>() {
+        }.getType());
         this.registerMessageClass(MessageType.EMPTY, EmptyKademliaMessage.class);
     }
 
@@ -67,11 +77,11 @@ public class KademliaMessageDeserializer<K extends Serializable, V extends Seria
             String type,
             JsonObject jsonObject,
             JsonDeserializationContext jsonDeserializationContext
-    ){
+    ) {
         if (type.equals(MessageType.EMPTY))
             return null;
         Type dataType = typeRegistry.get(type);
-        if (dataType != null){
+        if (dataType != null) {
             return jsonDeserializationContext.deserialize(
                     jsonObject.get("data"),
                     dataType
@@ -80,11 +90,11 @@ public class KademliaMessageDeserializer<K extends Serializable, V extends Seria
         return null;
     }
 
-    public void registerDataType(String name, Type type){
+    public void registerDataType(String name, Type type) {
         this.typeRegistry.put(name, type);
     }
 
-    public void registerMessageClass(String name, Class<?> clazz){
+    public void registerMessageClass(String name, Class<?> clazz) {
         this.messageClassRegistry.put(name, clazz);
     }
 }

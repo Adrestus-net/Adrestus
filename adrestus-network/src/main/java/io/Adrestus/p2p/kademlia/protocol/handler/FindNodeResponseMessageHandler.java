@@ -20,7 +20,7 @@ public class FindNodeResponseMessageHandler<ID extends Number, C extends Connect
     public <I extends KademliaMessage<ID, C, ?>, O extends KademliaMessage<ID, C, ?>> O handle(KademliaNodeAPI<ID, C> kademliaNode, I message) {
         executorService.submit(() -> ((FindNodeResponseMessage<ID, C>) message).getData().getNodes().forEach(externalNode -> {
             // ignore self
-            if (externalNode.getId().equals(kademliaNode.getId())){
+            if (externalNode.getId().equals(kademliaNode.getId())) {
                 return;
             }
             try {

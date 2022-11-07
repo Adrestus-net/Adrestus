@@ -73,7 +73,7 @@ public class KademliaNodeServer<K extends Serializable, V extends Serializable> 
 
     public synchronized void stop() throws InterruptedException {
         this.running = false;
-        if (bossGroup != null && workerGroup != null){
+        if (bossGroup != null && workerGroup != null) {
             bossGroup.shutdownGracefully().sync();
             workerGroup.shutdownGracefully().sync();
         }

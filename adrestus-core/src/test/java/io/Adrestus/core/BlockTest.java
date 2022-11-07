@@ -171,7 +171,7 @@ public class BlockTest {
     }
 
 
-    public void commit_block_test(){
+    public void commit_block_test() {
 
     }
 }

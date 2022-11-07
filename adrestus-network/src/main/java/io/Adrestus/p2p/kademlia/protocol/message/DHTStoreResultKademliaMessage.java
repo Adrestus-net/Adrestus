@@ -24,7 +24,7 @@ public class DHTStoreResultKademliaMessage<ID extends Number, C extends Connecti
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class DHTStoreResult<K extends Serializable> implements Serializable{
+    public static class DHTStoreResult<K extends Serializable> implements Serializable {
         private K key;
         private StoreAnswer.Result result;
 

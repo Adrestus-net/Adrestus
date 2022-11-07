@@ -45,46 +45,47 @@ public class NettyKademliaDHTNodeBuilder<K extends Serializable, V extends Seria
         this.keyHashGenerator = keyHashGenerator;
     }
 
-    public NettyKademliaDHTNodeBuilder<K, V> routingTable(RoutingTable<BigInteger, NettyConnectionInfo, Bucket<BigInteger, NettyConnectionInfo>> routingTable){
+    public NettyKademliaDHTNodeBuilder<K, V> routingTable(RoutingTable<BigInteger, NettyConnectionInfo, Bucket<BigInteger, NettyConnectionInfo>> routingTable) {
         this.routingTable = routingTable;
         return this;
     }
 
-    public NettyKademliaDHTNodeBuilder<K, V> messageSender(MessageSender<BigInteger, NettyConnectionInfo> messageSender){
+    public NettyKademliaDHTNodeBuilder<K, V> messageSender(MessageSender<BigInteger, NettyConnectionInfo> messageSender) {
         this.messageSender = messageSender;
         return this;
     }
 
-    public NettyKademliaDHTNodeBuilder<K, V> nodeSettings(NodeSettings nodeSettings){
+    public NettyKademliaDHTNodeBuilder<K, V> nodeSettings(NodeSettings nodeSettings) {
         this.nodeSettings = nodeSettings;
         return this;
     }
 
-    public NettyKademliaDHTNodeBuilder<K, V> kademliaNodeServer(KademliaNodeServer<K, V> kademliaNodeServer){
+    public NettyKademliaDHTNodeBuilder<K, V> kademliaNodeServer(KademliaNodeServer<K, V> kademliaNodeServer) {
         this.kademliaNodeServer = kademliaNodeServer;
         return this;
     }
 
-    public NettyKademliaDHTNodeBuilder<K, V> kademliaMessageHandlerFactory(KademliaMessageHandlerFactory<K, V> kademliaMessageHandlerFactory){
+    public NettyKademliaDHTNodeBuilder<K, V> kademliaMessageHandlerFactory(KademliaMessageHandlerFactory<K, V> kademliaMessageHandlerFactory) {
         this.kademliaMessageHandlerFactory = kademliaMessageHandlerFactory;
         return this;
     }
 
-    public NettyKademliaDHTNodeBuilder<K, V> nettyServerInitializerFactory(NettyServerInitializerFactory<K, V> nettyServerInitializerFactory){
+    public NettyKademliaDHTNodeBuilder<K, V> nettyServerInitializerFactory(NettyServerInitializerFactory<K, V> nettyServerInitializerFactory) {
         this.nettyServerInitializerFactory = nettyServerInitializerFactory;
         return this;
     }
 
-    public NettyKademliaDHTNodeBuilder<K, V> gsonFactory(GsonFactory gsonFactory){
+    public NettyKademliaDHTNodeBuilder<K, V> gsonFactory(GsonFactory gsonFactory) {
         this.gsonFactory = gsonFactory;
         return this;
     }
-    public NettyKademliaDHTNodeBuilder<K,V> withNodeSettings(NodeSettings nodeSettings){
-        this.nodeSettings=nodeSettings;
+
+    public NettyKademliaDHTNodeBuilder<K, V> withNodeSettings(NodeSettings nodeSettings) {
+        this.nodeSettings = nodeSettings;
         return this;
     }
 
-    public NettyKademliaDHTNode<K, V> build(){
+    public NettyKademliaDHTNode<K, V> build() {
         fillDefaults();
 
         DHTKademliaNodeAPI<BigInteger, NettyConnectionInfo, K, V> kademliaNode = new DHTKademliaNode<>(

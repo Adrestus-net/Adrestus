@@ -24,7 +24,7 @@ public class DHTLookupKademliaMessage<ID extends Number, C extends ConnectionInf
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class DHTLookup<ID extends Number, C extends ConnectionInfo, K extends Serializable> implements Serializable{
+    public static class DHTLookup<ID extends Number, C extends ConnectionInfo, K extends Serializable> implements Serializable {
         private Node<ID, C> requester;
         private K key;
         private int currentTry;

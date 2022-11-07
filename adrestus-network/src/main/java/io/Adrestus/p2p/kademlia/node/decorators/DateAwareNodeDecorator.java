@@ -8,8 +8,9 @@ import java.util.Date;
 
 /**
  * Node decorator to hold last seen of a node
+ *
  * @param <ID> Node ID type
- * @param <C> Node ConnectionInfo type
+ * @param <C>  Node ConnectionInfo type
  */
 public class DateAwareNodeDecorator<ID extends Number, C extends ConnectionInfo> extends NodeDecorator<ID, C> {
     private Date lastSeen = new Date();

@@ -6,7 +6,6 @@ import io.Adrestus.core.AbstractBlock;
 import io.Adrestus.core.CommitteeBlock;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedLatestRandomness;
-import io.Adrestus.core.Resourses.MemoryPool;
 import io.Adrestus.core.RingBuffer.publisher.BlockEventPublisher;
 import io.Adrestus.core.StatusType;
 import io.Adrestus.core.TransactionBlock;

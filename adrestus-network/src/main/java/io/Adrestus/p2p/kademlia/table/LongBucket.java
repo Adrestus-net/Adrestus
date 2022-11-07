@@ -9,9 +9,9 @@ package io.Adrestus.p2p.kademlia.table;
 import io.Adrestus.p2p.kademlia.connection.ConnectionInfo;
 
 public class LongBucket<C extends ConnectionInfo> extends AbstractBucket<Long, C> {
-  private static final long serialVersionUID = -6314496739729756505L;
+    private static final long serialVersionUID = -6314496739729756505L;
 
-  public LongBucket(int id) {
-    super(id);
-  }
+    public LongBucket(int id) {
+        super(id);
+    }
 }

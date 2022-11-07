@@ -166,7 +166,7 @@ public class TransactionEventPublisher implements Publisher<Transaction> {
         return this;
     }
 
-    public TransactionEventPublisher withTimestampEventHandler(){
+    public TransactionEventPublisher withTimestampEventHandler() {
         group.add(new TimestampEventHandler());
         return this;
     }

@@ -7,8 +7,6 @@ import org.zeromq.SocketType;
 import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
 
-import java.net.InetSocketAddress;
-import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -76,7 +74,7 @@ public class ConsensusServer {
     }
 
     public ConsensusServer() {
-       //this.IP = IPFinder.getExternalIP();
+        //this.IP = IPFinder.getExternalIP();
         this.IP = IPFinder.getLocalIP();
         this.ctx = new ZContext();
         this.publisher = ctx.createSocket(SocketType.PUB);

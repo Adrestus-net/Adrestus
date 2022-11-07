@@ -6,6 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  * External node with ID of type Integer
+ *
  * @param <C> Your implementation of connection info
  */
 public class IntegerExternalNode<C extends ConnectionInfo> extends ExternalNode<Integer, C> {

@@ -5,7 +5,6 @@ import io.Adrestus.core.AbstractBlock;
 import io.Adrestus.core.BlockType;
 import io.Adrestus.core.DefaultFactory;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
-import io.Adrestus.core.Resourses.MemoryPool;
 import io.Adrestus.core.TransactionBlock;
 import io.Adrestus.crypto.bls.BLS381.ECP;
 import io.Adrestus.crypto.bls.BLS381.ECP2;
@@ -54,10 +53,10 @@ public class OrganizerConsensusPhases {
             this.DEBUG = DEBUG;
             this.factory = new DefaultFactory();
             if (!DEBUG) {
-            //this.N = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).size()-1;
-            this.N = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).size()-1;
-            this.F = (this.N - 1) / 3;
-            this.latch = new CountDownLatch(N);
+                //this.N = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).size()-1;
+                this.N = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).size() - 1;
+                this.F = (this.N - 1) / 3;
+                this.latch = new CountDownLatch(N);
                 this.current = CachedLatestBlocks.getInstance().getCommitteeBlock().getPublicKeyIndex(1, CachedLatestBlocks.getInstance().getTransactionBlock().getLeaderPublicKey());
                 if (current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).size() - 1) {
                     this.leader_bls = CachedLatestBlocks.getInstance().getCommitteeBlock().getPublicKeyByIndex(1, 0);
@@ -126,7 +125,7 @@ public class OrganizerConsensusPhases {
 
 
                 if (N > F) {
-                    LOG.info("PreparePhase: Byzantine network not meet requirements abort "+String.valueOf(N));
+                    LOG.info("PreparePhase: Byzantine network not meet requirements abort " + String.valueOf(N));
                     data.setStatusType(ConsensusStatusType.ABORT);
                     cleanup();
                     return;
@@ -150,7 +149,7 @@ public class OrganizerConsensusPhases {
             Signature sig = BLSSignature.sign(block_serialize.encode(data.getData()), CachedBLSKeyPair.getInstance().getPrivateKey());
             data.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
 
-         this.N = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).size()-1;
+            this.N = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).size() - 1;
             this.F = (this.N - 1) / 3;
 
 
@@ -190,7 +189,7 @@ public class OrganizerConsensusPhases {
 
 
                 if (N > F) {
-                    LOG.info("CommitPhase: Byzantine network not meet requirements abort "+String.valueOf(N));
+                    LOG.info("CommitPhase: Byzantine network not meet requirements abort " + String.valueOf(N));
                     data.setStatusType(ConsensusStatusType.ABORT);
                     cleanup();
                     return;
@@ -216,7 +215,7 @@ public class OrganizerConsensusPhases {
             Signature sig = BLSSignature.sign(block_serialize.encode(data.getData()), CachedBLSKeyPair.getInstance().getPrivateKey());
             data.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
 
-         this.N = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).size()-1;
+            this.N = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).size() - 1;
             this.F = (this.N - 1) / 3;
             int i = N;
 

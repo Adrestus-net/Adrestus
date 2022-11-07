@@ -34,10 +34,10 @@ public class NettyKademliaMessageHandler<K extends Serializable, V extends Seria
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, FullHttpRequest request) {
         List<NettyKademliaServerFilter<K, V>> filters = filterChain.getFilters();
-        if (filters.isEmpty()){
-             logger.error("Filter Chain is empty. Closing connection.");
-             channelHandlerContext.channel().close();
-             return;
+        if (filters.isEmpty()) {
+            logger.error("Filter Chain is empty. Closing connection.");
+            channelHandlerContext.channel().close();
+            return;
         }
 
         Context<K, V> context = new Context.ContextImpl<>(channelHandlerContext, dhtKademliaNodeAPI);

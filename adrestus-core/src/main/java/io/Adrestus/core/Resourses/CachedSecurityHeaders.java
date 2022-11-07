@@ -1,8 +1,6 @@
 package io.Adrestus.core.Resourses;
 
 import com.google.common.base.Objects;
-import io.Adrestus.core.CommitteeBlock;
-import io.Adrestus.core.TransactionBlock;
 
 import java.util.Arrays;
 
@@ -10,7 +8,6 @@ public class CachedSecurityHeaders {
 
     private static volatile CachedSecurityHeaders instance;
     private SecurityHeader securityHeader;
-
 
 
     private CachedSecurityHeaders() {
@@ -41,6 +38,7 @@ public class CachedSecurityHeaders {
         }
         return result;
     }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -61,7 +59,7 @@ public class CachedSecurityHeaders {
                 '}';
     }
 
-    private final class SecurityHeader{
+    private final class SecurityHeader {
         private byte[] pRnd;
         private byte[] Rnd;
 

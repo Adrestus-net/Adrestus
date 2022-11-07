@@ -3,6 +3,7 @@ package io.Adrestus.p2p.kademlia.helpers;
 import io.Adrestus.p2p.kademlia.repository.KademliaRepository;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class SampleRepository implements KademliaRepository<Long, String> {
@@ -26,5 +27,10 @@ public class SampleRepository implements KademliaRepository<Long, String> {
     @Override
     public boolean contains(Long key) {
         return data.containsKey(key);
+    }
+
+    @Override
+    public List<Long> getList() {
+        return null;
     }
 }

@@ -10,6 +10,7 @@ import java.math.BigInteger;
 public interface MessageSerializer {
 
     <S extends Serializable> String serialize(KademliaMessage<BigInteger, NettyConnectionInfo, S> message);
+
     <S extends Serializable> KademliaMessage<BigInteger, NettyConnectionInfo, S> deserialize(String message);
 
 }

@@ -24,7 +24,6 @@ import org.junit.jupiter.api.Test;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.security.SecureRandom;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -172,9 +171,9 @@ public class ConsensusTimerTest {
         CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).put(vk1, "192.168.1.106");
         CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).put(vk2, "192.168.1.110");
         CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).put(vk3, "192.168.1.112");
-       // CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).put(vk4, "192.168.1.115");
+        // CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).put(vk4, "192.168.1.115");
         CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).put(vk5, "192.168.1.116");
-       // CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).put(vk6, "192.168.1.104");
+        // CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).put(vk6, "192.168.1.104");
     }
 
 

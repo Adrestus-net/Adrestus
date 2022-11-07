@@ -21,17 +21,17 @@ public class FindNodeAnswerReducer<ID extends Number, C extends ConnectionInfo> 
         this.identifierSize = identifierSize;
     }
 
-    public void reduce(){
+    public void reduce() {
         List<ExternalNode<ID, C>> nodes = new ArrayList<>();
         List<ExternalNode<ID, C>> answerNodes = this.findNodeAnswer.getNodes();
 
-        for(int i = 0; i < identifierSize; i++){
-            if (nodes.size() <= this.max){
+        for (int i = 0; i < identifierSize; i++) {
+            if (nodes.size() <= this.max) {
                 break;
             }
 
             for (ExternalNode<ID, C> answerNode : answerNodes) {
-                if (answerNode.getId().equals(power(nodeId, i))){
+                if (answerNode.getId().equals(power(nodeId, i))) {
                     nodes.add(answerNode);
                     answerNodes.remove(answerNode);
                     break;
@@ -40,7 +40,7 @@ public class FindNodeAnswerReducer<ID extends Number, C extends ConnectionInfo> 
         }
 
         int i = 0;
-        while (nodes.size() <= this.max && i < answerNodes.size()){
+        while (nodes.size() <= this.max && i < answerNodes.size()) {
             nodes.add(answerNodes.get(i));
             i++;
         }
@@ -50,16 +50,16 @@ public class FindNodeAnswerReducer<ID extends Number, C extends ConnectionInfo> 
     }
 
     @SuppressWarnings("unchecked")
-    private ID power(ID in, int power){
-        if (in instanceof Integer){
+    private ID power(ID in, int power) {
+        if (in instanceof Integer) {
             return (ID) Integer.valueOf(((Integer) in) ^ power);
         }
 
-        if (in instanceof Long){
+        if (in instanceof Long) {
             return (ID) Long.valueOf(((Long) in) ^ power);
         }
 
-        if (in instanceof BigInteger){
+        if (in instanceof BigInteger) {
             return (ID) ((BigInteger) in).pow(power);
         }
 

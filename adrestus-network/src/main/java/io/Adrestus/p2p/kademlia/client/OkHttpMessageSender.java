@@ -43,7 +43,7 @@ public class OkHttpMessageSender<K extends Serializable, V extends Serializable>
         this(messageSerializer, Executors.newSingleThreadExecutor());
     }
 
-    public OkHttpMessageSender(ExecutorService executorService){
+    public OkHttpMessageSender(ExecutorService executorService) {
         this(new GsonMessageSerializer<K, V>(), executorService);
     }
 
@@ -52,7 +52,7 @@ public class OkHttpMessageSender<K extends Serializable, V extends Serializable>
     }
 
     @Override
-    public synchronized  <I extends Serializable, O extends Serializable> KademliaMessage<BigInteger, NettyConnectionInfo, I> sendMessage(KademliaNodeAPI<BigInteger, NettyConnectionInfo> caller, Node<BigInteger, NettyConnectionInfo> receiver, KademliaMessage<BigInteger, NettyConnectionInfo, O> message) {
+    public synchronized <I extends Serializable, O extends Serializable> KademliaMessage<BigInteger, NettyConnectionInfo, I> sendMessage(KademliaNodeAPI<BigInteger, NettyConnectionInfo> caller, Node<BigInteger, NettyConnectionInfo> receiver, KademliaMessage<BigInteger, NettyConnectionInfo, O> message) {
         message.setNode(caller);
         String messageStr = messageSerializer.serialize(message);
         RequestBody body = RequestBody.create(messageStr, JSON);
@@ -113,12 +113,12 @@ public class OkHttpMessageSender<K extends Serializable, V extends Serializable>
         }
     }
 
-        @Override
+    @Override
     public <O extends Serializable> void sendAsyncMessage(KademliaNodeAPI<BigInteger, NettyConnectionInfo> caller, Node<BigInteger, NettyConnectionInfo> receiver, KademliaMessage<BigInteger, NettyConnectionInfo, O> message) {
         executorService.submit(() -> sendMessage(caller, receiver, message));
     }
 
-    public void stop(){
+    public void stop() {
         this.executorService.shutdownNow();
     }
 

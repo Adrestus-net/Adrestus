@@ -27,17 +27,27 @@ public class GsonMessageSerializer<K extends Serializable, V extends Serializabl
         init();
     }
 
-    protected void init(){
-        this.registerMessageType(MessageType.DHT_LOOKUP, new TypeToken<DHTLookupKademliaMessage<BigInteger, NettyConnectionInfo, K>>(){}.getType());
-        this.registerMessageType(MessageType.DHT_LOOKUP_RESULT, new TypeToken<DHTLookupResultKademliaMessage<BigInteger, NettyConnectionInfo, K, V>>(){}.getType());
-        this.registerMessageType(MessageType.DHT_STORE, new TypeToken<DHTStoreKademliaMessage<BigInteger, NettyConnectionInfo, K, V>>(){}.getType());
-        this.registerMessageType(MessageType.DHT_STORE_RESULT, new TypeToken<DHTStoreResultKademliaMessage<BigInteger, NettyConnectionInfo, K>>(){}.getType());
-        this.registerMessageType(MessageType.FIND_NODE_REQ, new TypeToken<FindNodeRequestMessage<BigInteger, NettyConnectionInfo>>(){}.getType());
-        this.registerMessageType(MessageType.FIND_NODE_RES, new TypeToken<FindNodeResponseMessage<BigInteger, NettyConnectionInfo>>(){}.getType());
-        this.registerMessageType(MessageType.PING, new TypeToken<PingKademliaMessage<BigInteger, NettyConnectionInfo>>(){}.getType());
-        this.registerMessageType(MessageType.PONG, new TypeToken<PongKademliaMessage<BigInteger, NettyConnectionInfo>>(){}.getType());
-        this.registerMessageType(MessageType.SHUTDOWN, new TypeToken<ShutdownKademliaMessage<BigInteger, NettyConnectionInfo>>(){}.getType());
-        this.registerMessageType(MessageType.EMPTY, new TypeToken<EmptyKademliaMessage<BigInteger, NettyConnectionInfo>>(){}.getType());
+    protected void init() {
+        this.registerMessageType(MessageType.DHT_LOOKUP, new TypeToken<DHTLookupKademliaMessage<BigInteger, NettyConnectionInfo, K>>() {
+        }.getType());
+        this.registerMessageType(MessageType.DHT_LOOKUP_RESULT, new TypeToken<DHTLookupResultKademliaMessage<BigInteger, NettyConnectionInfo, K, V>>() {
+        }.getType());
+        this.registerMessageType(MessageType.DHT_STORE, new TypeToken<DHTStoreKademliaMessage<BigInteger, NettyConnectionInfo, K, V>>() {
+        }.getType());
+        this.registerMessageType(MessageType.DHT_STORE_RESULT, new TypeToken<DHTStoreResultKademliaMessage<BigInteger, NettyConnectionInfo, K>>() {
+        }.getType());
+        this.registerMessageType(MessageType.FIND_NODE_REQ, new TypeToken<FindNodeRequestMessage<BigInteger, NettyConnectionInfo>>() {
+        }.getType());
+        this.registerMessageType(MessageType.FIND_NODE_RES, new TypeToken<FindNodeResponseMessage<BigInteger, NettyConnectionInfo>>() {
+        }.getType());
+        this.registerMessageType(MessageType.PING, new TypeToken<PingKademliaMessage<BigInteger, NettyConnectionInfo>>() {
+        }.getType());
+        this.registerMessageType(MessageType.PONG, new TypeToken<PongKademliaMessage<BigInteger, NettyConnectionInfo>>() {
+        }.getType());
+        this.registerMessageType(MessageType.SHUTDOWN, new TypeToken<ShutdownKademliaMessage<BigInteger, NettyConnectionInfo>>() {
+        }.getType());
+        this.registerMessageType(MessageType.EMPTY, new TypeToken<EmptyKademliaMessage<BigInteger, NettyConnectionInfo>>() {
+        }.getType());
     }
 
     @Override
@@ -47,7 +57,8 @@ public class GsonMessageSerializer<K extends Serializable, V extends Serializabl
 
     @Override
     public <S extends Serializable> KademliaMessage<BigInteger, NettyConnectionInfo, S> deserialize(String message) {
-        return this.gson.fromJson(message, new TypeToken<KademliaMessage<BigInteger, NettyConnectionInfo, Serializable>>(){}.getType());
+        return this.gson.fromJson(message, new TypeToken<KademliaMessage<BigInteger, NettyConnectionInfo, Serializable>>() {
+        }.getType());
     }
 
     @Override
@@ -57,7 +68,7 @@ public class GsonMessageSerializer<K extends Serializable, V extends Serializabl
         return this.gson.fromJson(jsonObject, this.messageTypeRegistry.get(messageType));
     }
 
-    public void registerMessageType(String name, Type type){
+    public void registerMessageType(String name, Type type) {
         this.messageTypeRegistry.put(name, type);
     }
 

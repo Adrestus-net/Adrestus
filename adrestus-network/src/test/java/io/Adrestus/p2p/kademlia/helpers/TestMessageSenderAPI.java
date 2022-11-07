@@ -8,8 +8,6 @@ import io.Adrestus.p2p.kademlia.node.Node;
 import io.Adrestus.p2p.kademlia.node.decorators.DateAwareNodeDecorator;
 import io.Adrestus.p2p.kademlia.protocol.message.EmptyKademliaMessage;
 import io.Adrestus.p2p.kademlia.protocol.message.KademliaMessage;
-
-
 import lombok.SneakyThrows;
 
 import java.io.Serializable;
@@ -22,7 +20,7 @@ public class TestMessageSenderAPI<ID extends Number, C extends ConnectionInfo> i
     public final Map<ID, KademliaNodeAPI<ID, C>> map = new HashMap<>();
     private final ExecutorService executorService = Executors.newFixedThreadPool(1);
 
-    public void registerNode(KademliaNodeAPI<ID, C> node){
+    public void registerNode(KademliaNodeAPI<ID, C> node) {
         map.put(node.getId(), node);
     }
 
@@ -30,7 +28,7 @@ public class TestMessageSenderAPI<ID extends Number, C extends ConnectionInfo> i
     @Override
     @SuppressWarnings("unchecked")
     public <I extends Serializable, O extends Serializable> KademliaMessage<ID, C, I> sendMessage(KademliaNodeAPI<ID, C> caller, Node<ID, C> receiver, KademliaMessage<ID, C, O> message) {
-        if (!this.map.containsKey(receiver.getId())){
+        if (!this.map.containsKey(receiver.getId())) {
             EmptyKademliaMessage<ID, C> kademliaMessage = new EmptyKademliaMessage<>();
             kademliaMessage.setAlive(false);
             kademliaMessage.setNode(receiver);
@@ -50,11 +48,12 @@ public class TestMessageSenderAPI<ID extends Number, C extends ConnectionInfo> i
         this.executorService.submit(() -> {
             try {
                 map.get(receiver.getId()).onMessage(message);
-            } catch (HandlerNotFoundException ignored) {}
+            } catch (HandlerNotFoundException ignored) {
+            }
         });
     }
 
-    public void stopAll(){
+    public void stopAll() {
         for (KademliaNodeAPI<ID, C> kademliaNodeAPI : this.map.values()) {
             kademliaNodeAPI.stopNow();
         }

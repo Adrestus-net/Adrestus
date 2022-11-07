@@ -1,61 +1,50 @@
 package io.Adrestus.p2p.kademlia.repository;
 
 import com.google.common.base.Objects;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
-import io.Adrestus.crypto.bls.model.Signature;
 import io.Adrestus.crypto.elliptic.SignatureData;
-import jdk.swing.interop.SwingInterOpUtils;
-import org.identityconnectors.common.StringUtil;
+import io.Adrestus.p2p.kademlia.common.NettyConnectionInfo;
 
 import java.io.Serializable;
-import java.lang.reflect.Type;
 import java.math.BigInteger;
 import java.util.Arrays;
 
-public class KademliaData implements Serializable,Cloneable{
+public class KademliaData implements Serializable, Cloneable {
     private String Hash;
     private BLSPublicKey ValidatorBlSPublicKey;
     private ValidatorAddressData addressData;
-    private BootstrapNodeProofs bootstrapNodeProofs;
-
+    private NettyConnectionInfo nettyConnectionInfo;
 
     public KademliaData() {
     }
 
-    public KademliaData(String hash) {
+    public KademliaData(String hash, NettyConnectionInfo nettyConnectionInfo) {
         this.Hash = hash;
+        this.nettyConnectionInfo = nettyConnectionInfo;
+        this.ValidatorBlSPublicKey = new BLSPublicKey();
     }
 
-    public KademliaData(String hash, BLSPublicKey validatorBlSPublicKey) {
-        Hash = hash;
-        ValidatorBlSPublicKey = validatorBlSPublicKey;
-    }
 
-    public KademliaData(String hash, ValidatorAddressData addressData, BootstrapNodeProofs bootstrapNodeProofs) {
+    public KademliaData(String hash, ValidatorAddressData addressData, NettyConnectionInfo nettyConnectionInfo) {
         this.Hash = hash;
         this.addressData = addressData;
-        this.bootstrapNodeProofs = bootstrapNodeProofs;
+        this.nettyConnectionInfo = nettyConnectionInfo;
+        this.ValidatorBlSPublicKey = new BLSPublicKey();
     }
 
-    public KademliaData(String hash, BLSPublicKey validatorBlSPublicKey, ValidatorAddressData addressData) {
-        Hash = hash;
-        ValidatorBlSPublicKey = validatorBlSPublicKey;
+    public KademliaData(ValidatorAddressData addressData, NettyConnectionInfo nettyConnectionInfo) {
+        this.Hash = "";
         this.addressData = addressData;
-    }
-
-    public KademliaData(ValidatorAddressData addressData, BootstrapNodeProofs bootstrapNodeProofs) {
-        this.addressData = addressData;
-        this.bootstrapNodeProofs = bootstrapNodeProofs;
+        this.nettyConnectionInfo = nettyConnectionInfo;
+        this.ValidatorBlSPublicKey = new BLSPublicKey();
     }
 
     public KademliaData(ValidatorAddressData addressData) {
+        this.Hash = "";
         this.addressData = addressData;
-        this.Hash="";
-        this.bootstrapNodeProofs=new BootstrapNodeProofs();
+        this.nettyConnectionInfo = new NettyConnectionInfo("", 0);
     }
+
 
     public String getHash() {
         return Hash;
@@ -69,16 +58,17 @@ public class KademliaData implements Serializable,Cloneable{
         return addressData;
     }
 
-    public BootstrapNodeProofs getBootstrapNodeProofs() {
-        return bootstrapNodeProofs;
-    }
-
     public void setAddressData(ValidatorAddressData addressData) {
         this.addressData = addressData;
     }
 
-    public void setBootstrapNodeProofs(BootstrapNodeProofs bootstrapNodeProofs) {
-        this.bootstrapNodeProofs = bootstrapNodeProofs;
+
+    public NettyConnectionInfo getNettyConnectionInfo() {
+        return nettyConnectionInfo;
+    }
+
+    public void setNettyConnectionInfo(NettyConnectionInfo nettyConnectionInfo) {
+        this.nettyConnectionInfo = nettyConnectionInfo;
     }
 
     public BLSPublicKey getValidatorBlSPublicKey() {
@@ -89,7 +79,7 @@ public class KademliaData implements Serializable,Cloneable{
         ValidatorBlSPublicKey = validatorBlSPublicKey;
     }
 
-    public static final class ValidatorAddressData implements Serializable{
+    public static final class ValidatorAddressData implements Serializable {
         private String Address;
         private BigInteger ECDSAPublicKey;
         private SignatureData ECDSASignature;
@@ -153,87 +143,22 @@ public class KademliaData implements Serializable,Cloneable{
         }
     }
 
-    public static final class BootstrapNodeProofs implements Serializable,Cloneable{
-        private BLSPublicKey blsPublicKey;
-        private Signature signature;
-
-        public BootstrapNodeProofs(BLSPublicKey blsPublicKey, Signature signature) {
-            this.blsPublicKey = blsPublicKey;
-            this.signature = signature;
-        }
-
-        public BootstrapNodeProofs() {
-            this.blsPublicKey=new BLSPublicKey();
-            this.signature=new Signature();
-        }
-
-        public BLSPublicKey getBlsPublicKey() {
-            return blsPublicKey;
-        }
-
-
-        public void InitEmpty() {
-            this.blsPublicKey=new BLSPublicKey();
-            this.signature=new Signature();
-        }
-        public void setBlsPublicKey(BLSPublicKey blsPublicKey) {
-            this.blsPublicKey = blsPublicKey;
-        }
-
-        public Signature getSignature() {
-            return signature;
-        }
-
-        public void setSignature(Signature signature) {
-            this.signature = signature;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            BootstrapNodeProofs that = (BootstrapNodeProofs) o;
-            return Objects.equal(blsPublicKey, that.blsPublicKey) && Objects.equal(signature, that.signature);
-        }
-
-        @Override
-        public Object clone() throws CloneNotSupportedException
-        {
-            return super.clone();
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hashCode(blsPublicKey, signature);
-        }
-
-
-        @Override
-        public String toString() {
-            return "BootstrapNodeProofs{" +
-                    "blsPublicKey=" + blsPublicKey +
-                    ", signature=" + signature +
-                    '}';
-        }
-    }
-
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         KademliaData that = (KademliaData) o;
-        return Hash.equals(that.Hash) && Objects.equal(addressData, that.addressData) && Objects.equal(bootstrapNodeProofs, that.bootstrapNodeProofs);
+        return Hash.equals(that.Hash) && Objects.equal(addressData, that.addressData);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(Hash, addressData, bootstrapNodeProofs);
+        return Objects.hashCode(Hash, addressData);
     }
 
     @Override
-    public Object clone() throws CloneNotSupportedException
-    {
+    public Object clone() throws CloneNotSupportedException {
         return super.clone();
     }
 
@@ -241,9 +166,8 @@ public class KademliaData implements Serializable,Cloneable{
     public String toString() {
         return "KademliaData{" +
                 "Hash='" + Hash + '\'' +
-                ", ValidatorBlSPublicKey=" + ValidatorBlSPublicKey.toString() +
                 ", addressData=" + addressData +
-                ", bootstrapNodeProofs=" + bootstrapNodeProofs +
+                ", nettyConnectionInfo=" + nettyConnectionInfo +
                 '}';
     }
 }

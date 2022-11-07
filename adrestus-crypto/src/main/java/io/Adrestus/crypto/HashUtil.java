@@ -91,12 +91,12 @@ public class HashUtil {
         }
     }
 
-    public static String convertIPtoHex(String ip,int bits) {
+    public static String convertIPtoHex(String ip, int bits) {
         try {
             MessageDigest md5digest = MessageDigest.getInstance(HASH_MD5_ALGORITHM_NAME);
-            byte[] hased_data= md5digest.digest(ip.getBytes(StandardCharsets.UTF_8));
-            StringBuilder hex=new StringBuilder(convertStringToHex(Hex.toHexString(hased_data)));
-            return hex.substring(0,bits);
+            byte[] hased_data = md5digest.digest(ip.getBytes(StandardCharsets.UTF_8));
+            StringBuilder hex = new StringBuilder(convertStringToHex(Hex.toHexString(hased_data)));
+            return hex.substring(0, bits);
         } catch (NoSuchAlgorithmException e) {
             LOG.error("Can't find such algorithm", e);
             throw new RuntimeException(e);

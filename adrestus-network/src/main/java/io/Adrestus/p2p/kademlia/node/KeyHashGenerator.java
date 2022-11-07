@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 /**
  * @param <ID> Type of the node ID
- * @param <K> Serializable type of the Key to hash
+ * @param <K>  Serializable type of the Key to hash
  */
 public interface KeyHashGenerator<ID extends Number, K extends Serializable> {
     /**

@@ -17,12 +17,12 @@ public class ExternalNodeDeserializer implements JsonDeserializer<ExternalNode<B
         BigInteger distance = jsonObject.get("distance").getAsBigInteger();
         jsonObject.remove("distance");
         Node<BigInteger, NettyConnectionInfo> node = null;
-        if (jsonObject.has("node")){
+        if (jsonObject.has("node")) {
             node = jsonDeserializationContext.deserialize(
                     jsonObject.get("node"),
                     Node.class
             );
-        }else {
+        } else {
             node = jsonDeserializationContext.deserialize(
                     jsonObject,
                     Node.class

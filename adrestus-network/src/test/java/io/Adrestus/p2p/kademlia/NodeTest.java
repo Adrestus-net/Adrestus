@@ -9,13 +9,11 @@ import io.Adrestus.p2p.kademlia.builder.NettyKademliaDHTNodeBuilder;
 import io.Adrestus.p2p.kademlia.client.OkHttpMessageSender;
 import io.Adrestus.p2p.kademlia.common.NettyConnectionInfo;
 import io.Adrestus.p2p.kademlia.exception.DuplicateStoreRequest;
-import io.Adrestus.p2p.kademlia.exception.NotExistStoreRequest;
 import io.Adrestus.p2p.kademlia.exception.UnsupportedBoundingException;
 import io.Adrestus.p2p.kademlia.model.LookupAnswer;
 import io.Adrestus.p2p.kademlia.model.StoreAnswer;
 import io.Adrestus.p2p.kademlia.node.KademliaNodeAPI;
 import io.Adrestus.p2p.kademlia.node.KeyHashGenerator;
-import io.Adrestus.p2p.kademlia.protocol.MessageType;
 import io.Adrestus.p2p.kademlia.protocol.handler.MessageHandler;
 import io.Adrestus.p2p.kademlia.protocol.handler.PongMessageHandler;
 import io.Adrestus.p2p.kademlia.protocol.message.KademliaMessage;
@@ -29,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import java.math.BigInteger;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -61,7 +60,7 @@ public class NodeTest {
 
         KeyHashGenerator<BigInteger, String> keyHashGenerator = key -> {
             try {
-                return new BoundedHashUtil(NodeSettings.getInstance().getIdentifierSize()).hash(new BigInteger(HashUtil.convertIPtoHex(String.valueOf(key.hashCode()),16)), BigInteger.class);
+                return new BoundedHashUtil(NodeSettings.getInstance().getIdentifierSize()).hash(new BigInteger(HashUtil.convertIPtoHex(String.valueOf(key.hashCode()), 16)), BigInteger.class);
             } catch (UnsupportedBoundingException e) {
                 return null;
             }
@@ -83,7 +82,7 @@ public class NodeTest {
                 new SampleRepository(),
                 keyHashGenerator
         ).withNodeSettings(NodeSettings.getInstance()).build();
-       // node1.registerMessageHandler(MessageType.PONG, handler);
+        // node1.registerMessageHandler(MessageType.PONG, handler);
         node1.start();
 
 
@@ -127,7 +126,7 @@ public class NodeTest {
     }
 
     @Test
-    public void test_one() throws ExecutionException, InterruptedException, DuplicateStoreRequest{
+    public void test_one() throws ExecutionException, InterruptedException, DuplicateStoreRequest {
         StoreAnswer<BigInteger, String> storeAnswer = node5.store("K", "V").get();
         System.out.println(storeAnswer.toString());
         System.out.println(storeAnswer.getResult());
@@ -203,6 +202,11 @@ public class NodeTest {
         @Override
         public boolean contains(String key) {
             return data.containsKey(key);
+        }
+
+        @Override
+        public List<String> getList() {
+            return null;
         }
     }
 }

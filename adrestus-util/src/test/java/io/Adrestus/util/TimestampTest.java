@@ -9,10 +9,10 @@ public class TimestampTest {
     @Test
     public void test_timestamp() throws ParseException, InterruptedException {
 
-        int count=1000000;
-        while (count>0){
-            String val=GetTime.GetTimeStampInString();
-            Timestamp t=GetTime.GetTimestampFromString(val);
+        int count = 1000000;
+        while (count > 0) {
+            String val = GetTime.GetTimeStampInString();
+            Timestamp t = GetTime.GetTimestampFromString(val);
             count--;
         }
     }

@@ -20,7 +20,8 @@ public class DHTLookUpDataDeserializer<K extends Serializable> implements JsonDe
         JsonObject requesterJsonObject = jsonObject.getAsJsonObject("requester");
         dhtLookup.setRequester(jsonDeserializationContext.deserialize(requesterJsonObject, Node.class));
         dhtLookup.setCurrentTry(jsonObject.get("current_try").getAsInt());
-        dhtLookup.setKey(jsonDeserializationContext.deserialize(jsonObject.get("key"), new TypeToken<K>() {}.getType()));
+        dhtLookup.setKey(jsonDeserializationContext.deserialize(jsonObject.get("key"), new TypeToken<K>() {
+        }.getType()));
         return dhtLookup;
     }
 }

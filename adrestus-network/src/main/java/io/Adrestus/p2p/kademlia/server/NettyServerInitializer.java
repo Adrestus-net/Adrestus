@@ -11,5 +11,6 @@ import java.math.BigInteger;
 
 public interface NettyServerInitializer<K extends Serializable, V extends Serializable> extends ChannelInboundHandler {
     void registerKademliaNode(DHTKademliaNodeAPI<BigInteger, NettyConnectionInfo, K, V> dhtKademliaNodeAPI);
+
     void pipelineInitializer(ChannelPipeline pipeline);
 }

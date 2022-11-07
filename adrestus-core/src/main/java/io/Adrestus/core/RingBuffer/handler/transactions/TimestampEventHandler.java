@@ -16,7 +16,7 @@ public class TimestampEventHandler extends TransactionEventHandler {
     public void onEvent(TransactionEvent transactionEvent, long l, boolean b) throws Exception {
         try {
             Transaction transaction = transactionEvent.getTransaction();
-            Timestamp current= GetTime.GetTimeStamp();
+            Timestamp current = GetTime.GetTimeStamp();
             if (current.before(GetTime.GetTimestampFromString(transaction.getTimestamp()))) {
                 LOG.info("Transaction abort: Transaction timestamp is not a valid timestamp");
                 transaction.setStatus(StatusType.ABORT);

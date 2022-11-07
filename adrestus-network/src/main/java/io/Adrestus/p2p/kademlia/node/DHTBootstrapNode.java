@@ -1,8 +1,8 @@
 package io.Adrestus.p2p.kademlia.node;
 
+import io.Adrestus.config.NodeSettings;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.p2p.kademlia.NettyKademliaDHTNode;
-import io.Adrestus.config.NodeSettings;
 import io.Adrestus.p2p.kademlia.builder.NettyKademliaDHTNodeBuilder;
 import io.Adrestus.p2p.kademlia.common.NettyConnectionInfo;
 import io.Adrestus.p2p.kademlia.exception.UnsupportedBoundingException;
@@ -41,9 +41,9 @@ public class DHTBootstrapNode {
         this.InitHandler();
     }
 
-    public DHTBootstrapNode(NettyConnectionInfo nettyConnectionInfo,BigInteger ID) {
+    public DHTBootstrapNode(NettyConnectionInfo nettyConnectionInfo, BigInteger ID) {
         LoggerKademlia.setLevelOFF();
-        this.ID=ID;
+        this.ID = ID;
         this.nettyConnectionInfo = nettyConnectionInfo;
         this.keyHashGenerator = key -> {
             try {
@@ -56,9 +56,9 @@ public class DHTBootstrapNode {
         this.InitHandler();
     }
 
-    public DHTBootstrapNode(NettyConnectionInfo nettyConnectionInfo,BigInteger ID,KeyHashGenerator<BigInteger, String> keyHashGenerator) {
+    public DHTBootstrapNode(NettyConnectionInfo nettyConnectionInfo, BigInteger ID, KeyHashGenerator<BigInteger, String> keyHashGenerator) {
         LoggerKademlia.setLevelOFF();
-        this.ID=ID;
+        this.ID = ID;
         this.nettyConnectionInfo = nettyConnectionInfo;
         this.keyHashGenerator = keyHashGenerator;
         this.repository = new KademliaRepositoryImp();
@@ -66,14 +66,14 @@ public class DHTBootstrapNode {
     }
 
 
-    private void InitHandler(){
+    private void InitHandler() {
         handler = new PongMessageHandler<BigInteger, NettyConnectionInfo>() {
             @Override
             public <I extends KademliaMessage<BigInteger, NettyConnectionInfo, ?>, O extends KademliaMessage<BigInteger, NettyConnectionInfo, ?>> O doHandle(KademliaNodeAPI<BigInteger, NettyConnectionInfo> kademliaNode, I message) {
-                kademliaNode.getRoutingTable().getBuckets().stream().filter(val->val!=null).forEach(x -> {
-                    x.getNodeIds().stream().forEach(y-> {
+                kademliaNode.getRoutingTable().getBuckets().stream().filter(val -> val != null).forEach(x -> {
+                    x.getNodeIds().stream().forEach(y -> {
                         if (y != null && !y.equals(0)) {
-                            System.out.println("esd"+y.toString());
+                            System.out.println("esd" + y.toString());
                         }
                     });
                 });

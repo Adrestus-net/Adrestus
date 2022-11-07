@@ -4,6 +4,8 @@ import com.google.common.net.InetAddresses;
 import com.google.gson.Gson;
 import io.Adrestus.config.KademliaConfiguration;
 import io.Adrestus.config.NodeSettings;
+import io.Adrestus.core.Resourses.MemoryTreePool;
+import io.Adrestus.core.Trie.PatriciaTreeNode;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.WalletAddress;
 import io.Adrestus.crypto.bls.model.BLSPrivateKey;
@@ -31,9 +33,6 @@ import org.junit.jupiter.api.Test;
 import org.spongycastle.util.encoders.Hex;
 
 import java.math.BigInteger;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
@@ -47,10 +46,11 @@ public class DHTStressTest {
     private static KademliaData kademliaData;
     private static BLSPublicKey vk;
     private static KademliaData seridata;
-    private static OkHttpMessageSender<String, String> nettyMessageSender1,nettyMessageSender3,nettyMessageSender4,nettyMessageSender5;
+    private static OkHttpMessageSender<String, String> nettyMessageSender1, nettyMessageSender3, nettyMessageSender4, nettyMessageSender5;
     private static OkHttpMessageSender<String, String> nettyMessageSender2;
+
     @BeforeAll
-    public static void setup() throws NoSuchAlgorithmException, NoSuchProviderException, InvalidAlgorithmParameterException, CloneNotSupportedException {
+    public static void setup() throws Exception {
         String mnemonic_code = "fd8cee9c1a3f3f57ab51b25740b24341ae093c8f697fde4df948050d3acd1700f6379d716104d2159e4912509c40ac81714d833e93b822e5ba0fadd68d5568a2";
         SecureRandom random = SecureRandom.getInstance("SHA1PRNG", "SUN");
         random.setSeed(Hex.decode(mnemonic_code));
@@ -69,8 +69,9 @@ public class DHTStressTest {
         assertEquals(copy, vk);
 
 
-        kademliaData = new KademliaData(new KademliaData.ValidatorAddressData(adddress, ecKeyPair.getPublicKey(), signatureData));
+        kademliaData = new KademliaData(new KademliaData.ValidatorAddressData(adddress, ecKeyPair.getPublicKey(), signatureData), new NettyConnectionInfo("127.0.0.1", 8080));
         kademliaData.setValidatorBlSPublicKey(vk);
+        MemoryTreePool.getInstance().store(adddress, new PatriciaTreeNode(1000, 0));
         Gson gson = new Gson();
         String jsonString = gson.toJson(kademliaData);
         KademliaData copydata = gson.fromJson(jsonString, KademliaData.class);
@@ -78,9 +79,6 @@ public class DHTStressTest {
 
         kademliaData.setHash(jsonString);
         Signature bls_sig = BLSSignature.sign(StringUtils.getBytesUtf8(kademliaData.getHash()), sk);
-
-        kademliaData.getBootstrapNodeProofs().setBlsPublicKey(vk);
-        kademliaData.getBootstrapNodeProofs().setSignature(bls_sig);
 
 
         String jsonString2 = gson.toJson(kademliaData);
@@ -90,17 +88,11 @@ public class DHTStressTest {
 
         clonebale.setHash("");
 
-        clonebale.setBootstrapNodeProofs((KademliaData.BootstrapNodeProofs) clonebale.getBootstrapNodeProofs().clone());
-        clonebale.getBootstrapNodeProofs().InitEmpty();
-
 
         //checks
         String clonedhash = gson.toJson(clonebale);
         assertEquals(seridata.getHash(), clonedhash);
-        assertEquals(bls_sig, seridata.getBootstrapNodeProofs().getSignature());
-        boolean verify = BLSSignature.verify(seridata.getBootstrapNodeProofs().getSignature(), StringUtils.getBytesUtf8(clonedhash), BLSPublicKey.fromByte(Hex.decode(KademliaConfiguration.BLSPublicKeyHex)));
         boolean verify2 = ecdsaSign.secp256Verify(HashUtil.sha256(StringUtils.getBytesUtf8(seridata.getAddressData().getAddress())), seridata.getAddressData().getAddress(), seridata.getAddressData().getECDSASignature());
-        assertEquals(true, verify);
         assertEquals(true, verify2);
         System.out.println("done");
     }
@@ -134,19 +126,19 @@ public class DHTStressTest {
             nettyMessageSender5 = new OkHttpMessageSender<>();
 
             DHTBootstrapNode dhtBootstrapNode = new DHTBootstrapNode(
-                    new NettyConnectionInfo(KademliaConfiguration.BootstrapNodeIP, KademliaConfiguration.BootstrapNodePORT), id1,keyHashGenerator);
+                    new NettyConnectionInfo(KademliaConfiguration.BootstrapNodeIP, KademliaConfiguration.BootstrapNodePORT), id1, keyHashGenerator);
             dhtBootstrapNode.start();
 
             DHTRegularNode regularNode = new DHTRegularNode(
-                    new NettyConnectionInfo(KademliaConfiguration.BootstrapNodeIP, KademliaConfiguration.PORT), id2,keyHashGenerator);
+                    new NettyConnectionInfo(KademliaConfiguration.BootstrapNodeIP, KademliaConfiguration.PORT), id2, keyHashGenerator);
             regularNode.start(dhtBootstrapNode);
 
             DHTRegularNode regularNode2 = new DHTRegularNode(
-                    new NettyConnectionInfo(KademliaConfiguration.BootstrapNodeIP, KademliaConfiguration.PORT+1), id3,keyHashGenerator);
+                    new NettyConnectionInfo(KademliaConfiguration.BootstrapNodeIP, KademliaConfiguration.PORT + 1), id3, keyHashGenerator);
             regularNode2.start(dhtBootstrapNode);
 
             DHTRegularNode regularNode3 = new DHTRegularNode(
-                    new NettyConnectionInfo(KademliaConfiguration.BootstrapNodeIP, KademliaConfiguration.PORT+2), id4,keyHashGenerator);
+                    new NettyConnectionInfo(KademliaConfiguration.BootstrapNodeIP, KademliaConfiguration.PORT + 2), id4, keyHashGenerator);
             regularNode3.start(dhtBootstrapNode);
 
             StoreAnswer<BigInteger, String> storeAnswer = regularNode.getRegular_node().store("V", seridata).get(5, TimeUnit.SECONDS);
@@ -162,8 +154,8 @@ public class DHTStressTest {
             assertEquals(seridata, cp3);
             assertEquals(seridata, cp4);
 
-            FindNodeAnswer<BigInteger,NettyConnectionInfo> sa=regularNode2.getRegular_node().getRoutingTable().findClosest(id3);
-            System.out.println("Done:"+count);
+            FindNodeAnswer<BigInteger, NettyConnectionInfo> sa = regularNode2.getRegular_node().getRoutingTable().findClosest(id3);
+            System.out.println("Done:" + count);
             nettyMessageSender1.stop();
             nettyMessageSender2.stop();
             nettyMessageSender3.stop();

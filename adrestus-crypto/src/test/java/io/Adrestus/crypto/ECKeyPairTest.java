@@ -15,6 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class ECKeyPairTest {
     static SecureRandom random;
     private static int version = 0x00;
+
     @BeforeAll
     public static void Setup() throws NoSuchAlgorithmException, NoSuchProviderException {
         String mnemonic_code = "fd8cee9c1a3f3f57ab51b25740b24341ae093c8f697fde4df948050d3acd1700f6379d716104d2159e4912509c40ac81714d833e93b822e5ba0fadd68d5568a2";
@@ -58,7 +59,7 @@ public class ECKeyPairTest {
 
         ECKeyPair ecKeyPair = Keys.createEcKeyPair(random);
         String adddress = WalletAddress.generate_address((byte) version, ecKeyPair.getPublicKey());
-        assertEquals("ADR-AB2C-ARNW-4BYP-7CGJ-K6AD-OSNM-NC6Q-ET2C-6DEW-AAWY",adddress);
+        assertEquals("ADR-AB2C-ARNW-4BYP-7CGJ-K6AD-OSNM-NC6Q-ET2C-6DEW-AAWY", adddress);
         ECDSASign ecdsaSign = new ECDSASign();
 
 

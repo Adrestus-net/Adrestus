@@ -40,7 +40,7 @@ public class KademliaMainHandlerFilter<K extends Serializable, V extends Seriali
             );
             responseMessage = context.getDhtKademliaNodeApi().onMessage(kademliaMessage);
             responseMessage.setNode(context.getDhtKademliaNodeApi());
-        } catch (Exception e){
+        } catch (Exception e) {
             logger.error("Failed to parse request and pass it to the node api", e);
             response.setStatus(BAD_REQUEST);
         }
@@ -56,7 +56,7 @@ public class KademliaMainHandlerFilter<K extends Serializable, V extends Seriali
         super.filter(context, request, response);
     }
 
-    protected String parseJsonRequest(FullHttpRequest request){
+    protected String parseJsonRequest(FullHttpRequest request) {
         ByteBuf jsonBuf = request.content();
         return jsonBuf.toString(CharsetUtil.UTF_8);
     }

@@ -19,11 +19,11 @@ public class DefaultRoutingTableFactory<ID extends Number, C extends ConnectionI
     @Override
     @SuppressWarnings("unchecked")
     public RoutingTable<ID, C, B> getRoutingTable(ID i) {
-        if (i instanceof BigInteger){
+        if (i instanceof BigInteger) {
             return (RoutingTable<ID, C, B>) new BigIntegerRoutingTable<>((BigInteger) i, nodeSettings);
-        }else if (i instanceof Long){
+        } else if (i instanceof Long) {
             return (RoutingTable<ID, C, B>) new LongRoutingTable<>((Long) i, nodeSettings);
-        }else if (i instanceof Integer){
+        } else if (i instanceof Integer) {
             return (RoutingTable<ID, C, B>) new IntegerRoutingTable<>((Integer) i, nodeSettings);
         }
         throw new IllegalArgumentException("Unsupported ID type");

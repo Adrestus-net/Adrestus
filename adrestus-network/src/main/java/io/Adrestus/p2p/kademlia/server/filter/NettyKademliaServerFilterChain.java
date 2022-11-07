@@ -8,25 +8,25 @@ public class NettyKademliaServerFilterChain<K extends Serializable, V extends Se
 
     private final List<NettyKademliaServerFilter<K, V>> filters = new CopyOnWriteArrayList<>();
 
-    public void addFilter(NettyKademliaServerFilter<K, V> kademliaServerFilter){
+    public void addFilter(NettyKademliaServerFilter<K, V> kademliaServerFilter) {
         filters.add(kademliaServerFilter);
-        if (filters.size() - 1 != 0){
+        if (filters.size() - 1 != 0) {
             filters.get(filters.size() - 2).setNext(kademliaServerFilter);
         }
     }
 
-    public void addFilterAfter(Class<? extends NettyKademliaServerFilter<K, V>> clazz, NettyKademliaServerFilter<K, V> kademliaServerFilter){
+    public void addFilterAfter(Class<? extends NettyKademliaServerFilter<K, V>> clazz, NettyKademliaServerFilter<K, V> kademliaServerFilter) {
         int indexOfClass = this.findIndexOfClass(clazz);
         int newIndex = indexOfClass + 1;
         this.filters.add(newIndex, kademliaServerFilter);
-        if (newIndex != 0){
+        if (newIndex != 0) {
             this.filters.get(newIndex - 1).setNext(kademliaServerFilter);
         }
     }
 
-    private int findIndexOfClass(Class<? extends NettyKademliaServerFilter<K, V>> clazz){
-        for(int i=0; i<filters.size();i++){
-            if (filters.get(i).getClass().equals(clazz)){
+    private int findIndexOfClass(Class<? extends NettyKademliaServerFilter<K, V>> clazz) {
+        for (int i = 0; i < filters.size(); i++) {
+            if (filters.get(i).getClass().equals(clazz)) {
                 return i;
             }
         }

@@ -58,7 +58,7 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
         this.cleanupExecutor.shutdownNow();
     }
 
-    protected void cleanup(){
+    protected void cleanup() {
         if (this.storeService != null)
             this.storeService.cleanUp();
         if (this.lookupService != null)
@@ -67,20 +67,20 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
 
     @Override
     public Future<StoreAnswer<ID, K>> store(K key, V value) throws DuplicateStoreRequest {
-        if(!isRunning())
+        if (!isRunning())
             throw new IllegalStateException("Node is not running");
         return this.storeService.store(key, value);
     }
 
     @Override
     public Future<LookupAnswer<ID, K, V>> lookup(K key) {
-        if(!isRunning())
+        if (!isRunning())
             throw new IllegalStateException("Node is not running");
 
         return this.lookupService.lookup(key);
     }
 
-    protected void initDHTKademliaNode(){
+    protected void initDHTKademliaNode() {
         this.storeService = new DHTStoreService<>(this, getExecutorService(), this.cleanupExecutor);
         this.lookupService = new DHTLookupService<>(this, getExecutorService(), this.cleanupExecutor);
         this.registerMessageHandler(MessageType.DHT_LOOKUP, this.lookupService);

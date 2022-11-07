@@ -78,7 +78,7 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
     @Override
     public void stop() {
         this.gracefulShutdown();
-        if (this.isRunning()){
+        if (this.isRunning()) {
             this.executorService.shutdown();
             this.scheduledExecutorService.shutdown();
             this.isRunning = false;
@@ -87,7 +87,7 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
 
     @Override
     public void stopNow() {
-        if (this.isRunning()){
+        if (this.isRunning()) {
             this.executorService.shutdownNow();
             this.scheduledExecutorService.shutdownNow();
             this.isRunning = false;
@@ -118,7 +118,7 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
     @Override
     public MessageHandler<ID, C> getHandler(String type) throws HandlerNotFoundException {
         MessageHandler<ID, C> handler = this.messageHandlerRegistry.get(type);
-        if (handler == null){
+        if (handler == null) {
             throw new HandlerNotFoundException(type);
         }
         return handler;
@@ -129,11 +129,11 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
     //** None-API methods here **//
     //***************************//
 
-    public void gracefulShutdown(){
+    public void gracefulShutdown() {
         getReferencedNodes(this).forEach(node -> getMessageSender().sendAsyncMessage(this, node, new ShutdownKademliaMessage<>()));
     }
 
-    protected void init(){
+    protected void init() {
         this.registerMessageHandler(MessageType.EMPTY, new GeneralResponseMessageHandler<>());
         this.registerMessageHandler(MessageType.PONG, new PongMessageHandler<>());
         this.registerMessageHandler(MessageType.PING, new PingMessageHandler<>());
@@ -165,7 +165,7 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
         return completableFuture;
     }
 
-    protected void pingSchedule(){
+    protected void pingSchedule() {
         final KademliaNodeAPI<ID, C> caller = this;
 
         this.scheduledExecutorService.scheduleAtFixedRate(

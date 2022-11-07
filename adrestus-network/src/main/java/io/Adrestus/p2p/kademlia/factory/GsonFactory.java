@@ -15,12 +15,13 @@ import java.io.Serializable;
 
 public interface GsonFactory {
     Gson gson();
+
     GsonBuilder gsonBuilder();
 
     class DefaultGsonFactory<K extends Serializable, V extends Serializable> implements GsonFactory {
 
         @Override
-        public GsonBuilder gsonBuilder(){
+        public GsonBuilder gsonBuilder() {
             GsonBuilder gsonBuilder = new GsonBuilder();
             return gsonBuilder
                     .enableComplexMapKeySerialization()

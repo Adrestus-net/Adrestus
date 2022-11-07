@@ -27,12 +27,12 @@ public class NettyKademliaDHTNodeDefaults {
         void process(NettyKademliaDHTNodeBuilder<K, V> builder);
     }
 
-    public static <K extends Serializable, V extends Serializable> void run(NettyKademliaDHTNodeBuilder<K, V> builder){
+    public static <K extends Serializable, V extends Serializable> void run(NettyKademliaDHTNodeBuilder<K, V> builder) {
         List<DefaultFillerPipeline<K, V>> pipeline = getPipeline();
         pipeline.forEach(pipe -> pipe.process(builder));
     }
 
-    private static <K extends Serializable, V extends Serializable> List<DefaultFillerPipeline<K, V>> getPipeline(){
+    private static <K extends Serializable, V extends Serializable> List<DefaultFillerPipeline<K, V>> getPipeline() {
         List<DefaultFillerPipeline<K, V>> pipelines = new ArrayList<>();
 
         pipelines.add(builder -> {
@@ -56,7 +56,7 @@ public class NettyKademliaDHTNodeDefaults {
 
         pipelines.add(builder -> {
             if (builder.getMessageSender() == null) {
-                builder.messageSender( new OkHttpMessageSender<>(new GsonMessageSerializer<>(builder.getGsonFactory().gsonBuilder())));
+                builder.messageSender(new OkHttpMessageSender<>(new GsonMessageSerializer<>(builder.getGsonFactory().gsonBuilder())));
             }
         });
 
@@ -79,7 +79,7 @@ public class NettyKademliaDHTNodeDefaults {
         });
 
         pipelines.add(builder -> {
-            if (builder.getKademliaNodeServer() == null){
+            if (builder.getKademliaNodeServer() == null) {
                 builder.kademliaNodeServer(
                         new KademliaNodeServer<>(
                                 builder.getConnectionInfo().getHost(),
