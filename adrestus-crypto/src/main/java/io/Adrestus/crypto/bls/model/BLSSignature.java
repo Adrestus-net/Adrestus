@@ -119,7 +119,6 @@ public class BLSSignature {
         return BLSSignature.verify(signature, message.toArray(), aggregated_pub);
     }
 
-
     public static boolean completeBatchVerify(List<BatchSemiAggregate> preparedList) {
         if (preparedList.isEmpty()) {
             return true;

@@ -6,6 +6,7 @@ import io.Adrestus.config.KademliaConfiguration;
 import io.Adrestus.config.NodeSettings;
 import io.Adrestus.core.Resourses.MemoryTreePool;
 import io.Adrestus.core.Trie.PatriciaTreeNode;
+import io.Adrestus.core.ValidatorAddressData;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.WalletAddress;
 import io.Adrestus.crypto.bls.model.BLSPrivateKey;
@@ -70,8 +71,8 @@ public class RandomIPTest {
         assertEquals(copy, vk);
 
 
-        kademliaData = new KademliaData(new KademliaData.ValidatorAddressData(adddress, ecKeyPair.getPublicKey(), signatureData));
-        kademliaData.setValidatorBlSPublicKey(vk);
+        kademliaData = new KademliaData(new ValidatorAddressData(adddress, ecKeyPair.getPublicKey(), signatureData));
+        kademliaData.getAddressData().setValidatorBlSPublicKey(vk);
         MemoryTreePool.getInstance().store(adddress, new PatriciaTreeNode(1000, 0));
         Gson gson = new Gson();
         String jsonString = gson.toJson(kademliaData);
@@ -102,7 +103,9 @@ public class RandomIPTest {
     public void shouldAnswerWithTrue() throws InterruptedException, ExecutionException {
         LoggerKademlia.setLevelOFF();
         int port = 1080;
-        KademliaConfiguration.IDENTIFIER_SIZE=3;
+        //use this only for debug not for tests because nodesjoiningtest
+        //produces error and need size of 4
+        //KademliaConfiguration.IDENTIFIER_SIZE=3;
         NodeSettings.getInstance();
         KeyHashGenerator<BigInteger, String> keyHashGenerator = key -> {
             try {

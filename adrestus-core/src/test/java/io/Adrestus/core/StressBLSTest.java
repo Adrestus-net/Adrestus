@@ -46,8 +46,9 @@ public class StressBLSTest {
 
         TransactionBlock block = new TransactionBlock();
         block.setHash("sadsadas");
-
-        Bytes message = Bytes.wrap(ser.encode(block));
+        // Size is a problem during serilization/deserilization it must
+        //be fixed or given statically
+        Bytes message = Bytes.wrap(ser.encode(block, 1024));
 
         List<BLSPublicKey> publicKeys = Arrays.asList(keyPair1.getPublicKey(), keyPair2.getPublicKey(), keyPair3.getPublicKey());
         List<Signature> signatures = Arrays.asList(BLSSignature.sign(message.toArray(), keyPair1.getPrivateKey()), BLSSignature.sign(message.toArray(), keyPair2.getPrivateKey()), BLSSignature.sign(message.toArray(), keyPair3.getPrivateKey()));
@@ -58,10 +59,10 @@ public class StressBLSTest {
         assertEquals(true, BLSSignature.fastAggregateVerify(publicKeys, message, aggregatedSignature));
         assertEquals(true, BLSSignature.fastAggregateVerify(publicKeys, message, aggregatedSignature));
 
-        byte[] b = ser.encode(block);
+        byte[] b = ser.encode(block, 1024);
         TransactionBlock copy = ser.decode(b);
-        Bytes message2 = Bytes.wrap(ser.encode(copy));
-
+        assertEquals(copy, block);
+        Bytes message2 = Bytes.wrap(ser.encode(copy, 1024));
         assertEquals(true, BLSSignature.fastAggregateVerify(publicKeys, message2, aggregatedSignature));
 
         List<Signature> signatures2 = Arrays.asList(BLSSignature.sign(message.toArray(), keyPair1.getPrivateKey()), BLSSignature.sign(message.toArray(), keyPair2.getPrivateKey()), BLSSignature.sign(message.toArray(), keyPair3.getPrivateKey()));
