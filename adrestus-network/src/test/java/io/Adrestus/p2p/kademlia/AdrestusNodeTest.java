@@ -120,10 +120,11 @@ public class AdrestusNodeTest {
     public void shouldAnswerWithTrue() throws InterruptedException, ExecutionException {
         LoggerKademlia.setLevelOFF();
         int port = 1080;
+        KademliaConfiguration.IDENTIFIER_SIZE=3;
         NodeSettings.getInstance();
         KeyHashGenerator<BigInteger, String> keyHashGenerator = key -> {
             try {
-                return new BoundedHashUtil(NodeSettings.getInstance().getIdentifierSize()).hash(new BigInteger(HashUtil.convertIPtoHex(key, 16)), BigInteger.class);
+                return new BoundedHashUtil(NodeSettings.getInstance().getIdentifierSize()).hash(key.hashCode(), BigInteger.class);
             } catch (UnsupportedBoundingException e) {
                 throw new IllegalArgumentException("Key hash generator not valid");
             }
@@ -131,7 +132,7 @@ public class AdrestusNodeTest {
 
         // node 1
         NettyKademliaDHTNode<String, KademliaData> bootsrtap = new NettyKademliaDHTNodeBuilder<>(
-                BigInteger.valueOf(1),
+                BigInteger.valueOf(9),
                 new NettyConnectionInfo("127.0.0.1", port),
                 new SampleRepository(),
                 keyHashGenerator
