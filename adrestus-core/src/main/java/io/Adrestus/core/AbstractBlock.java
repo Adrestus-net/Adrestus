@@ -7,7 +7,7 @@ import io.activej.serializer.annotations.Serialize;
 import io.activej.serializer.annotations.SerializeClass;
 
 @SerializeClass(subclasses = {CommitteeBlock.class, TransactionBlock.class})
-public abstract class AbstractBlock implements BlockFactory, DisruptorBlock {
+public abstract class AbstractBlock implements BlockFactory, DisruptorBlock, Cloneable {
 
     private Header header;
     private StatusType Statustype;

@@ -19,6 +19,7 @@
         <maven.compiler.source>1.7</maven.compiler.source>
         <maven.compiler.target>1.7</maven.compiler.target>
         <util.version>1.0-SNAPSHOT</util.version>
+        <ledger.version>1.0-SNAPSHOT</ledger.version>
         <lombok.version>1.18.24</lombok.version>
         <serializer.version>5.3</serializer.version>
         <disruptor.version>3.4.4</disruptor.version>
@@ -40,6 +41,11 @@
             <groupId>io.Adrestus.v1</groupId>
             <artifactId>adrestus-util</artifactId>
             <version>${util.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.Adrestus.v1</groupId>
+            <artifactId>adrestus-distributed-ledger</artifactId>
+            <version>${ledger.version}</version>
         </dependency>
         <dependency>
             <groupId>io.Adrestus.v1</groupId>

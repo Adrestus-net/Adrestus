@@ -31,7 +31,7 @@ public class TimeStampEventHandler implements BlockEventHandler<AbstractBlockEve
         try {
             Timestamp current = GetTime.GetTimestampFromString(committeeBlock.getHeaderData().getTimestamp());
             Timestamp cached = GetTime.GetTimestampFromString(CachedLatestBlocks.getInstance().getCommitteeBlock().getHeaderData().getTimestamp());
-            if (!current.before(cached))
+            if (!cached.before(current))
                 LOG.info("CommitteeBlock timestamp is not valid");
         } catch (ParseException e) {
             e.printStackTrace();

@@ -9,7 +9,7 @@ import org.rocksdb.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.locks.Lock;
@@ -306,7 +306,7 @@ public class RocksDBConnectionManager<K, V> implements IDriver<RocksDBConnection
     @Override
     public Map<K, V> findBetweenRange(K key) {
         r.lock();
-        Map<Object, Object> hashmap = new HashMap<>();
+        Map<Object, Object> hashmap = new LinkedHashMap<>();
         try {
             final RocksIterator iterator = rocksDB.newIterator();
             iterator.seek(keyMapper.encode(key));

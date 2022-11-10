@@ -1,7 +1,5 @@
 package io.distributedLedger;
 
-import io.Adrestus.core.RegularTransaction;
-import io.Adrestus.core.Transaction;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
@@ -41,6 +39,7 @@ public class LevelDBConnectionTest {
         map.put("key5", "value5");
         map.put("key5", "value6");
         database.saveAll(map);
+
 
         Thread.sleep(100);
         assertEquals(5, database.findDBsize());
@@ -83,32 +82,5 @@ public class LevelDBConnectionTest {
 
     }
 
-    @Test
-    public void TransactionTest() {
-        IDatabase<String, LevelDBTransactionWrapper> database = new DatabaseFactory(String.class, LevelDBTransactionWrapper.class).getDatabase(DatabaseType.LEVEL_DB);
-        Transaction transaction = new RegularTransaction();
-        transaction.setAmount(100);
-        transaction.setHash("Hash");
-        transaction.setFrom("1");
-        transaction.setTo("2");
 
-        Transaction transaction2 = new RegularTransaction();
-        transaction2.setAmount(200);
-        transaction2.setHash("Hash1");
-        transaction2.setFrom("3");
-        transaction2.setTo("1");
-
-        database.save("1", transaction);
-        Optional<LevelDBTransactionWrapper> wrapper = database.findByKey("1");
-        System.out.println(wrapper.get().toString());
-        database.save("1", transaction);
-        database.save("1", transaction2);
-        database.save("1", transaction2);
-        //   database.save("1",transaction2);
-        Optional<LevelDBTransactionWrapper> wrapper2 = database.findByKey("1");
-
-        System.out.println(wrapper2.get().toString());
-        assertEquals(1, wrapper2.get().getFrom().size());
-        assertEquals(1, wrapper2.get().getTo().size());
-    }
 }

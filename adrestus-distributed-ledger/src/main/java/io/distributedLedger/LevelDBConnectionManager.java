@@ -1,7 +1,6 @@
 package io.distributedLedger;
 
 import io.Adrestus.config.Directory;
-import io.Adrestus.core.Transaction;
 import io.Adrestus.util.SerializationUtil;
 import io.distributedLedger.exception.*;
 import lombok.SneakyThrows;
@@ -13,6 +12,8 @@ import org.iq80.leveldb.Options;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -33,12 +34,12 @@ public class LevelDBConnectionManager<K, V> implements IDriver<LevelDBConnection
     private final SerializationUtil valueMapper;
     private final SerializationUtil keyMapper;
     private final Class<V> keyClass;
-    private final Class<V> valueClass;
     private final ReentrantReadWriteLock rwl;
     private final Lock r;
     private final Lock w;
 
 
+    private Class<V> valueClass;
     private File dbFile;
     private Options options;
     private DB level_db;
@@ -59,12 +60,38 @@ public class LevelDBConnectionManager<K, V> implements IDriver<LevelDBConnection
         load_connection();
     }
 
+    private LevelDBConnectionManager(Class<V> keyClass, Type fluentType) {
+        if (instance != null) {
+            throw new IllegalStateException("Already initialized.");
+        }
+        this.rwl = new ReentrantReadWriteLock();
+        this.r = rwl.readLock();
+        this.w = rwl.writeLock();
+        this.dbFile = new File(Directory.getConfigPath() + CONNECTION_NAME);
+        this.keyClass = keyClass;
+        this.keyMapper = new SerializationUtil<>(this.keyClass);
+        this.valueMapper = new SerializationUtil<>(fluentType);
+        setupOptions();
+        load_connection();
+    }
+
 
     public static synchronized LevelDBConnectionManager getInstance(Class keyClass, Class valueClass) {
         if (instance == null) {
             synchronized (LevelDBConnectionManager.class) {
                 if (instance == null) {
                     instance = new LevelDBConnectionManager<>(keyClass, valueClass);
+                }
+            }
+        }
+        return instance;
+    }
+
+    public static synchronized LevelDBConnectionManager getInstance(Class keyClass, Type fluentType) {
+        if (instance == null) {
+            synchronized (LevelDBConnectionManager.class) {
+                if (instance == null) {
+                    instance = new LevelDBConnectionManager<>(keyClass, fluentType);
                 }
             }
         }
@@ -113,26 +140,30 @@ public class LevelDBConnectionManager<K, V> implements IDriver<LevelDBConnection
     public void save(K key, Object value) {
         w.lock();
         try {
-            if (value instanceof Transaction) {
-                final Transaction transaction = (Transaction) value;
+            if (value instanceof String) {
+                byte[] serializedkey = keyMapper.encode(key);
+                byte[] serializedValue = valueMapper.encode(value);
+                level_db.put(serializedkey, serializedValue);
+            } else {
                 final Optional<V> obj = findByKey(key);
                 final String str_key = (String) key;
-                final LevelDBTransactionWrapper wrapper;
-                if (transaction.getFrom().equals(str_key)) {
+                final LevelDBTransactionWrapper<Object> wrapper;
+                Method m1 = value.getClass().getDeclaredMethod("getFrom", value.getClass().getClasses());
+                if (((String) m1.invoke(value)).equals(str_key)) {
                     if (obj.isEmpty()) {
-                        wrapper = new LevelDBTransactionWrapper();
-                        wrapper.addFrom(transaction);
+                        wrapper = new LevelDBTransactionWrapper<Object>();
+                        wrapper.addFrom(value);
                     } else {
                         wrapper = (LevelDBTransactionWrapper) obj.get();
-                        wrapper.addFrom(transaction);
+                        wrapper.addFrom(value);
                     }
                 } else {
                     if (obj.isEmpty()) {
                         wrapper = new LevelDBTransactionWrapper();
-                        wrapper.addTo(transaction);
+                        wrapper.addTo(value);
                     } else {
                         wrapper = (LevelDBTransactionWrapper) obj.get();
-                        wrapper.addTo(transaction);
+                        wrapper.addTo(value);
                     }
                 }
                 byte[] serializedkey = keyMapper.encode(key);
@@ -140,9 +171,7 @@ public class LevelDBConnectionManager<K, V> implements IDriver<LevelDBConnection
                 level_db.put(serializedkey, serializedValue);
                 return;
             }
-            byte[] serializedkey = keyMapper.encode(key);
-            byte[] serializedValue = valueMapper.encode(value);
-            level_db.put(serializedkey, serializedValue);
+
         } catch (final SerializationException exception) {
             LOGGER.error("Serialization exception occurred during save operation. {}", exception.getMessage());
             throw exception;

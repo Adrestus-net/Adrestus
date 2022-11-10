@@ -1,15 +1,16 @@
 package io.distributedLedger;
 
-import io.Adrestus.core.Transaction;
 import io.activej.serializer.annotations.Serialize;
+import lombok.SneakyThrows;
 
+import java.lang.reflect.Method;
 import java.util.*;
 
-public class LevelDBTransactionWrapper {
+public class LevelDBTransactionWrapper<T> {
     private final LevelDBTransactionWrapper.TransactionHashComparator fromhashComparator;
     private final LevelDBTransactionWrapper.TransactionHashComparator tohashComparator;
-    private ArrayList<Transaction> from;
-    private ArrayList<Transaction> to;
+    private ArrayList<T> from;
+    private ArrayList<T> to;
 
 
     public LevelDBTransactionWrapper() {
@@ -20,24 +21,24 @@ public class LevelDBTransactionWrapper {
     }
 
     @Serialize
-    public ArrayList<Transaction> getFrom() {
+    public ArrayList<T> getFrom() {
         return from;
     }
 
     @Serialize
-    public ArrayList<Transaction> getTo() {
+    public ArrayList<T> getTo() {
         return to;
     }
 
-    public void setFrom(ArrayList<Transaction> from) {
+    public void setFrom(ArrayList<T> from) {
         this.from = from;
     }
 
-    public void setTo(ArrayList<Transaction> to) {
+    public void setTo(ArrayList<T> to) {
         this.to = to;
     }
 
-    public boolean addFrom(Transaction transaction) {
+    public boolean addFrom(T transaction) {
         int index = Collections.binarySearch(from, transaction, fromhashComparator);
         if (index >= 0)
             return true;
@@ -46,7 +47,7 @@ public class LevelDBTransactionWrapper {
         return false;
     }
 
-    public boolean addTo(Transaction transaction) {
+    public boolean addTo(T transaction) {
         int index = Collections.binarySearch(to, transaction, tohashComparator);
         if (index >= 0)
             return true;
@@ -55,35 +56,49 @@ public class LevelDBTransactionWrapper {
         return false;
     }
 
-    public Optional<Transaction> getTransactionFrom(String hash) throws Exception {
-        Optional<Transaction> result = from.stream().filter(val -> val.getHash().equals(hash)).findFirst();
+    public Optional<T> getTransactionFrom(String hash) throws Exception {
+        Optional<T> result = from.stream().filter(val -> {
+            try {
+                return val.getClass().getDeclaredMethod("getHash", val.getClass().getClasses()).invoke(val).equals(hash);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return false;
+        }).findFirst();
         return result;
     }
 
-    public Optional<Transaction> getTransactionTo(String hash) throws Exception {
-        Optional<Transaction> result = to.stream().filter(val -> val.getHash().equals(hash)).findFirst();
+    public Optional<T> getTransactionTo(String hash) throws Exception {
+        Optional<T> result = to.stream().filter(val -> {
+            try {
+                return val.getClass().getDeclaredMethod("getHash", val.getClass().getClasses()).invoke(val).equals(hash);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return false;
+        }).findFirst();
         return result;
     }
 
-    public void deleteFrom(Transaction transaction) throws Exception {
+    public void deleteFrom(T transaction) throws Exception {
         int index = Collections.binarySearch(from, transaction, fromhashComparator);
         if (index >= 0)
             from.remove(index);
 
     }
 
-    public void deleteTo(Transaction transaction) throws Exception {
+    public void deleteTo(T transaction) throws Exception {
         int index = Collections.binarySearch(to, transaction, tohashComparator);
         if (index >= 0)
-            from.remove(index);
+            to.remove(index);
 
     }
 
-    public void deleteFrom(List<Transaction> list_transaction) throws Exception {
+    public void deleteFrom(List<T> list_transaction) throws Exception {
         from.removeAll(list_transaction);
     }
 
-    public void deleteTo(List<Transaction> list_transaction) throws Exception {
+    public void deleteTo(List<T> list_transaction) throws Exception {
         to.removeAll(list_transaction);
     }
 
@@ -103,10 +118,13 @@ public class LevelDBTransactionWrapper {
                 '}';
     }
 
-    private final class TransactionHashComparator implements Comparator<Transaction> {
+    private final class TransactionHashComparator implements Comparator<T> {
+        @SneakyThrows
         @Override
-        public int compare(Transaction t1, Transaction t2) {
-            return t1.getHash().compareTo(t2.getHash());
+        public int compare(T o1, T o2) {
+            Method m1 = o1.getClass().getDeclaredMethod("getHash", o1.getClass().getClasses());
+            Method m2 = o2.getClass().getDeclaredMethod("getHash", o1.getClass().getClasses());
+            return ((String) m1.invoke(o1)).compareTo((String) m2.invoke(o2));
         }
     }
 }

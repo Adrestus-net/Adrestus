@@ -21,8 +21,9 @@ public class HashEventHandler implements BlockEventHandler<AbstractBlockEvent> {
     public void onEvent(AbstractBlockEvent blockEvent, long l, boolean b) throws Exception {
         try {
             AbstractBlock block = blockEvent.getBlock();
-            if (block.getHash().length() != 32) {
-                LOG.info("Hash length is not valid");
+            if (block.getHash().length() != 64) {
+                LOG.info("Block hashes length is not valid");
+                block.setStatustype(StatusType.ABORT);
             }
             AbstractBlock cloneable = (AbstractBlock) block.clone();
             cloneable.setHash("");

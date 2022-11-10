@@ -20,4 +20,14 @@ public class RegularTransaction extends Transaction {
     public String toString() {
         return super.toString();
     }
+
+    @Override
+    public String getFrom() {
+        return super.getFrom();
+    }
+
+    @Override
+    public String getHash() {
+        return super.getHash();
+    }
 }

@@ -50,7 +50,17 @@ public class BlockEventPublisher implements Publisher<AbstractBlock> {
     }
 
     public BlockEventPublisher withHashHandler() {
-        group.add(new HeaderEventHandler());
+        group.add(new HashEventHandler());
+        return this;
+    }
+
+    public BlockEventPublisher withSortedStakingEventHandler() {
+        group.add(new SortedStakingEventHandler());
+        return this;
+    }
+
+    public BlockEventPublisher withMinimumStakingEventHandler() {
+        group.add(new MinimumStakingEventHandler());
         return this;
     }
 

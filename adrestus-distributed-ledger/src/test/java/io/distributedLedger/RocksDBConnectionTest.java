@@ -1,11 +1,9 @@
 package io.distributedLedger;
 
-import io.Adrestus.core.AbstractBlock;
-import io.Adrestus.core.CommitteeBlock;
-import io.Adrestus.core.TransactionBlock;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -52,11 +50,14 @@ public class RocksDBConnectionTest {
     @Test
     public void find_between_range() {
         IDatabase<String, String> database = new DatabaseFactory(String.class, String.class).getDatabase(DatabaseType.ROCKS_DB);
-        Map<String, String> map = new HashMap<>();
+        Map<String, String> map = new LinkedHashMap<>();
         map.put("key1", "value1");
         map.put("key2", "value2");
         map.put("key3", "value3");
         map.put("key4", "value4");
+        map.put("key5", "value5");
+        map.put("key6", "value6");
+        map.put("key7", "value7");
 
         database.saveAll(map);
 
@@ -64,45 +65,26 @@ public class RocksDBConnectionTest {
         assertEquals(map.get("key2"), res.get("key2"));
         assertEquals(map.get("key3"), res.get("key3"));
         assertEquals(map.get("key4"), res.get("key4"));
-        assertEquals(3, res.entrySet().size());
+        assertEquals(6, res.entrySet().size());
 
         database.delete_db();
     }
 
     @Test
-    public void add_get2() {
-        IDatabase<String, AbstractBlock> database = new DatabaseFactory(String.class, AbstractBlock.class).getDatabase(DatabaseType.ROCKS_DB);
-        String hash = "Hash";
-        TransactionBlock prevblock = new TransactionBlock();
-        CommitteeBlock committeeBlock = new CommitteeBlock();
-        committeeBlock.setGeneration(1);
-        committeeBlock.setViewID(1);
-        prevblock.setHeight(1);
-        prevblock.setHash(hash);
-        database.save(hash, prevblock);
-        TransactionBlock copy = (TransactionBlock) database.findByKey(hash).get();
-        assertEquals(prevblock, copy);
-        System.out.println(copy.toString());
-        database.delete_db();
-    }
+    public void find_between_range2() {
+        IDatabase<String, String> database = new DatabaseFactory(String.class, String.class).getDatabase(DatabaseType.ROCKS_DB);
+        database.save("key1", "value1");
+        database.save("key2", "value2");
+        database.save("key3", "value3");
+        database.save("key4", "value4");
+        database.save("key5", "value5");
+        database.save("key6", "value6");
+        database.save("key7", "value7");
 
 
-    @Test
-    public void delete() {
-        IDatabase<String, AbstractBlock> database = new DatabaseFactory(String.class, AbstractBlock.class).getDatabase(DatabaseType.ROCKS_DB);
-        String hash = "Hash";
-        TransactionBlock prevblock = new TransactionBlock();
-        CommitteeBlock committeeBlock = new CommitteeBlock();
-        committeeBlock.setGeneration(1);
-        committeeBlock.setViewID(1);
-        prevblock.setHeight(1);
-        prevblock.setHash(hash);
-        database.save(hash, prevblock);
-        TransactionBlock copy = (TransactionBlock) database.findByKey(hash).get();
-        assertEquals(prevblock, copy);
-        database.deleteByKey(hash);
-        Optional<AbstractBlock> empty = database.findByKey(hash);
-        assertEquals(Optional.empty(), empty);
+        Map<String, String> res = database.findBetweenRange("key2");
+        assertEquals(6, res.entrySet().size());
+
         database.delete_db();
     }
 

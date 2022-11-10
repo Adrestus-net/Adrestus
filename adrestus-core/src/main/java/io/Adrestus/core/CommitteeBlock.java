@@ -6,16 +6,13 @@ import io.Adrestus.core.RingBuffer.handler.blocks.DisruptorBlockVisitor;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.activej.serializer.annotations.Serialize;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 public class CommitteeBlock extends AbstractBlock implements BlockFactory, DisruptorBlock {
     private String CommitteeProposer;
     private String VRF;
     private String VDF;
-    private Map<BLSPublicKey, Double> StakingMap;
+    private Map<Double, ValidatorAddressData> StakingMap;
     private Map<Integer, LinkedHashMap<BLSPublicKey, String>> StructureMap;
     private int Difficulty;
 
@@ -24,7 +21,7 @@ public class CommitteeBlock extends AbstractBlock implements BlockFactory, Disru
         this.CommitteeProposer = committeeProposer;
         this.VRF = VRF;
         this.VDF = VDF;
-        this.StakingMap = new HashMap<BLSPublicKey, Double>();
+        this.StakingMap = new TreeMap<Double, ValidatorAddressData>(new StakingValueComparator());
         this.StructureMap = new HashMap<Integer, LinkedHashMap<BLSPublicKey, String>>();
         this.Difficulty = Difficulty;
         Init();
@@ -35,7 +32,7 @@ public class CommitteeBlock extends AbstractBlock implements BlockFactory, Disru
         this.CommitteeProposer = "";
         this.VRF = "";
         this.VDF = "";
-        this.StakingMap = new HashMap<BLSPublicKey, Double>();
+        this.StakingMap = new TreeMap<Double, ValidatorAddressData>(new StakingValueComparator());
         this.StructureMap = new HashMap<Integer, LinkedHashMap<BLSPublicKey, String>>();
         this.Difficulty = 0;
         Init();
@@ -86,11 +83,11 @@ public class CommitteeBlock extends AbstractBlock implements BlockFactory, Disru
     }
 
     @Serialize
-    public Map<BLSPublicKey, Double> getStakingMap() {
+    public Map<Double, ValidatorAddressData> getStakingMap() {
         return StakingMap;
     }
 
-    public void setStakingMap(Map<BLSPublicKey, Double> stakingMap) {
+    public void setStakingMap(Map<Double, ValidatorAddressData> stakingMap) {
         StakingMap = stakingMap;
     }
 
@@ -155,5 +152,16 @@ public class CommitteeBlock extends AbstractBlock implements BlockFactory, Disru
                 ", StructureMap=" + StructureMap +
                 ", Difficulty=" + Difficulty +
                 '}';
+    }
+
+    private static final class StakingValueComparator implements Comparator<Double> {
+        @Override
+        public int compare(Double a, Double b) {
+            if (a >= b) {
+                return -1;
+            } else {
+                return 1;
+            } // returning 0 would merge keys
+        }
     }
 }

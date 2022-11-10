@@ -20,16 +20,20 @@ public class HashEventHandler extends TransactionEventHandler {
     public void onEvent(TransactionEvent transactionEvent, long l, boolean b) throws Exception {
         try {
             Transaction transaction = transactionEvent.getTransaction();
-            if (transaction.getHash().length() != 32) {
-                Transaction cloneable = (Transaction) transaction.clone();
-                cloneable.setHash("");
-                byte[] toHash = wrapper.encode(cloneable);
-                String result_hash = HashUtil.sha256_bytetoString(toHash);
-                if (!result_hash.equals(transaction.getHash())) {
-                    LOG.info("Transaction hashes does not match");
-                    transaction.setStatus(StatusType.ABORT);
-                }
+            if (transaction.getHash().length() != 64) {
+                LOG.info("Transaction hashes length is not valid");
+                transaction.setStatus(StatusType.ABORT);
             }
+
+            Transaction cloneable = (Transaction) transaction.clone();
+            cloneable.setHash("");
+            byte[] toHash = wrapper.encode(cloneable);
+            String result_hash = HashUtil.sha256_bytetoString(toHash);
+            if (!result_hash.equals(transaction.getHash())) {
+                LOG.info("Transaction hashes does not match");
+                transaction.setStatus(StatusType.ABORT);
+            }
+
 
         } catch (NullPointerException ex) {
             LOG.info("Transaction is empty");

@@ -25,6 +25,21 @@ public class DuplicateEventHandler implements BlockEventHandler<AbstractBlockEve
 
     @Override
     public void visit(CommitteeBlock committeeBlock) {
+        List<Double> duplicates =
+                committeeBlock
+                        .getStakingMap()
+                        .keySet()
+                        .stream()
+                        .collect(Collectors.groupingBy(Function.identity()))
+                        .entrySet()
+                        .stream()
+                        .filter(e -> e.getValue().size() > 1)
+                        .map(Map.Entry::getKey)
+                        .collect(Collectors.toList());
+        if (!duplicates.isEmpty()) {
+            LOG.info("Committee Block contains duplicate stakes of users");
+            committeeBlock.setStatustype(StatusType.ABORT);
+        }
     }
 
     @Override
