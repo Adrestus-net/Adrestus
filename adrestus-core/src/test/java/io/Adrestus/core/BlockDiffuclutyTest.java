@@ -18,7 +18,7 @@ public class BlockDiffuclutyTest {
 
         IDatabase<String, CommitteeBlock> database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB);
 
-        int MAX_ITERATIONS = 1000;
+        int MAX_ITERATIONS = 100;
         int iterations = 0;
 
         CommitteeBlock bootsrap = new CommitteeBlock();

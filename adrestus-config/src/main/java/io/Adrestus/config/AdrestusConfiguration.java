@@ -8,4 +8,11 @@ public class AdrestusConfiguration {
 
     public static final int MAXIMU_BLOCK_SIZE = 10000000;
 
+    public static final int INIT_VDF_DIFFICULTY=100;
+
+    public static final int MAX_ZONES=3;
+
+    public static final String ALGORITHM="SHA1PRNG";
+    public static final String PROVIDER="SUN";
+
 }

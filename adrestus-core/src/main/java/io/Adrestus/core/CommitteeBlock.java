@@ -9,14 +9,14 @@ import io.activej.serializer.annotations.Serialize;
 import java.util.*;
 
 public class CommitteeBlock extends AbstractBlock implements BlockFactory, DisruptorBlock {
-    private String CommitteeProposer;
+    private int[] CommitteeProposer;
     private String VRF;
     private String VDF;
     private Map<Double, ValidatorAddressData> StakingMap;
     private Map<Integer, LinkedHashMap<BLSPublicKey, String>> StructureMap;
     private int Difficulty;
 
-    public CommitteeBlock(String previousHash, int height, int Generation, String committeeProposer, String VRF, String VDF, int Difficulty) {
+    public CommitteeBlock(String previousHash, int height, int Generation, int[] committeeProposer, String VRF, String VDF, int Difficulty) {
         super(previousHash, height, Generation);
         this.CommitteeProposer = committeeProposer;
         this.VRF = VRF;
@@ -29,7 +29,7 @@ public class CommitteeBlock extends AbstractBlock implements BlockFactory, Disru
 
 
     public CommitteeBlock() {
-        this.CommitteeProposer = "";
+        this.CommitteeProposer = new int[0];
         this.VRF = "";
         this.VDF = "";
         this.StakingMap = new TreeMap<Double, ValidatorAddressData>(new StakingValueComparator());
@@ -39,10 +39,10 @@ public class CommitteeBlock extends AbstractBlock implements BlockFactory, Disru
     }
 
     private void Init() {
+        this.StructureMap.put(0, new LinkedHashMap<BLSPublicKey, String>());
         this.StructureMap.put(1, new LinkedHashMap<BLSPublicKey, String>());
         this.StructureMap.put(2, new LinkedHashMap<BLSPublicKey, String>());
         this.StructureMap.put(3, new LinkedHashMap<BLSPublicKey, String>());
-        this.StructureMap.put(4, new LinkedHashMap<BLSPublicKey, String>());
     }
 
     @Override
@@ -56,12 +56,12 @@ public class CommitteeBlock extends AbstractBlock implements BlockFactory, Disru
     }
 
     @Serialize
-    public String getCommitteeProposer() {
+    public int[] getCommitteeProposer() {
         return CommitteeProposer;
     }
 
-    public void setCommitteeProposer(String committeeProposer) {
-        CommitteeProposer = committeeProposer;
+    public void setCommitteeProposer(int[] committeeProposer) {
+        this.CommitteeProposer = committeeProposer;
     }
 
     @Serialize
@@ -133,7 +133,7 @@ public class CommitteeBlock extends AbstractBlock implements BlockFactory, Disru
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
         CommitteeBlock that = (CommitteeBlock) o;
-        return Difficulty == that.Difficulty && Objects.equal(CommitteeProposer, that.CommitteeProposer) && Objects.equal(VRF, that.VRF) && Objects.equal(VDF, that.VDF) && Objects.equal(StakingMap, that.StakingMap) && Objects.equal(StructureMap, that.StructureMap);
+        return Difficulty == that.Difficulty && Arrays.equals(CommitteeProposer, that.CommitteeProposer) && Objects.equal(VRF, that.VRF) && Objects.equal(VDF, that.VDF) && Objects.equal(StakingMap, that.StakingMap) && Objects.equal(StructureMap, that.StructureMap);
     }
 
     @Override

@@ -28,5 +28,6 @@ public class VDFVerifyEventHandler implements BlockEventHandler<AbstractBlockEve
             block.setStatustype(StatusType.ABORT);
             return;
         }
+
     }
 }

@@ -59,7 +59,7 @@ public class CachedSecurityHeaders {
                 '}';
     }
 
-    private final class SecurityHeader {
+    public final class SecurityHeader {
         private byte[] pRnd;
         private byte[] Rnd;
 

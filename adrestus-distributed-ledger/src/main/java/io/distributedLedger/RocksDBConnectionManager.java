@@ -324,6 +324,28 @@ public class RocksDBConnectionManager<K, V> implements IDriver<RocksDBConnection
         return (Map<K, V>) hashmap;
     }
 
+    @Override
+    public Map<K, V> seekBetweenRange(int start, int finish) {
+        r.lock();
+        Map<Object, Object> hashmap = new LinkedHashMap<>();
+        try {
+            final RocksIterator iterator = rocksDB.newIterator();
+            iterator.seekToFirst();
+            while (iterator.isValid() && start <= finish) {
+                byte[] serializedKey = iterator.key();
+                byte[] serializedValue = iterator.value();
+                hashmap.put(keyMapper.decode(serializedKey), valueMapper.decode(serializedValue));
+                iterator.next();
+                start++;
+            }
+        } catch (final SerializationException exception) {
+            LOGGER.error("Serialization exception occurred during findByKey operation. {}", exception.getMessage());
+        } finally {
+            r.unlock();
+        }
+        return (Map<K, V>) hashmap;
+    }
+
     @SneakyThrows
     @Override
     public int findDBsize() {

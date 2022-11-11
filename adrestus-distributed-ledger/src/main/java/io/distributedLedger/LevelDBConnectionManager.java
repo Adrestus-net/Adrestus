@@ -333,6 +333,28 @@ public class LevelDBConnectionManager<K, V> implements IDriver<LevelDBConnection
         return (Map<K, V>) hashmap;
     }
 
+    @Override
+    public Map<K, V> seekBetweenRange(int start, int finish) {
+        r.lock();
+        Map<Object, Object> hashmap = new HashMap<>();
+        try {
+            final DBIterator iterator = level_db.iterator();
+            iterator.seekToFirst();
+            while (iterator.hasNext() && start <= finish) {
+                byte[] serializedKey = iterator.peekNext().getKey();
+                byte[] serializedValue = iterator.peekNext().getValue();
+                hashmap.put(keyMapper.decode(serializedKey), valueMapper.decode(serializedValue));
+                iterator.next();
+                start++;
+            }
+        } catch (final SerializationException exception) {
+            LOGGER.error("Serialization exception occurred during findByKey operation. {}", exception.getMessage());
+        } finally {
+            r.unlock();
+        }
+        return (Map<K, V>) hashmap;
+    }
+
     @SneakyThrows
     @Override
     public int findDBsize() {

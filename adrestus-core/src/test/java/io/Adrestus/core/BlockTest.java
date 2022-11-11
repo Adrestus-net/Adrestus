@@ -1,6 +1,9 @@
 package io.Adrestus.core;
 
+import com.google.common.primitives.Ints;
+import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
+import io.Adrestus.core.Resourses.CachedSecurityHeaders;
 import io.Adrestus.core.Resourses.MemoryTreePool;
 import io.Adrestus.core.RingBuffer.handler.transactions.SignatureEventHandler;
 import io.Adrestus.core.RingBuffer.publisher.BlockEventPublisher;
@@ -17,8 +20,13 @@ import io.Adrestus.crypto.elliptic.SignatureData;
 import io.Adrestus.crypto.mnemonic.Mnemonic;
 import io.Adrestus.crypto.mnemonic.Security;
 import io.Adrestus.crypto.mnemonic.WordList;
+import io.Adrestus.crypto.vdf.engine.VdfEngine;
+import io.Adrestus.crypto.vdf.engine.VdfEnginePietrzak;
 import io.Adrestus.util.GetTime;
 import io.Adrestus.util.SerializationUtil;
+import io.distributedLedger.DatabaseFactory;
+import io.distributedLedger.DatabaseType;
+import io.distributedLedger.IDatabase;
 import org.apache.commons.codec.binary.StringUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -26,7 +34,9 @@ import org.spongycastle.util.encoders.Hex;
 
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.IntStream;
 
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -318,6 +328,10 @@ public class BlockTest {
                 .withHeightEventHandler()
                 .withSortedStakingEventHandler()
                 .withMinimumStakingEventHandler()
+                .withVerifyDifficultyEventHandler()
+                .withVerifyVDFEventHandler()
+                .withVRFEventHandler()
+                .withRandomnessEventHandler()
                 .mergeEvents();
 
 
@@ -329,16 +343,92 @@ public class BlockTest {
         prevblock.setHeight(0);
         CachedLatestBlocks.getInstance().setCommitteeBlock(prevblock);
         CommitteeBlock committeeBlock = new CommitteeBlock();
-        committeeBlock.getStakingMap().put(10.0, new ValidatorAddressData(vk1, adddress1, ecKeyPair1.getPublicKey(), signatureData1));
-        committeeBlock.getStakingMap().put(13.0, new ValidatorAddressData(vk2, adddress2, ecKeyPair2.getPublicKey(), signatureData2));
-        committeeBlock.getStakingMap().put(7.0, new ValidatorAddressData(vk3, adddress3, ecKeyPair3.getPublicKey(), signatureData3));
-        committeeBlock.getStakingMap().put(22.0, new ValidatorAddressData(vk4, adddress4, ecKeyPair4.getPublicKey(), signatureData4));
-        committeeBlock.getStakingMap().put(6.0, new ValidatorAddressData(vk6, adddress6, ecKeyPair6.getPublicKey(), signatureData6));
-        committeeBlock.getStakingMap().put(32.0, new ValidatorAddressData(vk5, adddress5, ecKeyPair5.getPublicKey(), signatureData5));
+        committeeBlock.getStakingMap().put(10.0, new ValidatorAddressData("192.168.1.101", vk1, adddress1, ecKeyPair1.getPublicKey(), signatureData1));
+        committeeBlock.getStakingMap().put(13.0, new ValidatorAddressData("192.168.1.102", vk2, adddress2, ecKeyPair2.getPublicKey(), signatureData2));
+        committeeBlock.getStakingMap().put(7.0, new ValidatorAddressData("192.168.1.103", vk3, adddress3, ecKeyPair3.getPublicKey(), signatureData3));
+        committeeBlock.getStakingMap().put(22.0, new ValidatorAddressData("192.168.1.104", vk4, adddress4, ecKeyPair4.getPublicKey(), signatureData4));
+        committeeBlock.getStakingMap().put(6.0, new ValidatorAddressData("192.168.1.105", vk6, adddress6, ecKeyPair6.getPublicKey(), signatureData6));
+        committeeBlock.getStakingMap().put(32.0, new ValidatorAddressData("192.168.1.106", vk5, adddress5, ecKeyPair5.getPublicKey(), signatureData5));
+        committeeBlock.setCommitteeProposer(new int[committeeBlock.getStakingMap().size()]);
         committeeBlock.setGeneration(1);
         committeeBlock.getHeaderData().setPreviousHash("hash");
         committeeBlock.setHeight(1);
+        //committeeBlock.setVRF();
         committeeBlock.getHeaderData().setTimestamp(GetTime.GetTimeStampInString());
+
+        //########################################################################
+        VdfEngine vdf = new VdfEnginePietrzak(2048);
+        CachedSecurityHeaders.getInstance().getSecurityHeader().setpRnd(Hex.decode("c1f72aa5bd1e1d53c723b149259b63f759f40d5ab003b547d5c13d45db9a5da8"));
+        committeeBlock.setVRF("c1f72aa5bd1e1d53c723b149259b63f759f40d5ab003b547d5c13d45db9a5da8");
+        IDatabase<String, CommitteeBlock> database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB);
+        CommitteeBlock firstblock = new CommitteeBlock();
+        firstblock.setDifficulty(112);
+        firstblock.getHeaderData().setTimestamp(GetTime.GetTimeStampInString());
+        database.save("1", firstblock);
+        Thread.sleep(200);
+        CommitteeBlock secondblock = new CommitteeBlock();
+        secondblock.setDifficulty(117);
+        secondblock.getHeaderData().setTimestamp(GetTime.GetTimeStampInString());
+        Thread.sleep(200);
+        database.save("2", secondblock);
+        CommitteeBlock thirdblock = new CommitteeBlock();
+        thirdblock.setDifficulty(119);
+        thirdblock.getHeaderData().setTimestamp(GetTime.GetTimeStampInString());
+        database.save("3", thirdblock);
+        Thread.sleep(200);
+
+
+        int finish = database.findDBsize();
+
+        int n = finish;
+        int summdiffuclty = 0;
+        long sumtime = 0;
+        Map<String, CommitteeBlock> block_entries = database.seekBetweenRange(0, finish);
+        ArrayList<String> entries = new ArrayList<String>(block_entries.keySet());
+
+        for (int i = 0; i < entries.size(); i++) {
+            if (i == entries.size() - 1)
+                break;
+
+            long older = GetTime.GetTimestampFromString(block_entries.get(entries.get(i)).getHeaderData().getTimestamp()).getTime();
+            long newer = GetTime.GetTimestampFromString(block_entries.get(entries.get(i + 1)).getHeaderData().getTimestamp()).getTime();
+            sumtime = sumtime + (newer - older);
+            //System.out.println("edw "+(newer - older));
+            summdiffuclty = summdiffuclty + block_entries.get(entries.get(i)).getDifficulty();
+            //  System.out.println("edw "+(newer - older));
+            if ((newer - older) > 1000) {
+                int h = i;
+            }
+        }
+
+        double d = ((double) summdiffuclty / n);
+        // String s=String.format("%4d",  sumtime / n);
+        double t = ((double) sumtime / n);
+        //  System.out.println(t);
+        int difficulty = (int) Math.round(t * ((double) AdrestusConfiguration.INIT_VDF_DIFFICULTY / d));
+        committeeBlock.setDifficulty(difficulty * 2);
+        committeeBlock.setVDF(Hex.toHexString(vdf.solve(Hex.decode(committeeBlock.getVRF()), committeeBlock.getDifficulty())));
+
+        SecureRandom secureRandom = SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
+        secureRandom.setSeed(Hex.decode(committeeBlock.getVDF()));
+        for (Map.Entry<Double, ValidatorAddressData> entry : committeeBlock.getStakingMap().entrySet()) {
+            int nextInt = secureRandom.nextInt(AdrestusConfiguration.MAX_ZONES);
+            committeeBlock
+                    .getStructureMap()
+                    .get(nextInt)
+                    .put(entry.getValue().getValidatorBlSPublicKey(), entry.getValue().getIp());
+        }
+        int iteration=0;
+        ArrayList<Integer>replica=new ArrayList<>();
+        while(iteration<committeeBlock.getStakingMap().size()) {
+            int nextInt = secureRandom.nextInt(committeeBlock.getStakingMap().size());
+            if(!replica.contains(nextInt)) {
+                replica.add(nextInt);
+                iteration++;
+            }
+        }
+        committeeBlock.setCommitteeProposer(Ints.toArray(replica));
+        //########################################################################
         Thread.sleep(100);
         String hash = HashUtil.sha256_bytetoString(serenc.encode(committeeBlock));
         committeeBlock.setHash(hash);
@@ -350,6 +440,6 @@ public class BlockTest {
 
         publisher.getJobSyncUntilRemainingCapacityZero();
         publisher.close();
-        int i = 2;
+        database.delete_db();
     }
 }

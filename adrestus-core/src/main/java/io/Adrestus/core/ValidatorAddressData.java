@@ -9,6 +9,7 @@ import java.math.BigInteger;
 import java.util.Arrays;
 
 public final class ValidatorAddressData implements Serializable {
+    private String Ip;
     private String Address;
     private BLSPublicKey ValidatorBlSPublicKey;
     private BigInteger ECDSAPublicKey;
@@ -29,6 +30,14 @@ public final class ValidatorAddressData implements Serializable {
         this.ECDSAPublicKey = ECDSAPublicKey;
         this.ECDSASignature = ECDSASignature;
         this.ValidatorBlSPublicKey = new BLSPublicKey();
+    }
+
+    public ValidatorAddressData(String ip,BLSPublicKey validatorBlSPublicKey,String address, BigInteger ECDSAPublicKey, SignatureData ECDSASignature) {
+        this.Ip = ip;
+        this.Address = address;
+        this.ValidatorBlSPublicKey = validatorBlSPublicKey;
+        this.ECDSAPublicKey = ECDSAPublicKey;
+        this.ECDSASignature = ECDSASignature;
     }
 
     public String getAddress() {
@@ -63,12 +72,21 @@ public final class ValidatorAddressData implements Serializable {
         ValidatorBlSPublicKey = validatorBlSPublicKey;
     }
 
+    public String getIp() {
+        return Ip;
+    }
+
+    public void setIp(String ip) {
+        Ip = ip;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ValidatorAddressData that = (ValidatorAddressData) o;
         return Objects.equal(Address, that.Address) &&
+                Objects.equal(Ip, that.Ip)&&
                 Objects.equal(ValidatorBlSPublicKey, that.ValidatorBlSPublicKey)
                 && Objects.equal(ECDSAPublicKey, that.ECDSAPublicKey)
                 && Arrays.equals(ECDSASignature.getR(), that.ECDSASignature.getR())
@@ -78,13 +96,14 @@ public final class ValidatorAddressData implements Serializable {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(Address, ValidatorBlSPublicKey, ECDSAPublicKey, ECDSASignature);
+        return Objects.hashCode(Address, Ip,ValidatorBlSPublicKey, ECDSAPublicKey, ECDSASignature);
     }
 
     @Override
     public String toString() {
         return "ValidatorAddressData{" +
-                "Address='" + Address + '\'' +
+                "Ip='" + Ip + '\'' +
+                ", Address='" + Address + '\'' +
                 ", ValidatorBlSPublicKey=" + ValidatorBlSPublicKey +
                 ", ECDSAPublicKey=" + ECDSAPublicKey +
                 ", ECDSASignature=" + ECDSASignature +
