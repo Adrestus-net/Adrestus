@@ -25,6 +25,7 @@ import io.Adrestus.crypto.vrf.engine.VrfEngine2;
 import io.Adrestus.network.ConsensusClient;
 import io.Adrestus.util.ByteUtil;
 import io.Adrestus.util.SerializationUtil;
+import lombok.SneakyThrows;
 import org.apache.tuweni.bytes.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -293,8 +294,6 @@ public class ValidatorConsensusPhases {
             List<SerializationUtil.Mapping> list = new ArrayList<>();
             list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
             list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
-            Type fluentType = new TypeToken<ConsensusMessage<TransactionBlock>>() {
-            }.getType();
             this.block_serialize = new SerializationUtil<AbstractBlock>(AbstractBlock.class, list);
             this.consensus_serialize = new SerializationUtil<ConsensusMessage>(fluentType, list);
         }
@@ -504,19 +503,114 @@ public class ValidatorConsensusPhases {
 
     protected static class VerifyCommitteeBlock extends ValidatorConsensusPhases implements BFTConsensusPhase<CommitteeBlock> {
 
+        private static Logger LOG = LoggerFactory.getLogger(VerifyTransactionBlock.class);
+        private static final Type fluentType = new TypeToken<ConsensusMessage<CommitteeBlock>>() {
+        }.getType();
+        private final SerializationUtil<CommitteeBlock> block_serialize;
+        private final SerializationUtil<ConsensusMessage> consensus_serialize;
+        private final boolean DEBUG;
+
+        public VerifyCommitteeBlock(boolean DEBUG) {
+            this.DEBUG = DEBUG;
+            List<SerializationUtil.Mapping> list = new ArrayList<>();
+            list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
+            list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
+            this.block_serialize = new SerializationUtil<CommitteeBlock>(CommitteeBlock.class, list);
+            this.consensus_serialize = new SerializationUtil<ConsensusMessage>(fluentType, list);
+        }
+
+        @SneakyThrows
         @Override
         public void AnnouncePhase(ConsensusMessage<CommitteeBlock> block) {
+            BlockEventPublisher publisher = new BlockEventPublisher(1024);
 
+
+            publisher
+                    .withHashHandler()
+                    .withHeaderEventHandler()
+                    .withTimestampEventHandler()
+                    .withDuplicateHandler()
+                    .withHeightEventHandler()
+                    .withSortedStakingEventHandler()
+                    .withMinimumStakingEventHandler()
+                    .withVerifyDifficultyEventHandler()
+                    .withVerifyVDFEventHandler()
+                    .withVRFEventHandler()
+                    .withRandomnessEventHandler()
+                    .mergeEvents();
+
+
+            publisher.start();
+            publisher.publish(block.getData());
+            publisher.getJobSyncUntilRemainingCapacityZero();
+
+            if (block.getData().getStatustype().equals(StatusType.ABORT)) {
+                LOG.info("AnnouncePhase: Block is not valid marked as ABORT");
+                return;
+            }
+            block.setStatusType(ConsensusStatusType.SUCCESS);
+            Signature sig = BLSSignature.sign(block_serialize.encode(block.getData()), CachedBLSKeyPair.getInstance().getPrivateKey());
+            block.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
+
+            if (DEBUG)
+                return;
         }
 
         @Override
         public void PreparePhase(ConsensusMessage<CommitteeBlock> block) {
+            if (!block.getMessageType().equals(ConsensusMessageType.PREPARE)) {
+                LOG.info("PreparePhase: Organizer not send correct header message expected " + ConsensusMessageType.PREPARE);
+                //  data.clear();
+                block.setStatusType(ConsensusStatusType.ABORT);
+                return;
+            }
+            List<BLSPublicKey> publicKeys = block.getSignatures().stream().map(ConsensusMessage.ChecksumData::getBlsPublicKey).collect(Collectors.toList());
+            List<Signature> signature =block.getSignatures().stream().map(ConsensusMessage.ChecksumData::getSignature).collect(Collectors.toList());
 
+
+            Signature aggregatedSignature = BLSSignature.aggregate(signature);
+            Bytes toVerify = Bytes.wrap(block_serialize.encode(block.getData()));
+            boolean verify = BLSSignature.fastAggregateVerify(publicKeys, toVerify, aggregatedSignature);
+            if (!verify) {
+                LOG.info("PreparePhase: Abort consensus phase BLS multi_signature is invalid in prepare phase");
+                block.setStatusType(ConsensusStatusType.ABORT);
+                return;
+            }
+
+            // data.clear();
+            block.setStatusType(ConsensusStatusType.SUCCESS);
+
+
+            byte[] message = block_serialize.encode(block.getData());
+            Signature sig = BLSSignature.sign(message, CachedBLSKeyPair.getInstance().getPrivateKey());
+            block.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
+
+            if (DEBUG)
+                return;
         }
 
         @Override
         public void CommitPhase(ConsensusMessage<CommitteeBlock> block) {
+            if (!block.getMessageType().equals(ConsensusMessageType.COMMIT)) {
+                LOG.info("CommitPhase: Organizer not send correct header message expected " + ConsensusMessageType.COMMIT);
+                block.setStatusType(ConsensusStatusType.ABORT);
+                return;
+            }
 
+            List<BLSPublicKey> publicKeys = block.getSignatures().stream().map(ConsensusMessage.ChecksumData::getBlsPublicKey).collect(Collectors.toList());
+            List<Signature> signature = block.getSignatures().stream().map(ConsensusMessage.ChecksumData::getSignature).collect(Collectors.toList());
+
+
+            Signature aggregatedSignature = BLSSignature.aggregate(signature);
+            byte[] message = block_serialize.encode(block.getData());
+            Bytes toVerify = Bytes.wrap(message);
+            boolean verify = BLSSignature.fastAggregateVerify(publicKeys, toVerify, aggregatedSignature);
+            if (!verify) {
+                LOG.info("CommitPhase: Abort consensus phase BLS multi_signature is invalid in prepare phase");
+                block.setStatusType(ConsensusStatusType.ABORT);
+            }
+            if (DEBUG)
+                return;
         }
     }
 }

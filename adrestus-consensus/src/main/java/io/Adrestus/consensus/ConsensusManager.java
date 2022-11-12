@@ -20,7 +20,7 @@ public class ConsensusManager {
     public void changeStateTo(ConsensusRoleType type) {
         switch (type) {
             case SUPERVISOR:
-                this.role = new Supervisor();
+                this.role = new Supervisor(this.DEBUG);
                 break;
             case VALIDATOR:
                 this.role = new Validator(this.DEBUG);

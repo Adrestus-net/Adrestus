@@ -13,7 +13,7 @@ public class Validator implements ConsensusRole {
         validator_map.put(ConsensusType.VDF, new ValidatorConsensusPhases.VerifyVDF());
         validator_map.put(ConsensusType.VRF, new ValidatorConsensusPhases.VerifyVRF());
         validator_map.put(ConsensusType.TRANSACTION_BLOCK, new ValidatorConsensusPhases.VerifyTransactionBlock(this.DEBUG));
-        validator_map.put(ConsensusType.COMMITTEE_BLOCK, new ValidatorConsensusPhases.VerifyCommitteeBlock());
+        validator_map.put(ConsensusType.COMMITTEE_BLOCK, new ValidatorConsensusPhases.VerifyCommitteeBlock(this.DEBUG));
     }
 
     @Override
