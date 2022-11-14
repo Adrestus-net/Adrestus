@@ -15,6 +15,8 @@ import io.Adrestus.crypto.bls.model.BLSSignature;
 import io.Adrestus.crypto.bls.model.CachedBLSKeyPair;
 import io.Adrestus.crypto.bls.model.Signature;
 import io.Adrestus.network.ConsensusServer;
+import io.Adrestus.util.ObjectSizeCalculator;
+import io.Adrestus.util.ObjectSizer;
 import io.Adrestus.util.SerializationUtil;
 import org.apache.tuweni.bytes.Bytes;
 import org.slf4j.Logger;
@@ -53,7 +55,7 @@ public class OrganizerConsensusPhases {
             this.DEBUG = DEBUG;
             this.factory = new DefaultFactory();
             if (!DEBUG) {
-                //this.N = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).size()-1;
+                //this.N = 1;
                 this.N = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).size() - 1;
                 this.F = (this.N - 1) / 3;
                 this.latch = new CountDownLatch(N);
@@ -84,8 +86,7 @@ public class OrganizerConsensusPhases {
                 return;
 
             byte[] message = block_serialize.encode(data.getData());
-
-            Signature sig = BLSSignature.sign(block_serialize.encode(data.getData()), CachedBLSKeyPair.getInstance().getPrivateKey());
+            Signature sig = BLSSignature.sign(message, CachedBLSKeyPair.getInstance().getPrivateKey());
             data.getChecksumData().setBlsPublicKey(CachedBLSKeyPair.getInstance().getPublicKey());
             data.getChecksumData().setSignature(sig);
 

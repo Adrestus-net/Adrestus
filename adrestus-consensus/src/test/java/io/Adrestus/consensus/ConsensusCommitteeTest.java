@@ -176,16 +176,16 @@ public class ConsensusCommitteeTest {
         signatureData.add(signatureData10);
         signatureData.add(signatureData11);
 
-        MemoryTreePool.getInstance().store(adddress1, new PatriciaTreeNode(1000, 0));
-        MemoryTreePool.getInstance().store(adddress2, new PatriciaTreeNode(1000, 0));
-        MemoryTreePool.getInstance().store(adddress3, new PatriciaTreeNode(1000, 0));
-        MemoryTreePool.getInstance().store(adddress4, new PatriciaTreeNode(1000, 0));
-        MemoryTreePool.getInstance().store(adddress5, new PatriciaTreeNode(1000, 0));
-        MemoryTreePool.getInstance().store(adddress6, new PatriciaTreeNode(1000, 0));
-        MemoryTreePool.getInstance().store(adddress7, new PatriciaTreeNode(1000, 0));
-        MemoryTreePool.getInstance().store(adddress8, new PatriciaTreeNode(1000, 0));
-        MemoryTreePool.getInstance().store(adddress9, new PatriciaTreeNode(1000, 0));
-        MemoryTreePool.getInstance().store(adddress10, new PatriciaTreeNode(1000, 0));
+        MemoryTreePool.getInstance().store(adddress1, new PatriciaTreeNode(2000, 0));
+        MemoryTreePool.getInstance().store(adddress2, new PatriciaTreeNode(3000, 0));
+        MemoryTreePool.getInstance().store(adddress3, new PatriciaTreeNode(3000, 0));
+        MemoryTreePool.getInstance().store(adddress4, new PatriciaTreeNode(3000, 0));
+        MemoryTreePool.getInstance().store(adddress5, new PatriciaTreeNode(3000, 0));
+        MemoryTreePool.getInstance().store(adddress6, new PatriciaTreeNode(3000, 0));
+        MemoryTreePool.getInstance().store(adddress7, new PatriciaTreeNode(3000, 0));
+        MemoryTreePool.getInstance().store(adddress8, new PatriciaTreeNode(3000, 0));
+        MemoryTreePool.getInstance().store(adddress9, new PatriciaTreeNode(3000, 0));
+        MemoryTreePool.getInstance().store(adddress10, new PatriciaTreeNode(3000, 0));
 
         CommitteeBlock prevblock = new CommitteeBlock();
         prevblock.getHeaderData().setTimestamp(GetTime.GetTimeStampInString());
@@ -228,12 +228,12 @@ public class ConsensusCommitteeTest {
 
         var supervisorphase = consensusManager.getRole().manufacturePhases(ConsensusType.COMMITTEE_BLOCK);
         CommitteeBlock committeeBlock = new CommitteeBlock();
-        committeeBlock.getStakingMap().put(10.0, new ValidatorAddressData("192.168.1.101", vk1, addreses.get(0), keypair.get(0).getPublicKey(), signatureData.get(0)));
-        committeeBlock.getStakingMap().put(13.0, new ValidatorAddressData("192.168.1.102", vk2, addreses.get(1), keypair.get(1).getPublicKey(), signatureData.get(1)));
-        committeeBlock.getStakingMap().put(7.0, new ValidatorAddressData("192.168.1.103", vk3, addreses.get(2), keypair.get(2).getPublicKey(), signatureData.get(2)));
-        committeeBlock.getStakingMap().put(22.0, new ValidatorAddressData("192.168.1.104", vk4, addreses.get(3), keypair.get(3).getPublicKey(), signatureData.get(3)));
-        committeeBlock.getStakingMap().put(6.0, new ValidatorAddressData("192.168.1.105", vk6, addreses.get(4), keypair.get(4).getPublicKey(), signatureData.get(4)));
-        committeeBlock.getStakingMap().put(32.0, new ValidatorAddressData("192.168.1.106", vk5, addreses.get(5), keypair.get(5).getPublicKey(), signatureData.get(5)));
+        committeeBlock.getStakingMap().put(1010.0, new ValidatorAddressData("192.168.1.101", vk1, addreses.get(0), keypair.get(0).getPublicKey(), signatureData.get(0)));
+        committeeBlock.getStakingMap().put(1013.0, new ValidatorAddressData("192.168.1.102", vk2, addreses.get(1), keypair.get(1).getPublicKey(), signatureData.get(1)));
+        committeeBlock.getStakingMap().put(1007.0, new ValidatorAddressData("192.168.1.103", vk3, addreses.get(2), keypair.get(2).getPublicKey(), signatureData.get(2)));
+        committeeBlock.getStakingMap().put(1022.0, new ValidatorAddressData("192.168.1.104", vk4, addreses.get(3), keypair.get(3).getPublicKey(), signatureData.get(3)));
+        committeeBlock.getStakingMap().put(1006.0, new ValidatorAddressData("192.168.1.105", vk6, addreses.get(4), keypair.get(4).getPublicKey(), signatureData.get(4)));
+        committeeBlock.getStakingMap().put(1032.0, new ValidatorAddressData("192.168.1.106", vk5, addreses.get(5), keypair.get(5).getPublicKey(), signatureData.get(5)));
         ConsensusMessage<CommitteeBlock> consensusMessage = new ConsensusMessage<>(committeeBlock);
 
         supervisorphase.AnnouncePhase(consensusMessage);

@@ -29,7 +29,7 @@ public class CachedSecurityHeaders {
     public static CachedSecurityHeaders getInstance() {
         var result = instance;
         if (result == null) {
-            synchronized (CachedLatestRandomness.class) {
+            synchronized (CachedSecurityHeaders.class) {
                 result = instance;
                 if (result == null) {
                     instance = result = new CachedSecurityHeaders();

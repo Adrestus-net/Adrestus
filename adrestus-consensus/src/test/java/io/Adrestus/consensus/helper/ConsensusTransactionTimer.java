@@ -1,6 +1,10 @@
-package io.Adrestus.consensus;
+package io.Adrestus.consensus.helper;
 
 import io.Adrestus.config.ConsensusConfiguration;
+import io.Adrestus.consensus.ConsensusManager;
+import io.Adrestus.consensus.ConsensusMessage;
+import io.Adrestus.consensus.ConsensusRoleType;
+import io.Adrestus.consensus.ConsensusType;
 import io.Adrestus.core.RegularTransaction;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.MemoryPool;
@@ -27,8 +31,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.CountDownLatch;
 
-public class ConsensusTimer {
-    private static Logger LOG = LoggerFactory.getLogger(ConsensusTimer.class);
+public class ConsensusTransactionTimer {
+    private static Logger LOG = LoggerFactory.getLogger(ConsensusTransactionTimer.class);
     private static SerializationUtil<Transaction> serenc = new SerializationUtil<Transaction>(Transaction.class);
     private static ECDSASign ecdsaSign = new ECDSASign();
     private Timer timer;
@@ -38,7 +42,7 @@ public class ConsensusTimer {
     public final ArrayList<String> addreses;
     private final ArrayList<ECKeyPair> keypair;
 
-    public ConsensusTimer(CountDownLatch latch, ArrayList<String> addreses, ArrayList<ECKeyPair> keypair) {
+    public ConsensusTransactionTimer(CountDownLatch latch, ArrayList<String> addreses, ArrayList<ECKeyPair> keypair) {
         this.addreses = addreses;
         this.keypair = keypair;
         this.consensusManager = new ConsensusManager(false);
@@ -118,6 +122,10 @@ public class ConsensusTimer {
         publisher.close();
     }
 
+    public void close(){
+        timer.cancel();
+        task.cancel();
+    }
     protected final class ConsensusTask extends TimerTask {
 
 

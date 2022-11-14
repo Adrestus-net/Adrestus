@@ -87,9 +87,9 @@ public class RegularBlock implements BlockForge {
         IDatabase<String, CommitteeBlock> database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB);
 
         committeeBlock.setCommitteeProposer(new int[committeeBlock.getStakingMap().size()]);
-        committeeBlock.setGeneration(1);
-        committeeBlock.getHeaderData().setPreviousHash("hash");
-        committeeBlock.setHeight(1);
+        committeeBlock.setGeneration(CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration()+1);
+        committeeBlock.getHeaderData().setPreviousHash(CachedLatestBlocks.getInstance().getCommitteeBlock().getHash());
+        committeeBlock.setHeight(CachedLatestBlocks.getInstance().getCommitteeBlock().getHeight()+1);
         committeeBlock.getHeaderData().setTimestamp(GetTime.GetTimeStampInString());
         committeeBlock.setVRF(Hex.toHexString(CachedSecurityHeaders.getInstance().getSecurityHeader().getpRnd()));
 

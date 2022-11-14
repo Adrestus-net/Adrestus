@@ -1,7 +1,7 @@
 package io.Adrestus.consensus;
 
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
-import io.Adrestus.core.Resourses.CachedLatestRandomness;
+import io.Adrestus.core.Resourses.CachedSecurityHeaders;
 import io.Adrestus.crypto.bls.model.BLSPrivateKey;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.Adrestus.crypto.bls.model.CachedBLSKeyPair;
@@ -26,7 +26,7 @@ public class ConsensusVDFTest {
 
     @Test
     public void ConsensusVDF() throws Exception {
-        CachedLatestRandomness.getInstance().setpRnd(pRnd);
+        CachedSecurityHeaders.getInstance().getSecurityHeader().setpRnd(pRnd);
         CachedLatestBlocks.getInstance().getCommitteeBlock().setDifficulty(100);
 
         ConsensusManager consensusManager = new ConsensusManager(true);

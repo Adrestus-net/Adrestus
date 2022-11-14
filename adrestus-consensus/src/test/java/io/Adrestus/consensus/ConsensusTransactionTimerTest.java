@@ -1,5 +1,6 @@
 package io.Adrestus.consensus;
 
+import io.Adrestus.consensus.helper.ConsensusTransactionTimer;
 import io.Adrestus.core.CommitteeBlock;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.MemoryTreePool;
@@ -28,7 +29,7 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
-public class ConsensusTimerTest {
+public class ConsensusTransactionTimerTest {
 
 
     public static ArrayList<String> addreses;
@@ -169,8 +170,8 @@ public class ConsensusTimerTest {
         CachedLatestBlocks.getInstance().setTransactionBlock(prevblock);
 
         CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).put(vk1, "192.168.1.106");
-        CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).put(vk2, "192.168.1.110");
-        CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).put(vk3, "192.168.1.112");
+        //CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).put(vk2, "192.168.1.110");
+        CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).put(vk3, "192.168.1.113");
         // CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).put(vk4, "192.168.1.115");
         CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).put(vk5, "192.168.1.116");
         // CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).put(vk6, "192.168.1.104");
@@ -212,10 +213,9 @@ public class ConsensusTimerTest {
             return;
 
         CountDownLatch latch = new CountDownLatch(5);
-        ConsensusTimer c = new ConsensusTimer(latch, addreses, keypair);
+        ConsensusTransactionTimer c = new ConsensusTransactionTimer(latch, addreses, keypair);
         latch.await();
-        c.getTask().cancel();
-        c.getTimer().cancel();
+        c.close();
 
     }
  /*   public static void setup() throws Exception {

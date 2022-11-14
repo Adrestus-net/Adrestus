@@ -88,11 +88,13 @@ public class BlockTest {
 
     @Test
     public void block_test2() {
+       // CachedSecurityHeaders.getInstance().getSecurityHeader().setpRnd(Hex.decode("c1f72aa5bd1e1d53c723b149259b63f759f40d5ab003b547d5c13d45db9a5da8"));
+       // CachedSecurityHeaders.getInstance().getSecurityHeader().setRnd(Hex.decode("c1f72aa5bd1e1d53c723b149259b63f759f40d5ab003b547d5c13d45db9a5da8"));
         DefaultFactory factory = new DefaultFactory(new TransactionBlock(), new CommitteeBlock());
         var genesis = (Genesis) factory.getBlock(BlockType.GENESIS);
         var regural_block = factory.getBlock(BlockType.REGULAR);
-        factory.accept(genesis);
-        factory.accept(regural_block);
+        //factory.accept(genesis);
+        //factory.accept(regural_block);
     }
 
     @Test
@@ -360,6 +362,7 @@ public class BlockTest {
         VdfEngine vdf = new VdfEnginePietrzak(2048);
         CachedSecurityHeaders.getInstance().getSecurityHeader().setpRnd(Hex.decode("c1f72aa5bd1e1d53c723b149259b63f759f40d5ab003b547d5c13d45db9a5da8"));
         committeeBlock.setVRF("c1f72aa5bd1e1d53c723b149259b63f759f40d5ab003b547d5c13d45db9a5da8");
+        CachedSecurityHeaders.getInstance().getSecurityHeader().setpRnd(Hex.decode("c1f72aa5bd1e1d53c723b149259b63f759f40d5ab003b547d5c13d45db9a5da8"));
         IDatabase<String, CommitteeBlock> database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB);
         CommitteeBlock firstblock = new CommitteeBlock();
         firstblock.setDifficulty(112);
@@ -408,7 +411,7 @@ public class BlockTest {
         int difficulty = (int) Math.round(t * ((double) AdrestusConfiguration.INIT_VDF_DIFFICULTY / d));
         committeeBlock.setDifficulty(difficulty * 2);
         committeeBlock.setVDF(Hex.toHexString(vdf.solve(Hex.decode(committeeBlock.getVRF()), committeeBlock.getDifficulty())));
-
+        CachedSecurityHeaders.getInstance().getSecurityHeader().setRnd(Hex.decode(committeeBlock.getVDF()));
         SecureRandom secureRandom = SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
         secureRandom.setSeed(Hex.decode(committeeBlock.getVDF()));
         for (Map.Entry<Double, ValidatorAddressData> entry : committeeBlock.getStakingMap().entrySet()) {

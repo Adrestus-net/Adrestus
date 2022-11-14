@@ -106,7 +106,7 @@ public class SerializationUtil<T> {
     }
 
     public byte[] encode(T value) {
-        int buff_size = search((int) (ObjectSizer.retainedSize(value)));
+        int buff_size = search((int) (ObjectSizeCalculator.getObjectSize(value)));
         //int buff_size = search((int) (ObjectSizeCalculator.getObjectSize(value)));
         buffer = new byte[buff_size];
         serializer.encode(buffer, 0, value);

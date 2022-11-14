@@ -4,19 +4,22 @@ import com.google.common.reflect.TypeToken;
 import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.core.*;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
-import io.Adrestus.core.Resourses.CachedLatestRandomness;
+import io.Adrestus.core.Resourses.CachedLeaderIndex;
+import io.Adrestus.core.Resourses.CachedSecurityHeaders;
 import io.Adrestus.crypto.bls.BLS381.ECP;
 import io.Adrestus.crypto.bls.BLS381.ECP2;
 import io.Adrestus.crypto.bls.mapper.ECP2mapper;
 import io.Adrestus.crypto.bls.mapper.ECPmapper;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.Adrestus.crypto.bls.model.BLSSignature;
+import io.Adrestus.crypto.bls.model.CachedBLSKeyPair;
 import io.Adrestus.crypto.bls.model.Signature;
 import io.Adrestus.crypto.vdf.VDFMessage;
 import io.Adrestus.crypto.vdf.engine.VdfEngine;
 import io.Adrestus.crypto.vdf.engine.VdfEnginePietrzak;
 import io.Adrestus.crypto.vrf.VRFMessage;
 import io.Adrestus.crypto.vrf.engine.VrfEngine2;
+import io.Adrestus.network.ConsensusServer;
 import io.Adrestus.util.ByteUtil;
 import io.Adrestus.util.SerializationUtil;
 import org.apache.tuweni.bytes.Bytes;
@@ -28,6 +31,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 
 public class SupervisorConsensusPhases {
@@ -45,7 +49,7 @@ public class SupervisorConsensusPhases {
         @Override
         public void AnnouncePhase(ConsensusMessage<VDFMessage> data) {
             data.setMessageType(ConsensusMessageType.ANNOUNCE);
-            byte[] solution = vdf.solve(CachedLatestRandomness.getInstance().getpRnd(), CachedLatestBlocks.getInstance().getCommitteeBlock().getDifficulty());
+            byte[] solution = vdf.solve(CachedSecurityHeaders.getInstance().getSecurityHeader().getpRnd(), CachedLatestBlocks.getInstance().getCommitteeBlock().getDifficulty());
             data.getData().setVDFSolution(solution);
         }
 
@@ -58,7 +62,7 @@ public class SupervisorConsensusPhases {
 
 
             Signature aggregatedSignature = BLSSignature.aggregate(signature);
-            Bytes message = Bytes.wrap(CachedLatestRandomness.getInstance().getRnd());
+            Bytes message = Bytes.wrap(CachedSecurityHeaders.getInstance().getSecurityHeader().getRnd());
             boolean verify = BLSSignature.fastAggregateVerify(publicKeys, message, aggregatedSignature);
             if (!verify)
                 throw new IllegalArgumentException("Abort consensus phase BLS multi_signature is invalid during prepare phase");
@@ -183,14 +187,30 @@ public class SupervisorConsensusPhases {
         private static Logger LOG = LoggerFactory.getLogger(ProposeCommitteeBlock.class);
 
 
-
         private final SerializationUtil<CommitteeBlock> block_serialize;
         private final SerializationUtil<ConsensusMessage> consensus_serialize;
         private final DefaultFactory factory;
         private final boolean DEBUG;
+
+        private CountDownLatch latch;
+        private int N;
+        private int F;
+        private int current;
+        private ConsensusServer consensusServer;
+        private BLSPublicKey leader_bls;
+
         public ProposeCommitteeBlock(boolean DEBUG) {
             this.DEBUG = DEBUG;
             this.factory = new DefaultFactory();
+            if (!DEBUG) {
+                //this.N = 1;
+                this.N = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).size() - 1;
+                this.F = (this.N - 1) / 3;
+                this.latch = new CountDownLatch(N);
+                this.current = CachedLeaderIndex.getInstance().getCommitteePositionLeader();
+                this.leader_bls = CachedLatestBlocks.getInstance().getCommitteeBlock().getPublicKeyByIndex(0, current);
+                this.consensusServer = new ConsensusServer(CachedLatestBlocks.getInstance().getCommitteeBlock().getValue(1, this.leader_bls), latch);
+            }
             List<SerializationUtil.Mapping> list = new ArrayList<>();
             list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
             list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
@@ -201,14 +221,58 @@ public class SupervisorConsensusPhases {
         @Override
         public void AnnouncePhase(ConsensusMessage<CommitteeBlock> block) {
             var regural_block = factory.getBlock(BlockType.REGULAR);
+            block.getData().setStructureMap(CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap());
+            block.getData().setStakingMap(CachedLatestBlocks.getInstance().getCommitteeBlock().getStakingMap());
             regural_block.forgeCommitteBlock(block.getData());
             block.setMessageType(ConsensusMessageType.ANNOUNCE);
             if (DEBUG)
                 return;
+
+            Signature sig = BLSSignature.sign(block_serialize.encode(block.getData()), CachedBLSKeyPair.getInstance().getPrivateKey());
+            block.getChecksumData().setBlsPublicKey(CachedBLSKeyPair.getInstance().getPublicKey());
+            block.getChecksumData().setSignature(sig);
+
+            byte[] toSend = consensus_serialize.encode(block);
+            consensusServer.publishMessage(toSend);
         }
 
         @Override
         public void PreparePhase(ConsensusMessage<CommitteeBlock> block) {
+            if (!DEBUG) {
+                int i = N;
+                while (i > 0) {
+                    byte[] receive = consensusServer.receiveData();
+                    try {
+                        if (receive == null) {
+                            LOG.info("PreparePhase: Null message from validators");
+                            i--;
+                        } else {
+                            ConsensusMessage<TransactionBlock> received = consensus_serialize.decode(receive);
+                            if (!CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).containsKey(received.getChecksumData().getBlsPublicKey())) {
+                                LOG.info("PreparePhase: Validator does not exist on consensus... Ignore");
+                                i--;
+                            } else {
+                                block.getSignatures().add(received.getChecksumData());
+                                N--;
+                                i--;
+                            }
+                        }
+                    } catch (IllegalArgumentException e) {
+                        LOG.info("PreparePhase: Problem at message deserialization");
+                        block.setStatusType(ConsensusStatusType.ABORT);
+                        cleanup();
+                        return;
+                    }
+                }
+
+
+                if (N > F) {
+                    LOG.info("PreparePhase: Byzantine network not meet requirements abort " + String.valueOf(N));
+                    block.setStatusType(ConsensusStatusType.ABORT);
+                    cleanup();
+                    return;
+                }
+            }
             block.setMessageType(ConsensusMessageType.PREPARE);
 
             List<BLSPublicKey> publicKeys = block.getSignatures().stream().map(ConsensusMessage.ChecksumData::getBlsPublicKey).collect(Collectors.toList());
@@ -223,10 +287,57 @@ public class SupervisorConsensusPhases {
 
             if (DEBUG)
                 return;
+
+
+            Signature sig = BLSSignature.sign(block_serialize.encode(block.getData()), CachedBLSKeyPair.getInstance().getPrivateKey());
+            block.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
+
+            this.N = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).size() - 1;
+            this.F = (this.N - 1) / 3;
+
+
+            byte[] toSend = consensus_serialize.encode(block);
+            consensusServer.publishMessage(toSend);
         }
 
         @Override
         public void CommitPhase(ConsensusMessage<CommitteeBlock> block) {
+            if (!DEBUG) {
+                int i = N;
+                block.getSignatures().clear();
+                while (i > 0) {
+                    byte[] receive = consensusServer.receiveData();
+                    try {
+                        if (receive == null) {
+                            LOG.info("CommitPhase: Not Receiving from Validators");
+                            i--;
+                        } else {
+                            ConsensusMessage<TransactionBlock> received = consensus_serialize.decode(receive);
+                            if (!CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).containsKey(received.getChecksumData().getBlsPublicKey())) {
+                                LOG.info("CommitPhase: Validator does not exist on consensus... Ignore");
+                                i--;
+                            } else {
+                                block.getSignatures().add(received.getChecksumData());
+                                N--;
+                                i--;
+                            }
+                        }
+                    } catch (IllegalArgumentException e) {
+                        LOG.info("CommitPhase: Problem at message deserialization");
+                        block.setStatusType(ConsensusStatusType.ABORT);
+                        cleanup();
+                        return;
+                    }
+                }
+
+
+                if (N > F) {
+                    LOG.info("CommitPhase: Byzantine network not meet requirements abort " + String.valueOf(N));
+                    block.setStatusType(ConsensusStatusType.ABORT);
+                    cleanup();
+                    return;
+                }
+            }
             block.setMessageType(ConsensusMessageType.COMMIT);
 
             List<BLSPublicKey> publicKeys = block.getSignatures().stream().map(ConsensusMessage.ChecksumData::getBlsPublicKey).collect(Collectors.toList());
@@ -243,6 +354,33 @@ public class SupervisorConsensusPhases {
 
             if (DEBUG)
                 return;
+
+            Signature sig = BLSSignature.sign(block_serialize.encode(block.getData()), CachedBLSKeyPair.getInstance().getPrivateKey());
+            block.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
+
+            this.N = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).size() - 1;
+            this.F = (this.N - 1) / 3;
+            int i = N;
+
+            byte[] toSend = consensus_serialize.encode(block);
+            consensusServer.publishMessage(toSend);
+
+            CachedLatestBlocks.getInstance().setCommitteeBlock(block.getData());
+
+            while (i > 0) {
+                try {
+                    consensusServer.receiveStringData();
+                } catch (NullPointerException ex) {
+                } finally {
+                    i--;
+                }
+            }
+            cleanup();
+            LOG.info("Block is finalized with Success");
+        }
+
+        private void cleanup() {
+            consensusServer.close();
         }
     }
 
