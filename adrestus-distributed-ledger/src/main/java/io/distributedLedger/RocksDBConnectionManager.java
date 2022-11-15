@@ -290,7 +290,7 @@ public class RocksDBConnectionManager<K, V> implements IDriver<RocksDBConnection
             rocksDB.close();
 
             RocksDB.destroyDB(Directory.getConfigPath(), options);
-
+            return dbFile.delete();
         } catch (NullPointerException exception) {
             LOGGER.error("RocksDBException occurred during delete_db operation. {}", exception.getMessage());
         } catch (final RocksDBException exception) {
@@ -300,7 +300,7 @@ public class RocksDBConnectionManager<K, V> implements IDriver<RocksDBConnection
             w.unlock();
             instance = null;
         }
-        return dbFile.delete();
+        return true;
     }
 
     private byte[] getKey(final RocksIterator iterator) {

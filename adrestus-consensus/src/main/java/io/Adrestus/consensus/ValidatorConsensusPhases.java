@@ -295,6 +295,7 @@ public class ValidatorConsensusPhases {
             List<SerializationUtil.Mapping> list = new ArrayList<>();
             list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
             list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
+            list.add(new SerializationUtil.Mapping(BigInteger.class,ctx->new BigIntegerSerializer()));
             this.block_serialize = new SerializationUtil<AbstractBlock>(AbstractBlock.class, list);
             this.consensus_serialize = new SerializationUtil<ConsensusMessage>(fluentType, list);
         }
@@ -551,6 +552,7 @@ public class ValidatorConsensusPhases {
                 this.current = CachedLeaderIndex.getInstance().getCommitteePositionLeader();
                 this.leader_bls = CachedLatestBlocks.getInstance().getCommitteeBlock().getPublicKeyByIndex(0, current);
                 this.consensusClient = new ConsensusClient(CachedLatestBlocks.getInstance().getCommitteeBlock().getValue(0, this.leader_bls));
+                this.consensusClient.receive_handler();
             }
         }
 

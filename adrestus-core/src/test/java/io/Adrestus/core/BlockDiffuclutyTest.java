@@ -77,8 +77,7 @@ public class BlockDiffuclutyTest {
             database.save(block.getHash(), block);
             iterations++;
         }
-        //database.deleteAll();
-        database.delete_db();
+        database.deleteAll();
     }
 
 }

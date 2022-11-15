@@ -59,13 +59,13 @@ public class SerializationUtil<T> {
         ArrayList<Integer> list = new ArrayList<>();
         int sum = 0;
         int count = 0;
-        int mul = count + 2;
+        int mul = 4;
         list.add(1024);
         while (sum <= AdrestusConfiguration.MAXIMU_BLOCK_SIZE) {
             list.add(list.get(0) * mul);
             sum = list.get(count);
             count++;
-            mul++;
+            mul=mul+4;
         }
         size = list.stream().toArray(Integer[]::new);
     }
@@ -106,8 +106,8 @@ public class SerializationUtil<T> {
     }
 
     public byte[] encode(T value) {
+       // int buff_size = search((int) (ObjectSizer.retainedSize(value)));
         int buff_size = search((int) (ObjectSizeCalculator.getObjectSize(value)));
-        //int buff_size = search((int) (ObjectSizeCalculator.getObjectSize(value)));
         buffer = new byte[buff_size];
         serializer.encode(buffer, 0, value);
         return buffer;

@@ -1,5 +1,8 @@
 package io.Adrestus.crypto.elliptic;
 
+import io.activej.serializer.annotations.Deserialize;
+import io.activej.serializer.annotations.Serialize;
+
 import java.util.Arrays;
 
 public class SignatureData {
@@ -10,34 +13,41 @@ public class SignatureData {
 
 
     public SignatureData() {
+        this.v =0;
+        this.r =new byte[0];
+        this.s = new byte[0];
+        this.pub=new byte[0];
     }
 
-    public SignatureData(byte v, byte[] r, byte[] s) {
+    public SignatureData(byte v,byte[] r,byte[] s) {
         this.v = v;
         this.r = r;
         this.s = s;
-        pub = null;
+        this.pub=new byte[0];
     }
 
-    public SignatureData(byte v, byte[] r, byte[] s, byte[] pub) {
+    public SignatureData(@Deserialize("v") byte v, @Deserialize("r") byte[] r, @Deserialize("s") byte[] s, @Deserialize("pub") byte[] pub) {
         this.v = v;
         this.r = r;
         this.s = s;
         this.pub = pub;
     }
 
+    @Serialize
     public byte getV() {
         return v;
     }
 
+    @Serialize
     public byte[] getR() {
         return r;
     }
 
+    @Serialize
     public byte[] getS() {
         return s;
     }
-
+    @Serialize
     public byte[] getPub() {
         return pub;
     }

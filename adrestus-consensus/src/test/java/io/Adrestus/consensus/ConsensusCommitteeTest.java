@@ -282,6 +282,6 @@ public class ConsensusCommitteeTest {
         validatorphase.CommitPhase(consensusMessage);
         validatorphase.CommitPhase(consensusMessage);
 
-        database.delete_db();
+        database.deleteAll();
     }
 }

@@ -24,6 +24,7 @@ import io.Adrestus.crypto.vrf.engine.VrfEngine2;
 import io.Adrestus.network.ConsensusServer;
 import io.Adrestus.util.ByteUtil;
 import io.Adrestus.util.ObjectSizeCalculator;
+import io.Adrestus.util.ObjectSizer;
 import io.Adrestus.util.SerializationUtil;
 import org.apache.tuweni.bytes.Bytes;
 import org.slf4j.Logger;
@@ -244,6 +245,7 @@ public class SupervisorConsensusPhases {
             if (DEBUG)
                 return;
 
+            System.out.println(ObjectSizer.retainedSize(block.getData()));
             byte[] message = block_serialize.encode(block.getData());
             Signature sig = BLSSignature.sign(message, CachedBLSKeyPair.getInstance().getPrivateKey());
             block.getChecksumData().setBlsPublicKey(CachedBLSKeyPair.getInstance().getPublicKey());
@@ -251,6 +253,10 @@ public class SupervisorConsensusPhases {
 
 
             byte[] toSend = consensus_serialize.encode(block);
+
+            ConsensusMessage<CommitteeBlock>cop=consensus_serialize.decode(toSend);
+            boolean ex=Arrays.equals(message,block_serialize.encode(cop.getData()));
+            boolean ex2=cop.getData().equals(block.getData());
             consensusServer.publishMessage(toSend);
         }
 

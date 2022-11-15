@@ -3,6 +3,8 @@ package io.Adrestus.core;
 import io.distributedLedger.DatabaseFactory;
 import io.distributedLedger.DatabaseType;
 import io.distributedLedger.IDatabase;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
@@ -10,9 +12,15 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class RocksDBBlockTest {
+
+    private static  IDatabase<String, AbstractBlock> database;
+
+    @BeforeAll
+    public static void  before(){
+        database = new DatabaseFactory(String.class, AbstractBlock.class).getDatabase(DatabaseType.ROCKS_DB);
+    }
     @Test
     public void add_get2() {
-        IDatabase<String, AbstractBlock> database = new DatabaseFactory(String.class, AbstractBlock.class).getDatabase(DatabaseType.ROCKS_DB);
         String hash = "Hash";
         TransactionBlock prevblock = new TransactionBlock();
         CommitteeBlock committeeBlock = new CommitteeBlock();
@@ -24,13 +32,11 @@ public class RocksDBBlockTest {
         TransactionBlock copy = (TransactionBlock) database.findByKey(hash).get();
         assertEquals(prevblock, copy);
         System.out.println(copy.toString());
-        database.delete_db();
     }
 
 
     @Test
     public void delete() {
-        IDatabase<String, AbstractBlock> database = new DatabaseFactory(String.class, AbstractBlock.class).getDatabase(DatabaseType.ROCKS_DB);
         String hash = "Hash";
         TransactionBlock prevblock = new TransactionBlock();
         CommitteeBlock committeeBlock = new CommitteeBlock();
@@ -44,6 +50,10 @@ public class RocksDBBlockTest {
         database.deleteByKey(hash);
         Optional<AbstractBlock> empty = database.findByKey(hash);
         assertEquals(Optional.empty(), empty);
-        database.delete_db();
+    }
+
+    @AfterAll
+    public static void after(){
+        database.deleteAll();
     }
 }

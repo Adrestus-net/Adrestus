@@ -6,6 +6,7 @@ import io.Adrestus.core.RingBuffer.handler.blocks.DisruptorBlockVisitor;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.activej.serializer.annotations.Serialize;
 
+import java.io.Serializable;
 import java.util.*;
 
 public class CommitteeBlock extends AbstractBlock implements BlockFactory, DisruptorBlock {
@@ -21,7 +22,7 @@ public class CommitteeBlock extends AbstractBlock implements BlockFactory, Disru
         this.CommitteeProposer = committeeProposer;
         this.VRF = VRF;
         this.VDF = VDF;
-        this.StakingMap = new TreeMap<Double, ValidatorAddressData>(new StakingValueComparator());
+        this.StakingMap = new TreeMap<Double, ValidatorAddressData>(Collections.reverseOrder());
         this.StructureMap = new HashMap<Integer, LinkedHashMap<BLSPublicKey, String>>();
         this.Difficulty = Difficulty;
         Init();
@@ -32,7 +33,7 @@ public class CommitteeBlock extends AbstractBlock implements BlockFactory, Disru
         this.CommitteeProposer = new int[0];
         this.VRF = "";
         this.VDF = "";
-        this.StakingMap = new TreeMap<Double, ValidatorAddressData>(new StakingValueComparator());
+        this.StakingMap = new TreeMap<Double, ValidatorAddressData>(Collections.reverseOrder());
         this.StructureMap = new HashMap<Integer, LinkedHashMap<BLSPublicKey, String>>();
         this.Difficulty = 0;
         Init();
@@ -154,7 +155,7 @@ public class CommitteeBlock extends AbstractBlock implements BlockFactory, Disru
                 '}';
     }
 
-    private static final class StakingValueComparator implements Comparator<Double> {
+    private static final class StakingValueComparator implements Comparator<Double>, Serializable {
         @Override
         public int compare(Double a, Double b) {
             if (a >= b) {
