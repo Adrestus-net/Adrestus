@@ -11,8 +11,6 @@ public class CachedLeaderIndex {
     private CachedLeaderIndex() {
         if (instance != null) {
             throw new IllegalStateException("Already initialized.");
-        } else {
-            this.instance = new CachedLeaderIndex();
         }
     }
 

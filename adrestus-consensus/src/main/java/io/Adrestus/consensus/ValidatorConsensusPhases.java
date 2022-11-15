@@ -58,6 +58,10 @@ public class ValidatorConsensusPhases {
         }
 
         @Override
+        public void InitialSetup(){
+
+        }
+        @Override
         public void AnnouncePhase(ConsensusMessage<VDFMessage> data) {
             if (!data.getMessageType().equals(ConsensusMessageType.ANNOUNCE))
                 LOG.info("Organizer not send correct header message expected " + ConsensusMessageType.ANNOUNCE);
@@ -159,6 +163,11 @@ public class ValidatorConsensusPhases {
 
         @Override
         public void AggregateVRF(VRFMessage message) throws Exception {
+
+        }
+
+        @Override
+        public void InitialSetup(){
 
         }
 
@@ -281,6 +290,15 @@ public class ValidatorConsensusPhases {
 
         public VerifyTransactionBlock(boolean DEBUG) {
             this.DEBUG = DEBUG;
+            List<SerializationUtil.Mapping> list = new ArrayList<>();
+            list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
+            list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
+            this.block_serialize = new SerializationUtil<AbstractBlock>(AbstractBlock.class, list);
+            this.consensus_serialize = new SerializationUtil<ConsensusMessage>(fluentType, list);
+        }
+
+        @Override
+        public void InitialSetup(){
             if (!DEBUG) {
                 this.current = CachedLatestBlocks.getInstance().getCommitteeBlock().getPublicKeyIndex(1, CachedLatestBlocks.getInstance().getTransactionBlock().getLeaderPublicKey());
                 if (current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).size() - 1) {
@@ -294,11 +312,6 @@ public class ValidatorConsensusPhases {
                 }
 
             }
-            List<SerializationUtil.Mapping> list = new ArrayList<>();
-            list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
-            list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
-            this.block_serialize = new SerializationUtil<AbstractBlock>(AbstractBlock.class, list);
-            this.consensus_serialize = new SerializationUtil<ConsensusMessage>(fluentType, list);
         }
 
         @Override
@@ -522,6 +535,15 @@ public class ValidatorConsensusPhases {
         private BLSPublicKey leader_bls;
         public VerifyCommitteeBlock(boolean DEBUG) {
             this.DEBUG = DEBUG;
+            List<SerializationUtil.Mapping> list = new ArrayList<>();
+            list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
+            list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
+            this.block_serialize = new SerializationUtil<CommitteeBlock>(CommitteeBlock.class, list);
+            this.consensus_serialize = new SerializationUtil<ConsensusMessage>(fluentType, list);
+        }
+
+        @Override
+        public void InitialSetup(){
             if (!DEBUG) {
                 //this.N = 1;
                 this.N = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).size() - 1;
@@ -531,11 +553,6 @@ public class ValidatorConsensusPhases {
                 this.leader_bls = CachedLatestBlocks.getInstance().getCommitteeBlock().getPublicKeyByIndex(0, current);
                 this.consensusClient = new ConsensusClient(CachedLatestBlocks.getInstance().getCommitteeBlock().getValue(0, this.leader_bls));
             }
-            List<SerializationUtil.Mapping> list = new ArrayList<>();
-            list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
-            list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
-            this.block_serialize = new SerializationUtil<CommitteeBlock>(CommitteeBlock.class, list);
-            this.consensus_serialize = new SerializationUtil<ConsensusMessage>(fluentType, list);
         }
 
         @SneakyThrows

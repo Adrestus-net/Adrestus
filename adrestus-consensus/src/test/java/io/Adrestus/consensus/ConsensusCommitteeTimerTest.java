@@ -78,11 +78,11 @@ public class ConsensusCommitteeTimerTest {
         MemoryTreePool.getInstance().store(address2, new PatriciaTreeNode(1000, 0));
 
         CommitteeBlock committeeBlock = new CommitteeBlock();
-        committeeBlock.getStructureMap().get(1).put(vk1, "192.168.1.106");
-        committeeBlock.getStructureMap().get(1).put(vk2, "192.168.1.116");
+        committeeBlock.getStructureMap().get(0).put(vk1, "192.168.1.106");
+        committeeBlock.getStructureMap().get(0).put(vk2, "192.168.1.116");
 
-        committeeBlock.getStakingMap().put(10.0, new ValidatorAddressData("192.168.1.101", vk1, address1, ecKeyPair1.getPublicKey(), signatureData1));
-        committeeBlock.getStakingMap().put(13.0, new ValidatorAddressData("192.168.1.102", vk2, address2, ecKeyPair2.getPublicKey(), signatureData2));
+        committeeBlock.getStakingMap().put(10.0, new ValidatorAddressData("192.168.1.106", vk1, address1, ecKeyPair1.getPublicKey(), signatureData1));
+        committeeBlock.getStakingMap().put(13.0, new ValidatorAddressData("192.168.1.116", vk2, address2, ecKeyPair2.getPublicKey(), signatureData2));
 
         CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
     }
@@ -92,7 +92,7 @@ public class ConsensusCommitteeTimerTest {
         socket.connect(new InetSocketAddress("google.com", 80));
         String IP = socket.getLocalAddress().getHostAddress();
         int hit = 0;
-        for (Map.Entry<BLSPublicKey, String> entry : CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).entrySet()) {
+        for (Map.Entry<BLSPublicKey, String> entry : CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).entrySet()) {
             if (IP.equals(entry.getValue())) {
                 if (vk1.equals(entry.getKey())) {
                     CachedBLSKeyPair.getInstance().setPrivateKey(sk1);

@@ -45,7 +45,10 @@ public class SupervisorConsensusPhases {
             vdf = new VdfEnginePietrzak(AdrestusConfiguration.PIERRZAK_BIT);
             this.serialize = new SerializationUtil<VDFMessage>(VDFMessage.class);
         }
+        @Override
+        public void InitialSetup(){
 
+        }
         @Override
         public void AnnouncePhase(ConsensusMessage<VDFMessage> data) {
             data.setMessageType(ConsensusMessageType.ANNOUNCE);
@@ -139,7 +142,10 @@ public class SupervisorConsensusPhases {
                 res = ByteUtil.xor(res, list.get(i + 1).getRi());
             }
         }
+        @Override
+        public void InitialSetup(){
 
+        }
         @Override
         public void AnnouncePhase(ConsensusMessage<VRFMessage> data) {
             data.setMessageType(ConsensusMessageType.ANNOUNCE);
@@ -202,6 +208,15 @@ public class SupervisorConsensusPhases {
         public ProposeCommitteeBlock(boolean DEBUG) {
             this.DEBUG = DEBUG;
             this.factory = new DefaultFactory();
+            List<SerializationUtil.Mapping> list = new ArrayList<>();
+            list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
+            list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
+            this.block_serialize = new SerializationUtil<CommitteeBlock>(CommitteeBlock.class, list);
+            this.consensus_serialize = new SerializationUtil<ConsensusMessage>(fluentType, list);
+        }
+
+        @Override
+        public void InitialSetup(){
             if (!DEBUG) {
                 //this.N = 1;
                 this.N = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).size() - 1;
@@ -211,11 +226,6 @@ public class SupervisorConsensusPhases {
                 this.leader_bls = CachedLatestBlocks.getInstance().getCommitteeBlock().getPublicKeyByIndex(0, current);
                 this.consensusServer = new ConsensusServer(CachedLatestBlocks.getInstance().getCommitteeBlock().getValue(1, this.leader_bls), latch);
             }
-            List<SerializationUtil.Mapping> list = new ArrayList<>();
-            list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
-            list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
-            this.block_serialize = new SerializationUtil<CommitteeBlock>(CommitteeBlock.class, list);
-            this.consensus_serialize = new SerializationUtil<ConsensusMessage>(fluentType, list);
         }
 
         @Override

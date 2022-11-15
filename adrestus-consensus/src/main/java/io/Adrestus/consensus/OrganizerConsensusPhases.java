@@ -76,7 +76,10 @@ public class OrganizerConsensusPhases {
             this.block_serialize = new SerializationUtil<AbstractBlock>(AbstractBlock.class, list);
             this.consensus_serialize = new SerializationUtil<ConsensusMessage>(fluentType, list);
         }
+        @Override
+        public void InitialSetup(){
 
+        }
         @Override
         public void AnnouncePhase(ConsensusMessage<TransactionBlock> data) throws Exception {
             var regural_block = factory.getBlock(BlockType.REGULAR);

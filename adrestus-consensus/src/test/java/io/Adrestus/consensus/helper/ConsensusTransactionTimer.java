@@ -142,6 +142,7 @@ public class ConsensusTransactionTimer {
                 chooser();
                 consensusManager.changeStateTo(ConsensusRoleType.ORGANIZER);
                 var organizerphase = consensusManager.getRole().manufacturePhases(ConsensusType.TRANSACTION_BLOCK);
+                organizerphase.InitialSetup();
                 organizerphase.AnnouncePhase(consensusMessage);
                 organizerphase.PreparePhase(consensusMessage);
                 organizerphase.CommitPhase(consensusMessage);
@@ -149,6 +150,7 @@ public class ConsensusTransactionTimer {
                 LOG.info("VALIDATOR State");
                 consensusManager.changeStateTo(ConsensusRoleType.VALIDATOR);
                 var validatorphase = consensusManager.getRole().manufacturePhases(ConsensusType.TRANSACTION_BLOCK);
+                validatorphase.InitialSetup();
                 validatorphase.AnnouncePhase(consensusMessage);
                 validatorphase.PreparePhase(consensusMessage);
                 validatorphase.CommitPhase(consensusMessage);

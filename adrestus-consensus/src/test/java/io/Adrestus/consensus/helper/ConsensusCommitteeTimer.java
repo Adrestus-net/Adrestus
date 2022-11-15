@@ -30,11 +30,12 @@ public class ConsensusCommitteeTimer {
     private final ConsensusManager consensusManager;
     private Timer timer;
 
-    public ConsensusCommitteeTimer(CountDownLatch latch) {
+    public ConsensusCommitteeTimer(CountDownLatch latch) throws InterruptedException {
         this.consensusManager = new ConsensusManager(false);
         this.timer = new Timer(ConsensusConfiguration.CONSENSUS);
         this.task = new ConsensusTask();
         this.latch = latch;
+        this.InitFirstBlock();
         this.timer.scheduleAtFixedRate(task, ConsensusConfiguration.CONSENSUS_COMMITTEE_TIMER, ConsensusConfiguration.CONSENSUS_COMMITTEE_TIMER);
     }
 
