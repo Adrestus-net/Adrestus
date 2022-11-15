@@ -36,7 +36,6 @@ import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.IntStream;
 
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -88,8 +87,8 @@ public class BlockTest {
 
     @Test
     public void block_test2() {
-       // CachedSecurityHeaders.getInstance().getSecurityHeader().setpRnd(Hex.decode("c1f72aa5bd1e1d53c723b149259b63f759f40d5ab003b547d5c13d45db9a5da8"));
-       // CachedSecurityHeaders.getInstance().getSecurityHeader().setRnd(Hex.decode("c1f72aa5bd1e1d53c723b149259b63f759f40d5ab003b547d5c13d45db9a5da8"));
+        // CachedSecurityHeaders.getInstance().getSecurityHeader().setpRnd(Hex.decode("c1f72aa5bd1e1d53c723b149259b63f759f40d5ab003b547d5c13d45db9a5da8"));
+        // CachedSecurityHeaders.getInstance().getSecurityHeader().setRnd(Hex.decode("c1f72aa5bd1e1d53c723b149259b63f759f40d5ab003b547d5c13d45db9a5da8"));
         DefaultFactory factory = new DefaultFactory(new TransactionBlock(), new CommitteeBlock());
         var genesis = (Genesis) factory.getBlock(BlockType.GENESIS);
         var regural_block = factory.getBlock(BlockType.REGULAR);
@@ -345,12 +344,12 @@ public class BlockTest {
         prevblock.setHeight(0);
         CachedLatestBlocks.getInstance().setCommitteeBlock(prevblock);
         CommitteeBlock committeeBlock = new CommitteeBlock();
-        committeeBlock.getStakingMap().put(10.0, new ValidatorAddressData("192.168.1.101", vk1, adddress1, ecKeyPair1.getPublicKey(), signatureData1));
-        committeeBlock.getStakingMap().put(13.0, new ValidatorAddressData("192.168.1.102", vk2, adddress2, ecKeyPair2.getPublicKey(), signatureData2));
-        committeeBlock.getStakingMap().put(7.0, new ValidatorAddressData("192.168.1.103", vk3, adddress3, ecKeyPair3.getPublicKey(), signatureData3));
-        committeeBlock.getStakingMap().put(22.0, new ValidatorAddressData("192.168.1.104", vk4, adddress4, ecKeyPair4.getPublicKey(), signatureData4));
-        committeeBlock.getStakingMap().put(6.0, new ValidatorAddressData("192.168.1.105", vk6, adddress6, ecKeyPair6.getPublicKey(), signatureData6));
-        committeeBlock.getStakingMap().put(32.0, new ValidatorAddressData("192.168.1.106", vk5, adddress5, ecKeyPair5.getPublicKey(), signatureData5));
+        committeeBlock.getStakingMap().put(10.0, new ValidatorAddressData("192.168.1.101", adddress1,vk1, ecKeyPair1.getPublicKey(), signatureData1));
+        committeeBlock.getStakingMap().put(13.0, new ValidatorAddressData("192.168.1.102", adddress2,vk2, ecKeyPair2.getPublicKey(), signatureData2));
+        committeeBlock.getStakingMap().put(7.0, new ValidatorAddressData("192.168.1.103", adddress3,vk3,  ecKeyPair3.getPublicKey(), signatureData3));
+        committeeBlock.getStakingMap().put(22.0, new ValidatorAddressData("192.168.1.104", adddress4,vk4, ecKeyPair4.getPublicKey(), signatureData4));
+        committeeBlock.getStakingMap().put(6.0, new ValidatorAddressData("192.168.1.105", adddress6,vk6, ecKeyPair6.getPublicKey(), signatureData6));
+        committeeBlock.getStakingMap().put(32.0, new ValidatorAddressData("192.168.1.106", adddress5,vk5, ecKeyPair5.getPublicKey(), signatureData5));
         committeeBlock.setCommitteeProposer(new int[committeeBlock.getStakingMap().size()]);
         committeeBlock.setGeneration(1);
         committeeBlock.getHeaderData().setPreviousHash("hash");
@@ -359,7 +358,7 @@ public class BlockTest {
         committeeBlock.getHeaderData().setTimestamp(GetTime.GetTimeStampInString());
 
         //########################################################################
-        VdfEngine vdf = new VdfEnginePietrzak(2048);
+        VdfEngine vdf = new VdfEnginePietrzak(1024);
         CachedSecurityHeaders.getInstance().getSecurityHeader().setpRnd(Hex.decode("c1f72aa5bd1e1d53c723b149259b63f759f40d5ab003b547d5c13d45db9a5da8"));
         committeeBlock.setVRF("c1f72aa5bd1e1d53c723b149259b63f759f40d5ab003b547d5c13d45db9a5da8");
         CachedSecurityHeaders.getInstance().getSecurityHeader().setpRnd(Hex.decode("c1f72aa5bd1e1d53c723b149259b63f759f40d5ab003b547d5c13d45db9a5da8"));
@@ -389,6 +388,10 @@ public class BlockTest {
         Map<String, CommitteeBlock> block_entries = database.seekBetweenRange(0, finish);
         ArrayList<String> entries = new ArrayList<String>(block_entries.keySet());
 
+        if (entries.size() == 1) {
+            summdiffuclty = block_entries.get(entries.get(0)).getDifficulty();
+            sumtime = 1;
+        }
         for (int i = 0; i < entries.size(); i++) {
             if (i == entries.size() - 1)
                 break;
@@ -421,11 +424,11 @@ public class BlockTest {
                     .get(nextInt)
                     .put(entry.getValue().getValidatorBlSPublicKey(), entry.getValue().getIp());
         }
-        int iteration=0;
-        ArrayList<Integer>replica=new ArrayList<>();
-        while(iteration<committeeBlock.getStakingMap().size()) {
+        int iteration = 0;
+        ArrayList<Integer> replica = new ArrayList<>();
+        while (iteration < committeeBlock.getStakingMap().size()) {
             int nextInt = secureRandom.nextInt(committeeBlock.getStakingMap().size());
-            if(!replica.contains(nextInt)) {
+            if (!replica.contains(nextInt)) {
                 replica.add(nextInt);
                 iteration++;
             }

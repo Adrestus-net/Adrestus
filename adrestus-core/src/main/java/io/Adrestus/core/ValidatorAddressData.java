@@ -3,81 +3,99 @@ package io.Adrestus.core;
 import com.google.common.base.Objects;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.Adrestus.crypto.elliptic.SignatureData;
+import io.activej.serializer.annotations.Deserialize;
+import io.activej.serializer.annotations.Serialize;
 
 import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.Arrays;
 
 public final class ValidatorAddressData implements Serializable {
-    private String Ip;
-    private String Address;
-    private BLSPublicKey ValidatorBlSPublicKey;
-    private BigInteger ECDSAPublicKey;
-    private SignatureData ECDSASignature;
+    private String ip;
+    private String address;
+    private BLSPublicKey validatorBlSPublicKey;
+    private BigInteger eCDSAPublicKey;
+    private SignatureData eCDSASignature;
 
     public ValidatorAddressData() {
     }
 
-    public ValidatorAddressData(BLSPublicKey ValidatorBlSPublicKey, String address, BigInteger ECDSAPublicKey, SignatureData ECDSASignature) {
-        this.ValidatorBlSPublicKey = ValidatorBlSPublicKey;
-        this.Address = address;
-        this.ECDSAPublicKey = ECDSAPublicKey;
-        this.ECDSASignature = ECDSASignature;
+    public ValidatorAddressData(
+            BLSPublicKey validatorBlSPublicKey,
+            String address,
+            BigInteger eCDSAPublicKey,
+            SignatureData eCDSASignature) {
+        this.validatorBlSPublicKey = validatorBlSPublicKey;
+        this.address = address;
+        this.eCDSAPublicKey = eCDSAPublicKey;
+        this.eCDSASignature = eCDSASignature;
     }
 
-    public ValidatorAddressData(String address, BigInteger ECDSAPublicKey, SignatureData ECDSASignature) {
-        this.Address = address;
-        this.ECDSAPublicKey = ECDSAPublicKey;
-        this.ECDSASignature = ECDSASignature;
-        this.ValidatorBlSPublicKey = new BLSPublicKey();
+    public ValidatorAddressData(String address,
+                                BigInteger eCDSAPublicKey,
+                                SignatureData eCDSASignature) {
+        this.address = address;
+        this.eCDSAPublicKey = eCDSAPublicKey;
+        this.eCDSASignature = eCDSASignature;
+        this.validatorBlSPublicKey = new BLSPublicKey();
     }
 
-    public ValidatorAddressData(String ip,BLSPublicKey validatorBlSPublicKey,String address, BigInteger ECDSAPublicKey, SignatureData ECDSASignature) {
-        this.Ip = ip;
-        this.Address = address;
-        this.ValidatorBlSPublicKey = validatorBlSPublicKey;
-        this.ECDSAPublicKey = ECDSAPublicKey;
-        this.ECDSASignature = ECDSASignature;
+    public ValidatorAddressData(@Deserialize("ip") String ip,
+                                @Deserialize("address") String address,
+                                @Deserialize("validatorBlSPublicKey") BLSPublicKey validatorBlSPublicKey,
+                                @Deserialize("eCDSAPublicKey") BigInteger eCDSAPublicKey,
+                                @Deserialize("eCDSASignature") SignatureData eCDSASignature) {
+        this.ip = ip;
+        this.address = address;
+        this.validatorBlSPublicKey = validatorBlSPublicKey;
+        this.eCDSAPublicKey = eCDSAPublicKey;
+        this.eCDSASignature = eCDSASignature;
     }
 
+    @Serialize
     public String getAddress() {
-        return Address;
+        return address;
     }
 
     public void setAddress(String address) {
-        Address = address;
+        this.address = address;
     }
-
+    @Serialize
     public BigInteger getECDSAPublicKey() {
-        return ECDSAPublicKey;
+        return eCDSAPublicKey;
     }
 
-    public void setECDSAPublicKey(BigInteger ECDSAPublicKey) {
-        this.ECDSAPublicKey = ECDSAPublicKey;
+    public void setECDSAPublicKey(BigInteger eCDSAPublicKey) {
+        this.eCDSAPublicKey = eCDSAPublicKey;
     }
 
+    @Serialize
     public SignatureData getECDSASignature() {
-        return ECDSASignature;
+        return eCDSASignature;
     }
 
-    public void setECDSASignature(SignatureData ECDSASignature) {
-        this.ECDSASignature = ECDSASignature;
+    public void setECDSASignature(SignatureData eCDSASignature) {
+        this.eCDSASignature = eCDSASignature;
     }
 
+
+    @Serialize
     public BLSPublicKey getValidatorBlSPublicKey() {
-        return ValidatorBlSPublicKey;
+        return validatorBlSPublicKey;
     }
 
     public void setValidatorBlSPublicKey(BLSPublicKey validatorBlSPublicKey) {
-        ValidatorBlSPublicKey = validatorBlSPublicKey;
+        this.validatorBlSPublicKey = validatorBlSPublicKey;
     }
 
+
+    @Serialize
     public String getIp() {
-        return Ip;
+        return ip;
     }
 
     public void setIp(String ip) {
-        Ip = ip;
+        this.ip = ip;
     }
 
     @Override
@@ -85,28 +103,28 @@ public final class ValidatorAddressData implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ValidatorAddressData that = (ValidatorAddressData) o;
-        return Objects.equal(Address, that.Address) &&
-                Objects.equal(Ip, that.Ip)&&
-                Objects.equal(ValidatorBlSPublicKey, that.ValidatorBlSPublicKey)
-                && Objects.equal(ECDSAPublicKey, that.ECDSAPublicKey)
-                && Arrays.equals(ECDSASignature.getR(), that.ECDSASignature.getR())
-                && Objects.equal(ECDSASignature.getV(), that.ECDSASignature.getV())
-                && Arrays.equals(ECDSASignature.getS(), that.ECDSASignature.getS());
+        return Objects.equal(address, that.address) &&
+                Objects.equal(ip, that.ip) &&
+                Objects.equal(validatorBlSPublicKey, that.validatorBlSPublicKey)
+                && Objects.equal(eCDSAPublicKey, that.eCDSAPublicKey)
+                && Arrays.equals(eCDSASignature.getR(), that.eCDSASignature.getR())
+                && Objects.equal(eCDSASignature.getV(), that.eCDSASignature.getV())
+                && Arrays.equals(eCDSASignature.getS(), that.eCDSASignature.getS());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(Address, Ip,ValidatorBlSPublicKey, ECDSAPublicKey, ECDSASignature);
+        return Objects.hashCode(address, ip, validatorBlSPublicKey, eCDSAPublicKey, eCDSASignature);
     }
 
     @Override
     public String toString() {
         return "ValidatorAddressData{" +
-                "Ip='" + Ip + '\'' +
-                ", Address='" + Address + '\'' +
-                ", ValidatorBlSPublicKey=" + ValidatorBlSPublicKey +
-                ", ECDSAPublicKey=" + ECDSAPublicKey +
-                ", ECDSASignature=" + ECDSASignature +
+                "Ip='" + ip + '\'' +
+                ", address='" + address + '\'' +
+                ", validatorBlSPublicKey=" + validatorBlSPublicKey +
+                ", eCDSAPublicKey=" + eCDSAPublicKey +
+                ", eCDSASignature=" + eCDSASignature +
                 '}';
     }
 }

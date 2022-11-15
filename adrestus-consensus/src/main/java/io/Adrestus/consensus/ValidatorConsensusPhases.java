@@ -18,6 +18,7 @@ import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.Adrestus.crypto.bls.model.BLSSignature;
 import io.Adrestus.crypto.bls.model.CachedBLSKeyPair;
 import io.Adrestus.crypto.bls.model.Signature;
+import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.crypto.vdf.VDFMessage;
 import io.Adrestus.crypto.vdf.engine.VdfEngine;
 import io.Adrestus.crypto.vdf.engine.VdfEnginePietrzak;
@@ -33,6 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Type;
+import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -522,7 +524,7 @@ public class ValidatorConsensusPhases {
         private static Logger LOG = LoggerFactory.getLogger(VerifyTransactionBlock.class);
         private static final Type fluentType = new TypeToken<ConsensusMessage<CommitteeBlock>>() {
         }.getType();
-        private final SerializationUtil<CommitteeBlock> block_serialize;
+        private final SerializationUtil<AbstractBlock> block_serialize;
         private final SerializationUtil<ConsensusMessage> consensus_serialize;
         private final boolean DEBUG;
 
@@ -538,17 +540,14 @@ public class ValidatorConsensusPhases {
             List<SerializationUtil.Mapping> list = new ArrayList<>();
             list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
             list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
-            this.block_serialize = new SerializationUtil<CommitteeBlock>(CommitteeBlock.class, list);
+            list.add(new SerializationUtil.Mapping(BigInteger.class, ctx->new BigIntegerSerializer()));
+            this.block_serialize = new SerializationUtil<AbstractBlock>(AbstractBlock.class, list);
             this.consensus_serialize = new SerializationUtil<ConsensusMessage>(fluentType, list);
         }
 
         @Override
         public void InitialSetup(){
             if (!DEBUG) {
-                //this.N = 1;
-                this.N = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).size() - 1;
-                this.F = (this.N - 1) / 3;
-                this.latch = new CountDownLatch(N);
                 this.current = CachedLeaderIndex.getInstance().getCommitteePositionLeader();
                 this.leader_bls = CachedLatestBlocks.getInstance().getCommitteeBlock().getPublicKeyByIndex(0, current);
                 this.consensusClient = new ConsensusClient(CachedLatestBlocks.getInstance().getCommitteeBlock().getValue(0, this.leader_bls));

@@ -10,6 +10,11 @@ import io.Adrestus.core.Trie.MerkleNode;
 import io.Adrestus.core.Trie.MerkleTree;
 import io.Adrestus.core.Trie.MerkleTreeImp;
 import io.Adrestus.crypto.HashUtil;
+import io.Adrestus.crypto.bls.BLS381.ECP;
+import io.Adrestus.crypto.bls.BLS381.ECP2;
+import io.Adrestus.crypto.bls.mapper.ECP2mapper;
+import io.Adrestus.crypto.bls.mapper.ECPmapper;
+import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.crypto.vdf.engine.VdfEngine;
 import io.Adrestus.crypto.vdf.engine.VdfEnginePietrzak;
 import io.Adrestus.util.GetTime;
@@ -22,8 +27,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
 
+import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class RegularBlock implements BlockForge {
@@ -32,7 +39,11 @@ public class RegularBlock implements BlockForge {
     private final SerializationUtil<AbstractBlock> encode;
 
     public RegularBlock() {
-        encode = new SerializationUtil<AbstractBlock>(AbstractBlock.class);
+        List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
+        list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
+        list.add(new SerializationUtil.Mapping(BigInteger.class, ctx->new BigIntegerSerializer()));
+        encode = new SerializationUtil<AbstractBlock>(AbstractBlock.class,list);
     }
 
     @Override
@@ -102,6 +113,11 @@ public class RegularBlock implements BlockForge {
         long sumtime = 0;
         Map<String, CommitteeBlock> block_entries = database.seekBetweenRange(0, finish);
         ArrayList<String> entries = new ArrayList<String>(block_entries.keySet());
+
+        if (entries.size() == 1) {
+            summdiffuclty = block_entries.get(entries.get(0)).getDifficulty();
+            sumtime = 100;
+        }
 
         for (int i = 0; i < entries.size(); i++) {
             if (i == entries.size() - 1)

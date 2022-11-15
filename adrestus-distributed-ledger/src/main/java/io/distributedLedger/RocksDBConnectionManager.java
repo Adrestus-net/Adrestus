@@ -1,6 +1,11 @@
 package io.distributedLedger;
 
 import io.Adrestus.config.Directory;
+import io.Adrestus.crypto.bls.BLS381.ECP;
+import io.Adrestus.crypto.bls.BLS381.ECP2;
+import io.Adrestus.crypto.bls.mapper.ECP2mapper;
+import io.Adrestus.crypto.bls.mapper.ECPmapper;
+import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.util.SerializationUtil;
 import io.distributedLedger.exception.*;
 import lombok.SneakyThrows;
@@ -9,9 +14,8 @@ import org.rocksdb.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.math.BigInteger;
+import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -49,8 +53,12 @@ public class RocksDBConnectionManager<K, V> implements IDriver<RocksDBConnection
         this.dbFile = new File(Directory.getConfigPath() + CONNECTION_NAME);
         this.valueClass = valueClass;
         this.keyClass = keyClass;
+        List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
+        list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
+        list.add(new SerializationUtil.Mapping(BigInteger.class, ctx->new BigIntegerSerializer()));
         this.keyMapper = new SerializationUtil<>(this.keyClass);
-        this.valueMapper = new SerializationUtil<>(this.valueClass);
+        this.valueMapper = new SerializationUtil<>(this.valueClass,list);
         setupOptions();
         load_connection();
     }

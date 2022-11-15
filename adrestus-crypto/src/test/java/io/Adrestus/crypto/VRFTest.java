@@ -65,7 +65,7 @@ public class VRFTest {
         //System.out.println("1b: "+Hex.toHexString(pi));
         // System.out.println("2b: "+Hex.toHexString(hash));
         byte[] beta = group.verify(vk.toBytes(), ri, msg);
-        //System.out.println(Hex.toHexString(beta));
+        System.out.println(Hex.toHexString(beta));
         assertEquals(Hex.toHexString(beta), Hex.toHexString(pi));
     }
 

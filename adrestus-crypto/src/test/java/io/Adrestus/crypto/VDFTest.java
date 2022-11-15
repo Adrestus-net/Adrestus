@@ -34,6 +34,13 @@ public class VDFTest {
     }
 
     @Test
+    public void test_vdf2() throws NoSuchAlgorithmException {
+        VdfEngine vdf = new VdfEnginePietrzak(2048);
+        byte[] solution = vdf.solve(Hex.decode("c1f72aa5bd1e1d53c723b149259b63f759f40d5ab003b547d5c13d45db9a5da8"), difficulty);
+        assertEquals(true, vdf.verify(Hex.decode("c1f72aa5bd1e1d53c723b149259b63f759f40d5ab003b547d5c13d45db9a5da8"), difficulty, solution));
+    }
+
+    @Test
     public void streess_test_vdf() {
         int count = 10;
         while (count > 0) {
