@@ -7,11 +7,12 @@ import io.activej.serializer.annotations.Deserialize;
 import io.activej.serializer.annotations.Serialize;
 import org.spongycastle.util.encoders.Hex;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class BLSPublicKey implements Cloneable {
+public class BLSPublicKey implements Cloneable, Serializable {
 
     private G1Point point;
 

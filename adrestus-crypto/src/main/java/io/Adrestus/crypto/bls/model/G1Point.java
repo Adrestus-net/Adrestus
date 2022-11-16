@@ -7,10 +7,11 @@ import io.Adrestus.crypto.bls.utils.CommonUtils;
 import io.activej.serializer.annotations.Deserialize;
 import io.activej.serializer.annotations.Serialize;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class G1Point {
+public class G1Point implements Serializable {
     private static final int fpPointSize = BIG.MODBYTES;
 
     private ECP value;

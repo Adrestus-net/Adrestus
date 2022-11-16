@@ -23,7 +23,9 @@ package io.Adrestus.crypto.bls.BLS381;
 
 import org.apache.milagro.amcl.BLS381.ROM;
 
-public final class ECP {
+import java.io.Serializable;
+
+public final class ECP implements Serializable {
 
     public static final int WEIERSTRASS = 0;
     public static final int EDWARDS = 1;

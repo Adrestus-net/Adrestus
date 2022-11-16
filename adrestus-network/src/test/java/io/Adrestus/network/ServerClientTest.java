@@ -1,6 +1,7 @@
 package io.Adrestus.network;
 
 import org.apache.tuweni.bytes.Bytes;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.zeromq.SocketType;
 import org.zeromq.ZContext;
@@ -17,6 +18,7 @@ import static io.Adrestus.config.ConsensusConfiguration.SUBSCRIBER_PORT;
 public class ServerClientTest {
 
     @Test
+    @Order(1)
     public void simple_test() throws InterruptedException {
         System.out.println("SimpleTest");
         ZContext ctx = new ZContext();
@@ -43,25 +45,29 @@ public class ServerClientTest {
     }
 
     @Test
+    @Order(2)
     public void test_with_no_delays0() throws InterruptedException {
         System.out.println("test_with_no_delays0");
         SimpleServer adrestusServer = new SimpleServer("localhost");
 
-
+        CountDownLatch latch = new CountDownLatch(1);
         SimpleClient adrestusClient1 = new SimpleClient("localhost");
         (new Thread() {
             public void run() {
                 System.out.println(new String(adrestusClient1.receiveData()));
                 adrestusClient1.close();
+                latch.countDown();
             }
         }).start();
         Thread.sleep(1000);
         adrestusServer.publishMessage("Message".getBytes(StandardCharsets.UTF_8));
         Thread.sleep(10);
         adrestusServer.close();
+        latch.await();
     }
 
     @Test
+    @Order(3)
     public void test_with_delays() throws InterruptedException {
         System.out.println("test_with_with_delays");
         SimpleServer adrestusServer = new SimpleServer("localhost");
@@ -88,6 +94,7 @@ public class ServerClientTest {
     }
 
     @Test
+    @Order(4)
     public void test_with_no_delays() throws InterruptedException {
         System.out.println("test_with_no_delays");
         SimpleServer adrestusServer = new SimpleServer("localhost");
@@ -97,7 +104,7 @@ public class ServerClientTest {
         SimpleClient adrestusClient3 = new SimpleClient("localhost");
         SimpleClient adrestusClient4 = new SimpleClient("localhost");
 
-
+        CountDownLatch latch = new CountDownLatch(4);
         (new Thread() {
             public void run() {
                 byte[] res = adrestusClient1.receiveData();
@@ -107,6 +114,7 @@ public class ServerClientTest {
                     System.out.println(new String(res));
                 }
                 adrestusClient1.close();
+                latch.countDown();
             }
         }).start();
         (new Thread() {
@@ -118,6 +126,7 @@ public class ServerClientTest {
                     System.out.println(new String(res));
                 }
                 adrestusClient2.close();
+                latch.countDown();
             }
         }).start();
         (new Thread() {
@@ -129,6 +138,7 @@ public class ServerClientTest {
                     System.out.println(new String(res));
                 }
                 adrestusClient3.close();
+                latch.countDown();
             }
         }).start();
         (new Thread() {
@@ -140,6 +150,7 @@ public class ServerClientTest {
                     System.out.println(new String(res));
                 }
                 adrestusClient4.close();
+                latch.countDown();
             }
         }).start();
 
@@ -148,10 +159,12 @@ public class ServerClientTest {
         adrestusServer.publishMessage("Message".getBytes(StandardCharsets.UTF_8));
         Thread.sleep(10);
         adrestusServer.close();
+        latch.await();
 
     }
 
     @Test
+    @Order(5)
     public void client_push_to_server() throws InterruptedException {
         System.out.println("client_push_to_server");
 
@@ -185,6 +198,7 @@ public class ServerClientTest {
     }
 
     @Test
+    @Order(6)
     public void client_push_to_byzantine_server() throws InterruptedException {
         System.out.println("client_push_to_byzantine_server");
 
@@ -216,6 +230,7 @@ public class ServerClientTest {
     }
 
     @Test
+    @Order(7)
     public void client_push_to_byzantine_server2() throws InterruptedException {
         System.out.println("client_push_to_byzantine_server2");
 

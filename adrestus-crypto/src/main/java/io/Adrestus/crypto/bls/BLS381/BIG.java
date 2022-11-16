@@ -2,9 +2,10 @@ package io.Adrestus.crypto.bls.BLS381;
 
 import org.apache.milagro.amcl.RAND;
 
+import java.io.Serializable;
 import java.util.Arrays;
 
-public class BIG {
+public class BIG implements Serializable {
 
     public static final int CHUNK = 64; /* Set word size */
 

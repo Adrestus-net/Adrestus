@@ -1,6 +1,8 @@
 package io.Adrestus.crypto.bls.BLS381;
 
-public final class FP2 {
+import java.io.Serializable;
+
+public final class FP2 implements Serializable {
     private final FP a;
     private final FP b;
 

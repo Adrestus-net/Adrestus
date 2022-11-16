@@ -24,7 +24,9 @@ package io.Adrestus.crypto.bls.BLS381;
 
 import org.apache.milagro.amcl.BLS381.ROM;
 
-public final class FP {
+import java.io.Serializable;
+
+public final class FP implements Serializable {
 
     public static final int NOT_SPECIAL = 0;
     public static final int PSEUDO_MERSENNE = 1;

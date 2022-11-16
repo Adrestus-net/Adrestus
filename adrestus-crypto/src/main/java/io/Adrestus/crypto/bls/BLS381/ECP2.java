@@ -1,6 +1,8 @@
 package io.Adrestus.crypto.bls.BLS381;
 
-public final class ECP2 {
+import java.io.Serializable;
+
+public final class ECP2 implements Serializable {
     private FP2 x;
     private FP2 y;
     private FP2 z;

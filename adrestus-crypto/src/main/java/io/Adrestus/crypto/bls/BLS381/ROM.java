@@ -1,6 +1,8 @@
 package io.Adrestus.crypto.bls.BLS381;
 
-public class ROM {
+import java.io.Serializable;
+
+public class ROM implements Serializable {
 
     // Base Bits= 58
     public static final long[] Modulus = {0x1FEFFFFFFFFAAABL, 0x2FFFFAC54FFFFEEL, 0x12A0F6B0F6241EAL, 0x213CE144AFD9CC3L, 0x2434BACD764774BL, 0x25FF9A692C6E9EDL, 0x1A0111EA3L};

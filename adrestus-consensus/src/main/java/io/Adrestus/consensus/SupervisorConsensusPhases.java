@@ -6,7 +6,6 @@ import io.Adrestus.core.*;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedLeaderIndex;
 import io.Adrestus.core.Resourses.CachedSecurityHeaders;
-import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.bls.BLS381.ECP;
 import io.Adrestus.crypto.bls.BLS381.ECP2;
 import io.Adrestus.crypto.bls.mapper.ECP2mapper;
@@ -22,14 +21,10 @@ import io.Adrestus.crypto.vdf.engine.VdfEnginePietrzak;
 import io.Adrestus.crypto.vrf.VRFMessage;
 import io.Adrestus.crypto.vrf.engine.VrfEngine2;
 import io.Adrestus.network.ConsensusServer;
-import io.Adrestus.util.ByteUtil;
-import io.Adrestus.util.ObjectSizeCalculator;
-import io.Adrestus.util.ObjectSizer;
-import io.Adrestus.util.SerializationUtil;
+import io.Adrestus.util.*;
 import org.apache.tuweni.bytes.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.spongycastle.util.encoders.Hex;
 
 import java.lang.reflect.Type;
 import java.math.BigInteger;
@@ -37,6 +32,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.TreeMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 
@@ -218,6 +214,7 @@ public class SupervisorConsensusPhases {
             list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
             list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
             list.add(new SerializationUtil.Mapping(BigInteger.class,ctx->new BigIntegerSerializer()));
+            list.add(new SerializationUtil.Mapping(TreeMap.class,ctx->new CustomSerializerMap()));
             this.block_serialize = new SerializationUtil<AbstractBlock>(AbstractBlock.class, list);
             this.consensus_serialize = new SerializationUtil<ConsensusMessage>(fluentType, list);
         }

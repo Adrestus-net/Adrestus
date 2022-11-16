@@ -1,6 +1,8 @@
 package io.Adrestus.crypto.bls.BLS381;
 
-public final class PAIR {
+import java.io.Serializable;
+
+public final class PAIR implements Serializable {
 
     public static final boolean USE_GLV = true;
     public static final boolean USE_GS_G2 = true;

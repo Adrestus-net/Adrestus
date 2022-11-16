@@ -21,7 +21,6 @@
         <util.version>1.0-SNAPSHOT</util.version>
         <ledger.version>1.0-SNAPSHOT</ledger.version>
         <lombok.version>1.18.24</lombok.version>
-        <serializer.version>5.3</serializer.version>
         <disruptor.version>3.4.4</disruptor.version>
         <trove4j.version>3.0.3</trove4j.version>
     </properties>
@@ -56,11 +55,6 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>${lombok.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.activej</groupId>
-            <artifactId>activej-serializer</artifactId>
-            <version>${serializer.version}</version>
         </dependency>
         <dependency>
             <groupId>com.lmax</groupId>

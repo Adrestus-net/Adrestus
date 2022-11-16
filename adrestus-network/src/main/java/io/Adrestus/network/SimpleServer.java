@@ -66,7 +66,9 @@ public class SimpleServer {
         } catch (Exception e) {
             LOG.info("Socket Closed");
         }
-
+        catch (AssertionError e) {
+            LOG.info("Socket Closed");
+        }
         timer.cancel();
         task.cancel();
         if (byzantine_counter > F) {

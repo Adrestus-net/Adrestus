@@ -3,9 +3,10 @@ package io.Adrestus.crypto.elliptic;
 import io.activej.serializer.annotations.Deserialize;
 import io.activej.serializer.annotations.Serialize;
 
+import java.io.Serializable;
 import java.util.Arrays;
 
-public class SignatureData {
+public class SignatureData implements Serializable {
     private byte v;
     private byte[] r;
     private byte[] s;

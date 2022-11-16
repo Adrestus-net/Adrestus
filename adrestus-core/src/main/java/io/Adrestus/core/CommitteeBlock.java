@@ -13,7 +13,7 @@ public class CommitteeBlock extends AbstractBlock implements BlockFactory, Disru
     private int[] CommitteeProposer;
     private String VRF;
     private String VDF;
-    private Map<Double, ValidatorAddressData> StakingMap;
+    private TreeMap<Double, ValidatorAddressData> StakingMap;
     private Map<Integer, LinkedHashMap<BLSPublicKey, String>> StructureMap;
     private int Difficulty;
 
@@ -84,11 +84,11 @@ public class CommitteeBlock extends AbstractBlock implements BlockFactory, Disru
     }
 
     @Serialize
-    public Map<Double, ValidatorAddressData> getStakingMap() {
+    public TreeMap<Double, ValidatorAddressData> getStakingMap() {
         return StakingMap;
     }
 
-    public void setStakingMap(Map<Double, ValidatorAddressData> stakingMap) {
+    public void setStakingMap(TreeMap<Double, ValidatorAddressData> stakingMap) {
         StakingMap = stakingMap;
     }
 

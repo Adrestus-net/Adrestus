@@ -17,6 +17,7 @@ import io.Adrestus.crypto.bls.mapper.ECPmapper;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.crypto.vdf.engine.VdfEngine;
 import io.Adrestus.crypto.vdf.engine.VdfEnginePietrzak;
+import io.Adrestus.util.CustomSerializerMap;
 import io.Adrestus.util.GetTime;
 import io.Adrestus.util.SerializationUtil;
 import io.distributedLedger.DatabaseFactory;
@@ -32,6 +33,7 @@ import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 public class RegularBlock implements BlockForge {
     private static Logger LOG = LoggerFactory.getLogger(RegularBlock.class);
@@ -43,6 +45,7 @@ public class RegularBlock implements BlockForge {
         list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
         list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx->new BigIntegerSerializer()));
+        list.add(new SerializationUtil.Mapping(TreeMap.class, ctx->new CustomSerializerMap()));
         encode = new SerializationUtil<AbstractBlock>(AbstractBlock.class,list);
     }
 

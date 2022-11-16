@@ -62,7 +62,11 @@ public class SimpleClient {
             data = subscriber.recv(0);
         } catch (Exception e) {
             LOG.info("Socket Closed");
-        } finally {
+        }
+        catch (AssertionError e) {
+            LOG.info("Socket Closed");
+        }
+        finally {
             timer.cancel();
             task.cancel();
         }

@@ -26,7 +26,6 @@
         <milagro.version>0.4.0</milagro.version>
         <jnr.version>2.2.12</jnr.version>
         <config.version>1.0-SNAPSHOT</config.version>
-        <serializer.version>5.3</serializer.version>
     </properties>
     <dependencies>
         <dependency>

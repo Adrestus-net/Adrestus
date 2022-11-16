@@ -27,6 +27,7 @@ import io.Adrestus.crypto.mnemonic.Security;
 import io.Adrestus.crypto.mnemonic.WordList;
 import io.Adrestus.crypto.vdf.engine.VdfEngine;
 import io.Adrestus.crypto.vdf.engine.VdfEnginePietrzak;
+import io.Adrestus.util.CustomSerializerMap;
 import io.Adrestus.util.GetTime;
 import io.Adrestus.util.SerializationUtil;
 import io.distributedLedger.DatabaseFactory;
@@ -42,6 +43,7 @@ import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 
 import static org.awaitility.Awaitility.await;
@@ -77,6 +79,7 @@ public class BlockTest {
         list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
         list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx->new BigIntegerSerializer()));
+        list.add(new SerializationUtil.Mapping(TreeMap.class, ctx->new CustomSerializerMap()));
         serenc = new SerializationUtil<AbstractBlock>(AbstractBlock.class,list);
         TransactionBlock prevblock = new TransactionBlock();
         CommitteeBlock committeeBlock = new CommitteeBlock();
@@ -114,6 +117,7 @@ public class BlockTest {
         list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
         list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx->new BigIntegerSerializer()));
+        list.add(new SerializationUtil.Mapping(TreeMap.class,ctx->new CustomSerializerMap()));
         SerializationUtil<CommitteeBlock> encode = new SerializationUtil<CommitteeBlock>(CommitteeBlock.class,list);
         //byte[] buffer = new byte[200];
         // BinarySerializer<DelegateTransaction> serenc = SerializerBuilder.create().build(DelegateTransaction.class);

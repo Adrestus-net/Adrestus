@@ -22,7 +22,9 @@ under the License.
 package io.Adrestus.crypto.bls.BLS381;
 
 
-public class DBIG {
+import java.io.Serializable;
+
+public class DBIG implements Serializable {
     protected long[] w = new long[BIG.DNLEN];
 
     /* normalise this */
