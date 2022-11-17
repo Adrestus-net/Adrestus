@@ -3,6 +3,7 @@ package io.Adrestus.core;
 import com.google.common.base.Objects;
 import io.Adrestus.core.RingBuffer.handler.blocks.DisruptorBlock;
 import io.Adrestus.core.RingBuffer.handler.blocks.DisruptorBlockVisitor;
+import io.Adrestus.crypto.SecurityAuditProofs;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.activej.serializer.annotations.Serialize;
 
@@ -13,18 +14,18 @@ public class CommitteeBlock extends AbstractBlock implements BlockFactory, Disru
     private int[] CommitteeProposer;
     private String VRF;
     private String VDF;
-    private TreeMap<Double, ValidatorAddressData> StakingMap;
+    private TreeMap<Double, SecurityAuditProofs> StakingMap;
     private Map<Integer, LinkedHashMap<BLSPublicKey, String>> StructureMap;
-    private int Difficulty;
+    private int difficulty;
 
-    public CommitteeBlock(String previousHash, int height, int Generation, int[] committeeProposer, String VRF, String VDF, int Difficulty) {
+    public CommitteeBlock(String previousHash, int height, int Generation, int[] committeeProposer, String VRF, String VDF, int difficulty) {
         super(previousHash, height, Generation);
         this.CommitteeProposer = committeeProposer;
         this.VRF = VRF;
         this.VDF = VDF;
-        this.StakingMap = new TreeMap<Double, ValidatorAddressData>(Collections.reverseOrder());
+        this.StakingMap = new TreeMap<Double, SecurityAuditProofs>(Collections.reverseOrder());
         this.StructureMap = new HashMap<Integer, LinkedHashMap<BLSPublicKey, String>>();
-        this.Difficulty = Difficulty;
+        this.difficulty = difficulty;
         Init();
     }
 
@@ -33,9 +34,8 @@ public class CommitteeBlock extends AbstractBlock implements BlockFactory, Disru
         this.CommitteeProposer = new int[0];
         this.VRF = "";
         this.VDF = "";
-        this.StakingMap = new TreeMap<Double, ValidatorAddressData>(Collections.reverseOrder());
+        this.StakingMap = new TreeMap<Double, SecurityAuditProofs>(Collections.reverseOrder());
         this.StructureMap = new HashMap<Integer, LinkedHashMap<BLSPublicKey, String>>();
-        this.Difficulty = 0;
         Init();
     }
 
@@ -84,11 +84,11 @@ public class CommitteeBlock extends AbstractBlock implements BlockFactory, Disru
     }
 
     @Serialize
-    public TreeMap<Double, ValidatorAddressData> getStakingMap() {
+    public TreeMap<Double, SecurityAuditProofs> getStakingMap() {
         return StakingMap;
     }
 
-    public void setStakingMap(TreeMap<Double, ValidatorAddressData> stakingMap) {
+    public void setStakingMap(TreeMap<Double, SecurityAuditProofs> stakingMap) {
         StakingMap = stakingMap;
     }
 
@@ -121,11 +121,11 @@ public class CommitteeBlock extends AbstractBlock implements BlockFactory, Disru
 
     @Serialize
     public int getDifficulty() {
-        return Difficulty;
+        return difficulty;
     }
 
     public void setDifficulty(int difficulty) {
-        Difficulty = difficulty;
+        this.difficulty = difficulty;
     }
 
     @Override
@@ -134,12 +134,12 @@ public class CommitteeBlock extends AbstractBlock implements BlockFactory, Disru
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
         CommitteeBlock that = (CommitteeBlock) o;
-        return Difficulty == that.Difficulty && Arrays.equals(CommitteeProposer, that.CommitteeProposer) && Objects.equal(VRF, that.VRF) && Objects.equal(VDF, that.VDF) && Objects.equal(StakingMap, that.StakingMap) && Objects.equal(StructureMap, that.StructureMap);
+        return difficulty == that.difficulty && Arrays.equals(CommitteeProposer, that.CommitteeProposer) && Objects.equal(VRF, that.VRF) && Objects.equal(VDF, that.VDF) && Objects.equal(StakingMap, that.StakingMap) && Objects.equal(StructureMap, that.StructureMap);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(super.hashCode(), CommitteeProposer, VRF, VDF, StakingMap, StructureMap, Difficulty);
+        return Objects.hashCode(super.hashCode(), CommitteeProposer, VRF, VDF, StakingMap, StructureMap, difficulty);
     }
 
     @Override
@@ -151,7 +151,7 @@ public class CommitteeBlock extends AbstractBlock implements BlockFactory, Disru
                 ", VDF='" + VDF + '\'' +
                 ", StakingMap=" + StakingMap +
                 ", StructureMap=" + StructureMap +
-                ", Difficulty=" + Difficulty +
+                ", Difficulty=" + difficulty +
                 '}';
     }
 

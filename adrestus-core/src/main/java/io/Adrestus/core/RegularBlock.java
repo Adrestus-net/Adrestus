@@ -10,6 +10,7 @@ import io.Adrestus.core.Trie.MerkleNode;
 import io.Adrestus.core.Trie.MerkleTree;
 import io.Adrestus.core.Trie.MerkleTreeImp;
 import io.Adrestus.crypto.HashUtil;
+import io.Adrestus.crypto.SecurityAuditProofs;
 import io.Adrestus.crypto.bls.BLS381.ECP;
 import io.Adrestus.crypto.bls.BLS381.ECP2;
 import io.Adrestus.crypto.bls.mapper.ECP2mapper;
@@ -17,7 +18,7 @@ import io.Adrestus.crypto.bls.mapper.ECPmapper;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.crypto.vdf.engine.VdfEngine;
 import io.Adrestus.crypto.vdf.engine.VdfEnginePietrzak;
-import io.Adrestus.util.CustomSerializerMap;
+import io.Adrestus.crypto.elliptic.mapper.CustomSerializerTreeMap;
 import io.Adrestus.util.GetTime;
 import io.Adrestus.util.SerializationUtil;
 import io.distributedLedger.DatabaseFactory;
@@ -45,7 +46,7 @@ public class RegularBlock implements BlockForge {
         list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
         list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx->new BigIntegerSerializer()));
-        list.add(new SerializationUtil.Mapping(TreeMap.class, ctx->new CustomSerializerMap()));
+        list.add(new SerializationUtil.Mapping(TreeMap.class, ctx->new CustomSerializerTreeMap()));
         encode = new SerializationUtil<AbstractBlock>(AbstractBlock.class,list);
     }
 
@@ -149,7 +150,7 @@ public class RegularBlock implements BlockForge {
         // ###################Random assign validators##########################
         SecureRandom secureRandom = SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
         secureRandom.setSeed(Hex.decode(committeeBlock.getVDF()));
-        for (Map.Entry<Double, ValidatorAddressData> entry : committeeBlock.getStakingMap().entrySet()) {
+        for (Map.Entry<Double, SecurityAuditProofs> entry : committeeBlock.getStakingMap().entrySet()) {
             int nextInt = secureRandom.nextInt(AdrestusConfiguration.MAX_ZONES);
             committeeBlock
                     .getStructureMap()

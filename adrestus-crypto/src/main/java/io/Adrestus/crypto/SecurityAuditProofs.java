@@ -1,4 +1,4 @@
-package io.Adrestus.core;
+package io.Adrestus.crypto;
 
 import com.google.common.base.Objects;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
@@ -10,17 +10,17 @@ import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.Arrays;
 
-public final class ValidatorAddressData implements Serializable {
+public final class SecurityAuditProofs implements Serializable {
     private String ip;
     private String address;
     private BLSPublicKey validatorBlSPublicKey;
     private BigInteger eCDSAPublicKey;
     private SignatureData eCDSASignature;
 
-    public ValidatorAddressData() {
+    public SecurityAuditProofs() {
     }
 
-    public ValidatorAddressData(
+    public SecurityAuditProofs(
             BLSPublicKey validatorBlSPublicKey,
             String address,
             BigInteger eCDSAPublicKey,
@@ -31,20 +31,20 @@ public final class ValidatorAddressData implements Serializable {
         this.eCDSASignature = eCDSASignature;
     }
 
-    public ValidatorAddressData(String address,
-                                BigInteger eCDSAPublicKey,
-                                SignatureData eCDSASignature) {
+    public SecurityAuditProofs(String address,
+                               BigInteger eCDSAPublicKey,
+                               SignatureData eCDSASignature) {
         this.address = address;
         this.eCDSAPublicKey = eCDSAPublicKey;
         this.eCDSASignature = eCDSASignature;
         this.validatorBlSPublicKey = new BLSPublicKey();
     }
 
-    public ValidatorAddressData(@Deserialize("ip") String ip,
-                                @Deserialize("address") String address,
-                                @Deserialize("validatorBlSPublicKey") BLSPublicKey validatorBlSPublicKey,
-                                @Deserialize("eCDSAPublicKey") BigInteger eCDSAPublicKey,
-                                @Deserialize("eCDSASignature") SignatureData eCDSASignature) {
+    public SecurityAuditProofs(@Deserialize("ip") String ip,
+                               @Deserialize("address") String address,
+                               @Deserialize("validatorBlSPublicKey") BLSPublicKey validatorBlSPublicKey,
+                               @Deserialize("eCDSAPublicKey") BigInteger eCDSAPublicKey,
+                               @Deserialize("eCDSASignature") SignatureData eCDSASignature) {
         this.ip = ip;
         this.address = address;
         this.validatorBlSPublicKey = validatorBlSPublicKey;
@@ -102,7 +102,7 @@ public final class ValidatorAddressData implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        ValidatorAddressData that = (ValidatorAddressData) o;
+        SecurityAuditProofs that = (SecurityAuditProofs) o;
         return Objects.equal(address, that.address) &&
                 Objects.equal(ip, that.ip) &&
                 Objects.equal(validatorBlSPublicKey, that.validatorBlSPublicKey)

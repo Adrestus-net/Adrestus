@@ -1,12 +1,11 @@
 package io.Adrestus.consensus;
 
 import io.Adrestus.consensus.helper.ConsensusCommitteeTimer;
-import io.Adrestus.consensus.helper.ConsensusTransactionTimer;
 import io.Adrestus.core.CommitteeBlock;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.MemoryTreePool;
 import io.Adrestus.core.Trie.PatriciaTreeNode;
-import io.Adrestus.core.ValidatorAddressData;
+import io.Adrestus.crypto.SecurityAuditProofs;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.WalletAddress;
 import io.Adrestus.crypto.bls.model.BLSPrivateKey;
@@ -17,7 +16,6 @@ import io.Adrestus.crypto.elliptic.ECKeyPair;
 import io.Adrestus.crypto.elliptic.Keys;
 import io.Adrestus.crypto.elliptic.SignatureData;
 import io.Adrestus.crypto.mnemonic.Mnemonic;
-import io.Adrestus.crypto.mnemonic.MnemonicException;
 import io.Adrestus.crypto.mnemonic.Security;
 import io.Adrestus.crypto.mnemonic.WordList;
 import io.distributedLedger.DatabaseFactory;
@@ -27,12 +25,8 @@ import org.apache.commons.codec.binary.StringUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -81,8 +75,8 @@ public class ConsensusCommitteeTimerTest {
         committeeBlock.getStructureMap().get(0).put(vk1, "192.168.1.106");
         committeeBlock.getStructureMap().get(0).put(vk2, "192.168.1.116");
 
-        committeeBlock.getStakingMap().put(10.0, new ValidatorAddressData("192.168.1.106", address1,vk1, ecKeyPair1.getPublicKey(), signatureData1));
-        committeeBlock.getStakingMap().put(13.0, new ValidatorAddressData("192.168.1.116", address2,vk2, ecKeyPair2.getPublicKey(), signatureData2));
+        committeeBlock.getStakingMap().put(10.0, new SecurityAuditProofs("192.168.1.106", address1,vk1, ecKeyPair1.getPublicKey(), signatureData1));
+        committeeBlock.getStakingMap().put(13.0, new SecurityAuditProofs("192.168.1.116", address2,vk2, ecKeyPair2.getPublicKey(), signatureData2));
 
         CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
     }

@@ -5,7 +5,7 @@ import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.core.CommitteeBlock;
 import io.Adrestus.core.RingBuffer.event.AbstractBlockEvent;
 import io.Adrestus.core.StatusType;
-import io.Adrestus.core.ValidatorAddressData;
+import io.Adrestus.crypto.SecurityAuditProofs;
 import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +30,7 @@ public class RandomnessEventHandler implements BlockEventHandler<AbstractBlockEv
         CommitteeBlock block = (CommitteeBlock) blockEvent.getBlock();
         secureRandom.setSeed(Hex.decode(block.getVDF()));
 
-        for (Map.Entry<Double, ValidatorAddressData> entry : block.getStakingMap().entrySet()) {
+        for (Map.Entry<Double, SecurityAuditProofs> entry : block.getStakingMap().entrySet()) {
             int nextInt=secureRandom.nextInt(AdrestusConfiguration.MAX_ZONES);
             if(!block.getStructureMap().get(nextInt).containsKey(entry.getValue().getValidatorBlSPublicKey())){
                 LOG.info("Validator not placed correctly");

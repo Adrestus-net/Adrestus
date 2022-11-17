@@ -25,9 +25,8 @@ import io.Adrestus.crypto.vdf.engine.VdfEnginePietrzak;
 import io.Adrestus.crypto.vrf.VRFMessage;
 import io.Adrestus.crypto.vrf.engine.VrfEngine2;
 import io.Adrestus.network.ConsensusClient;
-import io.Adrestus.network.ConsensusServer;
 import io.Adrestus.util.ByteUtil;
-import io.Adrestus.util.CustomSerializerMap;
+import io.Adrestus.crypto.elliptic.mapper.CustomSerializerTreeMap;
 import io.Adrestus.util.SerializationUtil;
 import lombok.SneakyThrows;
 import org.apache.tuweni.bytes.Bytes;
@@ -298,7 +297,7 @@ public class ValidatorConsensusPhases {
             list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
             list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
             list.add(new SerializationUtil.Mapping(BigInteger.class,ctx->new BigIntegerSerializer()));
-            list.add(new SerializationUtil.Mapping(TreeMap.class, ctx->new CustomSerializerMap()));
+            list.add(new SerializationUtil.Mapping(TreeMap.class, ctx->new CustomSerializerTreeMap()));
             this.block_serialize = new SerializationUtil<AbstractBlock>(AbstractBlock.class, list);
             this.consensus_serialize = new SerializationUtil<ConsensusMessage>(fluentType, list);
         }
@@ -545,7 +544,7 @@ public class ValidatorConsensusPhases {
             list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
             list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
             list.add(new SerializationUtil.Mapping(BigInteger.class, ctx->new BigIntegerSerializer()));
-            list.add(new SerializationUtil.Mapping(TreeMap.class,ctx->new CustomSerializerMap()));
+            list.add(new SerializationUtil.Mapping(TreeMap.class,ctx->new CustomSerializerTreeMap()));
             this.block_serialize = new SerializationUtil<AbstractBlock>(AbstractBlock.class, list);
             this.consensus_serialize = new SerializationUtil<ConsensusMessage>(fluentType, list);
         }

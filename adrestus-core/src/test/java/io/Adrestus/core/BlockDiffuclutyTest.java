@@ -17,7 +17,6 @@ public class BlockDiffuclutyTest {
     public void test_difficulty() throws ParseException, InterruptedException {
 
         IDatabase<String, CommitteeBlock> database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB);
-
         int MAX_ITERATIONS = 100;
         int iterations = 0;
 

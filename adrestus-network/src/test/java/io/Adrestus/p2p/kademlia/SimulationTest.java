@@ -3,7 +3,7 @@ package io.Adrestus.p2p.kademlia;
 import io.Adrestus.config.NodeSettings;
 import io.Adrestus.core.Resourses.MemoryTreePool;
 import io.Adrestus.core.Trie.PatriciaTreeNode;
-import io.Adrestus.core.ValidatorAddressData;
+import io.Adrestus.crypto.SecurityAuditProofs;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.WalletAddress;
 import io.Adrestus.crypto.elliptic.ECDSASign;
@@ -151,7 +151,7 @@ public class SimulationTest {
             RoutingTable<BigInteger, NettyConnectionInfo, Bucket<BigInteger, NettyConnectionInfo>> routingTable = routingTableFactory.getRoutingTable(BigInteger.valueOf(i));
             DHTRegularNode nextnode = new DHTRegularNode(nettyConnectionInfo, BigInteger.valueOf(i), keyHashGenerator);
             SignatureData signatureData = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(addreses.get(i))), keypair.get(i));
-            KademliaData kademliaData = new KademliaData(new ValidatorAddressData(addreses.get(i), keypair.get(i).getPublicKey(), signatureData), nettyConnectionInfo);
+            KademliaData kademliaData = new KademliaData(new SecurityAuditProofs(addreses.get(i), keypair.get(i).getPublicKey(), signatureData), nettyConnectionInfo);
 
             //boolean verify = ecdsaSign.secp256Verify(value.getAddressData().getAddress().getBytes(StandardCharsets.UTF_8), value.getAddressData().getAddress(), value.getAddressData().getECDSASignature());
             nextnode.setKademliaData(kademliaData);

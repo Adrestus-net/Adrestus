@@ -1,14 +1,14 @@
 package io.Adrestus.p2p.kademlia.repository;
 
 import com.google.common.base.Objects;
-import io.Adrestus.core.ValidatorAddressData;
+import io.Adrestus.crypto.SecurityAuditProofs;
 import io.Adrestus.p2p.kademlia.common.NettyConnectionInfo;
 
 import java.io.Serializable;
 
 public class KademliaData implements Serializable, Cloneable {
     private String Hash;
-    private ValidatorAddressData addressData;
+    private SecurityAuditProofs addressData;
     private NettyConnectionInfo nettyConnectionInfo;
 
     public KademliaData() {
@@ -20,19 +20,19 @@ public class KademliaData implements Serializable, Cloneable {
     }
 
 
-    public KademliaData(String hash, ValidatorAddressData addressData, NettyConnectionInfo nettyConnectionInfo) {
+    public KademliaData(String hash, SecurityAuditProofs addressData, NettyConnectionInfo nettyConnectionInfo) {
         this.Hash = hash;
         this.addressData = addressData;
         this.nettyConnectionInfo = nettyConnectionInfo;
     }
 
-    public KademliaData(ValidatorAddressData addressData, NettyConnectionInfo nettyConnectionInfo) {
+    public KademliaData(SecurityAuditProofs addressData, NettyConnectionInfo nettyConnectionInfo) {
         this.Hash = "";
         this.addressData = addressData;
         this.nettyConnectionInfo = nettyConnectionInfo;
     }
 
-    public KademliaData(ValidatorAddressData addressData) {
+    public KademliaData(SecurityAuditProofs addressData) {
         this.Hash = "";
         this.addressData = addressData;
         this.nettyConnectionInfo = new NettyConnectionInfo("", 0);
@@ -47,11 +47,11 @@ public class KademliaData implements Serializable, Cloneable {
         this.Hash = hash;
     }
 
-    public ValidatorAddressData getAddressData() {
+    public SecurityAuditProofs getAddressData() {
         return addressData;
     }
 
-    public void setAddressData(ValidatorAddressData addressData) {
+    public void setAddressData(SecurityAuditProofs addressData) {
         this.addressData = addressData;
     }
 

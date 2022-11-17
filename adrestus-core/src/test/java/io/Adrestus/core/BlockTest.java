@@ -10,6 +10,7 @@ import io.Adrestus.core.RingBuffer.publisher.BlockEventPublisher;
 import io.Adrestus.core.RingBuffer.publisher.TransactionEventPublisher;
 import io.Adrestus.core.Trie.PatriciaTreeNode;
 import io.Adrestus.crypto.HashUtil;
+import io.Adrestus.crypto.SecurityAuditProofs;
 import io.Adrestus.crypto.WalletAddress;
 import io.Adrestus.crypto.bls.BLS381.ECP;
 import io.Adrestus.crypto.bls.BLS381.ECP2;
@@ -27,7 +28,7 @@ import io.Adrestus.crypto.mnemonic.Security;
 import io.Adrestus.crypto.mnemonic.WordList;
 import io.Adrestus.crypto.vdf.engine.VdfEngine;
 import io.Adrestus.crypto.vdf.engine.VdfEnginePietrzak;
-import io.Adrestus.util.CustomSerializerMap;
+import io.Adrestus.crypto.elliptic.mapper.CustomSerializerTreeMap;
 import io.Adrestus.util.GetTime;
 import io.Adrestus.util.SerializationUtil;
 import io.distributedLedger.DatabaseFactory;
@@ -79,7 +80,7 @@ public class BlockTest {
         list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
         list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx->new BigIntegerSerializer()));
-        list.add(new SerializationUtil.Mapping(TreeMap.class, ctx->new CustomSerializerMap()));
+        list.add(new SerializationUtil.Mapping(TreeMap.class, ctx->new CustomSerializerTreeMap()));
         serenc = new SerializationUtil<AbstractBlock>(AbstractBlock.class,list);
         TransactionBlock prevblock = new TransactionBlock();
         CommitteeBlock committeeBlock = new CommitteeBlock();
@@ -117,7 +118,7 @@ public class BlockTest {
         list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
         list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx->new BigIntegerSerializer()));
-        list.add(new SerializationUtil.Mapping(TreeMap.class,ctx->new CustomSerializerMap()));
+        list.add(new SerializationUtil.Mapping(TreeMap.class,ctx->new CustomSerializerTreeMap()));
         SerializationUtil<CommitteeBlock> encode = new SerializationUtil<CommitteeBlock>(CommitteeBlock.class,list);
         //byte[] buffer = new byte[200];
         // BinarySerializer<DelegateTransaction> serenc = SerializerBuilder.create().build(DelegateTransaction.class);
@@ -364,12 +365,12 @@ public class BlockTest {
         prevblock.setHeight(0);
         CachedLatestBlocks.getInstance().setCommitteeBlock(prevblock);
         CommitteeBlock committeeBlock = new CommitteeBlock();
-        committeeBlock.getStakingMap().put(10.0, new ValidatorAddressData("192.168.1.101", adddress1,vk1, ecKeyPair1.getPublicKey(), signatureData1));
-        committeeBlock.getStakingMap().put(13.0, new ValidatorAddressData("192.168.1.102", adddress2,vk2, ecKeyPair2.getPublicKey(), signatureData2));
-        committeeBlock.getStakingMap().put(7.0, new ValidatorAddressData("192.168.1.103", adddress3,vk3,  ecKeyPair3.getPublicKey(), signatureData3));
-        committeeBlock.getStakingMap().put(22.0, new ValidatorAddressData("192.168.1.104", adddress4,vk4, ecKeyPair4.getPublicKey(), signatureData4));
-        committeeBlock.getStakingMap().put(6.0, new ValidatorAddressData("192.168.1.105", adddress6,vk6, ecKeyPair6.getPublicKey(), signatureData6));
-        committeeBlock.getStakingMap().put(32.0, new ValidatorAddressData("192.168.1.106", adddress5,vk5, ecKeyPair5.getPublicKey(), signatureData5));
+        committeeBlock.getStakingMap().put(10.0, new SecurityAuditProofs("192.168.1.101", adddress1,vk1, ecKeyPair1.getPublicKey(), signatureData1));
+        committeeBlock.getStakingMap().put(13.0, new SecurityAuditProofs("192.168.1.102", adddress2,vk2, ecKeyPair2.getPublicKey(), signatureData2));
+        committeeBlock.getStakingMap().put(7.0, new SecurityAuditProofs("192.168.1.103", adddress3,vk3,  ecKeyPair3.getPublicKey(), signatureData3));
+        committeeBlock.getStakingMap().put(22.0, new SecurityAuditProofs("192.168.1.104", adddress4,vk4, ecKeyPair4.getPublicKey(), signatureData4));
+        committeeBlock.getStakingMap().put(6.0, new SecurityAuditProofs("192.168.1.105", adddress6,vk6, ecKeyPair6.getPublicKey(), signatureData6));
+        committeeBlock.getStakingMap().put(32.0, new SecurityAuditProofs("192.168.1.106", adddress5,vk5, ecKeyPair5.getPublicKey(), signatureData5));
         committeeBlock.setCommitteeProposer(new int[committeeBlock.getStakingMap().size()]);
         committeeBlock.setGeneration(1);
         committeeBlock.getHeaderData().setPreviousHash("hash");
@@ -437,7 +438,7 @@ public class BlockTest {
         CachedSecurityHeaders.getInstance().getSecurityHeader().setRnd(Hex.decode(committeeBlock.getVDF()));
         SecureRandom secureRandom = SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
         secureRandom.setSeed(Hex.decode(committeeBlock.getVDF()));
-        for (Map.Entry<Double, ValidatorAddressData> entry : committeeBlock.getStakingMap().entrySet()) {
+        for (Map.Entry<Double, SecurityAuditProofs> entry : committeeBlock.getStakingMap().entrySet()) {
             int nextInt = secureRandom.nextInt(AdrestusConfiguration.MAX_ZONES);
             committeeBlock
                     .getStructureMap()

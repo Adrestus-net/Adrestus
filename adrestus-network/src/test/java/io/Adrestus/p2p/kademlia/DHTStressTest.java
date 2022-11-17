@@ -6,7 +6,7 @@ import io.Adrestus.config.KademliaConfiguration;
 import io.Adrestus.config.NodeSettings;
 import io.Adrestus.core.Resourses.MemoryTreePool;
 import io.Adrestus.core.Trie.PatriciaTreeNode;
-import io.Adrestus.core.ValidatorAddressData;
+import io.Adrestus.crypto.SecurityAuditProofs;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.WalletAddress;
 import io.Adrestus.crypto.bls.model.BLSPrivateKey;
@@ -70,7 +70,7 @@ public class DHTStressTest {
         assertEquals(copy, vk);
 
 
-        kademliaData = new KademliaData(new ValidatorAddressData(adddress, ecKeyPair.getPublicKey(), signatureData), new NettyConnectionInfo("127.0.0.1", 8080));
+        kademliaData = new KademliaData(new SecurityAuditProofs(adddress, ecKeyPair.getPublicKey(), signatureData), new NettyConnectionInfo("127.0.0.1", 8080));
         kademliaData.getAddressData().setValidatorBlSPublicKey(vk);
         MemoryTreePool.getInstance().store(adddress, new PatriciaTreeNode(1000, 0));
         Gson gson = new Gson();

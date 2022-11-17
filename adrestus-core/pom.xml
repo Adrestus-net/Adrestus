@@ -67,4 +67,4 @@
         </plugins>
     </build>
 </project>
-        <!---mvn archetype:generate -DgroupId=io.Adrestus.v1 -DartifactId=adrestus-consensus -DpackageName=consensus -DarchetypeArtifactId=maven-archetype-quickstart -DarchetypeVersion=1.4 -DinteractiveMode=false -->
+        <!---mvn archetype:generate -DgroupId=io.Adrestus.v1 -DpackageName=serializer -DarchetypeArtifactId=adrestus-util-serializer -DarchetypeVersion=1.4 -DinteractiveMode=false -->

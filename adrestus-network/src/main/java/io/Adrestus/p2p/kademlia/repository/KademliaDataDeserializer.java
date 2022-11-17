@@ -2,7 +2,7 @@ package io.Adrestus.p2p.kademlia.repository;
 
 import com.google.common.reflect.TypeToken;
 import com.google.gson.*;
-import io.Adrestus.core.ValidatorAddressData;
+import io.Adrestus.crypto.SecurityAuditProofs;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.Adrestus.crypto.elliptic.SignatureData;
 import io.Adrestus.p2p.kademlia.common.NettyConnectionInfo;
@@ -26,14 +26,14 @@ public class KademliaDataDeserializer implements JsonDeserializer<KademliaData> 
         String address = resourceJson.get("address_data").getAsJsonObject().get("address").getAsString();
         BigInteger ecdsaKey = resourceJson.get("address_data").getAsJsonObject().get("e_c_d_s_a_public_key").getAsBigInteger();
         JsonObject ecdsaSignatureObj = resourceJson.get("address_data").getAsJsonObject().get("e_c_d_s_a_signature").getAsJsonObject();
-        ValidatorAddressData validatorAddressData = new ValidatorAddressData(
+        SecurityAuditProofs securityAuditProofs = new SecurityAuditProofs(
                 gson.fromJson(blsobj, blstoken),
                 address,
                 ecdsaKey,
                 gson.fromJson(ecdsaSignatureObj, ecdsaSignatureData)
         );
 
-        kademliaData.setAddressData(validatorAddressData);
+        kademliaData.setAddressData(securityAuditProofs);
 
         String host = resourceJson.get("netty_connection_info").getAsJsonObject().get("host").getAsString();
         int port = resourceJson.get("netty_connection_info").getAsJsonObject().get("port").getAsInt();
