@@ -78,7 +78,6 @@
         <module>adrestus-network</module>
         <module>adrestus-protocol</module>
         <module>adrestus-distributed-ledger</module>
-        <module>util-serializer</module>
     </modules>
     <distributionManagement>
         <repository>
