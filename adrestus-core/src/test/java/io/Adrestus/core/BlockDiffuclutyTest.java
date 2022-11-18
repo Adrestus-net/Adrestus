@@ -1,6 +1,8 @@
 package io.Adrestus.core;
 
+import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.util.GetTime;
+import io.Adrestus.util.MathOperationUtil;
 import io.distributedLedger.DatabaseFactory;
 import io.distributedLedger.DatabaseType;
 import io.distributedLedger.IDatabase;
@@ -17,6 +19,7 @@ public class BlockDiffuclutyTest {
     public void test_difficulty() throws ParseException, InterruptedException {
 
         IDatabase<String, CommitteeBlock> database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB);
+
         int MAX_ITERATIONS = 100;
         int iterations = 0;
 
@@ -77,6 +80,60 @@ public class BlockDiffuclutyTest {
             iterations++;
         }
         database.deleteAll();
+    }
+
+
+    @Test
+    public void diffuclty_test2() throws ParseException, InterruptedException {
+        IDatabase<String, CommitteeBlock> database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB);
+
+        CommitteeBlock bootsrap = new CommitteeBlock();
+        bootsrap.setHash(String.valueOf(0));
+        bootsrap.getHeaderData().setTimestamp(GetTime.GetTimeStampInString());
+        bootsrap.setDifficulty(113);
+        database.save(bootsrap.getHash(), bootsrap);
+
+        Thread.sleep(200);
+        CommitteeBlock bootsrap1 = new CommitteeBlock();
+        bootsrap1.setHash(String.valueOf(1));
+        bootsrap1.getHeaderData().setTimestamp(GetTime.GetTimeStampInString());
+        bootsrap1.setDifficulty(113);
+        database.save(bootsrap1.getHash(), bootsrap1);
+
+
+
+        int finish = database.findDBsize();
+        int n = finish;
+        int summdiffuclty = 0;
+        long sumtime = 0;
+        Map<String, CommitteeBlock> block_entries = database.seekBetweenRange(0, finish);
+        ArrayList<String> entries = new ArrayList<String>(block_entries.keySet());
+
+        if (entries.size() == 1) {
+            summdiffuclty = block_entries.get(entries.get(0)).getDifficulty();
+            sumtime = 100;
+        }
+        else {
+            for (int i = 0; i < entries.size(); i++) {
+                if (i == entries.size() - 1)
+                    break;
+
+                long older = GetTime.GetTimestampFromString(block_entries.get(entries.get(i)).getHeaderData().getTimestamp()).getTime();
+                long newer = GetTime.GetTimestampFromString(block_entries.get(entries.get(i + 1)).getHeaderData().getTimestamp()).getTime();
+                sumtime = sumtime + (newer - older);
+                //System.out.println("edw "+(newer - older));
+                summdiffuclty = summdiffuclty + block_entries.get(entries.get(i)).getDifficulty();
+                //  System.out.println("edw "+(newer - older));
+            }
+        }
+
+        double d = ((double) summdiffuclty / n);
+        // String s=String.format("%4d",  sumtime / n);
+        double t = ((double) sumtime / n);
+        //  System.out.println(t);
+        int difficulty = MathOperationUtil.multiplication((int) Math.round((t) / d));
+
+        database.delete_db();
     }
 
 }

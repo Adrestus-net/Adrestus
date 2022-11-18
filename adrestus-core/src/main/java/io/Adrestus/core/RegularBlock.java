@@ -20,6 +20,7 @@ import io.Adrestus.crypto.vdf.engine.VdfEngine;
 import io.Adrestus.crypto.vdf.engine.VdfEnginePietrzak;
 import io.Adrestus.crypto.elliptic.mapper.CustomSerializerTreeMap;
 import io.Adrestus.util.GetTime;
+import io.Adrestus.util.MathOperationUtil;
 import io.Adrestus.util.SerializationUtil;
 import io.distributedLedger.DatabaseFactory;
 import io.distributedLedger.DatabaseType;
@@ -122,19 +123,17 @@ public class RegularBlock implements BlockForge {
             summdiffuclty = block_entries.get(entries.get(0)).getDifficulty();
             sumtime = 100;
         }
+        else {
+            for (int i = 0; i < entries.size(); i++) {
+                if (i == entries.size() - 1)
+                    break;
 
-        for (int i = 0; i < entries.size(); i++) {
-            if (i == entries.size() - 1)
-                break;
-
-            long older = GetTime.GetTimestampFromString(block_entries.get(entries.get(i)).getHeaderData().getTimestamp()).getTime();
-            long newer = GetTime.GetTimestampFromString(block_entries.get(entries.get(i + 1)).getHeaderData().getTimestamp()).getTime();
-            sumtime = sumtime + (newer - older);
-            //System.out.println("edw "+(newer - older));
-            summdiffuclty = summdiffuclty + block_entries.get(entries.get(i)).getDifficulty();
-            //  System.out.println("edw "+(newer - older));
-            if ((newer - older) > 1000) {
-                int h = i;
+                long older = GetTime.GetTimestampFromString(block_entries.get(entries.get(i)).getHeaderData().getTimestamp()).getTime();
+                long newer = GetTime.GetTimestampFromString(block_entries.get(entries.get(i + 1)).getHeaderData().getTimestamp()).getTime();
+                sumtime = sumtime + (newer - older);
+                //System.out.println("edw "+(newer - older));
+                summdiffuclty = summdiffuclty + block_entries.get(entries.get(i)).getDifficulty();
+                //  System.out.println("edw "+(newer - older));
             }
         }
 
@@ -142,8 +141,12 @@ public class RegularBlock implements BlockForge {
         // String s=String.format("%4d",  sumtime / n);
         double t = ((double) sumtime / n);
         //  System.out.println(t);
-        int difficulty = (int) Math.round(t * ((double) AdrestusConfiguration.INIT_VDF_DIFFICULTY / d));
-        committeeBlock.setDifficulty(difficulty * 2);
+        int difficulty = MathOperationUtil.multiplication((int) Math.round((t) / d));
+        if(difficulty<100) {
+            committeeBlock.setStatustype(StatusType.ABORT);
+            throw new IllegalArgumentException("VDF difficulty is not set correct abort");
+        }
+        committeeBlock.setDifficulty(difficulty);
         committeeBlock.setVDF(Hex.toHexString(vdf.solve(Hex.decode(committeeBlock.getVRF()), committeeBlock.getDifficulty())));
         // ###################find VDF difficulty##########################
 

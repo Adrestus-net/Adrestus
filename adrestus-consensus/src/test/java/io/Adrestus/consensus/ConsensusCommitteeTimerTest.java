@@ -18,6 +18,7 @@ import io.Adrestus.crypto.elliptic.SignatureData;
 import io.Adrestus.crypto.mnemonic.Mnemonic;
 import io.Adrestus.crypto.mnemonic.Security;
 import io.Adrestus.crypto.mnemonic.WordList;
+import io.Adrestus.util.GetTime;
 import io.distributedLedger.DatabaseFactory;
 import io.distributedLedger.DatabaseType;
 import io.distributedLedger.IDatabase;
@@ -45,6 +46,7 @@ public class ConsensusCommitteeTimerTest {
 
     @BeforeAll
     public static void setup() throws Exception {
+        String timestamp= GetTime.GetTimeStampInString();
         int version = 0x00;
         sk1 = new BLSPrivateKey(1);
         vk1 = new BLSPublicKey(sk1);
@@ -59,8 +61,11 @@ public class ConsensusCommitteeTimerTest {
         Mnemonic mnem = new Mnemonic(Security.NORMAL, WordList.ENGLISH);
         byte[] key1 = mnem.createSeed(mnemonic1, passphrase);
         byte[] key2 = mnem.createSeed(mnemonic2, passphrase);
-        ecKeyPair1 = Keys.createEcKeyPair(new SecureRandom(key1));
-        ecKeyPair2 = Keys.createEcKeyPair(new SecureRandom(key2));
+        SecureRandom random = SecureRandom.getInstance("SHA1PRNG", "SUN");
+        random.setSeed(key1);
+        ecKeyPair1 = Keys.createEcKeyPair(random);
+        random.setSeed(key2);
+        ecKeyPair2 = Keys.createEcKeyPair(random);
 
         address1 = WalletAddress.generate_address((byte) version, ecKeyPair1.getPublicKey());
         address2 = WalletAddress.generate_address((byte) version, ecKeyPair2.getPublicKey());
@@ -68,10 +73,11 @@ public class ConsensusCommitteeTimerTest {
         SignatureData signatureData1 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address1)), ecKeyPair1);
         SignatureData signatureData2 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address2)), ecKeyPair2);
 
-        MemoryTreePool.getInstance().store(address1, new PatriciaTreeNode(1000, 0));
-        MemoryTreePool.getInstance().store(address2, new PatriciaTreeNode(1000, 0));
+        MemoryTreePool.getInstance().store(address1, new PatriciaTreeNode(3000, 0));
+        MemoryTreePool.getInstance().store(address2, new PatriciaTreeNode(3000, 0));
 
         CommitteeBlock committeeBlock = new CommitteeBlock();
+        committeeBlock.getHeaderData().setTimestamp("2022-11-18 15:01:29.304");
         committeeBlock.getStructureMap().get(0).put(vk1, "192.168.1.106");
         committeeBlock.getStructureMap().get(0).put(vk2, "192.168.1.116");
 

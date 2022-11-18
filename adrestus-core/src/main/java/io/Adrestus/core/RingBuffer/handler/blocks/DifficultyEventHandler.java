@@ -5,6 +5,7 @@ import io.Adrestus.core.CommitteeBlock;
 import io.Adrestus.core.RingBuffer.event.AbstractBlockEvent;
 import io.Adrestus.core.StatusType;
 import io.Adrestus.util.GetTime;
+import io.Adrestus.util.MathOperationUtil;
 import io.distributedLedger.DatabaseFactory;
 import io.distributedLedger.DatabaseType;
 import io.distributedLedger.IDatabase;
@@ -37,21 +38,20 @@ public class DifficultyEventHandler implements BlockEventHandler<AbstractBlockEv
         ArrayList<String> entries = new ArrayList<String>(block_entries.keySet());
 
         if(finish==1){
-            sumtime = GetTime.GetTimestampFromString(block_entries.get(entries.get(0)).getHeaderData().getTimestamp()).getTime();
+            sumtime = 100;
             summdiffuclty = block_entries.get(entries.get(0)).getDifficulty();
         }
-        for (int i = 0; i < entries.size(); i++) {
-            if (i == entries.size() - 1)
-                break;
+        else {
+            for (int i = 0; i < entries.size(); i++) {
+                if (i == entries.size() - 1)
+                    break;
 
-            long older = GetTime.GetTimestampFromString(block_entries.get(entries.get(i)).getHeaderData().getTimestamp()).getTime();
-            long newer = GetTime.GetTimestampFromString(block_entries.get(entries.get(i + 1)).getHeaderData().getTimestamp()).getTime();
-            sumtime = sumtime + (newer - older);
-            //System.out.println("edw "+(newer - older));
-            summdiffuclty = summdiffuclty + block_entries.get(entries.get(i)).getDifficulty();
-            //  System.out.println("edw "+(newer - older));
-            if ((newer - older) > 1000) {
-                int h = i;
+                long older = GetTime.GetTimestampFromString(block_entries.get(entries.get(i)).getHeaderData().getTimestamp()).getTime();
+                long newer = GetTime.GetTimestampFromString(block_entries.get(entries.get(i + 1)).getHeaderData().getTimestamp()).getTime();
+                sumtime = sumtime + (newer - older);
+                //System.out.println("edw "+(newer - older));
+                summdiffuclty = summdiffuclty + block_entries.get(entries.get(i)).getDifficulty();
+                //System.out.println("edw "+(newer - older));
             }
         }
 
@@ -59,8 +59,7 @@ public class DifficultyEventHandler implements BlockEventHandler<AbstractBlockEv
         // String s=String.format("%4d",  sumtime / n);
         double t = ((double) sumtime / n);
         //  System.out.println(t);
-        int difficulty = (int)Math.round(t * ((double) AdrestusConfiguration.INIT_VDF_DIFFICULTY / d));
-        difficulty=difficulty*2;
+        int difficulty = MathOperationUtil.multiplication((int) Math.round((t) / d));
 
         if(difficulty!=block.getDifficulty()){
             LOG.info("VDF Difficulty not match");

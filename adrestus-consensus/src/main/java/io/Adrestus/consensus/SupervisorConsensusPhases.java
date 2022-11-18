@@ -23,6 +23,9 @@ import io.Adrestus.crypto.vrf.VRFMessage;
 import io.Adrestus.crypto.vrf.engine.VrfEngine2;
 import io.Adrestus.network.ConsensusServer;
 import io.Adrestus.util.*;
+import io.distributedLedger.DatabaseFactory;
+import io.distributedLedger.DatabaseType;
+import io.distributedLedger.IDatabase;
 import org.apache.tuweni.bytes.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -344,7 +347,7 @@ public class SupervisorConsensusPhases {
         }.getType();
         private static Logger LOG = LoggerFactory.getLogger(ProposeCommitteeBlock.class);
 
-
+        private final IDatabase<String, CommitteeBlock> database;
         private final SerializationUtil<AbstractBlock> block_serialize;
         private final SerializationUtil<ConsensusMessage> consensus_serialize;
         private final DefaultFactory factory;
@@ -352,6 +355,7 @@ public class SupervisorConsensusPhases {
         public ProposeCommitteeBlock(boolean DEBUG) {
             this.DEBUG = DEBUG;
             this.factory = new DefaultFactory();
+            this.database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB);
             List<SerializationUtil.Mapping> list = new ArrayList<>();
             list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
             list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
@@ -384,7 +388,6 @@ public class SupervisorConsensusPhases {
             if (DEBUG)
                 return;
 
-            System.out.println(ObjectSizer.retainedSize(block.getData()));
             byte[] message = block_serialize.encode(block.getData());
             Signature sig = BLSSignature.sign(message, CachedBLSKeyPair.getInstance().getPrivateKey());
             block.getChecksumData().setBlsPublicKey(CachedBLSKeyPair.getInstance().getPublicKey());
@@ -394,8 +397,6 @@ public class SupervisorConsensusPhases {
             byte[] toSend = consensus_serialize.encode(block);
 
             ConsensusMessage<CommitteeBlock>cop=consensus_serialize.decode(toSend);
-            boolean ex=Arrays.equals(message,block_serialize.encode(cop.getData()));
-            boolean ex2=cop.getData().equals(block.getData());
             consensusServer.publishMessage(toSend);
         }
 
@@ -528,7 +529,6 @@ public class SupervisorConsensusPhases {
             byte[] toSend = consensus_serialize.encode(block);
             consensusServer.publishMessage(toSend);
 
-            CachedLatestBlocks.getInstance().setCommitteeBlock(block.getData());
 
             while (i > 0) {
                 try {
@@ -538,8 +538,10 @@ public class SupervisorConsensusPhases {
                     i--;
                 }
             }
+            CachedLatestBlocks.getInstance().setCommitteeBlock(block.getData());
+            database.save(block.getData().getHash(),block.getData());
             cleanup();
-            LOG.info("Block is finalized with Success");
+            LOG.info("Committee is finalized with Success");
         }
 
 

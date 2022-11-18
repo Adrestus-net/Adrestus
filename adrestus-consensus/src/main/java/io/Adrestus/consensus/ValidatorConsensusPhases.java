@@ -28,6 +28,9 @@ import io.Adrestus.network.ConsensusClient;
 import io.Adrestus.util.ByteUtil;
 import io.Adrestus.crypto.elliptic.mapper.CustomSerializerTreeMap;
 import io.Adrestus.util.SerializationUtil;
+import io.distributedLedger.DatabaseFactory;
+import io.distributedLedger.DatabaseType;
+import io.distributedLedger.IDatabase;
 import lombok.SneakyThrows;
 import org.apache.tuweni.bytes.Bytes;
 import org.slf4j.Logger;
@@ -654,9 +657,10 @@ public class ValidatorConsensusPhases {
         }.getType();
         private final SerializationUtil<AbstractBlock> block_serialize;
         private final SerializationUtil<ConsensusMessage> consensus_serialize;
-
+        private final IDatabase<String, CommitteeBlock> database;
         public VerifyCommitteeBlock(boolean DEBUG) {
             this.DEBUG = DEBUG;
+            this.database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB);
             List<SerializationUtil.Mapping> list = new ArrayList<>();
             list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
             list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
@@ -866,10 +870,11 @@ public class ValidatorConsensusPhases {
 
 
             CachedLatestBlocks.getInstance().setCommitteeBlock(block.getData());
+            database.save(block.getData().getHash(),block.getData());
             //commit save to db
 
             consensusClient.send_heartbeat(HEARTBEAT_MESSAGE);
-            LOG.info("Block is finalized with Success");
+            LOG.info("Committee is finalized with Success");
         }
     }
 }
