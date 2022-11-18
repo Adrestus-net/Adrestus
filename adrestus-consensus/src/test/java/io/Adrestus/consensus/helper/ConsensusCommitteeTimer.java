@@ -50,6 +50,7 @@ public class ConsensusCommitteeTimer {
 
     public void InitFirstBlock() throws Exception {
         IDatabase<String, CommitteeBlock> database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB);
+        //database.delete_db();
         CachedLatestBlocks.getInstance().getCommitteeBlock().getHeaderData().setTimestamp(GetTime.GetTimeStampInString());
         CachedLatestBlocks.getInstance().getCommitteeBlock().setDifficulty(112);
         CachedLatestBlocks.getInstance().getCommitteeBlock().setHash("hash");
@@ -90,8 +91,8 @@ public class ConsensusCommitteeTimer {
             }
             latch.countDown();
 
-            random.nextBytes(values);
-            CachedSecurityHeaders.getInstance().getSecurityHeader().setpRnd(values);
+            //random.nextBytes(values);
+            //CachedSecurityHeaders.getInstance().getSecurityHeader().setpRnd(values);
         }
     }
 }

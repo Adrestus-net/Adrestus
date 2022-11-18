@@ -46,7 +46,6 @@ public class ConsensusCommitteeTimerTest {
 
     @BeforeAll
     public static void setup() throws Exception {
-        String timestamp= GetTime.GetTimeStampInString();
         int version = 0x00;
         sk1 = new BLSPrivateKey(1);
         vk1 = new BLSPublicKey(sk1);

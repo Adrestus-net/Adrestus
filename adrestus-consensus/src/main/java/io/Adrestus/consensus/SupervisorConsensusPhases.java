@@ -397,6 +397,8 @@ public class SupervisorConsensusPhases {
             byte[] toSend = consensus_serialize.encode(block);
 
             ConsensusMessage<CommitteeBlock>cop=consensus_serialize.decode(toSend);
+            if(!cop.getData().equals(block.getData()))
+                throw new IllegalArgumentException("sadasd");
             consensusServer.publishMessage(toSend);
         }
 
@@ -412,7 +414,7 @@ public class SupervisorConsensusPhases {
                             i--;
                         } else {
                             ConsensusMessage<TransactionBlock> received = consensus_serialize.decode(receive);
-                            if (!CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).containsKey(received.getChecksumData().getBlsPublicKey())) {
+                            if (!CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).containsKey(received.getChecksumData().getBlsPublicKey())) {
                                 LOG.info("PreparePhase: Validator does not exist on consensus... Ignore");
                                 i--;
                             } else {
@@ -477,7 +479,7 @@ public class SupervisorConsensusPhases {
                             i--;
                         } else {
                             ConsensusMessage<TransactionBlock> received = consensus_serialize.decode(receive);
-                            if (!CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).containsKey(received.getChecksumData().getBlsPublicKey())) {
+                            if (!CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).containsKey(received.getChecksumData().getBlsPublicKey())) {
                                 LOG.info("CommitPhase: Validator does not exist on consensus... Ignore");
                                 i--;
                             } else {
