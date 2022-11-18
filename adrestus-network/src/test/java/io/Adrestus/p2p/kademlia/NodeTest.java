@@ -126,13 +126,13 @@ public class NodeTest {
     }
 
     @Test
-    public void test_one() throws ExecutionException, InterruptedException, DuplicateStoreRequest {
-        StoreAnswer<BigInteger, String> storeAnswer = node5.store("K", "V").get();
+    public void test_one() throws ExecutionException, InterruptedException, DuplicateStoreRequest, TimeoutException {
+        StoreAnswer<BigInteger, String> storeAnswer = node5.store("K", "V").get(5, TimeUnit.SECONDS);
         System.out.println(storeAnswer.toString());
         System.out.println(storeAnswer.getResult());
         System.out.println(storeAnswer.getNodeId());
 
-        LookupAnswer<BigInteger, String, String> k = node1.lookup("K").get();
+        LookupAnswer<BigInteger, String, String> k = node1.lookup("K").get(5, TimeUnit.SECONDS);
         //node1.getKademliaNode().getRoutingTable().findClosest(BigInteger.valueOf(3)).getNodes().stream().forEach(x-> System.out.println(x.toString()));
         //node1.getKademliaNode().getRoutingTable().getBuckets().stream().forEach(x-> System.out.println(x.getNodeIds().toString()));
         // node2.getKademliaNode().getRoutingTable().getBuckets().stream().forEach(x-> System.out.println(x.getNodeIds().toString()));
@@ -146,11 +146,11 @@ public class NodeTest {
         node5.store("D", "sad");
         Thread.sleep(4000);
 
-        System.out.println(node1.lookup("gg").get().getValue());
-        System.out.println(node2.lookup("gg").get().getValue());
-        System.out.println(node3.lookup("gg").get().getValue());
-        System.out.println(node4.lookup("gg").get().getValue());
-        System.out.println(node5.lookup("gg").get().getValue());
+        System.out.println(node1.lookup("gg").get(5, TimeUnit.SECONDS).getValue());
+        System.out.println(node2.lookup("gg").get(5, TimeUnit.SECONDS).getValue());
+        System.out.println(node3.lookup("gg").get(5, TimeUnit.SECONDS).getValue());
+        System.out.println(node4.lookup("gg").get(5, TimeUnit.SECONDS).getValue());
+        System.out.println(node5.lookup("gg").get(5, TimeUnit.SECONDS).getValue());
         LookupAnswer<BigInteger, String, String> k2 = node2.lookup("D").get();
         LookupAnswer<BigInteger, String, String> k3 = node3.lookup("D").get();
         LookupAnswer<BigInteger, String, String> k4 = node4.lookup("D").get();
