@@ -26,6 +26,7 @@ import io.Adrestus.util.*;
 import org.apache.tuweni.bytes.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.spongycastle.util.encoders.Hex;
 
 import java.lang.reflect.Type;
 import java.math.BigInteger;
@@ -38,29 +39,99 @@ import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 
 public class SupervisorConsensusPhases {
-
+    protected boolean DEBUG;
+    protected CountDownLatch latch;
+    protected int N;
+    protected int F;
+    protected int current;
+    protected ConsensusServer consensusServer;
+    protected BLSPublicKey leader_bls;
     protected static class ProposeVDF extends SupervisorConsensusPhases implements BFTConsensusPhase<VDFMessage> {
+        private static final Type fluentType = new TypeToken<ConsensusMessage<VDFMessage>>() {
+        }.getType();
         private static Logger LOG = LoggerFactory.getLogger(ProposeVDF.class);
         private final VdfEngine vdf;
-        private final SerializationUtil<VDFMessage> serialize;
+        private final SerializationUtil<ConsensusMessage> consensus_serialize;
+        private final SerializationUtil<VDFMessage> data_serialize;
 
-        public ProposeVDF() {
-            vdf = new VdfEnginePietrzak(AdrestusConfiguration.PIERRZAK_BIT);
-            this.serialize = new SerializationUtil<VDFMessage>(VDFMessage.class);
+
+        public ProposeVDF(boolean DEBUG) {
+            this.DEBUG=DEBUG;
+            this.vdf = new VdfEnginePietrzak(AdrestusConfiguration.PIERRZAK_BIT);
+            List<SerializationUtil.Mapping> list = new ArrayList<>();
+            list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
+            list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
+            this.data_serialize=new SerializationUtil<VDFMessage>(VDFMessage.class);
+            this.consensus_serialize = new SerializationUtil<ConsensusMessage>(fluentType, list);
         }
         @Override
         public void InitialSetup(){
-
+            if (!DEBUG) {
+                this.N = 1;
+                //this.N = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).size() - 1;
+                this.F = (this.N - 1) / 3;
+                this.latch = new CountDownLatch(N);
+                this.current = CachedLeaderIndex.getInstance().getCommitteePositionLeader();
+                this.leader_bls = CachedLatestBlocks.getInstance().getCommitteeBlock().getPublicKeyByIndex(0, current);
+                this.consensusServer = new ConsensusServer(CachedLatestBlocks.getInstance().getCommitteeBlock().getValue(0, this.leader_bls), latch);
+            }
         }
         @Override
         public void AnnouncePhase(ConsensusMessage<VDFMessage> data) {
             data.setMessageType(ConsensusMessageType.ANNOUNCE);
             byte[] solution = vdf.solve(CachedSecurityHeaders.getInstance().getSecurityHeader().getpRnd(), CachedLatestBlocks.getInstance().getCommitteeBlock().getDifficulty());
             data.getData().setVDFSolution(solution);
+
+            if (DEBUG)
+                return;
+
+            byte[] message = data_serialize.encode(data.getData());
+            Signature sig = BLSSignature.sign(message, CachedBLSKeyPair.getInstance().getPrivateKey());
+            data.getChecksumData().setBlsPublicKey(CachedBLSKeyPair.getInstance().getPublicKey());
+            data.getChecksumData().setSignature(sig);
+
+            byte[] toSend = consensus_serialize.encode(data);
+            consensusServer.publishMessage(toSend);
+
         }
 
         @Override
         public void PreparePhase(ConsensusMessage<VDFMessage> data) {
+            if (!DEBUG) {
+                int i = N;
+                while (i > 0) {
+                    byte[] receive = consensusServer.receiveData();
+                    try {
+                        if (receive == null) {
+                            LOG.info("PreparePhase: Null message from validators");
+                            i--;
+                        } else {
+                            ConsensusMessage<VDFMessage> received = consensus_serialize.decode(receive);
+                            if (!leader_bls.toRaw().equals(received.getChecksumData().getBlsPublicKey().toRaw())) {
+                                LOG.info("PreparePhase: Validator does not exist on consensus... Ignore");
+                                i--;
+                            } else {
+                                data.getSignatures().add(received.getChecksumData());
+                                N--;
+                                i--;
+                            }
+                        }
+                    } catch (IllegalArgumentException e) {
+                        LOG.info("PreparePhase: Problem at message deserialization");
+                        data.setStatusType(ConsensusStatusType.ABORT);
+                        cleanup();
+                        return;
+                    }
+                }
+
+
+                if (N > F) {
+                    LOG.info("PreparePhase: Byzantine network not meet requirements abort " + String.valueOf(N));
+                    data.setStatusType(ConsensusStatusType.ABORT);
+                    cleanup();
+                    return;
+                }
+            }
             data.setMessageType(ConsensusMessageType.PREPARE);
 
             List<BLSPublicKey> publicKeys = data.getSignatures().stream().map(ConsensusMessage.ChecksumData::getBlsPublicKey).collect(Collectors.toList());
@@ -68,14 +139,66 @@ public class SupervisorConsensusPhases {
 
 
             Signature aggregatedSignature = BLSSignature.aggregate(signature);
-            Bytes message = Bytes.wrap(CachedSecurityHeaders.getInstance().getSecurityHeader().getRnd());
+            Bytes message = Bytes.wrap(data.getData().getVDFSolution());
             boolean verify = BLSSignature.fastAggregateVerify(publicKeys, message, aggregatedSignature);
             if (!verify)
                 throw new IllegalArgumentException("Abort consensus phase BLS multi_signature is invalid during prepare phase");
+
+
+            if (DEBUG)
+                return;
+
+
+            Signature sig = BLSSignature.sign(data_serialize.encode(data.getData()), CachedBLSKeyPair.getInstance().getPrivateKey());
+            data.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
+
+            this.N = 1;
+            this.F = (this.N - 1) / 3;
+
+
+            byte[] toSend = consensus_serialize.encode(data);
+            consensusServer.publishMessage(toSend);
         }
 
         @Override
         public void CommitPhase(ConsensusMessage<VDFMessage> data) {
+            if (!DEBUG) {
+                int i = N;
+                data.getSignatures().clear();
+                while (i > 0) {
+                    byte[] receive = consensusServer.receiveData();
+                    try {
+                        if (receive == null) {
+                            LOG.info("CommitPhase: Not Receiving from Validators");
+                            i--;
+                        } else {
+                            ConsensusMessage<TransactionBlock> received = consensus_serialize.decode(receive);
+                            if (!leader_bls.toRaw().equals(received.getChecksumData().getBlsPublicKey().toRaw())) {
+                                LOG.info("CommitPhase: Validator does not exist on consensus... Ignore");
+                                i--;
+                            } else {
+                                data.getSignatures().add(received.getChecksumData());
+                                N--;
+                                i--;
+                            }
+                        }
+                    } catch (IllegalArgumentException e) {
+                        LOG.info("CommitPhase: Problem at message deserialization");
+                        data.setStatusType(ConsensusStatusType.ABORT);
+                        cleanup();
+                        return;
+                    }
+                }
+
+
+                if (N > F) {
+                    LOG.info("CommitPhase: Byzantine network not meet requirements abort " + String.valueOf(N));
+                    data.setStatusType(ConsensusStatusType.ABORT);
+                    cleanup();
+                    return;
+                }
+            }
+
             data.setMessageType(ConsensusMessageType.COMMIT);
 
             List<BLSPublicKey> publicKeys = data.getSignatures().stream().map(ConsensusMessage.ChecksumData::getBlsPublicKey).collect(Collectors.toList());
@@ -83,13 +206,39 @@ public class SupervisorConsensusPhases {
 
 
             Signature aggregatedSignature = BLSSignature.aggregate(signature);
-            byte[] wrapp = serialize.encode(data.getData());
+            byte[] wrapp = data_serialize.encode(data.getData());
             Bytes message = Bytes.wrap(wrapp);
             boolean verify = BLSSignature.fastAggregateVerify(publicKeys, message, aggregatedSignature);
             if (!verify)
                 throw new IllegalArgumentException("Abort consensus phase BLS multi_signature is invalid during commit phase");
 
             //commit save to db
+
+            if (DEBUG)
+                return;
+
+            Signature sig = BLSSignature.sign(data_serialize.encode(data.getData()), CachedBLSKeyPair.getInstance().getPrivateKey());
+            data.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
+
+            this.N = 1;
+            this.F = (this.N - 1) / 3;
+            int i = N;
+
+            byte[] toSend = consensus_serialize.encode(data);
+            consensusServer.publishMessage(toSend);
+
+           CachedSecurityHeaders.getInstance().getSecurityHeader().setRnd(data.getData().getVDFSolution());
+
+            while (i > 0) {
+                try {
+                    consensusServer.receiveStringData();
+                } catch (NullPointerException ex) {
+                } finally {
+                    i--;
+                }
+            }
+            cleanup();
+            LOG.info("VDF is finalized with Success");
         }
     }
 
@@ -199,14 +348,6 @@ public class SupervisorConsensusPhases {
         private final SerializationUtil<AbstractBlock> block_serialize;
         private final SerializationUtil<ConsensusMessage> consensus_serialize;
         private final DefaultFactory factory;
-        private final boolean DEBUG;
-
-        private CountDownLatch latch;
-        private int N;
-        private int F;
-        private int current;
-        private ConsensusServer consensusServer;
-        private BLSPublicKey leader_bls;
 
         public ProposeCommitteeBlock(boolean DEBUG) {
             this.DEBUG = DEBUG;
@@ -401,9 +542,9 @@ public class SupervisorConsensusPhases {
             LOG.info("Block is finalized with Success");
         }
 
-        private void cleanup() {
-            consensusServer.close();
-        }
-    }
 
+    }
+    protected void cleanup() {
+        consensusServer.close();
+    }
 }

@@ -10,7 +10,7 @@ public class Validator implements ConsensusRole {
     public Validator(boolean DEBUG) {
         this.DEBUG = DEBUG;
         validator_map = new EnumMap<>(ConsensusType.class);
-        validator_map.put(ConsensusType.VDF, new ValidatorConsensusPhases.VerifyVDF());
+        validator_map.put(ConsensusType.VDF, new ValidatorConsensusPhases.VerifyVDF(this.DEBUG));
         validator_map.put(ConsensusType.VRF, new ValidatorConsensusPhases.VerifyVRF());
         validator_map.put(ConsensusType.TRANSACTION_BLOCK, new ValidatorConsensusPhases.VerifyTransactionBlock(this.DEBUG));
         validator_map.put(ConsensusType.COMMITTEE_BLOCK, new ValidatorConsensusPhases.VerifyCommitteeBlock(this.DEBUG));

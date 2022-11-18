@@ -47,25 +47,77 @@ import static io.Adrestus.config.ConsensusConfiguration.HEARTBEAT_MESSAGE;
 
 public class ValidatorConsensusPhases {
 
+    protected boolean DEBUG;
+
+
+    protected CountDownLatch latch;
+    protected int N;
+    protected int F;
+    protected int current;
+    protected ConsensusClient consensusClient;
+    protected BLSPublicKey leader_bls;
     public ValidatorConsensusPhases() {
     }
 
     protected static class VerifyVDF extends ValidatorConsensusPhases implements BFTConsensusPhase<VDFMessage> {
+        private static final Type fluentType = new TypeToken<ConsensusMessage<VDFMessage>>() {
+        }.getType();
         private static Logger LOG = LoggerFactory.getLogger(VerifyVDF.class);
         private final VdfEngine vdf;
-        private final SerializationUtil<VDFMessage> serialize;
+        private final SerializationUtil<ConsensusMessage> consensus_serialize;
+        private final SerializationUtil<VDFMessage> data_serialize;
 
-        public VerifyVDF() {
-            vdf = new VdfEnginePietrzak(AdrestusConfiguration.PIERRZAK_BIT);
-            serialize = new SerializationUtil<VDFMessage>(VDFMessage.class);
+        public VerifyVDF(boolean DEBUG) {
+            this.DEBUG=DEBUG;
+            this.vdf = new VdfEnginePietrzak(AdrestusConfiguration.PIERRZAK_BIT);
+            List<SerializationUtil.Mapping> list = new ArrayList<>();
+            list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
+            list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
+            this.data_serialize=new SerializationUtil<VDFMessage>(VDFMessage.class);
+            this.consensus_serialize = new SerializationUtil<ConsensusMessage>(fluentType, list);
         }
 
         @Override
         public void InitialSetup(){
-
+            if (!DEBUG) {
+                this.current = CachedLeaderIndex.getInstance().getCommitteePositionLeader();
+                this.leader_bls = CachedLatestBlocks.getInstance().getCommitteeBlock().getPublicKeyByIndex(0, current);
+                this.consensusClient = new ConsensusClient(CachedLatestBlocks.getInstance().getCommitteeBlock().getValue(0, this.leader_bls));
+                this.consensusClient.receive_handler();
+            }
         }
         @Override
         public void AnnouncePhase(ConsensusMessage<VDFMessage> data) {
+            if (!DEBUG) {
+                consensusClient.send_heartbeat(HEARTBEAT_MESSAGE);
+                String heartbeat = consensusClient.rec_heartbeat();
+                if (heartbeat == null) {
+                    LOG.info("AnnouncePhase: heartbeat message is null");
+                    data.setStatusType(ConsensusStatusType.ABORT);
+                    return;
+                }
+                byte[] receive = this.consensusClient.deque_message();
+                if (receive == null) {
+                    LOG.info("AnnouncePhase: Leader is not active fail to send message");
+                    data.setStatusType(ConsensusStatusType.ABORT);
+                    return;
+                } else {
+
+                    data = consensus_serialize.decode(receive);
+                    if (!data.getChecksumData().getBlsPublicKey().toRaw().equals(leader_bls.toRaw())) {
+                        LOG.info("AnnouncePhase: This is not the valid leader for this round");
+                        data.setStatusType(ConsensusStatusType.ABORT);
+                        return;
+                    } else {
+                        byte[] message = data_serialize.encode(data.getData());
+                        boolean verify = BLSSignature.verify(data.getChecksumData().getSignature(), message, data.getChecksumData().getBlsPublicKey());
+                        if (!verify) {
+                            data.setStatusType(ConsensusStatusType.ABORT);
+                            throw new IllegalArgumentException("AnnouncePhase: Abort consensus phase BLS leader signature is invalid during announce phase");
+                        }
+                    }
+                }
+            }
             if (!data.getMessageType().equals(ConsensusMessageType.ANNOUNCE))
                 LOG.info("Organizer not send correct header message expected " + ConsensusMessageType.ANNOUNCE);
 
@@ -75,14 +127,47 @@ public class ValidatorConsensusPhases {
                 data.setStatusType(ConsensusStatusType.ABORT);
                 return;
             }
-            CachedSecurityHeaders.getInstance().getSecurityHeader().setRnd(data.getData().getVDFSolution());
+            //CachedSecurityHeaders.getInstance().getSecurityHeader().setRnd(data.getData().getVDFSolution());
             data.setStatusType(ConsensusStatusType.SUCCESS);
-            Signature sig = BLSSignature.sign(CachedSecurityHeaders.getInstance().getSecurityHeader().getRnd(), CachedBLSKeyPair.getInstance().getPrivateKey());
+            Signature sig = BLSSignature.sign(data.getData().getVDFSolution(), CachedBLSKeyPair.getInstance().getPrivateKey());
             data.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
+
+            if (DEBUG)
+                return;
+
+            byte[] toSend = consensus_serialize.encode(data);
+            consensusClient.pushMessage(toSend);
         }
 
         @Override
         public void PreparePhase(ConsensusMessage<VDFMessage> data) {
+            if (!DEBUG) {
+                byte[] receive = this.consensusClient.deque_message();
+                if (receive == null) {
+                    LOG.info("PreparePhase: Leader is not active fail to send message");
+                    data.setStatusType(ConsensusStatusType.ABORT);
+                    return;
+                } else {
+                    try {
+                        data = consensus_serialize.decode(receive);
+                        if (!data.getChecksumData().getBlsPublicKey().toRaw().equals(leader_bls.toRaw())) {
+                            LOG.info("PreparePhase: This is not the valid leader for this round");
+                            data.setStatusType(ConsensusStatusType.ABORT);
+                            return;
+                        } else {
+                            byte[] message = data_serialize.encode(data.getData());
+                            boolean verify = BLSSignature.verify(data.getChecksumData().getSignature(), message, data.getChecksumData().getBlsPublicKey());
+                            if (!verify)
+                                throw new IllegalArgumentException("PreparePhase: Abort consensus phase BLS leader signature is invalid during prepare phase");
+                        }
+                    } catch (IllegalArgumentException e) {
+                        LOG.info("PreparePhase: Problem at message deserialization Abort");
+                        data.setStatusType(ConsensusStatusType.ABORT);
+                        return;
+                    }
+                }
+            }
+
             if (!data.getMessageType().equals(ConsensusMessageType.PREPARE))
                 LOG.info("Organizer not send correct header message expected " + ConsensusMessageType.PREPARE);
 
@@ -91,7 +176,7 @@ public class ValidatorConsensusPhases {
 
 
             Signature aggregatedSignature = BLSSignature.aggregate(signature);
-            Bytes toVerify = Bytes.wrap(CachedSecurityHeaders.getInstance().getSecurityHeader().getRnd());
+            Bytes toVerify = Bytes.wrap(data.getData().getVDFSolution());
             boolean verify = BLSSignature.fastAggregateVerify(publicKeys, toVerify, aggregatedSignature);
             if (!verify) {
                 LOG.info("Abort consensus phase BLS multi_signature is invalid in prepare phase");
@@ -103,13 +188,47 @@ public class ValidatorConsensusPhases {
             data.setStatusType(ConsensusStatusType.SUCCESS);
 
 
-            byte[] message = serialize.encode(data.getData());
+            byte[] message = data_serialize.encode(data.getData());
             Signature sig = BLSSignature.sign(message, CachedBLSKeyPair.getInstance().getPrivateKey());
             data.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
+
+            if (DEBUG)
+                return;
+
+            byte[] toSend = consensus_serialize.encode(data);
+            consensusClient.pushMessage(toSend);
         }
 
         @Override
         public void CommitPhase(ConsensusMessage<VDFMessage> data) {
+
+            if (!DEBUG) {
+                byte[] receive = this.consensusClient.deque_message();
+                if (receive == null) {
+                    LOG.info("CommitPhase: Leader is not active fail to send message");
+                    data.setStatusType(ConsensusStatusType.ABORT);
+                    return;
+                } else {
+                    try {
+                        data = consensus_serialize.decode(receive);
+                        if (!data.getChecksumData().getBlsPublicKey().toRaw().equals(leader_bls.toRaw())) {
+                            LOG.info("CommitPhase: This is not the valid leader for this round");
+                            data.setStatusType(ConsensusStatusType.ABORT);
+                            return;
+                        } else {
+                            byte[] message = data_serialize.encode(data.getData());
+                            boolean verify = BLSSignature.verify(data.getChecksumData().getSignature(), message, data.getChecksumData().getBlsPublicKey());
+                            if (!verify)
+                                throw new IllegalArgumentException("CommitPhase: Abort consensus phase BLS leader signature is invalid during commit phase");
+                        }
+                    } catch (IllegalArgumentException e) {
+                        LOG.info("CommitPhase: Problem at message deserialization Abort");
+                        data.setStatusType(ConsensusStatusType.ABORT);
+                        return;
+                    }
+                }
+            }
+
             if (!data.getMessageType().equals(ConsensusMessageType.COMMIT)) {
                 LOG.info("Organizer not send correct header message expected " + ConsensusMessageType.COMMIT);
                 data.setStatusType(ConsensusStatusType.ABORT);
@@ -121,7 +240,7 @@ public class ValidatorConsensusPhases {
 
 
             Signature aggregatedSignature = BLSSignature.aggregate(signature);
-            byte[] message = serialize.encode(data.getData());
+            byte[] message = data_serialize.encode(data.getData());
             Bytes toVerify = Bytes.wrap(message);
             boolean verify = BLSSignature.fastAggregateVerify(publicKeys, toVerify, aggregatedSignature);
             if (!verify) {
@@ -130,6 +249,16 @@ public class ValidatorConsensusPhases {
             }
 
             //commit save to db
+
+            if (DEBUG)
+                return;
+
+
+             CachedSecurityHeaders.getInstance().getSecurityHeader().setRnd(data.getData().getVDFSolution());
+            //commit save to db
+
+            consensusClient.send_heartbeat(HEARTBEAT_MESSAGE);
+            LOG.info("VDF is finalized with Success");
         }
     }
 
@@ -285,11 +414,7 @@ public class ValidatorConsensusPhases {
         }.getType();
         private final SerializationUtil<AbstractBlock> block_serialize;
         private final SerializationUtil<ConsensusMessage> consensus_serialize;
-        private final boolean DEBUG;
 
-        private ConsensusClient consensusClient;
-        private BLSPublicKey leader_bls;
-        private int current;
 
         public VerifyTransactionBlock(boolean DEBUG) {
             this.DEBUG = DEBUG;
@@ -529,15 +654,7 @@ public class ValidatorConsensusPhases {
         }.getType();
         private final SerializationUtil<AbstractBlock> block_serialize;
         private final SerializationUtil<ConsensusMessage> consensus_serialize;
-        private final boolean DEBUG;
 
-
-        private CountDownLatch latch;
-        private int N;
-        private int F;
-        private int current;
-        private ConsensusClient consensusClient;
-        private BLSPublicKey leader_bls;
         public VerifyCommitteeBlock(boolean DEBUG) {
             this.DEBUG = DEBUG;
             List<SerializationUtil.Mapping> list = new ArrayList<>();
