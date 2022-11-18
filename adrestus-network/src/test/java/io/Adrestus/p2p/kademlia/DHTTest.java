@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public class DHTTest {
 
@@ -83,19 +84,19 @@ public class DHTTest {
     }
 
     @Test
-    void testDhtStoreLookup() throws DuplicateStoreRequest, ExecutionException, InterruptedException {
+    void testDhtStoreLookup() throws DuplicateStoreRequest, ExecutionException, InterruptedException, TimeoutException {
         String[] values = new String[]{"V", "ABC", "SOME VALUE"};
         for (String v : values) {
             System.out.println("Testing DHT for K: " + v.hashCode() + " & V: " + v);
-            StoreAnswer<BigInteger, String> storeAnswer = node2.store("" + v.hashCode(), v).get();
+            StoreAnswer<BigInteger, String> storeAnswer = node2.store("" + v.hashCode(), v).get(5, TimeUnit.SECONDS);
             Assertions.assertEquals(StoreAnswer.Result.STORED, storeAnswer.getResult());
 
-            LookupAnswer<BigInteger, String, String> lookupAnswer = node1.lookup("" + v.hashCode()).get();
+            LookupAnswer<BigInteger, String, String> lookupAnswer = node1.lookup("" + v.hashCode()).get(5, TimeUnit.SECONDS);
             Assertions.assertEquals(LookupAnswer.Result.FOUND, lookupAnswer.getResult());
             Assertions.assertEquals(lookupAnswer.getValue(), v);
             System.out.println("Node " + node1.getId() + " found " + v.hashCode() + " from " + lookupAnswer.getNodeId());
 
-            lookupAnswer = node2.lookup("" + v.hashCode()).get();
+            lookupAnswer = node2.lookup("" + v.hashCode()).get(5, TimeUnit.SECONDS);
             Assertions.assertEquals(LookupAnswer.Result.FOUND, lookupAnswer.getResult());
             Assertions.assertEquals(v, lookupAnswer.getValue());
             System.out.println("Node " + node2.getId() + " found " + v.hashCode() + " from " + lookupAnswer.getNodeId());
