@@ -45,7 +45,7 @@ public interface IDatabase<K, V> {
 
     Map<K, V> findBetweenRange(K key);
 
-    Map<K, V> seekBetweenRange(int start,int finish);
+    Map<K, V> seekBetweenRange(int start, int finish);
 
     int findDBsize();
 

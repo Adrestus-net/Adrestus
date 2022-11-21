@@ -5,8 +5,8 @@ import io.Adrestus.core.CommitteeBlock;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.MemoryTreePool;
 import io.Adrestus.core.Trie.PatriciaTreeNode;
-import io.Adrestus.crypto.SecurityAuditProofs;
 import io.Adrestus.crypto.HashUtil;
+import io.Adrestus.crypto.SecurityAuditProofs;
 import io.Adrestus.crypto.WalletAddress;
 import io.Adrestus.crypto.bls.model.BLSPrivateKey;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
@@ -18,7 +18,6 @@ import io.Adrestus.crypto.elliptic.SignatureData;
 import io.Adrestus.crypto.mnemonic.Mnemonic;
 import io.Adrestus.crypto.mnemonic.Security;
 import io.Adrestus.crypto.mnemonic.WordList;
-import io.Adrestus.util.GetTime;
 import io.distributedLedger.DatabaseFactory;
 import io.distributedLedger.DatabaseType;
 import io.distributedLedger.IDatabase;
@@ -40,8 +39,8 @@ public class ConsensusCommitteeTimerTest {
     private static BLSPrivateKey sk2;
     private static BLSPublicKey vk2;
 
-    private static ECKeyPair ecKeyPair1,ecKeyPair2;
-    private static String address1,address2;
+    private static ECKeyPair ecKeyPair1, ecKeyPair2;
+    private static String address1, address2;
     private static ECDSASign ecdsaSign = new ECDSASign();
 
     @BeforeAll
@@ -80,11 +79,12 @@ public class ConsensusCommitteeTimerTest {
         committeeBlock.getStructureMap().get(0).put(vk1, "192.168.1.106");
         committeeBlock.getStructureMap().get(0).put(vk2, "192.168.1.116");
 
-        committeeBlock.getStakingMap().put(10.0, new SecurityAuditProofs("192.168.1.106", address1,vk1, ecKeyPair1.getPublicKey(), signatureData1));
-        committeeBlock.getStakingMap().put(13.0, new SecurityAuditProofs("192.168.1.116", address2,vk2, ecKeyPair2.getPublicKey(), signatureData2));
+        committeeBlock.getStakingMap().put(10.0, new SecurityAuditProofs("192.168.1.106", address1, vk1, ecKeyPair1.getPublicKey(), signatureData1));
+        committeeBlock.getStakingMap().put(13.0, new SecurityAuditProofs("192.168.1.116", address2, vk2, ecKeyPair2.getPublicKey(), signatureData2));
 
         CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
     }
+
     @Test
     public void committe_test() throws Exception {
         Socket socket = new Socket();

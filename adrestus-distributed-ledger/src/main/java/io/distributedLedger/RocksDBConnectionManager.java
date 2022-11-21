@@ -57,10 +57,10 @@ public class RocksDBConnectionManager<K, V> implements IDriver<RocksDBConnection
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
         list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
-        list.add(new SerializationUtil.Mapping(BigInteger.class, ctx->new BigIntegerSerializer()));
-        list.add(new SerializationUtil.Mapping(TreeMap.class,ctx->new CustomSerializerTreeMap()));
+        list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
+        list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
         this.keyMapper = new SerializationUtil<>(this.keyClass);
-        this.valueMapper = new SerializationUtil<>(this.valueClass,list);
+        this.valueMapper = new SerializationUtil<>(this.valueClass, list);
         setupOptions();
         load_connection();
     }

@@ -60,6 +60,7 @@ public final class SecurityAuditProofs implements Serializable {
     public void setAddress(String address) {
         this.address = address;
     }
+
     @Serialize
     public BigInteger getECDSAPublicKey() {
         return eCDSAPublicKey;

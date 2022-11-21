@@ -20,8 +20,7 @@
         <maven.compiler.target>1.7</maven.compiler.target>
         <jeromq.version>0.5.3-SNAPSHOT</jeromq.version>
         <config.version>1.0-SNAPSHOT</config.version>
-        <activej-net.version>5.4.3</activej-net.version>
-        <activej-csp.version>5.4.3</activej-csp.version>
+        <activej.version>5.4.3</activej.version>
         <netty.version>4.1.77.Final</netty.version>
         <ok.http.version>4.9.3</ok.http.version>
         <gson.version>2.9.0</gson.version>
@@ -73,12 +72,27 @@
         <dependency>
             <groupId>io.activej</groupId>
             <artifactId>activej-net</artifactId>
-            <version>${activej-net.version}</version>
+            <version>${activej.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.activej</groupId>
+            <artifactId>activej-inject</artifactId>
+            <version>${activej.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.activej</groupId>
+            <artifactId>activej-rpc</artifactId>
+            <version>${activej.version}</version>
         </dependency>
         <dependency>
             <groupId>io.activej</groupId>
             <artifactId>activej-csp</artifactId>
-            <version>${activej-csp.version}</version>
+            <version>${activej.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.activej</groupId>
+            <artifactId>activej-launchers-common</artifactId>
+            <version>${activej.version}</version>
         </dependency>
     </dependencies>
     <build>

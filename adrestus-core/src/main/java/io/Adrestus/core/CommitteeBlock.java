@@ -10,7 +10,7 @@ import io.activej.serializer.annotations.Serialize;
 import java.io.Serializable;
 import java.util.*;
 
-public class CommitteeBlock extends AbstractBlock implements BlockFactory, DisruptorBlock {
+public class CommitteeBlock extends AbstractBlock implements BlockFactory, DisruptorBlock, Serializable {
     private int[] CommitteeProposer;
     private String VRF;
     private String VDF;

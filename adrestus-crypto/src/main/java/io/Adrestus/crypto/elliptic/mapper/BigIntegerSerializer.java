@@ -8,9 +8,7 @@ import io.activej.serializer.CompatibilityLevel;
 import java.math.BigInteger;
 
 import static io.activej.codegen.expression.Expressions.*;
-import static io.activej.codegen.expression.Expressions.constructor;
 import static io.activej.serializer.impl.SerializerExpressions.*;
-import static io.activej.serializer.impl.SerializerExpressions.readBytes;
 
 public class BigIntegerSerializer extends AbstractSerializerDef {
 
@@ -39,6 +37,6 @@ public class BigIntegerSerializer extends AbstractSerializerDef {
                               final CompatibilityLevel compatibilityLevel) {
         //  return staticCall(ECP.class, "fromBytes", readBytes(input,input));
         return let(arrayNew(byte[].class, readVarInt(in)), array ->
-                sequence(readBytes(in, array),constructor(BigInteger.class,array)));
+                sequence(readBytes(in, array), constructor(BigInteger.class, array)));
     }
 }

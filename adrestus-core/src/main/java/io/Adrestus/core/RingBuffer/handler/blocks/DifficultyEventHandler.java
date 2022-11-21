@@ -1,6 +1,5 @@
 package io.Adrestus.core.RingBuffer.handler.blocks;
 
-import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.core.CommitteeBlock;
 import io.Adrestus.core.RingBuffer.event.AbstractBlockEvent;
 import io.Adrestus.core.StatusType;
@@ -34,14 +33,13 @@ public class DifficultyEventHandler implements BlockEventHandler<AbstractBlockEv
         int n = finish;
         int summdiffuclty = 0;
         long sumtime = 0;
-        Map<String, CommitteeBlock> block_entries = database.seekBetweenRange(0,finish);
+        Map<String, CommitteeBlock> block_entries = database.seekBetweenRange(0, finish);
         ArrayList<String> entries = new ArrayList<String>(block_entries.keySet());
 
-        if(finish==1){
+        if (finish == 1) {
             sumtime = 100;
             summdiffuclty = block_entries.get(entries.get(0)).getDifficulty();
-        }
-        else {
+        } else {
             for (int i = 0; i < entries.size(); i++) {
                 if (i == entries.size() - 1)
                     break;
@@ -61,7 +59,7 @@ public class DifficultyEventHandler implements BlockEventHandler<AbstractBlockEv
         //  System.out.println(t);
         int difficulty = MathOperationUtil.multiplication((int) Math.round((t) / d));
 
-        if(difficulty!=block.getDifficulty()){
+        if (difficulty != block.getDifficulty()) {
             LOG.info("VDF Difficulty not match");
             block.setStatustype(StatusType.ABORT);
             return;

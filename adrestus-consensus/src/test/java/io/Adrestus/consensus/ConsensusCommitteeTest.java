@@ -6,8 +6,8 @@ import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedSecurityHeaders;
 import io.Adrestus.core.Resourses.MemoryTreePool;
 import io.Adrestus.core.Trie.PatriciaTreeNode;
-import io.Adrestus.crypto.SecurityAuditProofs;
 import io.Adrestus.crypto.HashUtil;
+import io.Adrestus.crypto.SecurityAuditProofs;
 import io.Adrestus.crypto.WalletAddress;
 import io.Adrestus.crypto.bls.BLS381.ECP;
 import io.Adrestus.crypto.bls.BLS381.ECP2;
@@ -44,7 +44,7 @@ import java.util.TreeMap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ConsensusCommitteeTest {
-    private static  IDatabase<String, CommitteeBlock> database;
+    private static IDatabase<String, CommitteeBlock> database;
     public static ArrayList<String> addreses;
     private static ArrayList<ECKeyPair> keypair;
     private static ArrayList<SignatureData> signatureData;
@@ -75,9 +75,9 @@ public class ConsensusCommitteeTest {
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
         list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
-        list.add(new SerializationUtil.Mapping(BigInteger.class, ctx->new BigIntegerSerializer()));
-        list.add(new SerializationUtil.Mapping(TreeMap.class, ctx->new CustomSerializerTreeMap()));
-        serenc = new SerializationUtil<AbstractBlock>(AbstractBlock.class,list);
+        list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
+        list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
+        serenc = new SerializationUtil<AbstractBlock>(AbstractBlock.class, list);
         sk1 = new BLSPrivateKey(1);
         vk1 = new BLSPublicKey(sk1);
 
@@ -100,7 +100,7 @@ public class ConsensusCommitteeTest {
         int version = 0x00;
         addreses = new ArrayList<>();
         keypair = new ArrayList<>();
-        signatureData=new ArrayList<>();
+        signatureData = new ArrayList<>();
         char[] mnemonic1 = "sample sail jungle learn general promote task puppy own conduct green affair ".toCharArray();
         char[] mnemonic2 = "photo monitor cushion indicate civil witness orchard estate online favorite sustain extend".toCharArray();
         char[] mnemonic3 = "initial car bulb nature animal honey learn awful grit arrow phrase entire ".toCharArray();
@@ -172,7 +172,7 @@ public class ConsensusCommitteeTest {
         SignatureData signatureData4 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(adddress4)), ecKeyPair4);
         SignatureData signatureData5 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(adddress5)), ecKeyPair5);
         SignatureData signatureData6 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(adddress5)), ecKeyPair5);
-        SignatureData signatureData7= ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(adddress6)), ecKeyPair6);
+        SignatureData signatureData7 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(adddress6)), ecKeyPair6);
         SignatureData signatureData8 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(adddress7)), ecKeyPair7);
         SignatureData signatureData9 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(adddress8)), ecKeyPair8);
         SignatureData signatureData10 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(adddress9)), ecKeyPair9);
@@ -222,7 +222,7 @@ public class ConsensusCommitteeTest {
         Thread.sleep(200);
         database.save("2", secondblock);
         CommitteeBlock thirdblock = new CommitteeBlock();
-        thirdblock.setCommitteeProposer(new int[]{4,2,4,2});
+        thirdblock.setCommitteeProposer(new int[]{4, 2, 4, 2});
         thirdblock.setDifficulty(119);
         thirdblock.setHeight(254);
         thirdblock.setVRF("asdas");
@@ -245,16 +245,16 @@ public class ConsensusCommitteeTest {
 
         var supervisorphase = consensusManager.getRole().manufacturePhases(ConsensusType.COMMITTEE_BLOCK);
         CommitteeBlock committeeBlock = new CommitteeBlock();
-        committeeBlock.getStakingMap().put(1010.0, new SecurityAuditProofs("192.168.1.101", addreses.get(0),vk1, keypair.get(0).getPublicKey(), signatureData.get(0)));
-        committeeBlock.getStakingMap().put(1013.0, new SecurityAuditProofs("192.168.1.102", addreses.get(1),vk2, keypair.get(1).getPublicKey(), signatureData.get(1)));
-        committeeBlock.getStakingMap().put(1007.0, new SecurityAuditProofs("192.168.1.103", addreses.get(2),vk3, keypair.get(2).getPublicKey(), signatureData.get(2)));
-        committeeBlock.getStakingMap().put(1022.0, new SecurityAuditProofs("192.168.1.104", addreses.get(3),vk4, keypair.get(3).getPublicKey(), signatureData.get(3)));
-        committeeBlock.getStakingMap().put(1006.0, new SecurityAuditProofs("192.168.1.105", addreses.get(4),vk6, keypair.get(4).getPublicKey(), signatureData.get(4)));
-        committeeBlock.getStakingMap().put(1032.0, new SecurityAuditProofs("192.168.1.106", addreses.get(5),vk5, keypair.get(5).getPublicKey(), signatureData.get(5)));
+        committeeBlock.getStakingMap().put(1010.0, new SecurityAuditProofs("192.168.1.101", addreses.get(0), vk1, keypair.get(0).getPublicKey(), signatureData.get(0)));
+        committeeBlock.getStakingMap().put(1013.0, new SecurityAuditProofs("192.168.1.102", addreses.get(1), vk2, keypair.get(1).getPublicKey(), signatureData.get(1)));
+        committeeBlock.getStakingMap().put(1007.0, new SecurityAuditProofs("192.168.1.103", addreses.get(2), vk3, keypair.get(2).getPublicKey(), signatureData.get(2)));
+        committeeBlock.getStakingMap().put(1022.0, new SecurityAuditProofs("192.168.1.104", addreses.get(3), vk4, keypair.get(3).getPublicKey(), signatureData.get(3)));
+        committeeBlock.getStakingMap().put(1006.0, new SecurityAuditProofs("192.168.1.105", addreses.get(4), vk6, keypair.get(4).getPublicKey(), signatureData.get(4)));
+        committeeBlock.getStakingMap().put(1032.0, new SecurityAuditProofs("192.168.1.106", addreses.get(5), vk5, keypair.get(5).getPublicKey(), signatureData.get(5)));
         ConsensusMessage<CommitteeBlock> consensusMessage = new ConsensusMessage<>(committeeBlock);
 
         supervisorphase.AnnouncePhase(consensusMessage);
-        CommitteeBlock test=consensusMessage.getData();
+        CommitteeBlock test = consensusMessage.getData();
         consensusManager.changeStateTo(ConsensusRoleType.VALIDATOR);
         BFTConsensusPhase validatorphase = (BFTConsensusPhase) consensusManager.getRole().manufacturePhases(ConsensusType.COMMITTEE_BLOCK);
 
@@ -273,7 +273,7 @@ public class ConsensusCommitteeTest {
         if (consensusMessage.getStatusType().equals(ConsensusStatusType.SUCCESS))
             consensusMessage.getSignatures().add(consensusMessage.getChecksumData());
 
-        assertEquals(test,consensusMessage.getData());
+        assertEquals(test, consensusMessage.getData());
         supervisorphase.PreparePhase(consensusMessage);
 
         List<ConsensusMessage.ChecksumData> list = new ArrayList<>();

@@ -7,6 +7,7 @@ public class Supervisor implements ConsensusRole {
 
     private final Map<ConsensusType, SupervisorConsensusPhases> supervisor_map;
     private boolean DEBUG;
+
     public Supervisor(boolean DEBUG) {
         supervisor_map = new EnumMap<>(ConsensusType.class);
         supervisor_map.put(ConsensusType.VDF, new SupervisorConsensusPhases.ProposeVDF(DEBUG));

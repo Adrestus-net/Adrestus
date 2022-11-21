@@ -16,7 +16,7 @@ public class ConsensusServerClientTest {
             public void run() {
                 ConsensusClient adrestusClient1 = new ConsensusClient("localhost");
                 byte[] res = adrestusClient1.receiveData();
-                if(res!=null)
+                if (res != null)
                     System.out.println(new String(res));
                 adrestusClient1.close();
             }
@@ -25,7 +25,7 @@ public class ConsensusServerClientTest {
             public void run() {
                 ConsensusClient adrestusClient2 = new ConsensusClient("localhost");
                 byte[] res = adrestusClient2.receiveData();
-                if(res!=null)
+                if (res != null)
                     System.out.println(new String(res));
                 adrestusClient2.close();
             }
@@ -34,7 +34,7 @@ public class ConsensusServerClientTest {
             public void run() {
                 ConsensusClient adrestusClient3 = new ConsensusClient("localhost");
                 byte[] res = adrestusClient3.receiveData();
-                if(res!=null)
+                if (res != null)
                     System.out.println(new String(res));
                 adrestusClient3.close();
             }
@@ -43,8 +43,8 @@ public class ConsensusServerClientTest {
             public void run() {
                 ConsensusClient adrestusClient4 = new ConsensusClient("localhost");
                 byte[] res = adrestusClient4.receiveData();
-                if(res!=null)
-                  System.out.println(new String(res));
+                if (res != null)
+                    System.out.println(new String(res));
                 adrestusClient4.close();
             }
         }).start();

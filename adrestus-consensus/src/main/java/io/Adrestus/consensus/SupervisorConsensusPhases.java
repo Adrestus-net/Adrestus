@@ -22,14 +22,14 @@ import io.Adrestus.crypto.vdf.engine.VdfEnginePietrzak;
 import io.Adrestus.crypto.vrf.VRFMessage;
 import io.Adrestus.crypto.vrf.engine.VrfEngine2;
 import io.Adrestus.network.ConsensusServer;
-import io.Adrestus.util.*;
+import io.Adrestus.util.ByteUtil;
+import io.Adrestus.util.SerializationUtil;
 import io.distributedLedger.DatabaseFactory;
 import io.distributedLedger.DatabaseType;
 import io.distributedLedger.IDatabase;
 import org.apache.tuweni.bytes.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.spongycastle.util.encoders.Hex;
 
 import java.lang.reflect.Type;
 import java.math.BigInteger;
@@ -49,6 +49,7 @@ public class SupervisorConsensusPhases {
     protected int current;
     protected ConsensusServer consensusServer;
     protected BLSPublicKey leader_bls;
+
     protected static class ProposeVDF extends SupervisorConsensusPhases implements BFTConsensusPhase<VDFMessage> {
         private static final Type fluentType = new TypeToken<ConsensusMessage<VDFMessage>>() {
         }.getType();
@@ -59,16 +60,17 @@ public class SupervisorConsensusPhases {
 
 
         public ProposeVDF(boolean DEBUG) {
-            this.DEBUG=DEBUG;
+            this.DEBUG = DEBUG;
             this.vdf = new VdfEnginePietrzak(AdrestusConfiguration.PIERRZAK_BIT);
             List<SerializationUtil.Mapping> list = new ArrayList<>();
             list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
             list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
-            this.data_serialize=new SerializationUtil<VDFMessage>(VDFMessage.class);
+            this.data_serialize = new SerializationUtil<VDFMessage>(VDFMessage.class);
             this.consensus_serialize = new SerializationUtil<ConsensusMessage>(fluentType, list);
         }
+
         @Override
-        public void InitialSetup(){
+        public void InitialSetup() {
             if (!DEBUG) {
                 this.N = 1;
                 //this.N = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).size() - 1;
@@ -79,6 +81,7 @@ public class SupervisorConsensusPhases {
                 this.consensusServer = new ConsensusServer(CachedLatestBlocks.getInstance().getCommitteeBlock().getValue(0, this.leader_bls), latch);
             }
         }
+
         @Override
         public void AnnouncePhase(ConsensusMessage<VDFMessage> data) {
             data.setMessageType(ConsensusMessageType.ANNOUNCE);
@@ -230,7 +233,7 @@ public class SupervisorConsensusPhases {
             byte[] toSend = consensus_serialize.encode(data);
             consensusServer.publishMessage(toSend);
 
-           CachedSecurityHeaders.getInstance().getSecurityHeader().setRnd(data.getData().getVDFSolution());
+            CachedSecurityHeaders.getInstance().getSecurityHeader().setRnd(data.getData().getVDFSolution());
 
             while (i > 0) {
                 try {
@@ -297,10 +300,12 @@ public class SupervisorConsensusPhases {
                 res = ByteUtil.xor(res, list.get(i + 1).getRi());
             }
         }
+
         @Override
-        public void InitialSetup(){
+        public void InitialSetup() {
 
         }
+
         @Override
         public void AnnouncePhase(ConsensusMessage<VRFMessage> data) {
             data.setMessageType(ConsensusMessageType.ANNOUNCE);
@@ -359,14 +364,14 @@ public class SupervisorConsensusPhases {
             List<SerializationUtil.Mapping> list = new ArrayList<>();
             list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
             list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
-            list.add(new SerializationUtil.Mapping(BigInteger.class,ctx->new BigIntegerSerializer()));
-            list.add(new SerializationUtil.Mapping(TreeMap.class,ctx->new CustomSerializerTreeMap()));
+            list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
+            list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
             this.block_serialize = new SerializationUtil<AbstractBlock>(AbstractBlock.class, list);
             this.consensus_serialize = new SerializationUtil<ConsensusMessage>(fluentType, list);
         }
 
         @Override
-        public void InitialSetup(){
+        public void InitialSetup() {
             if (!DEBUG) {
                 this.N = 1;
                 //this.N = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).size() - 1;
@@ -396,8 +401,8 @@ public class SupervisorConsensusPhases {
 
             byte[] toSend = consensus_serialize.encode(block);
 
-            ConsensusMessage<CommitteeBlock>cop=consensus_serialize.decode(toSend);
-            if(!cop.getData().equals(block.getData()))
+            ConsensusMessage<CommitteeBlock> cop = consensus_serialize.decode(toSend);
+            if (!cop.getData().equals(block.getData()))
                 throw new IllegalArgumentException("sadasd");
             consensusServer.publishMessage(toSend);
         }
@@ -541,13 +546,14 @@ public class SupervisorConsensusPhases {
                 }
             }
             CachedLatestBlocks.getInstance().setCommitteeBlock(block.getData());
-            database.save(block.getData().getHash(),block.getData());
+            database.save(block.getData().getHash(), block.getData());
             cleanup();
             LOG.info("Committee is finalized with Success");
         }
 
 
     }
+
     protected void cleanup() {
         consensusServer.close();
     }

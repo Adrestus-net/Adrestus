@@ -14,17 +14,17 @@ public class SignatureData implements Serializable {
 
 
     public SignatureData() {
-        this.v =0;
-        this.r =new byte[0];
+        this.v = 0;
+        this.r = new byte[0];
         this.s = new byte[0];
-        this.pub=new byte[0];
+        this.pub = new byte[0];
     }
 
-    public SignatureData(byte v,byte[] r,byte[] s) {
+    public SignatureData(byte v, byte[] r, byte[] s) {
         this.v = v;
         this.r = r;
         this.s = s;
-        this.pub=new byte[0];
+        this.pub = new byte[0];
     }
 
     public SignatureData(@Deserialize("v") byte v, @Deserialize("r") byte[] r, @Deserialize("s") byte[] s, @Deserialize("pub") byte[] pub) {
@@ -48,6 +48,7 @@ public class SignatureData implements Serializable {
     public byte[] getS() {
         return s;
     }
+
     @Serialize
     public byte[] getPub() {
         return pub;

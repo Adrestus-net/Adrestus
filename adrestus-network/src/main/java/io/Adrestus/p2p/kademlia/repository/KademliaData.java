@@ -3,6 +3,7 @@ package io.Adrestus.p2p.kademlia.repository;
 import com.google.common.base.Objects;
 import io.Adrestus.crypto.SecurityAuditProofs;
 import io.Adrestus.p2p.kademlia.common.NettyConnectionInfo;
+import io.activej.serializer.annotations.Serialize;
 
 import java.io.Serializable;
 
@@ -38,7 +39,7 @@ public class KademliaData implements Serializable, Cloneable {
         this.nettyConnectionInfo = new NettyConnectionInfo("", 0);
     }
 
-
+    @Serialize
     public String getHash() {
         return Hash;
     }
@@ -47,6 +48,7 @@ public class KademliaData implements Serializable, Cloneable {
         this.Hash = hash;
     }
 
+    @Serialize
     public SecurityAuditProofs getAddressData() {
         return addressData;
     }
@@ -55,7 +57,7 @@ public class KademliaData implements Serializable, Cloneable {
         this.addressData = addressData;
     }
 
-
+    @Serialize
     public NettyConnectionInfo getNettyConnectionInfo() {
         return nettyConnectionInfo;
     }

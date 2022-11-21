@@ -31,24 +31,24 @@ public class RandomnessEventHandler implements BlockEventHandler<AbstractBlockEv
         secureRandom.setSeed(Hex.decode(block.getVDF()));
 
         for (Map.Entry<Double, SecurityAuditProofs> entry : block.getStakingMap().entrySet()) {
-            int nextInt=secureRandom.nextInt(AdrestusConfiguration.MAX_ZONES);
-            if(!block.getStructureMap().get(nextInt).containsKey(entry.getValue().getValidatorBlSPublicKey())){
+            int nextInt = secureRandom.nextInt(AdrestusConfiguration.MAX_ZONES);
+            if (!block.getStructureMap().get(nextInt).containsKey(entry.getValue().getValidatorBlSPublicKey())) {
                 LOG.info("Validator not placed correctly");
                 block.setStatustype(StatusType.ABORT);
                 return;
             }
         }
-        ArrayList<Integer>replica=new ArrayList<>();
-        int iteration=0;
-        while(iteration<block.getStakingMap().size()) {
+        ArrayList<Integer> replica = new ArrayList<>();
+        int iteration = 0;
+        while (iteration < block.getStakingMap().size()) {
             int nextInt = secureRandom.nextInt(block.getStakingMap().size());
-            if(!replica.contains(nextInt)) {
+            if (!replica.contains(nextInt)) {
                 replica.add(nextInt);
                 iteration++;
             }
         }
         int[] array = Ints.toArray(replica);
-        if(!Arrays.equals(block.getCommitteeProposer(),array)){
+        if (!Arrays.equals(block.getCommitteeProposer(), array)) {
             LOG.info("Randomness is incorrect");
             block.setStatustype(StatusType.ABORT);
             return;

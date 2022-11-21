@@ -27,7 +27,7 @@ public class MinimumStakingEventHandler implements BlockEventHandler<AbstractBlo
                 .filter(this::hasOverMinimumPoints)
                 .collect(Collectors.toList());
 
-        if (validatorAddressDatalist.size()!=block.getStakingMap().size()) {
+        if (validatorAddressDatalist.size() != block.getStakingMap().size()) {
             LOG.info("Some validators do not meet minimum staking requirements");
             block.setStatustype(StatusType.ABORT);
             return;

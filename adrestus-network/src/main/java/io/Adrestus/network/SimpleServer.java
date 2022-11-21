@@ -65,8 +65,7 @@ public class SimpleServer {
             }
         } catch (Exception e) {
             LOG.info("Socket Closed");
-        }
-        catch (AssertionError e) {
+        } catch (AssertionError e) {
             LOG.info("Socket Closed");
         }
         timer.cancel();

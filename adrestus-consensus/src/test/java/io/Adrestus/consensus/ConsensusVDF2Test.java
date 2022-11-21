@@ -1,6 +1,5 @@
 package io.Adrestus.consensus;
 
-import io.Adrestus.consensus.helper.ConsensusCommitteeTimer;
 import io.Adrestus.consensus.helper.ConsensusVDFTimer;
 import io.Adrestus.core.CommitteeBlock;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
@@ -8,9 +7,6 @@ import io.Adrestus.core.Resourses.CachedSecurityHeaders;
 import io.Adrestus.crypto.bls.model.BLSPrivateKey;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.Adrestus.crypto.bls.model.CachedBLSKeyPair;
-import io.distributedLedger.DatabaseFactory;
-import io.distributedLedger.DatabaseType;
-import io.distributedLedger.IDatabase;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.spongycastle.util.encoders.Hex;

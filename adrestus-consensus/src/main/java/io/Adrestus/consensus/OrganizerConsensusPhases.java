@@ -1,8 +1,11 @@
 package io.Adrestus.consensus;
 
 import com.google.common.reflect.TypeToken;
-import io.Adrestus.core.*;
+import io.Adrestus.core.AbstractBlock;
+import io.Adrestus.core.BlockType;
+import io.Adrestus.core.DefaultFactory;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
+import io.Adrestus.core.TransactionBlock;
 import io.Adrestus.crypto.bls.BLS381.ECP;
 import io.Adrestus.crypto.bls.BLS381.ECP2;
 import io.Adrestus.crypto.bls.mapper.ECP2mapper;
@@ -12,8 +15,8 @@ import io.Adrestus.crypto.bls.model.BLSSignature;
 import io.Adrestus.crypto.bls.model.CachedBLSKeyPair;
 import io.Adrestus.crypto.bls.model.Signature;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
-import io.Adrestus.network.ConsensusServer;
 import io.Adrestus.crypto.elliptic.mapper.CustomSerializerTreeMap;
+import io.Adrestus.network.ConsensusServer;
 import io.Adrestus.util.SerializationUtil;
 import org.apache.tuweni.bytes.Bytes;
 import org.slf4j.Logger;
@@ -56,13 +59,14 @@ public class OrganizerConsensusPhases {
             List<SerializationUtil.Mapping> list = new ArrayList<>();
             list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
             list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
-            list.add(new SerializationUtil.Mapping(BigInteger.class, ctx->new BigIntegerSerializer()));
-            list.add(new SerializationUtil.Mapping(TreeMap.class, ctx->new CustomSerializerTreeMap()));
+            list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
+            list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
             this.block_serialize = new SerializationUtil<AbstractBlock>(AbstractBlock.class, list);
             this.consensus_serialize = new SerializationUtil<ConsensusMessage>(fluentType, list);
         }
+
         @Override
-        public void InitialSetup(){
+        public void InitialSetup() {
             if (!DEBUG) {
                 //this.N = 1;
                 this.N = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).size() - 1;
@@ -78,6 +82,7 @@ public class OrganizerConsensusPhases {
                 }
             }
         }
+
         @Override
         public void AnnouncePhase(ConsensusMessage<TransactionBlock> data) throws Exception {
             var regural_block = factory.getBlock(BlockType.REGULAR);

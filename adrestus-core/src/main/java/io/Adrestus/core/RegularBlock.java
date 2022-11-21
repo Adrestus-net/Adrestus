@@ -16,9 +16,9 @@ import io.Adrestus.crypto.bls.BLS381.ECP2;
 import io.Adrestus.crypto.bls.mapper.ECP2mapper;
 import io.Adrestus.crypto.bls.mapper.ECPmapper;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
+import io.Adrestus.crypto.elliptic.mapper.CustomSerializerTreeMap;
 import io.Adrestus.crypto.vdf.engine.VdfEngine;
 import io.Adrestus.crypto.vdf.engine.VdfEnginePietrzak;
-import io.Adrestus.crypto.elliptic.mapper.CustomSerializerTreeMap;
 import io.Adrestus.util.GetTime;
 import io.Adrestus.util.MathOperationUtil;
 import io.Adrestus.util.SerializationUtil;
@@ -46,9 +46,9 @@ public class RegularBlock implements BlockForge {
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
         list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
-        list.add(new SerializationUtil.Mapping(BigInteger.class, ctx->new BigIntegerSerializer()));
-        list.add(new SerializationUtil.Mapping(TreeMap.class, ctx->new CustomSerializerTreeMap()));
-        encode = new SerializationUtil<AbstractBlock>(AbstractBlock.class,list);
+        list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
+        list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
+        encode = new SerializationUtil<AbstractBlock>(AbstractBlock.class, list);
     }
 
     @Override
@@ -103,14 +103,14 @@ public class RegularBlock implements BlockForge {
         IDatabase<String, CommitteeBlock> database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB);
 
         committeeBlock.setCommitteeProposer(new int[committeeBlock.getStakingMap().size()]);
-        committeeBlock.setGeneration(CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration()+1);
+        committeeBlock.setGeneration(CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration() + 1);
         committeeBlock.getHeaderData().setPreviousHash(CachedLatestBlocks.getInstance().getCommitteeBlock().getHash());
-        committeeBlock.setHeight(CachedLatestBlocks.getInstance().getCommitteeBlock().getHeight()+1);
+        committeeBlock.setHeight(CachedLatestBlocks.getInstance().getCommitteeBlock().getHeight() + 1);
         committeeBlock.getHeaderData().setTimestamp(GetTime.GetTimeStampInString());
         committeeBlock.setVRF(Hex.toHexString(CachedSecurityHeaders.getInstance().getSecurityHeader().getpRnd()));
 
 
-       // ###################find difficulty##########################
+        // ###################find difficulty##########################
         int finish = database.findDBsize();
 
         int n = finish;
@@ -122,8 +122,7 @@ public class RegularBlock implements BlockForge {
         if (entries.size() == 1) {
             summdiffuclty = block_entries.get(entries.get(0)).getDifficulty();
             sumtime = 100;
-        }
-        else {
+        } else {
             for (int i = 0; i < entries.size(); i++) {
                 if (i == entries.size() - 1)
                     break;
@@ -142,7 +141,7 @@ public class RegularBlock implements BlockForge {
         double t = ((double) sumtime / n);
         //  System.out.println(t);
         int difficulty = MathOperationUtil.multiplication((int) Math.round((t) / d));
-        if(difficulty<100) {
+        if (difficulty < 100) {
             committeeBlock.setStatustype(StatusType.ABORT);
             throw new IllegalArgumentException("VDF difficulty is not set correct abort");
         }
@@ -160,11 +159,11 @@ public class RegularBlock implements BlockForge {
                     .get(nextInt)
                     .put(entry.getValue().getValidatorBlSPublicKey(), entry.getValue().getIp());
         }
-        int iteration=0;
-        ArrayList<Integer>replica=new ArrayList<>();
-        while(iteration<committeeBlock.getStakingMap().size()) {
+        int iteration = 0;
+        ArrayList<Integer> replica = new ArrayList<>();
+        while (iteration < committeeBlock.getStakingMap().size()) {
             int nextInt = secureRandom.nextInt(committeeBlock.getStakingMap().size());
-            if(!replica.contains(nextInt)) {
+            if (!replica.contains(nextInt)) {
                 replica.add(nextInt);
                 iteration++;
             }

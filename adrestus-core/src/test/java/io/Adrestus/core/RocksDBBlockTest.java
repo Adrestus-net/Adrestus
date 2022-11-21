@@ -22,12 +22,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class RocksDBBlockTest {
 
-    private static  IDatabase<String, AbstractBlock> database;
+    private static IDatabase<String, AbstractBlock> database;
 
     @BeforeAll
-    public static void  before(){
+    public static void before() {
         database = new DatabaseFactory(String.class, AbstractBlock.class).getDatabase(DatabaseType.ROCKS_DB);
     }
+
     @Test
     public void add_get2() {
         String hash = "Hash";
@@ -48,14 +49,14 @@ public class RocksDBBlockTest {
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
         list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
-        list.add(new SerializationUtil.Mapping(BigInteger.class, ctx->new BigIntegerSerializer()));
-        list.add(new SerializationUtil.Mapping(TreeMap.class, ctx->new CustomSerializerTreeMap()));
-        SerializationUtil<AbstractBlock> serenc = new SerializationUtil<AbstractBlock>(AbstractBlock.class,list);
+        list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
+        list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
+        SerializationUtil<AbstractBlock> serenc = new SerializationUtil<AbstractBlock>(AbstractBlock.class, list);
         String hash = "Hash";
         CommitteeBlock committeeBlock = new CommitteeBlock();
         committeeBlock.getStakingMap().put(10.0, null);
-        committeeBlock.getStakingMap().put(13.0,null);
-        committeeBlock.getStructureMap().get(0).put(new BLSPublicKey(),"");
+        committeeBlock.getStakingMap().put(13.0, null);
+        committeeBlock.getStructureMap().get(0).put(new BLSPublicKey(), "");
         committeeBlock.getStructureMap().put(0, new LinkedHashMap<BLSPublicKey, String>());
         committeeBlock.setGeneration(1);
         committeeBlock.setViewID(1);
@@ -64,11 +65,11 @@ public class RocksDBBlockTest {
         committeeBlock.setDifficulty(119);
         committeeBlock.setVRF("sadsada");
         committeeBlock.setVDF("sadaa");
-        CommitteeBlock cp= (CommitteeBlock) serenc.decode(serenc.encode(committeeBlock));
-        assertEquals(committeeBlock,cp);
+        CommitteeBlock cp = (CommitteeBlock) serenc.decode(serenc.encode(committeeBlock));
+        assertEquals(committeeBlock, cp);
         database.save(hash, committeeBlock);
         CommitteeBlock copy = (CommitteeBlock) database.findByKey(hash).get();
-        assertEquals( committeeBlock, copy);
+        assertEquals(committeeBlock, copy);
         System.out.println(copy.toString());
     }
 
@@ -91,7 +92,7 @@ public class RocksDBBlockTest {
     }
 
     @AfterAll
-    public static void after(){
+    public static void after() {
         database.delete_db();
     }
 }

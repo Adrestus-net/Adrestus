@@ -65,7 +65,7 @@ public class SerializationUtil<T> {
             list.add(list.get(0) * mul);
             sum = list.get(count);
             count++;
-            mul=mul+4;
+            mul = mul + 4;
         }
         size = list.stream().toArray(Integer[]::new);
     }
@@ -106,7 +106,7 @@ public class SerializationUtil<T> {
     }
 
     public byte[] encode(T value) {
-       // int buff_size = search((int) (ObjectSizer.retainedSize(value)));
+        // int buff_size = search((int) (ObjectSizer.retainedSize(value)));
         int buff_size = search((int) (ObjectSizeCalculator.getObjectSize(value)));
         buffer = new byte[buff_size];
         serializer.encode(buffer, 0, value);
@@ -153,6 +153,9 @@ public class SerializationUtil<T> {
         return serializer.decode(buffer, 0);
     }
 
+    public BinarySerializer<T> getSerializer() {
+        return serializer;
+    }
 
     public static final class Mapping {
         private final Type type;

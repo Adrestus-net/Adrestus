@@ -10,12 +10,12 @@ import io.Adrestus.core.Resourses.CachedLeaderIndex;
 import io.Adrestus.crypto.bls.model.CachedBLSKeyPair;
 import io.Adrestus.crypto.vdf.VDFMessage;
 import lombok.SneakyThrows;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.CountDownLatch;
-import org.slf4j.Logger;
 
 public class ConsensusVDFTimer {
     private static Logger LOG = LoggerFactory.getLogger(ConsensusVDFTimer.class);
@@ -41,7 +41,7 @@ public class ConsensusVDFTimer {
             int index = CachedLatestBlocks.getInstance().getCommitteeBlock().getPublicKeyIndex(0, CachedBLSKeyPair.getInstance().getPublicKey());
 
             CachedLeaderIndex.getInstance().setCommitteePositionLeader(0);
-            if (index==0) {
+            if (index == 0) {
                 LOG.info("ORGANIZER State");
                 consensusManager.changeStateTo(ConsensusRoleType.SUPERVISOR);
                 var organizerphase = consensusManager.getRole().manufacturePhases(ConsensusType.VDF);

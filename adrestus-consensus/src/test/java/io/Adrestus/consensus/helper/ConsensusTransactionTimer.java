@@ -122,10 +122,11 @@ public class ConsensusTransactionTimer {
         publisher.close();
     }
 
-    public void close(){
+    public void close() {
         timer.cancel();
         task.cancel();
     }
+
     protected final class ConsensusTask extends TimerTask {
 
 

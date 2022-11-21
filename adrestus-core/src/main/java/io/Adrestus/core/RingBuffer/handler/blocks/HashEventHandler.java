@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
 
-public class HashEventHandler implements BlockEventHandler<AbstractBlockEvent>,DisruptorBlockVisitor {
+public class HashEventHandler implements BlockEventHandler<AbstractBlockEvent>, DisruptorBlockVisitor {
 
     private static Logger LOG = LoggerFactory.getLogger(HashEventHandler.class);
     private final SerializationUtil<AbstractBlock> wrapper;
@@ -30,9 +30,9 @@ public class HashEventHandler implements BlockEventHandler<AbstractBlockEvent>,D
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
         list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
-        list.add(new SerializationUtil.Mapping(BigInteger.class, ctx->new BigIntegerSerializer()));
-        list.add(new SerializationUtil.Mapping(TreeMap.class, ctx->new CustomSerializerTreeMap()));
-        wrapper = new SerializationUtil<AbstractBlock>(AbstractBlock.class,list);
+        list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
+        list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
+        wrapper = new SerializationUtil<AbstractBlock>(AbstractBlock.class, list);
     }
 
     @Override

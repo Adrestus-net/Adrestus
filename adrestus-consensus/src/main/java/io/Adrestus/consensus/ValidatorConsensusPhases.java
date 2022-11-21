@@ -19,6 +19,7 @@ import io.Adrestus.crypto.bls.model.BLSSignature;
 import io.Adrestus.crypto.bls.model.CachedBLSKeyPair;
 import io.Adrestus.crypto.bls.model.Signature;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
+import io.Adrestus.crypto.elliptic.mapper.CustomSerializerTreeMap;
 import io.Adrestus.crypto.vdf.VDFMessage;
 import io.Adrestus.crypto.vdf.engine.VdfEngine;
 import io.Adrestus.crypto.vdf.engine.VdfEnginePietrzak;
@@ -26,7 +27,6 @@ import io.Adrestus.crypto.vrf.VRFMessage;
 import io.Adrestus.crypto.vrf.engine.VrfEngine2;
 import io.Adrestus.network.ConsensusClient;
 import io.Adrestus.util.ByteUtil;
-import io.Adrestus.crypto.elliptic.mapper.CustomSerializerTreeMap;
 import io.Adrestus.util.SerializationUtil;
 import io.distributedLedger.DatabaseFactory;
 import io.distributedLedger.DatabaseType;
@@ -59,6 +59,7 @@ public class ValidatorConsensusPhases {
     protected int current;
     protected ConsensusClient consensusClient;
     protected BLSPublicKey leader_bls;
+
     public ValidatorConsensusPhases() {
     }
 
@@ -71,17 +72,17 @@ public class ValidatorConsensusPhases {
         private final SerializationUtil<VDFMessage> data_serialize;
 
         public VerifyVDF(boolean DEBUG) {
-            this.DEBUG=DEBUG;
+            this.DEBUG = DEBUG;
             this.vdf = new VdfEnginePietrzak(AdrestusConfiguration.PIERRZAK_BIT);
             List<SerializationUtil.Mapping> list = new ArrayList<>();
             list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
             list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
-            this.data_serialize=new SerializationUtil<VDFMessage>(VDFMessage.class);
+            this.data_serialize = new SerializationUtil<VDFMessage>(VDFMessage.class);
             this.consensus_serialize = new SerializationUtil<ConsensusMessage>(fluentType, list);
         }
 
         @Override
-        public void InitialSetup(){
+        public void InitialSetup() {
             if (!DEBUG) {
                 this.current = CachedLeaderIndex.getInstance().getCommitteePositionLeader();
                 this.leader_bls = CachedLatestBlocks.getInstance().getCommitteeBlock().getPublicKeyByIndex(0, current);
@@ -89,6 +90,7 @@ public class ValidatorConsensusPhases {
                 this.consensusClient.receive_handler();
             }
         }
+
         @Override
         public void AnnouncePhase(ConsensusMessage<VDFMessage> data) {
             if (!DEBUG) {
@@ -257,7 +259,7 @@ public class ValidatorConsensusPhases {
                 return;
 
 
-             CachedSecurityHeaders.getInstance().getSecurityHeader().setRnd(data.getData().getVDFSolution());
+            CachedSecurityHeaders.getInstance().getSecurityHeader().setRnd(data.getData().getVDFSolution());
             //commit save to db
 
             consensusClient.send_heartbeat(HEARTBEAT_MESSAGE);
@@ -302,7 +304,7 @@ public class ValidatorConsensusPhases {
         }
 
         @Override
-        public void InitialSetup(){
+        public void InitialSetup() {
 
         }
 
@@ -424,14 +426,14 @@ public class ValidatorConsensusPhases {
             List<SerializationUtil.Mapping> list = new ArrayList<>();
             list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
             list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
-            list.add(new SerializationUtil.Mapping(BigInteger.class,ctx->new BigIntegerSerializer()));
-            list.add(new SerializationUtil.Mapping(TreeMap.class, ctx->new CustomSerializerTreeMap()));
+            list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
+            list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
             this.block_serialize = new SerializationUtil<AbstractBlock>(AbstractBlock.class, list);
             this.consensus_serialize = new SerializationUtil<ConsensusMessage>(fluentType, list);
         }
 
         @Override
-        public void InitialSetup(){
+        public void InitialSetup() {
             if (!DEBUG) {
                 this.current = CachedLatestBlocks.getInstance().getCommitteeBlock().getPublicKeyIndex(1, CachedLatestBlocks.getInstance().getTransactionBlock().getLeaderPublicKey());
                 if (current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).size() - 1) {
@@ -658,20 +660,21 @@ public class ValidatorConsensusPhases {
         private final SerializationUtil<AbstractBlock> block_serialize;
         private final SerializationUtil<ConsensusMessage> consensus_serialize;
         private final IDatabase<String, CommitteeBlock> database;
+
         public VerifyCommitteeBlock(boolean DEBUG) {
             this.DEBUG = DEBUG;
             this.database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB);
             List<SerializationUtil.Mapping> list = new ArrayList<>();
             list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
             list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
-            list.add(new SerializationUtil.Mapping(BigInteger.class, ctx->new BigIntegerSerializer()));
-            list.add(new SerializationUtil.Mapping(TreeMap.class,ctx->new CustomSerializerTreeMap()));
+            list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
+            list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
             this.block_serialize = new SerializationUtil<AbstractBlock>(AbstractBlock.class, list);
             this.consensus_serialize = new SerializationUtil<ConsensusMessage>(fluentType, list);
         }
 
         @Override
-        public void InitialSetup(){
+        public void InitialSetup() {
             if (!DEBUG) {
                 this.current = CachedLeaderIndex.getInstance().getCommitteePositionLeader();
                 this.leader_bls = CachedLatestBlocks.getInstance().getCommitteeBlock().getPublicKeyByIndex(0, current);
@@ -790,7 +793,7 @@ public class ValidatorConsensusPhases {
                 return;
             }
             List<BLSPublicKey> publicKeys = block.getSignatures().stream().map(ConsensusMessage.ChecksumData::getBlsPublicKey).collect(Collectors.toList());
-            List<Signature> signature =block.getSignatures().stream().map(ConsensusMessage.ChecksumData::getSignature).collect(Collectors.toList());
+            List<Signature> signature = block.getSignatures().stream().map(ConsensusMessage.ChecksumData::getSignature).collect(Collectors.toList());
 
 
             Signature aggregatedSignature = BLSSignature.aggregate(signature);
@@ -870,7 +873,7 @@ public class ValidatorConsensusPhases {
 
 
             CachedLatestBlocks.getInstance().setCommitteeBlock(block.getData());
-            database.save(block.getData().getHash(),block.getData());
+            database.save(block.getData().getHash(), block.getData());
             //commit save to db
 
             consensusClient.send_heartbeat(HEARTBEAT_MESSAGE);

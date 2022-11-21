@@ -1,6 +1,5 @@
 package io.Adrestus.core;
 
-import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.util.GetTime;
 import io.Adrestus.util.MathOperationUtil;
 import io.distributedLedger.DatabaseFactory;
@@ -101,7 +100,6 @@ public class BlockDiffuclutyTest {
         database.save(bootsrap1.getHash(), bootsrap1);
 
 
-
         int finish = database.findDBsize();
         int n = finish;
         int summdiffuclty = 0;
@@ -112,8 +110,7 @@ public class BlockDiffuclutyTest {
         if (entries.size() == 1) {
             summdiffuclty = block_entries.get(entries.get(0)).getDifficulty();
             sumtime = 100;
-        }
-        else {
+        } else {
             for (int i = 0; i < entries.size(); i++) {
                 if (i == entries.size() - 1)
                     break;

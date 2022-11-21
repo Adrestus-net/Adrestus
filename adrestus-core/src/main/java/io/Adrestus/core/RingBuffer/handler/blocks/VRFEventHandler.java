@@ -14,8 +14,8 @@ public class VRFEventHandler implements BlockEventHandler<AbstractBlockEvent> {
     @Override
     public void onEvent(AbstractBlockEvent blockEvent, long l, boolean b) throws Exception {
         CommitteeBlock block = (CommitteeBlock) blockEvent.getBlock();
-        String cachedVRF= Hex.toHexString(CachedSecurityHeaders.getInstance().getSecurityHeader().getpRnd());
-        if(!block.getVRF().equals(cachedVRF)){
+        String cachedVRF = Hex.toHexString(CachedSecurityHeaders.getInstance().getSecurityHeader().getpRnd());
+        if (!block.getVRF().equals(cachedVRF)) {
             LOG.info("VRF Security Header is not valid");
             block.setStatustype(StatusType.ABORT);
             return;
