@@ -184,7 +184,7 @@ public class RPCExampleTest {
 
     }
 
-    @Test
+    //@Test
     public void test3() throws Exception {
         Eventloop eventloop = Eventloop.create();
         new Thread(eventloop).start();
