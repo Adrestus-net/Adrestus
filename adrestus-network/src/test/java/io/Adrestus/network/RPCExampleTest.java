@@ -18,6 +18,7 @@ import io.activej.serializer.annotations.Serialize;
 import io.distributedLedger.DatabaseFactory;
 import io.distributedLedger.DatabaseType;
 import io.distributedLedger.IDatabase;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -136,6 +137,9 @@ public class RPCExampleTest {
         assertEquals(database.findByKey("1").get(), blocks.get(0));
         assertEquals(database.findByKey("2").get(), blocks.get(1));
         assertEquals(database.findByKey("3").get(), blocks.get(2));
+
+        client.close();
+        example.close();
         database.delete_db();
     }
 
@@ -180,8 +184,20 @@ public class RPCExampleTest {
         assertEquals(database.findByKey("1").get(), blocks.get(0));
         assertEquals(database.findByKey("2").get(), blocks.get(1));
         assertEquals(database.findByKey("3").get(), blocks.get(2));
+
+        client.close();
+        server1.close();
+        server2.close();
+        server3.close();
         database.delete_db();
 
+    }
+
+    @AfterAll
+    public static void after(){
+        serverOne.close();
+        serverTwo.close();
+        serverThree.close();
     }
 
     //@Test

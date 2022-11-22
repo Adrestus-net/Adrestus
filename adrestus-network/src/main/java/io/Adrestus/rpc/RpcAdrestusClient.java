@@ -22,6 +22,7 @@ import org.spongycastle.util.encoders.Hex;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -162,7 +163,13 @@ public class RpcAdrestusClient {
     }
 
     public void close() {
-        client.stopFuture();
+        try {
+            client.stopFuture().get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
     }
 
     private static Response blockingRequest(RpcClient rpcClient, String name) {
