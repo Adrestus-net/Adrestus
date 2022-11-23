@@ -139,11 +139,11 @@ public class NodeTest {
         //node2.getKademliaNode().getRoutingTable().findClosest(BigInteger.valueOf(3)).getNodes().stream().forEach(x-> System.out.println(x.toString()));
         System.out.println(k.getResult());
         System.out.println(k.getValue());
-        node4.store("ena", "dio");
-        node4.store("F", "dio");
+        node4.store("ena", "dio").get(5, TimeUnit.SECONDS);;
+        node4.store("F", "dio").get(5, TimeUnit.SECONDS);;
         Thread.sleep(2000);
-        node4.store("gg", "M");
-        node5.store("D", "sad");
+        node4.store("gg", "M").get(5, TimeUnit.SECONDS);;
+        node5.store("D", "sad").get(5, TimeUnit.SECONDS);;
         Thread.sleep(4000);
 
         System.out.println(node1.lookup("gg").get(5, TimeUnit.SECONDS).getValue());

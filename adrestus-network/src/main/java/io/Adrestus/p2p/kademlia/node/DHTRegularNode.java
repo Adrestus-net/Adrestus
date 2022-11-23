@@ -29,8 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigInteger;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -108,6 +107,8 @@ public class DHTRegularNode {
         }
     }
 
+
+
     public void start(DHTBootstrapNode bootstrap, RoutingTable<BigInteger, NettyConnectionInfo, Bucket<BigInteger, NettyConnectionInfo>> routingTable) {
         regular_node = new NettyKademliaDHTNodeBuilder<>(
                 this.ID,
@@ -177,6 +178,25 @@ public class DHTRegularNode {
             this.scheduledExecutorService.purge();
         }
         regular_node.stop();
+    }
+
+    public List<KademliaData> getActiveNodes() {
+        ArrayList<KademliaData> active_nodes = new ArrayList<>();
+        this.regular_node.getRoutingTable().getBuckets().forEach(bucket -> {
+            bucket.getNodeIds().forEach(node -> {
+                try {
+                    active_nodes.add(regular_node.lookup(node.toString()).get(TIMEOUT, TimeUnit.SECONDS).getValue());
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                } catch (TimeoutException e) {
+                    e.printStackTrace();
+                }
+            });
+        });
+        active_nodes.removeIf(Objects::isNull);
+        return active_nodes;
     }
 
     public void scheduledFuture() {

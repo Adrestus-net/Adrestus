@@ -156,6 +156,7 @@ public class RpcAdrestusClient {
             Map<String, Long> collect = toCompare.stream()
                     .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
             List<AbstractBlock> toSend = this.serializationUtil.decode(Hex.decode(collect.keySet().stream().findFirst().get())).getAbstractBlock();
+            collect.clear();
             return toSend;
         } else {
             return blockingRequest(this.client, hash).getAbstractBlock();

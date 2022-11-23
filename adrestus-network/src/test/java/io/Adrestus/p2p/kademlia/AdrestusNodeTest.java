@@ -58,6 +58,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class AdrestusNodeTest {
@@ -118,12 +119,12 @@ public class AdrestusNodeTest {
     }
 
     @Test
-    public void shouldAnswerWithTrue() throws InterruptedException, ExecutionException {
+    public void shouldAnswerWithTrue() throws InterruptedException, ExecutionException, FullBucketException {
         LoggerKademlia.setLevelOFF();
         int port = 1080;
         //use this only for debug not for tests because nodesjoiningtest
         //produces error and need size of 4
-        //KademliaConfiguration.IDENTIFIER_SIZE=3;
+        KademliaConfiguration.IDENTIFIER_SIZE=3;
         NodeSettings.getInstance();
         KeyHashGenerator<BigInteger, String> keyHashGenerator = key -> {
             try {
@@ -135,7 +136,7 @@ public class AdrestusNodeTest {
 
         // node 1
         NettyKademliaDHTNode<String, KademliaData> bootsrtap = new NettyKademliaDHTNodeBuilder<>(
-                BigInteger.valueOf(9),
+                BigInteger.valueOf(7L),
                 new NettyConnectionInfo("127.0.0.1", port),
                 new SampleRepository(),
                 keyHashGenerator
@@ -146,7 +147,7 @@ public class AdrestusNodeTest {
 
         port = port + 1;
         ArrayList<NettyKademliaDHTNode<String, KademliaData>> list = new ArrayList<>();
-        for (int i = 0; i < 8; i++) {
+        for (int i = 0; i < 7; i++) {
             RoutingTable<BigInteger, NettyConnectionInfo, Bucket<BigInteger, NettyConnectionInfo>> routingTable = routingTableFactory.getRoutingTable(BigInteger.valueOf(i));
             NettyKademliaDHTNode<String, KademliaData> nextnode = new NettyKademliaDHTNodeBuilder<>(
                     BigInteger.valueOf(i),
@@ -155,6 +156,7 @@ public class AdrestusNodeTest {
                     keyHashGenerator
             ).routingTable(routingTable).build();
             System.out.println("Starting node " + nextnode.getId() + ": " + nextnode.start(bootsrtap).get());
+            routingTable.update(nextnode);
             list.add(nextnode);
         }
 
@@ -168,6 +170,10 @@ public class AdrestusNodeTest {
             System.out.println("Bucket [" + bucket.getId() + "] -> " + bucket.getNodeIds());
         });
 
+        assertArrayEquals(list.get(4).getRoutingTable().getBuckets().get(0).getNodeIds().toArray(),Arrays.asList(BigInteger.valueOf(4)).toArray());
+        assertArrayEquals(list.get(4).getRoutingTable().getBuckets().get(1).getNodeIds().toArray(),Arrays.asList(BigInteger.valueOf(5)).toArray());
+        assertArrayEquals(list.get(4).getRoutingTable().getBuckets().get(2).getNodeIds().toArray(),Arrays.asList(BigInteger.valueOf(6),BigInteger.valueOf(7)).toArray());
+        assertArrayEquals(list.get(4).getRoutingTable().getBuckets().get(3).getNodeIds().toArray(),Arrays.asList(BigInteger.valueOf(0),BigInteger.valueOf(3),BigInteger.valueOf(2),BigInteger.valueOf(1)).toArray());
         list.forEach(x -> x.stop());
         bootsrtap.stop();
     }

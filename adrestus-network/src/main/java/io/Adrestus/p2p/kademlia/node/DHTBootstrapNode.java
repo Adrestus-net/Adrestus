@@ -1,11 +1,14 @@
 package io.Adrestus.p2p.kademlia.node;
 
+import io.Adrestus.config.KademliaConfiguration;
 import io.Adrestus.config.NodeSettings;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.p2p.kademlia.NettyKademliaDHTNode;
 import io.Adrestus.p2p.kademlia.builder.NettyKademliaDHTNodeBuilder;
 import io.Adrestus.p2p.kademlia.common.NettyConnectionInfo;
+import io.Adrestus.p2p.kademlia.exception.DuplicateStoreRequest;
 import io.Adrestus.p2p.kademlia.exception.UnsupportedBoundingException;
+import io.Adrestus.p2p.kademlia.model.LookupAnswer;
 import io.Adrestus.p2p.kademlia.protocol.handler.MessageHandler;
 import io.Adrestus.p2p.kademlia.protocol.handler.PongMessageHandler;
 import io.Adrestus.p2p.kademlia.protocol.message.KademliaMessage;
@@ -15,21 +18,45 @@ import io.Adrestus.p2p.kademlia.repository.KademliaRepository;
 import io.Adrestus.p2p.kademlia.repository.KademliaRepositoryImp;
 import io.Adrestus.p2p.kademlia.util.BoundedHashUtil;
 import io.Adrestus.p2p.kademlia.util.LoggerKademlia;
+import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.SocketChannel;
+import io.netty.channel.socket.nio.NioSocketChannel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.BigInteger;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public class DHTBootstrapNode {
+    private static Logger LOG = LoggerFactory.getLogger(DHTBootstrapNode.class);
 
+
+    private static final int TIMEOUT = 5;
     private final NettyConnectionInfo nettyConnectionInfo;
     private final KeyHashGenerator<BigInteger, String> keyHashGenerator;
     private final KademliaRepository repository;
+    private final Timer scheduledExecutorService;
+
+
     private BigInteger ID;
     private MessageHandler<BigInteger, NettyConnectionInfo> handler;
     private NettyKademliaDHTNode<String, KademliaData> bootStrapNode;
+    private KademliaData kademliaData;
+    private TimerTask task;
+
 
     public DHTBootstrapNode(NettyConnectionInfo nettyConnectionInfo) {
         LoggerKademlia.setLevelOFF();
         this.nettyConnectionInfo = nettyConnectionInfo;
+        this.scheduledExecutorService = new Timer();
         this.keyHashGenerator = key -> {
             try {
                 return new BoundedHashUtil(NodeSettings.getInstance().getIdentifierSize()).hash(new BigInteger(HashUtil.convertIPtoHex(key, 16)), BigInteger.class);
@@ -45,6 +72,7 @@ public class DHTBootstrapNode {
         LoggerKademlia.setLevelOFF();
         this.ID = ID;
         this.nettyConnectionInfo = nettyConnectionInfo;
+        this.scheduledExecutorService = new Timer();
         this.keyHashGenerator = key -> {
             try {
                 return new BoundedHashUtil(NodeSettings.getInstance().getIdentifierSize()).hash(new BigInteger(HashUtil.convertIPtoHex(key, 16)), BigInteger.class);
@@ -58,6 +86,7 @@ public class DHTBootstrapNode {
 
     public DHTBootstrapNode(NettyConnectionInfo nettyConnectionInfo, BigInteger ID, KeyHashGenerator<BigInteger, String> keyHashGenerator) {
         LoggerKademlia.setLevelOFF();
+        this.scheduledExecutorService = new Timer();
         this.ID = ID;
         this.nettyConnectionInfo = nettyConnectionInfo;
         this.keyHashGenerator = keyHashGenerator;
@@ -92,6 +121,101 @@ public class DHTBootstrapNode {
         ).withNodeSettings(NodeSettings.getInstance()).build();
         //  bootStrapNode.registerMessageHandler(MessageType.PONG, handler);
         bootStrapNode.start();
+    }
+
+    public List<KademliaData> getActiveNodes() {
+        ArrayList<KademliaData> active_nodes = new ArrayList<>();
+        this. bootStrapNode.getRoutingTable().getBuckets().forEach(bucket -> {
+            bucket.getNodeIds().forEach(node -> {
+                try {
+                    active_nodes.add(bootStrapNode.lookup(node.toString()).get(TIMEOUT, TimeUnit.SECONDS).getValue());
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                } catch (TimeoutException e) {
+                    e.printStackTrace();
+                }
+            });
+        });
+        active_nodes.removeIf(Objects::isNull);
+        return active_nodes;
+    }
+
+    public void scheduledFuture() {
+        task = new TimerTask() {
+            @Override
+            public void run() {
+                //lookup for orphan keys stored on "this" node
+                // that are down and not
+                //exist anymore so it's ready for cleanup
+                if (!bootStrapNode.getKademliaRepository().getList().isEmpty()) {
+                    bootStrapNode.getKademliaRepository().getList().forEach(id -> {
+                        EventLoopGroup workerGroup = new NioEventLoopGroup();
+                        try {
+                            KademliaData value = bootStrapNode.getKademliaRepository().get(id);
+                            Bootstrap b = new Bootstrap(); // (1)
+                            b.group(workerGroup);
+                            b.channel(NioSocketChannel.class); // (3)
+                            b.option(ChannelOption.SO_KEEPALIVE, true); // (4)
+                            b.handler(new ChannelInitializer<SocketChannel>() {
+                                @Override
+                                public void initChannel(SocketChannel ch) throws Exception {
+                                }
+                            });
+                            ChannelFuture f = b.connect(value.getNettyConnectionInfo().getHost(), value.getNettyConnectionInfo().getPort()).sync(); // (5)
+                            f.channel().close();
+                        } catch (Exception e) {
+                            bootStrapNode.getKademliaRepository().getList().forEach(x -> System.out.print(x));
+                            System.out.println();
+                            bootStrapNode.getKademliaRepository().remove(id);
+                            bootStrapNode.getKademliaRepository().getList().forEach(x -> System.out.print(x));
+                        } finally {
+                            workerGroup.shutdownGracefully();
+                        }
+                    });
+                }
+
+                //lookup for itself in
+                //cases that another node is down
+                LookupAnswer<BigInteger, String, KademliaData> lookupAnswer = null;
+                try {
+                    lookupAnswer = bootStrapNode.lookup(getID().toString()).get(TIMEOUT, TimeUnit.SECONDS);
+                    lookupAnswer.getValue();
+                } catch (Exception ex) {
+                    return;
+                }
+
+                if (lookupAnswer.getValue() == null) {
+                    LOG.info("Data not existed trying to store");
+                    try {
+                        bootStrapNode.store(getID().toString(), getKademliaData()).get(TIMEOUT, TimeUnit.SECONDS);
+                    } catch (DuplicateStoreRequest duplicateStoreRequest) {
+                        return;
+                    } catch (Exception e) {
+                    }
+                } else {
+                    System.out.println("Key " + lookupAnswer.getKey() + " found " + " from " + lookupAnswer.getNodeId());
+                }
+            }
+        };
+        scheduledExecutorService.scheduleAtFixedRate(task, 0, KademliaConfiguration.STORE_DELAY);
+    }
+
+    public BigInteger getID() {
+        return ID;
+    }
+
+    public void setID(BigInteger ID) {
+        this.ID = ID;
+    }
+
+    public KademliaData getKademliaData() {
+        return kademliaData;
+    }
+
+    public void setKademliaData(KademliaData kademliaData) {
+        this.kademliaData = kademliaData;
     }
 
     public NettyConnectionInfo getNettyConnectionInfo() {
