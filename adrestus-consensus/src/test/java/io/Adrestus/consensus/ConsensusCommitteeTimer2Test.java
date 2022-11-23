@@ -110,7 +110,7 @@ public class ConsensusCommitteeTimer2Test {
 
         DHTBootstrapNode dhtBootstrapNode = new DHTBootstrapNode(
                 new NettyConnectionInfo("192.168.1.106", KademliaConfiguration.BootstrapNodePORT),
-                BigInteger.valueOf(1),
+                BigInteger.valueOf(0),
                 keyHashGenerator);
         NettyConnectionInfo nettyConnectionInfo=null;
         if(IP.equals("192.168.1.106")){

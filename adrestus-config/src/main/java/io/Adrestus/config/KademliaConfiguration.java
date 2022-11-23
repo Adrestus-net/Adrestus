@@ -11,8 +11,8 @@ public class KademliaConfiguration {
     public static final String BootstrapNodeIP = "127.0.0.1";
     public static final int BootstrapNodePORT = 8080;
     public static final BigInteger BootstrapNodeID = new BigInteger("66346363773430373210313937353263626337313262653530646163623130613265323036646538");
-    public static int STORE_DELAY = 2 * 1000;
-
+    public static int STORE_DELAY = 4 * 1000;
+    public static final int KADEMLIA_GET_TIMEOUT = 5;
 
     public static int IDENTIFIER_SIZE = 4;
     public static int BUCKET_SIZE = 10;

@@ -38,7 +38,6 @@ public class DHTRegularNode {
 
     private static Logger LOG = LoggerFactory.getLogger(DHTRegularNode.class);
 
-    private static final int TIMEOUT = 5;
     private final NettyConnectionInfo nettyConnectionInfo;
     private final KeyHashGenerator<BigInteger, String> keyHashGenerator;
     private final KademliaRepository repository;
@@ -97,7 +96,7 @@ public class DHTRegularNode {
                 keyHashGenerator
         ).withNodeSettings(NodeSettings.getInstance()).build();
         try {
-            System.out.println("Bootstrapped? " + regular_node.start(bootstrap.getBootStrapNode()).get(TIMEOUT, TimeUnit.SECONDS));
+            System.out.println("Bootstrapped? " + regular_node.start(bootstrap.getBootStrapNode()).get(KademliaConfiguration.KADEMLIA_GET_TIMEOUT, TimeUnit.SECONDS));
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (ExecutionException e) {
@@ -185,7 +184,7 @@ public class DHTRegularNode {
         this.regular_node.getRoutingTable().getBuckets().forEach(bucket -> {
             bucket.getNodeIds().forEach(node -> {
                 try {
-                    active_nodes.add(regular_node.lookup(node.toString()).get(TIMEOUT, TimeUnit.SECONDS).getValue());
+                    active_nodes.add(regular_node.lookup(node.toString()).get(KademliaConfiguration.KADEMLIA_GET_TIMEOUT, TimeUnit.SECONDS).getValue());
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 } catch (ExecutionException e) {
@@ -237,7 +236,7 @@ public class DHTRegularNode {
                 //cases that another node is down
                 LookupAnswer<BigInteger, String, KademliaData> lookupAnswer = null;
                 try {
-                    lookupAnswer = regular_node.lookup(getID().toString()).get(TIMEOUT, TimeUnit.SECONDS);
+                    lookupAnswer = regular_node.lookup(getID().toString()).get(KademliaConfiguration.KADEMLIA_GET_TIMEOUT, TimeUnit.SECONDS);
                     lookupAnswer.getValue();
                 } catch (Exception ex) {
                     return;
@@ -246,7 +245,7 @@ public class DHTRegularNode {
                 if (lookupAnswer.getValue() == null) {
                     LOG.info("Data not existed trying to store");
                     try {
-                        regular_node.store(getID().toString(), getKademliaData()).get(TIMEOUT, TimeUnit.SECONDS);
+                        regular_node.store(getID().toString(), getKademliaData()).get(KademliaConfiguration.KADEMLIA_GET_TIMEOUT, TimeUnit.SECONDS);
                     } catch (DuplicateStoreRequest duplicateStoreRequest) {
                         return;
                     } catch (Exception e) {

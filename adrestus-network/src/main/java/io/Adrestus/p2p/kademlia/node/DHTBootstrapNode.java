@@ -39,7 +39,6 @@ public class DHTBootstrapNode {
     private static Logger LOG = LoggerFactory.getLogger(DHTBootstrapNode.class);
 
 
-    private static final int TIMEOUT = 5;
     private final NettyConnectionInfo nettyConnectionInfo;
     private final KeyHashGenerator<BigInteger, String> keyHashGenerator;
     private final KademliaRepository repository;
@@ -65,7 +64,7 @@ public class DHTBootstrapNode {
             }
         };
         this.repository = new KademliaRepositoryImp();
-        this.InitHandler();
+     //   this.InitHandler();
     }
 
     public DHTBootstrapNode(NettyConnectionInfo nettyConnectionInfo, BigInteger ID) {
@@ -81,7 +80,7 @@ public class DHTBootstrapNode {
             }
         };
         this.repository = new KademliaRepositoryImp();
-        this.InitHandler();
+       // this.InitHandler();
     }
 
     public DHTBootstrapNode(NettyConnectionInfo nettyConnectionInfo, BigInteger ID, KeyHashGenerator<BigInteger, String> keyHashGenerator) {
@@ -91,7 +90,7 @@ public class DHTBootstrapNode {
         this.nettyConnectionInfo = nettyConnectionInfo;
         this.keyHashGenerator = keyHashGenerator;
         this.repository = new KademliaRepositoryImp();
-        this.InitHandler();
+      //  this.InitHandler();
     }
 
 
@@ -112,6 +111,14 @@ public class DHTBootstrapNode {
     }
 
 
+    public void Init(){
+        bootStrapNode = new NettyKademliaDHTNodeBuilder<>(
+                this.ID,
+                this.nettyConnectionInfo,
+                this.repository,
+                keyHashGenerator
+        ).withNodeSettings(NodeSettings.getInstance()).build();
+    }
     public void start() {
         bootStrapNode = new NettyKademliaDHTNodeBuilder<>(
                 this.ID,
@@ -125,10 +132,10 @@ public class DHTBootstrapNode {
 
     public List<KademliaData> getActiveNodes() {
         ArrayList<KademliaData> active_nodes = new ArrayList<>();
-        this. bootStrapNode.getRoutingTable().getBuckets().forEach(bucket -> {
+        this.bootStrapNode.getRoutingTable().getBuckets().forEach(bucket -> {
             bucket.getNodeIds().forEach(node -> {
                 try {
-                    active_nodes.add(bootStrapNode.lookup(node.toString()).get(TIMEOUT, TimeUnit.SECONDS).getValue());
+                    active_nodes.add(bootStrapNode.lookup(node.toString()).get(KademliaConfiguration.KADEMLIA_GET_TIMEOUT, TimeUnit.SECONDS).getValue());
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 } catch (ExecutionException e) {
@@ -180,7 +187,7 @@ public class DHTBootstrapNode {
                 //cases that another node is down
                 LookupAnswer<BigInteger, String, KademliaData> lookupAnswer = null;
                 try {
-                    lookupAnswer = bootStrapNode.lookup(getID().toString()).get(TIMEOUT, TimeUnit.SECONDS);
+                    lookupAnswer = bootStrapNode.lookup(getID().toString()).get(KademliaConfiguration.KADEMLIA_GET_TIMEOUT, TimeUnit.SECONDS);
                     lookupAnswer.getValue();
                 } catch (Exception ex) {
                     return;
@@ -189,7 +196,7 @@ public class DHTBootstrapNode {
                 if (lookupAnswer.getValue() == null) {
                     LOG.info("Data not existed trying to store");
                     try {
-                        bootStrapNode.store(getID().toString(), getKademliaData()).get(TIMEOUT, TimeUnit.SECONDS);
+                        bootStrapNode.store(getID().toString(), getKademliaData()).get(KademliaConfiguration.KADEMLIA_GET_TIMEOUT, TimeUnit.SECONDS);
                     } catch (DuplicateStoreRequest duplicateStoreRequest) {
                         return;
                     } catch (Exception e) {
