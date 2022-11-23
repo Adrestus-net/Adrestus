@@ -1,7 +1,9 @@
 package io.distributedLedger;
 
+import io.Adrestus.config.Directory;
 import org.junit.jupiter.api.Test;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -18,9 +20,20 @@ public class RocksDBConnectionTest {
         database.delete_db();
     }
 
+
     @Test
     public void add_get1() {
         IDatabase<String, String> database = new DatabaseFactory(String.class, String.class).getDatabase(DatabaseType.ROCKS_DB);
+        database.save("key", "value");
+        Optional<String> value = database.findByKey("key");
+
+        assertEquals("value", value.get());
+
+        database.delete_db();
+    }
+    @Test
+    public void add_get2() {
+        IDatabase<String, String> database = new DatabaseFactory(String.class, String.class).getDatabase(DatabaseType.ROCKS_DB,DatabaseInstance.ZONE_1_TRANSACTION_BLOCK);
         database.save("key", "value");
         Optional<String> value = database.findByKey("key");
 

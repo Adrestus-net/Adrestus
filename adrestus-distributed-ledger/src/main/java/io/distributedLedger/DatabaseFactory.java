@@ -34,4 +34,19 @@ public class DatabaseFactory {
                 throw new IllegalArgumentException("Database not supported.");
         }
     }
+
+    public IDatabase getDatabase(DatabaseType type, DatabaseInstance instance) {
+
+        switch (type) {
+            case LEVEL_DB:
+                if (value_type == null)
+                    return (IDatabase) LevelDBConnectionManager.getInstance(key, value);
+                else
+                    return (IDatabase) LevelDBConnectionManager.getInstance(key, value_type);
+            case ROCKS_DB:
+                return (IDatabase) RocksDBConnectionManager.getInstance(key, value,instance);
+            default:
+                throw new IllegalArgumentException("Database not supported.");
+        }
+    }
 }

@@ -1,5 +1,6 @@
 package io.distributedLedger;
 
+import java.io.File;
 import java.util.Map;
 import java.util.Optional;
 
@@ -54,5 +55,7 @@ public interface IDatabase<K, V> {
     boolean isOpen();
 
     void compact();
+
+    void chooseDB(File dbFile);
 
 }

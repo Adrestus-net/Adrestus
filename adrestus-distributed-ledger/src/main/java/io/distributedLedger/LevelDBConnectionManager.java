@@ -411,6 +411,11 @@ public class LevelDBConnectionManager<K, V> implements IDriver<LevelDBConnection
     }
 
     @Override
+    public void chooseDB(File dbFile) {
+
+    }
+
+    @Override
     public boolean isOpen() {
         r.lock();
         try {

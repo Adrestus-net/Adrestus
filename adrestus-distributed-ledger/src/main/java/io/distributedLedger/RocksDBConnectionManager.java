@@ -26,7 +26,7 @@ import static java.lang.Math.max;
 public class RocksDBConnectionManager<K, V> implements IDriver<RocksDBConnectionManager>, IDatabase<K, V> {
 
     private static org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(RocksDBConnectionManager.class);
-    private static final String CONNECTION_NAME = "\\Blockchain_rocks-db";
+
     private static volatile RocksDBConnectionManager instance;
     private static final boolean enableDbCompression = false;
 
@@ -40,6 +40,7 @@ public class RocksDBConnectionManager<K, V> implements IDriver<RocksDBConnection
     private final Lock w;
 
 
+    private String CONNECTION_NAME = "\\Blockchain_rocks-db";
     private File dbFile;
     private Options options;
     private RocksDB rocksDB;
@@ -65,6 +66,28 @@ public class RocksDBConnectionManager<K, V> implements IDriver<RocksDBConnection
         load_connection();
     }
 
+    private RocksDBConnectionManager(Class<V> keyClass, Class<V> valueClass, DatabaseInstance instances) {
+        if (instance != null) {
+            throw new IllegalStateException("Already initialized.");
+        }
+        this.rwl = new ReentrantReadWriteLock();
+        this.r = rwl.readLock();
+        this.w = rwl.writeLock();
+        this.CONNECTION_NAME=instances.getTitle();
+        this.dbFile = new File(Directory.getConfigPath() +"\\"+ CONNECTION_NAME);
+        this.valueClass = valueClass;
+        this.keyClass = keyClass;
+        List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
+        list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
+        list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
+        list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
+        this.keyMapper = new SerializationUtil<>(this.keyClass);
+        this.valueMapper = new SerializationUtil<>(this.valueClass, list);
+        setupOptions();
+        load_connection();
+    }
+
 
     public static synchronized RocksDBConnectionManager getInstance(Class keyClass, Class valueClass) {
         if (instance == null) {
@@ -77,12 +100,26 @@ public class RocksDBConnectionManager<K, V> implements IDriver<RocksDBConnection
         return instance;
     }
 
+    public static synchronized RocksDBConnectionManager getInstance(Class keyClass, Class valueClass, DatabaseInstance inst) {
+        if (instance == null) {
+            synchronized (RocksDBConnectionManager.class) {
+                if (instance == null) {
+                    instance = new RocksDBConnectionManager(keyClass, valueClass,inst);
+                }
+            }
+        }
+        return instance;
+    }
+
 
     @Override
     public RocksDBConnectionManager get() {
         return instance;
     }
 
+    public void chooseDB(File dbFile) {
+        this.dbFile = dbFile;
+    }
 
     @Override
     public void setupOptions() {
