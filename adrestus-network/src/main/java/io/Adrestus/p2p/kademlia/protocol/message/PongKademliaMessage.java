@@ -4,7 +4,9 @@ import io.Adrestus.p2p.kademlia.connection.ConnectionInfo;
 import io.Adrestus.p2p.kademlia.protocol.MessageType;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
+@ToString
 public class PongKademliaMessage<ID extends Number, C extends ConnectionInfo> extends KademliaMessage<ID, C, String> {
     @Getter
     @Setter

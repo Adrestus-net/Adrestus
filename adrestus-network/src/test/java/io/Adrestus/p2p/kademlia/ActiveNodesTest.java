@@ -8,6 +8,8 @@ import io.Adrestus.core.Trie.PatriciaTreeNode;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.SecurityAuditProofs;
 import io.Adrestus.crypto.WalletAddress;
+import io.Adrestus.crypto.bls.model.BLSPrivateKey;
+import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.Adrestus.crypto.elliptic.ECDSASign;
 import io.Adrestus.crypto.elliptic.ECKeyPair;
 import io.Adrestus.crypto.elliptic.Keys;
@@ -54,9 +56,14 @@ public class ActiveNodesTest {
     public static ArrayList<String> addreses;
     private static ArrayList<ECKeyPair> keypair;
     private static ECDSASign ecdsaSign;
-
+    private static BLSPrivateKey sk1;
+    private static BLSPublicKey vk1;
     @BeforeAll
     public static void setup() throws Exception {
+
+        sk1 = new BLSPrivateKey(1);
+        vk1 = new BLSPublicKey(sk1);
+
         ecdsaSign = new ECDSASign();
         int version = 0x00;
         addreses = new ArrayList<>();
@@ -148,6 +155,7 @@ public class ActiveNodesTest {
         KeyHashGenerator<BigInteger, String> keyHashGenerator = key -> {
             try {
                 return new BoundedHashUtil(NodeSettings.getInstance().getIdentifierSize()).hash(key.hashCode(), BigInteger.class);
+               // return new BoundedHashUtil(NodeSettings.getInstance().getIdentifierSize()).hash(new BigInteger(HashUtil.convertIPtoHex(key, 16)), BigInteger.class);
             } catch (UnsupportedBoundingException e) {
                 throw new IllegalArgumentException("Key hash generator not valid");
             }
@@ -169,9 +177,9 @@ public class ActiveNodesTest {
             BigInteger id1 = new BigInteger(HashUtil.convertIPtoHex(ipString1, 16));
             RoutingTable<BigInteger, NettyConnectionInfo, Bucket<BigInteger, NettyConnectionInfo>> routingTable = routingTableFactory.getRoutingTable(BigInteger.valueOf(i));
             NettyConnectionInfo nettyConnectionInfo = new NettyConnectionInfo("127.0.0.1", port + (int) i);
-            DHTRegularNode nextnode = new DHTRegularNode(nettyConnectionInfo, id1, keyHashGenerator);
+            DHTRegularNode nextnode = new DHTRegularNode(nettyConnectionInfo, BigInteger.valueOf(i), keyHashGenerator);
             SignatureData signatureData = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(addreses.get(i))), keypair.get(i));
-            KademliaData kademliaData = new KademliaData(new SecurityAuditProofs(addreses.get(i), keypair.get(i).getPublicKey(), signatureData), nettyConnectionInfo);
+            KademliaData kademliaData = new KademliaData(new SecurityAuditProofs("127.0.0.1",addreses.get(i),vk1, keypair.get(i).getPublicKey(), signatureData), nettyConnectionInfo);
 
             //boolean verify = ecdsaSign.secp256Verify(value.getAddressData().getAddress().getBytes(StandardCharsets.UTF_8), value.getAddressData().getAddress(), value.getAddressData().getECDSASignature());
             nextnode.setKademliaData(kademliaData);

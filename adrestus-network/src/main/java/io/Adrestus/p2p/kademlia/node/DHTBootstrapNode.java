@@ -135,6 +135,7 @@ public class DHTBootstrapNode {
         this.bootStrapNode.getRoutingTable().getBuckets().forEach(bucket -> {
             bucket.getNodeIds().forEach(node -> {
                 try {
+                    System.out.println(node);
                     active_nodes.add(bootStrapNode.lookup(node.toString()).get(KademliaConfiguration.KADEMLIA_GET_TIMEOUT, TimeUnit.SECONDS).getValue());
                 } catch (InterruptedException e) {
                     e.printStackTrace();

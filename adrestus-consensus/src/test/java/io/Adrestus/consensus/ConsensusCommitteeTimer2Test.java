@@ -22,6 +22,7 @@ import io.Adrestus.crypto.mnemonic.Security;
 import io.Adrestus.crypto.mnemonic.WordList;
 import io.Adrestus.p2p.kademlia.common.NettyConnectionInfo;
 import io.Adrestus.p2p.kademlia.exception.UnsupportedBoundingException;
+import io.Adrestus.p2p.kademlia.model.LookupAnswer;
 import io.Adrestus.p2p.kademlia.node.DHTBootstrapNode;
 import io.Adrestus.p2p.kademlia.node.DHTRegularNode;
 import io.Adrestus.p2p.kademlia.node.KeyHashGenerator;
@@ -114,6 +115,7 @@ public class ConsensusCommitteeTimer2Test {
                 keyHashGenerator);
         NettyConnectionInfo nettyConnectionInfo=null;
         if(IP.equals("192.168.1.106")){
+            nettyConnectionInfo=new NettyConnectionInfo(IP,KademliaConfiguration.BootstrapNodePORT);
             SignatureData signatureData = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address1)), ecKeyPair1);
             KademliaData kademliaData = new KademliaData(new SecurityAuditProofs(dhtBootstrapNode.getNettyConnectionInfo().getHost(),address1,vk1, ecKeyPair1.getPublicKey(), signatureData), nettyConnectionInfo);
             dhtBootstrapNode.setKademliaData(kademliaData);
@@ -129,6 +131,7 @@ public class ConsensusCommitteeTimer2Test {
             committeeBlock.getStakingMap().put(13.0, list_data.get(1).getAddressData());
         }
         else{
+            dhtBootstrapNode.Init();
             nettyConnectionInfo=new NettyConnectionInfo(IP,KademliaConfiguration.PORT);
             DHTRegularNode nextnode = new DHTRegularNode(nettyConnectionInfo, BigInteger.valueOf(1), keyHashGenerator);
             SignatureData signatureData = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address2)), ecKeyPair2);
