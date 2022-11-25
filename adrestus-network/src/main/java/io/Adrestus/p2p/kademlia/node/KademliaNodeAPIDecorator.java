@@ -4,6 +4,7 @@ import io.Adrestus.config.NodeSettings;
 import io.Adrestus.p2p.kademlia.connection.ConnectionInfo;
 import io.Adrestus.p2p.kademlia.connection.MessageSender;
 import io.Adrestus.p2p.kademlia.exception.HandlerNotFoundException;
+import io.Adrestus.p2p.kademlia.node.srategies.ReferencedNodesStrategy;
 import io.Adrestus.p2p.kademlia.protocol.handler.MessageHandler;
 import io.Adrestus.p2p.kademlia.protocol.message.KademliaMessage;
 import io.Adrestus.p2p.kademlia.table.Bucket;
@@ -84,5 +85,10 @@ public abstract class KademliaNodeAPIDecorator<ID extends Number, C extends Conn
     @Override
     public MessageHandler<ID, C> getHandler(String type) throws HandlerNotFoundException {
         return this.getKademliaNode().getHandler(type);
+    }
+
+    @Override
+    public void setReferencedNodesStrategy(ReferencedNodesStrategy referencedNodesStrategy) {
+        this.getKademliaNode().setReferencedNodesStrategy(referencedNodesStrategy);
     }
 }

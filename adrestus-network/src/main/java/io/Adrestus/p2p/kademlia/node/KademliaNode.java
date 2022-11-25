@@ -5,6 +5,7 @@ import io.Adrestus.config.NodeSettings;
 import io.Adrestus.p2p.kademlia.connection.ConnectionInfo;
 import io.Adrestus.p2p.kademlia.connection.MessageSender;
 import io.Adrestus.p2p.kademlia.exception.HandlerNotFoundException;
+import io.Adrestus.p2p.kademlia.node.srategies.ReferencedNodesStrategy;
 import io.Adrestus.p2p.kademlia.protocol.MessageType;
 import io.Adrestus.p2p.kademlia.protocol.handler.*;
 import io.Adrestus.p2p.kademlia.protocol.message.FindNodeRequestMessage;
@@ -14,6 +15,7 @@ import io.Adrestus.p2p.kademlia.protocol.message.ShutdownKademliaMessage;
 import io.Adrestus.p2p.kademlia.table.Bucket;
 import io.Adrestus.p2p.kademlia.table.RoutingTable;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.Serializable;
@@ -21,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
 
-import static io.Adrestus.p2p.kademlia.util.KadDistanceUtil.getReferencedNodes;
 
 @Slf4j
 public class KademliaNode<ID extends Number, C extends ConnectionInfo> implements KademliaNodeAPI<ID, C> {
@@ -40,6 +41,9 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
     private final transient ExecutorService executorService;
     @Getter
     private final transient ScheduledExecutorService scheduledExecutorService;
+    @Getter
+    @Setter
+    private transient ReferencedNodesStrategy referencedNodesStrategy = ReferencedNodesStrategy.Strategies.CLOSEST_PER_BUCKET.getReferencedNodesStrategy();
 
     //** None Accessible Fields **//
     protected final transient Map<String, MessageHandler<ID, C>> messageHandlerRegistry = new ConcurrentHashMap<>();
@@ -78,7 +82,7 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
     @Override
     public void stop() {
         this.gracefulShutdown();
-        if (this.isRunning()) {
+        if (this.isRunning()){
             this.executorService.shutdown();
             this.scheduledExecutorService.shutdown();
             this.isRunning = false;
@@ -87,7 +91,7 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
 
     @Override
     public void stopNow() {
-        if (this.isRunning()) {
+        if (this.isRunning()){
             this.executorService.shutdownNow();
             this.scheduledExecutorService.shutdownNow();
             this.isRunning = false;
@@ -118,7 +122,7 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
     @Override
     public MessageHandler<ID, C> getHandler(String type) throws HandlerNotFoundException {
         MessageHandler<ID, C> handler = this.messageHandlerRegistry.get(type);
-        if (handler == null) {
+        if (handler == null){
             throw new HandlerNotFoundException(type);
         }
         return handler;
@@ -129,11 +133,11 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
     //** None-API methods here **//
     //***************************//
 
-    public void gracefulShutdown() {
-        getReferencedNodes(this).forEach(node -> getMessageSender().sendAsyncMessage(this, node, new ShutdownKademliaMessage<>()));
+    protected void gracefulShutdown(){
+        this.referencedNodesStrategy.getReferencedNodes(this).forEach(node -> getMessageSender().sendAsyncMessage(this, node, new ShutdownKademliaMessage<>()));
     }
 
-    protected void init() {
+    protected void init(){
         this.registerMessageHandler(MessageType.EMPTY, new GeneralResponseMessageHandler<>());
         this.registerMessageHandler(MessageType.PONG, new PongMessageHandler<>());
         this.registerMessageHandler(MessageType.PING, new PingMessageHandler<>());
@@ -144,16 +148,15 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
 
 
     protected Future<Boolean> bootstrap(Node<ID, C> bootstrapNode) {
-        final KademliaNodeAPI<ID, C> caller = this;
         this.getRoutingTable().forceUpdate(bootstrapNode);
 
         CompletableFuture<Boolean> completableFuture = new CompletableFuture<>();
 
         this.executorService.submit(() -> {
             FindNodeRequestMessage<ID, C> message = new FindNodeRequestMessage<>();
-            message.setData(caller.getId());
+            message.setData(this.getId());
             try {
-                KademliaMessage<ID, C, ?> response = getMessageSender().sendMessage(caller, bootstrapNode, message);
+                KademliaMessage<ID, C, ?> response = getMessageSender().sendMessage(this, bootstrapNode, message);
                 onMessage(response);
                 completableFuture.complete(true);
             } catch (Exception e) {
@@ -165,17 +168,15 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
         return completableFuture;
     }
 
-    protected void pingSchedule() {
-        final KademliaNodeAPI<ID, C> caller = this;
-
+    protected void pingSchedule(){
         this.scheduledExecutorService.scheduleAtFixedRate(
                 () -> {
-                    List<Node<ID, C>> referencedNodes = getReferencedNodes(caller);
+                    List<Node<ID, C>> referencedNodes = this.referencedNodesStrategy.getReferencedNodes(this);
 
                     PingKademliaMessage<ID, C> message = new PingKademliaMessage<>();
                     referencedNodes.forEach(node -> {
                         try {
-                            KademliaMessage<ID, C, ?> response = getMessageSender().sendMessage(caller, node, message);
+                            KademliaMessage<ID, C, ?> response = getMessageSender().sendMessage(this, node, message);
                             onMessage(response);
                         } catch (HandlerNotFoundException e) {
                             logger.error(e.getMessage(), e);

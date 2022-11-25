@@ -4,6 +4,7 @@ import io.Adrestus.config.NodeSettings;
 import io.Adrestus.p2p.kademlia.connection.ConnectionInfo;
 import io.Adrestus.p2p.kademlia.connection.MessageSender;
 import io.Adrestus.p2p.kademlia.exception.HandlerNotFoundException;
+import io.Adrestus.p2p.kademlia.node.srategies.ReferencedNodesStrategy;
 import io.Adrestus.p2p.kademlia.protocol.handler.MessageHandler;
 import io.Adrestus.p2p.kademlia.protocol.message.KademliaMessage;
 import io.Adrestus.p2p.kademlia.table.Bucket;
@@ -83,4 +84,9 @@ public interface KademliaNodeAPI<ID extends Number, C extends ConnectionInfo> ex
      * @throws HandlerNotFoundException when no handler is registered for type of the message
      */
     MessageHandler<ID, C> getHandler(String type) throws HandlerNotFoundException;
+
+    /**
+     * @param referencedNodesStrategy strategy to get nodes for ping and graceful shutdown
+     */
+    void setReferencedNodesStrategy(ReferencedNodesStrategy referencedNodesStrategy);
 }
