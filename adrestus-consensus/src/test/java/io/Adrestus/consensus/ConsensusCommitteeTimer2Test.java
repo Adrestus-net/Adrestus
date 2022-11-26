@@ -130,7 +130,7 @@ public class ConsensusCommitteeTimer2Test {
             committeeBlock.getStakingMap().put(10.0, list_data.get(0).getAddressData());
             committeeBlock.getStakingMap().put(13.0, list_data.get(1).getAddressData());
         }
-        else{
+        else if(IP.equals("192.168.1.116")){
             dhtBootstrapNode.Init();
             nettyConnectionInfo=new NettyConnectionInfo(IP,KademliaConfiguration.PORT);
             DHTRegularNode nextnode = new DHTRegularNode(nettyConnectionInfo, BigInteger.valueOf(1), keyHashGenerator);
@@ -147,6 +147,9 @@ public class ConsensusCommitteeTimer2Test {
 
             committeeBlock.getStakingMap().put(10.0, list_data.get(1).getAddressData());
             committeeBlock.getStakingMap().put(13.0, list_data.get(0).getAddressData());
+        }
+        else {
+
         }
 
         //###############################
