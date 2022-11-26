@@ -45,6 +45,11 @@ public class NodeSettings implements Serializable {
         return result;
     }
 
+    public static void clean() {
+        if (instance != null)
+            instance = null;
+    }
+
     private static NodeSettings build() {
         NodeSettings.getInstance().setAlpha(KademliaConfiguration.ALPHA);
         NodeSettings.getInstance().setIdentifierSize(KademliaConfiguration.IDENTIFIER_SIZE);

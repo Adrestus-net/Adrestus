@@ -26,12 +26,18 @@
         <gson.version>2.9.0</gson.version>
         <core.version>1.0-SNAPSHOT</core.version>
         <crypto.version>1.0-SNAPSHOT</crypto.version>
+        <ledger.version>1.0-SNAPSHOT</ledger.version>
     </properties>
     <dependencies>
         <dependency>
             <groupId>io.Adrestus.v1</groupId>
             <artifactId>adrestus-crypto</artifactId>
             <version>${crypto.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.Adrestus.v1</groupId>
+            <artifactId>adrestus-distributed-ledger</artifactId>
+            <version>${ledger.version}</version>
         </dependency>
         <dependency>
             <groupId>io.Adrestus.v1</groupId>

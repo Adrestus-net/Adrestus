@@ -136,12 +136,10 @@ public class DHTBootstrapNode {
             bucket.getNodeIds().forEach(node -> {
                 try {
                     System.out.println(node);
-                    active_nodes.add(bootStrapNode.lookup(node.toString()).get(KademliaConfiguration.KADEMLIA_GET_TIMEOUT, TimeUnit.SECONDS).getValue());
+                    active_nodes.add(bootStrapNode.lookup(node.toString()).get().getValue());
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 } catch (ExecutionException e) {
-                    e.printStackTrace();
-                } catch (TimeoutException e) {
                     e.printStackTrace();
                 }
             });

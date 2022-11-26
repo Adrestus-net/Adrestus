@@ -79,7 +79,6 @@ public class LevelDBConnectionTest {
         database.deleteByKey("key");
         assertEquals(0, database.findDBsize());
         database.delete_db();
-
     }
 
 

@@ -123,7 +123,7 @@ public class ConsensusCommitteeTimer2Test {
             dhtBootstrapNode.scheduledFuture();
             Thread.sleep(10000);
             List<KademliaData>list_data=dhtBootstrapNode.getActiveNodes();
-
+            System.out.println("Size:"+list_data.size());
             committeeBlock.getStructureMap().get(0).put(list_data.get(0).getAddressData().getValidatorBlSPublicKey(), list_data.get(0).getNettyConnectionInfo().getHost());
             committeeBlock.getStructureMap().get(0).put(list_data.get(1).getAddressData().getValidatorBlSPublicKey(), list_data.get(1).getNettyConnectionInfo().getHost());
 
