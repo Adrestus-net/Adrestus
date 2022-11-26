@@ -56,13 +56,14 @@ public class Server1Test {
 
         StoreAnswer<BigInteger, String> storeAnswer = node2.store("2", "2").get();
 
-        Thread.sleep(3000);
 
         LookupAnswer<BigInteger, String, String> lookupAnswer = node2.lookup("2").get();
         System.out.printf("Lookup result: %s - Value: %s%n", lookupAnswer.getResult(), lookupAnswer.getValue());
 
         LookupAnswer<BigInteger, String, String> lookupAnswer2 = node2.lookup("1").get();
         System.out.printf("Lookup result: %s - Value: %s%n", lookupAnswer2.getResult(), lookupAnswer2.getValue());
+        Thread.sleep(6000);
+
 
     }
 

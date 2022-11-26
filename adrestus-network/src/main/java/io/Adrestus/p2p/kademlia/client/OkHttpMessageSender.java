@@ -60,9 +60,11 @@ public class OkHttpMessageSender<K extends Serializable, V extends Serializable>
                 .url(String.format("http://%s:%d/", receiver.getConnectionInfo().getHost(), receiver.getConnectionInfo().getPort()))
                 .post(body)
                 .build();
+       // System.out.println(">>>>> from "+caller.getId()+" to "+receiver.getId()+ " data "+messageStr);
         try {
             Response response = client.newCall(request).execute();
             String responseStr = Objects.requireNonNull(response.body()).string();
+           // System.out.println(">>>>> from "+receiver.getId()+" to "+caller.getId()+ " >body "+responseStr);
             return messageSerializer.deserialize(responseStr);
         } catch (IOException e) {
             //logger.info("Failed to Connect:");
@@ -84,7 +86,7 @@ public class OkHttpMessageSender<K extends Serializable, V extends Serializable>
 
                 @Override
                 public boolean isAlive() {
-                    return !(e instanceof SocketTimeoutException);
+                    return false;
                 }
             };
         } catch (Exception ex) {
