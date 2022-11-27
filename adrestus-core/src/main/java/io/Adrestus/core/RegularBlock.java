@@ -2,9 +2,7 @@ package io.Adrestus.core;
 
 import com.google.common.primitives.Ints;
 import io.Adrestus.config.AdrestusConfiguration;
-import io.Adrestus.core.Resourses.CachedLatestBlocks;
-import io.Adrestus.core.Resourses.CachedSecurityHeaders;
-import io.Adrestus.core.Resourses.MemoryPool;
+import io.Adrestus.core.Resourses.*;
 import io.Adrestus.core.RingBuffer.publisher.BlockEventPublisher;
 import io.Adrestus.core.Trie.MerkleNode;
 import io.Adrestus.core.Trie.MerkleTree;
@@ -99,9 +97,16 @@ public class RegularBlock implements BlockForge {
     @SneakyThrows
     @Override
     public void forgeCommitteBlock(CommitteeBlock committeeBlock) {
-        VdfEngine vdf = new VdfEnginePietrzak(2048);
         IDatabase<String, CommitteeBlock> database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB);
 
+        if(CachedSecurityAuditProofs.getInstance().getSecurityAuditProofs().isEmpty())
+            committeeBlock.setStakingMap(CachedLatestBlocks.getInstance().getCommitteeBlock().getStakingMap());
+        else
+            CachedSecurityAuditProofs
+                    .getInstance()
+                    .getSecurityAuditProofs()
+                    .stream()
+                    .forEach(val->committeeBlock.getStakingMap().put(MemoryTreePool.getInstance().getByaddress(val.getAddress()).get().getStaking_amount(),val));
         committeeBlock.setCommitteeProposer(new int[committeeBlock.getStakingMap().size()]);
         committeeBlock.setGeneration(CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration() + 1);
         committeeBlock.getHeaderData().setPreviousHash(CachedLatestBlocks.getInstance().getCommitteeBlock().getHash());
@@ -146,7 +151,8 @@ public class RegularBlock implements BlockForge {
             throw new IllegalArgumentException("VDF difficulty is not set correct abort");
         }
         committeeBlock.setDifficulty(difficulty);
-        committeeBlock.setVDF(Hex.toHexString(vdf.solve(Hex.decode(committeeBlock.getVRF()), committeeBlock.getDifficulty())));
+        committeeBlock.setVDF(Hex.toHexString(CachedSecurityHeaders.getInstance().getSecurityHeader().getRnd()));
+        //committeeBlock.setVDF(Hex.toHexString(vdf.solve(Hex.decode(committeeBlock.getVRF()), committeeBlock.getDifficulty())));
         // ###################find VDF difficulty##########################
 
         // ###################Random assign validators##########################

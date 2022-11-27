@@ -25,6 +25,8 @@ import io.Adrestus.crypto.elliptic.mapper.CustomSerializerTreeMap;
 import io.Adrestus.crypto.mnemonic.Mnemonic;
 import io.Adrestus.crypto.mnemonic.Security;
 import io.Adrestus.crypto.mnemonic.WordList;
+import io.Adrestus.crypto.vdf.engine.VdfEngine;
+import io.Adrestus.crypto.vdf.engine.VdfEnginePietrzak;
 import io.Adrestus.util.GetTime;
 import io.Adrestus.util.SerializationUtil;
 import io.distributedLedger.DatabaseFactory;
@@ -206,8 +208,11 @@ public class ConsensusCommitteeTest {
         prevblock.setHash("hash");
         prevblock.setGeneration(0);
         prevblock.setHeight(0);
+        prevblock.setDifficulty(113);
         CachedLatestBlocks.getInstance().setCommitteeBlock(prevblock);
+        VdfEngine vdf = new VdfEnginePietrzak(2048);
         CachedSecurityHeaders.getInstance().getSecurityHeader().setpRnd(Hex.decode("c1f72aa5bd1e1d53c723b149259b63f759f40d5ab003b547d5c13d45db9a5da8"));
+        CachedSecurityHeaders.getInstance().getSecurityHeader().setRnd(vdf.solve(CachedSecurityHeaders.getInstance().getSecurityHeader().getpRnd(),CachedLatestBlocks.getInstance().getCommitteeBlock().getDifficulty()));
         Thread.sleep(500);
 
         database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB);

@@ -10,6 +10,8 @@ import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedLeaderIndex;
 import io.Adrestus.core.Resourses.CachedSecurityHeaders;
 import io.Adrestus.crypto.bls.model.CachedBLSKeyPair;
+import io.Adrestus.crypto.vdf.engine.VdfEngine;
+import io.Adrestus.crypto.vdf.engine.VdfEnginePietrzak;
 import io.Adrestus.crypto.vrf.engine.VrfEngine2;
 import io.distributedLedger.DatabaseFactory;
 import io.distributedLedger.DatabaseType;
@@ -33,7 +35,7 @@ public class ConsensusCommitteeTimer {
     private final VrfEngine2 group;
     private final Random random;
     private static byte[] values = new byte[1024];
-
+    private VdfEngine vdf ;
     public ConsensusCommitteeTimer(CountDownLatch latch) throws Exception {
         this.consensusManager = new ConsensusManager(false);
         this.timer = new Timer(ConsensusConfiguration.CONSENSUS);
@@ -41,6 +43,7 @@ public class ConsensusCommitteeTimer {
         this.latch = latch;
         this.random = new Random();
         this.group = new VrfEngine2();
+        this.vdf = new VdfEnginePietrzak(2048);
         this.InitFirstBlock();
         this.timer.scheduleAtFixedRate(task, ConsensusConfiguration.CONSENSUS_COMMITTEE_TIMER, ConsensusConfiguration.CONSENSUS_COMMITTEE_TIMER);
     }
@@ -55,6 +58,7 @@ public class ConsensusCommitteeTimer {
         CachedLatestBlocks.getInstance().getCommitteeBlock().setHeight(0);
         database.save(CachedLatestBlocks.getInstance().getCommitteeBlock().getHash(), CachedLatestBlocks.getInstance().getCommitteeBlock());
         CachedSecurityHeaders.getInstance().getSecurityHeader().setpRnd(Hex.decode("c1f72aa5bd1e1d53c723b149259b63f759f40d5ab003b547d5c13d45db9a5da8"));
+        CachedSecurityHeaders.getInstance().getSecurityHeader().setRnd(vdf.solve(CachedSecurityHeaders.getInstance().getSecurityHeader().getpRnd(),CachedLatestBlocks.getInstance().getCommitteeBlock().getDifficulty()));
     }
 
     public void close() {
@@ -89,7 +93,7 @@ public class ConsensusCommitteeTimer {
                 validatorphase.CommitPhase(consensusMessage);
             }
             latch.countDown();
-
+            CachedSecurityHeaders.getInstance().getSecurityHeader().setRnd(vdf.solve(CachedSecurityHeaders.getInstance().getSecurityHeader().getpRnd(),CachedLatestBlocks.getInstance().getCommitteeBlock().getDifficulty()));
             //random.nextBytes(values);
             //CachedSecurityHeaders.getInstance().getSecurityHeader().setpRnd(values);
         }

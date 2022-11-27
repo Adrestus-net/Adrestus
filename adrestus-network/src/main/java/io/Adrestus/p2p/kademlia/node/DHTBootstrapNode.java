@@ -135,7 +135,7 @@ public class DHTBootstrapNode {
         this.bootStrapNode.getRoutingTable().getBuckets().forEach(bucket -> {
             bucket.getNodeIds().forEach(node -> {
                 try {
-                    System.out.println(node);
+                   // System.out.println(node);
                     active_nodes.add(bootStrapNode.lookup(node.toString()).get().getValue());
                 } catch (InterruptedException e) {
                     e.printStackTrace();

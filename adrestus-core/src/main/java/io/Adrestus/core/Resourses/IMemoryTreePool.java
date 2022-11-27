@@ -9,7 +9,7 @@ public interface IMemoryTreePool {
 
     void update(String address, PatriciaTreeNode patriciaTreeNode) throws Exception;
 
-    Optional<PatriciaTreeNode> getByaddress(String address) throws Exception;
+    Optional<PatriciaTreeNode> getByaddress(String address);
 
     String getRootHash() throws Exception;
 }

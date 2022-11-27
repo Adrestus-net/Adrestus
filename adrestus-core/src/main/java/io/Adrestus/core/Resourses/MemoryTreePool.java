@@ -69,7 +69,7 @@ public class MemoryTreePool implements IMemoryTreePool {
 
 
     @Override
-    public Optional<PatriciaTreeNode> getByaddress(String address) throws Exception {
+    public Optional<PatriciaTreeNode> getByaddress(String address) {
         r.lock();
         try {
             Bytes key = Bytes.wrap(address.getBytes(StandardCharsets.UTF_8));

@@ -24,6 +24,7 @@ import io.Adrestus.p2p.kademlia.common.NettyConnectionInfo;
 import io.Adrestus.p2p.kademlia.exception.UnsupportedBoundingException;
 import io.Adrestus.p2p.kademlia.model.LookupAnswer;
 import io.Adrestus.p2p.kademlia.node.DHTBootstrapNode;
+import io.Adrestus.p2p.kademlia.node.DHTCachedNodes;
 import io.Adrestus.p2p.kademlia.node.DHTRegularNode;
 import io.Adrestus.p2p.kademlia.node.KeyHashGenerator;
 import io.Adrestus.p2p.kademlia.repository.KademliaData;
@@ -98,8 +99,8 @@ public class ConsensusCommitteeTimer2Test {
         SignatureData signatureData1 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address1)), ecKeyPair1);
         SignatureData signatureData2 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address2)), ecKeyPair2);
 
-        MemoryTreePool.getInstance().store(address1, new PatriciaTreeNode(3000, 0));
-        MemoryTreePool.getInstance().store(address2, new PatriciaTreeNode(3000, 0));
+        MemoryTreePool.getInstance().store(address1, new PatriciaTreeNode(3000, 0,213));
+        MemoryTreePool.getInstance().store(address2, new PatriciaTreeNode(3000, 0,10));
 
         CommitteeBlock committeeBlock = new CommitteeBlock();
         committeeBlock.getHeaderData().setTimestamp("2022-11-18 15:01:29.304");
@@ -122,6 +123,7 @@ public class ConsensusCommitteeTimer2Test {
             dhtBootstrapNode.start();
             dhtBootstrapNode.scheduledFuture();
             Thread.sleep(10000);
+            DHTCachedNodes.getInstance().setDhtBootstrapNode(dhtBootstrapNode);
             List<KademliaData>list_data=dhtBootstrapNode.getActiveNodes();
             System.out.println("Size:"+list_data.size());
             committeeBlock.getStructureMap().get(0).put(list_data.get(0).getAddressData().getValidatorBlSPublicKey(), list_data.get(0).getNettyConnectionInfo().getHost());
@@ -139,6 +141,7 @@ public class ConsensusCommitteeTimer2Test {
             nextnode.setKademliaData(kademliaData);
             nextnode.start(dhtBootstrapNode);
             nextnode.scheduledFuture();
+            DHTCachedNodes.getInstance().setDhtRegularNode(nextnode);
             Thread.sleep(3000);
 
             List<KademliaData>list_data=nextnode.getActiveNodes();

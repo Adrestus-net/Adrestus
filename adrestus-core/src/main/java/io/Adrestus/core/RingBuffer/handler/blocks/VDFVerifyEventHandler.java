@@ -1,6 +1,7 @@
 package io.Adrestus.core.RingBuffer.handler.blocks;
 
 import io.Adrestus.core.CommitteeBlock;
+import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.RingBuffer.event.AbstractBlockEvent;
 import io.Adrestus.core.StatusType;
 import io.Adrestus.crypto.vdf.engine.VdfEngine;
@@ -21,7 +22,7 @@ public class VDFVerifyEventHandler implements BlockEventHandler<AbstractBlockEve
     @Override
     public void onEvent(AbstractBlockEvent blockEvent, long l, boolean b) throws Exception {
         CommitteeBlock block = (CommitteeBlock) blockEvent.getBlock();
-        boolean verify = this.vdf.verify(Hex.decode(block.getVRF()), block.getDifficulty(), Hex.decode(block.getVDF()));
+        boolean verify = this.vdf.verify(Hex.decode(block.getVRF()), CachedLatestBlocks.getInstance().getCommitteeBlock().getDifficulty(), Hex.decode(block.getVDF()));
 
         if (!verify) {
             LOG.info("VDF Verification failed");

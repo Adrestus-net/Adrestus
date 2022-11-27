@@ -5,7 +5,9 @@ import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.core.*;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedLeaderIndex;
+import io.Adrestus.core.Resourses.CachedSecurityAuditProofs;
 import io.Adrestus.core.Resourses.CachedSecurityHeaders;
+import io.Adrestus.crypto.SecurityAuditProofs;
 import io.Adrestus.crypto.bls.BLS381.ECP;
 import io.Adrestus.crypto.bls.BLS381.ECP2;
 import io.Adrestus.crypto.bls.mapper.ECP2mapper;
@@ -22,6 +24,9 @@ import io.Adrestus.crypto.vdf.engine.VdfEnginePietrzak;
 import io.Adrestus.crypto.vrf.VRFMessage;
 import io.Adrestus.crypto.vrf.engine.VrfEngine2;
 import io.Adrestus.network.ConsensusServer;
+import io.Adrestus.p2p.kademlia.node.DHTBootstrapNode;
+import io.Adrestus.p2p.kademlia.node.DHTCachedNodes;
+import io.Adrestus.p2p.kademlia.repository.KademliaData;
 import io.Adrestus.util.ByteUtil;
 import io.Adrestus.util.SerializationUtil;
 import io.distributedLedger.DatabaseFactory;
@@ -386,8 +391,20 @@ public class SupervisorConsensusPhases {
         @Override
         public void AnnouncePhase(ConsensusMessage<CommitteeBlock> block) {
             var regural_block = factory.getBlock(BlockType.REGULAR);
+
+            // this line is incorrect need to change in future please revisit
             block.getData().setStructureMap(CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap());
-            block.getData().setStakingMap(CachedLatestBlocks.getInstance().getCommitteeBlock().getStakingMap());
+
+            if(DHTCachedNodes.getInstance().getDhtBootstrapNode()!=null) {
+                CachedSecurityAuditProofs
+                        .getInstance()
+                        .setSecurityAuditProofs(DHTCachedNodes
+                                .getInstance()
+                                .getDhtBootstrapNode()
+                                .getActiveNodes()
+                                .stream()
+                                .map(KademliaData::getAddressData).collect(Collectors.toList()));
+            }
             regural_block.forgeCommitteBlock(block.getData());
             block.setMessageType(ConsensusMessageType.ANNOUNCE);
             if (DEBUG)
@@ -400,10 +417,6 @@ public class SupervisorConsensusPhases {
 
 
             byte[] toSend = consensus_serialize.encode(block);
-
-            ConsensusMessage<CommitteeBlock> cop = consensus_serialize.decode(toSend);
-            if (!cop.getData().equals(block.getData()))
-                throw new IllegalArgumentException("sadasd");
             consensusServer.publishMessage(toSend);
         }
 
