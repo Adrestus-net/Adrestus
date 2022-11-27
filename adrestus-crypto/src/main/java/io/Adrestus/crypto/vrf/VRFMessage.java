@@ -70,7 +70,7 @@ public final class VRFMessage {
     }
 
     public enum vrfMessageType {
-        INIT, CALCULATE, AGGREGATE
+        INIT, CALCULATE, AGGREGATE,ABORT
     }
 
 
