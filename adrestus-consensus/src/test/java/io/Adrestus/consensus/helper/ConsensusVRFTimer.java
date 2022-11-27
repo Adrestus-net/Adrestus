@@ -5,7 +5,6 @@ import io.Adrestus.consensus.*;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedLeaderIndex;
 import io.Adrestus.crypto.bls.model.CachedBLSKeyPair;
-import io.Adrestus.crypto.vdf.VDFMessage;
 import io.Adrestus.crypto.vrf.VRFMessage;
 import lombok.SneakyThrows;
 import org.slf4j.Logger;
@@ -35,7 +34,7 @@ public class ConsensusVRFTimer {
         @SneakyThrows
         @Override
         public void run() {
-            VRFMessage vrfMessage=new VRFMessage();
+            VRFMessage vrfMessage = new VRFMessage();
             ConsensusMessage<VRFMessage> consensusMessage = new ConsensusMessage<>(vrfMessage);
             int index = CachedLatestBlocks.getInstance().getCommitteeBlock().getPublicKeyIndex(0, CachedBLSKeyPair.getInstance().getPublicKey());
 
@@ -53,7 +52,7 @@ public class ConsensusVRFTimer {
             } else {
                 LOG.info("VALIDATOR State");
                 consensusManager.changeStateTo(ConsensusRoleType.VALIDATOR);
-                var validatorphase =  (VRFConsensusPhase)consensusManager.getRole().manufacturePhases(ConsensusType.VDF);
+                var validatorphase = (VRFConsensusPhase) consensusManager.getRole().manufacturePhases(ConsensusType.VRF);
                 validatorphase.InitialSetup();
                 validatorphase.Initialize(vrfMessage);
                 validatorphase.AnnouncePhase(consensusMessage);

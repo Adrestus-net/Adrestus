@@ -33,7 +33,7 @@ public class KademliaMainHandlerFilter<K extends Serializable, V extends Seriali
     @Override
     public void filter(Context<K, V> context, FullHttpRequest request, FullHttpResponse response) {
         KademliaMessage<BigInteger, NettyConnectionInfo, ? extends Serializable> responseMessage = null;
-       // System.out.println("[HANDLING] data:"+this.parseJsonRequest(request));
+        // System.out.println("[HANDLING] data:"+this.parseJsonRequest(request));
         try {
             KademliaMessage<BigInteger, NettyConnectionInfo, Serializable> kademliaMessage = this.toKademliaMessage(
                     this.parseJsonRequest(request)

@@ -10,6 +10,7 @@ public class CachedSecurityAuditProofs {
     private static volatile CachedSecurityAuditProofs instance;
 
     private static volatile List<SecurityAuditProofs> securityAuditProofs;
+
     /**
      * private constructor to prevent client from instantiating.
      */
@@ -47,7 +48,7 @@ public class CachedSecurityAuditProofs {
                     // (no other thread can enter this zone)
                     // create an instance and make it our singleton instance.
                     instance = result = new CachedSecurityAuditProofs();
-                    securityAuditProofs=new ArrayList<>();
+                    securityAuditProofs = new ArrayList<>();
                 }
             }
         }

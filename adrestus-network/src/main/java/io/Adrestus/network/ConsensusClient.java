@@ -15,9 +15,9 @@ import static io.Adrestus.config.ConsensusConfiguration.*;
 public class ConsensusClient {
 
     private static Logger LOG = LoggerFactory.getLogger(ConsensusClient.class);
-    private int MESSAGES = 3;
+    private int MESSAGES = 6;
     private int MAX_MESSAGES = 6;
-    private static final int MAX_AVAILABLE = 3;
+    private static final int MAX_AVAILABLE = 6;
 
     private final Semaphore available;
     private final String IP;

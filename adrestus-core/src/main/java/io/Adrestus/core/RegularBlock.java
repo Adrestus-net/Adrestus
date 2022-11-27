@@ -15,8 +15,6 @@ import io.Adrestus.crypto.bls.mapper.ECP2mapper;
 import io.Adrestus.crypto.bls.mapper.ECPmapper;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.crypto.elliptic.mapper.CustomSerializerTreeMap;
-import io.Adrestus.crypto.vdf.engine.VdfEngine;
-import io.Adrestus.crypto.vdf.engine.VdfEnginePietrzak;
 import io.Adrestus.util.GetTime;
 import io.Adrestus.util.MathOperationUtil;
 import io.Adrestus.util.SerializationUtil;
@@ -99,14 +97,14 @@ public class RegularBlock implements BlockForge {
     public void forgeCommitteBlock(CommitteeBlock committeeBlock) {
         IDatabase<String, CommitteeBlock> database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB);
 
-        if(CachedSecurityAuditProofs.getInstance().getSecurityAuditProofs().isEmpty())
+        if (CachedSecurityAuditProofs.getInstance().getSecurityAuditProofs().isEmpty())
             committeeBlock.setStakingMap(CachedLatestBlocks.getInstance().getCommitteeBlock().getStakingMap());
         else
             CachedSecurityAuditProofs
                     .getInstance()
                     .getSecurityAuditProofs()
                     .stream()
-                    .forEach(val->committeeBlock.getStakingMap().put(MemoryTreePool.getInstance().getByaddress(val.getAddress()).get().getStaking_amount(),val));
+                    .forEach(val -> committeeBlock.getStakingMap().put(MemoryTreePool.getInstance().getByaddress(val.getAddress()).get().getStaking_amount(), val));
         committeeBlock.setCommitteeProposer(new int[committeeBlock.getStakingMap().size()]);
         committeeBlock.setGeneration(CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration() + 1);
         committeeBlock.getHeaderData().setPreviousHash(CachedLatestBlocks.getInstance().getCommitteeBlock().getHash());

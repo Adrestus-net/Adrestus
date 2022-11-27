@@ -22,7 +22,6 @@ import io.Adrestus.crypto.mnemonic.Security;
 import io.Adrestus.crypto.mnemonic.WordList;
 import io.Adrestus.p2p.kademlia.common.NettyConnectionInfo;
 import io.Adrestus.p2p.kademlia.exception.UnsupportedBoundingException;
-import io.Adrestus.p2p.kademlia.model.LookupAnswer;
 import io.Adrestus.p2p.kademlia.node.DHTBootstrapNode;
 import io.Adrestus.p2p.kademlia.node.DHTCachedNodes;
 import io.Adrestus.p2p.kademlia.node.DHTRegularNode;
@@ -63,7 +62,7 @@ public class ConsensusCommitteeTimer2Test {
         int version = 0x00;
         LoggerKademlia.setLevelOFF();
         int port = 1080;
-        KademliaConfiguration.IDENTIFIER_SIZE=3;
+        KademliaConfiguration.IDENTIFIER_SIZE = 3;
         NodeSettings.getInstance();
         KeyHashGenerator<BigInteger, String> keyHashGenerator = key -> {
             try {
@@ -99,8 +98,8 @@ public class ConsensusCommitteeTimer2Test {
         SignatureData signatureData1 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address1)), ecKeyPair1);
         SignatureData signatureData2 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address2)), ecKeyPair2);
 
-        MemoryTreePool.getInstance().store(address1, new PatriciaTreeNode(3000, 0,213));
-        MemoryTreePool.getInstance().store(address2, new PatriciaTreeNode(3000, 0,10));
+        MemoryTreePool.getInstance().store(address1, new PatriciaTreeNode(3000, 0, 213));
+        MemoryTreePool.getInstance().store(address2, new PatriciaTreeNode(3000, 0, 10));
 
         CommitteeBlock committeeBlock = new CommitteeBlock();
         committeeBlock.getHeaderData().setTimestamp("2022-11-18 15:01:29.304");
@@ -114,53 +113,51 @@ public class ConsensusCommitteeTimer2Test {
                 new NettyConnectionInfo("192.168.1.106", KademliaConfiguration.BootstrapNodePORT),
                 BigInteger.valueOf(0),
                 keyHashGenerator);
-        NettyConnectionInfo nettyConnectionInfo=null;
-        if(IP.equals("192.168.1.106")){
-            nettyConnectionInfo=new NettyConnectionInfo(IP,KademliaConfiguration.BootstrapNodePORT);
+        NettyConnectionInfo nettyConnectionInfo = null;
+        if (IP.equals("192.168.1.106")) {
+            nettyConnectionInfo = new NettyConnectionInfo(IP, KademliaConfiguration.BootstrapNodePORT);
             SignatureData signatureData = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address1)), ecKeyPair1);
-            KademliaData kademliaData = new KademliaData(new SecurityAuditProofs(dhtBootstrapNode.getNettyConnectionInfo().getHost(),address1,vk1, ecKeyPair1.getPublicKey(), signatureData), nettyConnectionInfo);
+            KademliaData kademliaData = new KademliaData(new SecurityAuditProofs(dhtBootstrapNode.getNettyConnectionInfo().getHost(), address1, vk1, ecKeyPair1.getPublicKey(), signatureData), nettyConnectionInfo);
             dhtBootstrapNode.setKademliaData(kademliaData);
             dhtBootstrapNode.start();
             dhtBootstrapNode.scheduledFuture();
             Thread.sleep(10000);
             DHTCachedNodes.getInstance().setDhtBootstrapNode(dhtBootstrapNode);
-            List<KademliaData>list_data=dhtBootstrapNode.getActiveNodes();
-            System.out.println("Size:"+list_data.size());
+            List<KademliaData> list_data = dhtBootstrapNode.getActiveNodes();
+            System.out.println("Size:" + list_data.size());
             committeeBlock.getStructureMap().get(0).put(list_data.get(0).getAddressData().getValidatorBlSPublicKey(), list_data.get(0).getNettyConnectionInfo().getHost());
             committeeBlock.getStructureMap().get(0).put(list_data.get(1).getAddressData().getValidatorBlSPublicKey(), list_data.get(1).getNettyConnectionInfo().getHost());
 
             committeeBlock.getStakingMap().put(10.0, list_data.get(0).getAddressData());
             committeeBlock.getStakingMap().put(13.0, list_data.get(1).getAddressData());
-        }
-        else if(IP.equals("192.168.1.116")){
+        } else if (IP.equals("192.168.1.116")) {
             dhtBootstrapNode.Init();
-            nettyConnectionInfo=new NettyConnectionInfo(IP,KademliaConfiguration.PORT);
+            nettyConnectionInfo = new NettyConnectionInfo(IP, KademliaConfiguration.PORT);
             DHTRegularNode nextnode = new DHTRegularNode(nettyConnectionInfo, BigInteger.valueOf(1), keyHashGenerator);
             SignatureData signatureData = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address2)), ecKeyPair2);
-            KademliaData kademliaData = new KademliaData(new SecurityAuditProofs(nettyConnectionInfo.getHost(),address2,vk2, ecKeyPair2.getPublicKey(), signatureData), nettyConnectionInfo);
+            KademliaData kademliaData = new KademliaData(new SecurityAuditProofs(nettyConnectionInfo.getHost(), address2, vk2, ecKeyPair2.getPublicKey(), signatureData), nettyConnectionInfo);
             nextnode.setKademliaData(kademliaData);
             nextnode.start(dhtBootstrapNode);
             nextnode.scheduledFuture();
             DHTCachedNodes.getInstance().setDhtRegularNode(nextnode);
             Thread.sleep(3000);
 
-            List<KademliaData>list_data=nextnode.getActiveNodes();
+            List<KademliaData> list_data = nextnode.getActiveNodes();
             committeeBlock.getStructureMap().get(0).put(list_data.get(1).getAddressData().getValidatorBlSPublicKey(), list_data.get(1).getNettyConnectionInfo().getHost());
             committeeBlock.getStructureMap().get(0).put(list_data.get(0).getAddressData().getValidatorBlSPublicKey(), list_data.get(0).getNettyConnectionInfo().getHost());
 
             committeeBlock.getStakingMap().put(10.0, list_data.get(1).getAddressData());
             committeeBlock.getStakingMap().put(13.0, list_data.get(0).getAddressData());
-        }
-        else {
+        } else {
 
         }
 
         //###############################
-      //  committeeBlock.getStructureMap().get(0).put(vk1, "192.168.1.106");
-       // committeeBlock.getStructureMap().get(0).put(vk2, "192.168.1.116");
+        //  committeeBlock.getStructureMap().get(0).put(vk1, "192.168.1.106");
+        // committeeBlock.getStructureMap().get(0).put(vk2, "192.168.1.116");
 
-      //  committeeBlock.getStakingMap().put(10.0, new SecurityAuditProofs("192.168.1.106", address1, vk1, ecKeyPair1.getPublicKey(), signatureData1));
-      //  committeeBlock.getStakingMap().put(13.0, new SecurityAuditProofs("192.168.1.116", address2, vk2, ecKeyPair2.getPublicKey(), signatureData2));
+        //  committeeBlock.getStakingMap().put(10.0, new SecurityAuditProofs("192.168.1.106", address1, vk1, ecKeyPair1.getPublicKey(), signatureData1));
+        //  committeeBlock.getStakingMap().put(13.0, new SecurityAuditProofs("192.168.1.116", address2, vk2, ecKeyPair2.getPublicKey(), signatureData2));
 
         CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
     }

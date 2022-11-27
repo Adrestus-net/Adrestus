@@ -3,7 +3,6 @@ package io.Adrestus.p2p.kademlia;
 import com.google.common.net.InetAddresses;
 import io.Adrestus.config.KademliaConfiguration;
 import io.Adrestus.config.NodeSettings;
-import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.p2p.kademlia.builder.NettyKademliaDHTNodeBuilder;
 import io.Adrestus.p2p.kademlia.common.NettyConnectionInfo;
 import io.Adrestus.p2p.kademlia.exception.DuplicateStoreRequest;
@@ -30,7 +29,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class RandomBigIntegerTest {
@@ -42,7 +40,7 @@ public class RandomBigIntegerTest {
         int port = 1080;
         //use this only for debug not for tests because nodesjoiningtest
         //produces error and need size of 4
-        KademliaConfiguration.IDENTIFIER_SIZE=3;
+        KademliaConfiguration.IDENTIFIER_SIZE = 3;
         NodeSettings.getInstance();
         KeyHashGenerator<BigInteger, String> keyHashGenerator = key -> {
             try {
@@ -52,7 +50,7 @@ public class RandomBigIntegerTest {
             }
         };
 
-        Random random=new Random();
+        Random random = new Random();
         String ipString = InetAddresses.fromInteger(random.nextInt()).getHostAddress();
         BigInteger id = new BigInteger(convertIPtoHex(ipString, 16));
         // node 1
@@ -81,13 +79,12 @@ public class RandomBigIntegerTest {
             System.out.println("Starting node " + nextnode.getId() + ": " + nextnode.start(bootsrtap).get());
             routingTable.update(nextnode);
             list.add(nextnode);
-            nextnode.store(String.valueOf(id1),String.valueOf(i));
+            nextnode.store(String.valueOf(id1), String.valueOf(i));
         }
 
 
-
         Thread.sleep(5000);
-        assertEquals(7,getActiveNode(list.get(4)).size());
+        assertEquals(7, getActiveNode(list.get(4)).size());
 
         list.forEach(x -> x.stop());
         bootsrtap.stop();
@@ -99,7 +96,7 @@ public class RandomBigIntegerTest {
         int port = 1070;
         //use this only for debug not for tests because nodesjoiningtest
         //produces error and need size of 4
-        KademliaConfiguration.IDENTIFIER_SIZE=3;
+        KademliaConfiguration.IDENTIFIER_SIZE = 3;
         NodeSettings.getInstance();
         KeyHashGenerator<BigInteger, String> keyHashGenerator = key -> {
             try {
@@ -133,13 +130,12 @@ public class RandomBigIntegerTest {
             System.out.println("Starting node " + nextnode.getId() + ": " + nextnode.start(bootsrtap).get());
             routingTable.update(nextnode);
             list.add(nextnode);
-            nextnode.store(String.valueOf(i),String.valueOf(i));
+            nextnode.store(String.valueOf(i), String.valueOf(i));
         }
 
 
-
         Thread.sleep(2000);
-        assertEquals(7,getActiveNode(list.get(4)).size());
+        assertEquals(7, getActiveNode(list.get(4)).size());
 
         list.forEach(x -> x.stop());
         bootsrtap.stop();

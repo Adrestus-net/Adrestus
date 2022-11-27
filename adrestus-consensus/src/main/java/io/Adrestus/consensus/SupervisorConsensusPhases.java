@@ -292,8 +292,14 @@ public class SupervisorConsensusPhases {
             if (DEBUG)
                 return;
 
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             byte[] toSend = serialize.encode(message);
             consensusServer.publishMessage(toSend);
+
         }
 
 
@@ -309,6 +315,8 @@ public class SupervisorConsensusPhases {
                         } else {
                             VRFMessage received = serialize.decode(receive);
                             message.getSigners().add(received.getData());
+                            N--;
+                            i--;
                         }
                     } catch (IllegalArgumentException e) {
                         LOG.info("AggregateVRF: Problem at message deserialization");
@@ -359,6 +367,8 @@ public class SupervisorConsensusPhases {
                 res = ByteUtil.xor(res, list.get(i + 1).getRi());
             }
 
+            this.N = 1;
+            this.F = (this.N - 1) / 3;
         }
 
 
@@ -390,7 +400,7 @@ public class SupervisorConsensusPhases {
                             LOG.info("PreparePhase: Null message from validators");
                             i--;
                         } else {
-                            ConsensusMessage<VDFMessage> received = consensus_serialize.decode(receive);
+                            ConsensusMessage<VRFMessage> received = consensus_serialize.decode(receive);
                             if (!CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).containsKey(received.getChecksumData().getBlsPublicKey())) {
                                 LOG.info("PreparePhase: Validator does not exist on consensus... Ignore");
                                 i--;
@@ -424,8 +434,8 @@ public class SupervisorConsensusPhases {
 
 
             Signature aggregatedSignature = BLSSignature.aggregate(signature);
-            Bytes message = Bytes.wrap(data.getData().getPrnd());
-            boolean verify = BLSSignature.fastAggregateVerify(publicKeys, message, aggregatedSignature);
+            byte[] message = serialize.encode(data.getData());
+            boolean verify = BLSSignature.fastAggregateVerify(publicKeys, Bytes.wrap(message), aggregatedSignature);
             if (!verify)
                 throw new IllegalArgumentException("Abort consensus phase BLS multi_signature is invalid during prepare phase");
 
@@ -457,7 +467,7 @@ public class SupervisorConsensusPhases {
                             LOG.info("CommitPhase: Not Receiving from Validators");
                             i--;
                         } else {
-                            ConsensusMessage<TransactionBlock> received = consensus_serialize.decode(receive);
+                            ConsensusMessage<VRFMessage> received = consensus_serialize.decode(receive);
                             if (!CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).containsKey(received.getChecksumData().getBlsPublicKey())) {
                                 LOG.info("CommitPhase: Validator does not exist on consensus... Ignore");
                                 i--;

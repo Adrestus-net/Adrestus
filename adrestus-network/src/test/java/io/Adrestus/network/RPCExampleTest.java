@@ -194,7 +194,7 @@ public class RPCExampleTest {
     }
 
     @AfterAll
-    public static void after(){
+    public static void after() {
         serverOne.close();
         serverTwo.close();
         serverThree.close();

@@ -32,10 +32,8 @@ import io.Adrestus.p2p.kademlia.table.DefaultRoutingTableFactory;
 import io.Adrestus.p2p.kademlia.table.RoutingTable;
 import io.Adrestus.p2p.kademlia.table.RoutingTableFactory;
 import io.Adrestus.p2p.kademlia.util.BoundedHashUtil;
-import io.Adrestus.p2p.kademlia.util.KadDistanceUtil;
 import io.Adrestus.p2p.kademlia.util.LoggerKademlia;
 import org.apache.commons.codec.binary.StringUtils;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -46,10 +44,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ActiveNodesTest {
@@ -58,6 +54,7 @@ public class ActiveNodesTest {
     private static ECDSASign ecdsaSign;
     private static BLSPrivateKey sk1;
     private static BLSPublicKey vk1;
+
     @BeforeAll
     public static void setup() throws Exception {
 
@@ -150,12 +147,12 @@ public class ActiveNodesTest {
     public void test() throws FullBucketException, InterruptedException, DuplicateStoreRequest, ExecutionException, TimeoutException {
         LoggerKademlia.setLevelOFF();
         int port = 1080;
-        KademliaConfiguration.IDENTIFIER_SIZE=3;
+        KademliaConfiguration.IDENTIFIER_SIZE = 3;
         NodeSettings.getInstance();
         KeyHashGenerator<BigInteger, String> keyHashGenerator = key -> {
             try {
                 return new BoundedHashUtil(NodeSettings.getInstance().getIdentifierSize()).hash(key.hashCode(), BigInteger.class);
-               // return new BoundedHashUtil(NodeSettings.getInstance().getIdentifierSize()).hash(new BigInteger(HashUtil.convertIPtoHex(key, 16)), BigInteger.class);
+                // return new BoundedHashUtil(NodeSettings.getInstance().getIdentifierSize()).hash(new BigInteger(HashUtil.convertIPtoHex(key, 16)), BigInteger.class);
             } catch (UnsupportedBoundingException e) {
                 throw new IllegalArgumentException("Key hash generator not valid");
             }
@@ -179,25 +176,25 @@ public class ActiveNodesTest {
             NettyConnectionInfo nettyConnectionInfo = new NettyConnectionInfo("127.0.0.1", port + (int) i);
             DHTRegularNode nextnode = new DHTRegularNode(nettyConnectionInfo, BigInteger.valueOf(i), keyHashGenerator);
             SignatureData signatureData = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(addreses.get(i))), keypair.get(i));
-            KademliaData kademliaData = new KademliaData(new SecurityAuditProofs("127.0.0.1",addreses.get(i),vk1, keypair.get(i).getPublicKey(), signatureData), nettyConnectionInfo);
+            KademliaData kademliaData = new KademliaData(new SecurityAuditProofs("127.0.0.1", addreses.get(i), vk1, keypair.get(i).getPublicKey(), signatureData), nettyConnectionInfo);
 
             //boolean verify = ecdsaSign.secp256Verify(value.getAddressData().getAddress().getBytes(StandardCharsets.UTF_8), value.getAddressData().getAddress(), value.getAddressData().getECDSASignature());
             nextnode.setKademliaData(kademliaData);
-            nextnode.start(dhtBootstrapNode,routingTable);
+            nextnode.start(dhtBootstrapNode, routingTable);
             routingTable.update(nextnode.getRegular_node());
             list.add(nextnode);
-            nextnode.getRegular_node().store(String.valueOf(i),kademliaData).get();
+            nextnode.getRegular_node().store(String.valueOf(i), kademliaData).get();
         }
 
 
         Thread.sleep(3000);
         //assertArrayEquals(list.get(4).getRegular_node().getRoutingTable().getBuckets().get(0).getNodeIds().toArray(),Arrays.asList(BigInteger.valueOf(4)).toArray());
-       // assertArrayEquals(list.get(4).getRegular_node().getRoutingTable().getBuckets().get(1).getNodeIds().toArray(),Arrays.asList(BigInteger.valueOf(5)).toArray());
-       // assertArrayEquals(list.get(4).getRegular_node().getRoutingTable().getBuckets().get(2).getNodeIds().toArray(),Arrays.asList(BigInteger.valueOf(6),BigInteger.valueOf(7)).toArray());
-       // assertArrayEquals(list.get(4).getRegular_node().getRoutingTable().getBuckets().get(3).getNodeIds().toArray(),Arrays.asList(BigInteger.valueOf(0),BigInteger.valueOf(3),BigInteger.valueOf(2),BigInteger.valueOf(1)).toArray());
+        // assertArrayEquals(list.get(4).getRegular_node().getRoutingTable().getBuckets().get(1).getNodeIds().toArray(),Arrays.asList(BigInteger.valueOf(5)).toArray());
+        // assertArrayEquals(list.get(4).getRegular_node().getRoutingTable().getBuckets().get(2).getNodeIds().toArray(),Arrays.asList(BigInteger.valueOf(6),BigInteger.valueOf(7)).toArray());
+        // assertArrayEquals(list.get(4).getRegular_node().getRoutingTable().getBuckets().get(3).getNodeIds().toArray(),Arrays.asList(BigInteger.valueOf(0),BigInteger.valueOf(3),BigInteger.valueOf(2),BigInteger.valueOf(1)).toArray());
 
-        List<KademliaData> data=list.get(0).getActiveNodes();
-        assertEquals(7,data.size());
+        List<KademliaData> data = list.get(0).getActiveNodes();
+        assertEquals(7, data.size());
         list.forEach(x -> x.close());
         dhtBootstrapNode.close();
     }

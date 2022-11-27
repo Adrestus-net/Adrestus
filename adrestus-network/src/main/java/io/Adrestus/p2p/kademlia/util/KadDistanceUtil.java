@@ -9,14 +9,15 @@ import java.util.Map;
 public class KadDistanceUtil {
     private static final Map<Integer, List<Integer>> identifierToDistanceListMap = new HashMap<>();
 
-    private KadDistanceUtil(){}
+    private KadDistanceUtil() {
+    }
 
-    public static synchronized List<Integer> getDistancesOfIdentifierSize(int identifierSize){
-        if(identifierToDistanceListMap.containsKey(identifierSize)){
+    public static synchronized List<Integer> getDistancesOfIdentifierSize(int identifierSize) {
+        if (identifierToDistanceListMap.containsKey(identifierSize)) {
             return identifierToDistanceListMap.get(identifierSize);
         }
         ArrayList<Integer> distances = new ArrayList<>();
-        for(int i = 0; i < identifierSize; i++){
+        for (int i = 0; i < identifierSize; i++) {
             distances.add((int) Math.pow(2, i));
         }
         identifierToDistanceListMap.put(identifierSize, distances);
@@ -25,19 +26,19 @@ public class KadDistanceUtil {
 
     @SuppressWarnings("unchecked")
     public static <ID extends Number> List<ID> getNodesWithDistance(ID nodeId, int identifierSize) {
-        if(nodeId instanceof Long){
+        if (nodeId instanceof Long) {
             ArrayList<Long> validNodes = new ArrayList<>();
             getDistancesOfIdentifierSize(identifierSize).forEach(distance -> validNodes.add(((Long) nodeId) ^ distance));
 
             return (List<ID>) validNodes;
         }
-        if (nodeId instanceof BigInteger){
+        if (nodeId instanceof BigInteger) {
             ArrayList<BigInteger> validNodes = new ArrayList<>();
             getDistancesOfIdentifierSize(identifierSize).forEach(distance -> validNodes.add(((BigInteger) nodeId).xor(BigInteger.valueOf(distance))));
 
             return (List<ID>) validNodes;
         }
-        if (nodeId instanceof Integer){
+        if (nodeId instanceof Integer) {
             ArrayList<Integer> validNodes = new ArrayList<>();
             getDistancesOfIdentifierSize(identifierSize).forEach(distance -> validNodes.add(((Integer) nodeId) ^ distance));
 

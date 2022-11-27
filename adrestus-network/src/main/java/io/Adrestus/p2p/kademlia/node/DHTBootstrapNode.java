@@ -33,7 +33,6 @@ import java.math.BigInteger;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 public class DHTBootstrapNode {
     private static Logger LOG = LoggerFactory.getLogger(DHTBootstrapNode.class);
@@ -64,7 +63,7 @@ public class DHTBootstrapNode {
             }
         };
         this.repository = new KademliaRepositoryImp();
-     //   this.InitHandler();
+        //   this.InitHandler();
     }
 
     public DHTBootstrapNode(NettyConnectionInfo nettyConnectionInfo, BigInteger ID) {
@@ -80,7 +79,7 @@ public class DHTBootstrapNode {
             }
         };
         this.repository = new KademliaRepositoryImp();
-       // this.InitHandler();
+        // this.InitHandler();
     }
 
     public DHTBootstrapNode(NettyConnectionInfo nettyConnectionInfo, BigInteger ID, KeyHashGenerator<BigInteger, String> keyHashGenerator) {
@@ -90,7 +89,7 @@ public class DHTBootstrapNode {
         this.nettyConnectionInfo = nettyConnectionInfo;
         this.keyHashGenerator = keyHashGenerator;
         this.repository = new KademliaRepositoryImp();
-      //  this.InitHandler();
+        //  this.InitHandler();
     }
 
 
@@ -111,7 +110,7 @@ public class DHTBootstrapNode {
     }
 
 
-    public void Init(){
+    public void Init() {
         bootStrapNode = new NettyKademliaDHTNodeBuilder<>(
                 this.ID,
                 this.nettyConnectionInfo,
@@ -119,6 +118,7 @@ public class DHTBootstrapNode {
                 keyHashGenerator
         ).withNodeSettings(NodeSettings.getInstance()).build();
     }
+
     public void start() {
         bootStrapNode = new NettyKademliaDHTNodeBuilder<>(
                 this.ID,
@@ -135,7 +135,7 @@ public class DHTBootstrapNode {
         this.bootStrapNode.getRoutingTable().getBuckets().forEach(bucket -> {
             bucket.getNodeIds().forEach(node -> {
                 try {
-                   // System.out.println(node);
+                    // System.out.println(node);
                     active_nodes.add(bootStrapNode.lookup(node.toString()).get().getValue());
                 } catch (InterruptedException e) {
                     e.printStackTrace();

@@ -277,7 +277,7 @@ public class ValidatorConsensusPhases {
         private final SerializationUtil<VRFMessage> serialize;
 
         public VerifyVRF(boolean DEBUG) {
-            this.DEBUG=DEBUG;
+            this.DEBUG = DEBUG;
             this.group = new VrfEngine2();
             this.serialize = new SerializationUtil<VRFMessage>(VRFMessage.class);
             List<SerializationUtil.Mapping> list = new ArrayList<>();
@@ -329,11 +329,10 @@ public class ValidatorConsensusPhases {
             byte[] ri = group.prove(CachedBLSKeyPair.getInstance().getPrivateKey().toBytes(), hashToVerify.toString().getBytes(StandardCharsets.UTF_8));
             byte[] pi = group.proofToHash(ri);
 
-
             VRFMessage.VRFData data = new VRFMessage.VRFData(CachedBLSKeyPair.getInstance().getPublicKey().toBytes(), ri, pi);
             message.setData(data);
 
-            if(DEBUG)
+            if (DEBUG)
                 return;
 
             byte[] toSend = serialize.encode(message);
@@ -414,7 +413,8 @@ public class ValidatorConsensusPhases {
                 }
                 res = ByteUtil.xor(res, list.get(i + 1).getRi());
             }
-            Signature sig = BLSSignature.sign(CachedSecurityHeaders.getInstance().getSecurityHeader().getpRnd(), CachedBLSKeyPair.getInstance().getPrivateKey());
+            byte[] message = serialize.encode(data.getData());
+            Signature sig = BLSSignature.sign(message, CachedBLSKeyPair.getInstance().getPrivateKey());
             data.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
 
             if (DEBUG)
@@ -464,7 +464,7 @@ public class ValidatorConsensusPhases {
 
 
             Signature aggregatedSignature = BLSSignature.aggregate(signature);
-            Bytes toVerify = Bytes.wrap(data.getData().getPrnd());
+            Bytes toVerify = Bytes.wrap(serialize.encode(data.getData()));
             boolean verify = BLSSignature.fastAggregateVerify(publicKeys, toVerify, aggregatedSignature);
             if (!verify) {
                 LOG.info("Abort consensus phase BLS multi_signature is invalid in prepare phase");
@@ -1019,6 +1019,14 @@ public class ValidatorConsensusPhases {
 
             consensusClient.send_heartbeat(HEARTBEAT_MESSAGE);
             LOG.info("Committee is finalized with Success");
+        }
+    }
+
+    protected void cleanup() {
+        try {
+            consensusClient.close();
+        } catch (Exception e) {
+
         }
     }
 }

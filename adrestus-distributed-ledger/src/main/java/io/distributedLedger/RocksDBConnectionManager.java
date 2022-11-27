@@ -73,8 +73,8 @@ public class RocksDBConnectionManager<K, V> implements IDriver<RocksDBConnection
         this.rwl = new ReentrantReadWriteLock();
         this.r = rwl.readLock();
         this.w = rwl.writeLock();
-        this.CONNECTION_NAME=instances.getTitle();
-        this.dbFile = new File(Directory.getConfigPath() +"\\"+ CONNECTION_NAME);
+        this.CONNECTION_NAME = instances.getTitle();
+        this.dbFile = new File(Directory.getConfigPath() + "\\" + CONNECTION_NAME);
         this.valueClass = valueClass;
         this.keyClass = keyClass;
         List<SerializationUtil.Mapping> list = new ArrayList<>();
@@ -104,7 +104,7 @@ public class RocksDBConnectionManager<K, V> implements IDriver<RocksDBConnection
         if (instance == null) {
             synchronized (RocksDBConnectionManager.class) {
                 if (instance == null) {
-                    instance = new RocksDBConnectionManager(keyClass, valueClass,inst);
+                    instance = new RocksDBConnectionManager(keyClass, valueClass, inst);
                 }
             }
         }

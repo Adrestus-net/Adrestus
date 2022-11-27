@@ -1,16 +1,13 @@
 package io.Adrestus.consensus;
 
-import io.Adrestus.consensus.helper.ConsensusVDFTimer;
 import io.Adrestus.consensus.helper.ConsensusVRFTimer;
 import io.Adrestus.core.CommitteeBlock;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
-import io.Adrestus.core.Resourses.CachedSecurityHeaders;
 import io.Adrestus.crypto.bls.model.BLSPrivateKey;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.Adrestus.crypto.bls.model.CachedBLSKeyPair;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.spongycastle.util.encoders.Hex;
 
 import java.net.InetSocketAddress;
 import java.net.Socket;

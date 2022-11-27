@@ -53,6 +53,7 @@ public class ConsensusServer {
         this.collector.setReceiveTimeOut(CONSENSUS_TIMEOUT);
         this.publisher.setSendTimeOut(CONSENSUS_TIMEOUT);
         this.connected.setSendTimeOut(CONSENSUS_TIMEOUT);
+        this.connected.setReceiveTimeOut(CONSENSUS_TIMEOUT);
 
         this.timer = new Timer(ConsensusConfiguration.CONSENSUS);
         this.task = new ConnectedTaskTimeout();
@@ -92,7 +93,7 @@ public class ConsensusServer {
         this.timer.scheduleAtFixedRate(task, CONSENSUS_TIMEOUT, CONSENSUS_TIMEOUT);
         while (latch.getCount() > 0 && !terminate) {
             String rec = receiveStringData();
-           // System.out.println(rec);
+            System.out.println(rec);
             connected.send(HEARTBEAT_MESSAGE.getBytes(StandardCharsets.UTF_8));
             latch.countDown();
             setPeers_not_connected((int) latch.getCount());

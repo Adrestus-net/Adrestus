@@ -107,7 +107,6 @@ public class DHTRegularNode {
     }
 
 
-
     public void start(DHTBootstrapNode bootstrap, RoutingTable<BigInteger, NettyConnectionInfo, Bucket<BigInteger, NettyConnectionInfo>> routingTable) {
         regular_node = new NettyKademliaDHTNodeBuilder<>(
                 this.ID,

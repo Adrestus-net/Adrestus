@@ -44,7 +44,7 @@ public class DatabaseFactory {
                 else
                     return (IDatabase) LevelDBConnectionManager.getInstance(key, value_type);
             case ROCKS_DB:
-                return (IDatabase) RocksDBConnectionManager.getInstance(key, value,instance);
+                return (IDatabase) RocksDBConnectionManager.getInstance(key, value, instance);
             default:
                 throw new IllegalArgumentException("Database not supported.");
         }

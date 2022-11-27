@@ -7,6 +7,7 @@ public class DHTCachedNodes {
     private static volatile DHTCachedNodes instance;
     private DHTBootstrapNode dhtBootstrapNode;
     private DHTRegularNode dhtRegularNode;
+
     /**
      * private constructor to prevent client from instantiating.
      */

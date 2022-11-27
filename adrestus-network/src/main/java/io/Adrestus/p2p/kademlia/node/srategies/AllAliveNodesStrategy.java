@@ -5,6 +5,7 @@ import io.Adrestus.p2p.kademlia.node.KademliaNodeAPI;
 import io.Adrestus.p2p.kademlia.node.Node;
 import io.Adrestus.p2p.kademlia.node.external.ExternalNode;
 import io.Adrestus.p2p.kademlia.util.DateUtil;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -18,7 +19,7 @@ public class AllAliveNodesStrategy implements ReferencedNodesStrategy {
         kademliaNode.getRoutingTable().getBuckets().forEach(bucket -> {
             bucket.getNodeIds().forEach(id -> {
                 ExternalNode<ID, C> node = bucket.getNode(id);
-                if (node.getLastSeen().after(date)){
+                if (node.getLastSeen().after(date)) {
                     referencedNodes.add(node);
                 }
             });

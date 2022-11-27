@@ -14,7 +14,7 @@ public class PatriciaTreeNode {
         this.nonce = nonce;
     }
 
-    public PatriciaTreeNode(double amount, int nonce,double staking_amount) {
+    public PatriciaTreeNode(double amount, int nonce, double staking_amount) {
         this.amount = amount;
         this.nonce = nonce;
         this.staking_amount = staking_amount;

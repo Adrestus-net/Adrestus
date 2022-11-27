@@ -29,7 +29,7 @@ public final class SecurityAuditProofs implements Serializable {
         this.address = address;
         this.eCDSAPublicKey = eCDSAPublicKey;
         this.eCDSASignature = eCDSASignature;
-        this.ip="";
+        this.ip = "";
     }
 
     public SecurityAuditProofs(String address,
@@ -39,7 +39,7 @@ public final class SecurityAuditProofs implements Serializable {
         this.eCDSAPublicKey = eCDSAPublicKey;
         this.eCDSASignature = eCDSASignature;
         this.validatorBlSPublicKey = new BLSPublicKey();
-        this.ip="";
+        this.ip = "";
     }
 
     public SecurityAuditProofs(@Deserialize("ip") String ip,
