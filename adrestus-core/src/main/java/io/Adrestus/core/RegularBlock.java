@@ -15,6 +15,7 @@ import io.Adrestus.crypto.bls.mapper.ECP2mapper;
 import io.Adrestus.crypto.bls.mapper.ECPmapper;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.crypto.elliptic.mapper.CustomSerializerTreeMap;
+import io.Adrestus.util.CustomRandom;
 import io.Adrestus.util.GetTime;
 import io.Adrestus.util.MathOperationUtil;
 import io.Adrestus.util.SerializationUtil;
@@ -32,6 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 public class RegularBlock implements BlockForge {
     private static Logger LOG = LoggerFactory.getLogger(RegularBlock.class);
@@ -149,24 +151,62 @@ public class RegularBlock implements BlockForge {
             throw new IllegalArgumentException("VDF difficulty is not set correct abort");
         }
         committeeBlock.setDifficulty(difficulty);
+        // ###################find difficulty##########################
+
+
         committeeBlock.setVDF(Hex.toHexString(CachedSecurityHeaders.getInstance().getSecurityHeader().getRnd()));
         //committeeBlock.setVDF(Hex.toHexString(vdf.solve(Hex.decode(committeeBlock.getVRF()), committeeBlock.getDifficulty())));
         // ###################find VDF difficulty##########################
 
         // ###################Random assign validators##########################
-        SecureRandom secureRandom = SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
-        secureRandom.setSeed(Hex.decode(committeeBlock.getVDF()));
+        SecureRandom zone_random = SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
+        SecureRandom leader_random = SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
+        zone_random.setSeed(Hex.decode(committeeBlock.getVDF()));
+        leader_random.setSeed(Hex.decode(committeeBlock.getVDF()));
+        //#####RANDOM ASSIGN TO STRUCTRURE MAP ##############
+        ArrayList<Integer> exclude = new ArrayList<Integer>();
+        ArrayList<Integer> order = new ArrayList<Integer>();
         for (Map.Entry<Double, SecurityAuditProofs> entry : committeeBlock.getStakingMap().entrySet()) {
-            int nextInt = secureRandom.nextInt(AdrestusConfiguration.MAX_ZONES);
-            committeeBlock
-                    .getStructureMap()
-                    .get(nextInt)
-                    .put(entry.getValue().getValidatorBlSPublicKey(), entry.getValue().getIp());
+            int nextInt = CustomRandom.generateRandom(zone_random, 0, committeeBlock.getStakingMap().size() - 1, exclude);
+            if (!exclude.contains(nextInt)) {
+                exclude.add(nextInt);
+            }
+            order.add(nextInt);
         }
+        int zone_count = 0;
+        List<Map.Entry<Double, SecurityAuditProofs>> entryList = committeeBlock.getStakingMap().entrySet().stream().collect(Collectors.toList());
+        int MAX_ZONE_SIZE = committeeBlock.getStakingMap().size() / 4;
+
+        int j = 0;
+        while (zone_count < 4) {
+            int index_count = 0;
+            if (committeeBlock.getStakingMap().size() % 4 != 0 && zone_count == 0) {
+                while (index_count < committeeBlock.getStakingMap().size() - 3) {
+                    committeeBlock
+                            .getStructureMap()
+                            .get(zone_count)
+                            .put(entryList.get(order.get(j)).getValue().getValidatorBlSPublicKey(), entryList.get(order.get(j)).getValue().getIp());
+                    index_count++;
+                    j++;
+                }
+                zone_count++;
+            }
+            index_count = 0;
+            while (index_count < MAX_ZONE_SIZE) {
+                committeeBlock
+                        .getStructureMap()
+                        .get(zone_count)
+                        .put(entryList.get(order.get(j)).getValue().getValidatorBlSPublicKey(), entryList.get(order.get(j)).getValue().getIp());
+                index_count++;
+                j++;
+            }
+            zone_count++;
+        }
+        //#######RANDOM ASSIGN TO STRUCTRURE MAP ##############
         int iteration = 0;
         ArrayList<Integer> replica = new ArrayList<>();
         while (iteration < committeeBlock.getStakingMap().size()) {
-            int nextInt = secureRandom.nextInt(committeeBlock.getStakingMap().size());
+            int nextInt = leader_random.nextInt(committeeBlock.getStakingMap().size());
             if (!replica.contains(nextInt)) {
                 replica.add(nextInt);
                 iteration++;

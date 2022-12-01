@@ -874,7 +874,8 @@ public class ValidatorConsensusPhases {
                     .withVerifyDifficultyEventHandler()
                     .withVerifyVDFEventHandler()
                     .withVRFEventHandler()
-                    .withRandomnessEventHandler()
+                    .withRandomizedEventHandler()
+                    .withLeaderRandomnessEventHandler()
                     .mergeEvents();
 
 

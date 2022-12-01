@@ -46,6 +46,14 @@ public class CommitteeBlock extends AbstractBlock implements BlockFactory, Disru
         this.StructureMap.put(3, new LinkedHashMap<BLSPublicKey, String>());
     }
 
+    public void createStructureMap() {
+        this.StructureMap = new HashMap<Integer, LinkedHashMap<BLSPublicKey, String>>();
+        this.StructureMap.put(0, new LinkedHashMap<BLSPublicKey, String>());
+        this.StructureMap.put(1, new LinkedHashMap<BLSPublicKey, String>());
+        this.StructureMap.put(2, new LinkedHashMap<BLSPublicKey, String>());
+        this.StructureMap.put(3, new LinkedHashMap<BLSPublicKey, String>());
+    }
+
     @Override
     public void accept(BlockForge visitor) {
         visitor.forgeCommitteBlock(this);

@@ -59,6 +59,11 @@ public class BlockEventPublisher implements Publisher<AbstractBlock> {
         return this;
     }
 
+    public BlockEventPublisher withRandomizedEventHandler() {
+        group.add(new RandomizedEventHandler());
+        return this;
+    }
+
     public BlockEventPublisher withMinimumStakingEventHandler() {
         group.add(new MinimumStakingEventHandler());
         return this;
@@ -99,10 +104,11 @@ public class BlockEventPublisher implements Publisher<AbstractBlock> {
         return this;
     }
 
-    public BlockEventPublisher withRandomnessEventHandler() {
-        group.add(new RandomnessEventHandler());
+    public BlockEventPublisher withLeaderRandomnessEventHandler() {
+        group.add(new LeaderRandomnessEventHandler());
         return this;
     }
+
 
     public BlockEventPublisher mergeEvents() {
         BlockEventHandler[] events = new BlockEventHandler[group.size()];

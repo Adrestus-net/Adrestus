@@ -5,7 +5,6 @@ import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.core.CommitteeBlock;
 import io.Adrestus.core.RingBuffer.event.AbstractBlockEvent;
 import io.Adrestus.core.StatusType;
-import io.Adrestus.crypto.SecurityAuditProofs;
 import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,14 +13,13 @@ import org.spongycastle.util.encoders.Hex;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Map;
 
-public class RandomnessEventHandler implements BlockEventHandler<AbstractBlockEvent> {
-    private static Logger LOG = LoggerFactory.getLogger(RandomnessEventHandler.class);
+public class LeaderRandomnessEventHandler implements BlockEventHandler<AbstractBlockEvent> {
+    private static Logger LOG = LoggerFactory.getLogger(LeaderRandomnessEventHandler.class);
     private final SecureRandom secureRandom;
 
     @SneakyThrows
-    public RandomnessEventHandler() {
+    public LeaderRandomnessEventHandler() {
         this.secureRandom = SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
     }
 
@@ -30,14 +28,6 @@ public class RandomnessEventHandler implements BlockEventHandler<AbstractBlockEv
         CommitteeBlock block = (CommitteeBlock) blockEvent.getBlock();
         secureRandom.setSeed(Hex.decode(block.getVDF()));
 
-        for (Map.Entry<Double, SecurityAuditProofs> entry : block.getStakingMap().entrySet()) {
-            int nextInt = secureRandom.nextInt(AdrestusConfiguration.MAX_ZONES);
-            if (!block.getStructureMap().get(nextInt).containsKey(entry.getValue().getValidatorBlSPublicKey())) {
-                LOG.info("Validator not placed correctly");
-                block.setStatustype(StatusType.ABORT);
-                return;
-            }
-        }
         ArrayList<Integer> replica = new ArrayList<>();
         int iteration = 0;
         while (iteration < block.getStakingMap().size()) {
@@ -53,5 +43,6 @@ public class RandomnessEventHandler implements BlockEventHandler<AbstractBlockEv
             block.setStatustype(StatusType.ABORT);
             return;
         }
+
     }
 }

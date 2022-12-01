@@ -30,10 +30,12 @@ import io.Adrestus.crypto.mnemonic.WordList;
 import io.Adrestus.crypto.vdf.engine.VdfEngine;
 import io.Adrestus.crypto.vdf.engine.VdfEnginePietrzak;
 import io.Adrestus.util.GetTime;
+import io.Adrestus.util.MathOperationUtil;
 import io.Adrestus.util.SerializationUtil;
 import io.distributedLedger.DatabaseFactory;
 import io.distributedLedger.DatabaseType;
 import io.distributedLedger.IDatabase;
+import lombok.SneakyThrows;
 import org.apache.commons.codec.binary.StringUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -46,6 +48,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -74,6 +77,13 @@ public class BlockTest {
     private static BLSPrivateKey sk6;
     private static BLSPublicKey vk6;
 
+    private static BLSPrivateKey sk7;
+    private static BLSPublicKey vk7;
+
+    private static BLSPrivateKey sk8;
+    private static BLSPublicKey vk8;
+
+    @SneakyThrows
     @BeforeAll
     public static void setup() {
         List<SerializationUtil.Mapping> list = new ArrayList<>();
@@ -92,6 +102,31 @@ public class BlockTest {
         CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
         CachedLatestBlocks.getInstance().setTransactionBlock(prevblock);
         await().atMost(100, TimeUnit.MILLISECONDS);
+
+        sk1 = new BLSPrivateKey(1);
+        vk1 = new BLSPublicKey(sk1);
+
+        sk2 = new BLSPrivateKey(2);
+        vk2 = new BLSPublicKey(sk2);
+
+        sk3 = new BLSPrivateKey(3);
+        vk3 = new BLSPublicKey(sk3);
+
+        sk4 = new BLSPrivateKey(4);
+        vk4 = new BLSPublicKey(sk4);
+
+
+        sk5 = new BLSPrivateKey(5);
+        vk5 = new BLSPublicKey(sk5);
+
+        sk6 = new BLSPrivateKey(6);
+        vk6 = new BLSPublicKey(sk6);
+
+        sk7 = new BLSPrivateKey(7);
+        vk7 = new BLSPublicKey(sk7);
+
+        sk8 = new BLSPrivateKey(8);
+        vk8 = new BLSPublicKey(sk8);
     }
 
     @Test
@@ -249,6 +284,12 @@ public class BlockTest {
         sk6 = new BLSPrivateKey(6);
         vk6 = new BLSPublicKey(sk6);
 
+        sk7 = new BLSPrivateKey(7);
+        vk7 = new BLSPublicKey(sk7);
+
+        sk8 = new BLSPrivateKey(8);
+        vk8 = new BLSPublicKey(sk8);
+
         int version = 0x00;
         addreses = new ArrayList<>();
         keypair = new ArrayList<>();
@@ -348,12 +389,13 @@ public class BlockTest {
                 .withTimestampEventHandler()
                 .withDuplicateHandler()
                 .withHeightEventHandler()
+                .withRandomizedEventHandler()
                 .withSortedStakingEventHandler()
                 .withMinimumStakingEventHandler()
                 .withVerifyDifficultyEventHandler()
                 .withVerifyVDFEventHandler()
                 .withVRFEventHandler()
-                .withRandomnessEventHandler()
+                .withLeaderRandomnessEventHandler()
                 .mergeEvents();
 
 
@@ -370,7 +412,10 @@ public class BlockTest {
         committeeBlock.getStakingMap().put(7.0, new SecurityAuditProofs("192.168.1.103", adddress3, vk3, ecKeyPair3.getPublicKey(), signatureData3));
         committeeBlock.getStakingMap().put(22.0, new SecurityAuditProofs("192.168.1.104", adddress4, vk4, ecKeyPair4.getPublicKey(), signatureData4));
         committeeBlock.getStakingMap().put(6.0, new SecurityAuditProofs("192.168.1.105", adddress6, vk6, ecKeyPair6.getPublicKey(), signatureData6));
-        committeeBlock.getStakingMap().put(32.0, new SecurityAuditProofs("192.168.1.106", adddress5, vk5, ecKeyPair5.getPublicKey(), signatureData5));
+        committeeBlock.getStakingMap().put(32.0, new SecurityAuditProofs("192.168.1.106", adddress6, vk6, ecKeyPair6.getPublicKey(), signatureData6));
+        committeeBlock.getStakingMap().put(33.0, new SecurityAuditProofs("192.168.1.107", adddress7, vk7, ecKeyPair7.getPublicKey(), signatureData7));
+        committeeBlock.getStakingMap().put(31.0, new SecurityAuditProofs("192.168.1.108", adddress8, vk8, ecKeyPair8.getPublicKey(), signatureData8));
+
         committeeBlock.setCommitteeProposer(new int[committeeBlock.getStakingMap().size()]);
         committeeBlock.setGeneration(1);
         committeeBlock.getHeaderData().setPreviousHash("hash");
@@ -379,10 +424,9 @@ public class BlockTest {
         committeeBlock.getHeaderData().setTimestamp(GetTime.GetTimeStampInString());
 
         //########################################################################
-        VdfEngine vdf = new VdfEnginePietrzak(1024);
+        VdfEngine vdf = new VdfEnginePietrzak(2048);
         CachedSecurityHeaders.getInstance().getSecurityHeader().setpRnd(Hex.decode("c1f72aa5bd1e1d53c723b149259b63f759f40d5ab003b547d5c13d45db9a5da8"));
         committeeBlock.setVRF("c1f72aa5bd1e1d53c723b149259b63f759f40d5ab003b547d5c13d45db9a5da8");
-        CachedSecurityHeaders.getInstance().getSecurityHeader().setpRnd(Hex.decode("c1f72aa5bd1e1d53c723b149259b63f759f40d5ab003b547d5c13d45db9a5da8"));
         IDatabase<String, CommitteeBlock> database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB);
         CommitteeBlock firstblock = new CommitteeBlock();
         firstblock.setDifficulty(112);
@@ -401,6 +445,7 @@ public class BlockTest {
         Thread.sleep(200);
 
 
+        // ###################find difficulty##########################
         int finish = database.findDBsize();
 
         int n = finish;
@@ -411,20 +456,18 @@ public class BlockTest {
 
         if (entries.size() == 1) {
             summdiffuclty = block_entries.get(entries.get(0)).getDifficulty();
-            sumtime = 1;
-        }
-        for (int i = 0; i < entries.size(); i++) {
-            if (i == entries.size() - 1)
-                break;
+            sumtime = 100;
+        } else {
+            for (int i = 0; i < entries.size(); i++) {
+                if (i == entries.size() - 1)
+                    break;
 
-            long older = GetTime.GetTimestampFromString(block_entries.get(entries.get(i)).getHeaderData().getTimestamp()).getTime();
-            long newer = GetTime.GetTimestampFromString(block_entries.get(entries.get(i + 1)).getHeaderData().getTimestamp()).getTime();
-            sumtime = sumtime + (newer - older);
-            //System.out.println("edw "+(newer - older));
-            summdiffuclty = summdiffuclty + block_entries.get(entries.get(i)).getDifficulty();
-            //  System.out.println("edw "+(newer - older));
-            if ((newer - older) > 1000) {
-                int h = i;
+                long older = GetTime.GetTimestampFromString(block_entries.get(entries.get(i)).getHeaderData().getTimestamp()).getTime();
+                long newer = GetTime.GetTimestampFromString(block_entries.get(entries.get(i + 1)).getHeaderData().getTimestamp()).getTime();
+                sumtime = sumtime + (newer - older);
+                //System.out.println("edw "+(newer - older));
+                summdiffuclty = summdiffuclty + block_entries.get(entries.get(i)).getDifficulty();
+                //  System.out.println("edw "+(newer - older));
             }
         }
 
@@ -432,23 +475,30 @@ public class BlockTest {
         // String s=String.format("%4d",  sumtime / n);
         double t = ((double) sumtime / n);
         //  System.out.println(t);
-        int difficulty = (int) Math.round(t * ((double) AdrestusConfiguration.INIT_VDF_DIFFICULTY / d));
-        committeeBlock.setDifficulty(difficulty * 2);
+        int difficulty = MathOperationUtil.multiplication((int) Math.round((t) / d));
+        if (difficulty < 100) {
+            committeeBlock.setStatustype(StatusType.ABORT);
+            throw new IllegalArgumentException("VDF difficulty is not set correct abort");
+        }
+        committeeBlock.setDifficulty(difficulty);
+        CachedLatestBlocks.getInstance().getCommitteeBlock().setDifficulty(difficulty);
         committeeBlock.setVDF(Hex.toHexString(vdf.solve(Hex.decode(committeeBlock.getVRF()), committeeBlock.getDifficulty())));
         CachedSecurityHeaders.getInstance().getSecurityHeader().setRnd(Hex.decode(committeeBlock.getVDF()));
+        // ###################find difficulty##########################
+
         SecureRandom secureRandom = SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
+        SecureRandom secureRandom2 = SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
+        SecureRandom secureRandom3 = SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
         secureRandom.setSeed(Hex.decode(committeeBlock.getVDF()));
-        for (Map.Entry<Double, SecurityAuditProofs> entry : committeeBlock.getStakingMap().entrySet()) {
-            int nextInt = secureRandom.nextInt(AdrestusConfiguration.MAX_ZONES);
-            committeeBlock
-                    .getStructureMap()
-                    .get(nextInt)
-                    .put(entry.getValue().getValidatorBlSPublicKey(), entry.getValue().getIp());
-        }
+        secureRandom2.setSeed(Hex.decode(committeeBlock.getVDF()));
+        secureRandom3.setSeed(Hex.decode(committeeBlock.getVDF()));
+
+
+        //####### LEADER RANDOM ASSIGN##############
         int iteration = 0;
         ArrayList<Integer> replica = new ArrayList<>();
         while (iteration < committeeBlock.getStakingMap().size()) {
-            int nextInt = secureRandom.nextInt(committeeBlock.getStakingMap().size());
+            int nextInt = secureRandom2.nextInt(committeeBlock.getStakingMap().size());
             if (!replica.contains(nextInt)) {
                 replica.add(nextInt);
                 iteration++;
@@ -456,9 +506,55 @@ public class BlockTest {
         }
         committeeBlock.setCommitteeProposer(Ints.toArray(replica));
         //########################################################################
+
+
+        //##### RANDOM ASSIGN TO STRUCTRURE MAP ##############
+        ArrayList<Integer> exclude = new ArrayList<Integer>();
+        ArrayList<Integer> order = new ArrayList<Integer>();
+        for (Map.Entry<Double, SecurityAuditProofs> entry : committeeBlock.getStakingMap().entrySet()) {
+            int nextInt = generateRandom(secureRandom, 0, committeeBlock.getStakingMap().size() - 1, exclude);
+            if (!exclude.contains(nextInt)) {
+                exclude.add(nextInt);
+            }
+            order.add(nextInt);
+        }
+        int zone_count = 0;
+        List<Map.Entry<Double, SecurityAuditProofs>> entryList = committeeBlock.getStakingMap().entrySet().stream().collect(Collectors.toList());
+        int MAX_ZONE_SIZE = committeeBlock.getStakingMap().size() / 4;
+
+        int j = 0;
+        while (zone_count < 4) {
+            int index_count = 0;
+            if (committeeBlock.getStakingMap().size() % 4 != 0 && zone_count == 0) {
+                while (index_count < committeeBlock.getStakingMap().size() - 3) {
+                    committeeBlock
+                            .getStructureMap()
+                            .get(zone_count)
+                            .put(entryList.get(order.get(j)).getValue().getValidatorBlSPublicKey(), entryList.get(order.get(j)).getValue().getIp());
+                    index_count++;
+                    j++;
+                }
+                zone_count++;
+            }
+            index_count = 0;
+            while (index_count < MAX_ZONE_SIZE) {
+                committeeBlock
+                        .getStructureMap()
+                        .get(zone_count)
+                        .put(entryList.get(order.get(j)).getValue().getValidatorBlSPublicKey(), entryList.get(order.get(j)).getValue().getIp());
+                index_count++;
+                j++;
+            }
+            zone_count++;
+        }
+
+        //##### RANDOM ASSIGN TO STRUCTRURE MAP ##############
+
+
         Thread.sleep(100);
         String hash = HashUtil.sha256_bytetoString(serenc.encode(committeeBlock));
         committeeBlock.setHash(hash);
+
 
         publisher.start();
         Thread.sleep(100);
@@ -468,5 +564,71 @@ public class BlockTest {
         publisher.getJobSyncUntilRemainingCapacityZero();
         publisher.close();
         database.deleteAll();
+    }
+
+
+    @Test
+    public void radmones_test() {
+        SecureRandom random = new SecureRandom();
+        CommitteeBlock committeeBlock = new CommitteeBlock();
+        committeeBlock.getStakingMap().put(10.0, new SecurityAuditProofs("192.168.1.101", vk1));
+        committeeBlock.getStakingMap().put(13.0, new SecurityAuditProofs("192.168.1.102", vk2));
+        committeeBlock.getStakingMap().put(7.0, new SecurityAuditProofs("192.168.1.103", vk3));
+        committeeBlock.getStakingMap().put(22.0, new SecurityAuditProofs("192.168.1.104", vk4));
+        committeeBlock.getStakingMap().put(6.0, new SecurityAuditProofs("192.168.1.105", vk5));
+        committeeBlock.getStakingMap().put(32.0, new SecurityAuditProofs("192.168.1.106", vk6));
+        committeeBlock.getStakingMap().put(33.0, new SecurityAuditProofs("192.168.1.107", vk7));
+        committeeBlock.getStakingMap().put(31.0, new SecurityAuditProofs("192.168.1.108", vk8));
+
+        ArrayList<Integer> exclude = new ArrayList<Integer>();
+        ArrayList<Integer> order = new ArrayList<Integer>();
+        for (Map.Entry<Double, SecurityAuditProofs> entry : committeeBlock.getStakingMap().entrySet()) {
+            int nextInt = generateRandom(random, 0, committeeBlock.getStakingMap().size() - 1, exclude);
+            if (!exclude.contains(nextInt)) {
+                exclude.add(nextInt);
+            }
+            order.add(nextInt);
+        }
+        int zone_count = 0;
+        List<Map.Entry<Double, SecurityAuditProofs>> entryList = committeeBlock.getStakingMap().entrySet().stream().collect(Collectors.toList());
+        int MAX_ZONE_SIZE = committeeBlock.getStakingMap().size() / 4;
+
+        int j = 0;
+        while (zone_count < 4) {
+            int index_count = 0;
+            if (committeeBlock.getStakingMap().size() % 4 != 0 && zone_count == 0) {
+                while (index_count < committeeBlock.getStakingMap().size() - 3) {
+                    committeeBlock
+                            .getStructureMap()
+                            .get(zone_count)
+                            .put(entryList.get(order.get(j)).getValue().getValidatorBlSPublicKey(), entryList.get(order.get(j)).getValue().getIp());
+                    index_count++;
+                    j++;
+                }
+                zone_count++;
+            }
+            index_count = 0;
+            while (index_count < MAX_ZONE_SIZE) {
+                System.out.println(zone_count);
+                committeeBlock
+                        .getStructureMap()
+                        .get(zone_count)
+                        .put(entryList.get(order.get(j)).getValue().getValidatorBlSPublicKey(), entryList.get(order.get(j)).getValue().getIp());
+                index_count++;
+                j++;
+            }
+            zone_count++;
+        }
+
+    }
+
+    public int generateRandom(SecureRandom secureRandom, int start, int end, ArrayList<Integer> excludeRows) {
+        int range = end - start + 1;
+        int random = secureRandom.nextInt(range);
+        while (excludeRows.contains(random)) {
+            random = secureRandom.nextInt(range);
+        }
+
+        return random;
     }
 }

@@ -33,6 +33,7 @@ public class VDFTest {
         assertEquals(true, vdf.verify(challenge, difficulty, solution));
     }
 
+
     @Test
     public void test_vdf2() throws NoSuchAlgorithmException {
         VdfEngine vdf = new VdfEnginePietrzak(2048);

@@ -71,6 +71,12 @@ public class ConsensusCommitteeTest {
     private static BLSPrivateKey sk6;
     private static BLSPublicKey vk6;
 
+    private static BLSPrivateKey sk7;
+    private static BLSPublicKey vk7;
+
+    private static BLSPrivateKey sk8;
+    private static BLSPublicKey vk8;
+
     @BeforeAll
     public static void setup() throws Exception {
 
@@ -98,6 +104,12 @@ public class ConsensusCommitteeTest {
 
         sk6 = new BLSPrivateKey(6);
         vk6 = new BLSPublicKey(sk6);
+
+        sk7 = new BLSPrivateKey(7);
+        vk7 = new BLSPublicKey(sk7);
+
+        sk8 = new BLSPrivateKey(8);
+        vk8 = new BLSPublicKey(sk8);
 
         int version = 0x00;
         addreses = new ArrayList<>();
@@ -209,6 +221,17 @@ public class ConsensusCommitteeTest {
         prevblock.setGeneration(0);
         prevblock.setHeight(0);
         prevblock.setDifficulty(113);
+
+        prevblock.getStakingMap().put(1010.0, new SecurityAuditProofs("192.168.1.101", addreses.get(0), vk1, keypair.get(0).getPublicKey(), signatureData.get(0)));
+        prevblock.getStakingMap().put(1013.0, new SecurityAuditProofs("192.168.1.102", addreses.get(1), vk2, keypair.get(1).getPublicKey(), signatureData.get(1)));
+        prevblock.getStakingMap().put(1007.0, new SecurityAuditProofs("192.168.1.103", addreses.get(2), vk3, keypair.get(2).getPublicKey(), signatureData.get(2)));
+        prevblock.getStakingMap().put(1022.0, new SecurityAuditProofs("192.168.1.104", addreses.get(3), vk4, keypair.get(3).getPublicKey(), signatureData.get(3)));
+        prevblock.getStakingMap().put(1006.0, new SecurityAuditProofs("192.168.1.105", addreses.get(4), vk5, keypair.get(4).getPublicKey(), signatureData.get(4)));
+        prevblock.getStakingMap().put(1032.0, new SecurityAuditProofs("192.168.1.106", addreses.get(5), vk6, keypair.get(5).getPublicKey(), signatureData.get(5)));
+        prevblock.getStakingMap().put(1012.0, new SecurityAuditProofs("192.168.1.107", addreses.get(6), vk7, keypair.get(6).getPublicKey(), signatureData.get(6)));
+        prevblock.getStakingMap().put(1031.0, new SecurityAuditProofs("192.168.1.108", addreses.get(7), vk8, keypair.get(7).getPublicKey(), signatureData.get(7)));
+
+
         CachedLatestBlocks.getInstance().setCommitteeBlock(prevblock);
         VdfEngine vdf = new VdfEnginePietrzak(2048);
         CachedSecurityHeaders.getInstance().getSecurityHeader().setpRnd(Hex.decode("c1f72aa5bd1e1d53c723b149259b63f759f40d5ab003b547d5c13d45db9a5da8"));
@@ -250,12 +273,6 @@ public class ConsensusCommitteeTest {
 
         var supervisorphase = consensusManager.getRole().manufacturePhases(ConsensusType.COMMITTEE_BLOCK);
         CommitteeBlock committeeBlock = new CommitteeBlock();
-        committeeBlock.getStakingMap().put(1010.0, new SecurityAuditProofs("192.168.1.101", addreses.get(0), vk1, keypair.get(0).getPublicKey(), signatureData.get(0)));
-        committeeBlock.getStakingMap().put(1013.0, new SecurityAuditProofs("192.168.1.102", addreses.get(1), vk2, keypair.get(1).getPublicKey(), signatureData.get(1)));
-        committeeBlock.getStakingMap().put(1007.0, new SecurityAuditProofs("192.168.1.103", addreses.get(2), vk3, keypair.get(2).getPublicKey(), signatureData.get(2)));
-        committeeBlock.getStakingMap().put(1022.0, new SecurityAuditProofs("192.168.1.104", addreses.get(3), vk4, keypair.get(3).getPublicKey(), signatureData.get(3)));
-        committeeBlock.getStakingMap().put(1006.0, new SecurityAuditProofs("192.168.1.105", addreses.get(4), vk6, keypair.get(4).getPublicKey(), signatureData.get(4)));
-        committeeBlock.getStakingMap().put(1032.0, new SecurityAuditProofs("192.168.1.106", addreses.get(5), vk5, keypair.get(5).getPublicKey(), signatureData.get(5)));
         ConsensusMessage<CommitteeBlock> consensusMessage = new ConsensusMessage<>(committeeBlock);
 
         supervisorphase.AnnouncePhase(consensusMessage);

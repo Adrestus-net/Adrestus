@@ -4,6 +4,7 @@ import io.Adrestus.core.RingBuffer.event.TransactionEvent;
 import io.Adrestus.core.StatusType;
 import io.Adrestus.core.Transaction;
 import io.Adrestus.crypto.HashUtil;
+import io.Adrestus.crypto.elliptic.SignatureData;
 import io.Adrestus.util.SerializationUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +28,7 @@ public class HashEventHandler extends TransactionEventHandler {
 
             Transaction cloneable = (Transaction) transaction.clone();
             cloneable.setHash("");
+            cloneable.setSignature(new SignatureData());
             byte[] toHash = wrapper.encode(cloneable);
             String result_hash = HashUtil.sha256_bytetoString(toHash);
             if (!result_hash.equals(transaction.getHash())) {

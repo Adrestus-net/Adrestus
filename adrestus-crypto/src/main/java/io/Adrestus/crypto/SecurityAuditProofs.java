@@ -20,6 +20,15 @@ public final class SecurityAuditProofs implements Serializable {
     public SecurityAuditProofs() {
     }
 
+    public SecurityAuditProofs(String ip) {
+        this.ip = ip;
+    }
+
+    public SecurityAuditProofs(String ip, BLSPublicKey validatorBlSPublicKey) {
+        this.ip = ip;
+        this.validatorBlSPublicKey = validatorBlSPublicKey;
+    }
+
     public SecurityAuditProofs(
             BLSPublicKey validatorBlSPublicKey,
             String address,
