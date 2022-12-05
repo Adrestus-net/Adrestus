@@ -1,9 +1,9 @@
 package io.Adrestus.core.RingBuffer.handler.blocks;
 
+import io.Adrestus.Trie.MerkleNode;
+import io.Adrestus.Trie.MerkleTreeImp;
 import io.Adrestus.core.RingBuffer.event.AbstractBlockEvent;
 import io.Adrestus.core.TransactionBlock;
-import io.Adrestus.core.Trie.MerkleNode;
-import io.Adrestus.core.Trie.MerkleTreeImp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

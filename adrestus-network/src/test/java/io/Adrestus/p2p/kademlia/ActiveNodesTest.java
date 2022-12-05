@@ -1,10 +1,10 @@
 package io.Adrestus.p2p.kademlia;
 
 import com.google.common.net.InetAddresses;
+import io.Adrestus.MemoryTreePool;
+import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.config.KademliaConfiguration;
 import io.Adrestus.config.NodeSettings;
-import io.Adrestus.core.Resourses.MemoryTreePool;
-import io.Adrestus.core.Trie.PatriciaTreeNode;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.SecurityAuditProofs;
 import io.Adrestus.crypto.WalletAddress;
@@ -176,7 +176,7 @@ public class ActiveNodesTest {
             NettyConnectionInfo nettyConnectionInfo = new NettyConnectionInfo("127.0.0.1", port + (int) i);
             DHTRegularNode nextnode = new DHTRegularNode(nettyConnectionInfo, BigInteger.valueOf(i), keyHashGenerator);
             SignatureData signatureData = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(addreses.get(i))), keypair.get(i));
-            KademliaData kademliaData = new KademliaData(new SecurityAuditProofs("127.0.0.1", addreses.get(i), vk1, keypair.get(i).getPublicKey(), signatureData), nettyConnectionInfo);
+            KademliaData kademliaData = new KademliaData(new SecurityAuditProofs(addreses.get(i), vk1, keypair.get(i).getPublicKey(), signatureData), nettyConnectionInfo);
 
             //boolean verify = ecdsaSign.secp256Verify(value.getAddressData().getAddress().getBytes(StandardCharsets.UTF_8), value.getAddressData().getAddress(), value.getAddressData().getECDSASignature());
             nextnode.setKademliaData(kademliaData);

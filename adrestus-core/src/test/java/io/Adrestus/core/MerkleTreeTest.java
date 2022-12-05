@@ -1,8 +1,8 @@
 package io.Adrestus.core;
 
-import io.Adrestus.core.Trie.MerkleNode;
-import io.Adrestus.core.Trie.MerkleProofs;
-import io.Adrestus.core.Trie.MerkleTreeImp;
+import io.Adrestus.Trie.MerkleNode;
+import io.Adrestus.Trie.MerkleProofs;
+import io.Adrestus.Trie.MerkleTreeImp;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

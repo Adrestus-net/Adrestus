@@ -1,20 +1,24 @@
 package io.Adrestus.core;
 
 import com.google.common.primitives.Ints;
+import io.Adrestus.MemoryTreePool;
+import io.Adrestus.Trie.MerkleNode;
+import io.Adrestus.Trie.MerkleTree;
+import io.Adrestus.Trie.MerkleTreeImp;
 import io.Adrestus.config.AdrestusConfiguration;
-import io.Adrestus.core.Resourses.*;
+import io.Adrestus.core.Resourses.CachedLatestBlocks;
+import io.Adrestus.core.Resourses.CachedSecurityAuditProofs;
+import io.Adrestus.core.Resourses.CachedSecurityHeaders;
+import io.Adrestus.core.Resourses.MemoryPool;
 import io.Adrestus.core.RingBuffer.publisher.BlockEventPublisher;
-import io.Adrestus.core.Trie.MerkleNode;
-import io.Adrestus.core.Trie.MerkleTree;
-import io.Adrestus.core.Trie.MerkleTreeImp;
 import io.Adrestus.crypto.HashUtil;
-import io.Adrestus.crypto.SecurityAuditProofs;
 import io.Adrestus.crypto.bls.BLS381.ECP;
 import io.Adrestus.crypto.bls.BLS381.ECP2;
 import io.Adrestus.crypto.bls.mapper.ECP2mapper;
 import io.Adrestus.crypto.bls.mapper.ECPmapper;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.crypto.elliptic.mapper.CustomSerializerTreeMap;
+import io.Adrestus.p2p.kademlia.repository.KademliaData;
 import io.Adrestus.util.CustomRandom;
 import io.Adrestus.util.GetTime;
 import io.Adrestus.util.MathOperationUtil;
@@ -107,7 +111,7 @@ public class RegularBlock implements BlockForge {
                     .getInstance()
                     .getSecurityAuditProofs()
                     .stream()
-                    .forEach(val -> committeeBlock.getStakingMap().put(MemoryTreePool.getInstance().getByaddress(val.getAddress()).get().getStaking_amount(), val));
+                    .forEach(val -> committeeBlock.getStakingMap().put(MemoryTreePool.getInstance().getByaddress(val.getAddressData().getAddress()).get().getStaking_amount(), val));
         committeeBlock.setCommitteeProposer(new int[committeeBlock.getStakingMap().size()]);
         committeeBlock.setGeneration(CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration() + 1);
         committeeBlock.getHeaderData().setPreviousHash(CachedLatestBlocks.getInstance().getCommitteeBlock().getHash());
@@ -167,7 +171,7 @@ public class RegularBlock implements BlockForge {
         //#####RANDOM ASSIGN TO STRUCTRURE MAP ##############
         ArrayList<Integer> exclude = new ArrayList<Integer>();
         ArrayList<Integer> order = new ArrayList<Integer>();
-        for (Map.Entry<Double, SecurityAuditProofs> entry : committeeBlock.getStakingMap().entrySet()) {
+        for (Map.Entry<Double, KademliaData> entry : committeeBlock.getStakingMap().entrySet()) {
             int nextInt = CustomRandom.generateRandom(zone_random, 0, committeeBlock.getStakingMap().size() - 1, exclude);
             if (!exclude.contains(nextInt)) {
                 exclude.add(nextInt);
@@ -175,7 +179,7 @@ public class RegularBlock implements BlockForge {
             order.add(nextInt);
         }
         int zone_count = 0;
-        List<Map.Entry<Double, SecurityAuditProofs>> entryList = committeeBlock.getStakingMap().entrySet().stream().collect(Collectors.toList());
+        List<Map.Entry<Double, KademliaData>> entryList = committeeBlock.getStakingMap().entrySet().stream().collect(Collectors.toList());
         int MAX_ZONE_SIZE = committeeBlock.getStakingMap().size() / 4;
 
         int j = 0;
@@ -186,7 +190,7 @@ public class RegularBlock implements BlockForge {
                     committeeBlock
                             .getStructureMap()
                             .get(zone_count)
-                            .put(entryList.get(order.get(j)).getValue().getValidatorBlSPublicKey(), entryList.get(order.get(j)).getValue().getIp());
+                            .put(entryList.get(order.get(j)).getValue().getAddressData().getValidatorBlSPublicKey(), entryList.get(order.get(j)).getValue().getNettyConnectionInfo().getHost());
                     index_count++;
                     j++;
                 }
@@ -197,7 +201,7 @@ public class RegularBlock implements BlockForge {
                 committeeBlock
                         .getStructureMap()
                         .get(zone_count)
-                        .put(entryList.get(order.get(j)).getValue().getValidatorBlSPublicKey(), entryList.get(order.get(j)).getValue().getIp());
+                        .put(entryList.get(order.get(j)).getValue().getAddressData().getValidatorBlSPublicKey(), entryList.get(order.get(j)).getValue().getNettyConnectionInfo().getHost());
                 index_count++;
                 j++;
             }

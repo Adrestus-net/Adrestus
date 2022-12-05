@@ -4,8 +4,8 @@ import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.core.CommitteeBlock;
 import io.Adrestus.core.RingBuffer.event.AbstractBlockEvent;
 import io.Adrestus.core.StatusType;
-import io.Adrestus.crypto.SecurityAuditProofs;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
+import io.Adrestus.p2p.kademlia.repository.KademliaData;
 import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +37,7 @@ public class RandomizedEventHandler implements BlockEventHandler<AbstractBlockEv
 
         ArrayList<Integer> exclude = new ArrayList<Integer>();
         ArrayList<Integer> order = new ArrayList<Integer>();
-        for (Map.Entry<Double, SecurityAuditProofs> entry : committeeBlock.getStakingMap().entrySet()) {
+        for (Map.Entry<Double, KademliaData> entry : committeeBlock.getStakingMap().entrySet()) {
             int nextInt = generateRandom(0, committeeBlock.getStakingMap().size() - 1, exclude);
             if (!exclude.contains(nextInt)) {
                 exclude.add(nextInt);
@@ -45,7 +45,7 @@ public class RandomizedEventHandler implements BlockEventHandler<AbstractBlockEv
             order.add(nextInt);
         }
         int zone_count = 0;
-        List<Map.Entry<Double, SecurityAuditProofs>> entryList = committeeBlock.getStakingMap().entrySet().stream().collect(Collectors.toList());
+        List<Map.Entry<Double, KademliaData>> entryList = committeeBlock.getStakingMap().entrySet().stream().collect(Collectors.toList());
         int MAX_ZONE_SIZE = committeeBlock.getStakingMap().size() / 4;
 
         int j = 0;
@@ -56,7 +56,7 @@ public class RandomizedEventHandler implements BlockEventHandler<AbstractBlockEv
                     committeeBlock
                             .getStructureMap()
                             .get(zone_count)
-                            .put(entryList.get(order.get(j)).getValue().getValidatorBlSPublicKey(), entryList.get(order.get(j)).getValue().getIp());
+                            .put(entryList.get(order.get(j)).getValue().getAddressData().getValidatorBlSPublicKey(), entryList.get(order.get(j)).getValue().getNettyConnectionInfo().getHost());
                     index_count++;
                     j++;
                 }
@@ -67,7 +67,7 @@ public class RandomizedEventHandler implements BlockEventHandler<AbstractBlockEv
                 committeeBlock
                         .getStructureMap()
                         .get(zone_count)
-                        .put(entryList.get(order.get(j)).getValue().getValidatorBlSPublicKey(), entryList.get(order.get(j)).getValue().getIp());
+                        .put(entryList.get(order.get(j)).getValue().getAddressData().getValidatorBlSPublicKey(), entryList.get(order.get(j)).getValue().getNettyConnectionInfo().getHost());
                 index_count++;
                 j++;
             }

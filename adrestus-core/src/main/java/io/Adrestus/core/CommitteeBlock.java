@@ -3,8 +3,8 @@ package io.Adrestus.core;
 import com.google.common.base.Objects;
 import io.Adrestus.core.RingBuffer.handler.blocks.DisruptorBlock;
 import io.Adrestus.core.RingBuffer.handler.blocks.DisruptorBlockVisitor;
-import io.Adrestus.crypto.SecurityAuditProofs;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
+import io.Adrestus.p2p.kademlia.repository.KademliaData;
 import io.activej.serializer.annotations.Serialize;
 
 import java.io.Serializable;
@@ -14,7 +14,7 @@ public class CommitteeBlock extends AbstractBlock implements BlockFactory, Disru
     private int[] CommitteeProposer;
     private String VRF;
     private String VDF;
-    private TreeMap<Double, SecurityAuditProofs> StakingMap;
+    private TreeMap<Double, KademliaData> StakingMap;
     private Map<Integer, LinkedHashMap<BLSPublicKey, String>> StructureMap;
     private int difficulty;
 
@@ -23,7 +23,7 @@ public class CommitteeBlock extends AbstractBlock implements BlockFactory, Disru
         this.CommitteeProposer = committeeProposer;
         this.VRF = VRF;
         this.VDF = VDF;
-        this.StakingMap = new TreeMap<Double, SecurityAuditProofs>(Collections.reverseOrder());
+        this.StakingMap = new TreeMap<Double, KademliaData>(Collections.reverseOrder());
         this.StructureMap = new HashMap<Integer, LinkedHashMap<BLSPublicKey, String>>();
         this.difficulty = difficulty;
         Init();
@@ -34,7 +34,7 @@ public class CommitteeBlock extends AbstractBlock implements BlockFactory, Disru
         this.CommitteeProposer = new int[0];
         this.VRF = "";
         this.VDF = "";
-        this.StakingMap = new TreeMap<Double, SecurityAuditProofs>(Collections.reverseOrder());
+        this.StakingMap = new TreeMap<Double, KademliaData>(Collections.reverseOrder());
         this.StructureMap = new HashMap<Integer, LinkedHashMap<BLSPublicKey, String>>();
         Init();
     }
@@ -92,11 +92,11 @@ public class CommitteeBlock extends AbstractBlock implements BlockFactory, Disru
     }
 
     @Serialize
-    public TreeMap<Double, SecurityAuditProofs> getStakingMap() {
+    public TreeMap<Double, KademliaData> getStakingMap() {
         return StakingMap;
     }
 
-    public void setStakingMap(TreeMap<Double, SecurityAuditProofs> stakingMap) {
+    public void setStakingMap(TreeMap<Double, KademliaData> stakingMap) {
         StakingMap = stakingMap;
     }
 

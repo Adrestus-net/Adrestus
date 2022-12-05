@@ -19,7 +19,10 @@
         <maven.compiler.source>1.7</maven.compiler.source>
         <maven.compiler.target>1.7</maven.compiler.target>
         <util.version>1.0-SNAPSHOT</util.version>
+        <trie.version>1.0-SNAPSHOT</trie.version>
+        <network.version>1.0-SNAPSHOT</network.version>
         <ledger.version>1.0-SNAPSHOT</ledger.version>
+        <crypto.version>1.0-SNAPSHOT</crypto.version>
         <lombok.version>1.18.24</lombok.version>
         <disruptor.version>3.4.4</disruptor.version>
         <trove4j.version>3.0.3</trove4j.version>
@@ -43,13 +46,23 @@
         </dependency>
         <dependency>
             <groupId>io.Adrestus.v1</groupId>
+            <artifactId>adrestus-trie</artifactId>
+            <version>${trie.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.Adrestus.v1</groupId>
+            <artifactId>adrestus-network</artifactId>
+            <version>${network.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.Adrestus.v1</groupId>
             <artifactId>adrestus-distributed-ledger</artifactId>
             <version>${ledger.version}</version>
         </dependency>
         <dependency>
             <groupId>io.Adrestus.v1</groupId>
             <artifactId>adrestus-crypto</artifactId>
-            <version>${util.version}</version>
+            <version>${crypto.version}</version>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>

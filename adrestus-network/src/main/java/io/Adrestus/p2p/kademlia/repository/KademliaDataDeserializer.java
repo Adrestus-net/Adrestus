@@ -35,7 +35,6 @@ public class KademliaDataDeserializer implements JsonDeserializer<KademliaData> 
         );
 
         kademliaData.setAddressData(securityAuditProofs);
-        kademliaData.getAddressData().setIp(IP);
 
         String host = resourceJson.get("netty_connection_info").getAsJsonObject().get("host").getAsString();
         int port = resourceJson.get("netty_connection_info").getAsJsonObject().get("port").getAsInt();

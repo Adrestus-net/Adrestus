@@ -1,10 +1,10 @@
 package io.Adrestus.core;
 
 
-import io.Adrestus.core.Trie.MerklePatriciaTreeImp;
-import io.Adrestus.core.Trie.PatriciaTreeNode;
-import io.Adrestus.core.Trie.optimize64_trie.IMerklePatriciaTrie;
-import io.Adrestus.core.Trie.optimize64_trie.MerklePatriciaTrie;
+import io.Adrestus.Trie.MerklePatriciaTreeImp;
+import io.Adrestus.Trie.PatriciaTreeNode;
+import io.Adrestus.Trie.optimize64_trie.IMerklePatriciaTrie;
+import io.Adrestus.Trie.optimize64_trie.MerklePatriciaTrie;
 import org.apache.tuweni.bytes.Bytes;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

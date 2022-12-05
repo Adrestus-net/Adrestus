@@ -1,6 +1,6 @@
 package io.Adrestus.core;
 
-import io.Adrestus.core.Trie.MerkleProofs;
+import io.Adrestus.Trie.MerkleProofs;
 
 import java.util.Objects;
 

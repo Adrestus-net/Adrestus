@@ -1,8 +1,8 @@
 package io.Adrestus.core;
 
 
-import io.Adrestus.core.Resourses.MemoryTreePool;
-import io.Adrestus.core.Trie.PatriciaTreeNode;
+import io.Adrestus.MemoryTreePool;
+import io.Adrestus.Trie.PatriciaTreeNode;
 import org.junit.jupiter.api.Test;
 
 import java.util.Optional;

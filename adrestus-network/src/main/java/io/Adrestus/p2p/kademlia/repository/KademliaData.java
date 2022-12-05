@@ -3,6 +3,7 @@ package io.Adrestus.p2p.kademlia.repository;
 import com.google.common.base.Objects;
 import io.Adrestus.crypto.SecurityAuditProofs;
 import io.Adrestus.p2p.kademlia.common.NettyConnectionInfo;
+import io.activej.serializer.annotations.Deserialize;
 import io.activej.serializer.annotations.Serialize;
 
 import java.io.Serializable;
@@ -15,25 +16,29 @@ public class KademliaData implements Serializable, Cloneable {
     public KademliaData() {
     }
 
-    public KademliaData(String hash, NettyConnectionInfo nettyConnectionInfo) {
+    public KademliaData(@Deserialize("hash") String hash,
+                        @Deserialize("nettyConnectionInfo") NettyConnectionInfo nettyConnectionInfo) {
         this.Hash = hash;
         this.nettyConnectionInfo = nettyConnectionInfo;
     }
 
 
-    public KademliaData(String hash, SecurityAuditProofs addressData, NettyConnectionInfo nettyConnectionInfo) {
+    public KademliaData(@Deserialize("hash") String hash,
+                        @Deserialize("addressData") SecurityAuditProofs addressData,
+                        @Deserialize("nettyConnectionInfo") NettyConnectionInfo nettyConnectionInfo) {
         this.Hash = hash;
         this.addressData = addressData;
         this.nettyConnectionInfo = nettyConnectionInfo;
     }
 
-    public KademliaData(SecurityAuditProofs addressData, NettyConnectionInfo nettyConnectionInfo) {
+    public KademliaData(@Deserialize("addressData") SecurityAuditProofs addressData,
+                        @Deserialize("nettyConnectionInfo") NettyConnectionInfo nettyConnectionInfo) {
         this.Hash = "";
         this.addressData = addressData;
         this.nettyConnectionInfo = nettyConnectionInfo;
     }
 
-    public KademliaData(SecurityAuditProofs addressData) {
+    public KademliaData(@Deserialize("addressData") SecurityAuditProofs addressData) {
         this.Hash = "";
         this.addressData = addressData;
         this.nettyConnectionInfo = new NettyConnectionInfo("", 0);

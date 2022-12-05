@@ -1,12 +1,12 @@
 package io.Adrestus.consensus;
 
+import io.Adrestus.MemoryTreePool;
+import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.consensus.helper.ConsensusTransactionTimer;
 import io.Adrestus.core.CommitteeBlock;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
-import io.Adrestus.core.Resourses.MemoryTreePool;
 import io.Adrestus.core.Transaction;
 import io.Adrestus.core.TransactionBlock;
-import io.Adrestus.core.Trie.PatriciaTreeNode;
 import io.Adrestus.crypto.WalletAddress;
 import io.Adrestus.crypto.bls.model.BLSPrivateKey;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;

@@ -1,9 +1,6 @@
 package io.Adrestus.rpc;
 
 
-import com.google.common.reflect.TypeParameter;
-import com.google.common.reflect.TypeToken;
-import io.Adrestus.core.AbstractBlock;
 import io.Adrestus.crypto.bls.BLS381.ECP;
 import io.Adrestus.crypto.bls.BLS381.ECP2;
 import io.Adrestus.crypto.bls.mapper.ECP2mapper;
@@ -18,7 +15,6 @@ import io.activej.rpc.server.RpcServer;
 import io.activej.serializer.SerializerBuilder;
 import lombok.SneakyThrows;
 
-import java.lang.reflect.Type;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -52,7 +48,7 @@ public class RpcAdrestusServer<T extends Object> implements Runnable {
         list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
-        this.valueMapper=new SerializationUtil(typeParameterClass.getClass(),list,true);
+        this.valueMapper = new SerializationUtil(typeParameterClass.getClass(), list, true);
     }
 
     public RpcAdrestusServer(T typeParameterClass, InetSocketAddress inetSocketAddress, Eventloop eventloop) {
@@ -65,7 +61,7 @@ public class RpcAdrestusServer<T extends Object> implements Runnable {
         list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
-        this.valueMapper=new SerializationUtil(typeParameterClass.getClass(),list,true);
+        this.valueMapper = new SerializationUtil(typeParameterClass.getClass(), list, true);
     }
 
 
@@ -76,13 +72,13 @@ public class RpcAdrestusServer<T extends Object> implements Runnable {
             rpcServer = RpcServer.create(eventloop)
                     .withMessageTypes(Request.class, Response.class)
                     .withSerializerBuilder(this.rpcserialize)
-                    .withHandler(Request.class, helloServiceRequestHandler(new Service(AbstractBlock.class)))
+                    .withHandler(Request.class, helloServiceRequestHandler(new Service(typeParameterClass.getClass())))
                     .withListenAddress(inetSocketAddress);
         } else {
             rpcServer = RpcServer.create(eventloop)
                     .withMessageTypes(Request.class, Response.class)
                     .withSerializerBuilder(this.rpcserialize)
-                    .withHandler(Request.class, helloServiceRequestHandler(new Service(AbstractBlock.class)))
+                    .withHandler(Request.class, helloServiceRequestHandler(new Service(typeParameterClass.getClass())))
                     .withListenAddress(new InetSocketAddress(host, port));
         }
         rpcServer.listen();
@@ -90,7 +86,7 @@ public class RpcAdrestusServer<T extends Object> implements Runnable {
 
     private RpcRequestHandler<Request, Response> helloServiceRequestHandler(IService helloService) {
         return request -> {
-            List<AbstractBlock> result;
+            List<T> result;
             try {
                 result = helloService.download(request.hash);
             } catch (Exception e) {

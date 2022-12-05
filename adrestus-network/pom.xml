@@ -24,7 +24,7 @@
         <netty.version>4.1.77.Final</netty.version>
         <ok.http.version>4.9.3</ok.http.version>
         <gson.version>2.9.0</gson.version>
-        <core.version>1.0-SNAPSHOT</core.version>
+        <trie.version>1.0-SNAPSHOT</trie.version>
         <crypto.version>1.0-SNAPSHOT</crypto.version>
         <ledger.version>1.0-SNAPSHOT</ledger.version>
     </properties>
@@ -41,8 +41,8 @@
         </dependency>
         <dependency>
             <groupId>io.Adrestus.v1</groupId>
-            <artifactId>adrestus-core</artifactId>
-            <version>${crypto.version}</version>
+            <artifactId>adrestus-trie</artifactId>
+            <version>${trie.version}</version>
         </dependency>
         <dependency>
             <groupId>io.netty</groupId>

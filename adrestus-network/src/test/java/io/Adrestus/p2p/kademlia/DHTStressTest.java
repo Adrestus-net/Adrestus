@@ -2,10 +2,10 @@ package io.Adrestus.p2p.kademlia;
 
 import com.google.common.net.InetAddresses;
 import com.google.gson.Gson;
+import io.Adrestus.MemoryTreePool;
+import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.config.KademliaConfiguration;
 import io.Adrestus.config.NodeSettings;
-import io.Adrestus.core.Resourses.MemoryTreePool;
-import io.Adrestus.core.Trie.PatriciaTreeNode;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.SecurityAuditProofs;
 import io.Adrestus.crypto.WalletAddress;

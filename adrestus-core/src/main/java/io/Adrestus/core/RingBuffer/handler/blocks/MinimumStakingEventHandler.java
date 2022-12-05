@@ -1,11 +1,11 @@
 package io.Adrestus.core.RingBuffer.handler.blocks;
 
+import io.Adrestus.MemoryTreePool;
 import io.Adrestus.config.StakingConfiguration;
 import io.Adrestus.core.CommitteeBlock;
-import io.Adrestus.core.Resourses.MemoryTreePool;
 import io.Adrestus.core.RingBuffer.event.AbstractBlockEvent;
 import io.Adrestus.core.StatusType;
-import io.Adrestus.crypto.SecurityAuditProofs;
+import io.Adrestus.p2p.kademlia.repository.KademliaData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,7 +20,7 @@ public class MinimumStakingEventHandler implements BlockEventHandler<AbstractBlo
     public void onEvent(AbstractBlockEvent blockEvent, long l, boolean b) throws Exception {
         CommitteeBlock block = (CommitteeBlock) blockEvent.getBlock();
 
-        List<SecurityAuditProofs> validatorAddressDatalist = block
+        List<KademliaData> validatorAddressDatalist = block
                 .getStakingMap()
                 .values()
                 .stream()
@@ -35,10 +35,10 @@ public class MinimumStakingEventHandler implements BlockEventHandler<AbstractBlo
 
     }
 
-    private boolean hasOverMinimumPoints(SecurityAuditProofs securityAuditProofs) {
+    private boolean hasOverMinimumPoints(KademliaData securityAuditProofs) {
         try {
             if (MemoryTreePool.getInstance()
-                    .getByaddress(securityAuditProofs.getAddress())
+                    .getByaddress(securityAuditProofs.getAddressData().getAddress())
                     .get()
                     .getAmount() >= StakingConfiguration.MINIMUM_STAKING)
                 return true;

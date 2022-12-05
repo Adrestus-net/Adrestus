@@ -11,7 +11,6 @@ import java.math.BigInteger;
 import java.util.Arrays;
 
 public final class SecurityAuditProofs implements Serializable {
-    private String ip;
     private String address;
     private BLSPublicKey validatorBlSPublicKey;
     private BigInteger eCDSAPublicKey;
@@ -20,43 +19,35 @@ public final class SecurityAuditProofs implements Serializable {
     public SecurityAuditProofs() {
     }
 
-    public SecurityAuditProofs(String ip) {
-        this.ip = ip;
-    }
 
-    public SecurityAuditProofs(String ip, BLSPublicKey validatorBlSPublicKey) {
-        this.ip = ip;
+    public SecurityAuditProofs(@Deserialize("validatorBlSPublicKey") BLSPublicKey validatorBlSPublicKey) {
         this.validatorBlSPublicKey = validatorBlSPublicKey;
     }
 
     public SecurityAuditProofs(
-            BLSPublicKey validatorBlSPublicKey,
-            String address,
-            BigInteger eCDSAPublicKey,
-            SignatureData eCDSASignature) {
+            @Deserialize("validatorBlSPublicKey") BLSPublicKey validatorBlSPublicKey,
+            @Deserialize("address") String address,
+            @Deserialize("eCDSAPublicKey") BigInteger eCDSAPublicKey,
+            @Deserialize("eCDSASignature") SignatureData eCDSASignature) {
         this.validatorBlSPublicKey = validatorBlSPublicKey;
         this.address = address;
         this.eCDSAPublicKey = eCDSAPublicKey;
         this.eCDSASignature = eCDSASignature;
-        this.ip = "";
     }
 
-    public SecurityAuditProofs(String address,
-                               BigInteger eCDSAPublicKey,
-                               SignatureData eCDSASignature) {
+    public SecurityAuditProofs(@Deserialize("address") String address,
+                               @Deserialize("eCDSAPublicKey") BigInteger eCDSAPublicKey,
+                               @Deserialize("eCDSASignature") SignatureData eCDSASignature) {
         this.address = address;
         this.eCDSAPublicKey = eCDSAPublicKey;
         this.eCDSASignature = eCDSASignature;
         this.validatorBlSPublicKey = new BLSPublicKey();
-        this.ip = "";
     }
 
-    public SecurityAuditProofs(@Deserialize("ip") String ip,
-                               @Deserialize("address") String address,
+    public SecurityAuditProofs(@Deserialize("address") String address,
                                @Deserialize("validatorBlSPublicKey") BLSPublicKey validatorBlSPublicKey,
                                @Deserialize("eCDSAPublicKey") BigInteger eCDSAPublicKey,
                                @Deserialize("eCDSASignature") SignatureData eCDSASignature) {
-        this.ip = ip;
         this.address = address;
         this.validatorBlSPublicKey = validatorBlSPublicKey;
         this.eCDSAPublicKey = eCDSAPublicKey;
@@ -101,22 +92,12 @@ public final class SecurityAuditProofs implements Serializable {
     }
 
 
-    @Serialize
-    public String getIp() {
-        return ip;
-    }
-
-    public void setIp(String ip) {
-        this.ip = ip;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         SecurityAuditProofs that = (SecurityAuditProofs) o;
         return Objects.equal(address, that.address) &&
-                Objects.equal(ip, that.ip) &&
                 Objects.equal(validatorBlSPublicKey, that.validatorBlSPublicKey)
                 && Objects.equal(eCDSAPublicKey, that.eCDSAPublicKey)
                 && Arrays.equals(eCDSASignature.getR(), that.eCDSASignature.getR())
@@ -126,13 +107,12 @@ public final class SecurityAuditProofs implements Serializable {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(address, ip, validatorBlSPublicKey, eCDSAPublicKey, eCDSASignature);
+        return Objects.hashCode(address, validatorBlSPublicKey, eCDSAPublicKey, eCDSASignature);
     }
 
     @Override
     public String toString() {
         return "ValidatorAddressData{" +
-                "Ip='" + ip + '\'' +
                 ", address='" + address + '\'' +
                 ", validatorBlSPublicKey=" + validatorBlSPublicKey +
                 ", eCDSAPublicKey=" + eCDSAPublicKey +

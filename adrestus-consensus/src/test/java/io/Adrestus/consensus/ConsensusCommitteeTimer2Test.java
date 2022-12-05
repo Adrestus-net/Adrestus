@@ -1,12 +1,12 @@
 package io.Adrestus.consensus;
 
+import io.Adrestus.MemoryTreePool;
+import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.config.KademliaConfiguration;
 import io.Adrestus.config.NodeSettings;
 import io.Adrestus.consensus.helper.ConsensusCommitteeTimer;
 import io.Adrestus.core.CommitteeBlock;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
-import io.Adrestus.core.Resourses.MemoryTreePool;
-import io.Adrestus.core.Trie.PatriciaTreeNode;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.SecurityAuditProofs;
 import io.Adrestus.crypto.WalletAddress;
@@ -117,7 +117,7 @@ public class ConsensusCommitteeTimer2Test {
         if (IP.equals("192.168.1.106")) {
             nettyConnectionInfo = new NettyConnectionInfo(IP, KademliaConfiguration.BootstrapNodePORT);
             SignatureData signatureData = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address1)), ecKeyPair1);
-            KademliaData kademliaData = new KademliaData(new SecurityAuditProofs(dhtBootstrapNode.getNettyConnectionInfo().getHost(), address1, vk1, ecKeyPair1.getPublicKey(), signatureData), nettyConnectionInfo);
+            KademliaData kademliaData = new KademliaData(new SecurityAuditProofs(address1, vk1, ecKeyPair1.getPublicKey(), signatureData), nettyConnectionInfo);
             dhtBootstrapNode.setKademliaData(kademliaData);
             dhtBootstrapNode.start();
             dhtBootstrapNode.scheduledFuture();
@@ -128,14 +128,14 @@ public class ConsensusCommitteeTimer2Test {
             committeeBlock.getStructureMap().get(0).put(list_data.get(0).getAddressData().getValidatorBlSPublicKey(), list_data.get(0).getNettyConnectionInfo().getHost());
             committeeBlock.getStructureMap().get(0).put(list_data.get(1).getAddressData().getValidatorBlSPublicKey(), list_data.get(1).getNettyConnectionInfo().getHost());
 
-            committeeBlock.getStakingMap().put(10.0, list_data.get(0).getAddressData());
-            committeeBlock.getStakingMap().put(13.0, list_data.get(1).getAddressData());
+            committeeBlock.getStakingMap().put(10.0, list_data.get(0));
+            committeeBlock.getStakingMap().put(13.0, list_data.get(1));
         } else if (IP.equals("192.168.1.116")) {
             dhtBootstrapNode.Init();
             nettyConnectionInfo = new NettyConnectionInfo(IP, KademliaConfiguration.PORT);
             DHTRegularNode nextnode = new DHTRegularNode(nettyConnectionInfo, BigInteger.valueOf(1), keyHashGenerator);
             SignatureData signatureData = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address2)), ecKeyPair2);
-            KademliaData kademliaData = new KademliaData(new SecurityAuditProofs(nettyConnectionInfo.getHost(), address2, vk2, ecKeyPair2.getPublicKey(), signatureData), nettyConnectionInfo);
+            KademliaData kademliaData = new KademliaData(new SecurityAuditProofs(address2, vk2, ecKeyPair2.getPublicKey(), signatureData), nettyConnectionInfo);
             nextnode.setKademliaData(kademliaData);
             nextnode.start(dhtBootstrapNode);
             nextnode.scheduledFuture();
@@ -146,8 +146,8 @@ public class ConsensusCommitteeTimer2Test {
             committeeBlock.getStructureMap().get(0).put(list_data.get(1).getAddressData().getValidatorBlSPublicKey(), list_data.get(1).getNettyConnectionInfo().getHost());
             committeeBlock.getStructureMap().get(0).put(list_data.get(0).getAddressData().getValidatorBlSPublicKey(), list_data.get(0).getNettyConnectionInfo().getHost());
 
-            committeeBlock.getStakingMap().put(10.0, list_data.get(1).getAddressData());
-            committeeBlock.getStakingMap().put(13.0, list_data.get(0).getAddressData());
+            committeeBlock.getStakingMap().put(10.0, list_data.get(1));
+            committeeBlock.getStakingMap().put(13.0, list_data.get(0));
         } else {
 
         }

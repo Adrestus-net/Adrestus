@@ -1,11 +1,8 @@
 package io.Adrestus.rpc;
 
 import com.google.common.base.Objects;
-import io.Adrestus.core.AbstractBlock;
 import io.activej.serializer.annotations.Deserialize;
 import io.activej.serializer.annotations.Serialize;
-
-import java.util.List;
 
 public class Response {
     private byte[] byte_data;

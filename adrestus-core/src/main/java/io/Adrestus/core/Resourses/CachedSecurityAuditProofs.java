@@ -1,6 +1,6 @@
 package io.Adrestus.core.Resourses;
 
-import io.Adrestus.crypto.SecurityAuditProofs;
+import io.Adrestus.p2p.kademlia.repository.KademliaData;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,7 +9,7 @@ public class CachedSecurityAuditProofs {
 
     private static volatile CachedSecurityAuditProofs instance;
 
-    private static volatile List<SecurityAuditProofs> securityAuditProofs;
+    private static volatile List<KademliaData> securityAuditProofs;
 
     /**
      * private constructor to prevent client from instantiating.
@@ -46,14 +46,13 @@ public class CachedSecurityAuditProofs {
         CachedSecurityAuditProofs.instance = instance;
     }
 
-    public List<SecurityAuditProofs> getSecurityAuditProofs() {
+    public static List<KademliaData> getSecurityAuditProofs() {
         return securityAuditProofs;
     }
 
-    public void setSecurityAuditProofs(List<SecurityAuditProofs> securityAuditProofs) {
-        this.securityAuditProofs = securityAuditProofs;
+    public static void setSecurityAuditProofs(List<KademliaData> securityAuditProofs) {
+        CachedSecurityAuditProofs.securityAuditProofs = securityAuditProofs;
     }
-
 
     @Override
     public String toString() {

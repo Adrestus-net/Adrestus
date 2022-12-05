@@ -41,13 +41,13 @@ public class SerializationUtil<T> {
         serializer = SerializerBuilder.create().build(type);
     }
 
-    public SerializationUtil(Class cls,  List<Mapping> list,boolean bool) {
-        this.serializer=null;
+    public SerializationUtil(Class cls, List<Mapping> list, boolean bool) {
+        this.serializer = null;
         SerializerBuilder builder = SerializerBuilder.create();
         list.forEach(val -> {
             builder.with(val.type, val.serializerDefMapping);
         });
-        Type f=setModelAndGetCorrespondingList2(cls);
+        Type f = setModelAndGetCorrespondingList2(cls);
         list_serializer = builder.build(f);
     }
 

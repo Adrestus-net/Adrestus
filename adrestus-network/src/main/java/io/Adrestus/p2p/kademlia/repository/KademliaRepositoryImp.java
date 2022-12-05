@@ -1,6 +1,6 @@
 package io.Adrestus.p2p.kademlia.repository;
 
-import io.Adrestus.core.Resourses.MemoryTreePool;
+import io.Adrestus.MemoryTreePool;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.elliptic.ECDSASign;
 import org.apache.commons.codec.binary.StringUtils;

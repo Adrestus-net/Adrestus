@@ -24,7 +24,6 @@ import io.Adrestus.crypto.vrf.VRFMessage;
 import io.Adrestus.crypto.vrf.engine.VrfEngine2;
 import io.Adrestus.network.ConsensusServer;
 import io.Adrestus.p2p.kademlia.node.DHTCachedNodes;
-import io.Adrestus.p2p.kademlia.repository.KademliaData;
 import io.Adrestus.util.ByteUtil;
 import io.Adrestus.util.SerializationUtil;
 import io.distributedLedger.DatabaseFactory;
@@ -590,7 +589,7 @@ public class SupervisorConsensusPhases {
                                 .getDhtBootstrapNode()
                                 .getActiveNodes()
                                 .stream()
-                                .map(KademliaData::getAddressData).collect(Collectors.toList()));
+                                .collect(Collectors.toList()));
             }
             regural_block.forgeCommitteBlock(block.getData());
             block.setMessageType(ConsensusMessageType.ANNOUNCE);

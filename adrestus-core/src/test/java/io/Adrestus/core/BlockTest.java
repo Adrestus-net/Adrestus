@@ -1,14 +1,15 @@
 package io.Adrestus.core;
 
 import com.google.common.primitives.Ints;
+import io.Adrestus.MemoryTreePool;
+import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.config.AdrestusConfiguration;
+import io.Adrestus.config.KademliaConfiguration;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedSecurityHeaders;
-import io.Adrestus.core.Resourses.MemoryTreePool;
 import io.Adrestus.core.RingBuffer.handler.transactions.SignatureEventHandler;
 import io.Adrestus.core.RingBuffer.publisher.BlockEventPublisher;
 import io.Adrestus.core.RingBuffer.publisher.TransactionEventPublisher;
-import io.Adrestus.core.Trie.PatriciaTreeNode;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.SecurityAuditProofs;
 import io.Adrestus.crypto.WalletAddress;
@@ -29,6 +30,8 @@ import io.Adrestus.crypto.mnemonic.Security;
 import io.Adrestus.crypto.mnemonic.WordList;
 import io.Adrestus.crypto.vdf.engine.VdfEngine;
 import io.Adrestus.crypto.vdf.engine.VdfEnginePietrzak;
+import io.Adrestus.p2p.kademlia.common.NettyConnectionInfo;
+import io.Adrestus.p2p.kademlia.repository.KademliaData;
 import io.Adrestus.util.GetTime;
 import io.Adrestus.util.MathOperationUtil;
 import io.Adrestus.util.SerializationUtil;
@@ -407,14 +410,14 @@ public class BlockTest {
         prevblock.setHeight(0);
         CachedLatestBlocks.getInstance().setCommitteeBlock(prevblock);
         CommitteeBlock committeeBlock = new CommitteeBlock();
-        committeeBlock.getStakingMap().put(10.0, new SecurityAuditProofs("192.168.1.101", adddress1, vk1, ecKeyPair1.getPublicKey(), signatureData1));
-        committeeBlock.getStakingMap().put(13.0, new SecurityAuditProofs("192.168.1.102", adddress2, vk2, ecKeyPair2.getPublicKey(), signatureData2));
-        committeeBlock.getStakingMap().put(7.0, new SecurityAuditProofs("192.168.1.103", adddress3, vk3, ecKeyPair3.getPublicKey(), signatureData3));
-        committeeBlock.getStakingMap().put(22.0, new SecurityAuditProofs("192.168.1.104", adddress4, vk4, ecKeyPair4.getPublicKey(), signatureData4));
-        committeeBlock.getStakingMap().put(6.0, new SecurityAuditProofs("192.168.1.105", adddress6, vk6, ecKeyPair6.getPublicKey(), signatureData6));
-        committeeBlock.getStakingMap().put(32.0, new SecurityAuditProofs("192.168.1.106", adddress6, vk6, ecKeyPair6.getPublicKey(), signatureData6));
-        committeeBlock.getStakingMap().put(33.0, new SecurityAuditProofs("192.168.1.107", adddress7, vk7, ecKeyPair7.getPublicKey(), signatureData7));
-        committeeBlock.getStakingMap().put(31.0, new SecurityAuditProofs("192.168.1.108", adddress8, vk8, ecKeyPair8.getPublicKey(), signatureData8));
+        committeeBlock.getStakingMap().put(10.0, new KademliaData(new SecurityAuditProofs(vk1, adddress1, ecKeyPair1.getPublicKey(), signatureData1), new NettyConnectionInfo("192.168.1.101", KademliaConfiguration.PORT)));
+        committeeBlock.getStakingMap().put(13.0, new KademliaData(new SecurityAuditProofs(vk2, adddress2, ecKeyPair2.getPublicKey(), signatureData2), new NettyConnectionInfo("192.168.1.102", KademliaConfiguration.PORT)));
+        committeeBlock.getStakingMap().put(7.0, new KademliaData(new SecurityAuditProofs(vk3, adddress3, ecKeyPair3.getPublicKey(), signatureData3), new NettyConnectionInfo("192.168.1.103", KademliaConfiguration.PORT)));
+        committeeBlock.getStakingMap().put(22.0, new KademliaData(new SecurityAuditProofs(vk4, adddress4, ecKeyPair4.getPublicKey(), signatureData4), new NettyConnectionInfo("192.168.1.104", KademliaConfiguration.PORT)));
+        committeeBlock.getStakingMap().put(6.0, new KademliaData(new SecurityAuditProofs(vk5, adddress5, ecKeyPair5.getPublicKey(), signatureData5), new NettyConnectionInfo("192.168.1.105", KademliaConfiguration.PORT)));
+        committeeBlock.getStakingMap().put(32.0, new KademliaData(new SecurityAuditProofs(vk6, adddress6, ecKeyPair6.getPublicKey(), signatureData6), new NettyConnectionInfo("192.168.1.106", KademliaConfiguration.PORT)));
+        committeeBlock.getStakingMap().put(33.0, new KademliaData(new SecurityAuditProofs(vk7, adddress7, ecKeyPair7.getPublicKey(), signatureData7), new NettyConnectionInfo("192.168.1.107", KademliaConfiguration.PORT)));
+        committeeBlock.getStakingMap().put(31.0, new KademliaData(new SecurityAuditProofs(vk8, adddress8, ecKeyPair8.getPublicKey(), signatureData8), new NettyConnectionInfo("192.168.1.108", KademliaConfiguration.PORT)));
 
         committeeBlock.setCommitteeProposer(new int[committeeBlock.getStakingMap().size()]);
         committeeBlock.setGeneration(1);
@@ -511,7 +514,7 @@ public class BlockTest {
         //##### RANDOM ASSIGN TO STRUCTRURE MAP ##############
         ArrayList<Integer> exclude = new ArrayList<Integer>();
         ArrayList<Integer> order = new ArrayList<Integer>();
-        for (Map.Entry<Double, SecurityAuditProofs> entry : committeeBlock.getStakingMap().entrySet()) {
+        for (Map.Entry<Double, KademliaData> entry : committeeBlock.getStakingMap().entrySet()) {
             int nextInt = generateRandom(secureRandom, 0, committeeBlock.getStakingMap().size() - 1, exclude);
             if (!exclude.contains(nextInt)) {
                 exclude.add(nextInt);
@@ -519,7 +522,7 @@ public class BlockTest {
             order.add(nextInt);
         }
         int zone_count = 0;
-        List<Map.Entry<Double, SecurityAuditProofs>> entryList = committeeBlock.getStakingMap().entrySet().stream().collect(Collectors.toList());
+        List<Map.Entry<Double, KademliaData>> entryList = committeeBlock.getStakingMap().entrySet().stream().collect(Collectors.toList());
         int MAX_ZONE_SIZE = committeeBlock.getStakingMap().size() / 4;
 
         int j = 0;
@@ -530,7 +533,7 @@ public class BlockTest {
                     committeeBlock
                             .getStructureMap()
                             .get(zone_count)
-                            .put(entryList.get(order.get(j)).getValue().getValidatorBlSPublicKey(), entryList.get(order.get(j)).getValue().getIp());
+                            .put(entryList.get(order.get(j)).getValue().getAddressData().getValidatorBlSPublicKey(), entryList.get(order.get(j)).getValue().getNettyConnectionInfo().getHost());
                     index_count++;
                     j++;
                 }
@@ -541,7 +544,7 @@ public class BlockTest {
                 committeeBlock
                         .getStructureMap()
                         .get(zone_count)
-                        .put(entryList.get(order.get(j)).getValue().getValidatorBlSPublicKey(), entryList.get(order.get(j)).getValue().getIp());
+                        .put(entryList.get(order.get(j)).getValue().getAddressData().getValidatorBlSPublicKey(), entryList.get(order.get(j)).getValue().getNettyConnectionInfo().getHost());
                 index_count++;
                 j++;
             }
@@ -571,18 +574,18 @@ public class BlockTest {
     public void radmones_test() {
         SecureRandom random = new SecureRandom();
         CommitteeBlock committeeBlock = new CommitteeBlock();
-        committeeBlock.getStakingMap().put(10.0, new SecurityAuditProofs("192.168.1.101", vk1));
-        committeeBlock.getStakingMap().put(13.0, new SecurityAuditProofs("192.168.1.102", vk2));
-        committeeBlock.getStakingMap().put(7.0, new SecurityAuditProofs("192.168.1.103", vk3));
-        committeeBlock.getStakingMap().put(22.0, new SecurityAuditProofs("192.168.1.104", vk4));
-        committeeBlock.getStakingMap().put(6.0, new SecurityAuditProofs("192.168.1.105", vk5));
-        committeeBlock.getStakingMap().put(32.0, new SecurityAuditProofs("192.168.1.106", vk6));
-        committeeBlock.getStakingMap().put(33.0, new SecurityAuditProofs("192.168.1.107", vk7));
-        committeeBlock.getStakingMap().put(31.0, new SecurityAuditProofs("192.168.1.108", vk8));
+        committeeBlock.getStakingMap().put(10.0, new KademliaData(new SecurityAuditProofs(vk1), new NettyConnectionInfo("192.168.1.101", KademliaConfiguration.PORT)));
+        committeeBlock.getStakingMap().put(13.0, new KademliaData(new SecurityAuditProofs(vk2), new NettyConnectionInfo("192.168.1.102", KademliaConfiguration.PORT)));
+        committeeBlock.getStakingMap().put(7.0, new KademliaData(new SecurityAuditProofs(vk3), new NettyConnectionInfo("192.168.1.103", KademliaConfiguration.PORT)));
+        committeeBlock.getStakingMap().put(22.0, new KademliaData(new SecurityAuditProofs(vk4), new NettyConnectionInfo("192.168.1.104", KademliaConfiguration.PORT)));
+        committeeBlock.getStakingMap().put(6.0, new KademliaData(new SecurityAuditProofs(vk5), new NettyConnectionInfo("192.168.1.105", KademliaConfiguration.PORT)));
+        committeeBlock.getStakingMap().put(32.0, new KademliaData(new SecurityAuditProofs(vk6), new NettyConnectionInfo("192.168.1.106", KademliaConfiguration.PORT)));
+        committeeBlock.getStakingMap().put(33.0, new KademliaData(new SecurityAuditProofs(vk7), new NettyConnectionInfo("192.168.1.107", KademliaConfiguration.PORT)));
+        committeeBlock.getStakingMap().put(31.0, new KademliaData(new SecurityAuditProofs(vk8), new NettyConnectionInfo("192.168.1.108", KademliaConfiguration.PORT)));
 
         ArrayList<Integer> exclude = new ArrayList<Integer>();
         ArrayList<Integer> order = new ArrayList<Integer>();
-        for (Map.Entry<Double, SecurityAuditProofs> entry : committeeBlock.getStakingMap().entrySet()) {
+        for (Map.Entry<Double, KademliaData> entry : committeeBlock.getStakingMap().entrySet()) {
             int nextInt = generateRandom(random, 0, committeeBlock.getStakingMap().size() - 1, exclude);
             if (!exclude.contains(nextInt)) {
                 exclude.add(nextInt);
@@ -590,7 +593,7 @@ public class BlockTest {
             order.add(nextInt);
         }
         int zone_count = 0;
-        List<Map.Entry<Double, SecurityAuditProofs>> entryList = committeeBlock.getStakingMap().entrySet().stream().collect(Collectors.toList());
+        List<Map.Entry<Double, KademliaData>> entryList = committeeBlock.getStakingMap().entrySet().stream().collect(Collectors.toList());
         int MAX_ZONE_SIZE = committeeBlock.getStakingMap().size() / 4;
 
         int j = 0;
@@ -601,7 +604,7 @@ public class BlockTest {
                     committeeBlock
                             .getStructureMap()
                             .get(zone_count)
-                            .put(entryList.get(order.get(j)).getValue().getValidatorBlSPublicKey(), entryList.get(order.get(j)).getValue().getIp());
+                            .put(entryList.get(order.get(j)).getValue().getAddressData().getValidatorBlSPublicKey(), entryList.get(order.get(j)).getValue().getNettyConnectionInfo().getHost());
                     index_count++;
                     j++;
                 }
@@ -613,7 +616,7 @@ public class BlockTest {
                 committeeBlock
                         .getStructureMap()
                         .get(zone_count)
-                        .put(entryList.get(order.get(j)).getValue().getValidatorBlSPublicKey(), entryList.get(order.get(j)).getValue().getIp());
+                        .put(entryList.get(order.get(j)).getValue().getAddressData().getValidatorBlSPublicKey(), entryList.get(order.get(j)).getValue().getNettyConnectionInfo().getHost());
                 index_count++;
                 j++;
             }
