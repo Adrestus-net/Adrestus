@@ -35,6 +35,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
+
 public class RegularBlock implements BlockForge {
     private static Logger LOG = LoggerFactory.getLogger(RegularBlock.class);
 
@@ -219,4 +220,6 @@ public class RegularBlock implements BlockForge {
         String hash = HashUtil.sha256_bytetoString(encode.encode(committeeBlock));
         committeeBlock.setHash(hash);
     }
+
+    //invent
 }

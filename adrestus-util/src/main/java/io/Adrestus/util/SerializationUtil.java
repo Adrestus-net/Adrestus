@@ -1,5 +1,7 @@
 package io.Adrestus.util;
 
+import com.google.common.reflect.TypeParameter;
+import com.google.common.reflect.TypeToken;
 import io.Adrestus.config.AdrestusConfiguration;
 import io.activej.serializer.BinarySerializer;
 import io.activej.serializer.SerializerBuilder;
@@ -19,6 +21,7 @@ public class SerializationUtil<T> {
     private static final byte[] END_BYTES = "\r\n".getBytes(UTF_8);
     private Class type;
     private final BinarySerializer<T> serializer;
+    private BinarySerializer<List<T>> list_serializer;
     private static byte[] buffer;
     private static Integer size[];
 
@@ -36,6 +39,16 @@ public class SerializationUtil<T> {
 
     public SerializationUtil(Type type) {
         serializer = SerializerBuilder.create().build(type);
+    }
+
+    public SerializationUtil(Class cls,  List<Mapping> list,boolean bool) {
+        this.serializer=null;
+        SerializerBuilder builder = SerializerBuilder.create();
+        list.forEach(val -> {
+            builder.with(val.type, val.serializerDefMapping);
+        });
+        Type f=setModelAndGetCorrespondingList2(cls);
+        list_serializer = builder.build(f);
     }
 
     public SerializationUtil(Type type, List<Mapping> list) {
@@ -113,6 +126,13 @@ public class SerializationUtil<T> {
         return buffer;
     }
 
+    public byte[] encode_list(List<T> value) {
+        int buff_size = search((int) (ObjectSizeCalculator.getObjectSize(value)));
+        buffer = new byte[buff_size];
+        list_serializer.encode(buffer, 0, value);
+        return buffer;
+    }
+
     public byte[] encode(T value, int size) {
         buffer = new byte[size];
         serializer.encode(buffer, 0, value);
@@ -130,6 +150,14 @@ public class SerializationUtil<T> {
             j--;
         }
         return buffer;
+    }
+
+    private <T> Type setModelAndGetCorrespondingList2(Class<T> type) {
+        return new TypeToken<ArrayList<T>>() {
+        }
+                .where(new TypeParameter<T>() {
+                }, type)
+                .getType();
     }
 
     public static byte[] trim(byte[] data) {
@@ -151,6 +179,10 @@ public class SerializationUtil<T> {
 
     public T decode(byte[] buffer) {
         return serializer.decode(buffer, 0);
+    }
+
+    public List<T> decode_list(byte[] buffer) {
+        return list_serializer.decode(buffer, 0);
     }
 
     public BinarySerializer<T> getSerializer() {

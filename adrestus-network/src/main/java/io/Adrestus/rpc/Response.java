@@ -8,20 +8,20 @@ import io.activej.serializer.annotations.Serialize;
 import java.util.List;
 
 public class Response {
-    private List<AbstractBlock> abstractBlock;
+    private byte[] byte_data;
 
-    public Response(@Deserialize("abstractBlock") List<AbstractBlock> abstractBlock) {
-        this.abstractBlock = abstractBlock;
+    public Response(@Deserialize("byte_data") byte[] byte_data) {
+        this.byte_data = byte_data;
     }
 
-
-    public void setAbstractBlock(List<AbstractBlock> abstractBlock) {
-        this.abstractBlock = abstractBlock;
-    }
 
     @Serialize
-    public List<AbstractBlock> getAbstractBlock() {
-        return abstractBlock;
+    public byte[] getByte_data() {
+        return byte_data;
+    }
+
+    public void setByte_data(byte[] byte_data) {
+        this.byte_data = byte_data;
     }
 
     @Override
@@ -29,18 +29,18 @@ public class Response {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Response response = (Response) o;
-        return Objects.equal(abstractBlock, response.abstractBlock);
+        return Objects.equal(byte_data, response.byte_data);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(abstractBlock);
+        return Objects.hashCode(byte_data);
     }
 
     @Override
     public String toString() {
         return "Response{" +
-                "abstractBlock=" + abstractBlock +
+                "abstractBlock=" + byte_data +
                 '}';
     }
 }

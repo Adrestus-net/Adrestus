@@ -1,5 +1,6 @@
 package io.Adrestus.rpc;
 
+import com.google.common.reflect.TypeToken;
 import io.Adrestus.core.AbstractBlock;
 import io.Adrestus.crypto.bls.BLS381.ECP;
 import io.Adrestus.crypto.bls.BLS381.ECP2;
@@ -7,6 +8,7 @@ import io.Adrestus.crypto.bls.mapper.ECP2mapper;
 import io.Adrestus.crypto.bls.mapper.ECPmapper;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.crypto.elliptic.mapper.CustomSerializerTreeMap;
+import io.Adrestus.crypto.vrf.VRFMessage;
 import io.Adrestus.util.SerializationUtil;
 import io.activej.eventloop.Eventloop;
 import io.activej.rpc.client.RpcClient;
@@ -19,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
 
+import java.lang.reflect.Type;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.util.*;
@@ -28,14 +31,16 @@ import java.util.stream.Collectors;
 
 import static io.activej.rpc.client.sender.RpcStrategies.server;
 
-public class RpcAdrestusClient {
+public class RpcAdrestusClient<T> {
     private static Logger LOG = LoggerFactory.getLogger(RpcAdrestusClient.class);
 
     private static final int TIMEOUT = 4000;
 
     private final SerializationUtil<Response> serializationUtil;
-    private final SerializerBuilder serialize;
+    private final SerializerBuilder rpc_serialize;
     private final Eventloop eventloop;
+    private final T typeParameterClass;
+    private final SerializationUtil valueMapper;
 
     private List<InetSocketAddress> inetSocketAddresses;
     private String host;
@@ -46,32 +51,10 @@ public class RpcAdrestusClient {
         RPCLogger.setLevelOff();
     }
 
-    public RpcAdrestusClient(String host, int port) {
-        serialize = SerializerBuilder
-                .create()
-                .with(ECP.class, ctx -> new ECPmapper())
-                .with(ECP2.class, ctx -> new ECP2mapper())
-                .with(BigInteger.class, ctx -> new BigIntegerSerializer())
-                .with(TreeMap.class, ctx -> new CustomSerializerTreeMap());
-        this.host = host;
-        this.port = port;
-        this.eventloop = Eventloop.create();
-        new Thread(eventloop).start();
-        List<SerializationUtil.Mapping> list = new ArrayList<>();
-        list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
-        list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
-        list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
-        list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
-        this.serializationUtil = new SerializationUtil<Response>(Response.class, list);
-    }
 
-    public RpcAdrestusClient(String host, int port, Eventloop eventloop) {
-        serialize = SerializerBuilder
-                .create()
-                .with(ECP.class, ctx -> new ECPmapper())
-                .with(ECP2.class, ctx -> new ECP2mapper())
-                .with(BigInteger.class, ctx -> new BigIntegerSerializer())
-                .with(TreeMap.class, ctx -> new CustomSerializerTreeMap());
+    public RpcAdrestusClient(T typeParameterClass,String host, int port, Eventloop eventloop) {
+        this.rpc_serialize = SerializerBuilder.create();
+        this.typeParameterClass=typeParameterClass;
         this.host = host;
         this.port = port;
         this.eventloop = eventloop;
@@ -81,15 +64,12 @@ public class RpcAdrestusClient {
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
         this.serializationUtil = new SerializationUtil<Response>(Response.class, list);
+        this.valueMapper=new SerializationUtil(typeParameterClass.getClass(),list,true);
     }
 
-    public RpcAdrestusClient(List<InetSocketAddress> inetSocketAddresses) {
-        serialize = SerializerBuilder
-                .create()
-                .with(ECP.class, ctx -> new ECPmapper())
-                .with(ECP2.class, ctx -> new ECP2mapper())
-                .with(BigInteger.class, ctx -> new BigIntegerSerializer())
-                .with(TreeMap.class, ctx -> new CustomSerializerTreeMap());
+    public RpcAdrestusClient(T typeParameterClass,List<InetSocketAddress> inetSocketAddresses) {
+        this.rpc_serialize = SerializerBuilder.create();
+        this.typeParameterClass=typeParameterClass;
         this.inetSocketAddresses = inetSocketAddresses;
         this.eventloop = Eventloop.create();
         new Thread(eventloop).start();
@@ -99,15 +79,12 @@ public class RpcAdrestusClient {
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
         this.serializationUtil = new SerializationUtil<Response>(Response.class, list);
+        this.valueMapper=new SerializationUtil(typeParameterClass.getClass(),list,true);
     }
 
-    public RpcAdrestusClient(List<InetSocketAddress> inetSocketAddresses, Eventloop eventloop) {
-        serialize = SerializerBuilder
-                .create()
-                .with(ECP.class, ctx -> new ECPmapper())
-                .with(ECP2.class, ctx -> new ECP2mapper())
-                .with(BigInteger.class, ctx -> new BigIntegerSerializer())
-                .with(TreeMap.class, ctx -> new CustomSerializerTreeMap());
+    public RpcAdrestusClient(T typeParameterClass,List<InetSocketAddress> inetSocketAddresses, Eventloop eventloop) {
+        this.rpc_serialize = SerializerBuilder.create();
+        this.typeParameterClass=typeParameterClass;
         this.inetSocketAddresses = inetSocketAddresses;
         this.eventloop = eventloop;
         List<SerializationUtil.Mapping> list = new ArrayList<>();
@@ -116,6 +93,7 @@ public class RpcAdrestusClient {
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
         this.serializationUtil = new SerializationUtil<Response>(Response.class, list);
+        this.valueMapper=new SerializationUtil(typeParameterClass.getClass(),list,true);
     }
 
 
@@ -125,12 +103,12 @@ public class RpcAdrestusClient {
             inetSocketAddresses.forEach(x -> strategies.add(server(x)));
             RpcStrategyList rpcStrategyList = RpcStrategyList.ofStrategies(strategies);
             client = RpcClient.create(eventloop)
-                    .withSerializerBuilder(this.serialize)
+                    .withSerializerBuilder(this.rpc_serialize)
                     .withMessageTypes(Request.class, Response.class)
                     .withStrategy(RpcStrategyRoundRobin.create(rpcStrategyList));
         } else {
             client = RpcClient.create(eventloop)
-                    .withSerializerBuilder(this.serialize)
+                    .withSerializerBuilder(this.rpc_serialize)
                     .withMessageTypes(Request.class, Response.class)
                     .withStrategy(server(new InetSocketAddress(host, port)));
         }
@@ -142,7 +120,7 @@ public class RpcAdrestusClient {
     }
 
     @SneakyThrows
-    public List<AbstractBlock> getSyncResult(String hash) {
+    public List<T> getSyncResult(String hash) {
         if (inetSocketAddresses != null) {
             ArrayList<Response> responses = new ArrayList<Response>();
             ArrayList<String> toCompare = new ArrayList<String>();
@@ -155,11 +133,12 @@ public class RpcAdrestusClient {
 
             Map<String, Long> collect = toCompare.stream()
                     .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
-            List<AbstractBlock> toSend = this.serializationUtil.decode(Hex.decode(collect.keySet().stream().findFirst().get())).getAbstractBlock();
+            byte[]list_data=this.serializationUtil.decode(Hex.decode(collect.keySet().stream().findFirst().get())).getByte_data();
+            List<T> toSend = this.valueMapper.decode_list(list_data);
             collect.clear();
             return toSend;
         } else {
-            return blockingRequest(this.client, hash).getAbstractBlock();
+            return  this.valueMapper.decode_list(blockingRequest(this.client, hash).getByte_data());
         }
     }
 
@@ -173,13 +152,13 @@ public class RpcAdrestusClient {
         }
     }
 
-    private static Response blockingRequest(RpcClient rpcClient, String name) {
+    private Response blockingRequest(RpcClient rpcClient, String name) {
         try {
-            Response response = rpcClient.getEventloop().submit(
+                Response response = rpcClient.getEventloop().submit(
                             () -> rpcClient
                                     .<Request, Response>sendRequest(new Request(name), TIMEOUT))
                     .get();
-            LOG.info("Download: ..... " + response.getAbstractBlock().toString());
+            ///LOG.info("Download: ..... " + response.getAbstractBlock().toString());
             return response;
         } catch (Exception e) {
             e.printStackTrace();

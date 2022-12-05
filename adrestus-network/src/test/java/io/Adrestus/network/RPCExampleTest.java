@@ -128,9 +128,9 @@ public class RPCExampleTest {
 
 
         Eventloop eventloop = Eventloop.getCurrentEventloop();
-        RpcAdrestusServer example = new RpcAdrestusServer("localhost", 8082, eventloop);
+        RpcAdrestusServer<AbstractBlock> example = new RpcAdrestusServer<AbstractBlock>(new CommitteeBlock(), "localhost", 8082, eventloop);
         new Thread(example).start();
-        RpcAdrestusClient client = new RpcAdrestusClient("localhost", 8082, eventloop);
+        RpcAdrestusClient<AbstractBlock> client = new RpcAdrestusClient<AbstractBlock>(new CommitteeBlock(), "localhost", 8082, eventloop);
         client.connect();
         List<AbstractBlock> blocks = client.getSyncResult("1");
 
@@ -170,14 +170,14 @@ public class RPCExampleTest {
         list.add(address1);
         list.add(address2);
         list.add(address3);
-        RpcAdrestusServer server1 = new RpcAdrestusServer(address1, eventloop);
-        RpcAdrestusServer server2 = new RpcAdrestusServer(address2, eventloop);
-        RpcAdrestusServer server3 = new RpcAdrestusServer(address3, eventloop);
+        RpcAdrestusServer server1 = new RpcAdrestusServer(new CommitteeBlock(), address1, eventloop);
+        RpcAdrestusServer server2 = new RpcAdrestusServer(new CommitteeBlock(), address2, eventloop);
+        RpcAdrestusServer server3 = new RpcAdrestusServer(new CommitteeBlock(), address3, eventloop);
         new Thread(server1).start();
         new Thread(server2).start();
         new Thread(server3).start();
 
-        RpcAdrestusClient client = new RpcAdrestusClient(list, eventloop);
+        RpcAdrestusClient client = new RpcAdrestusClient(new CommitteeBlock(), list, eventloop);
         client.connect();
         List<AbstractBlock> blocks = client.getSyncResult("1");
 

@@ -9,17 +9,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class Service implements IService {
-    private final IDatabase<String, AbstractBlock> database;
-
-    public Service() {
-        this.database = new DatabaseFactory(String.class, AbstractBlock.class).getDatabase(DatabaseType.ROCKS_DB);
+public class Service<T> implements IService {
+    private final IDatabase<String, T> database;
+    private  Class<T> typeParameterClass;
+    public Service(Class<T> typeParameterClass) {
+        this.typeParameterClass = typeParameterClass;
+        this.database = new DatabaseFactory(String.class, this.typeParameterClass.getClass()).getDatabase(DatabaseType.ROCKS_DB);
     }
 
     @Override
-    public List<AbstractBlock> download(String hash) throws Exception {
-        Map<String, AbstractBlock> map = database.findBetweenRange(hash);
-        List<AbstractBlock> result = new ArrayList<AbstractBlock>(map.values());
+    public List<T> download(String hash) throws Exception {
+        Map<String, T> map = database.findBetweenRange(hash);
+        List<T> result = new ArrayList<T>(map.values());
         return result;
     }
 }
