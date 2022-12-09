@@ -5,7 +5,6 @@ import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.core.*;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedLeaderIndex;
-import io.Adrestus.core.Resourses.CachedSecurityAuditProofs;
 import io.Adrestus.core.Resourses.CachedSecurityHeaders;
 import io.Adrestus.crypto.bls.BLS381.ECP;
 import io.Adrestus.crypto.bls.BLS381.ECP2;
@@ -23,7 +22,6 @@ import io.Adrestus.crypto.vdf.engine.VdfEnginePietrzak;
 import io.Adrestus.crypto.vrf.VRFMessage;
 import io.Adrestus.crypto.vrf.engine.VrfEngine2;
 import io.Adrestus.network.ConsensusServer;
-import io.Adrestus.p2p.kademlia.node.DHTCachedNodes;
 import io.Adrestus.util.ByteUtil;
 import io.Adrestus.util.SerializationUtil;
 import io.distributedLedger.DatabaseFactory;
@@ -581,16 +579,6 @@ public class SupervisorConsensusPhases {
             // this line is incorrect need to change in future please revisit
             block.getData().setStructureMap(CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap());
 
-            if (DHTCachedNodes.getInstance().getDhtBootstrapNode() != null) {
-                CachedSecurityAuditProofs
-                        .getInstance()
-                        .setSecurityAuditProofs(DHTCachedNodes
-                                .getInstance()
-                                .getDhtBootstrapNode()
-                                .getActiveNodes()
-                                .stream()
-                                .collect(Collectors.toList()));
-            }
             regural_block.forgeCommitteBlock(block.getData());
             block.setMessageType(ConsensusMessageType.ANNOUNCE);
             if (DEBUG)

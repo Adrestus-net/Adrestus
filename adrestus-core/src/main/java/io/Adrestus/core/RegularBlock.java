@@ -6,8 +6,8 @@ import io.Adrestus.Trie.MerkleNode;
 import io.Adrestus.Trie.MerkleTree;
 import io.Adrestus.Trie.MerkleTreeImp;
 import io.Adrestus.config.AdrestusConfiguration;
+import io.Adrestus.core.Resourses.CachedKademliaNodes;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
-import io.Adrestus.core.Resourses.CachedSecurityAuditProofs;
 import io.Adrestus.core.Resourses.CachedSecurityHeaders;
 import io.Adrestus.core.Resourses.MemoryPool;
 import io.Adrestus.core.RingBuffer.publisher.BlockEventPublisher;
@@ -104,14 +104,17 @@ public class RegularBlock implements BlockForge {
     public void forgeCommitteBlock(CommitteeBlock committeeBlock) {
         IDatabase<String, CommitteeBlock> database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB);
 
-        if (CachedSecurityAuditProofs.getInstance().getSecurityAuditProofs().isEmpty())
-            committeeBlock.setStakingMap(CachedLatestBlocks.getInstance().getCommitteeBlock().getStakingMap());
-        else
-            CachedSecurityAuditProofs
+        if (CachedKademliaNodes.getInstance().getDhtBootstrapNode() != null) {
+            List<KademliaData> kademliaData = CachedKademliaNodes
                     .getInstance()
-                    .getSecurityAuditProofs()
+                    .getDhtBootstrapNode()
+                    .getActiveNodes()
                     .stream()
-                    .forEach(val -> committeeBlock.getStakingMap().put(MemoryTreePool.getInstance().getByaddress(val.getAddressData().getAddress()).get().getStaking_amount(), val));
+                    .collect(Collectors.toList());
+            kademliaData.stream().forEach(val -> committeeBlock.getStakingMap().put(MemoryTreePool.getInstance().getByaddress(val.getAddressData().getAddress()).get().getStaking_amount(), val));
+        } else {
+            committeeBlock.setStakingMap(CachedLatestBlocks.getInstance().getCommitteeBlock().getStakingMap());
+        }
         committeeBlock.setCommitteeProposer(new int[committeeBlock.getStakingMap().size()]);
         committeeBlock.setGeneration(CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration() + 1);
         committeeBlock.getHeaderData().setPreviousHash(CachedLatestBlocks.getInstance().getCommitteeBlock().getHash());

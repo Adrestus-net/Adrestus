@@ -23,7 +23,7 @@ import io.Adrestus.crypto.mnemonic.WordList;
 import io.Adrestus.p2p.kademlia.common.NettyConnectionInfo;
 import io.Adrestus.p2p.kademlia.exception.UnsupportedBoundingException;
 import io.Adrestus.p2p.kademlia.node.DHTBootstrapNode;
-import io.Adrestus.p2p.kademlia.node.DHTCachedNodes;
+import io.Adrestus.core.Resourses.CachedKademliaNodes;
 import io.Adrestus.p2p.kademlia.node.DHTRegularNode;
 import io.Adrestus.p2p.kademlia.node.KeyHashGenerator;
 import io.Adrestus.p2p.kademlia.repository.KademliaData;
@@ -122,7 +122,7 @@ public class ConsensusCommitteeTimer2Test {
             dhtBootstrapNode.start();
             dhtBootstrapNode.scheduledFuture();
             Thread.sleep(10000);
-            DHTCachedNodes.getInstance().setDhtBootstrapNode(dhtBootstrapNode);
+            CachedKademliaNodes.getInstance().setDhtBootstrapNode(dhtBootstrapNode);
             List<KademliaData> list_data = dhtBootstrapNode.getActiveNodes();
             System.out.println("Size:" + list_data.size());
             committeeBlock.getStructureMap().get(0).put(list_data.get(0).getAddressData().getValidatorBlSPublicKey(), list_data.get(0).getNettyConnectionInfo().getHost());
@@ -139,7 +139,7 @@ public class ConsensusCommitteeTimer2Test {
             nextnode.setKademliaData(kademliaData);
             nextnode.start(dhtBootstrapNode);
             nextnode.scheduledFuture();
-            DHTCachedNodes.getInstance().setDhtRegularNode(nextnode);
+            CachedKademliaNodes.getInstance().setDhtRegularNode(nextnode);
             Thread.sleep(3000);
 
             List<KademliaData> list_data = nextnode.getActiveNodes();

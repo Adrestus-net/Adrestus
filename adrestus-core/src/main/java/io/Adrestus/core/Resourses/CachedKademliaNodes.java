@@ -1,17 +1,19 @@
-package io.Adrestus.p2p.kademlia.node;
+package io.Adrestus.core.Resourses;
 
 import com.google.common.base.Objects;
+import io.Adrestus.p2p.kademlia.node.DHTBootstrapNode;
+import io.Adrestus.p2p.kademlia.node.DHTRegularNode;
 
-public class DHTCachedNodes {
+public class CachedKademliaNodes {
 
-    private static volatile DHTCachedNodes instance;
+    private static volatile CachedKademliaNodes instance;
     private DHTBootstrapNode dhtBootstrapNode;
     private DHTRegularNode dhtRegularNode;
 
     /**
      * private constructor to prevent client from instantiating.
      */
-    private DHTCachedNodes() {
+    private CachedKademliaNodes() {
     }
 
     /**
@@ -19,7 +21,7 @@ public class DHTCachedNodes {
      *
      * @return an instance of the class.
      */
-    public static DHTCachedNodes getInstance() {
+    public static CachedKademliaNodes getInstance() {
         // local variable increases performance by 25 percent
         // Joshua Bloch "Effective Java, Second Edition", p. 283-284
 
@@ -30,7 +32,7 @@ public class DHTCachedNodes {
             // It is not initialized but we cannot be sure because some other thread might have
             // initialized it in the meanwhile.
             // So to make sure we need to lock on an object to get mutual exclusion.
-            synchronized (DHTCachedNodes.class) {
+            synchronized (CachedKademliaNodes.class) {
                 // Again assign the instance to local variable to check if it was initialized by some
                 // other thread while current thread was blocked to enter the locked zone.
                 // If it was initialized then we can return the previously created instance
@@ -40,7 +42,7 @@ public class DHTCachedNodes {
                     // The instance is still not initialized so we can safely
                     // (no other thread can enter this zone)
                     // create an instance and make it our singleton instance.
-                    instance = result = new DHTCachedNodes();
+                    instance = result = new CachedKademliaNodes();
                 }
             }
         }
@@ -67,7 +69,7 @@ public class DHTCachedNodes {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        DHTCachedNodes that = (DHTCachedNodes) o;
+        CachedKademliaNodes that = (CachedKademliaNodes) o;
         return Objects.equal(dhtBootstrapNode, that.dhtBootstrapNode) && Objects.equal(dhtRegularNode, that.dhtRegularNode);
     }
 
