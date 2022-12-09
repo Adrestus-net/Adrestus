@@ -185,11 +185,23 @@ public class RegularBlock implements BlockForge {
         List<Map.Entry<Double, KademliaData>> entryList = committeeBlock.getStakingMap().entrySet().stream().collect(Collectors.toList());
         int MAX_ZONE_SIZE = committeeBlock.getStakingMap().size() / 4;
 
-        int j = 0;
-        while (zone_count < 4) {
-            int index_count = 0;
-            if (committeeBlock.getStakingMap().size() % 4 != 0 && zone_count == 0) {
-                while (index_count < committeeBlock.getStakingMap().size() - 3) {
+        if(MAX_ZONE_SIZE>=2) {
+            int j = 0;
+            while (zone_count < 4) {
+                int index_count = 0;
+                if (committeeBlock.getStakingMap().size() % 4 != 0 && zone_count == 0) {
+                    while (index_count < committeeBlock.getStakingMap().size() - 3) {
+                        committeeBlock
+                                .getStructureMap()
+                                .get(zone_count)
+                                .put(entryList.get(order.get(j)).getValue().getAddressData().getValidatorBlSPublicKey(), entryList.get(order.get(j)).getValue().getNettyConnectionInfo().getHost());
+                        index_count++;
+                        j++;
+                    }
+                    zone_count++;
+                }
+                index_count = 0;
+                while (index_count < MAX_ZONE_SIZE) {
                     committeeBlock
                             .getStructureMap()
                             .get(zone_count)
@@ -199,17 +211,17 @@ public class RegularBlock implements BlockForge {
                 }
                 zone_count++;
             }
-            index_count = 0;
-            while (index_count < MAX_ZONE_SIZE) {
+        }
+        else {
+            for(int i=0;i< order.size();i++){
                 committeeBlock
                         .getStructureMap()
-                        .get(zone_count)
-                        .put(entryList.get(order.get(j)).getValue().getAddressData().getValidatorBlSPublicKey(), entryList.get(order.get(j)).getValue().getNettyConnectionInfo().getHost());
-                index_count++;
-                j++;
+                        .get(0)
+                        .put(entryList.get(order.get(i)).getValue().getAddressData().getValidatorBlSPublicKey(), entryList.get(order.get(i)).getValue().getNettyConnectionInfo().getHost());
             }
-            zone_count++;
         }
+
+
         //#######RANDOM ASSIGN TO STRUCTRURE MAP ##############
         int iteration = 0;
         ArrayList<Integer> replica = new ArrayList<>();
