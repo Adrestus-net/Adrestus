@@ -22,15 +22,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class RocksDBBlockTest {
 
-    private static IDatabase<String, AbstractBlock> database;
-
-    @BeforeAll
-    public static void before() {
-        database = new DatabaseFactory(String.class, AbstractBlock.class).getDatabase(DatabaseType.ROCKS_DB);
-    }
 
     @Test
     public void add_get2() {
+        IDatabase<String, AbstractBlock>  database = new DatabaseFactory(String.class, AbstractBlock.class).getDatabase(DatabaseType.ROCKS_DB);
         String hash = "Hash";
         TransactionBlock prevblock = new TransactionBlock();
         CommitteeBlock committeeBlock = new CommitteeBlock();
@@ -42,10 +37,12 @@ public class RocksDBBlockTest {
         TransactionBlock copy = (TransactionBlock) database.findByKey(hash).get();
         assertEquals(prevblock, copy);
         System.out.println(copy.toString());
+        database.delete_db();
     }
 
     @Test
     public void add_get3() {
+        IDatabase<String, AbstractBlock>  database = new DatabaseFactory(String.class, AbstractBlock.class).getDatabase(DatabaseType.ROCKS_DB);
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
         list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
@@ -71,11 +68,13 @@ public class RocksDBBlockTest {
         CommitteeBlock copy = (CommitteeBlock) database.findByKey(hash).get();
         assertEquals(committeeBlock, copy);
         System.out.println(copy.toString());
+        database.delete_db();
     }
 
 
     @Test
     public void delete() {
+        IDatabase<String, AbstractBlock>  database = new DatabaseFactory(String.class, AbstractBlock.class).getDatabase(DatabaseType.ROCKS_DB);
         String hash = "Hash";
         TransactionBlock prevblock = new TransactionBlock();
         CommitteeBlock committeeBlock = new CommitteeBlock();
@@ -89,10 +88,8 @@ public class RocksDBBlockTest {
         database.deleteByKey(hash);
         Optional<AbstractBlock> empty = database.findByKey(hash);
         assertEquals(Optional.empty(), empty);
-    }
-
-    @AfterAll
-    public static void after() {
         database.delete_db();
     }
+
+
 }

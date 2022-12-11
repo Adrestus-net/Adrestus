@@ -41,5 +41,6 @@ public class LevelDBTransactionTest {
         System.out.println(wrapper2.get().toString());
         assertEquals(1, wrapper2.get().getFrom().size());
         assertEquals(1, wrapper2.get().getTo().size());
+        database.delete_db();
     }
 }

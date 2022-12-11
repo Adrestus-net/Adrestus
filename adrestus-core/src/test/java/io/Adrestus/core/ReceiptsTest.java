@@ -125,7 +125,8 @@ public class ReceiptsTest {
     }
 
     @Test
-    public void serialize_test() {
+    public void serialize_test() throws InterruptedException {
+        Thread.sleep(2000);
         TransactionBlock transactionBlock = new TransactionBlock();
         transactionBlock.setGeneration(4);
         List<Receipt> receiptList = new ArrayList<>();
@@ -143,6 +144,7 @@ public class ReceiptsTest {
 
     @Test
     public void general_test() throws Exception {
+        Thread.sleep(2000);
         MerkleTreeImp tree = new MerkleTreeImp();
         TransactionBlock transactionBlock = new TransactionBlock();
         transactionBlock.setGeneration(4);
@@ -190,7 +192,6 @@ public class ReceiptsTest {
         byte[] buffer = serenc.encode(transactionBlock);
         TransactionBlock clone = (TransactionBlock) serenc.decode(buffer);
         assertEquals(transactionBlock, clone);
-
     }
 
 }

@@ -3,6 +3,7 @@ package io.Adrestus.core;
 import io.Adrestus.Trie.MerkleNode;
 import io.Adrestus.Trie.MerkleProofs;
 import io.Adrestus.Trie.MerkleTreeImp;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -13,10 +14,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 public class MerkleTreeTest {
-    private MerkleTreeImp tree;
+    private static MerkleTreeImp tree;
 
-    @BeforeEach
-    void setUp() throws Exception {
+    @BeforeAll
+    private static void setUp() throws Exception {
         tree = new MerkleTreeImp();
     }
 

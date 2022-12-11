@@ -567,7 +567,7 @@ public class BlockTest {
 
         publisher.getJobSyncUntilRemainingCapacityZero();
         publisher.close();
-        database.deleteAll();
+        database.delete_db();
     }
 
 
