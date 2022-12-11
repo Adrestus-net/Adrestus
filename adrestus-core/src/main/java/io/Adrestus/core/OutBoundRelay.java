@@ -1,6 +1,7 @@
 package io.Adrestus.core;
 
 import com.google.common.base.Objects;
+import io.activej.serializer.annotations.Deserialize;
 import io.activej.serializer.annotations.Serialize;
 
 import java.util.ArrayList;
@@ -8,37 +9,36 @@ import java.util.List;
 
 public class OutBoundRelay {
 
-    private List<Receipt> Outbound;
-    private String OutboundMerkleRoot;
+    private List<Receipt> outbound;
+    private String outboundMerkleRoot;
 
 
-
-    public OutBoundRelay(List<Receipt> outbound, String outboundMerkleRoot) {
-        Outbound = outbound;
-        OutboundMerkleRoot = outboundMerkleRoot;
+    public OutBoundRelay(@Deserialize("outbound") List<Receipt> outbound, @Deserialize("outboundMerkleRoot") String outboundMerkleRoot) {
+        this.outbound = outbound;
+        this.outboundMerkleRoot = outboundMerkleRoot;
     }
 
     public OutBoundRelay() {
-        this.Outbound=new ArrayList<>();
-        this.OutboundMerkleRoot="";
+        this.outbound = new ArrayList<>();
+        this.outboundMerkleRoot = "";
     }
 
     @Serialize
     public List<Receipt> getOutbound() {
-        return Outbound;
+        return outbound;
     }
 
     public void setOutbound(List<Receipt> outbound) {
-        Outbound = outbound;
+        this.outbound = outbound;
     }
 
     @Serialize
     public String getOutboundMerkleRoot() {
-        return OutboundMerkleRoot;
+        return outboundMerkleRoot;
     }
 
     public void setOutboundMerkleRoot(String outboundMerkleRoot) {
-        OutboundMerkleRoot = outboundMerkleRoot;
+        this.outboundMerkleRoot = outboundMerkleRoot;
     }
 
 
@@ -47,11 +47,11 @@ public class OutBoundRelay {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         OutBoundRelay that = (OutBoundRelay) o;
-        return Objects.equal(Outbound, that.Outbound) && Objects.equal(OutboundMerkleRoot, that.OutboundMerkleRoot);
+        return Objects.equal(outbound, that.outbound) && Objects.equal(outboundMerkleRoot, that.outboundMerkleRoot);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(Outbound, OutboundMerkleRoot);
+        return Objects.hashCode(outbound, outboundMerkleRoot);
     }
 }

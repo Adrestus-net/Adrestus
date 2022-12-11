@@ -1,34 +1,32 @@
 package io.Adrestus.core.Resourses;
 
-import io.Adrestus.core.Transaction;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.locks.Lock;
 import java.util.stream.Stream;
 
-public interface IMemoryPool {
-    Stream<Transaction> getAllStream() throws Exception;
+public interface IMemoryPool<T> {
+    Stream<T> getAllStream() throws Exception;
 
-    List<Transaction> getAll() throws Exception;
+    List<T> getAll() throws Exception;
 
     Lock getR();
 
     Lock getW();
 
-    Optional<Transaction> getTransactionByHash(String hash) throws Exception;
+    Optional<T> getTransactionByHash(String hash) throws Exception;
 
-    boolean add(Transaction transaction) throws Exception;
+    boolean add(T transaction) throws Exception;
 
-    void delete(List<Transaction> list_transaction) throws Exception;
+    void delete(List<T> list_transaction) throws Exception;
 
-    void delete(Transaction transaction) throws Exception;
+    void delete(T transaction) throws Exception;
 
-    boolean checkAdressExists(Transaction transaction) throws Exception;
+    boolean checkAdressExists(T transaction) throws Exception;
 
-    boolean checkHashExists(Transaction transaction) throws Exception;
+    boolean checkHashExists(T transaction) throws Exception;
 
-    boolean checkTimestamp(Transaction transaction) throws Exception;
+    boolean checkTimestamp(T transaction) throws Exception;
 
     void printAll() throws Exception;
 

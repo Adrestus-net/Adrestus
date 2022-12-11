@@ -48,7 +48,7 @@ public class RandomizedEventHandler implements BlockEventHandler<AbstractBlockEv
         List<Map.Entry<Double, KademliaData>> entryList = committeeBlock.getStakingMap().entrySet().stream().collect(Collectors.toList());
         int MAX_ZONE_SIZE = committeeBlock.getStakingMap().size() / 4;
 
-        if(MAX_ZONE_SIZE>=2) {
+        if (MAX_ZONE_SIZE >= 2) {
             int j = 0;
             while (zone_count < 4) {
                 int index_count = 0;
@@ -74,9 +74,8 @@ public class RandomizedEventHandler implements BlockEventHandler<AbstractBlockEv
                 }
                 zone_count++;
             }
-        }
-        else {
-            for(int i=0;i< order.size();i++){
+        } else {
+            for (int i = 0; i < order.size(); i++) {
                 committeeBlock
                         .getStructureMap()
                         .get(0)

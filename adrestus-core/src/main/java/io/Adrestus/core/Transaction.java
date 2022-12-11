@@ -57,6 +57,22 @@ public abstract class Transaction implements Cloneable {
         this.Signature = new SignatureData();
     }
 
+    public Transaction(String hash) {
+        this.Hash = hash;
+        this.Type = TransactionType.REGULAR;
+        this.Status = StatusType.PENDING;
+        this.ZoneFrom = 0;
+        this.ZoneTo = 0;
+        this.BlockNumber = 0;
+        this.timestamp = "";
+        this.From = "";
+        this.To = "";
+        this.Amount = 0;
+        this.AmountWithTransactionFee = 0;
+        this.Nonce = 0;
+        this.Signature = new SignatureData();
+    }
+
     public Transaction(String hash, TransactionType type, StatusType status, int zoneFrom, int zoneTo, String timestamp, int blockNumber, String from, String to, double amount, double AmountWithTransactionFee, int nonce, SignatureData signature) {
         this.Hash = hash;
         this.Type = type;

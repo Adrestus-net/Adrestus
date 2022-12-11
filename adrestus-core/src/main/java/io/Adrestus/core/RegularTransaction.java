@@ -12,6 +12,10 @@ public class RegularTransaction extends Transaction {
         super(hash, type, status, zoneFrom, zoneTo, timestamp, blockNumber, from, to, amount, AmountWithTransactionFee, nonce, signature);
     }
 
+    public RegularTransaction(String hash) {
+        super(hash);
+    }
+
     public Object clone() throws CloneNotSupportedException {
         return super.clone();
     }

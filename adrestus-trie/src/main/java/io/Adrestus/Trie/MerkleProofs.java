@@ -1,5 +1,10 @@
 package io.Adrestus.Trie;
 
+import com.google.common.base.Objects;
+import io.activej.serializer.annotations.Deserialize;
+import io.activej.serializer.annotations.Serialize;
+
+import java.util.ArrayList;
 import java.util.List;
 
 public class MerkleProofs {
@@ -13,13 +18,19 @@ public class MerkleProofs {
         this.target = target;
     }
 
-    public MerkleProofs(List<MerkleNode> list_builder) {
+    public MerkleProofs(@Deserialize("list_builder") List<MerkleNode> list_builder) {
+        this.roothash = "";
         this.list_builder = list_builder;
+        this.target = new MerkleNode("");
     }
 
     public MerkleProofs() {
+        this.roothash = "";
+        this.list_builder = new ArrayList<>();
+        this.target = new MerkleNode("");
     }
 
+    @Serialize
     public String getRoothash() {
         return roothash;
     }
@@ -28,6 +39,7 @@ public class MerkleProofs {
         this.roothash = roothash;
     }
 
+    @Serialize
     public List<MerkleNode> getList_builder() {
         return list_builder;
     }
@@ -36,6 +48,7 @@ public class MerkleProofs {
         this.list_builder = list_builder;
     }
 
+    @Serialize
     public MerkleNode getTarget() {
         return target;
     }
@@ -44,4 +57,26 @@ public class MerkleProofs {
         this.target = target;
     }
 
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MerkleProofs that = (MerkleProofs) o;
+        return Objects.equal(roothash, that.roothash) && Objects.equal(list_builder, that.list_builder) && Objects.equal(target, that.target);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(roothash, list_builder, target);
+    }
+
+    @Override
+    public String toString() {
+        return "MerkleProofs{" +
+                "roothash='" + roothash + '\'' +
+                ", list_builder=" + list_builder +
+                ", target=" + target +
+                '}';
+    }
 }

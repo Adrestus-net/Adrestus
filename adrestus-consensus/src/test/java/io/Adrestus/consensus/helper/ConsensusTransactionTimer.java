@@ -7,7 +7,7 @@ import io.Adrestus.consensus.ConsensusRoleType;
 import io.Adrestus.consensus.ConsensusType;
 import io.Adrestus.core.RegularTransaction;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
-import io.Adrestus.core.Resourses.MemoryPool;
+import io.Adrestus.core.Resourses.MemoryTransactionPool;
 import io.Adrestus.core.RingBuffer.handler.transactions.SignatureEventHandler;
 import io.Adrestus.core.RingBuffer.publisher.TransactionEventPublisher;
 import io.Adrestus.core.StatusType;
@@ -158,7 +158,7 @@ public class ConsensusTransactionTimer {
                 validatorphase.CommitPhase(consensusMessage);
             }
             latch.countDown();
-            MemoryPool.getInstance().clear();
+            MemoryTransactionPool.getInstance().clear();
             timer = new Timer(ConsensusConfiguration.CONSENSUS);
             timer.scheduleAtFixedRate(new ConsensusTask(), ConsensusConfiguration.CONSENSUS_TIMER, ConsensusConfiguration.CONSENSUS_TIMER);
         }

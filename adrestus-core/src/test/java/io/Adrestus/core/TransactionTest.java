@@ -4,7 +4,7 @@ import io.Adrestus.MemoryTreePool;
 import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
-import io.Adrestus.core.Resourses.MemoryPool;
+import io.Adrestus.core.Resourses.MemoryTransactionPool;
 import io.Adrestus.core.RingBuffer.handler.transactions.SignatureEventHandler;
 import io.Adrestus.core.RingBuffer.publisher.TransactionEventPublisher;
 import io.Adrestus.crypto.HashUtil;
@@ -33,7 +33,7 @@ public class TransactionTest {
 
     @BeforeAll
     public static void setup() throws Exception {
-        MemoryPool.getInstance().clear();
+        MemoryTransactionPool.getInstance().clear();
         TransactionBlock prevblock = new TransactionBlock();
         CommitteeBlock committeeBlock = new CommitteeBlock();
         committeeBlock.setGeneration(1);

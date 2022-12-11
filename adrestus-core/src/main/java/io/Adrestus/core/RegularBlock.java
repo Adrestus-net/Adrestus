@@ -9,7 +9,7 @@ import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.core.Resourses.CachedKademliaNodes;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedSecurityHeaders;
-import io.Adrestus.core.Resourses.MemoryPool;
+import io.Adrestus.core.Resourses.MemoryTransactionPool;
 import io.Adrestus.core.RingBuffer.publisher.BlockEventPublisher;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.bls.BLS381.ECP;
@@ -82,7 +82,7 @@ public class RegularBlock implements BlockForge {
         transactionBlock.setZone(0);
 
         try {
-            transactionBlock.setTransactionList(MemoryPool.getInstance().getAll());
+            transactionBlock.setTransactionList(MemoryTransactionPool.getInstance().getAll());
             transactionBlock.getTransactionList().stream().forEach(x -> {
                 merkleNodeArrayList.add(new MerkleNode(x.getHash()));
             });
@@ -187,7 +187,7 @@ public class RegularBlock implements BlockForge {
         List<Map.Entry<Double, KademliaData>> entryList = committeeBlock.getStakingMap().entrySet().stream().collect(Collectors.toList());
         int MAX_ZONE_SIZE = committeeBlock.getStakingMap().size() / 4;
 
-        if(MAX_ZONE_SIZE>=2) {
+        if (MAX_ZONE_SIZE >= 2) {
             int j = 0;
             while (zone_count < 4) {
                 int index_count = 0;
@@ -213,9 +213,8 @@ public class RegularBlock implements BlockForge {
                 }
                 zone_count++;
             }
-        }
-        else {
-            for(int i=0;i< order.size();i++){
+        } else {
+            for (int i = 0; i < order.size(); i++) {
                 committeeBlock
                         .getStructureMap()
                         .get(0)

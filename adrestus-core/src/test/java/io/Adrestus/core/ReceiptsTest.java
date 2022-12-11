@@ -2,18 +2,25 @@ package io.Adrestus.core;
 
 import io.Adrestus.MemoryTreePool;
 import io.Adrestus.Trie.MerkleNode;
+import io.Adrestus.Trie.MerkleProofs;
 import io.Adrestus.Trie.MerkleTreeImp;
 import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.config.AdrestusConfiguration;
-import io.Adrestus.core.Resourses.MemoryPool;
+import io.Adrestus.core.Resourses.MemoryTransactionPool;
 import io.Adrestus.core.RingBuffer.handler.transactions.SignatureEventHandler;
 import io.Adrestus.core.RingBuffer.publisher.TransactionEventPublisher;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.WalletAddress;
+import io.Adrestus.crypto.bls.BLS381.ECP;
+import io.Adrestus.crypto.bls.BLS381.ECP2;
+import io.Adrestus.crypto.bls.mapper.ECP2mapper;
+import io.Adrestus.crypto.bls.mapper.ECPmapper;
 import io.Adrestus.crypto.elliptic.ECDSASign;
 import io.Adrestus.crypto.elliptic.ECKeyPair;
 import io.Adrestus.crypto.elliptic.Keys;
 import io.Adrestus.crypto.elliptic.SignatureData;
+import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
+import io.Adrestus.crypto.elliptic.mapper.CustomSerializerTreeMap;
 import io.Adrestus.crypto.mnemonic.Mnemonic;
 import io.Adrestus.crypto.mnemonic.Security;
 import io.Adrestus.crypto.mnemonic.WordList;
@@ -23,20 +30,27 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.spongycastle.util.encoders.Hex;
 
+import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
+import java.util.TreeMap;
 
-import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ReceiptsTest {
 
+    private static SerializationUtil<AbstractBlock> serenc;
 
     @BeforeAll
     public static void setup() throws Exception {
+        List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
+        list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
+        list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
+        list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
+        serenc = new SerializationUtil<AbstractBlock>(AbstractBlock.class, list);
         TransactionEventPublisher publisher = new TransactionEventPublisher(1024);
 
         publisher
@@ -95,15 +109,15 @@ public class ReceiptsTest {
             transaction.setNonce(1);
             byte byf[] = serenc.encode(transaction);
             transaction.setHash(HashUtil.sha256_bytetoString(byf));
-          //  await().atMost(500, TimeUnit.MILLISECONDS);
+            //  await().atMost(500, TimeUnit.MILLISECONDS);
 
             SignatureData signatureData = ecdsaSign.secp256SignMessage(Hex.decode(transaction.getHash()), keypair.get(i));
             transaction.setSignature(signatureData);
             //MemoryPool.getInstance().add(transaction);
             publisher.publish(transaction);
             //await().atMost(1000, TimeUnit.MILLISECONDS);
-            if(j==3)
-                j=0;
+            if (j == 3)
+                j = 0;
             j++;
         }
         publisher.getJobSyncUntilRemainingCapacityZero();
@@ -111,29 +125,46 @@ public class ReceiptsTest {
     }
 
     @Test
+    public void serialize_test() {
+        TransactionBlock transactionBlock = new TransactionBlock();
+        transactionBlock.setGeneration(4);
+        List<Receipt> receiptList = new ArrayList<>();
+        receiptList.add(new Receipt(0, 1));
+        receiptList.add(new Receipt(0, 2));
+        receiptList.add(new Receipt(0, 3));
+        receiptList.get(0).getReceiptProofs().add(new Receipt.ReceiptProofs(new RegularTransaction(""), 4, 3, 2, new Receipt.ReceiptData("", 0.0), new MerkleProofs()));
+        OutBoundRelay outBoundRelay = new OutBoundRelay(receiptList, "OriginalRootHash");
+        transactionBlock.setOutbound(outBoundRelay);
+
+        byte[] buffer = serenc.encode(transactionBlock);
+        TransactionBlock clone = (TransactionBlock) serenc.decode(buffer);
+        assertEquals(transactionBlock, clone);
+    }
+
+    @Test
     public void general_test() throws Exception {
-        MerkleTreeImp  tree = new MerkleTreeImp();
+        MerkleTreeImp tree = new MerkleTreeImp();
         TransactionBlock transactionBlock = new TransactionBlock();
         transactionBlock.setGeneration(4);
         transactionBlock.setHeight(100);
-        transactionBlock.setTransactionList(MemoryPool.getInstance().getAll());
+        transactionBlock.setTransactionList(MemoryTransactionPool.getInstance().getAll());
         ArrayList<MerkleNode> merkleNodeArrayList = new ArrayList<>();
         transactionBlock.getTransactionList().stream().forEach(x -> {
             merkleNodeArrayList.add(new MerkleNode(x.getHash()));
         });
         tree.my_generate2(merkleNodeArrayList);
-        String OriginalRootHash=tree.getRootHash();
+        String OriginalRootHash = tree.getRootHash();
         List<Receipt> receiptList = new ArrayList<>();
-        receiptList.add(new Receipt( 0, 1));
-        receiptList.add(new Receipt (0, 2));
-        receiptList.add(new Receipt( 0, 3));
+        receiptList.add(new Receipt(0, 1));
+        receiptList.add(new Receipt(0, 2));
+        receiptList.add(new Receipt(0, 3));
         for (int i = 0; i < transactionBlock.getTransactionList().size(); i++) {
-            Transaction transaction=transactionBlock.getTransactionList().get(i);
+            Transaction transaction = transactionBlock.getTransactionList().get(i);
             MerkleNode node = new MerkleNode(transaction.getHash());
             tree.build_proofs2(merkleNodeArrayList, node);
             int effective_final = i;
             Optional<Receipt> data = receiptList.stream().filter(val -> val.getZoneTo() == transactionBlock.getTransactionList().get(effective_final).getZoneTo()).findFirst();
-            if(data.isEmpty())
+            if (data.isEmpty())
                 continue;
             data
                     .get()
@@ -143,7 +174,7 @@ public class ReceiptsTest {
                             transactionBlock.getHeight(),
                             transactionBlock.getGeneration(),
                             i,
-                            new Receipt.ReceiptData(transaction.getTo(),transaction.getAmount()),tree.getMerkleeproofs()));
+                            new Receipt.ReceiptData(transaction.getTo(), transaction.getAmount()), tree.getMerkleeproofs()));
 
         }
         assertEquals(OriginalRootHash, tree.GenerateRoot(receiptList.get(0).getReceiptProofs().get(0).getProofs()));
@@ -153,8 +184,13 @@ public class ReceiptsTest {
         assertEquals(OriginalRootHash, tree.GenerateRoot(receiptList.get(2).getReceiptProofs().get(0).getProofs()));
         assertEquals(OriginalRootHash, tree.GenerateRoot(receiptList.get(2).getReceiptProofs().get(1).getProofs()));
 
-        OutBoundRelay outBoundRelay=new OutBoundRelay(receiptList,OriginalRootHash);
-        //transactionBlock.setOutbound(outBoundRelay);
+        OutBoundRelay outBoundRelay = new OutBoundRelay(receiptList, OriginalRootHash);
+        transactionBlock.setOutbound(outBoundRelay);
+
+        byte[] buffer = serenc.encode(transactionBlock);
+        TransactionBlock clone = (TransactionBlock) serenc.decode(buffer);
+        assertEquals(transactionBlock, clone);
+
     }
 
 }

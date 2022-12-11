@@ -1,38 +1,42 @@
 package io.Adrestus.core;
 
 import com.google.common.base.Objects;
+import io.activej.serializer.annotations.Deserialize;
+import io.activej.serializer.annotations.Serialize;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class InboundRelay {
-    private List<Receipt> Receipt;
-    private String InboundMerkleRoot;
+    private List<Receipt> receipt;
+    private String inboundMerkleRoot;
 
-    public InboundRelay(List<Receipt> receipt, String inboundMerkleRoot) {
-        this.Receipt = receipt;
-        this.InboundMerkleRoot = inboundMerkleRoot;
+    public InboundRelay(@Deserialize("receipt") List<Receipt> receipt, @Deserialize("inboundMerkleRoot") String inboundMerkleRoot) {
+        this.receipt = receipt;
+        this.inboundMerkleRoot = inboundMerkleRoot;
     }
 
     public InboundRelay() {
-        this.Receipt=new ArrayList<>();
-        this.InboundMerkleRoot="";
+        this.receipt = new ArrayList<>();
+        this.inboundMerkleRoot = "";
     }
 
+    @Serialize
     public List<Receipt> getReceipt() {
-        return Receipt;
+        return receipt;
     }
 
     public void setReceipt(List<Receipt> receipt) {
-        Receipt = receipt;
+        this.receipt = receipt;
     }
 
+    @Serialize
     public String getInboundMerkleRoot() {
-        return InboundMerkleRoot;
+        return inboundMerkleRoot;
     }
 
     public void setInboundMerkleRoot(String inboundMerkleRoot) {
-        InboundMerkleRoot = inboundMerkleRoot;
+        this.inboundMerkleRoot = inboundMerkleRoot;
     }
 
     @Override
@@ -40,19 +44,19 @@ public class InboundRelay {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         InboundRelay that = (InboundRelay) o;
-        return Objects.equal(Receipt, that.Receipt) && Objects.equal(InboundMerkleRoot, that.InboundMerkleRoot);
+        return Objects.equal(receipt, that.receipt) && Objects.equal(inboundMerkleRoot, that.inboundMerkleRoot);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(Receipt, InboundMerkleRoot);
+        return Objects.hashCode(receipt, inboundMerkleRoot);
     }
 
     @Override
     public String toString() {
         return "InboundRelay{" +
-                "Receipt=" + Receipt +
-                ", InboundMerkleRoot='" + InboundMerkleRoot + '\'' +
+                "receipt=" + receipt +
+                ", inboundMerkleRoot='" + inboundMerkleRoot + '\'' +
                 '}';
     }
 }

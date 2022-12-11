@@ -99,7 +99,7 @@ public class MerkleTreeTest {
         tree.my_generate2(list);
         MerkleNode node = new MerkleNode(String.valueOf(2));
         tree.build_proofs2(list, node);
-        String roothash=tree.getRootHash();
+        String roothash = tree.getRootHash();
         MerkleProofs proofs = tree.getMerkleeproofs();
         tree = new MerkleTreeImp();
         assertEquals(roothash, tree.GenerateRoot(proofs));
@@ -116,16 +116,16 @@ public class MerkleTreeTest {
         }
 
         tree.my_generate2(list);
-        String roothash3=tree.getRootHash();
+        String roothash3 = tree.getRootHash();
         List<MerkleNode> cloned_list = new ArrayList<MerkleNode>(list);
         MerkleNode node = new MerkleNode(String.valueOf(2));
         MerkleNode node2 = new MerkleNode(String.valueOf(2));
         tree.build_proofs2(list, node);
-        String roothash=tree.getRootHash();
+        String roothash = tree.getRootHash();
         MerkleProofs proofs = tree.getMerkleeproofs();
         assertEquals(roothash, tree.GenerateRoot(proofs));
         tree.build_proofs2(list, node2);
-        String roothash1=tree.getRootHash();
+        String roothash1 = tree.getRootHash();
         MerkleProofs proofs1 = tree.getMerkleeproofs();
         assertEquals(roothash, roothash1);
         assertEquals(roothash, roothash3);

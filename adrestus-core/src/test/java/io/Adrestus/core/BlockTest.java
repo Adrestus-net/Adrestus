@@ -263,8 +263,7 @@ public class BlockTest {
         var regural_block = factory.getBlock(BlockType.REGULAR);
         transactionBlock.accept(regural_block);
 
-        if (transactionBlock.getStatustype().equals(StatusType.ABORT))
-            System.out.println("true");
+
     }
 
     @Test
@@ -598,7 +597,7 @@ public class BlockTest {
         List<Map.Entry<Double, KademliaData>> entryList = committeeBlock.getStakingMap().entrySet().stream().collect(Collectors.toList());
         int MAX_ZONE_SIZE = committeeBlock.getStakingMap().size() / 4;
 
-        if(MAX_ZONE_SIZE>=2) {
+        if (MAX_ZONE_SIZE >= 2) {
             int j = 0;
             while (zone_count < 4) {
                 int index_count = 0;
@@ -624,9 +623,8 @@ public class BlockTest {
                 }
                 zone_count++;
             }
-        }
-        else {
-            for(int i=0;i< order.size();i++){
+        } else {
+            for (int i = 0; i < order.size(); i++) {
                 committeeBlock
                         .getStructureMap()
                         .get(0)
@@ -656,7 +654,7 @@ public class BlockTest {
         List<Map.Entry<Double, KademliaData>> entryList = committeeBlock.getStakingMap().entrySet().stream().collect(Collectors.toList());
         int MAX_ZONE_SIZE = committeeBlock.getStakingMap().size() / 4;
 
-        if(MAX_ZONE_SIZE>=2) {
+        if (MAX_ZONE_SIZE >= 2) {
             int j = 0;
             while (zone_count < 4) {
                 int index_count = 0;
@@ -682,16 +680,15 @@ public class BlockTest {
                 }
                 zone_count++;
             }
-        }
-        else {
-            for(int i=0;i< order.size();i++){
+        } else {
+            for (int i = 0; i < order.size(); i++) {
                 committeeBlock
                         .getStructureMap()
                         .get(0)
                         .put(entryList.get(order.get(i)).getValue().getAddressData().getValidatorBlSPublicKey(), entryList.get(order.get(i)).getValue().getNettyConnectionInfo().getHost());
             }
         }
-       int g=3;
+        int g = 3;
     }
 
     public int generateRandom(SecureRandom secureRandom, int start, int end, ArrayList<Integer> excludeRows) {

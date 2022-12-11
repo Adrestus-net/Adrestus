@@ -1,6 +1,6 @@
 package io.Adrestus.core.RingBuffer.handler.transactions;
 
-import io.Adrestus.core.Resourses.MemoryPool;
+import io.Adrestus.core.Resourses.MemoryTransactionPool;
 import io.Adrestus.core.RingBuffer.event.TransactionEvent;
 import io.Adrestus.core.StatusType;
 import io.Adrestus.core.Transaction;
@@ -14,7 +14,7 @@ public class DoubleSpendEventHandler extends TransactionEventHandler {
     public void onEvent(TransactionEvent transactionEvent, long l, boolean b) throws Exception {
         try {
             Transaction transaction = transactionEvent.getTransaction();
-            if (MemoryPool.getInstance().checkHashExists(transaction)) {
+            if (MemoryTransactionPool.getInstance().checkHashExists(transaction)) {
                 LOG.info("Transaction abort Hash already exist in MemoryPool");
                 transaction.setStatus(StatusType.ABORT);
             }

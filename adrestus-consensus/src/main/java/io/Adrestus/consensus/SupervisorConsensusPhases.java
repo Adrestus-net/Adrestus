@@ -577,7 +577,7 @@ public class SupervisorConsensusPhases {
             var regural_block = factory.getBlock(BlockType.REGULAR);
 
             // this line is incorrect need to change in future please revisit
-           // block.getData().setStructureMap(CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap());
+            // block.getData().setStructureMap(CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap());
 
             regural_block.forgeCommitteBlock(block.getData());
             block.setMessageType(ConsensusMessageType.ANNOUNCE);

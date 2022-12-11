@@ -14,8 +14,8 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Stream;
 
-public class MemoryPool implements IMemoryPool {
-    private static Logger LOG = LoggerFactory.getLogger(MemoryPool.class);
+public class MemoryTransactionPool implements IMemoryPool<Transaction> {
+    private static Logger LOG = LoggerFactory.getLogger(MemoryTransactionPool.class);
 
 
     private static volatile IMemoryPool instance;
@@ -29,7 +29,7 @@ public class MemoryPool implements IMemoryPool {
     private final Lock r;
     private final Lock w;
 
-    private MemoryPool() {
+    private MemoryTransactionPool() {
         if (instance != null) {
             throw new IllegalStateException("Already initialized.");
         } else {
@@ -37,7 +37,7 @@ public class MemoryPool implements IMemoryPool {
             this.wrapper = new SerializationUtil<>(Transaction.class);
             this.hashComparator = new TransactionHashComparator();
             this.transactionReplayComparator = new TransactionReplayComparator();
-            this.transactionAddressComparator=new TransactionAddressComparator();
+            this.transactionAddressComparator = new TransactionAddressComparator();
             this.rwl = new ReentrantReadWriteLock();
             this.r = rwl.readLock();
             this.w = rwl.writeLock();
@@ -47,10 +47,10 @@ public class MemoryPool implements IMemoryPool {
     public static IMemoryPool getInstance() {
         var result = instance;
         if (result == null) {
-            synchronized (MemoryPool.class) {
+            synchronized (MemoryTransactionPool.class) {
                 result = instance;
                 if (result == null) {
-                    instance = result = new MemoryPool();
+                    instance = result = new MemoryTransactionPool();
                 }
             }
         }
@@ -140,6 +140,7 @@ public class MemoryPool implements IMemoryPool {
             r.unlock();
         }
     }
+
     @Override
     public boolean checkHashExists(Transaction transaction) throws Exception {
         r.lock();

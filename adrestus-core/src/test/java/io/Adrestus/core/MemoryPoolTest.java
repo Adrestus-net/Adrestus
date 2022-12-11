@@ -1,6 +1,6 @@
 package io.Adrestus.core;
 
-import io.Adrestus.core.Resourses.MemoryPool;
+import io.Adrestus.core.Resourses.MemoryTransactionPool;
 import io.Adrestus.util.GetTime;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
@@ -22,11 +22,11 @@ public class MemoryPoolTest {
         transaction.setAmount(100);
         transaction.setHash("Hash");
         transaction.setTimestamp(GetTime.GetTimeStampInString());
-        int count = (int) MemoryPool.getInstance().getAllStream().count();
-        MemoryPool.getInstance().add(transaction);
-        MemoryPool.getInstance().add(transaction);
-        assertEquals(count + 1, MemoryPool.getInstance().getAllStream().count());
-        assertNotEquals(count + 2, MemoryPool.getInstance().getAllStream().count());
+        int count = (int) MemoryTransactionPool.getInstance().getAllStream().count();
+        MemoryTransactionPool.getInstance().add(transaction);
+        MemoryTransactionPool.getInstance().add(transaction);
+        assertEquals(count + 1, MemoryTransactionPool.getInstance().getAllStream().count());
+        assertNotEquals(count + 2, MemoryTransactionPool.getInstance().getAllStream().count());
     }
 
     @Test
@@ -36,22 +36,22 @@ public class MemoryPoolTest {
         transaction.setAmount(101);
         transaction.setHash("Hash1");
         transaction.setTimestamp(GetTime.GetTimeStampInString());
-        assertEquals(false, MemoryPool.getInstance().add(transaction));
-        assertEquals(true, MemoryPool.getInstance().add(transaction));
+        assertEquals(false, MemoryTransactionPool.getInstance().add(transaction));
+        assertEquals(true, MemoryTransactionPool.getInstance().add(transaction));
 
 
         Transaction transaction1 = new RegularTransaction();
         transaction1.setAmount(50);
         transaction1.setHash("Hash2");
         transaction1.setTimestamp(GetTime.GetTimeStampInString());
-        assertEquals(false, MemoryPool.getInstance().add(transaction1));
-        assertEquals(true, MemoryPool.getInstance().add(transaction1));
+        assertEquals(false, MemoryTransactionPool.getInstance().add(transaction1));
+        assertEquals(true, MemoryTransactionPool.getInstance().add(transaction1));
 
         Transaction transaction3 = new RegularTransaction();
         transaction3.setAmount(50);
         transaction3.setHash("Hash2");
         transaction.setTimestamp(GetTime.GetTimeStampInString());
-        assertEquals(true, MemoryPool.getInstance().add(transaction3));
+        assertEquals(true, MemoryTransactionPool.getInstance().add(transaction3));
         //  MemoryPool.getInstance().printAll();
     }
 
@@ -78,15 +78,15 @@ public class MemoryPoolTest {
         transaction4.setHash("Hash4");
         transaction4.setTimestamp(GetTime.GetTimeStampInString());
 
-        MemoryPool.getInstance().add(transaction1);
-        MemoryPool.getInstance().add(transaction2);
-        MemoryPool.getInstance().add(transaction3);
-        MemoryPool.getInstance().add(transaction4);
+        MemoryTransactionPool.getInstance().add(transaction1);
+        MemoryTransactionPool.getInstance().add(transaction2);
+        MemoryTransactionPool.getInstance().add(transaction3);
+        MemoryTransactionPool.getInstance().add(transaction4);
 
         list.add(transaction3);
         list.add(transaction4);
 
-        MemoryPool.getInstance().delete(list);
+        MemoryTransactionPool.getInstance().delete(list);
         //MemoryPool.getInstance().printAll();
     }
 
@@ -98,9 +98,9 @@ public class MemoryPoolTest {
         transaction1.setAmount(100);
         transaction1.setHash("Hash4");
         transaction1.setTimestamp(GetTime.GetTimeStampInString());
-        MemoryPool.getInstance().add(transaction1);
+        MemoryTransactionPool.getInstance().add(transaction1);
 
-        Optional<Transaction> res = MemoryPool.getInstance().getTransactionByHash("Hash4");
+        Optional<Transaction> res = MemoryTransactionPool.getInstance().getTransactionByHash("Hash4");
         if (res.isPresent())
             System.out.println(res.get().toString());
 
@@ -110,7 +110,7 @@ public class MemoryPoolTest {
     @Test
     //  @Order(5)
     public void mempool_timestamp_check() throws Exception {
-        MemoryPool.getInstance().getAll().clear();
+        MemoryTransactionPool.getInstance().getAll().clear();
         Transaction transaction1 = new RegularTransaction();
         transaction1.setHash("Hash5");
         transaction1.setFrom("Address1");
@@ -124,10 +124,10 @@ public class MemoryPoolTest {
         transaction2.setZoneFrom(1);
         transaction2.setTimestamp(GetTime.GetTimeStampInString());
 
-        MemoryPool.getInstance().add(transaction1);
-        MemoryPool.getInstance().add(transaction2);
-        MemoryPool.getInstance().printAll();
-        assertEquals(true, MemoryPool.getInstance().checkTimestamp(transaction2));
+        MemoryTransactionPool.getInstance().add(transaction1);
+        MemoryTransactionPool.getInstance().add(transaction2);
+        MemoryTransactionPool.getInstance().printAll();
+        assertEquals(true, MemoryTransactionPool.getInstance().checkTimestamp(transaction2));
 
     }
 }

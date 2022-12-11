@@ -7,9 +7,7 @@ import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.activej.serializer.annotations.Serialize;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class TransactionBlock extends AbstractBlock implements BlockFactory, DisruptorBlock {
     private int Zone;
