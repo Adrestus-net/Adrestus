@@ -202,13 +202,14 @@ public class BlockTest {
                 .withStakingEventHandler()
                 .withTransactionFeeEventHandler()
                 .withTimestampEventHandler()
+                .withSameOriginEventHandler()
                 .mergeEventsAndPassThen(new SignatureEventHandler(SignatureEventHandler.SignatureBehaviorType.SIMPLE_TRANSACTIONS));
         publisher.start();
 
 
         SecureRandom random;
         String mnemonic_code = "fd8cee9c1a3f3f57ab51b25740b24341ae093c8f697fde4df948050d3acd1700f6379d716104d2159e4912509c40ac81714d833e93b822e5ba0fadd68d5568a2";
-        random = SecureRandom.getInstance("SHA1PRNG", "SUN");
+        random = SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
         random.setSeed(Hex.decode(mnemonic_code));
 
         ECDSASign ecdsaSign = new ECDSASign();
@@ -245,12 +246,13 @@ public class BlockTest {
             transaction.setNonce(1);
             byte byf[] = serenc.encode(transaction);
             transaction.setHash(HashUtil.sha256_bytetoString(byf));
+            await().atMost(500, TimeUnit.MILLISECONDS);
 
             SignatureData signatureData = ecdsaSign.secp256SignMessage(Hex.decode(transaction.getHash()), keypair.get(i));
             transaction.setSignature(signatureData);
             //MemoryPool.getInstance().add(transaction);
             publisher.publish(transaction);
-            await().atMost(100, TimeUnit.MILLISECONDS);
+            await().atMost(1000, TimeUnit.MILLISECONDS);
         }
         publisher.getJobSyncUntilRemainingCapacityZero();
         publisher.close();

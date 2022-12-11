@@ -120,6 +120,11 @@ public class TransactionEventPublisher implements Publisher<Transaction> {
         return this;
     }
 
+    public TransactionEventPublisher withSameOriginEventHandler() {
+        group.add(new SameOriginEventHandler());
+        return this;
+    }
+
     public TransactionEventPublisher withAmountEventHandler() {
         group.add(new AmountEventHandler());
         return this;

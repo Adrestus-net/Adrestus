@@ -24,6 +24,8 @@ public interface IMemoryPool {
 
     void delete(Transaction transaction) throws Exception;
 
+    boolean checkAdressExists(Transaction transaction) throws Exception;
+
     boolean checkHashExists(Transaction transaction) throws Exception;
 
     boolean checkTimestamp(Transaction transaction) throws Exception;

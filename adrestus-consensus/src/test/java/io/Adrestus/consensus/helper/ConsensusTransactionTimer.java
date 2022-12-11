@@ -94,6 +94,7 @@ public class ConsensusTransactionTimer {
                 .withStakingEventHandler()
                 .withTransactionFeeEventHandler()
                 .withTimestampEventHandler()
+                .withSameOriginEventHandler()
                 .mergeEventsAndPassThen(new SignatureEventHandler(SignatureEventHandler.SignatureBehaviorType.SIMPLE_TRANSACTIONS));
         publisher.start();
 

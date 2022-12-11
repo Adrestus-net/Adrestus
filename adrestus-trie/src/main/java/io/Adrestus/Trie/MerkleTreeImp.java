@@ -206,7 +206,7 @@ public class MerkleTreeImp implements MerkleTree {
         proofs(iterate, current);
     }
 
-    private RecursiveOptimizer<Integer> proofs2(List<MerkleNode> list, final MerkleNode current) {
+    private RecursiveOptimizer<Integer> proofs2(List<MerkleNode> list, MerkleNode current) {
         int position = -1;
         for (int i = 0; i < list.size(); i++) {
             if (list.get(i).getTransactionHash().equals(current.getTransactionHash())) {
@@ -216,10 +216,9 @@ public class MerkleTreeImp implements MerkleTree {
         if (position == -1)
             System.out.println("problima");
         ArrayList<MerkleNode> iterate = new ArrayList<MerkleNode>();
-        MerkleNode node = new MerkleNode();
         int i = 0;
         while (list.size() > i) {
-
+            MerkleNode node = new MerkleNode();
             node.setLeft(list.get(i));
 
             if (list.size() - 1 >= i + 1) {
@@ -227,12 +226,14 @@ public class MerkleTreeImp implements MerkleTree {
                 node.setTransactionHash(HashUtil.sha256(node.getLeft().getTransactionHash() + node.getRight().getTransactionHash()));
                 if (position == i) {
                     MerkleProofs.getList_builder().add(new MerkleNode(null, list.get(i + 1)));
+                    current = node;
                 }
             } else {
                 node.setTransactionHash(node.getLeft().getTransactionHash());
                 if (position == i) {
                     MerkleNode left = new MerkleNode(node, null);
                     MerkleProofs.getList_builder().add(left);
+                    current = node;
 
                     if (!MerkleProofs.getList_builder().get(MerkleProofs.getList_builder().size() - 1).getLeft().getTransactionHash().equals(left.getTransactionHash())) {
                         MerkleProofs.getList_builder().remove(left);
@@ -242,6 +243,7 @@ public class MerkleTreeImp implements MerkleTree {
             }
             if (position == i + 1) {
                 MerkleProofs.getList_builder().add(new MerkleNode(list.get(i), null));
+                current = node;
             }
 
             iterate.add(node);
@@ -251,7 +253,8 @@ public class MerkleTreeImp implements MerkleTree {
         if (iterate.size() == 1) {
             return RecursiveOptimizer.done(0);
         }
-        return RecursiveOptimizer.more(() -> proofs2(iterate, node));
+        MerkleNode finalCurrent = current;
+        return RecursiveOptimizer.more(() -> proofs2(iterate, finalCurrent));
     }
 
     public String GenerateRoot(MerkleProofs proofs) {
@@ -266,4 +269,5 @@ public class MerkleTreeImp implements MerkleTree {
         }
         return hash;
     }
+
 }

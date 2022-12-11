@@ -23,6 +23,7 @@ public class MemoryPool implements IMemoryPool {
     private final List<Transaction> memorypool;
     private final TransactionHashComparator hashComparator;
     private final TransactionReplayComparator transactionReplayComparator;
+    private final TransactionAddressComparator transactionAddressComparator;
     private final SerializationUtil<Transaction> wrapper;
     private final ReentrantReadWriteLock rwl;
     private final Lock r;
@@ -36,6 +37,7 @@ public class MemoryPool implements IMemoryPool {
             this.wrapper = new SerializationUtil<>(Transaction.class);
             this.hashComparator = new TransactionHashComparator();
             this.transactionReplayComparator = new TransactionReplayComparator();
+            this.transactionAddressComparator=new TransactionAddressComparator();
             this.rwl = new ReentrantReadWriteLock();
             this.r = rwl.readLock();
             this.w = rwl.writeLock();
@@ -125,6 +127,19 @@ public class MemoryPool implements IMemoryPool {
         }
     }
 
+    @Override
+    public boolean checkAdressExists(Transaction transaction) throws Exception {
+        r.lock();
+        try {
+            int index = Collections.binarySearch(memorypool, transaction, transactionAddressComparator);
+            if (index >= 0)
+                return true;
+            else
+                return false;
+        } finally {
+            r.unlock();
+        }
+    }
     @Override
     public boolean checkHashExists(Transaction transaction) throws Exception {
         r.lock();
@@ -226,6 +241,20 @@ public class MemoryPool implements IMemoryPool {
                 int val3 = time1.compareTo(time2);
 
                 return (val1 == 0 && val2 == 0 && val3 <= 0) ? val1 : -1;
+            } catch (Exception e) {
+                LOG.info(e.toString());
+                return 0;
+            }
+        }
+    }
+
+    private final class TransactionAddressComparator implements Comparator<Transaction> {
+        @SneakyThrows
+        @Override
+        public int compare(Transaction t1, Transaction t2) {
+            try {
+                int val1 = t1.getFrom().compareTo(t2.getFrom());
+                return (val1 == 0) ? val1 : -1;
             } catch (Exception e) {
                 LOG.info(e.toString());
                 return 0;

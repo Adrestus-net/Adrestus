@@ -15,8 +15,8 @@ public class TransactionBlock extends AbstractBlock implements BlockFactory, Dis
     private int Zone;
     private List<Transaction> TransactionList;
     private List<StakingTransaction> StakingTransactionList;
-    private Map<Integer, InboundRelay> Inbound;
-    private Map<Integer, OutBoundRelay> Outbound;
+    private InboundRelay Inbound;
+    private OutBoundRelay Outbound;
     private String TransactionProposer;
     private BLSPublicKey LeaderPublicKey;
     private String MerkleRoot;
@@ -39,8 +39,8 @@ public class TransactionBlock extends AbstractBlock implements BlockFactory, Dis
         this.Zone = 0;
         this.TransactionList = new ArrayList<>();
         this.StakingTransactionList = new ArrayList<>();
-        this.Inbound = new HashMap<>();
-        this.Outbound = new HashMap<>();
+        this.Inbound = new InboundRelay();
+        this.Outbound = new OutBoundRelay();
         this.TransactionProposer = "";
         this.MerkleRoot = "";
     }
@@ -83,20 +83,20 @@ public class TransactionBlock extends AbstractBlock implements BlockFactory, Dis
     }
 
     @Serialize
-    public Map<Integer, InboundRelay> getInbound() {
+    public InboundRelay getInbound() {
         return Inbound;
     }
 
-    public void setInbound(Map<Integer, InboundRelay> inbound) {
+    public void setInbound(InboundRelay inbound) {
         Inbound = inbound;
     }
 
     @Serialize
-    public Map<Integer, OutBoundRelay> getOutbound() {
+    public OutBoundRelay getOutbound() {
         return Outbound;
     }
 
-    public void setOutbound(Map<Integer, OutBoundRelay> outbound) {
+    public void setOutbound(OutBoundRelay outbound) {
         Outbound = outbound;
     }
 
@@ -134,7 +134,7 @@ public class TransactionBlock extends AbstractBlock implements BlockFactory, Dis
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
         TransactionBlock that = (TransactionBlock) o;
-        return Zone == that.Zone && Objects.equal(TransactionList, that.TransactionList) && Objects.equal(StakingTransactionList, that.StakingTransactionList) && Objects.equal(Inbound, that.Inbound) && Objects.equal(Outbound, that.Outbound) && Objects.equal(TransactionProposer, that.TransactionProposer) && Objects.equal(LeaderPublicKey.toRaw(), that.LeaderPublicKey.toRaw()) && Objects.equal(MerkleRoot, that.MerkleRoot);
+        return Zone == that.Zone && Objects.equal(TransactionList, that.TransactionList) && Objects.equal(StakingTransactionList, that.StakingTransactionList) && Objects.equal(Inbound, that.Inbound) && Objects.equal(Outbound, that.Outbound) && Objects.equal(TransactionProposer, that.TransactionProposer) && Objects.equal(LeaderPublicKey, that.LeaderPublicKey) && Objects.equal(MerkleRoot, that.MerkleRoot);
     }
 
     @Override
@@ -144,8 +144,7 @@ public class TransactionBlock extends AbstractBlock implements BlockFactory, Dis
 
     @Override
     public String toString() {
-        return super.toString() + " " +
-                "TransactionBlock{" +
+        return "TransactionBlock{" +
                 "Zone=" + Zone +
                 ", TransactionList=" + TransactionList +
                 ", StakingTransactionList=" + StakingTransactionList +
@@ -155,63 +154,5 @@ public class TransactionBlock extends AbstractBlock implements BlockFactory, Dis
                 ", LeaderPublicKey=" + LeaderPublicKey +
                 ", MerkleRoot='" + MerkleRoot + '\'' +
                 '}';
-    }
-
-    public static class InboundRelay {
-        private List<Receipt> Receipt;
-        private String InboundMerkleRoot;
-
-        public InboundRelay(List<Receipt> receipt, String inboundMerkleRoot) {
-            Receipt = receipt;
-            InboundMerkleRoot = inboundMerkleRoot;
-        }
-
-        public InboundRelay() {
-        }
-
-        public List<Receipt> getReceipt() {
-            return Receipt;
-        }
-
-        public void setReceipt(List<Receipt> receipt) {
-            Receipt = receipt;
-        }
-
-        public String getInboundMerkleRoot() {
-            return InboundMerkleRoot;
-        }
-
-        public void setInboundMerkleRoot(String inboundMerkleRoot) {
-            InboundMerkleRoot = inboundMerkleRoot;
-        }
-    }
-
-    public static class OutBoundRelay {
-        private List<Integer> Outbound;
-        private String OutboundMerkleRoot;
-
-        public OutBoundRelay(List<Integer> outbound, String outboundMerkleRoot) {
-            Outbound = outbound;
-            OutboundMerkleRoot = outboundMerkleRoot;
-        }
-
-        public OutBoundRelay() {
-        }
-
-        public List<Integer> getOutbound() {
-            return Outbound;
-        }
-
-        public void setOutbound(List<Integer> outbound) {
-            Outbound = outbound;
-        }
-
-        public String getOutboundMerkleRoot() {
-            return OutboundMerkleRoot;
-        }
-
-        public void setOutboundMerkleRoot(String outboundMerkleRoot) {
-            OutboundMerkleRoot = outboundMerkleRoot;
-        }
     }
 }

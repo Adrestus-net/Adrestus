@@ -2,6 +2,7 @@ package io.Adrestus.consensus;
 
 import io.Adrestus.MemoryTreePool;
 import io.Adrestus.Trie.PatriciaTreeNode;
+import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.core.*;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.RingBuffer.handler.transactions.SignatureEventHandler;
@@ -69,13 +70,14 @@ public class ConsensusTransactionBlockTest {
                 .withStakingEventHandler()
                 .withTransactionFeeEventHandler()
                 .withTimestampEventHandler()
+                .withSameOriginEventHandler()
                 .mergeEventsAndPassThen(new SignatureEventHandler(SignatureEventHandler.SignatureBehaviorType.SIMPLE_TRANSACTIONS));
         publisher.start();
 
 
         SecureRandom random;
         String mnemonic_code = "fd8cee9c1a3f3f57ab51b25740b24341ae093c8f697fde4df948050d3acd1700f6379d716104d2159e4912509c40ac81714d833e93b822e5ba0fadd68d5568a2";
-        random = SecureRandom.getInstance("SHA1PRNG", "SUN");
+        random = SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
         random.setSeed(Hex.decode(mnemonic_code));
 
         ECDSASign ecdsaSign = new ECDSASign();

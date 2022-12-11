@@ -69,8 +69,11 @@ public class MerkleTreeTest {
         tree.my_generate2(list);
     }
 
+
+    //faster approach
     @Test
     public void merklee_proofs_search_with_optimization() {
+        tree = new MerkleTreeImp();
         List<MerkleNode> list = new ArrayList<MerkleNode>();
         for (int i = 0; i < 100000; i++) {
             MerkleNode node = new MerkleNode(String.valueOf(i));
@@ -82,6 +85,51 @@ public class MerkleTreeTest {
         tree.build_proofs(list, node);
         MerkleProofs proofs = tree.getMerkleeproofs();
         assertEquals(tree.getRootHash(), tree.GenerateRoot(proofs));
+    }
+
+    @Test
+    public void merklee_proofs_search_with_optimization2() {
+        tree = new MerkleTreeImp();
+        List<MerkleNode> list = new ArrayList<MerkleNode>();
+        for (int i = 0; i < 100000; i++) {
+            MerkleNode node = new MerkleNode(String.valueOf(i));
+            list.add(node);
+
+        }
+        tree.my_generate2(list);
+        MerkleNode node = new MerkleNode(String.valueOf(2));
+        tree.build_proofs2(list, node);
+        String roothash=tree.getRootHash();
+        MerkleProofs proofs = tree.getMerkleeproofs();
+        tree = new MerkleTreeImp();
+        assertEquals(roothash, tree.GenerateRoot(proofs));
+    }
+
+    @Test
+    public void merklee_proofs3() {
+        tree = new MerkleTreeImp();
+        List<MerkleNode> list = new ArrayList<MerkleNode>();
+        for (int i = 0; i < 100000; i++) {
+            MerkleNode node = new MerkleNode(String.valueOf(i));
+            list.add(node);
+
+        }
+
+        tree.my_generate2(list);
+        String roothash3=tree.getRootHash();
+        List<MerkleNode> cloned_list = new ArrayList<MerkleNode>(list);
+        MerkleNode node = new MerkleNode(String.valueOf(2));
+        MerkleNode node2 = new MerkleNode(String.valueOf(2));
+        tree.build_proofs2(list, node);
+        String roothash=tree.getRootHash();
+        MerkleProofs proofs = tree.getMerkleeproofs();
+        assertEquals(roothash, tree.GenerateRoot(proofs));
+        tree.build_proofs2(list, node2);
+        String roothash1=tree.getRootHash();
+        MerkleProofs proofs1 = tree.getMerkleeproofs();
+        assertEquals(roothash, roothash1);
+        assertEquals(roothash, roothash3);
+        assertEquals(roothash, tree.GenerateRoot(proofs1));
     }
 
 }

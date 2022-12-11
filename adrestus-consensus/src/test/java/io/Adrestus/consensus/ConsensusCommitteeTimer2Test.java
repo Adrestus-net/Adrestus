@@ -2,6 +2,7 @@ package io.Adrestus.consensus;
 
 import io.Adrestus.MemoryTreePool;
 import io.Adrestus.Trie.PatriciaTreeNode;
+import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.config.KademliaConfiguration;
 import io.Adrestus.config.NodeSettings;
 import io.Adrestus.consensus.helper.ConsensusCommitteeTimer;
@@ -86,7 +87,7 @@ public class ConsensusCommitteeTimer2Test {
         Mnemonic mnem = new Mnemonic(Security.NORMAL, WordList.ENGLISH);
         byte[] key1 = mnem.createSeed(mnemonic1, passphrase);
         byte[] key2 = mnem.createSeed(mnemonic2, passphrase);
-        SecureRandom random = SecureRandom.getInstance("SHA1PRNG", "SUN");
+        SecureRandom random = SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
         random.setSeed(key1);
         ecKeyPair1 = Keys.createEcKeyPair(random);
         random.setSeed(key2);

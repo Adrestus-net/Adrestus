@@ -4,6 +4,7 @@ import com.google.common.net.InetAddresses;
 import com.google.gson.Gson;
 import io.Adrestus.MemoryTreePool;
 import io.Adrestus.Trie.PatriciaTreeNode;
+import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.config.KademliaConfiguration;
 import io.Adrestus.config.NodeSettings;
 import io.Adrestus.crypto.HashUtil;
@@ -54,7 +55,7 @@ public class RandomIPTest {
     @BeforeAll
     public static void setup() throws Exception {
         String mnemonic_code = "fd8cee9c1a3f3f57ab51b25740b24341ae093c8f697fde4df948050d3acd1700f6379d716104d2159e4912509c40ac81714d833e93b822e5ba0fadd68d5568a2";
-        SecureRandom random = SecureRandom.getInstance("SHA1PRNG", "SUN");
+        SecureRandom random = SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
         random.setSeed(Hex.decode(mnemonic_code));
 
         ECKeyPair ecKeyPair = Keys.createEcKeyPair(random);

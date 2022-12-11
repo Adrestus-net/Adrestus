@@ -111,7 +111,9 @@ public class RegularBlock implements BlockForge {
                     .getActiveNodes()
                     .stream()
                     .collect(Collectors.toList());
-            kademliaData.stream().forEach(val -> committeeBlock.getStakingMap().put(MemoryTreePool.getInstance().getByaddress(val.getAddressData().getAddress()).get().getStaking_amount(), val));
+            kademliaData.stream().forEach(val -> committeeBlock
+                    .getStakingMap()
+                    .put(MemoryTreePool.getInstance().getByaddress(val.getAddressData().getAddress()).get().getStaking_amount(), val));
         } else {
             committeeBlock.setStakingMap(CachedLatestBlocks.getInstance().getCommitteeBlock().getStakingMap());
         }

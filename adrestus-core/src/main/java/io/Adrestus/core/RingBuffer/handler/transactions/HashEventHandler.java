@@ -9,9 +9,11 @@ import io.Adrestus.util.SerializationUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
+
 public class HashEventHandler extends TransactionEventHandler {
     private static Logger LOG = LoggerFactory.getLogger(HashEventHandler.class);
-    private final SerializationUtil<Transaction> wrapper;
+    private SerializationUtil<Transaction> wrapper;
 
     public HashEventHandler() {
         wrapper = new SerializationUtil<Transaction>(Transaction.class);
@@ -20,6 +22,7 @@ public class HashEventHandler extends TransactionEventHandler {
     @Override
     public void onEvent(TransactionEvent transactionEvent, long l, boolean b) throws Exception {
         try {
+            wrapper = new SerializationUtil<Transaction>(Transaction.class);
             Transaction transaction = transactionEvent.getTransaction();
             if (transaction.getHash().length() != 64) {
                 LOG.info("Transaction hashes length is not valid");
