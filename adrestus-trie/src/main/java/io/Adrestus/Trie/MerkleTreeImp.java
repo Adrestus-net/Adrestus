@@ -17,6 +17,14 @@ public class MerkleTreeImp implements MerkleTree {
         this.root = new MerkleNode("");
     }
 
+    public MerkleNode getRoot() {
+        return root;
+    }
+
+    public void setRoot() {
+        this.root = new MerkleNode("");
+    }
+
     @Override
     public boolean isMekleeNodeExisted(List<MerkleNode> list, String roothash, MerkleNode node) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.

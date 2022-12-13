@@ -4,9 +4,6 @@ public class CachedLeaderIndex {
     private static volatile CachedLeaderIndex instance;
     private int CommitteePositionLeader;
 
-    public CachedLeaderIndex(int committeePositionLeader) {
-        CommitteePositionLeader = committeePositionLeader;
-    }
 
     private CachedLeaderIndex() {
         if (instance != null) {

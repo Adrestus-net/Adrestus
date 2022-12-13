@@ -4,39 +4,28 @@ import com.google.common.base.Objects;
 import io.activej.serializer.annotations.Deserialize;
 import io.activej.serializer.annotations.Serialize;
 
-import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public class InboundRelay {
-    private List<Receipt> receipt;
-    private String inboundMerkleRoot;
+    private Map<Integer, Map<Receipt.ReceiptBlock, List<Receipt>>> map_receipts;
 
-    public InboundRelay(@Deserialize("receipt") List<Receipt> receipt, @Deserialize("inboundMerkleRoot") String inboundMerkleRoot) {
-        this.receipt = receipt;
-        this.inboundMerkleRoot = inboundMerkleRoot;
+    public InboundRelay(@Deserialize("map_receipts") Map<Integer, Map<Receipt.ReceiptBlock, List<Receipt>>> map_receipts) {
+        this.map_receipts = map_receipts;
     }
 
     public InboundRelay() {
-        this.receipt = new ArrayList<>();
-        this.inboundMerkleRoot = "";
+        this.map_receipts = new LinkedHashMap<>();
     }
 
     @Serialize
-    public List<Receipt> getReceipt() {
-        return receipt;
+    public Map<Integer, Map<Receipt.ReceiptBlock, List<Receipt>>> getMap_receipts() {
+        return map_receipts;
     }
 
-    public void setReceipt(List<Receipt> receipt) {
-        this.receipt = receipt;
-    }
-
-    @Serialize
-    public String getInboundMerkleRoot() {
-        return inboundMerkleRoot;
-    }
-
-    public void setInboundMerkleRoot(String inboundMerkleRoot) {
-        this.inboundMerkleRoot = inboundMerkleRoot;
+    public void setMap_receipts(Map<Integer, Map<Receipt.ReceiptBlock, List<Receipt>>> map_receipts) {
+        this.map_receipts = map_receipts;
     }
 
     @Override
@@ -44,19 +33,18 @@ public class InboundRelay {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         InboundRelay that = (InboundRelay) o;
-        return Objects.equal(receipt, that.receipt) && Objects.equal(inboundMerkleRoot, that.inboundMerkleRoot);
+        return Objects.equal(map_receipts, that.map_receipts);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(receipt, inboundMerkleRoot);
+        return Objects.hashCode(map_receipts);
     }
 
     @Override
     public String toString() {
         return "InboundRelay{" +
-                "receipt=" + receipt +
-                ", inboundMerkleRoot='" + inboundMerkleRoot + '\'' +
+                "map_receipts=" + map_receipts +
                 '}';
     }
 }

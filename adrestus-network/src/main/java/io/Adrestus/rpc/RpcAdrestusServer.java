@@ -19,6 +19,7 @@ import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.TreeMap;
 
 public class RpcAdrestusServer<T extends Object> implements Runnable {
@@ -27,6 +28,7 @@ public class RpcAdrestusServer<T extends Object> implements Runnable {
     private final Eventloop eventloop;
     private final T typeParameterClass;
     private final SerializationUtil valueMapper;
+    private final SerializationUtil<T> valueMapper2;
     private InetSocketAddress inetSocketAddress;
     private String host;
     private int port;
@@ -49,6 +51,7 @@ public class RpcAdrestusServer<T extends Object> implements Runnable {
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
         this.valueMapper = new SerializationUtil(typeParameterClass.getClass(), list, true);
+        this.valueMapper2 = new SerializationUtil<T>(typeParameterClass.getClass(), list);
     }
 
     public RpcAdrestusServer(T typeParameterClass, InetSocketAddress inetSocketAddress, Eventloop eventloop) {
@@ -62,6 +65,7 @@ public class RpcAdrestusServer<T extends Object> implements Runnable {
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
         this.valueMapper = new SerializationUtil(typeParameterClass.getClass(), list, true);
+        this.valueMapper2 = new SerializationUtil<T>(typeParameterClass.getClass(), list);
     }
 
 
@@ -70,29 +74,46 @@ public class RpcAdrestusServer<T extends Object> implements Runnable {
     public void run() {
         if (inetSocketAddress != null) {
             rpcServer = RpcServer.create(eventloop)
-                    .withMessageTypes(Request.class, Response.class)
+                    .withMessageTypes(BlockRequest.class, ListBlockResponse.class, BlockRequest2.class, BlockResponse.class)
                     .withSerializerBuilder(this.rpcserialize)
-                    .withHandler(Request.class, helloServiceRequestHandler(new Service(typeParameterClass.getClass())))
+                    .withHandler(BlockRequest.class, download_blocks(new Service(typeParameterClass.getClass())))
+                    .withHandler(BlockRequest2.class, download_block(new Service(typeParameterClass.getClass())))
                     .withListenAddress(inetSocketAddress);
         } else {
             rpcServer = RpcServer.create(eventloop)
-                    .withMessageTypes(Request.class, Response.class)
+                    .withMessageTypes(BlockRequest.class, ListBlockResponse.class, BlockRequest2.class, BlockResponse.class)
                     .withSerializerBuilder(this.rpcserialize)
-                    .withHandler(Request.class, helloServiceRequestHandler(new Service(typeParameterClass.getClass())))
+                    .withHandler(BlockRequest.class, download_blocks(new Service(typeParameterClass.getClass())))
+                    .withHandler(BlockRequest2.class, download_block(new Service(typeParameterClass.getClass())))
                     .withListenAddress(new InetSocketAddress(host, port));
         }
         rpcServer.listen();
     }
 
-    private RpcRequestHandler<Request, Response> helloServiceRequestHandler(IService helloService) {
+    private RpcRequestHandler<BlockRequest, ListBlockResponse> download_blocks(IService service) {
         return request -> {
             List<T> result;
             try {
-                result = helloService.download(request.hash);
+                result = service.download(request.hash);
             } catch (Exception e) {
                 return Promise.ofException(e);
             }
-            return Promise.of(new Response(this.valueMapper.encode_list(result)));
+            return Promise.of(new ListBlockResponse(this.valueMapper.encode_list(result)));
+        };
+    }
+
+    private RpcRequestHandler<BlockRequest2, BlockResponse> download_block(IService service) {
+        return request -> {
+            Optional<T> result;
+            try {
+                result = (Optional<T>) service.getBlock(request.hash);
+            } catch (Exception e) {
+                return Promise.ofException(e);
+            }
+            if (result.isEmpty())
+                return Promise.of(new BlockResponse(null));
+            else
+                return Promise.of(new BlockResponse(this.valueMapper2.encode(result.get())));
         };
     }
 

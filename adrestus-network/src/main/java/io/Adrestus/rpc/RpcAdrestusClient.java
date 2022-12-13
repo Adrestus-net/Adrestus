@@ -32,11 +32,12 @@ public class RpcAdrestusClient<T> {
 
     private static final int TIMEOUT = 4000;
 
-    private final SerializationUtil<Response> serializationUtil;
+    private final SerializationUtil<ListBlockResponse> serializationUtil;
     private final SerializerBuilder rpc_serialize;
     private final Eventloop eventloop;
     private final T typeParameterClass;
     private final SerializationUtil valueMapper;
+    private final SerializationUtil valueMapper2;
 
     private List<InetSocketAddress> inetSocketAddresses;
     private String host;
@@ -59,8 +60,9 @@ public class RpcAdrestusClient<T> {
         list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
-        this.serializationUtil = new SerializationUtil<Response>(Response.class, list);
+        this.serializationUtil = new SerializationUtil<ListBlockResponse>(ListBlockResponse.class, list);
         this.valueMapper = new SerializationUtil(typeParameterClass.getClass(), list, true);
+        this.valueMapper2 = new SerializationUtil(typeParameterClass.getClass(), list);
     }
 
     public RpcAdrestusClient(T typeParameterClass, List<InetSocketAddress> inetSocketAddresses) {
@@ -74,7 +76,8 @@ public class RpcAdrestusClient<T> {
         list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
-        this.serializationUtil = new SerializationUtil<Response>(Response.class, list);
+        this.serializationUtil = new SerializationUtil<ListBlockResponse>(ListBlockResponse.class, list);
+        this.valueMapper2 = new SerializationUtil(typeParameterClass.getClass(), list);
         this.valueMapper = new SerializationUtil(typeParameterClass.getClass(), list, true);
     }
 
@@ -88,7 +91,8 @@ public class RpcAdrestusClient<T> {
         list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
-        this.serializationUtil = new SerializationUtil<Response>(Response.class, list);
+        this.serializationUtil = new SerializationUtil<ListBlockResponse>(ListBlockResponse.class, list);
+        this.valueMapper2 = new SerializationUtil(typeParameterClass.getClass(), list);
         this.valueMapper = new SerializationUtil(typeParameterClass.getClass(), list, true);
     }
 
@@ -100,12 +104,12 @@ public class RpcAdrestusClient<T> {
             RpcStrategyList rpcStrategyList = RpcStrategyList.ofStrategies(strategies);
             client = RpcClient.create(eventloop)
                     .withSerializerBuilder(this.rpc_serialize)
-                    .withMessageTypes(Request.class, Response.class)
+                    .withMessageTypes(BlockRequest.class, ListBlockResponse.class, BlockRequest2.class, BlockResponse.class)
                     .withStrategy(RpcStrategyRoundRobin.create(rpcStrategyList));
         } else {
             client = RpcClient.create(eventloop)
                     .withSerializerBuilder(this.rpc_serialize)
-                    .withMessageTypes(Request.class, Response.class)
+                    .withMessageTypes(BlockRequest.class, ListBlockResponse.class, BlockRequest2.class, BlockResponse.class)
                     .withStrategy(server(new InetSocketAddress(host, port)));
         }
         try {
@@ -116,11 +120,19 @@ public class RpcAdrestusClient<T> {
     }
 
     @SneakyThrows
-    public List<T> getSyncResult(String hash) {
+    public T getBlock(String hash) {
+        Optional<BlockResponse> val = (Optional<BlockResponse>) getBlockResponse(this.client, hash);
+        if (val.isEmpty())
+            return null;
+        return (T) this.valueMapper2.decode(val.get().getByte_data());
+    }
+
+    @SneakyThrows
+    public List<T> getBlocksList(String hash) {
         if (inetSocketAddresses != null) {
-            ArrayList<Response> responses = new ArrayList<Response>();
+            ArrayList<ListBlockResponse> responses = new ArrayList<ListBlockResponse>();
             ArrayList<String> toCompare = new ArrayList<String>();
-            inetSocketAddresses.forEach(val -> responses.add(blockingRequest(this.client, hash)));
+            inetSocketAddresses.forEach(val -> responses.add(getBlockListResponse(this.client, hash)));
             responses.forEach(val -> toCompare.add(Hex.toHexString(this.serializationUtil.encode(val))));
             toCompare.removeIf(Objects::isNull);
             if (toCompare.isEmpty()) {
@@ -134,7 +146,7 @@ public class RpcAdrestusClient<T> {
             collect.clear();
             return toSend;
         } else {
-            return this.valueMapper.decode_list(blockingRequest(this.client, hash).getByte_data());
+            return this.valueMapper.decode_list(getBlockListResponse(this.client, hash).getByte_data());
         }
     }
 
@@ -148,11 +160,28 @@ public class RpcAdrestusClient<T> {
         }
     }
 
-    private Response blockingRequest(RpcClient rpcClient, String name) {
+    @SneakyThrows
+    private Optional<BlockResponse> getBlockResponse(RpcClient rpcClient, String name) {
         try {
-            Response response = rpcClient.getEventloop().submit(
+            BlockResponse response = rpcClient.getEventloop().submit(
                             () -> rpcClient
-                                    .<Request, Response>sendRequest(new Request(name), TIMEOUT))
+                                    .<BlockRequest2, BlockResponse>sendRequest(new BlockRequest2(name)))
+                    .get();
+            if (response.getByte_data() == null)
+                return Optional.empty();
+
+            return Optional.of(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return Optional.empty();
+    }
+
+    private ListBlockResponse getBlockListResponse(RpcClient rpcClient, String name) {
+        try {
+            ListBlockResponse response = rpcClient.getEventloop().submit(
+                            () -> rpcClient
+                                    .<BlockRequest, ListBlockResponse>sendRequest(new BlockRequest(name), TIMEOUT))
                     .get();
             ///LOG.info("Download: ..... " + response.getAbstractBlock().toString());
             return response;

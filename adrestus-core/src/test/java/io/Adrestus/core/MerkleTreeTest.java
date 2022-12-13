@@ -4,7 +4,6 @@ import io.Adrestus.Trie.MerkleNode;
 import io.Adrestus.Trie.MerkleProofs;
 import io.Adrestus.Trie.MerkleTreeImp;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -82,10 +81,19 @@ public class MerkleTreeTest {
 
         }
         tree.my_generate2(list);
+        String hash = tree.getRootHash();
         MerkleNode node = new MerkleNode(String.valueOf(1000));
         tree.build_proofs(list, node);
         MerkleProofs proofs = tree.getMerkleeproofs();
         assertEquals(tree.getRootHash(), tree.GenerateRoot(proofs));
+        System.out.println(tree.getRootHash());
+        System.out.println(tree.GenerateRoot(proofs));
+        MerkleNode node1 = new MerkleNode(String.valueOf(1000));
+        tree.setRoot();
+        tree.my_generate2(list);
+        tree.build_proofs(list, node1);
+        MerkleProofs proofs1 = tree.getMerkleeproofs();
+        assertEquals(hash, tree.GenerateRoot(proofs1));
     }
 
     @Test

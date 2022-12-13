@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class MemoryPoolTest {
+public class MemoryTransactionPoolTest {
 
     @Test
     //@Order(1)

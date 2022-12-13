@@ -7,6 +7,7 @@ import io.distributedLedger.IDatabase;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class Service<T> implements IService {
     private final IDatabase<String, T> database;
@@ -23,4 +24,11 @@ public class Service<T> implements IService {
         List<T> result = new ArrayList<T>(map.values());
         return result;
     }
+
+    @Override
+    public Optional<T> getBlock(String hash) throws Exception {
+        return database.findByKey(hash);
+    }
+
+
 }

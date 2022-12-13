@@ -79,6 +79,11 @@ public class BlockEventPublisher implements Publisher<AbstractBlock> {
         return this;
     }
 
+    public BlockEventPublisher withOutBoundEventHandler() {
+        group.add(new OutBoundEventHandler());
+        return this;
+    }
+
     public BlockEventPublisher withVerifyVDFEventHandler() {
         group.add(new VDFVerifyEventHandler());
         return this;

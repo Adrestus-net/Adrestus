@@ -130,8 +130,9 @@ public class RPCExampleTest {
         new Thread(example).start();
         RpcAdrestusClient<AbstractBlock> client = new RpcAdrestusClient<AbstractBlock>(new CommitteeBlock(), "localhost", 8082, eventloop);
         client.connect();
-        List<AbstractBlock> blocks = client.getSyncResult("1");
+        List<AbstractBlock> blocks = client.getBlocksList("1");
 
+        AbstractBlock blocktest = client.getBlock("1");
         assertEquals(database.findByKey("1").get(), blocks.get(0));
         assertEquals(database.findByKey("2").get(), blocks.get(1));
         assertEquals(database.findByKey("3").get(), blocks.get(2));
@@ -177,7 +178,7 @@ public class RPCExampleTest {
 
         RpcAdrestusClient client = new RpcAdrestusClient(new CommitteeBlock(), list, eventloop);
         client.connect();
-        List<AbstractBlock> blocks = client.getSyncResult("1");
+        List<AbstractBlock> blocks = client.getBlocksList("1");
 
         assertEquals(database.findByKey("1").get(), blocks.get(0));
         assertEquals(database.findByKey("2").get(), blocks.get(1));

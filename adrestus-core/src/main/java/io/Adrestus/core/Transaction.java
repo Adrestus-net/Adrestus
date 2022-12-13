@@ -5,9 +5,11 @@ import io.Adrestus.crypto.elliptic.SignatureData;
 import io.activej.serializer.annotations.Serialize;
 import io.activej.serializer.annotations.SerializeClass;
 
+import java.util.Comparator;
+
 
 @SerializeClass(subclasses = {RegularTransaction.class, RewardsTransaction.class, StakingTransaction.class, DelegateTransaction.class})
-public abstract class Transaction implements Cloneable {
+public abstract class Transaction implements Cloneable, Comparable<Transaction>, Comparator<Transaction> {
 
 
     protected String Hash;
@@ -206,6 +208,15 @@ public abstract class Transaction implements Cloneable {
         this.Hash = hash;
     }
 
+    @Override
+    public int compareTo(Transaction transaction) {
+        return this.Hash.compareTo(transaction.Hash);
+    }
+
+    @Override
+    public int compare(Transaction u1, Transaction u2) {
+        return u1.Hash.compareTo(u2.Hash);
+    }
 
     @Override
     public boolean equals(Object o) {

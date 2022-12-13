@@ -4,10 +4,10 @@ import com.google.common.base.Objects;
 import io.activej.serializer.annotations.Deserialize;
 import io.activej.serializer.annotations.Serialize;
 
-public class Response {
+public class ListBlockResponse {
     private byte[] byte_data;
 
-    public Response(@Deserialize("byte_data") byte[] byte_data) {
+    public ListBlockResponse(@Deserialize("byte_data") byte[] byte_data) {
         this.byte_data = byte_data;
     }
 
@@ -25,7 +25,7 @@ public class Response {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Response response = (Response) o;
+        ListBlockResponse response = (ListBlockResponse) o;
         return Objects.equal(byte_data, response.byte_data);
     }
 

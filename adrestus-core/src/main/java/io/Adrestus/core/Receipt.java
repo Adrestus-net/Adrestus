@@ -4,39 +4,93 @@ import com.google.common.base.Objects;
 import io.Adrestus.Trie.MerkleProofs;
 import io.activej.serializer.annotations.Deserialize;
 import io.activej.serializer.annotations.Serialize;
-
-import java.util.ArrayList;
-import java.util.List;
+import io.activej.serializer.annotations.SerializeNullable;
 
 public class Receipt {
+
     private int zoneFrom;
     private int zoneTo;
-    private List<ReceiptProofs> receiptProofs;
+    private ReceiptBlock receiptBlock;
+    private Transaction transaction;
+    private int position;
+    private MerkleProofs proofs;
+    private String address;
+    private Double amount;
 
-    public Receipt(int zoneFrom,
-                   int zoneTo,
-                   List<ReceiptProofs> receiptProofs) {
-        this.zoneFrom = zoneFrom;
-        this.zoneTo = zoneTo;
-        this.receiptProofs = receiptProofs;
-    }
-
-
-    public Receipt(@Deserialize("zoneFrom") int zoneFrom, @Deserialize("zoneTo") int zoneTo) {
-        this.zoneFrom = zoneFrom;
-        this.zoneTo = zoneTo;
-        this.receiptProofs = new ArrayList<>();
-    }
 
     public Receipt() {
         this.zoneFrom = 0;
         this.zoneTo = 0;
-        this.receiptProofs = new ArrayList<>();
+        this.receiptBlock = new ReceiptBlock();
+        this.transaction = new RegularTransaction("");
+        this.position = 0;
+        this.proofs = new MerkleProofs();
+        this.address = "";
+        this.amount = 0.0;
+    }
+
+    public Receipt(int zoneFrom, int zoneTo, ReceiptBlock receiptBlock, Transaction transaction, int position, MerkleProofs proofs, String address, Double amount) {
+        this.zoneFrom = zoneFrom;
+        this.zoneTo = zoneTo;
+        this.receiptBlock = receiptBlock;
+        this.transaction = transaction;
+        this.position = position;
+        this.proofs = proofs;
+        this.address = address;
+        this.amount = amount;
+    }
+
+    public Receipt(int zoneFrom, int zoneTo) {
+        this.zoneFrom = zoneFrom;
+        this.zoneTo = zoneTo;
+        this.proofs = new MerkleProofs();
+        this.transaction = new RegularTransaction("");
+        this.position = 0;
+        this.address = "";
+        this.amount = 0.0;
+    }
+
+    public Receipt(int zoneFrom, int zoneTo, Transaction transaction) {
+        this.zoneFrom = zoneFrom;
+        this.zoneTo = zoneTo;
+        this.transaction = transaction;
+        this.transaction = transaction;
+        this.position = 0;
+        this.proofs = new MerkleProofs();
+        this.address = "";
+        this.amount = 0.0;
+    }
+
+    public Receipt(@Deserialize("zoneFrom") int zoneFrom,
+                   @Deserialize("zoneTo") int zoneTo,
+                   @Deserialize("receiptBlock") ReceiptBlock receiptBlock,
+                   @Deserialize("transaction") Transaction transaction) {
+        this.zoneFrom = zoneFrom;
+        this.zoneTo = zoneTo;
+        this.receiptBlock = receiptBlock;
+        this.transaction = transaction;
+        this.proofs = new MerkleProofs();
+        this.transaction = transaction;
+        this.position = 0;
+        this.address = "";
+        this.amount = 0.0;
+    }
+
+    public Receipt(Transaction transaction) {
+        this.zoneFrom = 0;
+        this.zoneTo = 0;
+        this.transaction = transaction;
+        this.proofs = new MerkleProofs();
+        this.transaction = transaction;
+        this.position = 0;
+        this.proofs = new MerkleProofs();
+        this.address = "";
+        this.amount = 0.0;
     }
 
     @Serialize
     public int getZoneFrom() {
-        return this.zoneFrom;
+        return zoneFrom;
     }
 
     public void setZoneFrom(int zoneFrom) {
@@ -52,14 +106,59 @@ public class Receipt {
         this.zoneTo = zoneTo;
     }
 
-
     @Serialize
-    public List<ReceiptProofs> getReceiptProofs() {
-        return this.receiptProofs;
+    public ReceiptBlock getReceiptBlock() {
+        return receiptBlock;
     }
 
-    public void setReceiptProofs(List<ReceiptProofs> receiptProofs) {
-        this.receiptProofs = receiptProofs;
+    public void setReceiptBlock(ReceiptBlock receiptBlock) {
+        this.receiptBlock = receiptBlock;
+    }
+
+    @Serialize
+    public Transaction getTransaction() {
+        return transaction;
+    }
+
+    public void setTransaction(Transaction transaction) {
+        this.transaction = transaction;
+    }
+
+    @Serialize
+    public int getPosition() {
+        return position;
+    }
+
+    public void setPosition(int position) {
+        this.position = position;
+    }
+
+    @Serialize
+    @SerializeNullable
+    public MerkleProofs getProofs() {
+        return proofs;
+    }
+
+    public void setProofs(MerkleProofs proofs) {
+        this.proofs = proofs;
+    }
+
+    @Serialize
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    @Serialize
+    public Double getAmount() {
+        return amount;
+    }
+
+    public void setAmount(Double amount) {
+        this.amount = amount;
     }
 
 
@@ -68,12 +167,12 @@ public class Receipt {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Receipt receipt = (Receipt) o;
-        return zoneFrom == receipt.zoneFrom && zoneTo == receipt.zoneTo && Objects.equal(receiptProofs, receipt.receiptProofs);
+        return zoneFrom == receipt.zoneFrom && zoneTo == receipt.zoneTo && position == receipt.position && Objects.equal(receiptBlock, receipt.receiptBlock) && Objects.equal(transaction, receipt.transaction) && Objects.equal(proofs, receipt.proofs) && Objects.equal(address, receipt.address) && Objects.equal(amount, receipt.amount);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(zoneFrom, zoneTo, receiptProofs);
+        return Objects.hashCode(zoneFrom, zoneTo, receiptBlock, transaction, position, proofs, address, amount);
     }
 
     @Override
@@ -81,67 +180,43 @@ public class Receipt {
         return "Receipt{" +
                 "zoneFrom=" + zoneFrom +
                 ", zoneTo=" + zoneTo +
-                ", receiptProofs=" + receiptProofs +
+                ", receiptBlock=" + receiptBlock +
+                ", transaction=" + transaction +
+                ", position=" + position +
+                ", proofs=" + proofs +
+                ", address='" + address + '\'' +
+                ", amount=" + amount +
                 '}';
     }
 
-    public static final class ReceiptProofs {
-        private Transaction transaction;
+    public static final class ReceiptBlock {
+        private String block_hash;
         private int height;
         private int generation;
-        private int position;
-        private ReceiptData receiptdata;
-        private MerkleProofs proofs;
+        private String outboundMerkleRoot;
 
-        public ReceiptProofs() {
-            this.transaction = new RegularTransaction();
+
+        public ReceiptBlock() {
+            this.block_hash = "";
             this.height = 0;
             this.generation = 0;
-            this.position = 0;
-            this.receiptdata = new ReceiptData();
-            this.proofs = new MerkleProofs();
+            this.outboundMerkleRoot = "";
         }
 
-        public ReceiptProofs(@Deserialize("transaction") Transaction transaction,
-                             @Deserialize("height") int height,
-                             @Deserialize("generation") int generation,
-                             @Deserialize("position") int position,
-                             @Deserialize("receiptdata") ReceiptData receiptdata,
-                             @Deserialize("proofs") MerkleProofs proofs) {
-            this.transaction = transaction;
+        public ReceiptBlock(String block_hash, int height, int generation, String outboundMerkleRoot) {
+            this.block_hash = block_hash;
             this.height = height;
             this.generation = generation;
-            this.position = position;
-            this.receiptdata = receiptdata;
-            this.proofs = proofs;
-        }
-
-        public ReceiptProofs(Transaction transaction,
-                             int height,
-                             int generation,
-                             int position,
-                             ReceiptData receiptdata) {
-            this.transaction = transaction;
-            this.height = height;
-            this.generation = generation;
-            this.position = position;
-            this.receiptdata = receiptdata;
-        }
-
-
-        @Serialize
-        public Transaction getTransaction() {
-            return transaction;
+            this.outboundMerkleRoot = outboundMerkleRoot;
         }
 
         @Serialize
-        public MerkleProofs getProofs() {
-            return proofs;
+        public String getBlock_hash() {
+            return block_hash;
         }
 
-        @Serialize
-        public int getPosition() {
-            return position;
+        public void setBlock_hash(String block_hash) {
+            this.block_hash = block_hash;
         }
 
         @Serialize
@@ -149,38 +224,26 @@ public class Receipt {
             return height;
         }
 
+        public void setHeight(int height) {
+            this.height = height;
+        }
+
         @Serialize
         public int getGeneration() {
             return generation;
-        }
-
-        @Serialize
-        public ReceiptData getReceiptdata() {
-            return receiptdata;
-        }
-
-        public void setReceiptdata(ReceiptData receiptdata) {
-            this.receiptdata = receiptdata;
-        }
-
-        public void setProofs(MerkleProofs proofs) {
-            this.proofs = proofs;
-        }
-
-        public void setTransaction(Transaction transaction) {
-            this.transaction = transaction;
-        }
-
-        public void setHeight(int height) {
-            this.height = height;
         }
 
         public void setGeneration(int generation) {
             this.generation = generation;
         }
 
-        public void setPosition(int position) {
-            this.position = position;
+        @Serialize
+        public String getOutboundMerkleRoot() {
+            return outboundMerkleRoot;
+        }
+
+        public void setOutboundMerkleRoot(String outboundMerkleRoot) {
+            this.outboundMerkleRoot = outboundMerkleRoot;
         }
 
 
@@ -188,81 +251,26 @@ public class Receipt {
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
-            ReceiptProofs that = (ReceiptProofs) o;
-            return height == that.height && generation == that.generation && position == that.position && Objects.equal(transaction, that.transaction) && Objects.equal(receiptdata, that.receiptdata) && Objects.equal(proofs, that.proofs);
+            ReceiptBlock that = (ReceiptBlock) o;
+            return height == that.height && generation == that.generation && Objects.equal(block_hash, that.block_hash) && Objects.equal(outboundMerkleRoot, that.outboundMerkleRoot);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hashCode(transaction, height, generation, position, receiptdata, proofs);
+            return Objects.hashCode(block_hash, height, generation, outboundMerkleRoot);
         }
 
         @Override
         public String toString() {
-            return "ReceiptProofs{" +
-                    "transaction=" + transaction +
-                    ", Height=" + height +
-                    ", Generation=" + generation +
-                    ", position=" + position +
-                    ", receiptData=" + receiptdata +
-                    ", proofs=" + proofs +
+            return "ReceiptBlock{" +
+                    "block_hash='" + block_hash + '\'' +
+                    ", height=" + height +
+                    ", generation=" + generation +
+                    ", outboundMerkleRoot='" + outboundMerkleRoot + '\'' +
                     '}';
         }
     }
-
-    public static final class ReceiptData {
-        private String address;
-        private Double amount;
-
-        public ReceiptData() {
-            this.address = "";
-            this.amount = 0.0;
-        }
-
-        public ReceiptData(@Deserialize("address") String address, @Deserialize("amount") Double amount) {
-            this.address = address;
-            this.amount = amount;
-        }
-
-        @Serialize
-        public String getAddress() {
-            return address;
-        }
-
-        public void setAddress(String address) {
-            this.address = address;
-        }
-
-        @Serialize
-        public Double getAmount() {
-            return amount;
-        }
-
-        public void setAmount(Double amount) {
-            this.amount = amount;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            ReceiptData that = (ReceiptData) o;
-            return Objects.equal(address, that.address) && Objects.equal(amount, that.amount);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hashCode(address, amount);
-        }
-
-        @Override
-        public String toString() {
-            return "ReceiptData{" +
-                    "Address='" + address + '\'' +
-                    ", amount=" + amount +
-                    '}';
-        }
-    }
-
 
 }
+
+
