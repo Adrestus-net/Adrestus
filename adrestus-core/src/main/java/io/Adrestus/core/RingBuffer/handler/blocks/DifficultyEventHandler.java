@@ -6,6 +6,7 @@ import io.Adrestus.core.StatusType;
 import io.Adrestus.util.GetTime;
 import io.Adrestus.util.MathOperationUtil;
 import io.distributedLedger.DatabaseFactory;
+import io.distributedLedger.DatabaseInstance;
 import io.distributedLedger.DatabaseType;
 import io.distributedLedger.IDatabase;
 import org.slf4j.Logger;
@@ -20,7 +21,7 @@ public class DifficultyEventHandler implements BlockEventHandler<AbstractBlockEv
     private final IDatabase<String, CommitteeBlock> database;
 
     public DifficultyEventHandler() {
-        this.database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB);
+        this.database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
     }
 
     @Override

@@ -1,6 +1,12 @@
 package io.distributedLedger;
 
-@FunctionalInterface
+import org.rocksdb.Options;
+import org.rocksdb.RocksDB;
+
 public interface IDriver<T> {
-    T get();
+
+    void close(Options options);
+
+    RocksDB getRocksDB();
+
 }

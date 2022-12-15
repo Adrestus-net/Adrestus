@@ -3,12 +3,18 @@ package io.Adrestus.rpc;
 import io.activej.serializer.annotations.Deserialize;
 import io.activej.serializer.annotations.Serialize;
 
-public class BlockRequest2 {
-    @Serialize
-    public final String hash;
+import java.util.ArrayList;
+import java.util.List;
 
-    public BlockRequest2(@Deserialize("hash") String name) {
-        this.hash = name;
+public class BlockRequest2 {
+    private final List<String> hash;
+
+    public BlockRequest2(@Deserialize("hash") List<String> hash) {
+        this.hash = hash;
     }
 
+    @Serialize
+    public ArrayList<String> getHash() {
+        return (ArrayList<String>) hash;
+    }
 }

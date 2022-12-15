@@ -14,6 +14,7 @@ import io.activej.rpc.server.RpcServer;
 import io.activej.serializer.annotations.Deserialize;
 import io.activej.serializer.annotations.Serialize;
 import io.distributedLedger.DatabaseFactory;
+import io.distributedLedger.DatabaseInstance;
 import io.distributedLedger.DatabaseType;
 import io.distributedLedger.IDatabase;
 import org.junit.jupiter.api.AfterAll;
@@ -36,21 +37,20 @@ public class RPCExampleTest {
     private static Eventloop eventloop = Eventloop.create().withCurrentThread();
     private static InetSocketAddress address1, address2, address3;
 
+
     @BeforeAll
     public static void setup() throws IOException {
         address1 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 8080);
         address2 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 8081);
         address3 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 8084);
         Eventloop eventloop = Eventloop.getCurrentEventloop();
-        serverOne = RpcServer.create(eventloop)
-                .withMessageTypes(HelloRequest.class, HelloResponse.class)
-                .withHandler(HelloRequest.class,
-                        helloServiceRequestHandler(new HelloServiceImplOne()))
+       serverOne = RpcServer.create(eventloop)
+                .withMessageTypes(String.class)
                 .withListenAddress(address1);
         serverOne.listen();
 
 
-        serverTwo = RpcServer.create(eventloop)
+    /*     serverTwo = RpcServer.create(eventloop)
                 .withMessageTypes(HelloRequest.class, HelloResponse.class)
                 .withHandler(HelloRequest.class,
                         helloServiceRequestHandler(new HelloServiceImplTwo()))
@@ -64,12 +64,13 @@ public class RPCExampleTest {
                         helloServiceRequestHandler(new HelloServiceImplThree()))
                 .withListenAddress(address3);
 
-        serverThree.listen();
+        serverThree.listen();*/
         thread = new Thread(eventloop);
         thread.start();
+        //serverOne.close();
     }
 
-    @Test
+   // @Test
     public void test2() throws Exception {
 
         ArrayList<RpcStrategy> list = new ArrayList<>();
@@ -103,11 +104,21 @@ public class RPCExampleTest {
         System.out.println("Request with name \"" + currentName + "\": " + currentResponse);
         assertEquals("Hello Hello Hello, " + currentName + "!", currentResponse);
 
+        serverOne.close();
+        serverTwo.close();
+        serverThree.close();
+
+        serverOne=null;
+        serverTwo=null;
+        serverThree=null;
     }
 
     @Test
     public void download() throws Exception {
-        IDatabase<String, CommitteeBlock> database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB);
+
+        //this is important if ports its the same it needs time to close
+        //Thread.sleep(3000);
+        IDatabase<String, CommitteeBlock> database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB,DatabaseInstance.COMMITTEE_BLOCK);
         CommitteeBlock firstblock = new CommitteeBlock();
         firstblock.setDifficulty(112);
         firstblock.getHeaderData().setTimestamp(GetTime.GetTimeStampInString());
@@ -122,30 +133,59 @@ public class RPCExampleTest {
         thirdblock.setDifficulty(119);
         thirdblock.getHeaderData().setTimestamp(GetTime.GetTimeStampInString());
         database.save("3", thirdblock);
+
         Thread.sleep(200);
 
 
         Eventloop eventloop = Eventloop.getCurrentEventloop();
-        RpcAdrestusServer<AbstractBlock> example = new RpcAdrestusServer<AbstractBlock>(new CommitteeBlock(), "localhost", 8082, eventloop);
+        RpcAdrestusServer<AbstractBlock> example = new RpcAdrestusServer<AbstractBlock>(new CommitteeBlock(),DatabaseInstance.COMMITTEE_BLOCK, "localhost", 8082, eventloop);
         new Thread(example).start();
         RpcAdrestusClient<AbstractBlock> client = new RpcAdrestusClient<AbstractBlock>(new CommitteeBlock(), "localhost", 8082, eventloop);
         client.connect();
         List<AbstractBlock> blocks = client.getBlocksList("1");
 
-        AbstractBlock blocktest = client.getBlock("1");
-        assertEquals(database.findByKey("1").get(), blocks.get(0));
-        assertEquals(database.findByKey("2").get(), blocks.get(1));
-        assertEquals(database.findByKey("3").get(), blocks.get(2));
+        ArrayList<String>list=new ArrayList<>();
+        list.add("2");
+        list.add("3");
+        List<AbstractBlock> list_block = client.getBlock(list);
+        assertEquals(secondblock,list_block.get(0));
+        assertEquals(thirdblock,list_block.get(1));
+        assertEquals(firstblock, blocks.get(0));
+        assertEquals(secondblock, blocks.get(1));
+        assertEquals(thirdblock, blocks.get(2));
 
         client.close();
         example.close();
+        example=null;
+
         database.delete_db();
     }
 
+    @Test
+    public void download2() throws Exception {
+        IDatabase<String, TransactionBlock> database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.ZONE_1_TRANSACTION_BLOCK);
+        TransactionBlock transactionBlock=new TransactionBlock();
+        transactionBlock.setHash("asdsa");
 
+        database.save(transactionBlock.getHash(),transactionBlock);
+
+        Eventloop eventloop = Eventloop.getCurrentEventloop();
+        RpcAdrestusServer<AbstractBlock> example = new RpcAdrestusServer<AbstractBlock>(new TransactionBlock(),DatabaseInstance.ZONE_1_TRANSACTION_BLOCK, "localhost", 8085, eventloop);
+        new Thread(example).start();
+        RpcAdrestusClient<AbstractBlock> client = new RpcAdrestusClient<AbstractBlock>(new TransactionBlock(), "localhost", 8085, eventloop);
+        client.connect();
+        List<AbstractBlock> blocks = client.getBlocksList("1");
+        assertEquals(transactionBlock,blocks.get(0));
+
+
+        client.close();
+        example.close();
+        example=null;
+        database.delete_db();
+    }
     @Test
     public void multiple_download() throws Exception {
-        IDatabase<String, CommitteeBlock> database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB);
+        IDatabase<String, CommitteeBlock> database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB,DatabaseInstance.COMMITTEE_BLOCK);
         CommitteeBlock firstblock = new CommitteeBlock();
         firstblock.setDifficulty(112);
         firstblock.getHeaderData().setTimestamp(GetTime.GetTimeStampInString());
@@ -160,7 +200,7 @@ public class RPCExampleTest {
         thirdblock.setDifficulty(119);
         thirdblock.getHeaderData().setTimestamp(GetTime.GetTimeStampInString());
         database.save("3", thirdblock);
-        Thread.sleep(200);
+
 
         ArrayList<InetSocketAddress> list = new ArrayList<>();
         InetSocketAddress address1 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 7070);
@@ -180,24 +220,21 @@ public class RPCExampleTest {
         client.connect();
         List<AbstractBlock> blocks = client.getBlocksList("1");
 
-        assertEquals(database.findByKey("1").get(), blocks.get(0));
-        assertEquals(database.findByKey("2").get(), blocks.get(1));
-        assertEquals(database.findByKey("3").get(), blocks.get(2));
+        assertEquals(firstblock, blocks.get(0));
+        assertEquals(secondblock, blocks.get(1));
+        assertEquals(thirdblock, blocks.get(2));
 
         client.close();
         server1.close();
         server2.close();
         server3.close();
+        server1=null;
+        server2=null;
+        server3=null;
         database.delete_db();
 
     }
 
-    @AfterAll
-    public static void after() {
-        serverOne.close();
-        serverTwo.close();
-        serverThree.close();
-    }
 
     //@Test
     public void test3() throws Exception {

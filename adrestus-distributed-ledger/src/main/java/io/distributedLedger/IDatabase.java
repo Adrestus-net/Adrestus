@@ -1,6 +1,7 @@
 package io.distributedLedger;
 
 import java.io.File;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -27,6 +28,8 @@ public interface IDatabase<K, V> {
      * @return Optional of entity.
      */
     Optional<V> findByKey(K key);
+
+    List<V> findByListKey(List<K> key);
 
     /**
      * Delete entity for a given key.
@@ -57,5 +60,7 @@ public interface IDatabase<K, V> {
     void compact();
 
     void chooseDB(File dbFile);
+
+    void closeNoDelete();
 
 }

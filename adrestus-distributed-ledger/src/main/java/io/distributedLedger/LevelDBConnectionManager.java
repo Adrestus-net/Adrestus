@@ -14,9 +14,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -24,11 +22,10 @@ import static io.distributedLedger.Constants.LevelDBConstants.*;
 import static org.iq80.leveldb.impl.Iq80DBFactory.factory;
 
 
-public class LevelDBConnectionManager<K, V> implements IDriver<LevelDBConnectionManager>, IDatabase<K, V> {
+public class LevelDBConnectionManager<K, V> implements IDatabase<K, V> {
 
     private static org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(LevelDBConnectionManager.class);
     private static final String CONNECTION_NAME = "\\TransactionDatabase";
-    private static volatile LevelDBConnectionManager instance;
 
 
     private final SerializationUtil valueMapper;
@@ -45,9 +42,6 @@ public class LevelDBConnectionManager<K, V> implements IDriver<LevelDBConnection
     private DB level_db;
 
     private LevelDBConnectionManager(Class<V> keyClass, Class<V> valueClass) {
-        if (instance != null) {
-            throw new IllegalStateException("Already initialized.");
-        }
         this.rwl = new ReentrantReadWriteLock();
         this.r = rwl.readLock();
         this.w = rwl.writeLock();
@@ -60,10 +54,7 @@ public class LevelDBConnectionManager<K, V> implements IDriver<LevelDBConnection
         load_connection();
     }
 
-    private LevelDBConnectionManager(Class<V> keyClass, Type fluentType) {
-        if (instance != null) {
-            throw new IllegalStateException("Already initialized.");
-        }
+    public LevelDBConnectionManager(Class<V> keyClass, Type fluentType) {
         this.rwl = new ReentrantReadWriteLock();
         this.r = rwl.readLock();
         this.w = rwl.writeLock();
@@ -76,32 +67,7 @@ public class LevelDBConnectionManager<K, V> implements IDriver<LevelDBConnection
     }
 
 
-    public static synchronized LevelDBConnectionManager getInstance(Class keyClass, Class valueClass) {
-        if (instance == null) {
-            synchronized (LevelDBConnectionManager.class) {
-                if (instance == null) {
-                    instance = new LevelDBConnectionManager<>(keyClass, valueClass);
-                }
-            }
-        }
-        return instance;
-    }
 
-    public static synchronized LevelDBConnectionManager getInstance(Class keyClass, Type fluentType) {
-        if (instance == null) {
-            synchronized (LevelDBConnectionManager.class) {
-                if (instance == null) {
-                    instance = new LevelDBConnectionManager<>(keyClass, fluentType);
-                }
-            }
-        }
-        return instance;
-    }
-
-    @Override
-    public LevelDBConnectionManager get() {
-        return instance;
-    }
 
     @Override
     public void setupOptions() {
@@ -234,6 +200,30 @@ public class LevelDBConnectionManager<K, V> implements IDriver<LevelDBConnection
 
     @SneakyThrows
     @Override
+    public List<V> findByListKey(List<K> key) {
+        r.lock();
+        try {
+            List<Optional<Object>> list = new ArrayList<>();
+            for (int i = 0; i < key.size(); i++) {
+                final byte[] serializedKey = keyMapper.encode(key.get(i));
+                final byte[] bytes = level_db.get(serializedKey);
+                list.add(Optional.ofNullable((V)valueMapper.decode(bytes)));
+            }
+        } catch (final NullPointerException exception) {
+            LOGGER.info("Key value not exists in Database return empty");
+        } catch (final SerializationException exception) {
+            LOGGER.error("Serialization exception occurred during findByKey operation. {}", exception.getMessage());
+        } catch (final Exception exception) {
+            LOGGER.error("Exception occurred during findByKey operation. {}", exception.getMessage());
+            throw new FindFailedException(exception.getMessage(), exception);
+        } finally {
+            r.unlock();
+        }
+        return new ArrayList<V>();
+    }
+
+    @SneakyThrows
+    @Override
     public void deleteByKey(K key) {
         w.lock();
         try {
@@ -269,7 +259,6 @@ public class LevelDBConnectionManager<K, V> implements IDriver<LevelDBConnection
             throw new DeleteAllFailedException(exception.getMessage(), exception);
         } finally {
             w.unlock();
-            instance = null;
         }
     }
 
@@ -302,7 +291,6 @@ public class LevelDBConnectionManager<K, V> implements IDriver<LevelDBConnection
             throw new DeleteAllFailedException(exception.getMessage(), exception);
         } finally {
             w.unlock();
-            instance = null;
         }
         dbFile.delete();
         dbFile.getParentFile().delete();
@@ -413,6 +401,20 @@ public class LevelDBConnectionManager<K, V> implements IDriver<LevelDBConnection
     @Override
     public void chooseDB(File dbFile) {
 
+    }
+
+    @Override
+    public void closeNoDelete() {
+        w.lock();
+        try {
+            level_db.close();
+        } catch (NullPointerException exception) {
+            LOGGER.error("Exception occurred during delete_db operation. {}", exception.getMessage());
+        } catch (final Exception exception) {
+            LOGGER.error("Exception occurred during deleteAll operation. {}", exception.getMessage());
+        } finally {
+            w.unlock();
+        }
     }
 
     @Override

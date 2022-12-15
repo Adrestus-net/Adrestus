@@ -3,6 +3,7 @@ package io.Adrestus.core;
 import io.Adrestus.util.GetTime;
 import io.Adrestus.util.MathOperationUtil;
 import io.distributedLedger.DatabaseFactory;
+import io.distributedLedger.DatabaseInstance;
 import io.distributedLedger.DatabaseType;
 import io.distributedLedger.IDatabase;
 import org.junit.jupiter.api.Test;
@@ -17,7 +18,7 @@ public class BlockDiffuclutyTest {
     @Test
     public void test_difficulty() throws ParseException, InterruptedException {
 
-        IDatabase<String, CommitteeBlock> database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB);
+        IDatabase<String, CommitteeBlock> database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
 
         int MAX_ITERATIONS = 100;
         int iterations = 0;
@@ -84,7 +85,7 @@ public class BlockDiffuclutyTest {
 
     @Test
     public void diffuclty_test2() throws ParseException, InterruptedException {
-        IDatabase<String, CommitteeBlock> database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB);
+        IDatabase<String, CommitteeBlock> database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB,DatabaseInstance.COMMITTEE_BLOCK);
 
         CommitteeBlock bootsrap = new CommitteeBlock();
         bootsrap.setHash(String.valueOf(0));

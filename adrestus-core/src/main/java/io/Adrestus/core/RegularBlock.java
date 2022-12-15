@@ -24,6 +24,7 @@ import io.Adrestus.util.GetTime;
 import io.Adrestus.util.MathOperationUtil;
 import io.Adrestus.util.SerializationUtil;
 import io.distributedLedger.DatabaseFactory;
+import io.distributedLedger.DatabaseInstance;
 import io.distributedLedger.DatabaseType;
 import io.distributedLedger.IDatabase;
 import lombok.SneakyThrows;
@@ -102,7 +103,7 @@ public class RegularBlock implements BlockForge {
     @SneakyThrows
     @Override
     public void forgeCommitteBlock(CommitteeBlock committeeBlock) {
-        IDatabase<String, CommitteeBlock> database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB);
+        IDatabase<String, CommitteeBlock> database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
 
         if (CachedKademliaNodes.getInstance().getDhtBootstrapNode() != null) {
             List<KademliaData> kademliaData = CachedKademliaNodes

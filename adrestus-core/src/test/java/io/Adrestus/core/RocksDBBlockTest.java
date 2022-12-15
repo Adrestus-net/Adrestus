@@ -9,6 +9,7 @@ import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.crypto.elliptic.mapper.CustomSerializerTreeMap;
 import io.Adrestus.util.SerializationUtil;
 import io.distributedLedger.DatabaseFactory;
+import io.distributedLedger.DatabaseInstance;
 import io.distributedLedger.DatabaseType;
 import io.distributedLedger.IDatabase;
 import org.junit.jupiter.api.Test;
@@ -23,7 +24,7 @@ public class RocksDBBlockTest {
 
     @Test
     public void add_get2() {
-        IDatabase<String, AbstractBlock> database = new DatabaseFactory(String.class, AbstractBlock.class).getDatabase(DatabaseType.ROCKS_DB);
+        IDatabase<String, AbstractBlock> database = new DatabaseFactory(String.class, AbstractBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.ZONE_1_TRANSACTION_BLOCK);
         String hash = "Hash";
         TransactionBlock prevblock = new TransactionBlock();
         CommitteeBlock committeeBlock = new CommitteeBlock();
@@ -89,5 +90,27 @@ public class RocksDBBlockTest {
         database.delete_db();
     }
 
+
+    @Test
+    public void find_by_list_key(){
+        IDatabase<String, AbstractBlock> database = new DatabaseFactory(String.class, AbstractBlock.class).getDatabase(DatabaseType.ROCKS_DB);
+        TransactionBlock transactionBlock1 = new TransactionBlock();
+        transactionBlock1.setHash("hash1");
+
+        TransactionBlock transactionBlock2 = new TransactionBlock();
+        transactionBlock2.setHash("hash2");
+
+        database.save("hash1",transactionBlock1);
+        database.save("hash2",transactionBlock2);
+        ArrayList<String> list=new ArrayList<>();
+        list.add("hash1");
+        list.add("hash2");
+
+        List<AbstractBlock> values=database.findByListKey(list);
+        assertEquals(transactionBlock1, values.get(0));
+        assertEquals(transactionBlock2, values.get(1));
+
+        database.delete_db();
+    }
 
 }

@@ -13,16 +13,16 @@ import io.activej.promise.Promise;
 import io.activej.rpc.server.RpcRequestHandler;
 import io.activej.rpc.server.RpcServer;
 import io.activej.serializer.SerializerBuilder;
+import io.distributedLedger.DatabaseInstance;
 import lombok.SneakyThrows;
 
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.TreeMap;
 
-public class RpcAdrestusServer<T extends Object> implements Runnable {
+public class RpcAdrestusServer<T> implements Runnable {
 
     private final SerializerBuilder rpcserialize;
     private final Eventloop eventloop;
@@ -33,6 +33,7 @@ public class RpcAdrestusServer<T extends Object> implements Runnable {
     private String host;
     private int port;
     private RpcServer rpcServer;
+    private DatabaseInstance instance;
 
     static {
         RPCLogger.setLevelOff();
@@ -40,7 +41,7 @@ public class RpcAdrestusServer<T extends Object> implements Runnable {
 
 
     public RpcAdrestusServer(T typeParameterClass, String host, int port, Eventloop eventloop) {
-        rpcserialize = SerializerBuilder.create();
+        this.rpcserialize = SerializerBuilder.create();
         this.host = host;
         this.port = port;
         this.eventloop = eventloop;
@@ -51,11 +52,11 @@ public class RpcAdrestusServer<T extends Object> implements Runnable {
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
         this.valueMapper = new SerializationUtil(typeParameterClass.getClass(), list, true);
-        this.valueMapper2 = new SerializationUtil<T>(typeParameterClass.getClass(), list);
+        this.valueMapper2 = new SerializationUtil<T>(typeParameterClass.getClass(), list, true);
     }
 
     public RpcAdrestusServer(T typeParameterClass, InetSocketAddress inetSocketAddress, Eventloop eventloop) {
-        rpcserialize = SerializerBuilder.create();
+        this.rpcserialize = SerializerBuilder.create();
         this.inetSocketAddress = inetSocketAddress;
         this.eventloop = eventloop;
         this.typeParameterClass = typeParameterClass;
@@ -65,32 +66,68 @@ public class RpcAdrestusServer<T extends Object> implements Runnable {
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
         this.valueMapper = new SerializationUtil(typeParameterClass.getClass(), list, true);
-        this.valueMapper2 = new SerializationUtil<T>(typeParameterClass.getClass(), list);
+        this.valueMapper2 = new SerializationUtil<T>(typeParameterClass.getClass(), list, true);
     }
 
+    public RpcAdrestusServer(T typeParameterClass, DatabaseInstance instance, InetSocketAddress inetSocketAddress, Eventloop eventloop) {
+        this.rpcserialize = SerializerBuilder.create();
+        this.instance = instance;
+        this.inetSocketAddress = inetSocketAddress;
+        this.eventloop = eventloop;
+        this.typeParameterClass = typeParameterClass;
+        List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
+        list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
+        list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
+        list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
+        this.valueMapper = new SerializationUtil(typeParameterClass.getClass(), list, true);
+        this.valueMapper2 = new SerializationUtil<T>(typeParameterClass.getClass(), list, true);
+    }
+
+    public RpcAdrestusServer(T typeParameterClass,DatabaseInstance instance, String host, int port, Eventloop eventloop) {
+        this.rpcserialize = SerializerBuilder.create();
+        this.instance = instance;
+        this.host = host;
+        this.port = port;
+        this.eventloop = eventloop;
+        this.typeParameterClass = typeParameterClass;
+        List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
+        list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
+        list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
+        list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
+        this.valueMapper = new SerializationUtil(typeParameterClass.getClass(), list, true);
+        this.valueMapper2 = new SerializationUtil<T>(typeParameterClass.getClass(), list, true);
+    }
 
     @SneakyThrows
     @Override
     public void run() {
+        IService<T> service = null;
+        if (instance != null) {
+            service = new Service(typeParameterClass.getClass(), instance);
+        } else {
+            service = new Service(typeParameterClass.getClass());
+        }
         if (inetSocketAddress != null) {
             rpcServer = RpcServer.create(eventloop)
                     .withMessageTypes(BlockRequest.class, ListBlockResponse.class, BlockRequest2.class, BlockResponse.class)
                     .withSerializerBuilder(this.rpcserialize)
-                    .withHandler(BlockRequest.class, download_blocks(new Service(typeParameterClass.getClass())))
-                    .withHandler(BlockRequest2.class, download_block(new Service(typeParameterClass.getClass())))
+                    .withHandler(BlockRequest.class, download_blocks(service))
+                    .withHandler(BlockRequest2.class, migrate_block(service))
                     .withListenAddress(inetSocketAddress);
         } else {
             rpcServer = RpcServer.create(eventloop)
                     .withMessageTypes(BlockRequest.class, ListBlockResponse.class, BlockRequest2.class, BlockResponse.class)
                     .withSerializerBuilder(this.rpcserialize)
-                    .withHandler(BlockRequest.class, download_blocks(new Service(typeParameterClass.getClass())))
-                    .withHandler(BlockRequest2.class, download_block(new Service(typeParameterClass.getClass())))
+                    .withHandler(BlockRequest.class, download_blocks(service))
+                    .withHandler(BlockRequest2.class, migrate_block(service))
                     .withListenAddress(new InetSocketAddress(host, port));
         }
         rpcServer.listen();
     }
 
-    private RpcRequestHandler<BlockRequest, ListBlockResponse> download_blocks(IService service) {
+    private RpcRequestHandler<BlockRequest, ListBlockResponse> download_blocks(IService<T> service) {
         return request -> {
             List<T> result;
             try {
@@ -102,18 +139,18 @@ public class RpcAdrestusServer<T extends Object> implements Runnable {
         };
     }
 
-    private RpcRequestHandler<BlockRequest2, BlockResponse> download_block(IService service) {
+    private RpcRequestHandler<BlockRequest2, BlockResponse> migrate_block(IService<T> service) {
         return request -> {
-            Optional<T> result;
+            List<T> result;
             try {
-                result = (Optional<T>) service.getBlock(request.hash);
+                result = service.migrateBlock(request.getHash());
             } catch (Exception e) {
                 return Promise.ofException(e);
             }
             if (result.isEmpty())
                 return Promise.of(new BlockResponse(null));
             else
-                return Promise.of(new BlockResponse(this.valueMapper2.encode(result.get())));
+                return Promise.of(new BlockResponse(this.valueMapper2.encode_list(result)));
         };
     }
 

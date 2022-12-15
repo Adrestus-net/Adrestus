@@ -25,6 +25,7 @@ import io.Adrestus.network.ConsensusServer;
 import io.Adrestus.util.ByteUtil;
 import io.Adrestus.util.SerializationUtil;
 import io.distributedLedger.DatabaseFactory;
+import io.distributedLedger.DatabaseInstance;
 import io.distributedLedger.DatabaseType;
 import io.distributedLedger.IDatabase;
 import org.apache.tuweni.bytes.Bytes;
@@ -549,7 +550,7 @@ public class SupervisorConsensusPhases {
         public ProposeCommitteeBlock(boolean DEBUG) {
             this.DEBUG = DEBUG;
             this.factory = new DefaultFactory();
-            this.database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB);
+            this.database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
             List<SerializationUtil.Mapping> list = new ArrayList<>();
             list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
             list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));

@@ -146,9 +146,9 @@ public class MemoryReceiptPoolTest {
         MemoryReceiptPool.getInstance().add(receipt6);
 
         List<Receipt> list = MemoryReceiptPool.getInstance().getAll();
+        Map<Integer, List<Receipt>> studlistGrouped = list.stream().collect(Collectors.groupingBy(w -> w.getZoneFrom()));
         Map<Integer, Map<Receipt.ReceiptBlock, List<Receipt>>> map = list
                 .stream()
-                .collect(Collectors.groupingBy(Receipt::getZoneFrom, Collectors.groupingBy(Receipt::getReceiptBlock)));
-        int h = 3;
+                .collect(Collectors.groupingBy(Receipt::getZoneFrom, Collectors.groupingBy(Receipt::getReceiptBlock, Collectors.mapping(Receipt::merge, Collectors.toList()))));
     }
 }

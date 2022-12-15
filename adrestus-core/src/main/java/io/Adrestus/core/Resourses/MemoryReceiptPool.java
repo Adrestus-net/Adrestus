@@ -16,7 +16,6 @@ public class MemoryReceiptPool implements IMemoryPool<Receipt> {
 
     private static volatile IMemoryPool instance;
 
-    private final SerializationUtil<Receipt> wrapper;
     private final List<Receipt> memorypool;
     private final ReentrantReadWriteLock rwl;
     private final Lock r;
@@ -32,7 +31,6 @@ public class MemoryReceiptPool implements IMemoryPool<Receipt> {
             this.rwl = new ReentrantReadWriteLock();
             this.r = rwl.readLock();
             this.w = rwl.writeLock();
-            this.wrapper = new SerializationUtil<>(Receipt.class);
         }
     }
 

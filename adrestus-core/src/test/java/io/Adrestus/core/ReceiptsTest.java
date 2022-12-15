@@ -5,9 +5,8 @@ import io.Adrestus.Trie.MerkleNode;
 import io.Adrestus.Trie.MerkleTreeImp;
 import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.config.AdrestusConfiguration;
-import io.Adrestus.core.Resourses.CachedLatestBlocks;
-import io.Adrestus.core.Resourses.CachedZoneIndex;
-import io.Adrestus.core.Resourses.MemoryTransactionPool;
+import io.Adrestus.config.NetworkConfiguration;
+import io.Adrestus.core.Resourses.*;
 import io.Adrestus.core.RingBuffer.handler.transactions.SignatureEventHandler;
 import io.Adrestus.core.RingBuffer.publisher.BlockEventPublisher;
 import io.Adrestus.core.RingBuffer.publisher.TransactionEventPublisher;
@@ -19,6 +18,7 @@ import io.Adrestus.crypto.bls.mapper.ECP2mapper;
 import io.Adrestus.crypto.bls.mapper.ECPmapper;
 import io.Adrestus.crypto.bls.model.BLSPrivateKey;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
+import io.Adrestus.crypto.bls.model.CachedBLSKeyPair;
 import io.Adrestus.crypto.elliptic.ECDSASign;
 import io.Adrestus.crypto.elliptic.ECKeyPair;
 import io.Adrestus.crypto.elliptic.Keys;
@@ -28,10 +28,16 @@ import io.Adrestus.crypto.elliptic.mapper.CustomSerializerTreeMap;
 import io.Adrestus.crypto.mnemonic.Mnemonic;
 import io.Adrestus.crypto.mnemonic.Security;
 import io.Adrestus.crypto.mnemonic.WordList;
+import io.Adrestus.network.IPFinder;
+import io.Adrestus.rpc.RpcAdrestusServer;
 import io.Adrestus.util.GetTime;
 import io.Adrestus.util.SerializationUtil;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import io.activej.eventloop.Eventloop;
+import io.distributedLedger.DatabaseFactory;
+import io.distributedLedger.DatabaseInstance;
+import io.distributedLedger.DatabaseType;
+import io.distributedLedger.IDatabase;
+import org.junit.jupiter.api.*;
 import org.spongycastle.util.encoders.Hex;
 
 import java.math.BigInteger;
@@ -44,13 +50,18 @@ import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ReceiptsTest {
     private static BLSPrivateKey sk1;
     private static BLSPublicKey vk1;
-
+    private static BLSPrivateKey sk3;
+    private static BLSPublicKey vk3;
+    private static TransactionBlock transactionBlock;
     private static BLSPrivateKey sk2;
     private static BLSPublicKey vk2;
     private static SerializationUtil<AbstractBlock> serenc;
+    private static ArrayList<MerkleNode> merkleNodeArrayList;
+    private static MerkleTreeImp tree;
 
     @BeforeAll
     public static void setup() throws Exception {
@@ -59,6 +70,10 @@ public class ReceiptsTest {
 
         sk2 = new BLSPrivateKey(2);
         vk2 = new BLSPublicKey(sk2);
+
+        sk3 = new BLSPrivateKey(2);
+        vk3 = new BLSPublicKey(sk3);
+
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
         list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
@@ -90,7 +105,7 @@ public class ReceiptsTest {
 
         ECDSASign ecdsaSign = new ECDSASign();
 
-        SerializationUtil<Transaction> serenc = new SerializationUtil<Transaction>(Transaction.class);
+        SerializationUtil<Transaction> enc = new SerializationUtil<Transaction>(Transaction.class);
 
         ArrayList<String> addreses = new ArrayList<>();
         ArrayList<ECKeyPair> keypair = new ArrayList<>();
@@ -121,7 +136,7 @@ public class ReceiptsTest {
             transaction.setAmount(i);
             transaction.setAmountWithTransactionFee(transaction.getAmount() * (10.0 / 100.0));
             transaction.setNonce(1);
-            byte byf[] = serenc.encode(transaction);
+            byte byf[] = enc.encode(transaction);
             transaction.setHash(HashUtil.sha256_bytetoString(byf));
             //  await().atMost(500, TimeUnit.MILLISECONDS);
 
@@ -136,9 +151,33 @@ public class ReceiptsTest {
         }
         publisher.getJobSyncUntilRemainingCapacityZero();
         publisher.close();
+
+
+        CommitteeBlock committeeBlock = new CommitteeBlock();
+        committeeBlock.getHeaderData().setTimestamp("2022-11-18 15:01:29.304");
+        committeeBlock.getStructureMap().get(0).put(vk1, "192.168.1.106");
+        committeeBlock.getStructureMap().get(0).put(vk3, "192.168.1.112");
+        committeeBlock.getStructureMap().get(0).put(vk3, "192.168.1.114");
+        committeeBlock.getStructureMap().get(1).put(vk2, "192.168.1.116");
+        CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
+        CachedZoneIndex.getInstance().setZoneIndexInternalIP();
+        tree = new MerkleTreeImp();
+        transactionBlock = new TransactionBlock();
+        transactionBlock.setGeneration(4);
+        transactionBlock.setHeight(100);
+        transactionBlock.setTransactionList(MemoryTransactionPool.getInstance().getAll());
+        merkleNodeArrayList = new ArrayList<>();
+        transactionBlock.getTransactionList().stream().forEach(x -> {
+            merkleNodeArrayList.add(new MerkleNode(x.getHash()));
+        });
+        tree.my_generate2(merkleNodeArrayList);
+        transactionBlock.setMerkleRoot(tree.getRootHash());
+        byte[] tohash = serenc.encode(transactionBlock);
+        transactionBlock.setHash(HashUtil.sha256_bytetoString(tohash));
     }
 
     @Test
+    @Order(1)
     public void serialize_test() throws InterruptedException {
         //Thread.sleep(2000);
         TransactionBlock transactionBlock = new TransactionBlock();
@@ -176,30 +215,13 @@ public class ReceiptsTest {
     }
 
     @Test
-    public void general_test() throws Exception {
+    //@Order(2)
+    public void outbound_test() throws Exception {
+        CachedZoneIndex.getInstance().setZoneIndexInternalIP();
         //Thread.sleep(2000);
         BlockEventPublisher publisher = new BlockEventPublisher(1024);
 
-        CommitteeBlock committeeBlock = new CommitteeBlock();
-        committeeBlock.getHeaderData().setTimestamp("2022-11-18 15:01:29.304");
-        committeeBlock.getStructureMap().get(0).put(vk1, "192.168.1.106");
-        committeeBlock.getStructureMap().get(1).put(vk2, "192.168.1.116");
-        CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
-        CachedZoneIndex.getInstance().setZoneIndexInternalIP();
-        MerkleTreeImp tree = new MerkleTreeImp();
-        TransactionBlock transactionBlock = new TransactionBlock();
-        transactionBlock.setGeneration(4);
-        transactionBlock.setHeight(100);
-        transactionBlock.setTransactionList(MemoryTransactionPool.getInstance().getAll());
-        ArrayList<MerkleNode> merkleNodeArrayList = new ArrayList<>();
-        transactionBlock.getTransactionList().stream().forEach(x -> {
-            merkleNodeArrayList.add(new MerkleNode(x.getHash()));
-        });
-        tree.my_generate2(merkleNodeArrayList);
-        transactionBlock.setMerkleRoot(tree.getRootHash());
-        byte[] tohash = serenc.encode(transactionBlock);
-        transactionBlock.setHash(HashUtil.sha256_bytetoString(tohash));
-        String OriginalRootHash = tree.getRootHash();
+        String OriginalRootHash = transactionBlock.getMerkleRoot();
         Receipt.ReceiptBlock receiptBlock = new Receipt.ReceiptBlock(transactionBlock.getHash(), transactionBlock.getHeight(), transactionBlock.getGeneration(), transactionBlock.getMerkleRoot());
         ArrayList<Receipt> receiptList = new ArrayList<>();
         for (int i = 0; i < transactionBlock.getTransactionList().size(); i++) {
@@ -211,7 +233,7 @@ public class ReceiptsTest {
 
         Map<Integer, Map<Receipt.ReceiptBlock, List<Receipt>>> map = receiptList
                 .stream()
-                .collect(Collectors.groupingBy(Receipt::getZoneTo, Collectors.groupingBy(Receipt::getReceiptBlock)));
+                .collect(Collectors.groupingBy(Receipt::getZoneTo, Collectors.groupingBy(Receipt::getReceiptBlock, Collectors.mapping(Receipt::merge, Collectors.toList()))));
 
         for (Integer key : map.keySet()) {
             map.get(key).entrySet().stream().forEach(val -> {
@@ -235,4 +257,57 @@ public class ReceiptsTest {
         publisher.close();
     }
 
+
+    @Test
+    //@Order(3)
+    public void inbound_test() throws Exception {
+        IDatabase<String, TransactionBlock> database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.ZONE_1_TRANSACTION_BLOCK);
+        database.save(transactionBlock.getHash(), transactionBlock);
+      //  CachedEventLoop.getInstance().setEventloop(Eventloop.create().withCurrentThread());
+       // new Thread(CachedEventLoop.getInstance().getEventloop());
+        RpcAdrestusServer<AbstractBlock> example = new RpcAdrestusServer<AbstractBlock>(new TransactionBlock(), DatabaseInstance.ZONE_1_TRANSACTION_BLOCK, IPFinder.getLocal_address(), NetworkConfiguration.RPC_PORT, CachedEventLoop.getInstance().getEventloop());
+        new Thread(example).start();
+
+        BlockEventPublisher publisher = new BlockEventPublisher(1024);
+        CachedZoneIndex.getInstance().setZONE_INDEX(1);
+        CachedBLSKeyPair.getInstance().setPublicKey(vk1);
+        CachedBLSKeyPair.getInstance().setPrivateKey(sk1);
+        String OriginalRootHash = transactionBlock.getMerkleRoot();
+        Receipt.ReceiptBlock receiptBlock = new Receipt.ReceiptBlock(transactionBlock.getHash(), transactionBlock.getHeight(), transactionBlock.getGeneration(), transactionBlock.getMerkleRoot());
+
+
+        for (int i = 0; i < transactionBlock.getTransactionList().size(); i++) {
+            Transaction transaction = transactionBlock.getTransactionList().get(i);
+            MerkleNode node = new MerkleNode(transaction.getHash());
+            tree.build_proofs2(merkleNodeArrayList, node);
+            if (CachedZoneIndex.getInstance().getZoneIndex() == transaction.getZoneTo())
+                MemoryReceiptPool.getInstance().add(new Receipt(transaction.getZoneFrom(), transaction.getZoneTo(), receiptBlock, new RegularTransaction(transaction.getHash()), i, tree.getMerkleeproofs(), transaction.getTo(), transaction.getAmount()));
+        }
+
+        Map<Integer, Map<Receipt.ReceiptBlock, List<Receipt>>> map = ((ArrayList<Receipt>) MemoryReceiptPool.getInstance().getAll())
+                .stream()
+                .collect(Collectors.groupingBy(Receipt::getZoneFrom, Collectors.groupingBy(Receipt::getReceiptBlock, Collectors.mapping(Receipt::merge, Collectors.toList()))));
+
+        for (Integer key : map.keySet()) {
+            map.get(key).entrySet().stream().forEach(val -> {
+                val.getValue().stream().forEach(x -> assertEquals(OriginalRootHash, tree.GenerateRoot(x.getProofs())));
+            });
+        }
+
+        InboundRelay inboundRelay = new InboundRelay(map);
+        transactionBlock.setInbound(inboundRelay);
+
+        byte[] buffer = serenc.encode(transactionBlock);
+        TransactionBlock clone = (TransactionBlock) serenc.decode(buffer);
+        assertEquals(transactionBlock, clone);
+
+        publisher.withInBoundEventHandler().mergeEvents();
+        publisher.start();
+        publisher.publish(transactionBlock);
+
+        publisher.getJobSyncUntilRemainingCapacityZero();
+        publisher.close();
+
+        database.delete_db();
+    }
 }

@@ -22,6 +22,8 @@ import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -40,6 +42,7 @@ public class RpcAdrestusClient<T> {
     private final SerializationUtil valueMapper2;
 
     private List<InetSocketAddress> inetSocketAddresses;
+    private InetSocketAddress inetSocketAddress;
     private String host;
     private int port;
     private RpcClient client;
@@ -48,6 +51,21 @@ public class RpcAdrestusClient<T> {
         RPCLogger.setLevelOff();
     }
 
+
+    public RpcAdrestusClient(T typeParameterClass, InetSocketAddress inetSocketAddress, Eventloop eventloop) {
+        this.rpc_serialize = SerializerBuilder.create();
+        this.typeParameterClass = typeParameterClass;
+        this.inetSocketAddress = inetSocketAddress;
+        this.eventloop = eventloop;
+        List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
+        list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
+        list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
+        list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
+        this.serializationUtil = new SerializationUtil<ListBlockResponse>(ListBlockResponse.class, list);
+        this.valueMapper = new SerializationUtil(typeParameterClass.getClass(), list, true);
+        this.valueMapper2 = new SerializationUtil(typeParameterClass.getClass(), list, true);
+    }
 
     public RpcAdrestusClient(T typeParameterClass, String host, int port, Eventloop eventloop) {
         this.rpc_serialize = SerializerBuilder.create();
@@ -62,7 +80,7 @@ public class RpcAdrestusClient<T> {
         list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
         this.serializationUtil = new SerializationUtil<ListBlockResponse>(ListBlockResponse.class, list);
         this.valueMapper = new SerializationUtil(typeParameterClass.getClass(), list, true);
-        this.valueMapper2 = new SerializationUtil(typeParameterClass.getClass(), list);
+        this.valueMapper2 = new SerializationUtil(typeParameterClass.getClass(), list, true);
     }
 
     public RpcAdrestusClient(T typeParameterClass, List<InetSocketAddress> inetSocketAddresses) {
@@ -77,7 +95,7 @@ public class RpcAdrestusClient<T> {
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
         this.serializationUtil = new SerializationUtil<ListBlockResponse>(ListBlockResponse.class, list);
-        this.valueMapper2 = new SerializationUtil(typeParameterClass.getClass(), list);
+        this.valueMapper2 = new SerializationUtil(typeParameterClass.getClass(), list, true);
         this.valueMapper = new SerializationUtil(typeParameterClass.getClass(), list, true);
     }
 
@@ -92,7 +110,7 @@ public class RpcAdrestusClient<T> {
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
         this.serializationUtil = new SerializationUtil<ListBlockResponse>(ListBlockResponse.class, list);
-        this.valueMapper2 = new SerializationUtil(typeParameterClass.getClass(), list);
+        this.valueMapper2 = new SerializationUtil(typeParameterClass.getClass(), list, true);
         this.valueMapper = new SerializationUtil(typeParameterClass.getClass(), list, true);
     }
 
@@ -113,18 +131,20 @@ public class RpcAdrestusClient<T> {
                     .withStrategy(server(new InetSocketAddress(host, port)));
         }
         try {
-            this.client.startFuture().get();
+            this.client.startFuture().get(TIMEOUT, TimeUnit.MILLISECONDS);
         } catch (Exception e) {
             LOG.info("Connection could not be established");
         }
     }
 
+
+
     @SneakyThrows
-    public T getBlock(String hash) {
+    public List<T> getBlock(List<String> hash) {
         Optional<BlockResponse> val = (Optional<BlockResponse>) getBlockResponse(this.client, hash);
         if (val.isEmpty())
             return null;
-        return (T) this.valueMapper2.decode(val.get().getByte_data());
+        return this.valueMapper2.decode_list(val.get().getByte_data());
     }
 
     @SneakyThrows
@@ -146,33 +166,37 @@ public class RpcAdrestusClient<T> {
             collect.clear();
             return toSend;
         } else {
-            return this.valueMapper.decode_list(getBlockListResponse(this.client, hash).getByte_data());
+            byte[] data = getBlockListResponse(this.client, hash).getByte_data();
+            return data == null ? new ArrayList<T>() : this.valueMapper.decode_list(data);
         }
     }
 
     public void close() {
         try {
-            client.stopFuture().get();
+            client.stopFuture().get(TIMEOUT, TimeUnit.MILLISECONDS);
+            ;
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (TimeoutException e) {
             e.printStackTrace();
         }
     }
 
     @SneakyThrows
-    private Optional<BlockResponse> getBlockResponse(RpcClient rpcClient, String name) {
+    private Optional<BlockResponse> getBlockResponse(RpcClient rpcClient, List<String> hashes) {
         try {
             BlockResponse response = rpcClient.getEventloop().submit(
                             () -> rpcClient
-                                    .<BlockRequest2, BlockResponse>sendRequest(new BlockRequest2(name)))
-                    .get();
+                                    .<BlockRequest2, BlockResponse>sendRequest(new BlockRequest2(hashes)))
+                    .get(TIMEOUT, TimeUnit.MILLISECONDS);
             if (response.getByte_data() == null)
                 return Optional.empty();
 
             return Optional.of(response);
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.info(e.toString());
         }
         return Optional.empty();
     }
@@ -182,12 +206,12 @@ public class RpcAdrestusClient<T> {
             ListBlockResponse response = rpcClient.getEventloop().submit(
                             () -> rpcClient
                                     .<BlockRequest, ListBlockResponse>sendRequest(new BlockRequest(name), TIMEOUT))
-                    .get();
+                    .get(TIMEOUT, TimeUnit.MILLISECONDS);
             ///LOG.info("Download: ..... " + response.getAbstractBlock().toString());
             return response;
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.info(e.toString());
         }
-        return null;
+        return new ListBlockResponse(null);
     }
 }

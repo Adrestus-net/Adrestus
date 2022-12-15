@@ -15,7 +15,7 @@ public class LevelDBTransactionTest {
 
     @Test
     public void TransactionTest() {
-        IDatabase<String, LevelDBTransactionWrapper<Transaction>> database = new DatabaseFactory(String.class, new TypeToken<LevelDBTransactionWrapper<Transaction>>() {
+        IDatabase<String, LevelDBTransactionWrapper<Transaction>> database = new DatabaseFactory(String.class,Transaction.class, new TypeToken<LevelDBTransactionWrapper<Transaction>>() {
         }.getType()).getDatabase(DatabaseType.LEVEL_DB);
         Transaction transaction = new RegularTransaction();
         transaction.setAmount(100);

@@ -31,6 +31,7 @@ import io.Adrestus.p2p.kademlia.repository.KademliaData;
 import io.Adrestus.p2p.kademlia.util.BoundedHashUtil;
 import io.Adrestus.p2p.kademlia.util.LoggerKademlia;
 import io.distributedLedger.DatabaseFactory;
+import io.distributedLedger.DatabaseInstance;
 import io.distributedLedger.DatabaseType;
 import io.distributedLedger.IDatabase;
 import org.apache.commons.codec.binary.StringUtils;
@@ -184,7 +185,7 @@ public class ConsensusCommitteeTimer2Test {
         }
         if (hit == 0)
             return;
-        IDatabase<String, CommitteeBlock> database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB);
+        IDatabase<String, CommitteeBlock> database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
 
         CountDownLatch latch = new CountDownLatch(5);
         ConsensusCommitteeTimer c = new ConsensusCommitteeTimer(latch);

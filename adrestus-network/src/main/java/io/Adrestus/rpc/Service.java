@@ -1,6 +1,7 @@
 package io.Adrestus.rpc;
 
 import io.distributedLedger.DatabaseFactory;
+import io.distributedLedger.DatabaseInstance;
 import io.distributedLedger.DatabaseType;
 import io.distributedLedger.IDatabase;
 
@@ -9,13 +10,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-public class Service<T> implements IService {
+public class Service<T> implements IService<T> {
     private final IDatabase<String, T> database;
-    private Class<T> typeParameterClass;
+    private final Class<T> typeParameterClass;
 
     public Service(Class<T> typeParameterClass) {
         this.typeParameterClass = typeParameterClass;
-        this.database = new DatabaseFactory(String.class, this.typeParameterClass.getClass()).getDatabase(DatabaseType.ROCKS_DB);
+        DatabaseFactory factory=new DatabaseFactory(String.class, typeParameterClass);
+        this.database = factory.getDatabase(DatabaseType.ROCKS_DB);
+    }
+
+    public Service(Class<T> typeParameterClass,DatabaseInstance instance) {
+        this.typeParameterClass = typeParameterClass;
+        DatabaseFactory factory=new DatabaseFactory(String.class, typeParameterClass);
+        this.database = factory.getDatabase(DatabaseType.ROCKS_DB,instance);
     }
 
     @Override
@@ -26,9 +34,8 @@ public class Service<T> implements IService {
     }
 
     @Override
-    public Optional<T> getBlock(String hash) throws Exception {
-        return database.findByKey(hash);
+    public List<T> migrateBlock(ArrayList<String> list_hash) throws Exception {
+        return (List<T>) database.findByListKey(list_hash);
     }
-
 
 }

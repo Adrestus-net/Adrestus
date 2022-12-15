@@ -14,9 +14,9 @@ public class DatabaseFactory {
         this.value_type = null;
     }
 
-    public DatabaseFactory(Class key, Type type) {
+    public DatabaseFactory(Class key, Class value,Type type) {
         this.key = key;
-        this.value = null;
+        this.value = value;
         this.value_type = type;
     }
 
@@ -25,11 +25,11 @@ public class DatabaseFactory {
         switch (type) {
             case LEVEL_DB:
                 if (value_type == null)
-                    return (IDatabase) LevelDBConnectionManager.getInstance(key, value);
+                    return (IDatabase) new LevelDBConnectionManager(key, value);
                 else
-                    return (IDatabase) LevelDBConnectionManager.getInstance(key, value_type);
+                    return (IDatabase) new LevelDBConnectionManager(key, value_type);
             case ROCKS_DB:
-                return (IDatabase) RocksDBConnectionManager.getInstance(key, value);
+                return (IDatabase) new RocksDBConnectionManager(key, value);
             default:
                 throw new IllegalArgumentException("Database not supported.");
         }
@@ -40,11 +40,11 @@ public class DatabaseFactory {
         switch (type) {
             case LEVEL_DB:
                 if (value_type == null)
-                    return (IDatabase) LevelDBConnectionManager.getInstance(key, value);
+                    return (IDatabase) new LevelDBConnectionManager(key, value);
                 else
-                    return (IDatabase) LevelDBConnectionManager.getInstance(key, value_type);
+                    return (IDatabase) new LevelDBConnectionManager(key, value_type);
             case ROCKS_DB:
-                return (IDatabase) RocksDBConnectionManager.getInstance(key, value, instance);
+                return (IDatabase) new RocksDBConnectionManager(key, value, instance);
             default:
                 throw new IllegalArgumentException("Database not supported.");
         }

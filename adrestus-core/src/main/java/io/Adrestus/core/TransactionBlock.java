@@ -6,10 +6,11 @@ import io.Adrestus.core.RingBuffer.handler.blocks.DisruptorBlockVisitor;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.activej.serializer.annotations.Serialize;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TransactionBlock extends AbstractBlock implements BlockFactory, DisruptorBlock {
+public class TransactionBlock extends AbstractBlock implements BlockFactory, DisruptorBlock, Serializable {
     private int Zone;
     private List<Transaction> TransactionList;
     private List<StakingTransaction> StakingTransactionList;

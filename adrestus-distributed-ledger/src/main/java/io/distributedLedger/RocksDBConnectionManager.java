@@ -10,12 +10,14 @@ import io.Adrestus.crypto.elliptic.mapper.CustomSerializerTreeMap;
 import io.Adrestus.util.SerializationUtil;
 import io.distributedLedger.exception.*;
 import lombok.SneakyThrows;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.SerializationException;
 import org.rocksdb.*;
 
 import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.nio.file.Files;
 import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -23,17 +25,17 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import static io.distributedLedger.Constants.RocksDBConstants.*;
 import static java.lang.Math.max;
 
-public class RocksDBConnectionManager<K, V> implements IDriver<RocksDBConnectionManager>, IDatabase<K, V> {
+public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
 
     private static org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(RocksDBConnectionManager.class);
 
-    private static volatile RocksDBConnectionManager instance;
     private static final boolean enableDbCompression = false;
 
 
+    private final DatabaseInstance instance;
     private final SerializationUtil valueMapper;
     private final SerializationUtil keyMapper;
-    private final Class<V> keyClass;
+    private final Class<K> keyClass;
     private final Class<V> valueClass;
     private final ReentrantReadWriteLock rwl;
     private final Lock r;
@@ -45,10 +47,8 @@ public class RocksDBConnectionManager<K, V> implements IDriver<RocksDBConnection
     private Options options;
     private RocksDB rocksDB;
 
-    private RocksDBConnectionManager(Class<V> keyClass, Class<V> valueClass) {
-        if (instance != null) {
-            throw new IllegalStateException("Already initialized.");
-        }
+    public RocksDBConnectionManager(Class<K> keyClass, Class<V> valueClass) {
+        this.instance=DatabaseInstance.COMMITTEE_BLOCK;
         this.rwl = new ReentrantReadWriteLock();
         this.r = rwl.readLock();
         this.w = rwl.writeLock();
@@ -66,10 +66,8 @@ public class RocksDBConnectionManager<K, V> implements IDriver<RocksDBConnection
         load_connection();
     }
 
-    private RocksDBConnectionManager(Class<V> keyClass, Class<V> valueClass, DatabaseInstance instances) {
-        if (instance != null) {
-            throw new IllegalStateException("Already initialized.");
-        }
+    public RocksDBConnectionManager(Class<K> keyClass, Class<V> valueClass, DatabaseInstance instances) {
+        this.instance=instances;
         this.rwl = new ReentrantReadWriteLock();
         this.r = rwl.readLock();
         this.w = rwl.writeLock();
@@ -88,34 +86,6 @@ public class RocksDBConnectionManager<K, V> implements IDriver<RocksDBConnection
         load_connection();
     }
 
-
-    public static synchronized RocksDBConnectionManager getInstance(Class keyClass, Class valueClass) {
-        if (instance == null) {
-            synchronized (RocksDBConnectionManager.class) {
-                if (instance == null) {
-                    instance = new RocksDBConnectionManager(keyClass, valueClass);
-                }
-            }
-        }
-        return instance;
-    }
-
-    public static synchronized RocksDBConnectionManager getInstance(Class keyClass, Class valueClass, DatabaseInstance inst) {
-        if (instance == null) {
-            synchronized (RocksDBConnectionManager.class) {
-                if (instance == null) {
-                    instance = new RocksDBConnectionManager(keyClass, valueClass, inst);
-                }
-            }
-        }
-        return instance;
-    }
-
-
-    @Override
-    public RocksDBConnectionManager get() {
-        return instance;
-    }
 
     public void chooseDB(File dbFile) {
         this.dbFile = dbFile;
@@ -164,12 +134,14 @@ public class RocksDBConnectionManager<K, V> implements IDriver<RocksDBConnection
 
     @SneakyThrows
     @Override
-    public void load_connection() {
+    public synchronized void load_connection() {
         w.lock();
         dbFile = new File(Directory.getConfigPath(), CONNECTION_NAME);
         try {
-            dbFile.createNewFile();
-            rocksDB = RocksDB.open(options, Directory.getConfigPath());
+            Files.createDirectories(dbFile.getParentFile().toPath());
+            //Files.createDirectories(dbFile.getAbsoluteFile().toPath());
+           // rocksDB = RocksDB.open(options,dbFile.getAbsolutePath());
+            rocksDB= ZoneDatabaseFactory.getDatabaseInstance(this.instance,options,dbFile.getAbsolutePath());
         } catch (IOException e) {
             LOGGER.error("Path to create file is incorrect. {}", e.getMessage());
         } catch (Exception e) {
@@ -251,6 +223,31 @@ public class RocksDBConnectionManager<K, V> implements IDriver<RocksDBConnection
 
     @SneakyThrows
     @Override
+    public List<V> findByListKey(List<K> key) {
+        r.lock();
+        try {
+            List<V> list = new ArrayList<>();
+            for (int i = 0; i < key.size(); i++) {
+                final byte[] serializedKey = keyMapper.encode(key.get(i));
+                final byte[] bytes = rocksDB.get(serializedKey);
+                list.add((V) valueMapper.decode(bytes));
+            }
+            return list;
+        } catch (final NullPointerException exception) {
+            LOGGER.info("Key value not exists in Database return empty");
+        } catch (final SerializationException exception) {
+            LOGGER.error("Serialization exception occurred during findByKey operation. {}", exception.getMessage());
+        } catch (final RocksDBException exception) {
+            LOGGER.error("RocksDBException occurred during findByKey operation. {}", exception.getMessage());
+            throw new FindFailedException(exception.getMessage(), exception);
+        } finally {
+            r.unlock();
+        }
+        return new ArrayList<V>();
+    }
+
+    @SneakyThrows
+    @Override
     public void deleteByKey(K key) {
         w.lock();
         try {
@@ -284,9 +281,10 @@ public class RocksDBConnectionManager<K, V> implements IDriver<RocksDBConnection
                 rocksDB.deleteRange(firstKey, lastKey);
                 rocksDB.delete(lastKey);
             }
-            rocksDB.close();
-
+            rocksDB.deleteFile(Directory.getConfigPath());
             RocksDB.destroyDB(Directory.getConfigPath(), options);
+            rocksDB.close();
+            rocksDB = null;
         } catch (NullPointerException exception) {
             LOGGER.error("RocksDBException occurred during delete_db operation. {}", exception.getMessage());
         } catch (final RocksDBException exception) {
@@ -294,7 +292,6 @@ public class RocksDBConnectionManager<K, V> implements IDriver<RocksDBConnection
             throw new DeleteAllFailedException(exception.getMessage(), exception);
         } finally {
             w.unlock();
-            instance = null;
         }
     }
 
@@ -310,7 +307,7 @@ public class RocksDBConnectionManager<K, V> implements IDriver<RocksDBConnection
 
     @SneakyThrows
     @Override
-    public boolean delete_db() {
+    public synchronized boolean delete_db() {
         w.lock();
         try {
             final RocksIterator iterator = rocksDB.newIterator();
@@ -328,8 +325,14 @@ public class RocksDBConnectionManager<K, V> implements IDriver<RocksDBConnection
             }
             rocksDB.close();
 
+            boolean del = dbFile.delete();
+
             RocksDB.destroyDB(Directory.getConfigPath(), options);
-            return dbFile.delete();
+            options.close();
+            ZoneDatabaseFactory.closeDatabaseInstance(instance,options,dbFile.getAbsolutePath());
+            rocksDB = null;
+            FileUtils.deleteDirectory(dbFile);
+            return del;
         } catch (NullPointerException exception) {
             LOGGER.error("RocksDBException occurred during delete_db operation. {}", exception.getMessage());
         } catch (final RocksDBException exception) {
@@ -337,9 +340,24 @@ public class RocksDBConnectionManager<K, V> implements IDriver<RocksDBConnection
             throw new DeleteAllFailedException(exception.getMessage(), exception);
         } finally {
             w.unlock();
-            instance = null;
         }
         return true;
+    }
+
+    @SneakyThrows
+    @Override
+    public void closeNoDelete() {
+        w.lock();
+        try {
+            rocksDB.close();
+            options.close();
+            rocksDB = null;
+        } catch (NullPointerException exception) {
+            LOGGER.error("RocksDBException occurred during delete_db operation. {}", exception.getMessage());
+        } finally {
+            w.unlock();
+        }
+        return;
     }
 
     private byte[] getKey(final RocksIterator iterator) {

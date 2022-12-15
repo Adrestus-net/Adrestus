@@ -33,6 +33,7 @@ import io.Adrestus.p2p.kademlia.repository.KademliaData;
 import io.Adrestus.util.GetTime;
 import io.Adrestus.util.SerializationUtil;
 import io.distributedLedger.DatabaseFactory;
+import io.distributedLedger.DatabaseInstance;
 import io.distributedLedger.DatabaseType;
 import io.distributedLedger.IDatabase;
 import org.apache.commons.codec.binary.StringUtils;
@@ -241,7 +242,7 @@ public class ConsensusCommitteeTest {
         CachedSecurityHeaders.getInstance().getSecurityHeader().setRnd(vdf.solve(CachedSecurityHeaders.getInstance().getSecurityHeader().getpRnd(), CachedLatestBlocks.getInstance().getCommitteeBlock().getDifficulty()));
         Thread.sleep(500);
 
-        database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB);
+        database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
         CommitteeBlock firstblock = new CommitteeBlock();
         firstblock.setDifficulty(112);
         firstblock.getHeaderData().setTimestamp(GetTime.GetTimeStampInString());

@@ -6,6 +6,8 @@ import io.activej.serializer.annotations.Deserialize;
 import io.activej.serializer.annotations.Serialize;
 import io.activej.serializer.annotations.SerializeNullable;
 
+import java.util.List;
+
 public class Receipt {
 
     private int zoneFrom;
@@ -29,10 +31,27 @@ public class Receipt {
         this.amount = 0.0;
     }
 
-    public Receipt(int zoneFrom, int zoneTo, ReceiptBlock receiptBlock, Transaction transaction, int position, MerkleProofs proofs, String address, Double amount) {
+    public Receipt(int zoneFrom,
+                   int zoneTo,
+                   ReceiptBlock receiptBlock,
+                   Transaction transaction,
+                   int position,
+                   MerkleProofs proofs,
+                   String address,
+                   Double amount) {
         this.zoneFrom = zoneFrom;
         this.zoneTo = zoneTo;
         this.receiptBlock = receiptBlock;
+        this.transaction = transaction;
+        this.position = position;
+        this.proofs = proofs;
+        this.address = address;
+        this.amount = amount;
+    }
+
+    public Receipt(int zoneFrom, int zoneTo, Transaction transaction, int position, MerkleProofs proofs, String address, Double amount) {
+        this.zoneFrom = zoneFrom;
+        this.zoneTo = zoneTo;
         this.transaction = transaction;
         this.position = position;
         this.proofs = proofs;
@@ -53,7 +72,6 @@ public class Receipt {
     public Receipt(int zoneFrom, int zoneTo, Transaction transaction) {
         this.zoneFrom = zoneFrom;
         this.zoneTo = zoneTo;
-        this.transaction = transaction;
         this.transaction = transaction;
         this.position = 0;
         this.proofs = new MerkleProofs();
@@ -107,6 +125,7 @@ public class Receipt {
     }
 
     @Serialize
+    @SerializeNullable
     public ReceiptBlock getReceiptBlock() {
         return receiptBlock;
     }
@@ -161,6 +180,18 @@ public class Receipt {
         this.amount = amount;
     }
 
+
+    public static Receipt merge(Receipt receipt){
+        return new Receipt(
+                receipt.getZoneFrom(),
+                receipt.getZoneTo(),
+                null,
+                receipt.getTransaction(),
+                receipt.getPosition(),
+                receipt.getProofs(),
+                receipt.getAddress(),
+                receipt.getAmount());
+    }
 
     @Override
     public boolean equals(Object o) {
