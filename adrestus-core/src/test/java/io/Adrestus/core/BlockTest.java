@@ -19,6 +19,7 @@ import io.Adrestus.crypto.bls.mapper.ECP2mapper;
 import io.Adrestus.crypto.bls.mapper.ECPmapper;
 import io.Adrestus.crypto.bls.model.BLSPrivateKey;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
+import io.Adrestus.crypto.bls.model.CachedBLSKeyPair;
 import io.Adrestus.crypto.elliptic.ECDSASign;
 import io.Adrestus.crypto.elliptic.ECKeyPair;
 import io.Adrestus.crypto.elliptic.Keys;
@@ -190,7 +191,7 @@ public class BlockTest {
     @Test
     public void block_test3() throws Exception {
         TransactionEventPublisher publisher = new TransactionEventPublisher(1024);
-
+        CachedBLSKeyPair.getInstance().setPublicKey(vk1);
         publisher
                 .withAddressSizeEventHandler()
                 .withAmountEventHandler()
