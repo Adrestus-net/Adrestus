@@ -103,12 +103,14 @@ public class ConsensusClient {
                         message_deque.add(data);
                         MESSAGES--;
                     }
+                    else {
+                        message_deque.add(new byte[0]);
+                        break;
+                    }
                     // System.out.println("receive" + MESSAGES);
                     MAX_MESSAGES--;
                     // available.release();
                 }
-                if (data == null)
-                    System.out.println("null");
             }
         }).start();
     }

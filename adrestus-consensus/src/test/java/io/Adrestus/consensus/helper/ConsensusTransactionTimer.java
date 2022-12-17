@@ -5,14 +5,12 @@ import io.Adrestus.consensus.ConsensusManager;
 import io.Adrestus.consensus.ConsensusMessage;
 import io.Adrestus.consensus.ConsensusRoleType;
 import io.Adrestus.consensus.ConsensusType;
-import io.Adrestus.core.RegularTransaction;
+import io.Adrestus.core.*;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
+import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.core.Resourses.MemoryTransactionPool;
 import io.Adrestus.core.RingBuffer.handler.transactions.SignatureEventHandler;
 import io.Adrestus.core.RingBuffer.publisher.TransactionEventPublisher;
-import io.Adrestus.core.StatusType;
-import io.Adrestus.core.Transaction;
-import io.Adrestus.core.TransactionBlock;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.Adrestus.crypto.bls.model.CachedBLSKeyPair;
@@ -41,9 +39,11 @@ public class ConsensusTransactionTimer {
     private final ConsensusManager consensusManager;
     public final ArrayList<String> addreses;
     private final ArrayList<ECKeyPair> keypair;
+    private final IBlockIndex blockIndex;
 
     public ConsensusTransactionTimer(CountDownLatch latch, ArrayList<String> addreses, ArrayList<ECKeyPair> keypair) {
         this.addreses = addreses;
+        this.blockIndex=new BlockIndex();
         this.keypair = keypair;
         this.consensusManager = new ConsensusManager(false);
         this.timer = new Timer(ConsensusConfiguration.CONSENSUS);
@@ -136,8 +136,8 @@ public class ConsensusTransactionTimer {
         public void run() {
             timer.cancel();
             ConsensusMessage<TransactionBlock> consensusMessage = new ConsensusMessage<>(new TransactionBlock());
-            int target = CachedLatestBlocks.getInstance().getCommitteeBlock().getPublicKeyIndex(1, CachedBLSKeyPair.getInstance().getPublicKey());
-            int current = CachedLatestBlocks.getInstance().getCommitteeBlock().getPublicKeyIndex(1, CachedLatestBlocks.getInstance().getTransactionBlock().getLeaderPublicKey());
+            int target = blockIndex.getPublicKeyIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedBLSKeyPair.getInstance().getPublicKey());
+            int current =blockIndex.getPublicKeyIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedLatestBlocks.getInstance().getTransactionBlock().getLeaderPublicKey());
 
             if (target == current + 1 || (target == 0 && current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).size() - 1)) {
                 LOG.info("ORGANIZER State");

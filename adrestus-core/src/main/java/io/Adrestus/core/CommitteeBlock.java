@@ -105,19 +105,6 @@ public class CommitteeBlock extends AbstractBlock implements BlockFactory, Disru
         return StructureMap;
     }
 
-    public int getPublicKeyIndex(int zone, BLSPublicKey pub_key) {
-        int pos = new ArrayList<BLSPublicKey>(getStructureMap().get(zone).keySet()).indexOf(pub_key);
-        return pos;
-    }
-
-    public BLSPublicKey getPublicKeyByIndex(int zone, int index) {
-        return new ArrayList<BLSPublicKey>(getStructureMap().get(zone).keySet()).get(index);
-    }
-
-    public String getValue(int zone, BLSPublicKey blsPublicKey) {
-        return getStructureMap().get(zone).get(blsPublicKey);
-    }
-
 
     public void setStructureMap(Map<Integer, LinkedHashMap<BLSPublicKey, String>> structureMap) {
         StructureMap = structureMap;

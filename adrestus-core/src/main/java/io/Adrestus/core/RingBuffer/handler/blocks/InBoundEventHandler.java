@@ -26,6 +26,11 @@ import java.util.stream.IntStream;
 
 public class InBoundEventHandler implements BlockEventHandler<AbstractBlockEvent> {
     private static Logger LOG = LoggerFactory.getLogger(InBoundEventHandler.class);
+    private final IBlockIndex blockIndex;
+
+    public InBoundEventHandler() {
+        this.blockIndex=new BlockIndex();
+    }
 
     @Override
     public void onEvent(AbstractBlockEvent blockEvent, long l, boolean b) throws InterruptedException {
@@ -66,7 +71,7 @@ public class InBoundEventHandler implements BlockEventHandler<AbstractBlockEvent
                 public void run() {
                     try {
                         //find validator position in structure map
-                        Integer my_pos = committeeBlock.getPublicKeyIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedBLSKeyPair.getInstance().getPublicKey());
+                        Integer my_pos = blockIndex.getPublicKeyIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedBLSKeyPair.getInstance().getPublicKey());
                         // get first zone index from inner receipts and search in foor loop in which zone index of structure map belongs
                         Integer receiptZoneIndex = inner_receipts.keySet().stream().findFirst().get();
                         String IP = "";
@@ -83,7 +88,7 @@ public class InBoundEventHandler implements BlockEventHandler<AbstractBlockEvent
                                 int target = searchable_list.stream()
                                         .min(Comparator.comparingInt(i -> Math.abs(i - my_pos)))
                                         .orElseThrow(() -> new NoSuchElementException("No value present"));
-                                IP = committeeBlock.getValue(BlockZoneIndex, committeeBlock.getPublicKeyByIndex(BlockZoneIndex, target));
+                                IP = blockIndex.getIpValue(BlockZoneIndex, blockIndex.getPublicKeyByIndex(BlockZoneIndex, target));
                                 break;
                             }
                         }
@@ -154,7 +159,7 @@ public class InBoundEventHandler implements BlockEventHandler<AbstractBlockEvent
                 public void run() {
                     try {
                         //find validator position in structure map
-                        Integer my_pos = committeeBlock.getPublicKeyIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedBLSKeyPair.getInstance().getPublicKey());
+                        Integer my_pos = blockIndex.getPublicKeyIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedBLSKeyPair.getInstance().getPublicKey());
                         // get first zone index from inner receipts and search in foor loop in which zone index of structure map belongs
                         Integer receiptZoneIndex = inner_receipts.keySet().stream().findFirst().get();
                         String IP = "";
@@ -171,7 +176,7 @@ public class InBoundEventHandler implements BlockEventHandler<AbstractBlockEvent
                                 int target = searchable_list.stream()
                                         .min(Comparator.comparingInt(i -> Math.abs(i - my_pos)))
                                         .orElseThrow(() -> new NoSuchElementException("No value present"));
-                                IP = committeeBlock.getValue(BlockZoneIndex, committeeBlock.getPublicKeyByIndex(BlockZoneIndex, target));
+                                IP = blockIndex.getIpValue(BlockZoneIndex, blockIndex.getPublicKeyByIndex(BlockZoneIndex, target));
                                 break;
                             }
                         }
@@ -242,7 +247,7 @@ public class InBoundEventHandler implements BlockEventHandler<AbstractBlockEvent
                 public void run() {
                     try {
                         //find validator position in structure map
-                        Integer my_pos = committeeBlock.getPublicKeyIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedBLSKeyPair.getInstance().getPublicKey());
+                        Integer my_pos = blockIndex.getPublicKeyIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedBLSKeyPair.getInstance().getPublicKey());
                         // get first zone index from inner receipts and search in foor loop in which zone index of structure map belongs
                         Integer receiptZoneIndex = inner_receipts.keySet().stream().findFirst().get();
                         String IP = "";
@@ -259,7 +264,7 @@ public class InBoundEventHandler implements BlockEventHandler<AbstractBlockEvent
                                 int target = searchable_list.stream()
                                         .min(Comparator.comparingInt(i -> Math.abs(i - my_pos)))
                                         .orElseThrow(() -> new NoSuchElementException("No value present"));
-                                IP = committeeBlock.getValue(BlockZoneIndex, committeeBlock.getPublicKeyByIndex(BlockZoneIndex, target));
+                                IP = blockIndex.getIpValue(BlockZoneIndex, blockIndex.getPublicKeyByIndex(BlockZoneIndex, target));
                                 break;
                             }
                         }

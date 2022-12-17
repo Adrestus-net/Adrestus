@@ -5,7 +5,9 @@ import io.Adrestus.consensus.ConsensusManager;
 import io.Adrestus.consensus.ConsensusMessage;
 import io.Adrestus.consensus.ConsensusRoleType;
 import io.Adrestus.consensus.ConsensusType;
+import io.Adrestus.core.BlockIndex;
 import io.Adrestus.core.CommitteeBlock;
+import io.Adrestus.core.IBlockIndex;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedLeaderIndex;
 import io.Adrestus.core.Resourses.CachedSecurityHeaders;
@@ -32,6 +34,7 @@ public class ConsensusCommitteeTimer {
     private final ConsensusTask task;
     private final CountDownLatch latch;
     private final ConsensusManager consensusManager;
+    private final IBlockIndex blockIndex;
     private Timer timer;
     private final VrfEngine2 group;
     private final Random random;
@@ -40,6 +43,7 @@ public class ConsensusCommitteeTimer {
 
     public ConsensusCommitteeTimer(CountDownLatch latch) throws Exception {
         this.consensusManager = new ConsensusManager(false);
+        this.blockIndex=new BlockIndex();
         this.timer = new Timer(ConsensusConfiguration.CONSENSUS);
         this.task = new ConsensusTask();
         this.latch = latch;
@@ -74,7 +78,7 @@ public class ConsensusCommitteeTimer {
         @Override
         public void run() {
             ConsensusMessage<CommitteeBlock> consensusMessage = new ConsensusMessage<>(new CommitteeBlock());
-            int index = CachedLatestBlocks.getInstance().getCommitteeBlock().getPublicKeyIndex(0, CachedBLSKeyPair.getInstance().getPublicKey());
+            int index = blockIndex.getPublicKeyIndex(0, CachedBLSKeyPair.getInstance().getPublicKey());
 
             CachedLeaderIndex.getInstance().setCommitteePositionLeader(0);
             if (index == 0) {

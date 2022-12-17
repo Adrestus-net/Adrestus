@@ -16,6 +16,7 @@ import io.Adrestus.crypto.bls.BLS381.ECP;
 import io.Adrestus.crypto.bls.BLS381.ECP2;
 import io.Adrestus.crypto.bls.mapper.ECP2mapper;
 import io.Adrestus.crypto.bls.mapper.ECPmapper;
+import io.Adrestus.crypto.bls.model.CachedBLSKeyPair;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.crypto.elliptic.mapper.CustomSerializerTreeMap;
 import io.Adrestus.p2p.kademlia.repository.KademliaData;
@@ -41,7 +42,7 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 
-public class RegularBlock implements BlockForge {
+public class RegularBlock implements BlockForge,BlockInvent {
     private static Logger LOG = LoggerFactory.getLogger(RegularBlock.class);
 
     private final SerializationUtil<AbstractBlock> encode;
@@ -81,6 +82,7 @@ public class RegularBlock implements BlockForge {
         transactionBlock.setGeneration(CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration());
         transactionBlock.setViewID(CachedLatestBlocks.getInstance().getTransactionBlock().getViewID() + 1);
         transactionBlock.setZone(0);
+        transactionBlock.setLeaderPublicKey(CachedBLSKeyPair.getInstance().getPublicKey());
 
         try {
             transactionBlock.setTransactionList(MemoryTransactionPool.getInstance().getAll());
@@ -240,6 +242,16 @@ public class RegularBlock implements BlockForge {
         //########################################################################
         String hash = HashUtil.sha256_bytetoString(encode.encode(committeeBlock));
         committeeBlock.setHash(hash);
+    }
+
+    @Override
+    public void InventTransactionBlock(TransactionBlock transactionBlock) throws Exception {
+
+    }
+
+    @Override
+    public void InventCommitteBlock(CommitteeBlock committeeBlock) {
+
     }
 
     //invent

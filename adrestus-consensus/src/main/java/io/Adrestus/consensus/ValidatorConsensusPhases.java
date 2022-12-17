@@ -2,14 +2,12 @@ package io.Adrestus.consensus;
 
 import com.google.common.reflect.TypeToken;
 import io.Adrestus.config.AdrestusConfiguration;
-import io.Adrestus.core.AbstractBlock;
-import io.Adrestus.core.CommitteeBlock;
+import io.Adrestus.core.*;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedLeaderIndex;
 import io.Adrestus.core.Resourses.CachedSecurityHeaders;
+import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.core.RingBuffer.publisher.BlockEventPublisher;
-import io.Adrestus.core.StatusType;
-import io.Adrestus.core.TransactionBlock;
 import io.Adrestus.crypto.bls.BLS381.ECP;
 import io.Adrestus.crypto.bls.BLS381.ECP2;
 import io.Adrestus.crypto.bls.mapper.ECP2mapper;
@@ -52,7 +50,7 @@ import static io.Adrestus.config.ConsensusConfiguration.HEARTBEAT_MESSAGE;
 public class ValidatorConsensusPhases {
 
     protected boolean DEBUG;
-
+    protected final IBlockIndex blockIndex;
 
     protected CountDownLatch latch;
     protected int N;
@@ -62,6 +60,7 @@ public class ValidatorConsensusPhases {
     protected BLSPublicKey leader_bls;
 
     public ValidatorConsensusPhases() {
+        this.blockIndex=new BlockIndex();
     }
 
     protected static class VerifyVDF extends ValidatorConsensusPhases implements BFTConsensusPhase<VDFMessage> {
@@ -86,8 +85,8 @@ public class ValidatorConsensusPhases {
         public void InitialSetup() {
             if (!DEBUG) {
                 this.current = CachedLeaderIndex.getInstance().getCommitteePositionLeader();
-                this.leader_bls = CachedLatestBlocks.getInstance().getCommitteeBlock().getPublicKeyByIndex(0, current);
-                this.consensusClient = new ConsensusClient(CachedLatestBlocks.getInstance().getCommitteeBlock().getValue(0, this.leader_bls));
+                this.leader_bls = this.blockIndex.getPublicKeyByIndex(0, current);
+                this.consensusClient = new ConsensusClient(this.blockIndex.getIpValue(0, this.leader_bls));
                 this.consensusClient.receive_handler();
             }
         }
@@ -291,8 +290,8 @@ public class ValidatorConsensusPhases {
         public void InitialSetup() {
             if (!DEBUG) {
                 this.current = CachedLeaderIndex.getInstance().getCommitteePositionLeader();
-                this.leader_bls = CachedLatestBlocks.getInstance().getCommitteeBlock().getPublicKeyByIndex(0, current);
-                this.consensusClient = new ConsensusClient(CachedLatestBlocks.getInstance().getCommitteeBlock().getValue(0, this.leader_bls));
+                this.leader_bls = this.blockIndex.getPublicKeyByIndex(0, current);
+                this.consensusClient = new ConsensusClient(this.blockIndex.getIpValue(0, this.leader_bls));
                 this.consensusClient.receive_handler();
             }
         }
@@ -577,14 +576,14 @@ public class ValidatorConsensusPhases {
         @Override
         public void InitialSetup() {
             if (!DEBUG) {
-                this.current = CachedLatestBlocks.getInstance().getCommitteeBlock().getPublicKeyIndex(1, CachedLatestBlocks.getInstance().getTransactionBlock().getLeaderPublicKey());
-                if (current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).size() - 1) {
-                    this.leader_bls = CachedLatestBlocks.getInstance().getCommitteeBlock().getPublicKeyByIndex(1, 0);
-                    this.consensusClient = new ConsensusClient(CachedLatestBlocks.getInstance().getCommitteeBlock().getValue(1, this.leader_bls));
+                this.current = this.blockIndex.getPublicKeyIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedLatestBlocks.getInstance().getTransactionBlock().getLeaderPublicKey());
+                if (current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).size() - 1) {
+                    this.leader_bls = this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), 0);
+                    this.consensusClient = new ConsensusClient(this.blockIndex.getIpValue(CachedZoneIndex.getInstance().getZoneIndex(), this.leader_bls));
                     this.consensusClient.receive_handler();
                 } else {
-                    this.leader_bls = CachedLatestBlocks.getInstance().getCommitteeBlock().getPublicKeyByIndex(1, current + 1);
-                    this.consensusClient = new ConsensusClient(CachedLatestBlocks.getInstance().getCommitteeBlock().getValue(1, this.leader_bls));
+                    this.leader_bls = this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), current + 1);
+                    this.consensusClient = new ConsensusClient(this.blockIndex.getIpValue(CachedZoneIndex.getInstance().getZoneIndex(), this.leader_bls));
                     this.consensusClient.receive_handler();
                 }
 
@@ -625,6 +624,11 @@ public class ValidatorConsensusPhases {
                         data.setStatusType(ConsensusStatusType.ABORT);
                         return;
                     }
+                    catch (ArrayIndexOutOfBoundsException e){
+                        LOG.info("AnnouncePhase: Receiving null response from organizer");
+                        data.setStatusType(ConsensusStatusType.ABORT);
+                        return;
+                    }
                 }
             }
             if (!data.getMessageType().equals(ConsensusMessageType.ANNOUNCE))
@@ -661,7 +665,7 @@ public class ValidatorConsensusPhases {
 
             byte[] toSend = consensus_serialize.encode(data);
             consensusClient.pushMessage(toSend);
-            int i = 1;
+
         }
 
         @Override
@@ -688,6 +692,11 @@ public class ValidatorConsensusPhases {
                         }
                     } catch (IllegalArgumentException e) {
                         LOG.info("PreparePhase: Problem at message deserialization Abort");
+                        data.setStatusType(ConsensusStatusType.ABORT);
+                        return;
+                    }
+                    catch (ArrayIndexOutOfBoundsException e){
+                        LOG.info("AnnouncePhase: Receiving null response from organizer");
                         data.setStatusType(ConsensusStatusType.ABORT);
                         return;
                     }
@@ -757,6 +766,11 @@ public class ValidatorConsensusPhases {
                         data.setStatusType(ConsensusStatusType.ABORT);
                         return;
                     }
+                    catch (ArrayIndexOutOfBoundsException e){
+                        LOG.info("AnnouncePhase: Receiving null response from organizer");
+                        data.setStatusType(ConsensusStatusType.ABORT);
+                        return;
+                    }
                 }
             }
 
@@ -781,11 +795,11 @@ public class ValidatorConsensusPhases {
             if (DEBUG)
                 return;
 
-            if (current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).size() - 1)
-                data.getData().setLeaderPublicKey(CachedLatestBlocks.getInstance().getCommitteeBlock().getPublicKeyByIndex(1, 0));
+           /* if (current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).size() - 1)
+                data.getData().setLeaderPublicKey(this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), 0));
             else {
-                data.getData().setLeaderPublicKey(CachedLatestBlocks.getInstance().getCommitteeBlock().getPublicKeyByIndex(1, current + 1));
-            }
+                data.getData().setLeaderPublicKey(this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), current + 1));
+            }*/
             CachedLatestBlocks.getInstance().setTransactionBlock(data.getData());
             //commit save to db
 
@@ -819,8 +833,8 @@ public class ValidatorConsensusPhases {
         public void InitialSetup() {
             if (!DEBUG) {
                 this.current = CachedLeaderIndex.getInstance().getCommitteePositionLeader();
-                this.leader_bls = CachedLatestBlocks.getInstance().getCommitteeBlock().getPublicKeyByIndex(0, current);
-                this.consensusClient = new ConsensusClient(CachedLatestBlocks.getInstance().getCommitteeBlock().getValue(0, this.leader_bls));
+                this.leader_bls = this.blockIndex.getPublicKeyByIndex(0, current);
+                this.consensusClient = new ConsensusClient(this.blockIndex.getIpValue(0, this.leader_bls));
                 this.consensusClient.receive_handler();
             }
         }
@@ -1024,11 +1038,4 @@ public class ValidatorConsensusPhases {
         }
     }
 
-    protected void cleanup() {
-        try {
-            consensusClient.close();
-        } catch (Exception e) {
-
-        }
-    }
 }

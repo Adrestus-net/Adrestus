@@ -5,6 +5,7 @@ import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.consensus.helper.ConsensusTransactionTimer;
 import io.Adrestus.core.CommitteeBlock;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
+import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.core.Transaction;
 import io.Adrestus.core.TransactionBlock;
 import io.Adrestus.crypto.WalletAddress;
@@ -175,6 +176,7 @@ public class ConsensusTransactionTimerTest {
         // CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).put(vk4, "192.168.1.115");
         CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).put(vk5, "192.168.1.116");
         // CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).put(vk6, "192.168.1.104");
+        CachedZoneIndex.getInstance().setZoneIndexInternalIP();
     }
 
 

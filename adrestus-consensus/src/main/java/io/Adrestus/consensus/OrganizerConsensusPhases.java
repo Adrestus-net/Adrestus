@@ -1,11 +1,9 @@
 package io.Adrestus.consensus;
 
 import com.google.common.reflect.TypeToken;
-import io.Adrestus.core.AbstractBlock;
-import io.Adrestus.core.BlockType;
-import io.Adrestus.core.DefaultFactory;
+import io.Adrestus.core.*;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
-import io.Adrestus.core.TransactionBlock;
+import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.crypto.bls.BLS381.ECP;
 import io.Adrestus.crypto.bls.BLS381.ECP2;
 import io.Adrestus.crypto.bls.mapper.ECP2mapper;
@@ -43,7 +41,7 @@ public class OrganizerConsensusPhases {
         private final SerializationUtil<AbstractBlock> block_serialize;
         private final SerializationUtil<ConsensusMessage> consensus_serialize;
         private final boolean DEBUG;
-
+        private final IBlockIndex blockIndex;
 
         private CountDownLatch latch;
         private int N;
@@ -55,6 +53,7 @@ public class OrganizerConsensusPhases {
 
         public ProposeTransactionBlock(boolean DEBUG) {
             this.DEBUG = DEBUG;
+            this.blockIndex=new BlockIndex();
             this.factory = new DefaultFactory();
             List<SerializationUtil.Mapping> list = new ArrayList<>();
             list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
@@ -72,13 +71,13 @@ public class OrganizerConsensusPhases {
                 this.N = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).size() - 1;
                 this.F = (this.N - 1) / 3;
                 this.latch = new CountDownLatch(N);
-                this.current = CachedLatestBlocks.getInstance().getCommitteeBlock().getPublicKeyIndex(1, CachedLatestBlocks.getInstance().getTransactionBlock().getLeaderPublicKey());
+                this.current = this.blockIndex.getPublicKeyIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedLatestBlocks.getInstance().getTransactionBlock().getLeaderPublicKey());
                 if (current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).size() - 1) {
-                    this.leader_bls = CachedLatestBlocks.getInstance().getCommitteeBlock().getPublicKeyByIndex(1, 0);
-                    this.consensusServer = new ConsensusServer(CachedLatestBlocks.getInstance().getCommitteeBlock().getValue(1, this.leader_bls), latch);
+                    this.leader_bls = this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), 0);
+                    this.consensusServer = new ConsensusServer(this.blockIndex.getIpValue(1, this.leader_bls), latch);
                 } else {
-                    this.leader_bls = CachedLatestBlocks.getInstance().getCommitteeBlock().getPublicKeyByIndex(1, current + 1);
-                    this.consensusServer = new ConsensusServer(CachedLatestBlocks.getInstance().getCommitteeBlock().getValue(1, this.leader_bls), latch);
+                    this.leader_bls = this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), current + 1);
+                    this.consensusServer = new ConsensusServer(this.blockIndex.getIpValue(1, this.leader_bls), latch);
                 }
             }
         }
@@ -177,7 +176,14 @@ public class OrganizerConsensusPhases {
                             i--;
                         } else {
                             ConsensusMessage<TransactionBlock> received = consensus_serialize.decode(receive);
-                            if (!CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).containsKey(received.getChecksumData().getBlsPublicKey())) {
+                            if (!CachedLatestBlocks.
+                                    getInstance()
+                                    .getCommitteeBlock()
+                                    .getStructureMap()
+                                    .get(CachedZoneIndex
+                                            .getInstance()
+                                            .getZoneIndex())
+                                    .containsKey(received.getChecksumData().getBlsPublicKey())) {
                                 LOG.info("CommitPhase: Validator does not exist on consensus... Ignore");
                                 i--;
                             } else {
@@ -222,18 +228,18 @@ public class OrganizerConsensusPhases {
             Signature sig = BLSSignature.sign(block_serialize.encode(data.getData()), CachedBLSKeyPair.getInstance().getPrivateKey());
             data.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
 
-            this.N = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).size() - 1;
+            this.N = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).size() - 1;
             this.F = (this.N - 1) / 3;
             int i = N;
 
             byte[] toSend = consensus_serialize.encode(data);
             consensusServer.publishMessage(toSend);
 
-            if (current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).size() - 1)
-                data.getData().setLeaderPublicKey(CachedLatestBlocks.getInstance().getCommitteeBlock().getPublicKeyByIndex(1, 0));
+          /*  if (current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).size() - 1)
+                data.getData().setLeaderPublicKey(this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), 0));
             else {
-                data.getData().setLeaderPublicKey(CachedLatestBlocks.getInstance().getCommitteeBlock().getPublicKeyByIndex(1, current + 1));
-            }
+                data.getData().setLeaderPublicKey(this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), current + 1));
+            }*/
             CachedLatestBlocks.getInstance().setTransactionBlock(data.getData());
 
             while (i > 0) {
