@@ -40,6 +40,7 @@ public class ConsensusTransactionTimer {
     public final ArrayList<String> addreses;
     private final ArrayList<ECKeyPair> keypair;
     private final IBlockIndex blockIndex;
+    private int nonce = 0;
 
     public ConsensusTransactionTimer(CountDownLatch latch, ArrayList<String> addreses, ArrayList<ECKeyPair> keypair) {
         this.addreses = addreses;
@@ -80,6 +81,7 @@ public class ConsensusTransactionTimer {
     }
 
     private void SaveTransactions(int start, int stop) throws InterruptedException {
+        nonce++;
         TransactionEventPublisher publisher = new TransactionEventPublisher(1024);
 
         publisher
@@ -108,9 +110,9 @@ public class ConsensusTransactionTimer {
             Thread.sleep(10);
             transaction.setZoneFrom(CachedZoneIndex.getInstance().getZoneIndex());
             transaction.setZoneTo(CachedZoneIndex.getInstance().getZoneIndex());
-            transaction.setAmount(i+10);
+            transaction.setAmount(i + 10);
             transaction.setAmountWithTransactionFee(transaction.getAmount() * (10.0 / 100.0));
-            transaction.setNonce(1);
+            transaction.setNonce(nonce);
             byte byf[] = serenc.encode(transaction);
             transaction.setHash(HashUtil.sha256_bytetoString(byf));
 

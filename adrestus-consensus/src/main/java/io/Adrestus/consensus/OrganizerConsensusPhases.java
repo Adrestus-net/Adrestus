@@ -112,6 +112,7 @@ public class OrganizerConsensusPhases {
                             i--;
                         } else {
                             ConsensusMessage<TransactionBlock> received = consensus_serialize.decode(receive);
+                            data.setData(received.getData());
                             if (!CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).containsKey(received.getChecksumData().getBlsPublicKey())) {
                                 LOG.info("PreparePhase: Validator does not exist on consensus... Ignore");
                                 i--;
@@ -176,6 +177,7 @@ public class OrganizerConsensusPhases {
                             i--;
                         } else {
                             ConsensusMessage<TransactionBlock> received = consensus_serialize.decode(receive);
+                            data.setData(received.getData());
                             if (!CachedLatestBlocks.
                                     getInstance()
                                     .getCommitteeBlock()

@@ -37,6 +37,8 @@ public class MemoryTreePool implements IMemoryTreePool {
         }
     }
 
+
+    //be aware that print functionality is  different
     @Override
     public void deposit(String address, PatriciaTreeNode patriciaTreeNode, IMemoryTreePool instance) {
         w.lock();
@@ -48,15 +50,16 @@ public class MemoryTreePool implements IMemoryTreePool {
                 patriciaTreeImp.put(key, next);
             } else {
                 Double amount = prev.get().getAmount() + patriciaTreeNode.getAmount();
-                patriciaTreeNode.setAmount(amount);
-                patriciaTreeNode.setNonce(patriciaTreeNode.getNonce() + 1);
-                patriciaTreeImp.put(key, patriciaTreeNode);
+               // System.out.println("Deposit "+address+ " "+prev.get().getAmount()+" + "+patriciaTreeNode.getAmount()+" = "+amount);
+                prev.get().setAmount(amount);
+                patriciaTreeImp.put(key, prev.get());
             }
         } finally {
             w.unlock();
         }
     }
 
+    //be aware that print functionality is  different
     @Override
     public void withdraw(String address, PatriciaTreeNode patriciaTreeNode,IMemoryTreePool instance) {
         w.lock();
@@ -65,9 +68,10 @@ public class MemoryTreePool implements IMemoryTreePool {
             Optional<PatriciaTreeNode> prev = instance.getByaddress(address);
             if (prev.isEmpty()) {
                 PatriciaTreeNode next = new PatriciaTreeNode(patriciaTreeNode.getAmount(), 0, 0);
-                patriciaTreeImp.put(key, patriciaTreeNode);
+                patriciaTreeImp.put(key, next);
             } else {
                 Double amount = prev.get().getAmount() - patriciaTreeNode.getAmount();
+                //System.out.println("Widraw "+address+ " "+prev.get().getAmount()+" - "+patriciaTreeNode.getAmount()+" = "+amount);
                 patriciaTreeNode.setAmount(amount);
                 patriciaTreeNode.setNonce(patriciaTreeNode.getNonce() + 1);
                 patriciaTreeImp.put(key, patriciaTreeNode);

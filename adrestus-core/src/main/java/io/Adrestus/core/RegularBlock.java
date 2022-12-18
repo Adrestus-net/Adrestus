@@ -251,12 +251,11 @@ public class RegularBlock implements BlockForge, BlockInvent {
         if (!transactionBlock.getTransactionList().isEmpty()) {
             for (int i = 0; i < transactionBlock.getTransactionList().size(); i++) {
                 Transaction transaction = transactionBlock.getTransactionList().get(i);
-                PatriciaTreeNode patriciaTreeNode = new PatriciaTreeNode(transaction.getAmount());
                 if ((transaction.getZoneFrom() == CachedZoneIndex.getInstance().getZoneIndex()) && (transaction.getZoneTo() == CachedZoneIndex.getInstance().getZoneIndex())) {
-                    TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).withdraw(transaction.getFrom(), patriciaTreeNode,TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()));
-                    TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).deposit(transaction.getTo(), patriciaTreeNode,TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()));
+                    TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).withdraw(transaction.getFrom(), new PatriciaTreeNode(transaction.getAmount()),TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()));
+                    TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).deposit(transaction.getTo(), new PatriciaTreeNode(transaction.getAmount()),TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()));
                 } else {
-                    TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).withdraw(transaction.getFrom(), patriciaTreeNode,TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()));
+                    TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).withdraw(transaction.getFrom(), new PatriciaTreeNode(transaction.getAmount()),TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()));
                 }
             }
         }

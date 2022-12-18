@@ -2,6 +2,7 @@ package io.Adrestus.consensus;
 
 import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.PatriciaTreeNode;
+import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.consensus.helper.ConsensusTransactionTimer;
 import io.Adrestus.core.CommitteeBlock;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
@@ -23,6 +24,7 @@ import io.Adrestus.util.SerializationUtil;
 import jdk.swing.interop.SwingInterOpUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.spongycastle.util.encoders.Hex;
 
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -110,16 +112,27 @@ public class ConsensusTransactionTimerTest {
         byte[] key9 = mnem.createSeed(mnemonic9, passphrase);
         byte[] key10 = mnem.createSeed(mnemonic10, passphrase);
 
-        ECKeyPair ecKeyPair1 = Keys.createEcKeyPair(new SecureRandom(key1));
-        ECKeyPair ecKeyPair2 = Keys.createEcKeyPair(new SecureRandom(key2));
-        ECKeyPair ecKeyPair3 = Keys.createEcKeyPair(new SecureRandom(key3));
-        ECKeyPair ecKeyPair4 = Keys.createEcKeyPair(new SecureRandom(key4));
-        ECKeyPair ecKeyPair5 = Keys.createEcKeyPair(new SecureRandom(key5));
-        ECKeyPair ecKeyPair6 = Keys.createEcKeyPair(new SecureRandom(key6));
-        ECKeyPair ecKeyPair7 = Keys.createEcKeyPair(new SecureRandom(key7));
-        ECKeyPair ecKeyPair8 = Keys.createEcKeyPair(new SecureRandom(key8));
-        ECKeyPair ecKeyPair9 = Keys.createEcKeyPair(new SecureRandom(key9));
-        ECKeyPair ecKeyPair10 = Keys.createEcKeyPair(new SecureRandom(key10));
+        SecureRandom random = SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
+        random.setSeed(key1);
+        ECKeyPair ecKeyPair1 = Keys.createEcKeyPair(random);
+        random.setSeed(key2);
+        ECKeyPair ecKeyPair2 = Keys.createEcKeyPair(random);
+        random.setSeed(key3);
+        ECKeyPair ecKeyPair3 = Keys.createEcKeyPair(random);
+        random.setSeed(key4);
+        ECKeyPair ecKeyPair4 = Keys.createEcKeyPair(random);
+        random.setSeed(key5);
+        ECKeyPair ecKeyPair5 = Keys.createEcKeyPair(random);
+        random.setSeed(key6);
+        ECKeyPair ecKeyPair6 = Keys.createEcKeyPair(random);
+        random.setSeed(key7);
+        ECKeyPair ecKeyPair7 = Keys.createEcKeyPair(random);
+        random.setSeed(key8);
+        ECKeyPair ecKeyPair8 = Keys.createEcKeyPair(random);
+        random.setSeed(key9);
+        ECKeyPair ecKeyPair9 = Keys.createEcKeyPair(random);
+        random.setSeed(key10);
+        ECKeyPair ecKeyPair10 = Keys.createEcKeyPair(random);
         String adddress1 = WalletAddress.generate_address((byte) version, ecKeyPair1.getPublicKey());
         String adddress2 = WalletAddress.generate_address((byte) version, ecKeyPair2.getPublicKey());
         String adddress3 = WalletAddress.generate_address((byte) version, ecKeyPair3.getPublicKey());
@@ -226,11 +239,20 @@ public class ConsensusTransactionTimerTest {
         c.close();
 
         //assertEquals(TreeFactory.getMemoryTree(1).getByaddress(addreses.get(0)).get().getAmount(), TreeFactory.getMemoryTree(1).getByaddress(addreses.get(0)).get().getAmount()-100);
-        for(int i=1;i<addreses.size()-1;i++) {
-            System.out.println(TreeFactory.getMemoryTree(1).getByaddress(addreses.get(i)).get().getAmount());
-           // assertEquals(TreeFactory.getMemoryTree(1).getByaddress(addreses.get(i)).get().getAmount(), TreeFactory.getMemoryTree(1).getByaddress(addreses.get(i)).get().getAmount());
+        for(int i=0;i<addreses.size()-1;i++) {
+            System.out.println(addreses.get(i)+" "+TreeFactory.getMemoryTree(1).getByaddress(addreses.get(i)).get().getAmount());
         }
 
+        //be aware that print functionality is  different
+        assertEquals(980, TreeFactory.getMemoryTree(1).getByaddress(addreses.get(0)).get().getAmount());
+        assertEquals(998, TreeFactory.getMemoryTree(1).getByaddress(addreses.get(1)).get().getAmount());
+        assertEquals(998, TreeFactory.getMemoryTree(1).getByaddress(addreses.get(2)).get().getAmount());
+        assertEquals(998, TreeFactory.getMemoryTree(1).getByaddress(addreses.get(3)).get().getAmount());
+        assertEquals(1012, TreeFactory.getMemoryTree(1).getByaddress(addreses.get(4)).get().getAmount());
+        assertEquals(999, TreeFactory.getMemoryTree(1).getByaddress(addreses.get(5)).get().getAmount());
+        assertEquals(1015, TreeFactory.getMemoryTree(1).getByaddress(addreses.get(6)).get().getAmount());
+        assertEquals(1000, TreeFactory.getMemoryTree(1).getByaddress(addreses.get(7)).get().getAmount());
+        assertEquals(1000, TreeFactory.getMemoryTree(1).getByaddress(addreses.get(8)).get().getAmount());
 
 
     }
