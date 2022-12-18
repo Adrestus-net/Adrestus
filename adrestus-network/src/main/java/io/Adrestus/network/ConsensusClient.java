@@ -102,8 +102,7 @@ public class ConsensusClient {
                     if (data != null) {
                         message_deque.add(data);
                         MESSAGES--;
-                    }
-                    else {
+                    } else {
                         message_deque.add(new byte[0]);
                         break;
                     }

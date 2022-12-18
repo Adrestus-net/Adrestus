@@ -101,7 +101,7 @@ public class MemoryTransactionPool implements IMemoryPool<Transaction> {
 
 
     @Override
-    public void delete(List<Transaction> list_transaction) throws Exception {
+    public void delete(List<Transaction> list_transaction) {
         w.lock();
         try {
             memorypool.removeAll(list_transaction);
@@ -116,7 +116,7 @@ public class MemoryTransactionPool implements IMemoryPool<Transaction> {
     }
 
     @Override
-    public void delete(Transaction transaction) throws Exception {
+    public void delete(Transaction transaction) {
         r.lock();
         try {
             int index = Collections.binarySearch(memorypool, transaction, hashComparator);

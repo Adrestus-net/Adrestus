@@ -138,7 +138,6 @@ public class RpcAdrestusClient<T> {
     }
 
 
-
     @SneakyThrows
     public List<T> getBlock(List<String> hash) {
         Optional<BlockResponse> val = (Optional<BlockResponse>) getBlockResponse(this.client, hash);

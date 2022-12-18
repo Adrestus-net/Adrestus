@@ -43,7 +43,7 @@ public class ConsensusTransactionTimer {
 
     public ConsensusTransactionTimer(CountDownLatch latch, ArrayList<String> addreses, ArrayList<ECKeyPair> keypair) {
         this.addreses = addreses;
-        this.blockIndex=new BlockIndex();
+        this.blockIndex = new BlockIndex();
         this.keypair = keypair;
         this.consensusManager = new ConsensusManager(false);
         this.timer = new Timer(ConsensusConfiguration.CONSENSUS);
@@ -95,6 +95,7 @@ public class ConsensusTransactionTimer {
                 .withTransactionFeeEventHandler()
                 .withTimestampEventHandler()
                 .withSameOriginEventHandler()
+                .withZoneEventHandler()
                 .mergeEventsAndPassThen(new SignatureEventHandler(SignatureEventHandler.SignatureBehaviorType.SIMPLE_TRANSACTIONS));
         publisher.start();
 
@@ -105,7 +106,7 @@ public class ConsensusTransactionTimer {
             transaction.setStatus(StatusType.PENDING);
             transaction.setTimestamp(GetTime.GetTimeStampInString());
             Thread.sleep(10);
-            transaction.setZoneFrom(0);
+            transaction.setZoneFrom(CachedZoneIndex.getInstance().getZoneIndex());
             transaction.setZoneTo(0);
             transaction.setAmount(100);
             transaction.setAmountWithTransactionFee(transaction.getAmount() * (10.0 / 100.0));
@@ -137,7 +138,7 @@ public class ConsensusTransactionTimer {
             timer.cancel();
             ConsensusMessage<TransactionBlock> consensusMessage = new ConsensusMessage<>(new TransactionBlock());
             int target = blockIndex.getPublicKeyIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedBLSKeyPair.getInstance().getPublicKey());
-            int current =blockIndex.getPublicKeyIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedLatestBlocks.getInstance().getTransactionBlock().getLeaderPublicKey());
+            int current = blockIndex.getPublicKeyIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedLatestBlocks.getInstance().getTransactionBlock().getLeaderPublicKey());
 
             if (target == current + 1 || (target == 0 && current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).size() - 1)) {
                 LOG.info("ORGANIZER State");

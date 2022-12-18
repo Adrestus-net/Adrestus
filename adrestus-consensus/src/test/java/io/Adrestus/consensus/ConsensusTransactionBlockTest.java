@@ -1,10 +1,11 @@
 package io.Adrestus.consensus;
 
-import io.Adrestus.MemoryTreePool;
+import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.core.*;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
+import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.core.RingBuffer.handler.transactions.SignatureEventHandler;
 import io.Adrestus.core.RingBuffer.publisher.TransactionEventPublisher;
 import io.Adrestus.crypto.HashUtil;
@@ -52,6 +53,7 @@ public class ConsensusTransactionBlockTest {
     }
 
     public static void setup() throws Exception {
+        CachedZoneIndex.getInstance().setZONE_INDEX(1);
         pRnd = new byte[20];
         random = new SecureRandom();
         random.nextBytes(pRnd);
@@ -71,6 +73,8 @@ public class ConsensusTransactionBlockTest {
                 .withTransactionFeeEventHandler()
                 .withTimestampEventHandler()
                 .withSameOriginEventHandler()
+                .withZoneEventHandler()
+                .withZoneEventHandler()
                 .mergeEventsAndPassThen(new SignatureEventHandler(SignatureEventHandler.SignatureBehaviorType.SIMPLE_TRANSACTIONS));
         publisher.start();
 
@@ -97,7 +101,7 @@ public class ConsensusTransactionBlockTest {
             String adddress = WalletAddress.generate_address((byte) version, ecKeyPair.getPublicKey());
             addreses.add(adddress);
             keypair.add(ecKeyPair);
-            MemoryTreePool.getInstance().store(adddress, new PatriciaTreeNode(1000, 0));
+            TreeFactory.getMemoryTree(1).store(adddress, new PatriciaTreeNode(1000, 0));
         }
 
 
@@ -107,7 +111,7 @@ public class ConsensusTransactionBlockTest {
             transaction.setTo(addreses.get(i + 1));
             transaction.setStatus(StatusType.PENDING);
             transaction.setTimestamp(GetTime.GetTimeStampInString());
-            transaction.setZoneFrom(0);
+            transaction.setZoneFrom(1);
             transaction.setZoneTo(0);
             transaction.setAmount(100);
             transaction.setAmountWithTransactionFee(transaction.getAmount() * (10.0 / 100.0));

@@ -53,7 +53,7 @@ public class OrganizerConsensusPhases {
 
         public ProposeTransactionBlock(boolean DEBUG) {
             this.DEBUG = DEBUG;
-            this.blockIndex=new BlockIndex();
+            this.blockIndex = new BlockIndex();
             this.factory = new DefaultFactory();
             List<SerializationUtil.Mapping> list = new ArrayList<>();
             list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
@@ -240,8 +240,9 @@ public class OrganizerConsensusPhases {
             else {
                 data.getData().setLeaderPublicKey(this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), current + 1));
             }*/
-            CachedLatestBlocks.getInstance().setTransactionBlock(data.getData());
-
+            // CachedLatestBlocks.getInstance().setTransactionBlock(data.getData());
+            BlockInvent regural_block = (BlockInvent) factory.getBlock(BlockType.REGULAR);
+            regural_block.InventTransactionBlock(data.getData());
             while (i > 0) {
                 try {
                     consensusServer.receiveStringData();

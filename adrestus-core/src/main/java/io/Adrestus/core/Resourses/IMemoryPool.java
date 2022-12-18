@@ -18,9 +18,9 @@ public interface IMemoryPool<T> {
 
     boolean add(T transaction) throws Exception;
 
-    void delete(List<T> list_transaction) throws Exception;
+    void delete(List<T> list_transaction);
 
-    void delete(T transaction) throws Exception;
+    void delete(T transaction);
 
     boolean checkAdressExists(T transaction) throws Exception;
 

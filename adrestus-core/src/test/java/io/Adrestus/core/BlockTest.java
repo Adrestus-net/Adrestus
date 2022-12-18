@@ -1,12 +1,13 @@
 package io.Adrestus.core;
 
 import com.google.common.primitives.Ints;
-import io.Adrestus.MemoryTreePool;
+import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.config.KademliaConfiguration;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedSecurityHeaders;
+import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.core.RingBuffer.handler.transactions.SignatureEventHandler;
 import io.Adrestus.core.RingBuffer.publisher.BlockEventPublisher;
 import io.Adrestus.core.RingBuffer.publisher.TransactionEventPublisher;
@@ -190,6 +191,7 @@ public class BlockTest {
 
     @Test
     public void block_test3() throws Exception {
+        CachedZoneIndex.getInstance().setZONE_INDEX(0);
         TransactionEventPublisher publisher = new TransactionEventPublisher(1024);
         CachedBLSKeyPair.getInstance().setPublicKey(vk1);
         publisher
@@ -205,6 +207,7 @@ public class BlockTest {
                 .withTransactionFeeEventHandler()
                 .withTimestampEventHandler()
                 .withSameOriginEventHandler()
+                .withZoneEventHandler()
                 .mergeEventsAndPassThen(new SignatureEventHandler(SignatureEventHandler.SignatureBehaviorType.SIMPLE_TRANSACTIONS));
         publisher.start();
 
@@ -231,7 +234,7 @@ public class BlockTest {
             String adddress = WalletAddress.generate_address((byte) version, ecKeyPair.getPublicKey());
             addreses.add(adddress);
             keypair.add(ecKeyPair);
-            MemoryTreePool.getInstance().store(adddress, new PatriciaTreeNode(1000, 0));
+            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(adddress, new PatriciaTreeNode(1000, 0));
         }
 
 
@@ -376,16 +379,16 @@ public class BlockTest {
         SignatureData signatureData9 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(adddress9)), ecKeyPair9);
         SignatureData signatureData10 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(adddress10)), ecKeyPair10);
 
-        MemoryTreePool.getInstance().store(adddress1, new PatriciaTreeNode(1000, 0));
-        MemoryTreePool.getInstance().store(adddress2, new PatriciaTreeNode(1000, 0));
-        MemoryTreePool.getInstance().store(adddress3, new PatriciaTreeNode(1000, 0));
-        MemoryTreePool.getInstance().store(adddress4, new PatriciaTreeNode(1000, 0));
-        MemoryTreePool.getInstance().store(adddress5, new PatriciaTreeNode(1000, 0));
-        MemoryTreePool.getInstance().store(adddress6, new PatriciaTreeNode(1000, 0));
-        MemoryTreePool.getInstance().store(adddress7, new PatriciaTreeNode(1000, 0));
-        MemoryTreePool.getInstance().store(adddress8, new PatriciaTreeNode(1000, 0));
-        MemoryTreePool.getInstance().store(adddress9, new PatriciaTreeNode(1000, 0));
-        MemoryTreePool.getInstance().store(adddress10, new PatriciaTreeNode(1000, 0));
+        TreeFactory.getMemoryTree(0).store(adddress1, new PatriciaTreeNode(1000, 0));
+        TreeFactory.getMemoryTree(0).store(adddress2, new PatriciaTreeNode(1000, 0));
+        TreeFactory.getMemoryTree(0).store(adddress3, new PatriciaTreeNode(1000, 0));
+        TreeFactory.getMemoryTree(0).store(adddress4, new PatriciaTreeNode(1000, 0));
+        TreeFactory.getMemoryTree(0).store(adddress5, new PatriciaTreeNode(1000, 0));
+        TreeFactory.getMemoryTree(0).store(adddress6, new PatriciaTreeNode(1000, 0));
+        TreeFactory.getMemoryTree(0).store(adddress7, new PatriciaTreeNode(1000, 0));
+        TreeFactory.getMemoryTree(0).store(adddress8, new PatriciaTreeNode(1000, 0));
+        TreeFactory.getMemoryTree(0).store(adddress9, new PatriciaTreeNode(1000, 0));
+        TreeFactory.getMemoryTree(0).store(adddress10, new PatriciaTreeNode(1000, 0));
 
         BlockEventPublisher publisher = new BlockEventPublisher(1024);
 

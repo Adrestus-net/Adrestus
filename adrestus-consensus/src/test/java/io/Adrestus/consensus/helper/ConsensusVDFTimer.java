@@ -7,7 +7,6 @@ import io.Adrestus.consensus.ConsensusRoleType;
 import io.Adrestus.consensus.ConsensusType;
 import io.Adrestus.core.BlockIndex;
 import io.Adrestus.core.IBlockIndex;
-import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedLeaderIndex;
 import io.Adrestus.crypto.bls.model.CachedBLSKeyPair;
 import io.Adrestus.crypto.vdf.VDFMessage;
@@ -30,7 +29,7 @@ public class ConsensusVDFTimer {
     public ConsensusVDFTimer(CountDownLatch latch) {
         this.consensusManager = new ConsensusManager(false);
         this.timer = new Timer(ConsensusConfiguration.CONSENSUS);
-        this.blockIndex=new BlockIndex();
+        this.blockIndex = new BlockIndex();
         this.task = new ConsensusTask();
         this.latch = latch;
         this.timer.scheduleAtFixedRate(task, ConsensusConfiguration.CONSENSUS_COMMITTEE_TIMER, ConsensusConfiguration.CONSENSUS_COMMITTEE_TIMER);

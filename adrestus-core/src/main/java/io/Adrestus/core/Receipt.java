@@ -6,8 +6,6 @@ import io.activej.serializer.annotations.Deserialize;
 import io.activej.serializer.annotations.Serialize;
 import io.activej.serializer.annotations.SerializeNullable;
 
-import java.util.List;
-
 public class Receipt {
 
     private int zoneFrom;
@@ -181,7 +179,7 @@ public class Receipt {
     }
 
 
-    public static Receipt merge(Receipt receipt){
+    public static Receipt merge(Receipt receipt) {
         return new Receipt(
                 receipt.getZoneFrom(),
                 receipt.getZoneTo(),

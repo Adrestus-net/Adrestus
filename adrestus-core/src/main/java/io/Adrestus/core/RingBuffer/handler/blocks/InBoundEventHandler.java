@@ -10,7 +10,6 @@ import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.core.RingBuffer.event.AbstractBlockEvent;
 import io.Adrestus.crypto.bls.model.CachedBLSKeyPair;
 import io.Adrestus.rpc.RpcAdrestusClient;
-import io.activej.eventloop.Eventloop;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +28,7 @@ public class InBoundEventHandler implements BlockEventHandler<AbstractBlockEvent
     private final IBlockIndex blockIndex;
 
     public InBoundEventHandler() {
-        this.blockIndex=new BlockIndex();
+        this.blockIndex = new BlockIndex();
     }
 
     @Override
@@ -104,7 +103,7 @@ public class InBoundEventHandler implements BlockEventHandler<AbstractBlockEvent
                         RpcAdrestusClient<AbstractBlock> client = new RpcAdrestusClient<AbstractBlock>(new TransactionBlock(), IP, NetworkConfiguration.RPC_PORT, CachedEventLoop.getInstance().getEventloop());
                         client.connect();
                         List<AbstractBlock> current = client.getBlock(to_search);
-                        if (current!=null)
+                        if (current != null)
                             atomicReference.set(client.getBlock(to_search));
 
                     } catch (Exception e) {
@@ -146,7 +145,7 @@ public class InBoundEventHandler implements BlockEventHandler<AbstractBlockEvent
 
             });
         } catch (Exception e) {
-           // e.printStackTrace();
+            // e.printStackTrace();
             latch.countDown();
         }
 
@@ -192,7 +191,7 @@ public class InBoundEventHandler implements BlockEventHandler<AbstractBlockEvent
                         RpcAdrestusClient<AbstractBlock> client = new RpcAdrestusClient<AbstractBlock>(new TransactionBlock(), IP, NetworkConfiguration.RPC_PORT, CachedEventLoop.getInstance().getEventloop());
                         client.connect();
                         List<AbstractBlock> current = client.getBlock(to_search);
-                        if (current!=null)
+                        if (current != null)
                             atomicReference.set(client.getBlock(to_search));
 
                     } catch (Exception e) {
@@ -239,7 +238,7 @@ public class InBoundEventHandler implements BlockEventHandler<AbstractBlockEvent
         }
 
         try {
-            Map<Receipt.ReceiptBlock, List<Receipt>> zone_3= inner_receipts.get(keyset.toArray()[2]);
+            Map<Receipt.ReceiptBlock, List<Receipt>> zone_3 = inner_receipts.get(keyset.toArray()[2]);
             CountDownLatch inner_latch = new CountDownLatch(1);
             AtomicReference<List<AbstractBlock>> atomicReference = new AtomicReference<>(new ArrayList<>());
             new Thread(new Runnable() {
@@ -280,7 +279,7 @@ public class InBoundEventHandler implements BlockEventHandler<AbstractBlockEvent
                         RpcAdrestusClient<AbstractBlock> client = new RpcAdrestusClient<AbstractBlock>(new TransactionBlock(), IP, NetworkConfiguration.RPC_PORT, CachedEventLoop.getInstance().getEventloop());
                         client.connect();
                         List<AbstractBlock> current = client.getBlock(to_search);
-                        if (current!=null)
+                        if (current != null)
                             atomicReference.set(client.getBlock(to_search));
 
                     } catch (Exception e) {

@@ -4,7 +4,6 @@ import io.Adrestus.config.ConsensusConfiguration;
 import io.Adrestus.consensus.*;
 import io.Adrestus.core.BlockIndex;
 import io.Adrestus.core.IBlockIndex;
-import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedLeaderIndex;
 import io.Adrestus.crypto.bls.model.CachedBLSKeyPair;
 import io.Adrestus.crypto.vrf.VRFMessage;
@@ -26,7 +25,7 @@ public class ConsensusVRFTimer {
 
     public ConsensusVRFTimer(CountDownLatch latch) {
         this.latch = latch;
-        this.blockIndex=new BlockIndex();
+        this.blockIndex = new BlockIndex();
         this.consensusManager = new ConsensusManager(false);
         this.timer = new Timer(ConsensusConfiguration.CONSENSUS);
         this.task = new ConsensusTask();

@@ -1,10 +1,7 @@
 package io.distributedLedger;
 
-import org.apache.commons.lang3.time.StopWatch;
 import org.junit.jupiter.api.Test;
 
-import java.time.Duration;
-import java.time.Instant;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -13,7 +10,7 @@ public class RocksDBConnectionTest {
 
     @Test
     public void test_database_file() {
-        IDatabase<String, String> database = new DatabaseFactory(String.class, String.class).getDatabase(DatabaseType.ROCKS_DB,DatabaseInstance.ZONE_3_TRANSACTION_BLOCK);
+        IDatabase<String, String> database = new DatabaseFactory(String.class, String.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.ZONE_3_TRANSACTION_BLOCK);
         assertEquals(true, database.isDBexists());
         database.delete_db();
     }
@@ -21,8 +18,8 @@ public class RocksDBConnectionTest {
 
     @Test
     public void add_get1() {
-        IDatabase<String, String> database = new DatabaseFactory(String.class, String.class).getDatabase(DatabaseType.ROCKS_DB,DatabaseInstance.ZONE_1_TRANSACTION_BLOCK);
-        IDatabase<String, String> database1 = new DatabaseFactory(String.class, String.class).getDatabase(DatabaseType.ROCKS_DB,DatabaseInstance.ZONE_1_TRANSACTION_BLOCK);
+        IDatabase<String, String> database = new DatabaseFactory(String.class, String.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.ZONE_1_TRANSACTION_BLOCK);
+        IDatabase<String, String> database1 = new DatabaseFactory(String.class, String.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.ZONE_1_TRANSACTION_BLOCK);
         database1.save("key", "value");
         Optional<String> value = database.findByKey("key");
 
@@ -44,7 +41,7 @@ public class RocksDBConnectionTest {
 
     @Test
     public void put_ALL() throws InterruptedException {
-        IDatabase<String, String> database = new DatabaseFactory(String.class, String.class).getDatabase(DatabaseType.ROCKS_DB,DatabaseInstance.ZONE_1_TRANSACTION_BLOCK);
+        IDatabase<String, String> database = new DatabaseFactory(String.class, String.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.ZONE_1_TRANSACTION_BLOCK);
         Map<String, String> map = new HashMap<>();
         map.put("key1", "value1");
         map.put("key2", "value2");
@@ -62,7 +59,7 @@ public class RocksDBConnectionTest {
 
     @Test
     public void find_between_range() {
-        IDatabase<String, String> database = new DatabaseFactory(String.class, String.class).getDatabase(DatabaseType.ROCKS_DB,DatabaseInstance.ZONE_2_TRANSACTION_BLOCK);
+        IDatabase<String, String> database = new DatabaseFactory(String.class, String.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.ZONE_2_TRANSACTION_BLOCK);
         Map<String, String> map = new LinkedHashMap<>();
         map.put("key1", "value1");
         map.put("key2", "value2");
@@ -85,7 +82,7 @@ public class RocksDBConnectionTest {
 
     @Test
     public void find_between_range2() {
-        IDatabase<String, String> database = new DatabaseFactory(String.class, String.class).getDatabase(DatabaseType.ROCKS_DB,DatabaseInstance.ZONE_1_TRANSACTION_BLOCK);
+        IDatabase<String, String> database = new DatabaseFactory(String.class, String.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.ZONE_1_TRANSACTION_BLOCK);
         database.save("key1", "value1");
         database.save("key2", "value2");
         database.save("key3", "value3");
@@ -102,8 +99,8 @@ public class RocksDBConnectionTest {
     }
 
     @Test
-    public void find_by_list_key(){
-        IDatabase<String, String> database = new DatabaseFactory(String.class, String.class).getDatabase(DatabaseType.ROCKS_DB,DatabaseInstance.ZONE_1_TRANSACTION_BLOCK);
+    public void find_by_list_key() {
+        IDatabase<String, String> database = new DatabaseFactory(String.class, String.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.ZONE_1_TRANSACTION_BLOCK);
         database.save("key1", "value1");
         database.save("key2", "value2");
         database.save("key3", "value3");
@@ -113,11 +110,11 @@ public class RocksDBConnectionTest {
         database.save("key7", "value7");
 
 
-        ArrayList<String> list=new ArrayList<>();
+        ArrayList<String> list = new ArrayList<>();
         list.add("key3");
         list.add("key4");
 
-        List<String> values=database.findByListKey(list);
+        List<String> values = database.findByListKey(list);
         assertEquals("value3", values.get(0));
         assertEquals("value4", values.get(1));
 

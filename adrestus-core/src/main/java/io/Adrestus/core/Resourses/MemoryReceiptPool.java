@@ -1,7 +1,6 @@
 package io.Adrestus.core.Resourses;
 
 import io.Adrestus.core.Receipt;
-import io.Adrestus.util.SerializationUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -101,7 +100,7 @@ public class MemoryReceiptPool implements IMemoryPool<Receipt> {
     }
 
     @Override
-    public void delete(List<Receipt> list_transaction) throws Exception {
+    public void delete(List<Receipt> list_transaction) {
         w.lock();
         try {
             memorypool.removeAll(list_transaction);
@@ -111,7 +110,7 @@ public class MemoryReceiptPool implements IMemoryPool<Receipt> {
     }
 
     @Override
-    public void delete(Receipt transaction) throws Exception {
+    public void delete(Receipt transaction) {
         memorypool.clear();
     }
 

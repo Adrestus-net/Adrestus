@@ -1,15 +1,13 @@
 package io.Adrestus.core;
 
 import com.google.common.primitives.Ints;
-import io.Adrestus.MemoryTreePool;
+import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.MerkleNode;
 import io.Adrestus.Trie.MerkleTree;
 import io.Adrestus.Trie.MerkleTreeImp;
+import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.config.AdrestusConfiguration;
-import io.Adrestus.core.Resourses.CachedKademliaNodes;
-import io.Adrestus.core.Resourses.CachedLatestBlocks;
-import io.Adrestus.core.Resourses.CachedSecurityHeaders;
-import io.Adrestus.core.Resourses.MemoryTransactionPool;
+import io.Adrestus.core.Resourses.*;
 import io.Adrestus.core.RingBuffer.publisher.BlockEventPublisher;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.bls.BLS381.ECP;
@@ -24,10 +22,7 @@ import io.Adrestus.util.CustomRandom;
 import io.Adrestus.util.GetTime;
 import io.Adrestus.util.MathOperationUtil;
 import io.Adrestus.util.SerializationUtil;
-import io.distributedLedger.DatabaseFactory;
-import io.distributedLedger.DatabaseInstance;
-import io.distributedLedger.DatabaseType;
-import io.distributedLedger.IDatabase;
+import io.distributedLedger.*;
 import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +37,7 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 
-public class RegularBlock implements BlockForge,BlockInvent {
+public class RegularBlock implements BlockForge, BlockInvent {
     private static Logger LOG = LoggerFactory.getLogger(RegularBlock.class);
 
     private final SerializationUtil<AbstractBlock> encode;
@@ -81,7 +76,7 @@ public class RegularBlock implements BlockForge,BlockInvent {
         transactionBlock.setHeight(CachedLatestBlocks.getInstance().getTransactionBlock().getHeight() + 1);
         transactionBlock.setGeneration(CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration());
         transactionBlock.setViewID(CachedLatestBlocks.getInstance().getTransactionBlock().getViewID() + 1);
-        transactionBlock.setZone(0);
+        transactionBlock.setZone(CachedZoneIndex.getInstance().getZoneIndex());
         transactionBlock.setLeaderPublicKey(CachedBLSKeyPair.getInstance().getPublicKey());
 
         try {
@@ -116,7 +111,7 @@ public class RegularBlock implements BlockForge,BlockInvent {
                     .collect(Collectors.toList());
             kademliaData.stream().forEach(val -> committeeBlock
                     .getStakingMap()
-                    .put(MemoryTreePool.getInstance().getByaddress(val.getAddressData().getAddress()).get().getStaking_amount(), val));
+                    .put(TreeFactory.getMemoryTree(0).getByaddress(val.getAddressData().getAddress()).get().getStaking_amount(), val));
         } else {
             committeeBlock.setStakingMap(CachedLatestBlocks.getInstance().getCommitteeBlock().getStakingMap());
         }
@@ -245,8 +240,45 @@ public class RegularBlock implements BlockForge,BlockInvent {
     }
 
     @Override
-    public void InventTransactionBlock(TransactionBlock transactionBlock) throws Exception {
+    public void InventTransactionBlock(TransactionBlock transactionBlock) {
 
+        IDatabase<String, AbstractBlock> database = new DatabaseFactory(String.class, AbstractBlock.class)
+                .getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
+
+        database.save(transactionBlock.getHash(), transactionBlock);
+        MemoryTransactionPool.getInstance().delete(transactionBlock.getTransactionList());
+
+        if (!transactionBlock.getTransactionList().isEmpty()) {
+            for (int i = 0; i < transactionBlock.getTransactionList().size(); i++) {
+                Transaction transaction = transactionBlock.getTransactionList().get(i);
+                PatriciaTreeNode patriciaTreeNode = new PatriciaTreeNode(transaction.getAmount());
+                if ((transaction.getZoneFrom() == CachedZoneIndex.getInstance().getZoneIndex()) && (transaction.getZoneTo() == CachedZoneIndex.getInstance().getZoneIndex())) {
+                    TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).withdraw(transaction.getFrom(), patriciaTreeNode);
+                    TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).deposit(transaction.getTo(), patriciaTreeNode);
+                } else {
+                    TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).withdraw(transaction.getFrom(), patriciaTreeNode);
+                }
+            }
+        }
+
+        if (!transactionBlock.getInbound().getMap_receipts().isEmpty())
+            transactionBlock
+                    .getInbound()
+                    .getMap_receipts()
+                    .get(transactionBlock.getInbound().getMap_receipts().keySet().toArray()[0])
+                    .entrySet()
+                    .stream()
+                    .findFirst()
+                    .get()
+                    .getValue()
+                    .stream()
+                    .forEach(receipt -> {
+                        Transaction transaction = receipt.getTransaction();
+                        PatriciaTreeNode patriciaTreeNode = new PatriciaTreeNode(transaction.getAmount());
+                        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).deposit(transaction.getTo(), patriciaTreeNode);
+                    });
+
+        CachedLatestBlocks.getInstance().setTransactionBlock(transactionBlock);
     }
 
     @Override

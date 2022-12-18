@@ -84,7 +84,7 @@ public class RpcAdrestusServer<T> implements Runnable {
         this.valueMapper2 = new SerializationUtil<T>(typeParameterClass.getClass(), list, true);
     }
 
-    public RpcAdrestusServer(T typeParameterClass,DatabaseInstance instance, String host, int port, Eventloop eventloop) {
+    public RpcAdrestusServer(T typeParameterClass, DatabaseInstance instance, String host, int port, Eventloop eventloop) {
         this.rpcserialize = SerializerBuilder.create();
         this.instance = instance;
         this.host = host;

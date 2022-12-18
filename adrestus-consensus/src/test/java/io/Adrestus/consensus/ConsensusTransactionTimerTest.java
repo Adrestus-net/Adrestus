@@ -1,6 +1,6 @@
 package io.Adrestus.consensus;
 
-import io.Adrestus.MemoryTreePool;
+import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.consensus.helper.ConsensusTransactionTimer;
 import io.Adrestus.core.CommitteeBlock;
@@ -58,7 +58,7 @@ public class ConsensusTransactionTimerTest {
 
     @BeforeAll
     public static void construct() throws Exception {
-
+        CachedZoneIndex.getInstance().setZONE_INDEX(1);
         sk1 = new BLSPrivateKey(1);
         vk1 = new BLSPublicKey(sk1);
 
@@ -146,16 +146,16 @@ public class ConsensusTransactionTimerTest {
         keypair.add(ecKeyPair9);
         keypair.add(ecKeyPair10);
 
-        MemoryTreePool.getInstance().store(adddress1, new PatriciaTreeNode(1000, 0));
-        MemoryTreePool.getInstance().store(adddress2, new PatriciaTreeNode(1000, 0));
-        MemoryTreePool.getInstance().store(adddress3, new PatriciaTreeNode(1000, 0));
-        MemoryTreePool.getInstance().store(adddress4, new PatriciaTreeNode(1000, 0));
-        MemoryTreePool.getInstance().store(adddress5, new PatriciaTreeNode(1000, 0));
-        MemoryTreePool.getInstance().store(adddress6, new PatriciaTreeNode(1000, 0));
-        MemoryTreePool.getInstance().store(adddress7, new PatriciaTreeNode(1000, 0));
-        MemoryTreePool.getInstance().store(adddress8, new PatriciaTreeNode(1000, 0));
-        MemoryTreePool.getInstance().store(adddress9, new PatriciaTreeNode(1000, 0));
-        MemoryTreePool.getInstance().store(adddress10, new PatriciaTreeNode(1000, 0));
+        TreeFactory.getMemoryTree(1).store(adddress1, new PatriciaTreeNode(1000, 0));
+        TreeFactory.getMemoryTree(1).store(adddress2, new PatriciaTreeNode(1000, 0));
+        TreeFactory.getMemoryTree(1).store(adddress3, new PatriciaTreeNode(1000, 0));
+        TreeFactory.getMemoryTree(1).store(adddress4, new PatriciaTreeNode(1000, 0));
+        TreeFactory.getMemoryTree(1).store(adddress5, new PatriciaTreeNode(1000, 0));
+        TreeFactory.getMemoryTree(1).store(adddress6, new PatriciaTreeNode(1000, 0));
+        TreeFactory.getMemoryTree(1).store(adddress7, new PatriciaTreeNode(1000, 0));
+        TreeFactory.getMemoryTree(1).store(adddress8, new PatriciaTreeNode(1000, 0));
+        TreeFactory.getMemoryTree(1).store(adddress9, new PatriciaTreeNode(1000, 0));
+        TreeFactory.getMemoryTree(1).store(adddress10, new PatriciaTreeNode(1000, 0));
 
 
         TransactionBlock prevblock = new TransactionBlock();

@@ -1,6 +1,6 @@
 package io.Adrestus.core;
 
-import io.Adrestus.MemoryTreePool;
+import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.MerkleNode;
 import io.Adrestus.Trie.MerkleTreeImp;
 import io.Adrestus.Trie.PatriciaTreeNode;
@@ -63,6 +63,7 @@ public class ReceiptMain {
 
     @BeforeAll
     public static void setup() throws Exception {
+        CachedZoneIndex.getInstance().setZONE_INDEX(0);
         sk1 = new BLSPrivateKey(1);
         vk1 = new BLSPublicKey(sk1);
 
@@ -118,7 +119,7 @@ public class ReceiptMain {
             String adddress = WalletAddress.generate_address((byte) version, ecKeyPair.getPublicKey());
             addreses.add(adddress);
             keypair.add(ecKeyPair);
-            MemoryTreePool.getInstance().store(adddress, new PatriciaTreeNode(1000, 0));
+            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(adddress, new PatriciaTreeNode(1000, 0));
         }
 
 
@@ -173,6 +174,7 @@ public class ReceiptMain {
         byte[] tohash = serenc.encode(transactionBlock);
         transactionBlock.setHash(HashUtil.sha256_bytetoString(tohash));
     }
+
     public static void main(String[] args) throws Exception {
         setup();
         IDatabase<String, TransactionBlock> database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.ZONE_1_TRANSACTION_BLOCK);

@@ -62,7 +62,7 @@ public class SupervisorConsensusPhases {
 
         public ProposeVDF(boolean DEBUG) {
             this.DEBUG = DEBUG;
-            this.blockIndex=new BlockIndex();
+            this.blockIndex = new BlockIndex();
             this.vdf = new VdfEnginePietrzak(AdrestusConfiguration.PIERRZAK_BIT);
             List<SerializationUtil.Mapping> list = new ArrayList<>();
             list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
@@ -259,8 +259,9 @@ public class SupervisorConsensusPhases {
         private final SerializationUtil<VRFMessage> serialize;
         private final SerializationUtil<ConsensusMessage> consensus_serialize;
         private final IBlockIndex blockIndex;
+
         public ProposeVRF(boolean DEBUG) {
-            this.blockIndex=new BlockIndex();
+            this.blockIndex = new BlockIndex();
             this.DEBUG = DEBUG;
             this.group = new VrfEngine2();
             List<SerializationUtil.Mapping> list = new ArrayList<>();
@@ -551,7 +552,7 @@ public class SupervisorConsensusPhases {
         private final IBlockIndex blockIndex;
 
         public ProposeCommitteeBlock(boolean DEBUG) {
-            this.blockIndex= new BlockIndex();
+            this.blockIndex = new BlockIndex();
             this.DEBUG = DEBUG;
             this.factory = new DefaultFactory();
             this.database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);

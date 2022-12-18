@@ -79,10 +79,11 @@ public class BlockEventPublisher implements Publisher<AbstractBlock> {
         return this;
     }
 
-    public BlockEventPublisher withInBoundEventHandler(){
+    public BlockEventPublisher withInBoundEventHandler() {
         group.add(new InBoundEventHandler());
         return this;
     }
+
     public BlockEventPublisher withOutBoundEventHandler() {
         group.add(new OutBoundEventHandler());
         return this;

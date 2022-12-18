@@ -60,7 +60,7 @@ public class ValidatorConsensusPhases {
     protected BLSPublicKey leader_bls;
 
     public ValidatorConsensusPhases() {
-        this.blockIndex=new BlockIndex();
+        this.blockIndex = new BlockIndex();
     }
 
     protected static class VerifyVDF extends ValidatorConsensusPhases implements BFTConsensusPhase<VDFMessage> {
@@ -560,10 +560,11 @@ public class ValidatorConsensusPhases {
         }.getType();
         private final SerializationUtil<AbstractBlock> block_serialize;
         private final SerializationUtil<ConsensusMessage> consensus_serialize;
-
+        private final DefaultFactory factory;
 
         public VerifyTransactionBlock(boolean DEBUG) {
             this.DEBUG = DEBUG;
+            this.factory = new DefaultFactory();
             List<SerializationUtil.Mapping> list = new ArrayList<>();
             list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
             list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
@@ -623,8 +624,7 @@ public class ValidatorConsensusPhases {
                         LOG.info("AnnouncePhase: Problem at message deserialization Abort");
                         data.setStatusType(ConsensusStatusType.ABORT);
                         return;
-                    }
-                    catch (ArrayIndexOutOfBoundsException e){
+                    } catch (ArrayIndexOutOfBoundsException e) {
                         LOG.info("AnnouncePhase: Receiving null response from organizer");
                         data.setStatusType(ConsensusStatusType.ABORT);
                         return;
@@ -694,8 +694,7 @@ public class ValidatorConsensusPhases {
                         LOG.info("PreparePhase: Problem at message deserialization Abort");
                         data.setStatusType(ConsensusStatusType.ABORT);
                         return;
-                    }
-                    catch (ArrayIndexOutOfBoundsException e){
+                    } catch (ArrayIndexOutOfBoundsException e) {
                         LOG.info("AnnouncePhase: Receiving null response from organizer");
                         data.setStatusType(ConsensusStatusType.ABORT);
                         return;
@@ -765,8 +764,7 @@ public class ValidatorConsensusPhases {
                         LOG.info("CommitPhase: Problem at message deserialization Abort");
                         data.setStatusType(ConsensusStatusType.ABORT);
                         return;
-                    }
-                    catch (ArrayIndexOutOfBoundsException e){
+                    } catch (ArrayIndexOutOfBoundsException e) {
                         LOG.info("AnnouncePhase: Receiving null response from organizer");
                         data.setStatusType(ConsensusStatusType.ABORT);
                         return;
@@ -800,9 +798,11 @@ public class ValidatorConsensusPhases {
             else {
                 data.getData().setLeaderPublicKey(this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), current + 1));
             }*/
-            CachedLatestBlocks.getInstance().setTransactionBlock(data.getData());
+            //CachedLatestBlocks.getInstance().setTransactionBlock(data.getData());
             //commit save to db
 
+            BlockInvent regural_block = (BlockInvent) factory.getBlock(BlockType.REGULAR);
+            regural_block.InventTransactionBlock(data.getData());
             consensusClient.send_heartbeat(HEARTBEAT_MESSAGE);
             LOG.info("Block is finalized with Success");
         }

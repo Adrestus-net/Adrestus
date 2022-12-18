@@ -67,8 +67,6 @@ public class LevelDBConnectionManager<K, V> implements IDatabase<K, V> {
     }
 
 
-
-
     @Override
     public void setupOptions() {
         options = new Options();
@@ -207,7 +205,7 @@ public class LevelDBConnectionManager<K, V> implements IDatabase<K, V> {
             for (int i = 0; i < key.size(); i++) {
                 final byte[] serializedKey = keyMapper.encode(key.get(i));
                 final byte[] bytes = level_db.get(serializedKey);
-                list.add(Optional.ofNullable((V)valueMapper.decode(bytes)));
+                list.add(Optional.ofNullable((V) valueMapper.decode(bytes)));
             }
         } catch (final NullPointerException exception) {
             LOGGER.info("Key value not exists in Database return empty");

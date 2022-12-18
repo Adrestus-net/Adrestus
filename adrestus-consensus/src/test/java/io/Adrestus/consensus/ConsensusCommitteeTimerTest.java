@@ -1,6 +1,6 @@
 package io.Adrestus.consensus;
 
-import io.Adrestus.MemoryTreePool;
+import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.config.KademliaConfiguration;
@@ -76,8 +76,8 @@ public class ConsensusCommitteeTimerTest {
         SignatureData signatureData1 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address1)), ecKeyPair1);
         SignatureData signatureData2 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address2)), ecKeyPair2);
 
-        MemoryTreePool.getInstance().store(address1, new PatriciaTreeNode(3000, 0));
-        MemoryTreePool.getInstance().store(address2, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(0).store(address1, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(0).store(address2, new PatriciaTreeNode(3000, 0));
 
         CommitteeBlock committeeBlock = new CommitteeBlock();
         committeeBlock.getHeaderData().setTimestamp("2022-11-18 15:01:29.304");

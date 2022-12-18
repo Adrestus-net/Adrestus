@@ -49,6 +49,7 @@ public class TransactionsSignatureEventHandler implements BlockEventHandler<Abst
                     .withStakingEventHandler()
                     .withTransactionFeeEventHandler()
                     .withTimestampEventHandler()
+                    .withZoneEventHandler()
                     .mergeEventsAndPassThen(new SignatureEventHandler(SignatureEventHandler.SignatureBehaviorType.BLOCK_TRANSACTIONS, latch));
 
             publisher.start();

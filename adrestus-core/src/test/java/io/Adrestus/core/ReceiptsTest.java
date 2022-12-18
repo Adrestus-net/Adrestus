@@ -1,6 +1,6 @@
 package io.Adrestus.core;
 
-import io.Adrestus.MemoryTreePool;
+import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.MerkleNode;
 import io.Adrestus.Trie.MerkleTreeImp;
 import io.Adrestus.Trie.PatriciaTreeNode;
@@ -32,7 +32,6 @@ import io.Adrestus.network.IPFinder;
 import io.Adrestus.rpc.RpcAdrestusServer;
 import io.Adrestus.util.GetTime;
 import io.Adrestus.util.SerializationUtil;
-import io.activej.eventloop.Eventloop;
 import io.distributedLedger.DatabaseFactory;
 import io.distributedLedger.DatabaseInstance;
 import io.distributedLedger.DatabaseType;
@@ -65,6 +64,7 @@ public class ReceiptsTest {
 
     @BeforeAll
     public static void setup() throws Exception {
+        CachedZoneIndex.getInstance().setZONE_INDEX(0);
         sk1 = new BLSPrivateKey(1);
         vk1 = new BLSPublicKey(sk1);
 
@@ -120,7 +120,7 @@ public class ReceiptsTest {
             String adddress = WalletAddress.generate_address((byte) version, ecKeyPair.getPublicKey());
             addreses.add(adddress);
             keypair.add(ecKeyPair);
-            MemoryTreePool.getInstance().store(adddress, new PatriciaTreeNode(1000, 0));
+            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(adddress, new PatriciaTreeNode(1000, 0));
         }
 
 
@@ -263,8 +263,8 @@ public class ReceiptsTest {
     public void inbound_test() throws Exception {
         IDatabase<String, TransactionBlock> database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.ZONE_1_TRANSACTION_BLOCK);
         database.save(transactionBlock.getHash(), transactionBlock);
-      //  CachedEventLoop.getInstance().setEventloop(Eventloop.create().withCurrentThread());
-       // new Thread(CachedEventLoop.getInstance().getEventloop());
+        //  CachedEventLoop.getInstance().setEventloop(Eventloop.create().withCurrentThread());
+        // new Thread(CachedEventLoop.getInstance().getEventloop());
         RpcAdrestusServer<AbstractBlock> example = new RpcAdrestusServer<AbstractBlock>(new TransactionBlock(), DatabaseInstance.ZONE_1_TRANSACTION_BLOCK, IPFinder.getLocal_address(), NetworkConfiguration.RPC_PORT, CachedEventLoop.getInstance().getEventloop());
         new Thread(example).start();
 

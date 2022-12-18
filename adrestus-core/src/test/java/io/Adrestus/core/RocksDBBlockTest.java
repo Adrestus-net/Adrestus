@@ -92,7 +92,7 @@ public class RocksDBBlockTest {
 
 
     @Test
-    public void find_by_list_key(){
+    public void find_by_list_key() {
         IDatabase<String, AbstractBlock> database = new DatabaseFactory(String.class, AbstractBlock.class).getDatabase(DatabaseType.ROCKS_DB);
         TransactionBlock transactionBlock1 = new TransactionBlock();
         transactionBlock1.setHash("hash1");
@@ -100,13 +100,13 @@ public class RocksDBBlockTest {
         TransactionBlock transactionBlock2 = new TransactionBlock();
         transactionBlock2.setHash("hash2");
 
-        database.save("hash1",transactionBlock1);
-        database.save("hash2",transactionBlock2);
-        ArrayList<String> list=new ArrayList<>();
+        database.save("hash1", transactionBlock1);
+        database.save("hash2", transactionBlock2);
+        ArrayList<String> list = new ArrayList<>();
         list.add("hash1");
         list.add("hash2");
 
-        List<AbstractBlock> values=database.findByListKey(list);
+        List<AbstractBlock> values = database.findByListKey(list);
         assertEquals(transactionBlock1, values.get(0));
         assertEquals(transactionBlock2, values.get(1));
 

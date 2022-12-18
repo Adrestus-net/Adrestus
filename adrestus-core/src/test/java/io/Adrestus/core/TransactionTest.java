@@ -1,9 +1,10 @@
 package io.Adrestus.core;
 
-import io.Adrestus.MemoryTreePool;
+import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
+import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.core.Resourses.MemoryTransactionPool;
 import io.Adrestus.core.RingBuffer.handler.transactions.SignatureEventHandler;
 import io.Adrestus.core.RingBuffer.publisher.TransactionEventPublisher;
@@ -106,6 +107,7 @@ public class TransactionTest {
 
     @Test
     public void StressTesting() throws Exception {
+        CachedZoneIndex.getInstance().setZONE_INDEX(0);
         TransactionEventPublisher publisher = new TransactionEventPublisher(1024);
 
         publisher
@@ -121,6 +123,7 @@ public class TransactionTest {
                 .withTransactionFeeEventHandler()
                 .withTimestampEventHandler()
                 .withSameOriginEventHandler()
+                .withZoneEventHandler()
                 .mergeEventsAndPassThen(new SignatureEventHandler(SignatureEventHandler.SignatureBehaviorType.SIMPLE_TRANSACTIONS));
         publisher.start();
 
@@ -147,7 +150,7 @@ public class TransactionTest {
             String adddress = WalletAddress.generate_address((byte) version, ecKeyPair.getPublicKey());
             addreses.add(adddress);
             keypair.add(ecKeyPair);
-            MemoryTreePool.getInstance().store(adddress, new PatriciaTreeNode(1000, 0));
+            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(adddress, new PatriciaTreeNode(1000, 0));
         }
 
 

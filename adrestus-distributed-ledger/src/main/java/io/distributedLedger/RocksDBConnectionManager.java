@@ -48,7 +48,7 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
     private RocksDB rocksDB;
 
     public RocksDBConnectionManager(Class<K> keyClass, Class<V> valueClass) {
-        this.instance=DatabaseInstance.COMMITTEE_BLOCK;
+        this.instance = DatabaseInstance.COMMITTEE_BLOCK;
         this.rwl = new ReentrantReadWriteLock();
         this.r = rwl.readLock();
         this.w = rwl.writeLock();
@@ -67,7 +67,7 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
     }
 
     public RocksDBConnectionManager(Class<K> keyClass, Class<V> valueClass, DatabaseInstance instances) {
-        this.instance=instances;
+        this.instance = instances;
         this.rwl = new ReentrantReadWriteLock();
         this.r = rwl.readLock();
         this.w = rwl.writeLock();
@@ -140,8 +140,8 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
         try {
             Files.createDirectories(dbFile.getParentFile().toPath());
             //Files.createDirectories(dbFile.getAbsoluteFile().toPath());
-           // rocksDB = RocksDB.open(options,dbFile.getAbsolutePath());
-            rocksDB= ZoneDatabaseFactory.getDatabaseInstance(this.instance,options,dbFile.getAbsolutePath());
+            // rocksDB = RocksDB.open(options,dbFile.getAbsolutePath());
+            rocksDB = ZoneDatabaseFactory.getDatabaseInstance(this.instance, options, dbFile.getAbsolutePath());
         } catch (IOException e) {
             LOGGER.error("Path to create file is incorrect. {}", e.getMessage());
         } catch (Exception e) {
@@ -329,7 +329,7 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
 
             RocksDB.destroyDB(Directory.getConfigPath(), options);
             options.close();
-            ZoneDatabaseFactory.closeDatabaseInstance(instance,options,dbFile.getAbsolutePath());
+            ZoneDatabaseFactory.closeDatabaseInstance(instance, options, dbFile.getAbsolutePath());
             rocksDB = null;
             FileUtils.deleteDirectory(dbFile);
             return del;

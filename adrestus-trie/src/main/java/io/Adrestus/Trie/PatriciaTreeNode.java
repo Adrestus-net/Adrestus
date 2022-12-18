@@ -20,6 +20,10 @@ public class PatriciaTreeNode {
         this.staking_amount = staking_amount;
     }
 
+    public PatriciaTreeNode(double amount) {
+        this.amount = amount;
+    }
+
     public PatriciaTreeNode() {
     }
 

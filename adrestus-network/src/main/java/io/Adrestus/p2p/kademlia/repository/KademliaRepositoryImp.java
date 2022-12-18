@@ -1,6 +1,6 @@
 package io.Adrestus.p2p.kademlia.repository;
 
-import io.Adrestus.MemoryTreePool;
+import io.Adrestus.TreeFactory;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.elliptic.ECDSASign;
 import org.apache.commons.codec.binary.StringUtils;
@@ -31,7 +31,7 @@ public class KademliaRepositoryImp implements KademliaRepository<String, Kademli
             return;
         }
         try {
-            if (MemoryTreePool.getInstance().getByaddress(value.getAddressData().getAddress()).get().getAmount() < MINUM_AMOUNT) {
+            if (TreeFactory.getMemoryTree(0).getByaddress(value.getAddressData().getAddress()).get().getAmount() < MINUM_AMOUNT) {
                 LOG.info("Amount of this address not meet minimum requirements");
                 return;
             }

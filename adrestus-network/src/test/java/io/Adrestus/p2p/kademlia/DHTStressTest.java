@@ -2,7 +2,7 @@ package io.Adrestus.p2p.kademlia;
 
 import com.google.common.net.InetAddresses;
 import com.google.gson.Gson;
-import io.Adrestus.MemoryTreePool;
+import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.config.KademliaConfiguration;
@@ -73,7 +73,7 @@ public class DHTStressTest {
 
         kademliaData = new KademliaData(new SecurityAuditProofs(adddress, ecKeyPair.getPublicKey(), signatureData), new NettyConnectionInfo("127.0.0.1", 8080));
         kademliaData.getAddressData().setValidatorBlSPublicKey(vk);
-        MemoryTreePool.getInstance().store(adddress, new PatriciaTreeNode(1000, 0));
+        TreeFactory.getMemoryTree(0).store(adddress, new PatriciaTreeNode(1000, 0));
         Gson gson = new Gson();
         String jsonString = gson.toJson(kademliaData);
         KademliaData copydata = gson.fromJson(jsonString, KademliaData.class);

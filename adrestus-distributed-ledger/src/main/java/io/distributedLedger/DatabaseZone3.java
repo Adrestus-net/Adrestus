@@ -42,7 +42,7 @@ public class DatabaseZone3 implements IDriver {
         rocksDB.close();
         instance = null;
         rocksDB = null;
-        options=null;
+        options = null;
     }
 
     @Override

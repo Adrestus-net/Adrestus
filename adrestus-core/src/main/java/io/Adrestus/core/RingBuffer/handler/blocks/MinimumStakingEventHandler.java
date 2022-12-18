@@ -1,6 +1,6 @@
 package io.Adrestus.core.RingBuffer.handler.blocks;
 
-import io.Adrestus.MemoryTreePool;
+import io.Adrestus.TreeFactory;
 import io.Adrestus.config.StakingConfiguration;
 import io.Adrestus.core.CommitteeBlock;
 import io.Adrestus.core.RingBuffer.event.AbstractBlockEvent;
@@ -37,7 +37,7 @@ public class MinimumStakingEventHandler implements BlockEventHandler<AbstractBlo
 
     private boolean hasOverMinimumPoints(KademliaData securityAuditProofs) {
         try {
-            if (MemoryTreePool.getInstance()
+            if (TreeFactory.getMemoryTree(0)
                     .getByaddress(securityAuditProofs.getAddressData().getAddress())
                     .get()
                     .getAmount() >= StakingConfiguration.MINIMUM_STAKING)

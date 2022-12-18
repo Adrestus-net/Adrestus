@@ -10,6 +10,7 @@ import java.net.InetSocketAddress;
 public class CachedEventLoop {
     private static volatile CachedEventLoop instance;
     private static Eventloop eventloop;
+
     @SneakyThrows
     private CachedEventLoop() {
         if (instance != null) {

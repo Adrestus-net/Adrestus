@@ -1,7 +1,7 @@
 package io.Adrestus.p2p.kademlia;
 
 import com.google.common.net.InetAddresses;
-import io.Adrestus.MemoryTreePool;
+import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.config.KademliaConfiguration;
 import io.Adrestus.config.NodeSettings;
@@ -131,16 +131,16 @@ public class ActiveNodesTest {
         keypair.add(ecKeyPair9);
         keypair.add(ecKeyPair10);
 
-        MemoryTreePool.getInstance().store(adddress1, new PatriciaTreeNode(1000, 0));
-        MemoryTreePool.getInstance().store(adddress2, new PatriciaTreeNode(1000, 0));
-        MemoryTreePool.getInstance().store(adddress3, new PatriciaTreeNode(1000, 0));
-        MemoryTreePool.getInstance().store(adddress4, new PatriciaTreeNode(1000, 0));
-        MemoryTreePool.getInstance().store(adddress5, new PatriciaTreeNode(1000, 0));
-        MemoryTreePool.getInstance().store(adddress6, new PatriciaTreeNode(1000, 0));
-        MemoryTreePool.getInstance().store(adddress7, new PatriciaTreeNode(1000, 0));
-        MemoryTreePool.getInstance().store(adddress8, new PatriciaTreeNode(1000, 0));
-        MemoryTreePool.getInstance().store(adddress9, new PatriciaTreeNode(1000, 0));
-        MemoryTreePool.getInstance().store(adddress10, new PatriciaTreeNode(1000, 0));
+        TreeFactory.getMemoryTree(0).store(adddress1, new PatriciaTreeNode(1000, 0));
+        TreeFactory.getMemoryTree(0).store(adddress2, new PatriciaTreeNode(1000, 0));
+        TreeFactory.getMemoryTree(0).store(adddress3, new PatriciaTreeNode(1000, 0));
+        TreeFactory.getMemoryTree(0).store(adddress4, new PatriciaTreeNode(1000, 0));
+        TreeFactory.getMemoryTree(0).store(adddress5, new PatriciaTreeNode(1000, 0));
+        TreeFactory.getMemoryTree(0).store(adddress6, new PatriciaTreeNode(1000, 0));
+        TreeFactory.getMemoryTree(0).store(adddress7, new PatriciaTreeNode(1000, 0));
+        TreeFactory.getMemoryTree(0).store(adddress8, new PatriciaTreeNode(1000, 0));
+        TreeFactory.getMemoryTree(0).store(adddress9, new PatriciaTreeNode(1000, 0));
+        TreeFactory.getMemoryTree(0).store(adddress10, new PatriciaTreeNode(1000, 0));
     }
 
     @Test

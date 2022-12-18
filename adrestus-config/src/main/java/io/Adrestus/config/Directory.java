@@ -35,10 +35,10 @@ public class Directory {
                     instance = new Directory();
                     String os = System.getProperty("os.name").toLowerCase();
                     if (os.startsWith("mac os x")) {
-                       // LOG.debug("os.name {} is resolved to Mac OS X", os);
+                        // LOG.debug("os.name {} is resolved to Mac OS X", os);
                         appDirs = new MacOSXAppDirs();
                     } else if (os.startsWith("windows")) {
-                       // LOG.debug("os.name {} is resolved to Windows", os);
+                        // LOG.debug("os.name {} is resolved to Windows", os);
                         WindowsFolderResolver folderResolver = new ShellFolderResolver();
                         appDirs = new WindowsAppDirs(folderResolver);
                     } else {

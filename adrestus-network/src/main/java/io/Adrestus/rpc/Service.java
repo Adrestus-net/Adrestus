@@ -8,7 +8,6 @@ import io.distributedLedger.IDatabase;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 public class Service<T> implements IService<T> {
     private final IDatabase<String, T> database;
@@ -16,14 +15,14 @@ public class Service<T> implements IService<T> {
 
     public Service(Class<T> typeParameterClass) {
         this.typeParameterClass = typeParameterClass;
-        DatabaseFactory factory=new DatabaseFactory(String.class, typeParameterClass);
+        DatabaseFactory factory = new DatabaseFactory(String.class, typeParameterClass);
         this.database = factory.getDatabase(DatabaseType.ROCKS_DB);
     }
 
-    public Service(Class<T> typeParameterClass,DatabaseInstance instance) {
+    public Service(Class<T> typeParameterClass, DatabaseInstance instance) {
         this.typeParameterClass = typeParameterClass;
-        DatabaseFactory factory=new DatabaseFactory(String.class, typeParameterClass);
-        this.database = factory.getDatabase(DatabaseType.ROCKS_DB,instance);
+        DatabaseFactory factory = new DatabaseFactory(String.class, typeParameterClass);
+        this.database = factory.getDatabase(DatabaseType.ROCKS_DB, instance);
     }
 
     @Override

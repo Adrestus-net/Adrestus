@@ -43,7 +43,7 @@ public class ConsensusCommitteeTimer {
 
     public ConsensusCommitteeTimer(CountDownLatch latch) throws Exception {
         this.consensusManager = new ConsensusManager(false);
-        this.blockIndex=new BlockIndex();
+        this.blockIndex = new BlockIndex();
         this.timer = new Timer(ConsensusConfiguration.CONSENSUS);
         this.task = new ConsensusTask();
         this.latch = latch;

@@ -1,12 +1,15 @@
 package io.Adrestus.core;
 
 
-import io.Adrestus.MemoryTreePool;
+import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.PatriciaTreeNode;
+import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 
 import java.util.Optional;
 
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class MemoryTreePoolTest {
 
 
@@ -14,30 +17,31 @@ public class MemoryTreePoolTest {
     public void store_mempool() throws Exception {
         String address = "ADR-ADL3-VDZK-ZU7H-2BX5-M2H4-S7LF-5SR4-ECQA-EIUJ-CBFK";
         PatriciaTreeNode treeNode = new PatriciaTreeNode(10, 1);
-        MemoryTreePool.getInstance().store(address, treeNode);
-        MemoryTreePool.getInstance().store("updated_address", treeNode);
-        System.out.println(MemoryTreePool.getInstance().getRootHash());
+        TreeFactory.getMemoryTree(0).store(address, treeNode);
+
+        TreeFactory.getMemoryTree(0).store("updated_address", treeNode);
+        System.out.println(TreeFactory.getMemoryTree(0).getRootHash());
         treeNode.setAmount(100);
         treeNode.setNonce(2);
 
 
-        MemoryTreePool.getInstance().update(address, treeNode);
-        Optional<PatriciaTreeNode> copy = MemoryTreePool.getInstance().getByaddress(address);
+        TreeFactory.getMemoryTree(0).deposit(address, treeNode);
+        Optional<PatriciaTreeNode> copy = TreeFactory.getMemoryTree(0).getByaddress(address);
         System.out.println(copy.get().toString());
 
         if (copy.isPresent())
             System.out.println(copy.get().toString());
-        System.out.println(MemoryTreePool.getInstance().getRootHash());
+        System.out.println(TreeFactory.getMemoryTree(0).getRootHash());
     }
 
     @Test
     public void mempool_get_value() throws Exception {
         String address = "ADR-ADL3-VDZK-ZU7H-2BX5-M2H4-S7LF-5SR4-ECQA-EIUJ-CBFK";
         PatriciaTreeNode treeNode = new PatriciaTreeNode(10, 1);
-        MemoryTreePool.getInstance().store(address, treeNode);
+        TreeFactory.getMemoryTree(0).store(address, treeNode);
 
 
-        Optional<PatriciaTreeNode> copy = MemoryTreePool.getInstance().getByaddress(address);
+        Optional<PatriciaTreeNode> copy = TreeFactory.getMemoryTree(0).getByaddress(address);
 
         if (copy.isPresent())
             System.out.println(copy.get().toString());
@@ -49,11 +53,11 @@ public class MemoryTreePoolTest {
         PatriciaTreeNode treeNode = new PatriciaTreeNode(10, 1);
         int size = 10000;
         for (int i = 0; i < size; i++) {
-            MemoryTreePool.getInstance().store(String.valueOf(i), treeNode);
+            TreeFactory.getMemoryTree(0).store(String.valueOf(i), treeNode);
         }
 
         for (int i = 0; i < size; i++) {
-            Optional<PatriciaTreeNode> copy = MemoryTreePool.getInstance().getByaddress(String.valueOf(i));
+            Optional<PatriciaTreeNode> copy = TreeFactory.getMemoryTree(0).getByaddress(String.valueOf(i));
 
             if (!copy.isPresent())
                 System.out.println("error");

@@ -85,7 +85,7 @@ public class BlockDiffuclutyTest {
 
     @Test
     public void diffuclty_test2() throws ParseException, InterruptedException {
-        IDatabase<String, CommitteeBlock> database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB,DatabaseInstance.COMMITTEE_BLOCK);
+        IDatabase<String, CommitteeBlock> database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
 
         CommitteeBlock bootsrap = new CommitteeBlock();
         bootsrap.setHash(String.valueOf(0));

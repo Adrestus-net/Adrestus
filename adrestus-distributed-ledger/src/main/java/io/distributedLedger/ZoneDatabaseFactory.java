@@ -23,7 +23,7 @@ public class ZoneDatabaseFactory {
     }
 
 
-    public static void closeDatabaseInstance(DatabaseInstance instance, Options options, String path){
+    public static void closeDatabaseInstance(DatabaseInstance instance, Options options, String path) {
         switch (instance) {
             case COMMITTEE_BLOCK:
                 DatabaseZone.getInstance(options, path).close(options);
@@ -43,6 +43,22 @@ public class ZoneDatabaseFactory {
             default:
                 DatabaseZone.getInstance(options, path).close(options);
                 break;
+        }
+    }
+
+
+    public static DatabaseInstance getZoneInstance(int zone) {
+        switch (zone) {
+            case 0:
+                return DatabaseInstance.ZONE_0_TRANSACTION_BLOCK;
+            case 1:
+                return DatabaseInstance.ZONE_1_TRANSACTION_BLOCK;
+            case 2:
+                return DatabaseInstance.ZONE_2_TRANSACTION_BLOCK;
+            case 3:
+                return DatabaseInstance.ZONE_3_TRANSACTION_BLOCK;
+            default:
+                return DatabaseInstance.COMMITTEE_BLOCK;
         }
     }
 

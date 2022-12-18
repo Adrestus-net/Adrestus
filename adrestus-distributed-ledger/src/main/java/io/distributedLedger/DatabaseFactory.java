@@ -14,7 +14,7 @@ public class DatabaseFactory {
         this.value_type = null;
     }
 
-    public DatabaseFactory(Class key, Class value,Type type) {
+    public DatabaseFactory(Class key, Class value, Type type) {
         this.key = key;
         this.value = value;
         this.value_type = type;
