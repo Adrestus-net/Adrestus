@@ -173,7 +173,6 @@ public class RpcAdrestusClient<T> {
     public void close() {
         try {
             client.stopFuture().get(TIMEOUT, TimeUnit.MILLISECONDS);
-            ;
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (ExecutionException e) {
