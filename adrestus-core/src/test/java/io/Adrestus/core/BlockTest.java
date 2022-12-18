@@ -191,7 +191,7 @@ public class BlockTest {
 
     @Test
     public void block_test3() throws Exception {
-        CachedZoneIndex.getInstance().setZONE_INDEX(0);
+        CachedZoneIndex.getInstance().setZoneIndex(0);
         TransactionEventPublisher publisher = new TransactionEventPublisher(1024);
         CachedBLSKeyPair.getInstance().setPublicKey(vk1);
         publisher

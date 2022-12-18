@@ -107,7 +107,7 @@ public class TransactionTest {
 
     @Test
     public void StressTesting() throws Exception {
-        CachedZoneIndex.getInstance().setZONE_INDEX(0);
+        CachedZoneIndex.getInstance().setZoneIndex(0);
         TransactionEventPublisher publisher = new TransactionEventPublisher(1024);
 
         publisher

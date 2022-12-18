@@ -253,10 +253,10 @@ public class RegularBlock implements BlockForge, BlockInvent {
                 Transaction transaction = transactionBlock.getTransactionList().get(i);
                 PatriciaTreeNode patriciaTreeNode = new PatriciaTreeNode(transaction.getAmount());
                 if ((transaction.getZoneFrom() == CachedZoneIndex.getInstance().getZoneIndex()) && (transaction.getZoneTo() == CachedZoneIndex.getInstance().getZoneIndex())) {
-                    TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).withdraw(transaction.getFrom(), patriciaTreeNode);
-                    TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).deposit(transaction.getTo(), patriciaTreeNode);
+                    TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).withdraw(transaction.getFrom(), patriciaTreeNode,TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()));
+                    TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).deposit(transaction.getTo(), patriciaTreeNode,TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()));
                 } else {
-                    TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).withdraw(transaction.getFrom(), patriciaTreeNode);
+                    TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).withdraw(transaction.getFrom(), patriciaTreeNode,TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()));
                 }
             }
         }
@@ -275,7 +275,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
                     .forEach(receipt -> {
                         Transaction transaction = receipt.getTransaction();
                         PatriciaTreeNode patriciaTreeNode = new PatriciaTreeNode(transaction.getAmount());
-                        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).deposit(transaction.getTo(), patriciaTreeNode);
+                        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).deposit(transaction.getTo(), patriciaTreeNode,TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()));
                     });
 
         CachedLatestBlocks.getInstance().setTransactionBlock(transactionBlock);

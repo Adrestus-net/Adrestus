@@ -9,6 +9,8 @@ import org.junit.jupiter.api.TestMethodOrder;
 
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class MemoryTreePoolTest {
 
@@ -17,16 +19,16 @@ public class MemoryTreePoolTest {
     public void store_mempool() throws Exception {
         String address = "ADR-ADL3-VDZK-ZU7H-2BX5-M2H4-S7LF-5SR4-ECQA-EIUJ-CBFK";
         PatriciaTreeNode treeNode = new PatriciaTreeNode(10, 1);
-        TreeFactory.getMemoryTree(0).store(address, treeNode);
+        TreeFactory.getMemoryTree(1).store(address, treeNode);
 
-        TreeFactory.getMemoryTree(0).store("updated_address", treeNode);
+        TreeFactory.getMemoryTree(1).store("updated_address", treeNode);
         System.out.println(TreeFactory.getMemoryTree(0).getRootHash());
         treeNode.setAmount(100);
         treeNode.setNonce(2);
 
 
-        TreeFactory.getMemoryTree(0).deposit(address, treeNode);
-        Optional<PatriciaTreeNode> copy = TreeFactory.getMemoryTree(0).getByaddress(address);
+        TreeFactory.getMemoryTree(1).deposit(address, treeNode,TreeFactory.getMemoryTree(1));
+        Optional<PatriciaTreeNode> copy = TreeFactory.getMemoryTree(1).getByaddress(address);
         System.out.println(copy.get().toString());
 
         if (copy.isPresent())
@@ -38,9 +40,25 @@ public class MemoryTreePoolTest {
     public void mempool_get_value() throws Exception {
         String address = "ADR-ADL3-VDZK-ZU7H-2BX5-M2H4-S7LF-5SR4-ECQA-EIUJ-CBFK";
         PatriciaTreeNode treeNode = new PatriciaTreeNode(10, 1);
-        TreeFactory.getMemoryTree(0).store(address, treeNode);
+        TreeFactory.getMemoryTree(1).store(address, treeNode);
 
 
+        Optional<PatriciaTreeNode> copy = TreeFactory.getMemoryTree(1).getByaddress(address);
+
+        if (copy.isPresent())
+            System.out.println(copy.get().toString());
+
+    }
+
+    @Test
+    public void deposit_withdraw() throws Exception {
+        String address = "ADR-ADL3-VDZK-ZU7H-2BX5-M2H4-S7LF-5SR4-ECQA-EIUJ-CBFK";
+        PatriciaTreeNode treeNode = new PatriciaTreeNode(10, 1);
+        TreeFactory.getMemoryTree(1).store(address, treeNode);
+
+        TreeFactory.getMemoryTree(1).withdraw(address, new PatriciaTreeNode(1),TreeFactory.getMemoryTree(1));
+        System.out.println(TreeFactory.getMemoryTree(1).getByaddress(address).get().getAmount());
+        assertEquals(9, TreeFactory.getMemoryTree(1).getByaddress(address).get().getAmount());
         Optional<PatriciaTreeNode> copy = TreeFactory.getMemoryTree(0).getByaddress(address);
 
         if (copy.isPresent())

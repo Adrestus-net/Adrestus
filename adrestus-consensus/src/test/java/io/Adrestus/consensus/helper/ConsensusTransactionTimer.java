@@ -107,8 +107,8 @@ public class ConsensusTransactionTimer {
             transaction.setTimestamp(GetTime.GetTimeStampInString());
             Thread.sleep(10);
             transaction.setZoneFrom(CachedZoneIndex.getInstance().getZoneIndex());
-            transaction.setZoneTo(0);
-            transaction.setAmount(100);
+            transaction.setZoneTo(CachedZoneIndex.getInstance().getZoneIndex());
+            transaction.setAmount(i+10);
             transaction.setAmountWithTransactionFee(transaction.getAmount() * (10.0 / 100.0));
             transaction.setNonce(1);
             byte byf[] = serenc.encode(transaction);

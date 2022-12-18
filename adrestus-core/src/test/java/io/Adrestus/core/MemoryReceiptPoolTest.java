@@ -20,7 +20,7 @@ public class MemoryReceiptPoolTest {
 
     @BeforeAll
     public static void setup() {
-        CachedZoneIndex.getInstance().setZONE_INDEX(1);
+        CachedZoneIndex.getInstance().setZoneIndex(1);
     }
 
     @Test

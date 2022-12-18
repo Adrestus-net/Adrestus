@@ -40,6 +40,7 @@ public class ConsensusTransactionBlockTest {
 
     @BeforeAll
     public static void pre_setup() {
+        CachedZoneIndex.getInstance().setZoneIndex(1);
         TransactionBlock prevblock = new TransactionBlock();
         CommitteeBlock committeeBlock = new CommitteeBlock();
         committeeBlock.setGeneration(1);
@@ -53,7 +54,6 @@ public class ConsensusTransactionBlockTest {
     }
 
     public static void setup() throws Exception {
-        CachedZoneIndex.getInstance().setZONE_INDEX(1);
         pRnd = new byte[20];
         random = new SecureRandom();
         random.nextBytes(pRnd);

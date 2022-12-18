@@ -8,22 +8,22 @@ import java.util.Map;
 
 public class CachedZoneIndex {
     private static volatile CachedZoneIndex instance;
-    private int ZONE_INDEX;
+    private int ZoneIndex;
 
 
     private CachedZoneIndex() {
         if (instance != null) {
             throw new IllegalStateException("Already initialized.");
         }
-        this.ZONE_INDEX = 0;
+        this.ZoneIndex = 0;
     }
 
     public int getZoneIndex() {
-        return ZONE_INDEX;
+        return ZoneIndex;
     }
 
-    public void setZONE_INDEX(int ZONE_INDEX) {
-        this.ZONE_INDEX = ZONE_INDEX;
+    public void setZoneIndex(int ZONE_INDEX) {
+        this.ZoneIndex = ZONE_INDEX;
     }
 
     public void setZoneIndexInternalIP() {
@@ -32,7 +32,7 @@ public class CachedZoneIndex {
         for (Map.Entry<Integer, LinkedHashMap<BLSPublicKey, String>> outer : outer_map.entrySet()) {
             for (Map.Entry<BLSPublicKey, String> inner : outer.getValue().entrySet()) {
                 if (inner.getValue().equals(IPFinder.getLocal_address())) {
-                    ZONE_INDEX = outer.getKey();
+                    ZoneIndex = outer.getKey();
                     break outerloop;
                 }
             }
@@ -45,7 +45,7 @@ public class CachedZoneIndex {
         for (Map.Entry<Integer, LinkedHashMap<BLSPublicKey, String>> outer : outer_map.entrySet()) {
             for (Map.Entry<BLSPublicKey, String> inner : outer.getValue().entrySet()) {
                 if (inner.getValue().equals(IPFinder.getExternal_address())) {
-                    ZONE_INDEX = outer.getKey();
+                    ZoneIndex = outer.getKey();
                     break outerloop;
                 }
             }

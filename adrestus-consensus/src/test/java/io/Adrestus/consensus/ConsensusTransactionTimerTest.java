@@ -20,6 +20,7 @@ import io.Adrestus.crypto.mnemonic.Security;
 import io.Adrestus.crypto.mnemonic.WordList;
 import io.Adrestus.util.GetTime;
 import io.Adrestus.util.SerializationUtil;
+import jdk.swing.interop.SwingInterOpUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -28,11 +29,15 @@ import java.net.Socket;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ConsensusTransactionTimerTest {
 
 
+    public static ArrayList<String> addreses_old;
     public static ArrayList<String> addreses;
     private static ArrayList<ECKeyPair> keypair;
     private static SerializationUtil<Transaction> serenc = new SerializationUtil<Transaction>(Transaction.class);
@@ -58,7 +63,7 @@ public class ConsensusTransactionTimerTest {
 
     @BeforeAll
     public static void construct() throws Exception {
-        CachedZoneIndex.getInstance().setZONE_INDEX(1);
+        CachedZoneIndex.getInstance().setZoneIndex(1);
         sk1 = new BLSPrivateKey(1);
         vk1 = new BLSPublicKey(sk1);
 
@@ -214,10 +219,19 @@ public class ConsensusTransactionTimerTest {
         if (hit == 0)
             return;
 
+        addreses_old=new ArrayList<>(addreses);
         CountDownLatch latch = new CountDownLatch(5);
         ConsensusTransactionTimer c = new ConsensusTransactionTimer(latch, addreses, keypair);
         latch.await();
         c.close();
+
+        //assertEquals(TreeFactory.getMemoryTree(1).getByaddress(addreses.get(0)).get().getAmount(), TreeFactory.getMemoryTree(1).getByaddress(addreses.get(0)).get().getAmount()-100);
+        for(int i=1;i<addreses.size()-1;i++) {
+            System.out.println(TreeFactory.getMemoryTree(1).getByaddress(addreses.get(i)).get().getAmount());
+           // assertEquals(TreeFactory.getMemoryTree(1).getByaddress(addreses.get(i)).get().getAmount(), TreeFactory.getMemoryTree(1).getByaddress(addreses.get(i)).get().getAmount());
+        }
+
+
 
     }
  /*   public static void setup() throws Exception {

@@ -38,11 +38,11 @@ public class MemoryTreePool implements IMemoryTreePool {
     }
 
     @Override
-    public void deposit(String address, PatriciaTreeNode patriciaTreeNode) {
+    public void deposit(String address, PatriciaTreeNode patriciaTreeNode, IMemoryTreePool instance) {
         w.lock();
         try {
             Bytes key = Bytes.wrap(address.getBytes(StandardCharsets.UTF_8));
-            Optional<PatriciaTreeNode> prev = getByaddress(address);
+            Optional<PatriciaTreeNode> prev = instance.getByaddress(address);
             if (prev.isEmpty()) {
                 PatriciaTreeNode next = new PatriciaTreeNode(patriciaTreeNode.getAmount(), 0, 0);
                 patriciaTreeImp.put(key, next);
@@ -58,11 +58,11 @@ public class MemoryTreePool implements IMemoryTreePool {
     }
 
     @Override
-    public void withdraw(String address, PatriciaTreeNode patriciaTreeNode) {
+    public void withdraw(String address, PatriciaTreeNode patriciaTreeNode,IMemoryTreePool instance) {
         w.lock();
         try {
             Bytes key = Bytes.wrap(address.getBytes(StandardCharsets.UTF_8));
-            Optional<PatriciaTreeNode> prev = getByaddress(address);
+            Optional<PatriciaTreeNode> prev = instance.getByaddress(address);
             if (prev.isEmpty()) {
                 PatriciaTreeNode next = new PatriciaTreeNode(patriciaTreeNode.getAmount(), 0, 0);
                 patriciaTreeImp.put(key, patriciaTreeNode);

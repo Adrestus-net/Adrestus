@@ -64,7 +64,7 @@ public class ReceiptsTest {
 
     @BeforeAll
     public static void setup() throws Exception {
-        CachedZoneIndex.getInstance().setZONE_INDEX(0);
+        CachedZoneIndex.getInstance().setZoneIndex(0);
         sk1 = new BLSPrivateKey(1);
         vk1 = new BLSPublicKey(sk1);
 
@@ -269,7 +269,7 @@ public class ReceiptsTest {
         new Thread(example).start();
 
         BlockEventPublisher publisher = new BlockEventPublisher(1024);
-        CachedZoneIndex.getInstance().setZONE_INDEX(1);
+        CachedZoneIndex.getInstance().setZoneIndex(1);
         CachedBLSKeyPair.getInstance().setPublicKey(vk1);
         CachedBLSKeyPair.getInstance().setPrivateKey(sk1);
         String OriginalRootHash = transactionBlock.getMerkleRoot();
