@@ -25,7 +25,7 @@ public class OutBoundEventHandler implements BlockEventHandler<AbstractBlockEven
     public void onEvent(AbstractBlockEvent blockEvent, long l, boolean b) throws Exception {
         TransactionBlock transactionBlock = (TransactionBlock) blockEvent.getBlock();
         final Map<Integer, Map<Receipt.ReceiptBlock, List<Receipt>>> outer_receipts = transactionBlock.getOutbound().getMap_receipts();
-        if (transactionBlock.getOutbound() == null)
+        if (transactionBlock.getOutbound().getMap_receipts().isEmpty())
             return;
 
         if (outer_receipts.size() > 3) {
@@ -62,7 +62,7 @@ public class OutBoundEventHandler implements BlockEventHandler<AbstractBlockEven
                 }
 
             });
-        } catch (NullPointerException e) {
+        } catch (Exception e) {
         } finally {
             latch.countDown();
         }
@@ -79,7 +79,7 @@ public class OutBoundEventHandler implements BlockEventHandler<AbstractBlockEven
                     });
                 }
             });
-        } catch (NullPointerException e) {
+        } catch (Exception e) {
         } finally {
             latch.countDown();
         }
@@ -96,7 +96,7 @@ public class OutBoundEventHandler implements BlockEventHandler<AbstractBlockEven
                     });
                 }
             });
-        } catch (NullPointerException e) {
+        } catch (Exception e) {
         } finally {
             latch.countDown();
         }

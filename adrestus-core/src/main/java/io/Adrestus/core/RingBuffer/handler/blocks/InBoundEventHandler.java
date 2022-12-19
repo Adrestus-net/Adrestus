@@ -37,7 +37,7 @@ public class InBoundEventHandler implements BlockEventHandler<AbstractBlockEvent
         CommitteeBlock committeeBlock = CachedLatestBlocks.getInstance().getCommitteeBlock();
         final Map<Integer, Map<Receipt.ReceiptBlock, List<Receipt>>> inner_receipts = transactionBlock.getInbound().getMap_receipts();
 
-        if (transactionBlock.getInbound() == null)
+        if (transactionBlock.getInbound().getMap_receipts().isEmpty())
             return;
 
         if (inner_receipts.size() > 3) {

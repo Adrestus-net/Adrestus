@@ -77,7 +77,7 @@ public class MemoryReceiptPool implements IMemoryPool<Receipt> {
     }
 
     @Override
-    public Optional<Receipt> getTransactionByHash(String hash) throws Exception {
+    public Optional<Receipt> getObjectByHash(String hash) throws Exception {
         r.lock();
         try {
             Optional<Receipt> result = memorypool.stream().filter(val -> val.getTransaction().getHash().equals(hash)).findFirst();
@@ -111,8 +111,16 @@ public class MemoryReceiptPool implements IMemoryPool<Receipt> {
 
     @Override
     public void delete(Receipt transaction) {
-        memorypool.clear();
+        w.lock();
+        try {
+            int index = Collections.binarySearch(memorypool, transaction, hashComparator);
+            if (index >= 0)
+                memorypool.remove(index);
+        } finally {
+            w.unlock();
+        }
     }
+
 
     @Override
     public boolean checkAdressExists(Receipt transaction) throws Exception {

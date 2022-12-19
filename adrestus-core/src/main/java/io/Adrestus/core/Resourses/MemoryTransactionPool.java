@@ -79,7 +79,7 @@ public class MemoryTransactionPool implements IMemoryPool<Transaction> {
 
 
     @Override
-    public Optional<Transaction> getTransactionByHash(String hash) throws Exception {
+    public Optional<Transaction> getObjectByHash(String hash) throws Exception {
         r.lock();
         try {
             Optional<Transaction> result = memorypool.stream().filter(val -> val.getHash().equals(hash)).findFirst();
@@ -117,13 +117,13 @@ public class MemoryTransactionPool implements IMemoryPool<Transaction> {
 
     @Override
     public void delete(Transaction transaction) {
-        r.lock();
+        w.lock();
         try {
             int index = Collections.binarySearch(memorypool, transaction, hashComparator);
             if (index >= 0)
                 memorypool.remove(index);
         } finally {
-            r.unlock();
+            w.unlock();
         }
     }
 

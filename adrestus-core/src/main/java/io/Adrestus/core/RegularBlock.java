@@ -3,7 +3,6 @@ package io.Adrestus.core;
 import com.google.common.primitives.Ints;
 import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.MerkleNode;
-import io.Adrestus.Trie.MerkleTree;
 import io.Adrestus.Trie.MerkleTreeImp;
 import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.config.AdrestusConfiguration;
@@ -67,7 +66,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
                 .mergeEventsAndPassVerifySig();
 
 
-        MerkleTree tree = new MerkleTreeImp();
+        MerkleTreeImp tree = new MerkleTreeImp();
         ArrayList<MerkleNode> merkleNodeArrayList = new ArrayList<>();
         transactionBlock.getHeaderData().setPreviousHash(CachedLatestBlocks.getInstance().getTransactionBlock().getHash());
         transactionBlock.getHeaderData().setVersion(AdrestusConfiguration.version);
@@ -78,14 +77,46 @@ public class RegularBlock implements BlockForge, BlockInvent {
         transactionBlock.setViewID(CachedLatestBlocks.getInstance().getTransactionBlock().getViewID() + 1);
         transactionBlock.setZone(CachedZoneIndex.getInstance().getZoneIndex());
         transactionBlock.setLeaderPublicKey(CachedBLSKeyPair.getInstance().getPublicKey());
+        transactionBlock.setTransactionList(MemoryTransactionPool.getInstance().getAll());
+        transactionBlock.getTransactionList().stream().forEach(x -> {
+            merkleNodeArrayList.add(new MerkleNode(x.getHash()));
+        });
+        tree.my_generate2(merkleNodeArrayList);
+        transactionBlock.setMerkleRoot(tree.getRootHash());
+
+        //##########OutBound############
+        Receipt.ReceiptBlock receiptBlock = new Receipt.ReceiptBlock(transactionBlock.getHash(), transactionBlock.getHeight(), transactionBlock.getGeneration(), transactionBlock.getMerkleRoot());
+        ArrayList<Receipt> receiptList = new ArrayList<>();
+        for (int i = 0; i < transactionBlock.getTransactionList().size(); i++) {
+            Transaction transaction = transactionBlock.getTransactionList().get(i);
+            MerkleNode node = new MerkleNode(transaction.getHash());
+            tree.build_proofs2(merkleNodeArrayList, node);
+            if (transaction.getZoneFrom() != transaction.getZoneTo())
+                receiptList.add(new Receipt(transaction.getZoneFrom(), transaction.getZoneTo(), receiptBlock, new RegularTransaction(transaction.getHash()), i, tree.getMerkleeproofs(), transaction.getTo(), transaction.getAmount()));
+        }
+
+        Map<Integer, Map<Receipt.ReceiptBlock, List<Receipt>>> outbound = receiptList
+                .stream()
+                .collect(Collectors.groupingBy(Receipt::getZoneTo, Collectors.groupingBy(Receipt::getReceiptBlock, Collectors.mapping(Receipt::merge, Collectors.toList()))));
+
+        OutBoundRelay outBoundRelay = new OutBoundRelay(outbound);
+        transactionBlock.setOutbound(outBoundRelay);
+        //##########OutBound############
+
+
+
+
+        //##########InBound############
+        if(!MemoryReceiptPool.getInstance().getAll().isEmpty()) {
+            Map<Integer, Map<Receipt.ReceiptBlock, List<Receipt>>> inbound_map = ((ArrayList<Receipt>) MemoryReceiptPool.getInstance().getAll())
+                    .stream()
+                    .collect(Collectors.groupingBy(Receipt::getZoneFrom, Collectors.groupingBy(Receipt::getReceiptBlock, Collectors.mapping(Receipt::merge, Collectors.toList()))));
+         InboundRelay inboundRelay=new InboundRelay(inbound_map);
+         transactionBlock.setInbound(inboundRelay);
+        }
+        //##########InBound############
 
         try {
-            transactionBlock.setTransactionList(MemoryTransactionPool.getInstance().getAll());
-            transactionBlock.getTransactionList().stream().forEach(x -> {
-                merkleNodeArrayList.add(new MerkleNode(x.getHash()));
-            });
-            tree.my_generate2(merkleNodeArrayList);
-            transactionBlock.setMerkleRoot(tree.getRootHash());
             byte[] tohash = encode.encode(transactionBlock);
             transactionBlock.setHash(HashUtil.sha256_bytetoString(tohash));
             publisher.start();
@@ -95,6 +126,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
         } finally {
             publisher.close();
         }
+
     }
 
     @SneakyThrows
@@ -252,10 +284,10 @@ public class RegularBlock implements BlockForge, BlockInvent {
             for (int i = 0; i < transactionBlock.getTransactionList().size(); i++) {
                 Transaction transaction = transactionBlock.getTransactionList().get(i);
                 if ((transaction.getZoneFrom() == CachedZoneIndex.getInstance().getZoneIndex()) && (transaction.getZoneTo() == CachedZoneIndex.getInstance().getZoneIndex())) {
-                    TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).withdraw(transaction.getFrom(), new PatriciaTreeNode(transaction.getAmount()),TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()));
-                    TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).deposit(transaction.getTo(), new PatriciaTreeNode(transaction.getAmount()),TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()));
+                    TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).withdraw(transaction.getFrom(), new PatriciaTreeNode(transaction.getAmount()), TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()));
+                    TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).deposit(transaction.getTo(), new PatriciaTreeNode(transaction.getAmount()), TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()));
                 } else {
-                    TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).withdraw(transaction.getFrom(), new PatriciaTreeNode(transaction.getAmount()),TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()));
+                    TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).withdraw(transaction.getFrom(), new PatriciaTreeNode(transaction.getAmount()), TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()));
                 }
             }
         }
@@ -267,17 +299,18 @@ public class RegularBlock implements BlockForge, BlockInvent {
                     .get(transactionBlock.getInbound().getMap_receipts().keySet().toArray()[0])
                     .entrySet()
                     .stream()
-                    .findFirst()
-                    .get()
-                    .getValue()
-                    .stream()
-                    .forEach(receipt -> {
-                        Transaction transaction = receipt.getTransaction();
-                        PatriciaTreeNode patriciaTreeNode = new PatriciaTreeNode(transaction.getAmount());
-                        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).deposit(transaction.getTo(), patriciaTreeNode,TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()));
+                    .forEach(entry -> {
+                        entry.getValue().stream().forEach(receipt -> {
+                            Transaction transaction = receipt.getTransaction();
+                            PatriciaTreeNode patriciaTreeNode = new PatriciaTreeNode(transaction.getAmount());
+                            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).deposit(transaction.getTo(), patriciaTreeNode, TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()));
+                            MemoryReceiptPool.getInstance().delete(receipt);
+                        });
+
                     });
 
         CachedLatestBlocks.getInstance().setTransactionBlock(transactionBlock);
+        CachedReceiptSemaphore.getInstance().getSemaphore().release();
     }
 
     @Override

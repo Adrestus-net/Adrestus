@@ -52,7 +52,7 @@ public class MemoryReceiptPoolTest {
 
         Receipt receipt3 = new Receipt(0, 1, new RegularTransaction("hash2"));
         assertEquals(true, MemoryReceiptPool.getInstance().add(receipt3));
-        //  MemoryPool.getInstance().printAll();
+        assertEquals(2,MemoryReceiptPool.getInstance().getAll().size());
     }
 
     @Test
@@ -82,6 +82,34 @@ public class MemoryReceiptPoolTest {
         MemoryReceiptPool.getInstance().printAll();
     }
 
+    @Test
+    // @Order(4)
+    public void delete_receipt() throws Exception {
+        MemoryReceiptPool.getInstance().getAll().clear();
+
+        ArrayList<Receipt> list = new ArrayList<Receipt>();
+        Receipt receipt1 = new Receipt(0, 1, new RegularTransaction("hash1"));
+
+        Receipt receipt2 = new Receipt(0, 1, new RegularTransaction("hash2"));
+
+        Receipt receipt3 = new Receipt(0, 1, new RegularTransaction("hash3"));
+
+        Receipt receipt4 = new Receipt(0, 1, new RegularTransaction("hash4"));
+
+
+        MemoryReceiptPool.getInstance().add(receipt1);
+        MemoryReceiptPool.getInstance().add(receipt2);
+        MemoryReceiptPool.getInstance().add(receipt3);
+        MemoryReceiptPool.getInstance().add(receipt4);
+
+        list.add(receipt3);
+        list.add(receipt4);
+
+        MemoryReceiptPool.getInstance().delete(new Receipt(new RegularTransaction("hash1")));
+        MemoryReceiptPool.getInstance().printAll();
+        assertEquals(3, MemoryReceiptPool.getInstance().getAll().size());
+    }
+
 
     @Test
     // @Order(3)
@@ -91,7 +119,7 @@ public class MemoryReceiptPoolTest {
         Receipt receipt1 = new Receipt(0, 1, new RegularTransaction("hash1"));
         MemoryReceiptPool.getInstance().add(receipt1);
 
-        Optional<Receipt> res = MemoryReceiptPool.getInstance().getTransactionByHash("hash1");
+        Optional<Receipt> res = MemoryReceiptPool.getInstance().getObjectByHash("hash1");
         if (res.isPresent())
             System.out.println(res.get().toString());
 

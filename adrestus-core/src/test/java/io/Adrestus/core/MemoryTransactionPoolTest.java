@@ -100,7 +100,7 @@ public class MemoryTransactionPoolTest {
         transaction1.setTimestamp(GetTime.GetTimeStampInString());
         MemoryTransactionPool.getInstance().add(transaction1);
 
-        Optional<Transaction> res = MemoryTransactionPool.getInstance().getTransactionByHash("Hash4");
+        Optional<Transaction> res = MemoryTransactionPool.getInstance().getObjectByHash("Hash4");
         if (res.isPresent())
             System.out.println(res.get().toString());
 

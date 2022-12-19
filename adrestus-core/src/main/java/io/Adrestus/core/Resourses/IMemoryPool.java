@@ -14,19 +14,20 @@ public interface IMemoryPool<T> {
 
     Lock getW();
 
-    Optional<T> getTransactionByHash(String hash) throws Exception;
+    Optional<T> getObjectByHash(String hash) throws Exception;
 
-    boolean add(T transaction) throws Exception;
+    boolean add(T Object) throws Exception;
 
-    void delete(List<T> list_transaction);
+    void delete(List<T> list_Object);
 
-    void delete(T transaction);
+    void delete(T Object);
 
-    boolean checkAdressExists(T transaction) throws Exception;
 
-    boolean checkHashExists(T transaction) throws Exception;
+    boolean checkAdressExists(T Object) throws Exception;
 
-    boolean checkTimestamp(T transaction) throws Exception;
+    boolean checkHashExists(T Object) throws Exception;
+
+    boolean checkTimestamp(T Object) throws Exception;
 
     void printAll() throws Exception;
 

@@ -645,6 +645,8 @@ public class ValidatorConsensusPhases {
                     .withHeightEventHandler()
                     .withTimestampEventHandler()
                     .withTransactionMerkleeEventHandler()
+                    .withInBoundEventHandler()
+                    .withOutBoundEventHandler()
                     .mergeEvents();
 
 
