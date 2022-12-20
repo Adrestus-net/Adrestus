@@ -11,4 +11,6 @@ public interface IBlockIndex {
 
     Integer getZone(BLSPublicKey blsPublicKey);
 
+    Integer getZone(String IP);
+
 }

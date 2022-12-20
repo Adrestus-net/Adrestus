@@ -73,12 +73,13 @@ public class ConsensusTransactionTimer2Test {
     private static BLSPublicKey vk6;
 
     private static SerializationUtil<Receipt> recep = new SerializationUtil<Receipt>(Receipt.class);
-
+    private static IBlockIndex blockIndex;
     private static Eventloop eventloop = Eventloop.create().withCurrentThread();
     private static AsyncTcpSocket socket;
 
     @BeforeAll
     public static void construct() throws Exception {
+        blockIndex = new BlockIndex();
         sk1 = new BLSPrivateKey(1);
         vk1 = new BLSPublicKey(sk1);
 
@@ -273,7 +274,8 @@ public class ConsensusTransactionTimer2Test {
         socket.connect(new InetSocketAddress("google.com", 80));
         String IP = socket.getLocalAddress().getHostAddress();
         int hit = 0;
-        for (Map.Entry<BLSPublicKey, String> entry : CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).entrySet()) {
+        int activezones=blockIndex.getZone(IP);
+        for (Map.Entry<BLSPublicKey, String> entry : CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(activezones).entrySet()) {
             if (IP.equals(entry.getValue())) {
                 if (vk1.equals(entry.getKey())) {
                     CachedBLSKeyPair.getInstance().setPrivateKey(sk1);
