@@ -1,46 +1,37 @@
-package io.Adrestus.network;
+package io.Adrestus.core;
 
 import io.Adrestus.config.TransactionConfigOptions;
+import io.Adrestus.network.TCPTransactionConsumer;
+import io.Adrestus.network.TransactionChannelHandler;
+import io.Adrestus.util.SerializationUtil;
 import io.activej.bytebuf.ByteBuf;
-import io.activej.csp.ChannelSupplier;
-import io.activej.csp.binary.BinaryChannelSupplier;
-import io.activej.csp.binary.ByteBufsDecoder;
 import io.activej.eventloop.Eventloop;
 import io.activej.net.socket.tcp.AsyncTcpSocket;
 import io.activej.net.socket.tcp.AsyncTcpSocketNio;
-import io.activej.promise.Promise;
 import org.apache.commons.lang3.ArrayUtils;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.concurrent.CountDownLatch;
 
 import static io.activej.eventloop.Eventloop.getCurrentEventloop;
-import static io.activej.promise.Promises.loop;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-public class TransactionChannelTest {
+public class SocketChannelTest {
     Eventloop eventloop = Eventloop.create().withCurrentThread();
-    private static final ByteBufsDecoder<byte[]> DECODER = ByteBufsDecoder.ofNullTerminatedBytes().andThen(buf -> buf.asArray());
-    private static final String REQUEST_MSG = "03e4c11dd892a055a201a22e915aa2e762676b8d2c9524289b2ee3b9d6a592b1";
-    private static final InetSocketAddress ADDRESS = new InetSocketAddress("localhost", TransactionConfigOptions.TRANSACTION_PORT);
-    private static final int ITERATIONS = 5;
-    static CountDownLatch latch;
     static AsyncTcpSocket socket;
+    SerializationUtil<Receipt> recep = new SerializationUtil<Receipt>(Receipt.class);
+    SerializationUtil<Transaction> trans = new SerializationUtil<Transaction>(Transaction.class);
 
     @Test
-    public void simple_test() throws Exception {
-
+    public void receipt_test() throws Exception {
         TCPTransactionConsumer<byte[]> print = x -> {
-            System.out.println("Callback" + new String(x));
+            System.out.println("Callback" + recep.decode(x).toString());
         };
 
         TransactionChannelHandler transactionChannelHandler = new TransactionChannelHandler<byte[]>("localhost");
         transactionChannelHandler.BindServerAndReceive(print);
 
-        Thread.sleep(2000);
         System.out.println("Connecting to server at localhost (port 9922)...");
         eventloop.connect(new InetSocketAddress("localhost", TransactionConfigOptions.TRANSACTION_PORT), (socketChannel, e) -> {
             if (e == null) {
@@ -51,48 +42,9 @@ public class TransactionChannelTest {
                     throw new RuntimeException(ioException);
                 }
 
-
-                latch = new CountDownLatch(ITERATIONS);
-                BinaryChannelSupplier bufsSupplier = BinaryChannelSupplier.of(ChannelSupplier.ofSocket(socket));
-                loop(0,
-                        i -> i <= ITERATIONS,
-                        i -> loadData(i).then(bytes -> socket.write(ByteBuf.wrapForReading(bytes))).then(() -> bufsSupplier.needMoreData())
-                                .map($2 -> i + 1))
-                        .whenComplete(socket::close);
-                // eventloop.execute(() -> socket.close());
-                //socket.close();
-
-            } else {
-                System.out.printf("Could not connect to server, make sure it is started: %s%n", e);
-            }
-        });
-        System.out.println("send");
-        eventloop.run();
-        transactionChannelHandler.close();
-        transactionChannelHandler=null;
-
-    }
-
-    @Test
-    public void simple_test2() throws Exception {
-
-        TCPTransactionConsumer<byte[]> print = x -> {
-            System.out.println("Callback 2: " + new String(x));
-        };
-
-        TransactionChannelHandler transactionChannelHandler = new TransactionChannelHandler<byte[]>("localhost");
-        transactionChannelHandler.BindServerAndReceive(print);
-
-        Thread.sleep(2000);
-        System.out.println("Connecting to server at localhost (port 9922)...");
-        eventloop.connect(new InetSocketAddress("localhost", TransactionConfigOptions.TRANSACTION_PORT), (socketChannel, e) -> {
-            if (e == null) {
-                try {
-                    socket = AsyncTcpSocketNio.wrapChannel(getCurrentEventloop(), socketChannel, null);
-                } catch (IOException ioException) {
-                    throw new RuntimeException(ioException);
-                }
-                socket.write(ByteBuf.wrapForReading(ArrayUtils.addAll(REQUEST_MSG.getBytes(UTF_8), "\r\n".getBytes(UTF_8))));
+                Receipt receipt = new Receipt(1, 1, new RegularTransaction("hash1"));
+                byte[] data = recep.encode(receipt);
+                socket.write(ByteBuf.wrapForReading(ArrayUtils.addAll(data, "\r\n".getBytes(UTF_8))));
                 socket.close();
 
             } else {
@@ -102,18 +54,40 @@ public class TransactionChannelTest {
         System.out.println("send");
         eventloop.run();
         transactionChannelHandler.close();
-
+        transactionChannelHandler = null;
     }
 
-    private static @NotNull Promise<byte[]> loadData(int i) {
-        byte[] concatBytes = ArrayUtils.addAll((String.valueOf(i) + REQUEST_MSG).getBytes(UTF_8), "\r\n".getBytes(UTF_8));
-        return Promise.of(concatBytes);
-    }
+    @Test
+    public void Transaction_test() throws Exception {
+        TCPTransactionConsumer<byte[]> print = x -> {
+            System.out.println("Callback" + trans.decode(x).toString());
+        };
 
-    private static @NotNull Promise<String> count(byte[] bytes) {
-        Promise<Void> first = socket.write(ByteBuf.wrapForReading(bytes));
-        //Promise<Integer> secondNumber = Promises.delay(100, 10);
-        //Promise<String> strPromise = first.combine(secondNumber, Integer::sum);
-        return Promise.of("");
+        TransactionChannelHandler transactionChannelHandler = new TransactionChannelHandler<byte[]>("localhost");
+        transactionChannelHandler.BindServerAndReceive(print);
+
+        System.out.println("Connecting to server at localhost (port 9922)...");
+        eventloop.connect(new InetSocketAddress("localhost", TransactionConfigOptions.TRANSACTION_PORT), (socketChannel, e) -> {
+            if (e == null) {
+                System.out.println("Connected to server, enter some text and send it by pressing 'Enter'.");
+                try {
+                    socket = AsyncTcpSocketNio.wrapChannel(getCurrentEventloop(), socketChannel, null);
+                } catch (IOException ioException) {
+                    throw new RuntimeException(ioException);
+                }
+
+                Transaction transaction = new RegularTransaction("hash2");
+                byte[] data = trans.encode(transaction);
+                socket.write(ByteBuf.wrapForReading(ArrayUtils.addAll(data, "\r\n".getBytes(UTF_8))));
+                socket.close();
+
+            } else {
+                System.out.printf("Could not connect to server, make sure it is started: %s%n", e);
+            }
+        });
+        System.out.println("send");
+        eventloop.run();
+        transactionChannelHandler.close();
+        transactionChannelHandler = null;
     }
 }

@@ -3,13 +3,13 @@ package io.Adrestus.consensus;
 import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.config.AdrestusConfiguration;
+import io.Adrestus.config.TransactionConfigOptions;
 import io.Adrestus.consensus.helper.ConsensusTransaction2Timer;
-import io.Adrestus.consensus.helper.ConsensusTransactionTimer;
-import io.Adrestus.core.CommitteeBlock;
+import io.Adrestus.core.*;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
+import io.Adrestus.core.Resourses.CachedReceiptSemaphore;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
-import io.Adrestus.core.Transaction;
-import io.Adrestus.core.TransactionBlock;
+import io.Adrestus.core.Resourses.MemoryReceiptPool;
 import io.Adrestus.crypto.WalletAddress;
 import io.Adrestus.crypto.bls.model.BLSPrivateKey;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
@@ -20,11 +20,21 @@ import io.Adrestus.crypto.elliptic.Keys;
 import io.Adrestus.crypto.mnemonic.Mnemonic;
 import io.Adrestus.crypto.mnemonic.Security;
 import io.Adrestus.crypto.mnemonic.WordList;
+import io.Adrestus.network.IPFinder;
+import io.Adrestus.network.TCPTransactionConsumer;
+import io.Adrestus.network.TransactionChannelHandler;
 import io.Adrestus.util.GetTime;
 import io.Adrestus.util.SerializationUtil;
+import io.activej.bytebuf.ByteBuf;
+import io.activej.eventloop.Eventloop;
+import io.activej.net.socket.tcp.AsyncTcpSocket;
+import io.activej.net.socket.tcp.AsyncTcpSocketNio;
+import lombok.SneakyThrows;
+import org.apache.commons.lang3.ArrayUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.security.SecureRandom;
@@ -32,7 +42,8 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static io.activej.eventloop.Eventloop.getCurrentEventloop;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class ConsensusTransactionTimer2Test {
 
@@ -61,9 +72,13 @@ public class ConsensusTransactionTimer2Test {
     private static BLSPrivateKey sk6;
     private static BLSPublicKey vk6;
 
+    private static SerializationUtil<Receipt> recep = new SerializationUtil<Receipt>(Receipt.class);
+
+    private static Eventloop eventloop = Eventloop.create().withCurrentThread();
+    private static AsyncTcpSocket socket;
+
     @BeforeAll
     public static void construct() throws Exception {
-        CachedZoneIndex.getInstance().setZoneIndex(1);
         sk1 = new BLSPrivateKey(1);
         vk1 = new BLSPublicKey(sk1);
 
@@ -187,12 +202,68 @@ public class ConsensusTransactionTimer2Test {
         CachedLatestBlocks.getInstance().setTransactionBlock(prevblock);
 
         CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).put(vk1, "192.168.1.106");
-        //CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).put(vk2, "192.168.1.110");
-        CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).put(vk3, "192.168.1.113");
-        // CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).put(vk4, "192.168.1.115");
-        CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).put(vk5, "192.168.1.116");
-        // CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).put(vk6, "192.168.1.104");
+        CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).put(vk2, "192.168.1.113");
+        CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).put(vk3, "192.168.1.116");
+
+        CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).put(vk4, "192.168.1.110");
+        CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).put(vk5, "192.168.1.112");
+        CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).put(vk6, "192.168.1.115");
         CachedZoneIndex.getInstance().setZoneIndexInternalIP();
+
+
+        TCPTransactionConsumer<byte[]> callback = x -> {
+            Receipt receipt=recep.decode(x);
+            System.out.println("Receipt received: "+receipt.toString());
+            MemoryReceiptPool.getInstance().add(receipt);
+        };
+        (new Thread() {
+            @SneakyThrows
+            public void run() {
+                TransactionChannelHandler transactionChannelHandler = new TransactionChannelHandler<byte[]>(IPFinder.getLocal_address());
+                transactionChannelHandler.BindServerAndReceive(callback);
+            }
+        }).start();
+        (new Thread() {
+            public void run() {
+                while (true) {
+                    try {
+                        CachedReceiptSemaphore.getInstance().getSemaphore().acquire();
+                         if(!CachedLatestBlocks.getInstance().getTransactionBlock().getInbound().getMap_receipts().isEmpty()){
+                             CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).values().forEach(ip->{
+                                 eventloop.connect(new InetSocketAddress(ip, TransactionConfigOptions.TRANSACTION_PORT), (socketChannel, e) -> {
+                                     if (e == null) {
+                                         System.out.println("Connected to server, enter some text and send it by pressing 'Enter'.");
+                                         try {
+                                             socket = AsyncTcpSocketNio.wrapChannel(getCurrentEventloop(), socketChannel, null);
+                                         } catch (IOException ioException) {
+                                             throw new RuntimeException(ioException);
+                                         }
+
+                                        CachedLatestBlocks.getInstance().getTransactionBlock().getInbound().getMap_receipts().get(0).entrySet().forEach(val->{
+                                            val.getValue().stream().forEach(receipt->{
+                                                receipt.setReceiptBlock(val.getKey());
+                                                byte[]data=recep.encode(receipt);
+                                                socket.write(ByteBuf.wrapForReading(ArrayUtils.addAll(data, "\r\n".getBytes(UTF_8))));
+                                            });
+                                        });
+                                         socket.close();
+
+                                     } else {
+                                         System.out.printf("Could not connect to server, make sure it is started: %s%n", e);
+                                     }
+                                 });
+                             });
+                         }
+                         Thread.sleep(500);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    finally {
+                        CachedReceiptSemaphore.getInstance().getSemaphore().release();
+                    }
+                }
+            }
+        }).start();
     }
 
 
@@ -230,7 +301,7 @@ public class ConsensusTransactionTimer2Test {
         if (hit == 0)
             return;
 
-        addreses_old=new ArrayList<>(addreses);
+        addreses_old = new ArrayList<>(addreses);
         CountDownLatch latch = new CountDownLatch(5);
         ConsensusTransaction2Timer c = new ConsensusTransaction2Timer(latch, addreses, keypair);
         latch.await();

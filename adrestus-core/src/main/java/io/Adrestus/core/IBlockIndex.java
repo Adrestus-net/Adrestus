@@ -9,4 +9,6 @@ public interface IBlockIndex {
 
     String getIpValue(int zone, BLSPublicKey blsPublicKey);
 
+    Integer getZone(BLSPublicKey blsPublicKey);
+
 }

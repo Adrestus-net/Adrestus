@@ -636,7 +636,6 @@ public class BlockTest {
                         .put(entryList.get(order.get(i)).getValue().getAddressData().getValidatorBlSPublicKey(), entryList.get(order.get(i)).getValue().getNettyConnectionInfo().getHost());
             }
         }
-
     }
 
     @Test

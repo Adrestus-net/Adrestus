@@ -45,6 +45,8 @@ public class TransactionChannelTest {
                     new TransactionChannelHandler<byte[]>("localhost").BindServerAndReceive(print);
                 } catch (IOException e) {
                     e.printStackTrace();
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
         }).start();

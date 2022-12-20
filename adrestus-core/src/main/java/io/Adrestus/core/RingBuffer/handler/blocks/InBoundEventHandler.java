@@ -4,7 +4,7 @@ import io.Adrestus.Trie.MerkleNode;
 import io.Adrestus.Trie.MerkleTreeImp;
 import io.Adrestus.config.NetworkConfiguration;
 import io.Adrestus.core.*;
-import io.Adrestus.core.Resourses.CachedEventLoop;
+import io.Adrestus.network.CachedEventLoop;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.core.RingBuffer.event.AbstractBlockEvent;

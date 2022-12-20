@@ -52,6 +52,8 @@ public class RegularBlock implements BlockForge, BlockInvent {
 
     @Override
     public void forgeTransactionBlock(TransactionBlock transactionBlock) throws Exception {
+        CachedReceiptSemaphore.getInstance().getSemaphore().acquire();
+
         BlockEventPublisher publisher = new BlockEventPublisher(1024);
 
 

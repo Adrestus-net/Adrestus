@@ -67,7 +67,8 @@ public class ConsensusTransaction2Timer {
     }
 
     private void chooser() throws InterruptedException {
-        ArrayList<BLSPublicKey> keyList = new ArrayList<BLSPublicKey>(CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).keySet());
+        int activeZone=this.blockIndex.getZone(CachedBLSKeyPair.getInstance().getPublicKey());
+        ArrayList<BLSPublicKey> keyList = new ArrayList<BLSPublicKey>(CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(activeZone).keySet());
         if (CachedBLSKeyPair.getInstance().getPublicKey().equals(keyList.get(0))) {
             SaveTransactions(0, 1);
         } else if (CachedBLSKeyPair.getInstance().getPublicKey().equals(keyList.get(1))) {
@@ -75,11 +76,11 @@ public class ConsensusTransaction2Timer {
         } else if (CachedBLSKeyPair.getInstance().getPublicKey().equals(keyList.get(2))) {
             SaveTransactions(4, 5);
         } else if (CachedBLSKeyPair.getInstance().getPublicKey().equals(keyList.get(3))) {
-            SaveTransactions(6, 7);
+            SaveTransactions2(6, 7);
         } else if (CachedBLSKeyPair.getInstance().getPublicKey().equals(keyList.get(4))) {
-            SaveTransactions(8, 8);
+            SaveTransactions2(8, 8);
         } else if (CachedBLSKeyPair.getInstance().getPublicKey().equals(keyList.get(5))) {
-            SaveTransactions(9, 9);
+            SaveTransactions2(9, 9);
         }
 
     }
@@ -113,7 +114,53 @@ public class ConsensusTransaction2Timer {
             transaction.setTimestamp(GetTime.GetTimeStampInString());
             Thread.sleep(10);
             transaction.setZoneFrom(CachedZoneIndex.getInstance().getZoneIndex());
-            transaction.setZoneTo(r.nextInt(high-low) + low);
+            transaction.setZoneTo(0);
+            transaction.setAmount(i + 10);
+            transaction.setAmountWithTransactionFee(transaction.getAmount() * (10.0 / 100.0));
+            transaction.setNonce(nonce);
+            byte byf[] = serenc.encode(transaction);
+            transaction.setHash(HashUtil.sha256_bytetoString(byf));
+
+            SignatureData signatureData = ecdsaSign.secp256SignMessage(Hex.decode(transaction.getHash()), keypair.get(i));
+            transaction.setSignature(signatureData);
+            //MemoryPool.getInstance().add(transaction);
+            publisher.publish(transaction);
+            Thread.sleep(100);
+        }
+        publisher.getJobSyncUntilRemainingCapacityZero();
+        publisher.close();
+    }
+
+    private void SaveTransactions2(int start, int stop) throws InterruptedException {
+        nonce++;
+        TransactionEventPublisher publisher = new TransactionEventPublisher(1024);
+
+        publisher
+                .withAddressSizeEventHandler()
+                .withAmountEventHandler()
+                .withDelegateEventHandler()
+                .withDoubleSpendEventHandler()
+                .withHashEventHandler()
+                .withNonceEventHandler()
+                .withReplayEventHandler()
+                .withRewardEventHandler()
+                .withStakingEventHandler()
+                .withTransactionFeeEventHandler()
+                .withTimestampEventHandler()
+                .withSameOriginEventHandler()
+                .withZoneEventHandler()
+                .mergeEventsAndPassThen(new SignatureEventHandler(SignatureEventHandler.SignatureBehaviorType.SIMPLE_TRANSACTIONS));
+        publisher.start();
+
+        for (int i = start; i <= stop; i++) {
+            Transaction transaction = new RegularTransaction();
+            transaction.setFrom(addreses.get(i));
+            transaction.setTo(addreses.get(i + 1));
+            transaction.setStatus(StatusType.PENDING);
+            transaction.setTimestamp(GetTime.GetTimeStampInString());
+            Thread.sleep(10);
+            transaction.setZoneFrom(CachedZoneIndex.getInstance().getZoneIndex());
+            transaction.setZoneTo(CachedZoneIndex.getInstance().getZoneIndex());
             transaction.setAmount(i + 10);
             transaction.setAmountWithTransactionFee(transaction.getAmount() * (10.0 / 100.0));
             transaction.setNonce(nonce);

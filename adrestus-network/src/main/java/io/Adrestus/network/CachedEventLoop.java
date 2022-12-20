@@ -1,4 +1,4 @@
-package io.Adrestus.core.Resourses;
+package io.Adrestus.network;
 
 import io.activej.eventloop.Eventloop;
 import io.activej.rpc.server.RpcServer;
