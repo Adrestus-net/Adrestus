@@ -74,7 +74,6 @@ public class ConsensusTransactionTimer2Test {
 
     private static SerializationUtil<Receipt> recep = new SerializationUtil<Receipt>(Receipt.class);
     private static IBlockIndex blockIndex;
-    private static Eventloop eventloop = Eventloop.create().withCurrentThread();
     private static AsyncTcpSocket socket;
 
     @BeforeAll
@@ -275,7 +274,6 @@ public class ConsensusTransactionTimer2Test {
                 }
             }
         }).start();
-        eventloop.run();
     }
 
 

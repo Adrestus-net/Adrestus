@@ -23,7 +23,7 @@ import static io.activej.promise.Promises.repeat;
 
 public class TransactionChannelHandler<T> {
 
-    private static final ByteBufsDecoder<ByteBuf> DECODER = ByteBufsDecoder.ofCrlfTerminatedBytes(2048);
+    private static final ByteBufsDecoder<ByteBuf> DECODER = ByteBufsDecoder.ofCrlfTerminatedBytes(5000);
     private String IP;
     private final InetSocketAddress ADDRESS;
     private static final String RESPONSE_MSG = "PONG";
