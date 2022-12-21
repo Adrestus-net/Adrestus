@@ -255,7 +255,7 @@ public class ConsensusTransactionTimer2Test {
                                             throw new RuntimeException(ioException);
                                         }
 
-                                        CachedLatestBlocks.getInstance().getTransactionBlock().getInbound().getMap_receipts().get(0).entrySet().forEach(val -> {
+                                        CachedLatestBlocks.getInstance().getTransactionBlock().getOutbound().getMap_receipts().get(0).entrySet().forEach(val -> {
                                             val.getValue().stream().forEach(receipt -> {
                                                 receipt.setReceiptBlock(val.getKey());
                                                 byte[] data = recep.encode(receipt);

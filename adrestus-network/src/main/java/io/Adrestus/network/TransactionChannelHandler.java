@@ -60,7 +60,8 @@ public class TransactionChannelHandler<T> {
                                     .whenComplete(socket::close));
                 })
                 .withSocketSettings(settings)
-                .withListenPort(TransactionConfigOptions.TRANSACTION_PORT);
+                .withListenAddress(this.ADDRESS);
+                //.withListenPort(TransactionConfigOptions.TRANSACTION_PORT);
 
         server.listen();
         (new Thread() {
