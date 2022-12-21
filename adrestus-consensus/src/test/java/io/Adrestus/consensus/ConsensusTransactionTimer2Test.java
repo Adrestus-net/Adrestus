@@ -208,10 +208,7 @@ public class ConsensusTransactionTimer2Test {
         prevblock.setHeight(1);
         prevblock.setHash("hash");
         prevblock.getHeaderData().setTimestamp(GetTime.GetTimeStampInString());
-        prevblock.setTransactionProposer(vk5.toRaw());
-        prevblock.setLeaderPublicKey(vk5);
-        CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
-        CachedLatestBlocks.getInstance().setTransactionBlock(prevblock);
+
 
         CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).put(vk1, "192.168.1.106");
         CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).put(vk2, "192.168.1.113");
@@ -223,9 +220,14 @@ public class ConsensusTransactionTimer2Test {
         CachedZoneIndex.getInstance().setZoneIndexInternalIP();
 
 
+        prevblock.setTransactionProposer(CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).keySet().stream().findFirst().get().toRaw());
+        prevblock.setLeaderPublicKey(CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).keySet().stream().findFirst().get());
+        CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
+        CachedLatestBlocks.getInstance().setTransactionBlock(prevblock);
+
         TCPTransactionConsumer<byte[]> callback = x -> {
-            Receipt receipt=recep.decode(x);
-            System.out.println("Receipt received: "+receipt.toString());
+            Receipt receipt = recep.decode(x);
+            System.out.println("Receipt received: " + receipt.toString());
             MemoryReceiptPool.getInstance().add(receipt);
         };
         (new Thread() {
@@ -240,38 +242,36 @@ public class ConsensusTransactionTimer2Test {
                 while (true) {
                     try {
                         CachedReceiptSemaphore.getInstance().getSemaphore().acquire();
-                         if(!CachedLatestBlocks.getInstance().getTransactionBlock().getInbound().getMap_receipts().isEmpty()){
-                             CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).values().forEach(ip->{
-                                 eventloop.connect(new InetSocketAddress(ip, TransactionConfigOptions.TRANSACTION_PORT), (socketChannel, e) -> {
-                                     if (e == null) {
-                                         System.out.println("Connected to server, enter some text and send it by pressing 'Enter'.");
-                                         try {
-                                             socket = AsyncTcpSocketNio.wrapChannel(getCurrentEventloop(), socketChannel, null);
-                                         } catch (IOException ioException) {
-                                             throw new RuntimeException(ioException);
-                                         }
+                        if (!CachedLatestBlocks.getInstance().getTransactionBlock().getInbound().getMap_receipts().isEmpty()) {
+                            CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).values().forEach(ip -> {
+                                eventloop.connect(new InetSocketAddress(ip, TransactionConfigOptions.TRANSACTION_PORT), (socketChannel, e) -> {
+                                    if (e == null) {
+                                        System.out.println("Connected to server, enter some text and send it by pressing 'Enter'.");
+                                        try {
+                                            socket = AsyncTcpSocketNio.wrapChannel(getCurrentEventloop(), socketChannel, null);
+                                        } catch (IOException ioException) {
+                                            throw new RuntimeException(ioException);
+                                        }
 
-                                        CachedLatestBlocks.getInstance().getTransactionBlock().getInbound().getMap_receipts().get(0).entrySet().forEach(val->{
-                                            val.getValue().stream().forEach(receipt->{
+                                        CachedLatestBlocks.getInstance().getTransactionBlock().getInbound().getMap_receipts().get(0).entrySet().forEach(val -> {
+                                            val.getValue().stream().forEach(receipt -> {
                                                 receipt.setReceiptBlock(val.getKey());
-                                                byte[]data=recep.encode(receipt);
+                                                byte[] data = recep.encode(receipt);
                                                 socket.write(ByteBuf.wrapForReading(ArrayUtils.addAll(data, "\r\n".getBytes(UTF_8))));
                                             });
                                         });
-                                         socket.close();
+                                        socket.close();
 
-                                     } else {
-                                         System.out.printf("Could not connect to server, make sure it is started: %s%n", e);
-                                     }
-                                 });
-                             });
-                         }
-                         Thread.sleep(500);
+                                    } else {
+                                        System.out.printf("Could not connect to server, make sure it is started: %s%n", e);
+                                    }
+                                });
+                            });
+                        }
+                        Thread.sleep(500);
+                        CachedReceiptSemaphore.getInstance().getSemaphore().release();
                     } catch (InterruptedException e) {
                         e.printStackTrace();
-                    }
-                    finally {
-                        CachedReceiptSemaphore.getInstance().getSemaphore().release();
                     }
                 }
             }
@@ -285,7 +285,7 @@ public class ConsensusTransactionTimer2Test {
         socket.connect(new InetSocketAddress("google.com", 80));
         String IP = socket.getLocalAddress().getHostAddress();
         int hit = 0;
-        int activezones=blockIndex.getZone(IP);
+        int activezones = blockIndex.getZone(IP);
         for (Map.Entry<BLSPublicKey, String> entry : CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(activezones).entrySet()) {
             if (IP.equals(entry.getValue())) {
                 if (vk1.equals(entry.getKey())) {
