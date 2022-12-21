@@ -217,12 +217,14 @@ public class ConsensusTransactionTimer2Test {
         CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).put(vk4, "192.168.1.110");
         CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).put(vk5, "192.168.1.112");
         CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).put(vk6, "192.168.1.115");
+
+        CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
         CachedZoneIndex.getInstance().setZoneIndexInternalIP();
 
 
         prevblock.setTransactionProposer(CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).keySet().stream().findFirst().get().toRaw());
         prevblock.setLeaderPublicKey(CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).keySet().stream().findFirst().get());
-        CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
+
         CachedLatestBlocks.getInstance().setTransactionBlock(prevblock);
 
         TCPTransactionConsumer<byte[]> callback = x -> {
