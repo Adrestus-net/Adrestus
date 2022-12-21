@@ -244,7 +244,7 @@ public class ConsensusTransactionTimer2Test {
                 while (true) {
                     try {
                         CachedReceiptSemaphore.getInstance().getSemaphore().acquire();
-                        if (!CachedLatestBlocks.getInstance().getTransactionBlock().getInbound().getMap_receipts().isEmpty()) {
+                        if (!CachedLatestBlocks.getInstance().getTransactionBlock().getOutbound().getMap_receipts().isEmpty()) {
                             CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).values().forEach(ip -> {
                                 eventloop.connect(new InetSocketAddress(ip, TransactionConfigOptions.TRANSACTION_PORT), (socketChannel, e) -> {
                                     if (e == null) {
