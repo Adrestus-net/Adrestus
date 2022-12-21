@@ -208,7 +208,7 @@ public class ConsensusTransactionTimer2Test {
         prevblock.setHeight(1);
         prevblock.setHash("hash");
         prevblock.getHeaderData().setTimestamp(GetTime.GetTimeStampInString());
-
+        CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
 
         CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).put(vk1, "192.168.1.106");
         CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).put(vk2, "192.168.1.113");
@@ -218,7 +218,7 @@ public class ConsensusTransactionTimer2Test {
         CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).put(vk5, "192.168.1.112");
         CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).put(vk6, "192.168.1.115");
 
-        CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
+
         CachedZoneIndex.getInstance().setZoneIndexInternalIP();
 
 
