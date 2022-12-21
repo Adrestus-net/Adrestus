@@ -42,7 +42,7 @@ public class TransactionChannelHandler<T> {
 
 
     public void BindServerAndReceive(TCPTransactionConsumer<T> callback) throws Exception {
-       server = SimpleServer.create(socket ->
+        server = SimpleServer.create(socket ->
                 {
                     BinaryChannelSupplier bufsSupplier = BinaryChannelSupplier.of(ChannelSupplier.ofSocket(socket));
                     repeat(() ->
@@ -61,7 +61,7 @@ public class TransactionChannelHandler<T> {
                 })
                 .withSocketSettings(settings)
                 .withListenAddress(this.ADDRESS);
-                //.withListenPort(TransactionConfigOptions.TRANSACTION_PORT);
+        //.withListenPort(TransactionConfigOptions.TRANSACTION_PORT);
 
         server.listen();
         (new Thread() {
@@ -81,9 +81,9 @@ public class TransactionChannelHandler<T> {
         }
     }
 
-     public void close(){
+    public void close(){
         this.eventloop.breakEventloop();
         this.server.close();
-     }
+    }
 
 }

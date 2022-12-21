@@ -232,15 +232,11 @@ public class ConsensusTransactionTimer2Test {
             System.out.println("Receipt received: " + receipt.toString());
             MemoryReceiptPool.getInstance().add(receipt);
         };
-        (new Thread() {
-            @SneakyThrows
-            public void run() {
-                TransactionChannelHandler transactionChannelHandler = new TransactionChannelHandler<byte[]>(IPFinder.getLocal_address());
-                transactionChannelHandler.BindServerAndReceive(callback);
-            }
-        }).start();
+        TransactionChannelHandler transactionChannelHandler = new TransactionChannelHandler<byte[]>(IPFinder.getLocal_address());
+        transactionChannelHandler.BindServerAndReceive(callback);
         (new Thread() {
             public void run() {
+                Eventloop eventloop = Eventloop.create().withCurrentThread();
                 while (true) {
                     try {
                         CachedReceiptSemaphore.getInstance().getSemaphore().acquire();
@@ -269,6 +265,7 @@ public class ConsensusTransactionTimer2Test {
                                     }
                                 });
                             });
+                            eventloop.run();
                         }
                         CachedReceiptSemaphore.getInstance().getSemaphore().release();
                         Thread.sleep(500);
@@ -278,6 +275,7 @@ public class ConsensusTransactionTimer2Test {
                 }
             }
         }).start();
+        eventloop.run();
     }
 
 
