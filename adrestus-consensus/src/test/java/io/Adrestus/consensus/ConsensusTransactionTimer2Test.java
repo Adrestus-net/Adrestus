@@ -270,8 +270,8 @@ public class ConsensusTransactionTimer2Test {
                                 });
                             });
                         }
-                        Thread.sleep(500);
                         CachedReceiptSemaphore.getInstance().getSemaphore().release();
+                        Thread.sleep(500);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
