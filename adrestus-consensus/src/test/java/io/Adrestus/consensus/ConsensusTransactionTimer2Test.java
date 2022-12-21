@@ -3,6 +3,7 @@ package io.Adrestus.consensus;
 import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.config.AdrestusConfiguration;
+import io.Adrestus.config.NetworkConfiguration;
 import io.Adrestus.config.TransactionConfigOptions;
 import io.Adrestus.consensus.helper.ConsensusTransaction2Timer;
 import io.Adrestus.core.*;
@@ -20,15 +21,19 @@ import io.Adrestus.crypto.elliptic.Keys;
 import io.Adrestus.crypto.mnemonic.Mnemonic;
 import io.Adrestus.crypto.mnemonic.Security;
 import io.Adrestus.crypto.mnemonic.WordList;
+import io.Adrestus.network.CachedEventLoop;
 import io.Adrestus.network.IPFinder;
 import io.Adrestus.network.TCPTransactionConsumer;
 import io.Adrestus.network.TransactionChannelHandler;
+import io.Adrestus.rpc.RpcAdrestusServer;
 import io.Adrestus.util.GetTime;
 import io.Adrestus.util.SerializationUtil;
 import io.activej.bytebuf.ByteBuf;
 import io.activej.eventloop.Eventloop;
 import io.activej.net.socket.tcp.AsyncTcpSocket;
 import io.activej.net.socket.tcp.AsyncTcpSocketNio;
+import io.distributedLedger.DatabaseInstance;
+import io.distributedLedger.ZoneDatabaseFactory;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.ArrayUtils;
 import org.junit.jupiter.api.BeforeAll;
@@ -226,11 +231,16 @@ public class ConsensusTransactionTimer2Test {
 
         CachedLatestBlocks.getInstance().setTransactionBlock(prevblock);
 
+
+        RpcAdrestusServer<AbstractBlock> example = new RpcAdrestusServer<AbstractBlock>(new TransactionBlock(), ZoneDatabaseFactory.getZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()), IPFinder.getLocal_address(), NetworkConfiguration.RPC_PORT, CachedEventLoop.getInstance().getEventloop());
+        new Thread(example).start();
+
         TCPTransactionConsumer<byte[]> callback = x -> {
             Receipt receipt = recep.decode(x);
-            System.out.println("Receipt received: " + receipt.toString());
             MemoryReceiptPool.getInstance().add(receipt);
+            System.out.println(MemoryReceiptPool.getInstance().getAll().toString());
         };
+
         TransactionChannelHandler transactionChannelHandler = new TransactionChannelHandler<byte[]>(IPFinder.getLocal_address());
         transactionChannelHandler.BindServerAndReceive(callback);
         (new Thread() {
