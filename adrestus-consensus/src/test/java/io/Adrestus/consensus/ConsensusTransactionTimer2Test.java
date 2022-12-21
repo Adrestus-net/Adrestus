@@ -189,6 +189,17 @@ public class ConsensusTransactionTimer2Test {
         TreeFactory.getMemoryTree(1).store(adddress9, new PatriciaTreeNode(1000, 0));
         TreeFactory.getMemoryTree(1).store(adddress10, new PatriciaTreeNode(1000, 0));
 
+        TreeFactory.getMemoryTree(0).store(adddress1, new PatriciaTreeNode(1000, 0));
+        TreeFactory.getMemoryTree(0).store(adddress2, new PatriciaTreeNode(1000, 0));
+        TreeFactory.getMemoryTree(0).store(adddress3, new PatriciaTreeNode(1000, 0));
+        TreeFactory.getMemoryTree(0).store(adddress4, new PatriciaTreeNode(1000, 0));
+        TreeFactory.getMemoryTree(0).store(adddress5, new PatriciaTreeNode(1000, 0));
+        TreeFactory.getMemoryTree(0).store(adddress6, new PatriciaTreeNode(1000, 0));
+        TreeFactory.getMemoryTree(0).store(adddress7, new PatriciaTreeNode(1000, 0));
+        TreeFactory.getMemoryTree(0).store(adddress8, new PatriciaTreeNode(1000, 0));
+        TreeFactory.getMemoryTree(0).store(adddress9, new PatriciaTreeNode(1000, 0));
+        TreeFactory.getMemoryTree(0).store(adddress10, new PatriciaTreeNode(1000, 0));
+
 
         TransactionBlock prevblock = new TransactionBlock();
         CommitteeBlock committeeBlock = new CommitteeBlock();

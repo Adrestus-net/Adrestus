@@ -42,7 +42,6 @@ public class BlockIndex implements IBlockIndex {
 
     @Override
     public Integer getZone(BLSPublicKey blsPublicKey) {
-        outeloop:
         for (Map.Entry<Integer, LinkedHashMap<BLSPublicKey, String>> entry : CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().entrySet()) {
             Optional<BLSPublicKey> find = entry.getValue().keySet().stream().filter(val -> val.equals(blsPublicKey)).findFirst();
             if (!find.isEmpty()) {
@@ -54,7 +53,6 @@ public class BlockIndex implements IBlockIndex {
 
     @Override
     public Integer getZone(String IP) {
-        outeloop:
         for (Map.Entry<Integer, LinkedHashMap<BLSPublicKey, String>> entry : CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().entrySet()) {
             Optional<String> find = entry.getValue().values().stream().filter(val -> val.equals(IP)).findFirst();
             if (!find.isEmpty()) {
