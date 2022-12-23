@@ -263,9 +263,11 @@ public class ConsensusTransactionTimer2Test {
                                         CachedLatestBlocks.getInstance().getTransactionBlock().getOutbound().getMap_receipts().get(0).entrySet().forEach(val -> {
                                             val.getValue().stream().forEach(receipt -> {
                                                 TransactionBlock transactionBlock=CachedLatestBlocks.getInstance().getTransactionBlock();
-                                                receipt.setReceiptBlock(new Receipt.ReceiptBlock(transactionBlock.getHash(),transactionBlock.getHeight(),transactionBlock.getGeneration(),transactionBlock.getMerkleRoot()));
-                                                byte[] data = recep.encode(receipt);
-                                                socket.write(ByteBuf.wrapForReading(ArrayUtils.addAll(data, "\r\n".getBytes(UTF_8))));
+                                                if(!transactionBlock.getHash().equals("hash")) {
+                                                    receipt.setReceiptBlock(new Receipt.ReceiptBlock(transactionBlock.getHash(), transactionBlock.getHeight(), transactionBlock.getGeneration(), transactionBlock.getMerkleRoot()));
+                                                    byte[] data = recep.encode(receipt);
+                                                    socket.write(ByteBuf.wrapForReading(ArrayUtils.addAll(data, "\r\n".getBytes(UTF_8))));
+                                                }
                                             });
                                         });
                                         socket.close();
