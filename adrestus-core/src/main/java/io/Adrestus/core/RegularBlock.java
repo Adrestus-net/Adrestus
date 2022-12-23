@@ -120,11 +120,15 @@ public class RegularBlock implements BlockForge, BlockInvent {
          InboundRelay inboundRelay=new InboundRelay(inbound_map);
          transactionBlock.setInbound(inboundRelay);
         }
-        //##########InBound############
 
+
+        byte[] tohash = encode.encode(transactionBlock);
+        transactionBlock.setHash(HashUtil.sha256_bytetoString(tohash));
+
+        transactionBlock.getOutbound().getMap_receipts().entrySet().forEach(val->val.getValue().keySet().forEach(block->block.setBlock_hash(transactionBlock.getHash())));
+        //##########InBound############
         try {
-            byte[] tohash = encode.encode(transactionBlock);
-            transactionBlock.setHash(HashUtil.sha256_bytetoString(tohash));
+
             publisher.start();
             publisher.publish(transactionBlock);
             publisher.getJobSyncUntilRemainingCapacityZero();
@@ -284,6 +288,12 @@ public class RegularBlock implements BlockForge, BlockInvent {
                 .getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
 
         database.save(transactionBlock.getHash(), transactionBlock);
+
+       /* ArrayList<String>toSearch=new ArrayList<>();
+        toSearch.add(transactionBlock.getHash());
+        RpcAdrestusClient<AbstractBlock> client = new RpcAdrestusClient<AbstractBlock>(new TransactionBlock(), IPFinder.getLocal_address(), NetworkConfiguration.RPC_PORT, CachedEventLoop.getInstance().getEventloop());
+        client.connect();
+        List<AbstractBlock> current = client.getBlock(toSearch);*/
 
 
         MemoryTransactionPool.getInstance().delete(transactionBlock.getTransactionList());

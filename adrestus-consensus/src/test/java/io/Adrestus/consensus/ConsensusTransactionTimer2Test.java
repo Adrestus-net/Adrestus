@@ -238,7 +238,7 @@ public class ConsensusTransactionTimer2Test {
         TCPTransactionConsumer<byte[]> callback = x -> {
             Receipt receipt = recep.decode(x);
             MemoryReceiptPool.getInstance().add(receipt);
-            System.out.println(MemoryReceiptPool.getInstance().getAll().toString());
+            System.out.println(MemoryReceiptPool.getInstance().getAll().size());
         };
 
         TransactionChannelHandler transactionChannelHandler = new TransactionChannelHandler<byte[]>(IPFinder.getLocal_address());
