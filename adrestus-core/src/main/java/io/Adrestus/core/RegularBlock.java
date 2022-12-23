@@ -6,6 +6,7 @@ import io.Adrestus.Trie.MerkleNode;
 import io.Adrestus.Trie.MerkleTreeImp;
 import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.config.AdrestusConfiguration;
+import io.Adrestus.config.NetworkConfiguration;
 import io.Adrestus.core.Resourses.*;
 import io.Adrestus.core.RingBuffer.publisher.BlockEventPublisher;
 import io.Adrestus.crypto.HashUtil;
@@ -16,7 +17,10 @@ import io.Adrestus.crypto.bls.mapper.ECPmapper;
 import io.Adrestus.crypto.bls.model.CachedBLSKeyPair;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.crypto.elliptic.mapper.CustomSerializerTreeMap;
+import io.Adrestus.network.CachedEventLoop;
+import io.Adrestus.network.IPFinder;
 import io.Adrestus.p2p.kademlia.repository.KademliaData;
+import io.Adrestus.rpc.RpcAdrestusClient;
 import io.Adrestus.util.CustomRandom;
 import io.Adrestus.util.GetTime;
 import io.Adrestus.util.MathOperationUtil;
@@ -276,10 +280,12 @@ public class RegularBlock implements BlockForge, BlockInvent {
     @Override
     public void InventTransactionBlock(TransactionBlock transactionBlock) {
 
-        IDatabase<String, AbstractBlock> database = new DatabaseFactory(String.class, AbstractBlock.class)
+        IDatabase<String, TransactionBlock> database = new DatabaseFactory(String.class, TransactionBlock.class)
                 .getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
 
         database.save(transactionBlock.getHash(), transactionBlock);
+
+
         MemoryTransactionPool.getInstance().delete(transactionBlock.getTransactionList());
 
         if (!transactionBlock.getTransactionList().isEmpty()) {

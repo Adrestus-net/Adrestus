@@ -102,6 +102,7 @@ public class TransactionChannelTest {
         System.out.println("send");
         eventloop.run();
         transactionChannelHandler.close();
+        transactionChannelHandler=null;
 
     }
 
