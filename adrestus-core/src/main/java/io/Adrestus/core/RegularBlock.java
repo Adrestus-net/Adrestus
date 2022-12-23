@@ -122,13 +122,11 @@ public class RegularBlock implements BlockForge, BlockInvent {
         }
 
 
-        byte[] tohash = encode.encode(transactionBlock);
-        transactionBlock.setHash(HashUtil.sha256_bytetoString(tohash));
-
-        transactionBlock.getOutbound().getMap_receipts().entrySet().forEach(val->val.getValue().keySet().forEach(block->block.setBlock_hash(transactionBlock.getHash())));
         //##########InBound############
-        try {
 
+        try {
+            byte[] tohash = encode.encode(transactionBlock);
+            transactionBlock.setHash(HashUtil.sha256_bytetoString(tohash));
             publisher.start();
             publisher.publish(transactionBlock);
             publisher.getJobSyncUntilRemainingCapacityZero();

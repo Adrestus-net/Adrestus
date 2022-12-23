@@ -78,9 +78,6 @@ public class HashEventHandler implements BlockEventHandler<AbstractBlockEvent>, 
             }
             TransactionBlock cloneable = (TransactionBlock) transactionBlock.clone();
             cloneable.setHash("");
-            if(!cloneable.getOutbound().getMap_receipts().isEmpty()){
-                cloneable.getOutbound().getMap_receipts().entrySet().forEach(block-> block.getValue().keySet().forEach(val->val.setBlock_hash("")));
-            }
             byte[] buffer = wrapper.encode(cloneable);
             String result_hash = HashUtil.sha256_bytetoString(buffer);
             if (!result_hash.equals(transactionBlock.getHash())) {

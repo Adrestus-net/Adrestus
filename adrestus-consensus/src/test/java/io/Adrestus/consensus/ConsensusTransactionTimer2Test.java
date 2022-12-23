@@ -238,7 +238,7 @@ public class ConsensusTransactionTimer2Test {
         TCPTransactionConsumer<byte[]> callback = x -> {
             Receipt receipt = recep.decode(x);
             MemoryReceiptPool.getInstance().add(receipt);
-            System.out.println(MemoryReceiptPool.getInstance().getAll().size());
+          //  System.out.println(MemoryReceiptPool.getInstance().getAll().size());
         };
 
         TransactionChannelHandler transactionChannelHandler = new TransactionChannelHandler<byte[]>(IPFinder.getLocal_address());
@@ -262,7 +262,8 @@ public class ConsensusTransactionTimer2Test {
 
                                         CachedLatestBlocks.getInstance().getTransactionBlock().getOutbound().getMap_receipts().get(0).entrySet().forEach(val -> {
                                             val.getValue().stream().forEach(receipt -> {
-                                                receipt.setReceiptBlock(val.getKey());
+                                                TransactionBlock transactionBlock=CachedLatestBlocks.getInstance().getTransactionBlock();
+                                                receipt.setReceiptBlock(new Receipt.ReceiptBlock(transactionBlock.getHash(),transactionBlock.getHeight(),transactionBlock.getGeneration(),transactionBlock.getMerkleRoot()));
                                                 byte[] data = recep.encode(receipt);
                                                 socket.write(ByteBuf.wrapForReading(ArrayUtils.addAll(data, "\r\n".getBytes(UTF_8))));
                                             });
