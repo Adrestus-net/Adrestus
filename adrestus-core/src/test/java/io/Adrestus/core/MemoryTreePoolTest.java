@@ -27,7 +27,7 @@ public class MemoryTreePoolTest {
         treeNode.setNonce(2);
 
 
-        TreeFactory.getMemoryTree(1).deposit(address, treeNode,TreeFactory.getMemoryTree(1));
+        TreeFactory.getMemoryTree(1).deposit(address, treeNode.getAmount(), TreeFactory.getMemoryTree(1));
         Optional<PatriciaTreeNode> copy = TreeFactory.getMemoryTree(1).getByaddress(address);
         System.out.println(copy.get().toString());
 
@@ -56,7 +56,7 @@ public class MemoryTreePoolTest {
         PatriciaTreeNode treeNode = new PatriciaTreeNode(10, 1);
         TreeFactory.getMemoryTree(1).store(address, treeNode);
 
-        TreeFactory.getMemoryTree(1).withdraw(address, new PatriciaTreeNode(1),TreeFactory.getMemoryTree(1));
+        TreeFactory.getMemoryTree(1).withdraw(address, 1,TreeFactory.getMemoryTree(1));
         System.out.println(TreeFactory.getMemoryTree(1).getByaddress(address).get().getAmount());
         assertEquals(9, TreeFactory.getMemoryTree(1).getByaddress(address).get().getAmount());
         Optional<PatriciaTreeNode> copy = TreeFactory.getMemoryTree(0).getByaddress(address);

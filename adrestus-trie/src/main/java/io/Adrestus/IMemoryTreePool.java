@@ -9,9 +9,9 @@ import java.util.Optional;
 public interface IMemoryTreePool {
     void store(String address, PatriciaTreeNode patriciaTreeNode) throws Exception;
 
-    void deposit(String address, PatriciaTreeNode patriciaTreeNode,IMemoryTreePool instance);
+    void deposit(String address, double amount,IMemoryTreePool instance);
 
-    void withdraw(String address, PatriciaTreeNode patriciaTreeNode,IMemoryTreePool instance);
+    void withdraw(String address, double amount,IMemoryTreePool instance);
 
     Optional<PatriciaTreeNode> getByaddress(String address);
 

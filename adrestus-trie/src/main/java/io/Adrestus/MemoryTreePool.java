@@ -40,18 +40,18 @@ public class MemoryTreePool implements IMemoryTreePool {
 
     //be aware that print functionality is  different
     @Override
-    public void deposit(String address, PatriciaTreeNode patriciaTreeNode, IMemoryTreePool instance) {
+    public void deposit(String address, double amount, IMemoryTreePool instance) {
         w.lock();
         try {
             Bytes key = Bytes.wrap(address.getBytes(StandardCharsets.UTF_8));
             Optional<PatriciaTreeNode> prev = instance.getByaddress(address);
             if (prev.isEmpty()) {
-                PatriciaTreeNode next = new PatriciaTreeNode(patriciaTreeNode.getAmount(), 0, 0);
+                PatriciaTreeNode next = new PatriciaTreeNode(amount, 0, 0);
                 patriciaTreeImp.put(key, next);
             } else {
-                Double amount = prev.get().getAmount() + patriciaTreeNode.getAmount();
+                Double new_cash = prev.get().getAmount() + amount;
                // System.out.println("Deposit "+address+ " "+prev.get().getAmount()+" + "+patriciaTreeNode.getAmount()+" = "+amount);
-                prev.get().setAmount(amount);
+                prev.get().setAmount(new_cash);
                 patriciaTreeImp.put(key, prev.get());
             }
         } finally {
@@ -61,18 +61,19 @@ public class MemoryTreePool implements IMemoryTreePool {
 
     //be aware that print functionality is  different
     @Override
-    public void withdraw(String address, PatriciaTreeNode patriciaTreeNode,IMemoryTreePool instance) {
+    public void withdraw(String address, double amount,IMemoryTreePool instance) {
         w.lock();
         try {
             Bytes key = Bytes.wrap(address.getBytes(StandardCharsets.UTF_8));
             Optional<PatriciaTreeNode> prev = instance.getByaddress(address);
             if (prev.isEmpty()) {
-                PatriciaTreeNode next = new PatriciaTreeNode(patriciaTreeNode.getAmount(), 0, 0);
+                PatriciaTreeNode next = new PatriciaTreeNode(amount, 0, 0);
                 patriciaTreeImp.put(key, next);
             } else {
-                Double amount = prev.get().getAmount() - patriciaTreeNode.getAmount();
+                PatriciaTreeNode patriciaTreeNode= prev.get();
+                Double new_cash = prev.get().getAmount() - amount;
                 //System.out.println("Widraw "+address+ " "+prev.get().getAmount()+" - "+patriciaTreeNode.getAmount()+" = "+amount);
-                patriciaTreeNode.setAmount(amount);
+                patriciaTreeNode.setAmount(new_cash);
                 patriciaTreeNode.setNonce(patriciaTreeNode.getNonce() + 1);
                 patriciaTreeImp.put(key, patriciaTreeNode);
             }

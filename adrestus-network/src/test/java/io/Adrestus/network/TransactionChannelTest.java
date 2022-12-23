@@ -80,12 +80,12 @@ public class TransactionChannelTest {
             System.out.println("Callback 2: " + new String(x));
         };
 
-        TransactionChannelHandler transactionChannelHandler = new TransactionChannelHandler<byte[]>("localhost");
+        TransactionChannelHandler transactionChannelHandler = new TransactionChannelHandler<byte[]>("localhost",TransactionConfigOptions.TRANSACTION_PORT+1);
         transactionChannelHandler.BindServerAndReceive(print);
 
         Thread.sleep(2000);
         System.out.println("Connecting to server at localhost (port 9922)...");
-        eventloop.connect(new InetSocketAddress("localhost", TransactionConfigOptions.TRANSACTION_PORT), (socketChannel, e) -> {
+        eventloop.connect(new InetSocketAddress("localhost", TransactionConfigOptions.TRANSACTION_PORT+1), (socketChannel, e) -> {
             if (e == null) {
                 try {
                     socket = AsyncTcpSocketNio.wrapChannel(getCurrentEventloop(), socketChannel, null);

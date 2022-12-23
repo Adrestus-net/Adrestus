@@ -12,9 +12,7 @@ import io.activej.eventloop.Eventloop;
 import io.activej.eventloop.net.SocketSettings;
 import io.activej.net.SimpleServer;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.Socket;
 import java.time.Duration;
 
 import static io.activej.bytebuf.ByteBufStrings.CR;
@@ -33,10 +31,18 @@ public class TransactionChannelHandler<T> {
     private final ByteBufs tempBufs = new ByteBufs();
     private final SocketSettings settings;
     private SimpleServer server;
+
     public TransactionChannelHandler(String IP) {
         this.IP = IP;
-        this.eventloop=Eventloop.create().withCurrentThread();
+        this.eventloop = Eventloop.create().withCurrentThread();
         this.ADDRESS = new InetSocketAddress(IP, TransactionConfigOptions.TRANSACTION_PORT);
+        this.settings = SocketSettings.create().withImplReadTimeout(Duration.ofSeconds(3)).withImplWriteTimeout(Duration.ofSeconds(3));
+    }
+
+    public TransactionChannelHandler(String IP, int port) {
+        this.IP = IP;
+        this.eventloop = Eventloop.create().withCurrentThread();
+        this.ADDRESS = new InetSocketAddress(IP, port);
         this.settings = SocketSettings.create().withImplReadTimeout(Duration.ofSeconds(3)).withImplWriteTimeout(Duration.ofSeconds(3));
     }
 
@@ -81,7 +87,7 @@ public class TransactionChannelHandler<T> {
         }
     }
 
-    public void close(){
+    public void close() {
         this.eventloop.breakEventloop();
         this.server.close();
     }

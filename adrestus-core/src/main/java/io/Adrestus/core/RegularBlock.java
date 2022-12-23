@@ -300,10 +300,10 @@ public class RegularBlock implements BlockForge, BlockInvent {
             for (int i = 0; i < transactionBlock.getTransactionList().size(); i++) {
                 Transaction transaction = transactionBlock.getTransactionList().get(i);
                 if ((transaction.getZoneFrom() == CachedZoneIndex.getInstance().getZoneIndex()) && (transaction.getZoneTo() == CachedZoneIndex.getInstance().getZoneIndex())) {
-                    TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).withdraw(transaction.getFrom(), new PatriciaTreeNode(transaction.getAmount()), TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()));
-                    TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).deposit(transaction.getTo(), new PatriciaTreeNode(transaction.getAmount()), TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()));
+                    TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).withdraw(transaction.getFrom(), transaction.getAmount(), TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()));
+                    TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).deposit(transaction.getTo(), transaction.getAmount(), TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()));
                 } else {
-                    TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).withdraw(transaction.getFrom(), new PatriciaTreeNode(transaction.getAmount()), TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()));
+                    TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).withdraw(transaction.getFrom(), transaction.getAmount(), TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()));
                 }
             }
         }
@@ -318,8 +318,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
                     .forEach(entry -> {
                         entry.getValue().stream().forEach(receipt -> {
                             Transaction transaction = receipt.getTransaction();
-                            PatriciaTreeNode patriciaTreeNode = new PatriciaTreeNode(transaction.getAmount());
-                            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).deposit(transaction.getTo(), patriciaTreeNode, TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()));
+                            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).deposit(receipt.getAddress(), transaction.getAmount(), TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()));
                             MemoryReceiptPool.getInstance().delete(receipt);
                         });
 
