@@ -108,7 +108,7 @@ public class InBoundEventHandler implements BlockEventHandler<AbstractBlockEvent
         service.shutdownNow();
         service = null;
         if (atomicInteger.get() != 3) {
-            LOG.info("Validation check of Outbound list is invalid abort");
+            LOG.info("Validation check of Inbound list is invalid abort");
             transactionBlock.setStatustype(StatusType.ABORT);
             return;
         }
@@ -165,19 +165,11 @@ public class InBoundEventHandler implements BlockEventHandler<AbstractBlockEvent
                 }
                 Transaction transaction = current.get(finalPosition).getTransactionList().get(index);
                 boolean check = PreConditionsChecks(receipt, entry.getKey(), current.get(finalPosition), transaction, index);
-                if (!check)
+                boolean cross_check = CrossZoneConditionsChecks(current.get(finalPosition), entry.getKey());
+                if (!check||!cross_check)
                     atomicInteger.decrementAndGet();
             });
         }
-
-        for (Map.Entry<Receipt.ReceiptBlock, List<Receipt>> entry : zone.entrySet()) {
-            for (int i = 0; i < current.size(); i++) {
-                boolean check = CrossZoneConditionsChecks((TransactionBlock) current.get(i), entry.getKey());
-                if (!check)
-                    atomicInteger.decrementAndGet();
-            }
-        }
-
     }
 
     public boolean PreConditionsChecks(final Receipt receipt, final Receipt.ReceiptBlock receiptBlock, final TransactionBlock transactionBlock, Transaction transaction, int index) {
