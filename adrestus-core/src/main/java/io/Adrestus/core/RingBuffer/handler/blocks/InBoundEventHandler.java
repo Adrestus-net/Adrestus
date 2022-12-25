@@ -73,8 +73,7 @@ public class InBoundEventHandler implements BlockEventHandler<AbstractBlockEvent
                 ServiceSubmit(zone_1);
             } catch (Exception e) {
                 // e.printStackTrace();
-            }
-            finally {
+            } finally {
                 latch.countDown();
             }
         });
@@ -86,8 +85,7 @@ public class InBoundEventHandler implements BlockEventHandler<AbstractBlockEvent
                 ServiceSubmit(zone_2);
             } catch (Exception e) {
                 // e.printStackTrace();
-            }
-            finally {
+            } finally {
                 latch.countDown();
             }
         });
@@ -99,8 +97,7 @@ public class InBoundEventHandler implements BlockEventHandler<AbstractBlockEvent
                 ServiceSubmit(zone_3);
             } catch (Exception e) {
                 // e.printStackTrace();
-            }
-            finally {
+            } finally {
                 latch.countDown();
             }
 
@@ -155,30 +152,32 @@ public class InBoundEventHandler implements BlockEventHandler<AbstractBlockEvent
         RpcAdrestusClient<TransactionBlock> client = new RpcAdrestusClient<TransactionBlock>(new TransactionBlock(), IP, NetworkConfiguration.RPC_PORT, CachedEventLoop.getInstance().getEventloop());
         client.connect();
         List<TransactionBlock> current = client.getBlock(to_search);
-        current.forEach(block->{
-            for (Map.Entry<Receipt.ReceiptBlock, List<Receipt>> entry : zone.entrySet()) {
-                entry.getValue().stream().forEach(receipt -> {
-                    int index = Collections.binarySearch(block.getTransactionList(), receipt.getTransaction());
-                    if (index<0) {
-                        LOG.info("Cannot find transaction in Transaction Block");
-                        transactionBlock.setStatustype(StatusType.ABORT);
-                        return;
-                    }
-                    Transaction transaction = block.getTransactionList().get(index);
-                    boolean check = PreConditionsChecks(receipt, entry.getKey(), block, transaction, index);
-                    if (!check)
-                        atomicInteger.decrementAndGet();
-                });
-            }
-
-            for (Map.Entry<Receipt.ReceiptBlock, List<Receipt>> entry : zone.entrySet()) {
-                for (int i = 0; i < current.size(); i++) {
-                    boolean check = CrossZoneConditionsChecks((TransactionBlock) current.get(i), entry.getKey());
-                    if (!check)
-                        atomicInteger.decrementAndGet();
+        int position=-1;
+        for (Map.Entry<Receipt.ReceiptBlock, List<Receipt>> entry : zone.entrySet()) {
+            position++;
+            int finalPosition = position;
+            entry.getValue().stream().forEach(receipt -> {
+                int index = Collections.binarySearch(current.get(finalPosition).getTransactionList(), receipt.getTransaction());
+                if (index < 0) {
+                    LOG.info("Cannot find transaction in Transaction Block");
+                    transactionBlock.setStatustype(StatusType.ABORT);
+                    return;
                 }
+                Transaction transaction = current.get(finalPosition).getTransactionList().get(index);
+                boolean check = PreConditionsChecks(receipt, entry.getKey(), current.get(finalPosition), transaction, index);
+                if (!check)
+                    atomicInteger.decrementAndGet();
+            });
+        }
+
+        for (Map.Entry<Receipt.ReceiptBlock, List<Receipt>> entry : zone.entrySet()) {
+            for (int i = 0; i < current.size(); i++) {
+                boolean check = CrossZoneConditionsChecks((TransactionBlock) current.get(i), entry.getKey());
+                if (!check)
+                    atomicInteger.decrementAndGet();
             }
-        });
+        }
+
     }
 
     public boolean PreConditionsChecks(final Receipt receipt, final Receipt.ReceiptBlock receiptBlock, final TransactionBlock transactionBlock, Transaction transaction, int index) {
