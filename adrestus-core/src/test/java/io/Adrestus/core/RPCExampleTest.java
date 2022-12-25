@@ -56,6 +56,10 @@ public class RPCExampleTest {
         list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
         encode = new SerializationUtil<AbstractBlock>(AbstractBlock.class, list);
 
+    }
+
+    @Test
+    public void test2() throws Exception {
 
         address1 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 8080);
         address2 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 8081);
@@ -86,10 +90,7 @@ public class RPCExampleTest {
         serverThree.listen();
         thread = new Thread(eventloop);
         thread.start();
-    }
 
-    @Test
-    public void test2() throws Exception {
 
         ArrayList<RpcStrategy> list = new ArrayList<>();
         list.add(server(address1));
@@ -97,7 +98,6 @@ public class RPCExampleTest {
         list.add(server(address3));
         RpcStrategyList rpcStrategyList = RpcStrategyList.ofStrategies(list);
 
-        Eventloop eventloop = Eventloop.getCurrentEventloop();
         RpcClient client = RpcClient.create(eventloop)
                 .withMessageTypes(HelloRequest.class, HelloResponse.class)
                 .withStrategy(RpcStrategyRoundRobin.create(rpcStrategyList));
