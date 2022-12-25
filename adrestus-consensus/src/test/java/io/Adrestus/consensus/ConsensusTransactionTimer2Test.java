@@ -32,9 +32,7 @@ import io.activej.bytebuf.ByteBuf;
 import io.activej.eventloop.Eventloop;
 import io.activej.net.socket.tcp.AsyncTcpSocket;
 import io.activej.net.socket.tcp.AsyncTcpSocketNio;
-import io.distributedLedger.DatabaseInstance;
 import io.distributedLedger.ZoneDatabaseFactory;
-import lombok.SneakyThrows;
 import org.apache.commons.lang3.ArrayUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -80,7 +78,7 @@ public class ConsensusTransactionTimer2Test {
     private static SerializationUtil<Receipt> recep = new SerializationUtil<Receipt>(Receipt.class);
     private static IBlockIndex blockIndex;
     private static AsyncTcpSocket socket;
-    private static boolean variable=false;
+    private static boolean variable = false;
 
     @BeforeAll
     public static void construct() throws Exception {
@@ -238,8 +236,9 @@ public class ConsensusTransactionTimer2Test {
 
         TCPTransactionConsumer<byte[]> callback = x -> {
             Receipt receipt = recep.decode(x);
-            MemoryReceiptPool.getInstance().add(receipt);
-          //  System.out.println(MemoryReceiptPool.getInstance().getAll().size());
+            if (receipt.getReceiptBlock() != null && !receipt.getReceiptBlock().getBlock_hash().equals(""))
+                MemoryReceiptPool.getInstance().add(receipt);
+            //  System.out.println(MemoryReceiptPool.getInstance().getAll().size());
         };
 
         TransactionChannelHandler transactionChannelHandler = new TransactionChannelHandler<byte[]>(IPFinder.getLocal_address());
@@ -263,8 +262,8 @@ public class ConsensusTransactionTimer2Test {
 
                                         CachedLatestBlocks.getInstance().getTransactionBlock().getOutbound().getMap_receipts().get(0).entrySet().forEach(val -> {
                                             val.getValue().stream().forEach(receipt -> {
-                                                TransactionBlock transactionBlock=CachedLatestBlocks.getInstance().getTransactionBlock();
-                                                if(!transactionBlock.getHash().equals("hash")) {
+                                                TransactionBlock transactionBlock = CachedLatestBlocks.getInstance().getTransactionBlock();
+                                                if (!transactionBlock.getHash().equals("hash")) {
                                                     receipt.setReceiptBlock(new Receipt.ReceiptBlock(transactionBlock.getHash(), transactionBlock.getHeight(), transactionBlock.getGeneration(), transactionBlock.getMerkleRoot()));
                                                     byte[] data = recep.encode(receipt);
                                                     socket.write(ByteBuf.wrapForReading(ArrayUtils.addAll(data, "\r\n".getBytes(UTF_8))));
@@ -324,7 +323,7 @@ public class ConsensusTransactionTimer2Test {
             }
         }
         if (hit == 0) {
-            variable=true;
+            variable = true;
             return;
         }
 
