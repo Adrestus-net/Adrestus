@@ -317,8 +317,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
                     .stream()
                     .forEach(entry -> {
                         entry.getValue().stream().forEach(receipt -> {
-                            Transaction transaction = receipt.getTransaction();
-                            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).deposit(receipt.getAddress(), transaction.getAmount(), TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()));
+                            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).deposit(receipt.getAddress(), receipt.getAmount(), TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()));
                             MemoryReceiptPool.getInstance().delete(receipt);
                         });
 

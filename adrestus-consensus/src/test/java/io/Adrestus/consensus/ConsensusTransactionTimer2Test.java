@@ -80,6 +80,7 @@ public class ConsensusTransactionTimer2Test {
     private static SerializationUtil<Receipt> recep = new SerializationUtil<Receipt>(Receipt.class);
     private static IBlockIndex blockIndex;
     private static AsyncTcpSocket socket;
+    private static boolean variable=false;
 
     @BeforeAll
     public static void construct() throws Exception {
@@ -246,7 +247,7 @@ public class ConsensusTransactionTimer2Test {
         (new Thread() {
             public void run() {
                 Eventloop eventloop = Eventloop.create().withCurrentThread();
-                while (true) {
+                while (!variable) {
                     try {
                         CachedReceiptSemaphore.getInstance().getSemaphore().acquire();
                         if (!CachedLatestBlocks.getInstance().getTransactionBlock().getOutbound().getMap_receipts().isEmpty()) {
@@ -322,8 +323,10 @@ public class ConsensusTransactionTimer2Test {
                 break;
             }
         }
-        if (hit == 0)
+        if (hit == 0) {
+            variable=true;
             return;
+        }
 
         addreses_old = new ArrayList<>(addreses);
         CountDownLatch latch = new CountDownLatch(5);
