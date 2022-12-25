@@ -47,6 +47,7 @@ import java.util.concurrent.CountDownLatch;
 
 import static io.activej.eventloop.Eventloop.getCurrentEventloop;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ConsensusTransactionTimer2Test {
 
@@ -332,6 +333,14 @@ public class ConsensusTransactionTimer2Test {
         ConsensusTransaction2Timer c = new ConsensusTransaction2Timer(latch, addreses, keypair);
         latch.await();
         c.close();
+        variable=true;
+
+        for(int i=0;i<addreses.size()-1;i++) {
+            System.out.println(addreses.get(i)+" "+TreeFactory.getMemoryTree(1).getByaddress(addreses.get(i)).get().getAmount());
+        }
+         if(CachedZoneIndex.getInstance().getZoneIndex()==0){
+             assertEquals(1010, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(0)).get().getAmount());
+         }
 
     }
 }

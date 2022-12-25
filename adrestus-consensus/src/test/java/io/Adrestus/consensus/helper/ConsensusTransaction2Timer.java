@@ -69,7 +69,25 @@ public class ConsensusTransaction2Timer {
     private void chooser() throws InterruptedException {
         int activeZone=this.blockIndex.getZone(CachedBLSKeyPair.getInstance().getPublicKey());
         ArrayList<BLSPublicKey> keyList = new ArrayList<BLSPublicKey>(CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(activeZone).keySet());
-        if (CachedBLSKeyPair.getInstance().getPublicKey().equals(keyList.get(0))) {
+        if(activeZone==0){
+            if (CachedBLSKeyPair.getInstance().getPublicKey().equals(keyList.get(0))) {
+                SaveTransactions(6, 7);
+            } else if (CachedBLSKeyPair.getInstance().getPublicKey().equals(keyList.get(1))) {
+                SaveTransactions(8, 8);
+            } else if (CachedBLSKeyPair.getInstance().getPublicKey().equals(keyList.get(2))) {
+                SaveTransactions(9, 9);
+            }
+        }
+        else if(activeZone==1){
+            if (CachedBLSKeyPair.getInstance().getPublicKey().equals(keyList.get(0))) {
+                SaveTransactions(0, 1);
+            } else if (CachedBLSKeyPair.getInstance().getPublicKey().equals(keyList.get(1))) {
+                SaveTransactions(2, 3);
+            } else if (CachedBLSKeyPair.getInstance().getPublicKey().equals(keyList.get(2))) {
+                SaveTransactions(4, 5);
+            }
+        }
+       /* if (CachedBLSKeyPair.getInstance().getPublicKey().equals(keyList.get(0))) {
             SaveTransactions(0, 1);
         } else if (CachedBLSKeyPair.getInstance().getPublicKey().equals(keyList.get(1))) {
             SaveTransactions(2, 3);
@@ -81,7 +99,7 @@ public class ConsensusTransaction2Timer {
             SaveTransactions2(8, 8);
         } else if (CachedBLSKeyPair.getInstance().getPublicKey().equals(keyList.get(5))) {
             SaveTransactions2(9, 9);
-        }
+        }*/
 
     }
 
