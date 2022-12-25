@@ -152,21 +152,20 @@ public class InBoundEventHandler implements BlockEventHandler<AbstractBlockEvent
         for (Receipt.ReceiptBlock receiptBlock : zone.keySet()) {
             to_search.add(receiptBlock.getBlock_hash());
         }
-        RpcAdrestusClient<AbstractBlock> client = new RpcAdrestusClient<AbstractBlock>(new TransactionBlock(), IP, NetworkConfiguration.RPC_PORT, CachedEventLoop.getInstance().getEventloop());
+        RpcAdrestusClient<TransactionBlock> client = new RpcAdrestusClient<TransactionBlock>(new TransactionBlock(), IP, NetworkConfiguration.RPC_PORT, CachedEventLoop.getInstance().getEventloop());
         client.connect();
-        List<AbstractBlock> current = client.getBlock(to_search);
-        if (current != null) {
-
+        List<TransactionBlock> current = client.getBlock(to_search);
+        current.forEach(block->{
             for (Map.Entry<Receipt.ReceiptBlock, List<Receipt>> entry : zone.entrySet()) {
                 entry.getValue().stream().forEach(receipt -> {
-                    int index = Collections.binarySearch(transactionBlock.getTransactionList(), receipt.getTransaction());
+                    int index = Collections.binarySearch(block.getTransactionList(), receipt.getTransaction());
                     if (index<0) {
                         LOG.info("Cannot find transaction in Transaction Block");
                         transactionBlock.setStatustype(StatusType.ABORT);
                         return;
                     }
-                    Transaction transaction = transactionBlock.getTransactionList().get(index);
-                    boolean check = PreConditionsChecks(receipt, entry.getKey(), transactionBlock, transaction, index);
+                    Transaction transaction = block.getTransactionList().get(index);
+                    boolean check = PreConditionsChecks(receipt, entry.getKey(), block, transaction, index);
                     if (!check)
                         atomicInteger.decrementAndGet();
                 });
@@ -179,7 +178,7 @@ public class InBoundEventHandler implements BlockEventHandler<AbstractBlockEvent
                         atomicInteger.decrementAndGet();
                 }
             }
-        }
+        });
     }
 
     public boolean PreConditionsChecks(final Receipt receipt, final Receipt.ReceiptBlock receiptBlock, final TransactionBlock transactionBlock, Transaction transaction, int index) {
