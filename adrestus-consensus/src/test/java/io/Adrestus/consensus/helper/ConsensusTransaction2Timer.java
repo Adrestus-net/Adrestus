@@ -71,11 +71,11 @@ public class ConsensusTransaction2Timer {
         ArrayList<BLSPublicKey> keyList = new ArrayList<BLSPublicKey>(CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(activeZone).keySet());
         if(activeZone==0){
             if (CachedBLSKeyPair.getInstance().getPublicKey().equals(keyList.get(0))) {
-                SaveTransactions(6, 7);
+                SaveTransactions(6, 6);
             } else if (CachedBLSKeyPair.getInstance().getPublicKey().equals(keyList.get(1))) {
-                SaveTransactions(8, 8);
+                SaveTransactions(7, 7);
             } else if (CachedBLSKeyPair.getInstance().getPublicKey().equals(keyList.get(2))) {
-                SaveTransactions(9, 9);
+                SaveTransactions(8, 8);
             }
         }
         else if(activeZone==1){

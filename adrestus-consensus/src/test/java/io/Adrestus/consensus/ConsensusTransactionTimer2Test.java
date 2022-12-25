@@ -336,10 +336,11 @@ public class ConsensusTransactionTimer2Test {
         variable=true;
 
         for(int i=0;i<addreses.size()-1;i++) {
-            System.out.println(addreses.get(i)+" "+TreeFactory.getMemoryTree(1).getByaddress(addreses.get(i)).get().getAmount());
+            System.out.println(addreses.get(i)+" "+TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(addreses.get(i)).get().getAmount());
         }
          if(CachedZoneIndex.getInstance().getZoneIndex()==0){
-             assertEquals(1010, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(0)).get().getAmount());
+             assertEquals(1020, TreeFactory.getMemoryTree(1).getByaddress(addreses.get(1)).get().getAmount());
+             assertEquals(1022, TreeFactory.getMemoryTree(1).getByaddress(addreses.get(2)).get().getAmount());
          }
 
     }

@@ -240,7 +240,7 @@ public class ConsensusTransactionTimerTest {
 
         //assertEquals(TreeFactory.getMemoryTree(1).getByaddress(addreses.get(0)).get().getAmount(), TreeFactory.getMemoryTree(1).getByaddress(addreses.get(0)).get().getAmount()-100);
         for(int i=0;i<addreses.size()-1;i++) {
-            System.out.println(addreses.get(i)+" "+TreeFactory.getMemoryTree(1).getByaddress(addreses.get(i)).get().getAmount());
+            System.out.println(addreses.get(i)+" "+TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(addreses.get(i)).get().getAmount());
         }
 
         //be aware that print functionality is  different
