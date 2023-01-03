@@ -18,6 +18,7 @@ import io.Adrestus.util.RLP;
 import org.apache.tuweni.bytes.Bytes;
 import org.apache.tuweni.bytes.Bytes32;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -31,7 +32,7 @@ import static io.Adrestus.crypto.HashUtil.keccak256;
 /**
  * An Merkle Patricial Trie.
  */
-public interface IMerklePatriciaTrie<K, V> {
+public interface IMerklePatriciaTrie<K, V> extends Serializable {
 
     Bytes EMPTY_TRIE_NODE = RLP.NULL;
     Bytes32 EMPTY_TRIE_NODE_HASH = keccak256(EMPTY_TRIE_NODE);

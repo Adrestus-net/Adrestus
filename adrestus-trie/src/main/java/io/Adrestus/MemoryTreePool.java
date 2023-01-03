@@ -9,19 +9,19 @@ import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.function.Function;
 
 public class MemoryTreePool implements IMemoryTreePool {
 
 
-    private final IMerklePatriciaTrie<Bytes, PatriciaTreeNode> patriciaTreeImp;
-    private final Function<PatriciaTreeNode, Bytes> valueSerializer;
+    private IMerklePatriciaTrie<Bytes, PatriciaTreeNode> patriciaTreeImp;
+    private SerializableFunction<PatriciaTreeNode, Bytes> valueSerializer;
     private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
     private final Lock r = rwl.readLock();
     private final Lock w = rwl.writeLock();
 
     public MemoryTreePool() {
         this.valueSerializer = value -> (value != null) ? Bytes.wrap("".getBytes(StandardCharsets.UTF_8)) : null;
+        //this.valueSerializer=null;
         this.patriciaTreeImp = new MerklePatriciaTrie<Bytes, PatriciaTreeNode>(valueSerializer);
     }
 
@@ -50,7 +50,7 @@ public class MemoryTreePool implements IMemoryTreePool {
                 patriciaTreeImp.put(key, next);
             } else {
                 Double new_cash = prev.get().getAmount() + amount;
-               // System.out.println("Deposit "+address+ " "+prev.get().getAmount()+" + "+patriciaTreeNode.getAmount()+" = "+amount);
+                // System.out.println("Deposit "+address+ " "+prev.get().getAmount()+" + "+patriciaTreeNode.getAmount()+" = "+amount);
                 prev.get().setAmount(new_cash);
                 patriciaTreeImp.put(key, prev.get());
             }
@@ -61,7 +61,7 @@ public class MemoryTreePool implements IMemoryTreePool {
 
     //be aware that print functionality is  different
     @Override
-    public void withdraw(String address, double amount,IMemoryTreePool instance) {
+    public void withdraw(String address, double amount, IMemoryTreePool instance) {
         w.lock();
         try {
             Bytes key = Bytes.wrap(address.getBytes(StandardCharsets.UTF_8));
@@ -70,7 +70,7 @@ public class MemoryTreePool implements IMemoryTreePool {
                 PatriciaTreeNode next = new PatriciaTreeNode(amount, 0, 0);
                 patriciaTreeImp.put(key, next);
             } else {
-                PatriciaTreeNode patriciaTreeNode= prev.get();
+                PatriciaTreeNode patriciaTreeNode = prev.get();
                 Double new_cash = prev.get().getAmount() - amount;
                 //System.out.println("Widraw "+address+ " "+prev.get().getAmount()+" - "+patriciaTreeNode.getAmount()+" = "+amount);
                 patriciaTreeNode.setAmount(new_cash);

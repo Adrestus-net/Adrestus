@@ -17,11 +17,12 @@ package io.Adrestus.Trie.optimize64_trie;
 import org.apache.tuweni.bytes.Bytes;
 import org.apache.tuweni.bytes.Bytes32;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-public class NullNode<V> implements Node<V> {
+public class NullNode<V> implements Node<V>, Serializable {
     @SuppressWarnings("rawtypes")
     private static final NullNode instance = new NullNode();
 

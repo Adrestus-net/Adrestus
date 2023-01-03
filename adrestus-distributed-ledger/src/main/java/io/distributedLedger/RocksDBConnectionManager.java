@@ -1,5 +1,6 @@
 package io.distributedLedger;
 
+import io.Adrestus.MemoryTreePool;
 import io.Adrestus.config.Directory;
 import io.Adrestus.crypto.bls.BLS381.ECP;
 import io.Adrestus.crypto.bls.BLS381.ECP2;
@@ -7,6 +8,7 @@ import io.Adrestus.crypto.bls.mapper.ECP2mapper;
 import io.Adrestus.crypto.bls.mapper.ECPmapper;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.crypto.elliptic.mapper.CustomSerializerTreeMap;
+import io.Adrestus.mapper.MemoryTreePoolSerializer;
 import io.Adrestus.util.SerializationUtil;
 import io.distributedLedger.exception.*;
 import lombok.SneakyThrows;
@@ -60,6 +62,7 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
         list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
+        list.add(new SerializationUtil.Mapping(MemoryTreePool.class, ctx->new MemoryTreePoolSerializer()));
         this.keyMapper = new SerializationUtil<>(this.keyClass);
         this.valueMapper = new SerializationUtil<>(this.valueClass, list);
         setupOptions();
@@ -80,6 +83,7 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
         list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
+        list.add(new SerializationUtil.Mapping(MemoryTreePool.class, ctx->new MemoryTreePoolSerializer()));
         this.keyMapper = new SerializationUtil<>(this.keyClass);
         this.valueMapper = new SerializationUtil<>(this.valueClass, list);
         setupOptions();

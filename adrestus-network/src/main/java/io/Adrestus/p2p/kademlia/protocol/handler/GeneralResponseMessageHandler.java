@@ -6,8 +6,7 @@ import io.Adrestus.p2p.kademlia.protocol.message.EmptyKademliaMessage;
 import io.Adrestus.p2p.kademlia.protocol.message.KademliaMessage;
 
 public class GeneralResponseMessageHandler<ID extends Number, C extends ConnectionInfo> implements MessageHandler<ID, C> {
-    @Override
-    @SuppressWarnings("unchecked")
+
     public <I extends KademliaMessage<ID, C, ?>, O extends KademliaMessage<ID, C, ?>> O handle(KademliaNodeAPI<ID, C> kademliaNode, I message) {
         if (!message.isAlive()) {
             kademliaNode.getRoutingTable().delete(message.getNode());

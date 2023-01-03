@@ -16,7 +16,9 @@ package io.Adrestus.Trie.optimize64_trie;
 
 import org.apache.tuweni.bytes.Bytes;
 
-public class RemoveVisitor<V> implements PathNodeVisitor<V> {
+import java.io.Serializable;
+
+public class RemoveVisitor<V> implements PathNodeVisitor<V>, Serializable {
     private final Node<V> NULL_NODE_RESULT = NullNode.instance();
 
     private final boolean allowFlatten;

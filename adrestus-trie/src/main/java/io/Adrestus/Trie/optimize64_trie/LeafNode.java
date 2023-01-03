@@ -19,6 +19,7 @@ import io.Adrestus.util.RLP;
 import org.apache.tuweni.bytes.Bytes;
 import org.apache.tuweni.bytes.Bytes32;
 
+import java.io.Serializable;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 import java.util.Collections;
@@ -29,7 +30,7 @@ import java.util.function.Function;
 import static io.Adrestus.crypto.HashUtil.keccak256;
 
 
-class LeafNode<V> implements Node<V> {
+class LeafNode<V> implements Node<V>, Serializable {
     private final Optional<Bytes> location;
     private final Bytes path;
     private final V value;

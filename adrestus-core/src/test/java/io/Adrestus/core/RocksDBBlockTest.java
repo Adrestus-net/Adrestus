@@ -1,5 +1,12 @@
 package io.Adrestus.core;
 
+import io.Adrestus.MemoryTreePool;
+import io.Adrestus.SerializableFunction;
+import io.Adrestus.TreeFactory;
+import io.Adrestus.Trie.PatriciaTreeNode;
+import io.Adrestus.Trie.optimize64_trie.IMerklePatriciaTrie;
+import io.Adrestus.Trie.optimize64_trie.MerklePatriciaTrie;
+import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.crypto.bls.BLS381.ECP;
 import io.Adrestus.crypto.bls.BLS381.ECP2;
 import io.Adrestus.crypto.bls.mapper.ECP2mapper;
@@ -12,9 +19,13 @@ import io.distributedLedger.DatabaseFactory;
 import io.distributedLedger.DatabaseInstance;
 import io.distributedLedger.DatabaseType;
 import io.distributedLedger.IDatabase;
+import org.apache.tuweni.bytes.Bytes;
 import org.junit.jupiter.api.Test;
 
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectOutputStream;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -113,4 +124,33 @@ public class RocksDBBlockTest {
         database.delete_db();
     }
 
+    @Test
+    public void add_get4() throws Exception {
+
+
+        SerializableFunction<PatriciaTreeNode, Bytes>  valueSerializer = value -> (value != null) ? Bytes.wrap("".getBytes(StandardCharsets.UTF_8)) : null;
+        IMerklePatriciaTrie<Bytes, PatriciaTreeNode> patriciaTreeImp = new MerklePatriciaTrie<Bytes, PatriciaTreeNode>(valueSerializer);
+        patriciaTreeImp.put(Bytes.wrap("1".getBytes(StandardCharsets.UTF_8)),new PatriciaTreeNode(10,0,0));
+        System.out.println(patriciaTreeImp.getRootHash());
+        ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+        ObjectOutputStream outstream = new ObjectOutputStream(byteOut);
+        outstream.writeObject(patriciaTreeImp);
+
+
+        CachedZoneIndex.getInstance().setZoneIndex(1);
+        IDatabase<String, RepositoryData> database = new DatabaseFactory(String.class, RepositoryData.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.ZONE_1_TRANSACTION_BLOCK);
+        MemoryTreePool m= (MemoryTreePool)TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex());
+        m.store("address",new PatriciaTreeNode(10,0,0));
+        String hash = "Hash";
+        TransactionBlock prevblock = new TransactionBlock();
+        prevblock.setHeight(1);
+        prevblock.setHash(hash);
+        RepositoryData repositoryData=new RepositoryData(prevblock, m);
+        database.save(hash, repositoryData);
+        RepositoryData copy = (RepositoryData) database.findByKey(hash).get();
+        assertEquals(prevblock, copy.getBlock());
+        assertEquals(m, copy.getTree());
+        System.out.println(copy.toString());
+        database.delete_db();
+    }
 }

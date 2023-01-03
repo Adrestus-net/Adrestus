@@ -23,8 +23,14 @@
         <util.version>1.0-SNAPSHOT</util.version>
         <core.version>1.0-SNAPSHOT</core.version>
         <commons-io.version>2.11.0</commons-io.version>
+        <trie.version>1.0-SNAPSHOT</trie.version>
     </properties>
     <dependencies>
+        <dependency>
+            <groupId>io.Adrestus.v1</groupId>
+            <artifactId>adrestus-trie</artifactId>
+            <version>${trie.version}</version>
+        </dependency>
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>

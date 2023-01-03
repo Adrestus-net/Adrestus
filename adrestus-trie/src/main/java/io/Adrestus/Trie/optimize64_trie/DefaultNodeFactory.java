@@ -16,12 +16,13 @@ package io.Adrestus.Trie.optimize64_trie;
 
 import org.apache.tuweni.bytes.Bytes;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.function.Function;
 
-public class DefaultNodeFactory<V> implements NodeFactory<V> {
+public class DefaultNodeFactory<V> implements NodeFactory<V>, Serializable {
     @SuppressWarnings("rawtypes")
     private static final Node NULL_NODE = NullNode.instance();
 
