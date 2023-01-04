@@ -14,8 +14,8 @@
  */
 package io.Adrestus.Trie.optimize64_trie;
 
-import org.apache.tuweni.bytes.Bytes;
-import org.apache.tuweni.bytes.Bytes32;
+import io.Adrestus.util.bytes.Bytes;
+import io.Adrestus.util.bytes.Bytes32;
 
 public interface NodeUpdater {
     void store(Bytes location, Bytes32 hash, Bytes value);

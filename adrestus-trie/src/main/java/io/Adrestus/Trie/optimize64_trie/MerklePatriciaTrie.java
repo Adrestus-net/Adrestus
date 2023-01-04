@@ -14,12 +14,13 @@
  */
 package io.Adrestus.Trie.optimize64_trie;
 
-import org.apache.tuweni.bytes.Bytes;
-import org.apache.tuweni.bytes.Bytes32;
+import io.Adrestus.util.bytes.Bytes;
+import io.Adrestus.util.bytes.Bytes32;
+import io.activej.serializer.annotations.Serialize;
+import io.vavr.control.Option;
 
 import java.util.List;
 import java.util.Map;
-import io.vavr.control.Option;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Consumer;
@@ -50,6 +51,11 @@ public class MerklePatriciaTrie<K extends Bytes, V> implements IMerklePatriciaTr
      */
     public MerklePatriciaTrie(final Function<V, Bytes> valueSerializer) {
         this.nodeFactory = new DefaultNodeFactory<>(valueSerializer);
+        this.root = NullNode.instance();
+    }
+
+    public MerklePatriciaTrie() {
+        this.nodeFactory = null;
         this.root = NullNode.instance();
     }
 
@@ -103,6 +109,33 @@ public class MerklePatriciaTrie<K extends Bytes, V> implements IMerklePatriciaTr
     @Override
     public Bytes32 getRootHash() {
         return root.getHash();
+    }
+
+    @Override
+    public PathNodeVisitor<V> getGetVisitor() {
+        return getVisitor;
+    }
+
+    @Override
+
+    public PathNodeVisitor<V> getRemoveVisitor() {
+        return removeVisitor;
+    }
+
+    @Override
+    public DefaultNodeFactory<V> getNodeFactory() {
+        return nodeFactory;
+    }
+
+    @Override
+    @Serialize
+    public Node<V> getRoot() {
+        return root;
+    }
+
+    @Override
+    public void setRoot(Node<V> root) {
+        this.root = root;
     }
 
     @Override

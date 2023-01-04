@@ -1,7 +1,7 @@
 package io.Adrestus.util;
 
-import org.apache.tuweni.bytes.Bytes;
-import org.apache.tuweni.bytes.MutableBytes;
+import io.Adrestus.util.bytes.Bytes;
+import io.Adrestus.util.bytes.MutableBytes;
 
 /**
  * Helper static methods to facilitate RLP encoding <b>within this package</b>. Neither this class

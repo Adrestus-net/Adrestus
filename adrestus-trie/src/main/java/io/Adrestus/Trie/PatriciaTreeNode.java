@@ -1,20 +1,24 @@
 package io.Adrestus.Trie;
 
 import com.google.common.base.Objects;
+import io.activej.serializer.annotations.Deserialize;
 import io.activej.serializer.annotations.Serialize;
 
-public class PatriciaTreeNode {
+import java.io.Serializable;
+
+public class PatriciaTreeNode implements Serializable {
 
     private double amount;
     private double staking_amount;
     private int nonce;
+
 
     public PatriciaTreeNode(double amount, int nonce) {
         this.amount = amount;
         this.nonce = nonce;
     }
 
-    public PatriciaTreeNode(double amount, int nonce, double staking_amount) {
+    public PatriciaTreeNode(@Deserialize("amount") double amount, @Deserialize("nonce") int nonce, @Deserialize("staking_amount") double staking_amount) {
         this.amount = amount;
         this.nonce = nonce;
         this.staking_amount = staking_amount;

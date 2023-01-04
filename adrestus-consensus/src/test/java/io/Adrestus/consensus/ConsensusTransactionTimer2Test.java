@@ -333,15 +333,15 @@ public class ConsensusTransactionTimer2Test {
         ConsensusTransaction2Timer c = new ConsensusTransaction2Timer(latch, addreses, keypair);
         latch.await();
         c.close();
-        variable=true;
+        variable = true;
 
-        for(int i=0;i<addreses.size()-1;i++) {
-            System.out.println(addreses.get(i)+" "+TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(addreses.get(i)).get().getAmount());
+        for (int i = 0; i < addreses.size() - 1; i++) {
+            System.out.println(addreses.get(i) + " " + TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(addreses.get(i)).get().getAmount());
         }
-         if(CachedZoneIndex.getInstance().getZoneIndex()==0){
-             assertEquals(1020, TreeFactory.getMemoryTree(1).getByaddress(addreses.get(1)).get().getAmount());
-             assertEquals(1022, TreeFactory.getMemoryTree(1).getByaddress(addreses.get(2)).get().getAmount());
-         }
+        if (CachedZoneIndex.getInstance().getZoneIndex() == 0) {
+            assertEquals(1020, TreeFactory.getMemoryTree(1).getByaddress(addreses.get(1)).get().getAmount());
+            assertEquals(1022, TreeFactory.getMemoryTree(1).getByaddress(addreses.get(2)).get().getAmount());
+        }
 
     }
 }

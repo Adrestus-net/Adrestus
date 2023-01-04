@@ -14,7 +14,7 @@
  */
 package io.Adrestus.Trie.optimize64_trie;
 
-import org.apache.tuweni.bytes.Bytes;
+import io.Adrestus.util.bytes.Bytes;
 
 interface LocationNodeVisitor<V> {
 

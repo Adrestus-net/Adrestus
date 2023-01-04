@@ -21,17 +21,14 @@ import io.Adrestus.crypto.mnemonic.Security;
 import io.Adrestus.crypto.mnemonic.WordList;
 import io.Adrestus.util.GetTime;
 import io.Adrestus.util.SerializationUtil;
-import jdk.swing.interop.SwingInterOpUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.spongycastle.util.encoders.Hex;
 
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -232,15 +229,15 @@ public class ConsensusTransactionTimerTest {
         if (hit == 0)
             return;
 
-        addreses_old=new ArrayList<>(addreses);
+        addreses_old = new ArrayList<>(addreses);
         CountDownLatch latch = new CountDownLatch(5);
         ConsensusTransactionTimer c = new ConsensusTransactionTimer(latch, addreses, keypair);
         latch.await();
         c.close();
 
         //assertEquals(TreeFactory.getMemoryTree(1).getByaddress(addreses.get(0)).get().getAmount(), TreeFactory.getMemoryTree(1).getByaddress(addreses.get(0)).get().getAmount()-100);
-        for(int i=0;i<addreses.size()-1;i++) {
-            System.out.println(addreses.get(i)+" "+TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(addreses.get(i)).get().getAmount());
+        for (int i = 0; i < addreses.size() - 1; i++) {
+            System.out.println(addreses.get(i) + " " + TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(addreses.get(i)).get().getAmount());
         }
 
         //be aware that print functionality is  different

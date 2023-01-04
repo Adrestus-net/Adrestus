@@ -14,12 +14,16 @@
  */
 package io.Adrestus.Trie.optimize64_trie;
 
-import org.apache.tuweni.bytes.Bytes;
-import org.apache.tuweni.bytes.Bytes32;
-
-import java.util.List;
+import io.Adrestus.util.bytes.Bytes;
+import io.Adrestus.util.bytes.Bytes32;
+import io.activej.serializer.annotations.Serialize;
+import io.activej.serializer.annotations.SerializeClass;
 import io.vavr.control.Option;
 
+import java.util.List;
+
+
+@SerializeClass(subclasses = {StoredNode.class, RestoreVisitor.PersistedNode.class, PersistVisitor.class, NullNode.class, LeafNode.class, ExtensionNode.class, DefaultNodeFactory.class, BranchNode.class, AllNodesVisitor.class})
 public interface Node<V> {
 
     Node<V> accept(PathNodeVisitor<V> visitor, Bytes path);
@@ -28,18 +32,24 @@ public interface Node<V> {
 
     void accept(Bytes location, LocationNodeVisitor<V> visitor);
 
+    @Serialize
     Bytes getPath();
 
+    @Serialize
     default Option<Bytes> getLocation() {
         return Option.none();
     }
 
+    @Serialize
     Option<V> getValue();
 
+    @Serialize
     List<Node<V>> getChildren();
 
+    @Serialize
     Bytes getRlp();
 
+    @Serialize
     Bytes getRlpRef();
 
     /**
@@ -53,6 +63,7 @@ public interface Node<V> {
         return getRlp().size() >= 32;
     }
 
+    @Serialize
     Bytes32 getHash();
 
     Node<V> replacePath(Bytes path);

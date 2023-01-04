@@ -16,18 +16,18 @@ package io.Adrestus.Trie.optimize64_trie;
 
 import io.Adrestus.util.BytesValueRLPOutput;
 import io.Adrestus.util.RLP;
-import org.apache.tuweni.bytes.Bytes;
-import org.apache.tuweni.bytes.Bytes32;
+import io.Adrestus.util.bytes.Bytes;
+import io.Adrestus.util.bytes.Bytes32;
+import io.activej.serializer.annotations.Deserialize;
+import io.activej.serializer.annotations.Serialize;
+import io.vavr.control.Option;
 
 import java.io.Serializable;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 import java.util.Collections;
 import java.util.List;
-import io.vavr.control.Option;
 import java.util.function.Function;
-
-import static io.Adrestus.crypto.HashUtil.keccak256;
 
 
 class LeafNode<V> implements Node<V>, Serializable {
@@ -41,11 +41,11 @@ class LeafNode<V> implements Node<V>, Serializable {
     private boolean dirty = false;
 
     LeafNode(
-            final Bytes location,
-            final Bytes path,
-            final V value,
-            final NodeFactory<V> nodeFactory,
-            final Function<V, Bytes> valueSerializer) {
+            @Deserialize("location") final Bytes location,
+            @Deserialize("path") final Bytes path,
+            @Deserialize("value") final V value,
+            @Deserialize("nodeFactory") final NodeFactory<V> nodeFactory,
+            @Deserialize("valueSerializer") final Function<V, Bytes> valueSerializer) {
         this.location = Option.of(location);
         this.path = path;
         this.value = value;
@@ -54,10 +54,10 @@ class LeafNode<V> implements Node<V>, Serializable {
     }
 
     LeafNode(
-            final Bytes path,
-            final V value,
-            final NodeFactory<V> nodeFactory,
-            final Function<V, Bytes> valueSerializer) {
+            @Deserialize("path") final Bytes path,
+            @Deserialize("value") final V value,
+            @Deserialize("nodeFactory") final NodeFactory<V> nodeFactory,
+            @Deserialize("valueSerializer") final Function<V, Bytes> valueSerializer) {
         this.location = Option.none();
         this.path = path;
         this.value = value;
@@ -81,26 +81,31 @@ class LeafNode<V> implements Node<V>, Serializable {
     }
 
     @Override
+    @Serialize
     public Option<Bytes> getLocation() {
         return location;
     }
 
     @Override
+    @Serialize
     public Bytes getPath() {
         return path;
     }
 
     @Override
+    @Serialize
     public Option<V> getValue() {
         return Option.of(value);
     }
 
     @Override
+    @Serialize
     public List<Node<V>> getChildren() {
         return Collections.emptyList();
     }
 
     @Override
+    @Serialize
     public Bytes getRlp() {
         if (rlp != null) {
             final Bytes encoded = rlp.get();
@@ -120,6 +125,7 @@ class LeafNode<V> implements Node<V>, Serializable {
     }
 
     @Override
+    @Serialize
     public Bytes getRlpRef() {
         if (isReferencedByHash()) {
             return RLP.encodeOne(getHash());
@@ -129,6 +135,7 @@ class LeafNode<V> implements Node<V>, Serializable {
     }
 
     @Override
+    @Serialize
     public Bytes32 getHash() {
         if (hash != null) {
             final Bytes32 hashed = hash.get();
@@ -136,7 +143,7 @@ class LeafNode<V> implements Node<V>, Serializable {
                 return hashed;
             }
         }
-        final Bytes32 hashed = keccak256(getRlp());
+        final Bytes32 hashed = Util.keccak256(getRlp());
         hash = new SoftReference<>(hashed);
         return hashed;
     }

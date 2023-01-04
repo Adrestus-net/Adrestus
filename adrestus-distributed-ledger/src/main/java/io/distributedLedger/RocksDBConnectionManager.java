@@ -1,19 +1,19 @@
 package io.distributedLedger;
 
-import io.Adrestus.MemoryTreePool;
 import io.Adrestus.config.Directory;
 import io.Adrestus.crypto.bls.BLS381.ECP;
 import io.Adrestus.crypto.bls.BLS381.ECP2;
 import io.Adrestus.crypto.bls.mapper.ECP2mapper;
 import io.Adrestus.crypto.bls.mapper.ECPmapper;
-import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
-import io.Adrestus.crypto.elliptic.mapper.CustomSerializerTreeMap;
-import io.Adrestus.mapper.MemoryTreePoolSerializer;
+import io.Adrestus.crypto.elliptic.mapper.*;
 import io.Adrestus.util.SerializationUtil;
 import io.distributedLedger.exception.*;
 import lombok.SneakyThrows;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.SerializationException;
+import org.apache.tuweni.bytes.Bytes;
+import org.apache.tuweni.bytes.Bytes32;
+import org.apache.tuweni.bytes.MutableBytes;
 import org.rocksdb.*;
 
 import java.io.File;
@@ -62,7 +62,10 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
         list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
-        list.add(new SerializationUtil.Mapping(MemoryTreePool.class, ctx->new MemoryTreePoolSerializer()));
+        //list.add(new SerializationUtil.Mapping(MemoryTreePool.class, ctx->new MemoryTreePoolSerializer()));
+        list.add(new SerializationUtil.Mapping(Bytes.class, ctx -> new BytesSerializer()));
+        list.add(new SerializationUtil.Mapping(Bytes32.class, ctx -> new Bytes32Serializer()));
+        list.add(new SerializationUtil.Mapping(MutableBytes.class, ctx -> new MutableBytesSerializer()));
         this.keyMapper = new SerializationUtil<>(this.keyClass);
         this.valueMapper = new SerializationUtil<>(this.valueClass, list);
         setupOptions();
@@ -83,7 +86,9 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
         list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
-        list.add(new SerializationUtil.Mapping(MemoryTreePool.class, ctx->new MemoryTreePoolSerializer()));
+        list.add(new SerializationUtil.Mapping(Bytes.class, ctx -> new BytesSerializer()));
+        list.add(new SerializationUtil.Mapping(Bytes32.class, ctx -> new Bytes32Serializer()));
+        list.add(new SerializationUtil.Mapping(MutableBytes.class, ctx -> new MutableBytesSerializer()));
         this.keyMapper = new SerializationUtil<>(this.keyClass);
         this.valueMapper = new SerializationUtil<>(this.valueClass, list);
         setupOptions();

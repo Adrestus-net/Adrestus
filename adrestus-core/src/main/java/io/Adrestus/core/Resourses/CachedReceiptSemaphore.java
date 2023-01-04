@@ -10,7 +10,7 @@ public class CachedReceiptSemaphore {
         if (instance != null) {
             throw new IllegalStateException("Already initialized.");
         }
-        this.semaphore=new Semaphore(1);
+        this.semaphore = new Semaphore(1);
     }
 
     public static CachedReceiptSemaphore getInstance() {

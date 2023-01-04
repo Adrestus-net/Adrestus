@@ -1,19 +1,19 @@
 package io.Adrestus;
 
 import io.Adrestus.Trie.PatriciaTreeNode;
-import io.Adrestus.Trie.optimize64_trie.IMerklePatriciaTrie;
 import io.Adrestus.Trie.optimize64_trie.MerklePatriciaTrie;
-import org.apache.tuweni.bytes.Bytes;
+import io.Adrestus.util.bytes.Bytes;
+import io.activej.serializer.annotations.Serialize;
+import io.vavr.control.Option;
 
 import java.nio.charset.StandardCharsets;
-import io.vavr.control.Option;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class MemoryTreePool implements IMemoryTreePool {
 
 
-    private IMerklePatriciaTrie<Bytes, PatriciaTreeNode> patriciaTreeImp;
+    private MerklePatriciaTrie<Bytes, PatriciaTreeNode> patriciaTreeImp;
     private SerializableFunction<PatriciaTreeNode, Bytes> valueSerializer;
     private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
     private final Lock r = rwl.readLock();
@@ -100,8 +100,18 @@ public class MemoryTreePool implements IMemoryTreePool {
     }
 
     @Override
-    public IMerklePatriciaTrie<Bytes, PatriciaTreeNode> getTrie() {
+    public MerklePatriciaTrie<Bytes, PatriciaTreeNode> getTrie() {
         return this.patriciaTreeImp;
     }
 
+
+    public void setPatriciaTreeImp(MerklePatriciaTrie<Bytes, PatriciaTreeNode> patriciaTreeImp) {
+        this.patriciaTreeImp = patriciaTreeImp;
+    }
+
+    @Override
+    @Serialize
+    public MerklePatriciaTrie<Bytes, PatriciaTreeNode> getPatriciaTreeImp() {
+        return patriciaTreeImp;
+    }
 }

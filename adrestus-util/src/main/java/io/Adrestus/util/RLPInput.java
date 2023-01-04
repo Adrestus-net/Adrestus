@@ -1,7 +1,7 @@
 package io.Adrestus.util;
 
-import org.apache.tuweni.bytes.Bytes;
-import org.apache.tuweni.bytes.Bytes32;
+import io.Adrestus.util.bytes.Bytes;
+import io.Adrestus.util.bytes.Bytes32;
 import org.apache.tuweni.units.bigints.UInt256;
 
 import java.math.BigInteger;
@@ -159,7 +159,7 @@ public interface RLPInput {
      *                      list (and {@link #leaveList()} hasn't been called) or if the next item is either too big to
      *                      fit a {@link UInt256} or has leading zeros.
      */
-    UInt256 readUInt256Scalar();
+    io.Adrestus.util.bigints.UInt256 readUInt256Scalar();
 
     /**
      * Reads the next item of this input (which must be exactly 1 byte) as a byte.

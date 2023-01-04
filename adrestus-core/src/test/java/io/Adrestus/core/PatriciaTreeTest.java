@@ -5,7 +5,7 @@ import io.Adrestus.Trie.MerklePatriciaTreeImp;
 import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.Trie.optimize64_trie.IMerklePatriciaTrie;
 import io.Adrestus.Trie.optimize64_trie.MerklePatriciaTrie;
-import org.apache.tuweni.bytes.Bytes;
+import io.Adrestus.util.bytes.Bytes;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

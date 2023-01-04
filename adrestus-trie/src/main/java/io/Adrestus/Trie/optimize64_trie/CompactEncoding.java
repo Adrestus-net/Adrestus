@@ -14,8 +14,8 @@
  */
 package io.Adrestus.Trie.optimize64_trie;
 
-import org.apache.tuweni.bytes.Bytes;
-import org.apache.tuweni.bytes.MutableBytes;
+import io.Adrestus.util.bytes.Bytes;
+import io.Adrestus.util.bytes.MutableBytes;
 
 import static com.google.common.base.Preconditions.checkArgument;
 

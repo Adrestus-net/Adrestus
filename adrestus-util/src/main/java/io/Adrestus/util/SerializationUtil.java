@@ -119,7 +119,7 @@ public class SerializationUtil<T> {
     }
 
     public byte[] encode(T value) {
-        // int buff_size = search((int) (ObjectSizer.retainedSize(value)));
+        // int buff_size2 = search((int) (ObjectSizer.retainedSize(value)));
         int buff_size = search((int) (ObjectSizeCalculator.getObjectSize(value)));
         buffer = new byte[buff_size];
         serializer.encode(buffer, 0, value);
@@ -135,6 +135,14 @@ public class SerializationUtil<T> {
 
     public byte[] encode(T value, int size) {
         buffer = new byte[size];
+        serializer.encode(buffer, 0, value);
+        byte[] test = trim(buffer);
+        return buffer;
+    }
+
+    public byte[] encode_special(T value, int size) {
+        int buff_size = search(size);
+        buffer = new byte[buff_size];
         serializer.encode(buffer, 0, value);
         byte[] test = trim(buffer);
         return buffer;

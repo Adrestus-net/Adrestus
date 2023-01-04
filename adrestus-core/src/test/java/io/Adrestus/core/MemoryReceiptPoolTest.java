@@ -52,7 +52,7 @@ public class MemoryReceiptPoolTest {
 
         Receipt receipt3 = new Receipt(0, 1, new RegularTransaction("hash2"));
         assertEquals(true, MemoryReceiptPool.getInstance().add(receipt3));
-        assertEquals(2,MemoryReceiptPool.getInstance().getAll().size());
+        assertEquals(2, MemoryReceiptPool.getInstance().getAll().size());
     }
 
     @Test

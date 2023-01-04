@@ -14,13 +14,15 @@
  */
 package io.Adrestus.Trie.optimize64_trie;
 
+import io.activej.serializer.annotations.Deserialize;
+
 import java.util.function.Consumer;
 
 public class AllNodesVisitor<V> implements NodeVisitor<V> {
 
     private final Consumer<Node<V>> handler;
 
-    AllNodesVisitor(final Consumer<Node<V>> handler) {
+    public AllNodesVisitor(@Deserialize("age") final Consumer<Node<V>> handler) {
         this.handler = handler;
     }
 

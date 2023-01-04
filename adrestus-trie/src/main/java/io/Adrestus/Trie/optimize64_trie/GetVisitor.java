@@ -14,12 +14,14 @@
  */
 package io.Adrestus.Trie.optimize64_trie;
 
-import org.apache.tuweni.bytes.Bytes;
+import io.Adrestus.util.bytes.Bytes;
+import io.activej.serializer.annotations.Serialize;
 
 import java.io.Serializable;
 
 class GetVisitor<V> implements PathNodeVisitor<V>, Serializable {
-    private final Node<V> NULL_NODE_RESULT = NullNode.instance();
+    @Serialize
+    public final Node<V> NULL_NODE_RESULT = NullNode.instance();
 
     @Override
     public Node<V> visit(final ExtensionNode<V> extensionNode, final Bytes path) {

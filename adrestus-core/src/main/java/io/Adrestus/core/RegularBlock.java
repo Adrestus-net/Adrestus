@@ -4,9 +4,7 @@ import com.google.common.primitives.Ints;
 import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.MerkleNode;
 import io.Adrestus.Trie.MerkleTreeImp;
-import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.config.AdrestusConfiguration;
-import io.Adrestus.config.NetworkConfiguration;
 import io.Adrestus.core.Resourses.*;
 import io.Adrestus.core.RingBuffer.publisher.BlockEventPublisher;
 import io.Adrestus.crypto.HashUtil;
@@ -17,10 +15,7 @@ import io.Adrestus.crypto.bls.mapper.ECPmapper;
 import io.Adrestus.crypto.bls.model.CachedBLSKeyPair;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.crypto.elliptic.mapper.CustomSerializerTreeMap;
-import io.Adrestus.network.CachedEventLoop;
-import io.Adrestus.network.IPFinder;
 import io.Adrestus.p2p.kademlia.repository.KademliaData;
-import io.Adrestus.rpc.RpcAdrestusClient;
 import io.Adrestus.util.CustomRandom;
 import io.Adrestus.util.GetTime;
 import io.Adrestus.util.MathOperationUtil;
@@ -110,15 +105,13 @@ public class RegularBlock implements BlockForge, BlockInvent {
         //##########OutBound############
 
 
-
-
         //##########InBound############
-        if(!MemoryReceiptPool.getInstance().getAll().isEmpty()) {
+        if (!MemoryReceiptPool.getInstance().getAll().isEmpty()) {
             Map<Integer, Map<Receipt.ReceiptBlock, List<Receipt>>> inbound_map = ((ArrayList<Receipt>) MemoryReceiptPool.getInstance().getAll())
                     .stream()
                     .collect(Collectors.groupingBy(Receipt::getZoneFrom, Collectors.groupingBy(Receipt::getReceiptBlock, Collectors.mapping(Receipt::merge, Collectors.toList()))));
-         InboundRelay inboundRelay=new InboundRelay(inbound_map);
-         transactionBlock.setInbound(inboundRelay);
+            InboundRelay inboundRelay = new InboundRelay(inbound_map);
+            transactionBlock.setInbound(inboundRelay);
         }
 
 

@@ -20,6 +20,7 @@ public class MemoryTreePoolSerializer extends SimpleSerializerDef<MemoryTreePool
                 ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
                 ObjectOutputStream outstream = new ObjectOutputStream(byteOut);
                 outstream.writeObject(item);
+
                 byte[] bytes = byteOut.toByteArray();
                 out.writeVarInt(bytes.length);
                 out.write(bytes);

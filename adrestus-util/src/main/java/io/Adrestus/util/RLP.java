@@ -3,8 +3,8 @@ package io.Adrestus.util;
 
 import io.Adrestus.crypto.ByteArrayWrapper;
 import io.Adrestus.crypto.ByteUtil;
-import org.apache.tuweni.bytes.Bytes;
-import org.apache.tuweni.bytes.MutableBytes;
+import io.Adrestus.util.bytes.Bytes;
+import io.Adrestus.util.bytes.MutableBytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

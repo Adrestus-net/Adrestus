@@ -1,13 +1,21 @@
 package io.Adrestus.core;
 
 
+import com.google.common.reflect.TypeToken;
+import io.Adrestus.MemoryTreePool;
 import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.PatriciaTreeNode;
+import io.Adrestus.mapper.MemoryTreePoolSerializer;
+import io.Adrestus.util.SerializationUtil;
 import io.vavr.control.Option;
+import org.apache.commons.lang3.SerializationUtils;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -56,7 +64,7 @@ public class MemoryTreePoolTest {
         PatriciaTreeNode treeNode = new PatriciaTreeNode(10, 1);
         TreeFactory.getMemoryTree(1).store(address, treeNode);
 
-        TreeFactory.getMemoryTree(1).withdraw(address, 1,TreeFactory.getMemoryTree(1));
+        TreeFactory.getMemoryTree(1).withdraw(address, 1, TreeFactory.getMemoryTree(1));
         System.out.println(TreeFactory.getMemoryTree(1).getByaddress(address).get().getAmount());
         assertEquals(9, TreeFactory.getMemoryTree(1).getByaddress(address).get().getAmount());
         Option<PatriciaTreeNode> copy = TreeFactory.getMemoryTree(0).getByaddress(address);
@@ -80,5 +88,38 @@ public class MemoryTreePoolTest {
             if (!copy.isDefined())
                 System.out.println("error");
         }
+    }
+
+    @Test
+    public void serialization_tree() throws Exception {
+        Type fluentType = new TypeToken<MemoryTreePool>() {
+        }.getType();
+        List<SerializationUtil.Mapping> list = new ArrayList<>();
+        //list.add(new SerializationUtil.Mapping(Bytes.class, ctx->new BytesSerializer()));
+        //list.add(new SerializationUtil.Mapping(Bytes32.class, ctx->new Bytes32Serializer()));
+        //list.add(new SerializationUtil.Mapping(MutableBytes.class, ctx->new MutableBytesSerializer()));
+        //list.add(new SerializationUtil.Mapping(Option.class,ctx->new OptionSerializer()));
+        list.add(new SerializationUtil.Mapping(MemoryTreePool.class, ctx -> new MemoryTreePoolSerializer()));
+        SerializationUtil valueMapper = new SerializationUtil<>(fluentType, list);
+
+        String address = "ADR-ADL3-VDZK-ZU7H-2BX5-M2H4-S7LF-5SR4-ECQA-EIUJ-CBFK";
+        PatriciaTreeNode treeNode = new PatriciaTreeNode(2, 1);
+        TreeFactory.getMemoryTree(1).store(address, treeNode);
+        MemoryTreePool m = (MemoryTreePool) TreeFactory.getMemoryTree(1);
+
+        //m.getByaddress(address);
+        //use only special
+        byte[] bt = valueMapper.encode_special(m, SerializationUtils.serialize(m).length);
+        MemoryTreePool copy = (MemoryTreePool) valueMapper.decode(bt);
+
+
+        //copy.store(address, treeNode);
+        Option<PatriciaTreeNode> pat = copy.getByaddress(address);
+
+        if (!pat.isDefined())
+            System.out.println("error");
+        int g = 3;
+
+
     }
 }

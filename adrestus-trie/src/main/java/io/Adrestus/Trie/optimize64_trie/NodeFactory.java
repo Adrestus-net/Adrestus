@@ -14,10 +14,10 @@
  */
 package io.Adrestus.Trie.optimize64_trie;
 
-import org.apache.tuweni.bytes.Bytes;
+import io.Adrestus.util.bytes.Bytes;
+import io.vavr.control.Option;
 
 import java.util.ArrayList;
-import io.vavr.control.Option;
 
 public interface NodeFactory<V> {
 

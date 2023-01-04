@@ -3,9 +3,9 @@ package io.Adrestus.Trie.optimize64_trie;
 import io.Adrestus.util.RLP;
 import io.Adrestus.util.RLPException;
 import io.Adrestus.util.RLPInput;
+import io.Adrestus.util.bytes.Bytes;
+import io.Adrestus.util.bytes.Bytes32;
 import io.vavr.control.Option;
-import org.apache.tuweni.bytes.Bytes;
-import org.apache.tuweni.bytes.Bytes32;
 
 import java.util.ArrayList;
 import java.util.Collections;

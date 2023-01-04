@@ -14,13 +14,12 @@
  */
 package io.Adrestus.Trie.optimize64_trie;
 
-import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.util.BytesValueRLPOutput;
 import io.Adrestus.util.RLP;
+import io.Adrestus.util.bytes.Bytes;
+import io.Adrestus.util.bytes.Bytes32;
+import io.Adrestus.util.bytes.MutableBytes;
 import io.vavr.control.Option;
-import org.apache.tuweni.bytes.Bytes;
-import org.apache.tuweni.bytes.Bytes32;
-import org.apache.tuweni.bytes.MutableBytes;
 
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
@@ -154,7 +153,7 @@ class BranchNode<V> implements Node<V> {
                 return hashed;
             }
         }
-        final Bytes32 hashed = HashUtil.keccak256(getRlp());
+        final Bytes32 hashed = Util.keccak256(getRlp());
         hash = new SoftReference<>(hashed);
         return hashed;
     }

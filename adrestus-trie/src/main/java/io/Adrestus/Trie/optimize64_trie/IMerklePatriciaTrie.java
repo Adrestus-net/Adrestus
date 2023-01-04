@@ -15,18 +15,17 @@
 package io.Adrestus.Trie.optimize64_trie;
 
 import io.Adrestus.util.RLP;
-import org.apache.tuweni.bytes.Bytes;
-import org.apache.tuweni.bytes.Bytes32;
+import io.Adrestus.util.bytes.Bytes;
+import io.Adrestus.util.bytes.Bytes32;
+import io.activej.serializer.annotations.Serialize;
+import io.vavr.control.Option;
 
 import java.io.Serializable;
 import java.util.Map;
-import io.vavr.control.Option;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Consumer;
 import java.util.function.Function;
-
-import static io.Adrestus.crypto.HashUtil.keccak256;
 
 
 /**
@@ -35,7 +34,7 @@ import static io.Adrestus.crypto.HashUtil.keccak256;
 public interface IMerklePatriciaTrie<K, V> extends Serializable {
 
     Bytes EMPTY_TRIE_NODE = RLP.NULL;
-    Bytes32 EMPTY_TRIE_NODE_HASH = keccak256(EMPTY_TRIE_NODE);
+    Bytes32 EMPTY_TRIE_NODE_HASH = Util.keccak256(EMPTY_TRIE_NODE);
 
     /**
      * Returns an {@code Optional} of value mapped to the hash if it exists; otherwise empty.
@@ -51,6 +50,7 @@ public interface IMerklePatriciaTrie<K, V> extends Serializable {
      * @param path The path for the value.
      * @return an {@code Optional} of value mapped to the given path if it exists; otherwise empty
      */
+    @Serialize
     Option<V> getPath(final K path);
 
     /**
@@ -139,4 +139,18 @@ public interface IMerklePatriciaTrie<K, V> extends Serializable {
     CompletableFuture<Void> visitAll(Consumer<Node<V>> nodeConsumer, ExecutorService executorService);
 
     void visitLeafs(final TrieIterator.LeafHandler<V> handler);
+
+
+    PathNodeVisitor<V> getGetVisitor();
+
+
+    PathNodeVisitor<V> getRemoveVisitor();
+
+
+    DefaultNodeFactory<V> getNodeFactory();
+
+    @Serialize
+    Node<V> getRoot();
+
+    void setRoot(Node<V> root);
 }

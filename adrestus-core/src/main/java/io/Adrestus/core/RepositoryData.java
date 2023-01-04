@@ -1,7 +1,6 @@
 package io.Adrestus.core;
 
 import com.google.common.base.Objects;
-import io.Adrestus.IMemoryTreePool;
 import io.Adrestus.MemoryTreePool;
 import io.activej.serializer.annotations.Deserialize;
 import io.activej.serializer.annotations.Serialize;
@@ -10,7 +9,7 @@ public class RepositoryData {
     private AbstractBlock block;
     private MemoryTreePool tree;
 
-    public RepositoryData(@Deserialize("block")AbstractBlock block, @Deserialize("tree") MemoryTreePool tree) {
+    public RepositoryData(@Deserialize("block") AbstractBlock block, @Deserialize("tree") MemoryTreePool tree) {
         this.block = block;
         this.tree = tree;
     }
@@ -46,7 +45,6 @@ public class RepositoryData {
     public int hashCode() {
         return Objects.hashCode(block, tree);
     }
-
 
 
 }

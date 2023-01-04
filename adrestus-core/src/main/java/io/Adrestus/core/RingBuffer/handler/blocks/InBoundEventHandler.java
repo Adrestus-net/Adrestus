@@ -152,7 +152,7 @@ public class InBoundEventHandler implements BlockEventHandler<AbstractBlockEvent
         RpcAdrestusClient<TransactionBlock> client = new RpcAdrestusClient<TransactionBlock>(new TransactionBlock(), IP, NetworkConfiguration.RPC_PORT, CachedEventLoop.getInstance().getEventloop());
         client.connect();
         List<TransactionBlock> current = client.getBlock(to_search);
-        int position=-1;
+        int position = -1;
         for (Map.Entry<Receipt.ReceiptBlock, List<Receipt>> entry : zone.entrySet()) {
             position++;
             int finalPosition = position;
@@ -166,7 +166,7 @@ public class InBoundEventHandler implements BlockEventHandler<AbstractBlockEvent
                 Transaction transaction = current.get(finalPosition).getTransactionList().get(index);
                 boolean check = PreConditionsChecks(receipt, entry.getKey(), current.get(finalPosition), transaction, index);
                 boolean cross_check = CrossZoneConditionsChecks(current.get(finalPosition), entry.getKey());
-                if (!check||!cross_check)
+                if (!check || !cross_check)
                     atomicInteger.decrementAndGet();
             });
         }

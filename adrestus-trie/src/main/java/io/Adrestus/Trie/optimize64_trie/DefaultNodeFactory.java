@@ -14,21 +14,24 @@
  */
 package io.Adrestus.Trie.optimize64_trie;
 
-import org.apache.tuweni.bytes.Bytes;
+import io.Adrestus.util.bytes.Bytes;
+import io.activej.serializer.annotations.Deserialize;
+import io.activej.serializer.annotations.Serialize;
+import io.vavr.control.Option;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
-import io.vavr.control.Option;
 import java.util.function.Function;
 
 public class DefaultNodeFactory<V> implements NodeFactory<V>, Serializable {
     @SuppressWarnings("rawtypes")
-    private static final Node NULL_NODE = NullNode.instance();
+    @Serialize
+    public final Node NULL_NODE = NullNode.instance();
 
     private final Function<V, Bytes> valueSerializer;
 
-    public DefaultNodeFactory(final Function<V, Bytes> valueSerializer) {
+    public DefaultNodeFactory(@Deserialize("valueSerializer") final Function<V, Bytes> valueSerializer) {
         this.valueSerializer = valueSerializer;
     }
 
@@ -68,5 +71,10 @@ public class DefaultNodeFactory<V> implements NodeFactory<V>, Serializable {
     @Override
     public Node<V> createLeaf(final Bytes path, final V value) {
         return new LeafNode<>(path, value, this, valueSerializer);
+    }
+
+    @Serialize
+    public Function<V, Bytes> getValueSerializer() {
+        return valueSerializer;
     }
 }

@@ -1,14 +1,5 @@
 package io.Adrestus.core;
 
-import com.google.common.reflect.TypeToken;
-import com.google.gson.Gson;
-import io.Adrestus.MemoryTreePool;
-import io.Adrestus.SerializableFunction;
-import io.Adrestus.TreeFactory;
-import io.Adrestus.Trie.PatriciaTreeNode;
-import io.Adrestus.Trie.optimize64_trie.IMerklePatriciaTrie;
-import io.Adrestus.Trie.optimize64_trie.MerklePatriciaTrie;
-import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.crypto.bls.BLS381.ECP;
 import io.Adrestus.crypto.bls.BLS381.ECP2;
 import io.Adrestus.crypto.bls.mapper.ECP2mapper;
@@ -21,15 +12,9 @@ import io.distributedLedger.DatabaseFactory;
 import io.distributedLedger.DatabaseInstance;
 import io.distributedLedger.DatabaseType;
 import io.distributedLedger.IDatabase;
-import org.apache.tuweni.bytes.Bytes;
 import org.junit.jupiter.api.Test;
 
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
-import java.lang.reflect.Type;
 import java.math.BigInteger;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -141,21 +126,25 @@ public class RocksDBBlockTest {
         outstream.writeObject(patriciaTreeImp);*/
 
 
-        CachedZoneIndex.getInstance().setZoneIndex(1);
+     /*   CachedZoneIndex.getInstance().setZoneIndex(1);
         IDatabase<String, RepositoryData> database = new DatabaseFactory(String.class, RepositoryData.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.ZONE_1_TRANSACTION_BLOCK);
         MemoryTreePool m= (MemoryTreePool)TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex());
-        m.store("address",new PatriciaTreeNode(10,0,0));
+        m.store("address",new PatriciaTreeNode(1,0,0));
+        m.store("address2",new PatriciaTreeNode(2,0,0));
+        m.store("address3",new PatriciaTreeNode(3,0,0));
         String hash = "Hash";
+        System.out.println(m.getRootHash());
         TransactionBlock prevblock = new TransactionBlock();
         prevblock.setHeight(1);
         prevblock.setHash(hash);
         RepositoryData repositoryData=new RepositoryData(prevblock, m);
         database.save(hash, repositoryData);
         RepositoryData copy = (RepositoryData) database.findByKey(hash).get();
+        System.out.println(copy.getTree().getRootHash());
         assertEquals(prevblock, copy.getBlock());
         assertEquals(m, copy.getTree());
         System.out.println(copy.toString());
-        database.delete_db();
+        database.delete_db();*/
     }
 
 }

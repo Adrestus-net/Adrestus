@@ -16,16 +16,15 @@ package io.Adrestus.Trie.optimize64_trie;
 
 import io.Adrestus.util.BytesValueRLPOutput;
 import io.Adrestus.util.RLP;
-import org.apache.tuweni.bytes.Bytes;
-import org.apache.tuweni.bytes.Bytes32;
+import io.Adrestus.util.bytes.Bytes;
+import io.Adrestus.util.bytes.Bytes32;
+import io.activej.serializer.annotations.Serialize;
+import io.vavr.control.Option;
 
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 import java.util.Collections;
 import java.util.List;
-import io.vavr.control.Option;
-
-import static io.Adrestus.crypto.HashUtil.keccak256;
 
 
 class ExtensionNode<V> implements Node<V> {
@@ -64,6 +63,7 @@ class ExtensionNode<V> implements Node<V> {
     }
 
     @Override
+    @Serialize
     public Node<V> accept(final PathNodeVisitor<V> visitor, final Bytes path) {
         return visitor.visit(this, path);
     }
@@ -138,7 +138,7 @@ class ExtensionNode<V> implements Node<V> {
             }
         }
         final Bytes rlp = getRlp();
-        final Bytes32 hashed = keccak256(rlp);
+        final Bytes32 hashed = Util.keccak256(rlp);
         hash = new SoftReference<>(hashed);
         return hashed;
     }
