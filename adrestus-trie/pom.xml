@@ -18,8 +18,14 @@
         <maven.compiler.target>1.7</maven.compiler.target>
         <crypto.version>1.0-SNAPSHOT</crypto.version>
         <util.version>1.0-SNAPSHOT</util.version>
+        <vavr.version>0.10.4</vavr.version>
     </properties>
     <dependencies>
+        <dependency>
+            <groupId>io.vavr</groupId>
+            <artifactId>vavr</artifactId>
+            <version>${vavr.version}</version>
+        </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>

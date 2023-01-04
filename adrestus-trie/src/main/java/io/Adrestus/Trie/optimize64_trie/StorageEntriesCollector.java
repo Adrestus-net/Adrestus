@@ -32,7 +32,7 @@ public class StorageEntriesCollector<V> implements TrieIterator.LeafHandler<V> {
     @Override
     public TrieIterator.State onLeaf(final Bytes32 keyHash, final Node<V> node) {
         if (keyHash.compareTo(startKeyHash) >= 0) {
-            node.getValue().ifPresent(value -> values.put(keyHash, value));
+            node.getValue().peek(value -> values.put(keyHash, value));
         }
         return limitReached() ? TrieIterator.State.STOP : TrieIterator.State.CONTINUE;
     }

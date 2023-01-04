@@ -3,12 +3,12 @@ package io.Adrestus.Trie.optimize64_trie;
 import io.Adrestus.util.RLP;
 import io.Adrestus.util.RLPException;
 import io.Adrestus.util.RLPInput;
+import io.vavr.control.Option;
 import org.apache.tuweni.bytes.Bytes;
 import org.apache.tuweni.bytes.Bytes32;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -56,12 +56,12 @@ public class StoredNodeFactory<V> implements NodeFactory<V> {
         } else {
             children.set(leftIndex, left);
             children.set(rightIndex, right);
-            return createBranch(children, Optional.empty());
+            return createBranch(children, Option.none());
         }
     }
 
     @Override
-    public Node<V> createBranch(final ArrayList<Node<V>> children, final Optional<V> value) {
+    public Node<V> createBranch(final ArrayList<Node<V>> children, final Option<V> value) {
         return handleNewNode(new BranchNode<>(children, value, this, valueSerializer));
     }
 
@@ -75,7 +75,7 @@ public class StoredNodeFactory<V> implements NodeFactory<V> {
         return node;
     }
 
-    public Optional<Node<V>> retrieve(final Bytes location, final Bytes32 hash)
+    public Option<Node<V>> retrieve(final Bytes location, final Bytes32 hash)
             throws MerkleTrieException {
         return nodeLoader
                 .getNode(location, hash)
@@ -187,12 +187,12 @@ public class StoredNodeFactory<V> implements NodeFactory<V> {
             }
         }
 
-        final Optional<V> value;
+        final Option<V> value;
         if (nodeRLPs.nextIsNull()) {
             nodeRLPs.skipNext();
-            value = Optional.empty();
+            value = Option.none();
         } else {
-            value = Optional.of(decodeValue(nodeRLPs, errMessage));
+            value = Option.of(decodeValue(nodeRLPs, errMessage));
         }
 
         return new BranchNode<>(location, children, value, this, valueSerializer);

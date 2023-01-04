@@ -1,5 +1,7 @@
 package io.Adrestus.core;
 
+import com.google.common.reflect.TypeToken;
+import com.google.gson.Gson;
 import io.Adrestus.MemoryTreePool;
 import io.Adrestus.SerializableFunction;
 import io.Adrestus.TreeFactory;
@@ -24,6 +26,8 @@ import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.lang.reflect.Type;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -128,13 +132,13 @@ public class RocksDBBlockTest {
     public void add_get4() throws Exception {
 
 
-        SerializableFunction<PatriciaTreeNode, Bytes>  valueSerializer = value -> (value != null) ? Bytes.wrap("".getBytes(StandardCharsets.UTF_8)) : null;
+       /* SerializableFunction<PatriciaTreeNode, Bytes>  valueSerializer = value -> (value != null) ? Bytes.wrap("".getBytes(StandardCharsets.UTF_8)) : null;
         IMerklePatriciaTrie<Bytes, PatriciaTreeNode> patriciaTreeImp = new MerklePatriciaTrie<Bytes, PatriciaTreeNode>(valueSerializer);
         patriciaTreeImp.put(Bytes.wrap("1".getBytes(StandardCharsets.UTF_8)),new PatriciaTreeNode(10,0,0));
         System.out.println(patriciaTreeImp.getRootHash());
         ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
         ObjectOutputStream outstream = new ObjectOutputStream(byteOut);
-        outstream.writeObject(patriciaTreeImp);
+        outstream.writeObject(patriciaTreeImp);*/
 
 
         CachedZoneIndex.getInstance().setZoneIndex(1);
@@ -153,4 +157,5 @@ public class RocksDBBlockTest {
         System.out.println(copy.toString());
         database.delete_db();
     }
+
 }

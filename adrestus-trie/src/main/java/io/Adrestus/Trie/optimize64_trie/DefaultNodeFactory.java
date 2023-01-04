@@ -19,7 +19,7 @@ import org.apache.tuweni.bytes.Bytes;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Optional;
+import io.vavr.control.Option;
 import java.util.function.Function;
 
 public class DefaultNodeFactory<V> implements NodeFactory<V>, Serializable {
@@ -56,12 +56,12 @@ public class DefaultNodeFactory<V> implements NodeFactory<V>, Serializable {
         } else {
             children.set(leftIndex, left);
             children.set(rightIndex, right);
-            return createBranch(children, Optional.empty());
+            return createBranch(children, Option.none());
         }
     }
 
     @Override
-    public Node<V> createBranch(final ArrayList<Node<V>> children, final Optional<V> value) {
+    public Node<V> createBranch(final ArrayList<Node<V>> children, final Option<V> value) {
         return new BranchNode<>(children, value, this, valueSerializer);
     }
 

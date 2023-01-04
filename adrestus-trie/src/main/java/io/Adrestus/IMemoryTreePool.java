@@ -5,7 +5,7 @@ import io.Adrestus.Trie.optimize64_trie.IMerklePatriciaTrie;
 import org.apache.tuweni.bytes.Bytes;
 
 import java.io.Serializable;
-import java.util.Optional;
+import io.vavr.control.Option;
 
 public interface IMemoryTreePool extends Serializable {
     void store(String address, PatriciaTreeNode patriciaTreeNode) throws Exception;
@@ -14,7 +14,7 @@ public interface IMemoryTreePool extends Serializable {
 
     void withdraw(String address, double amount,IMemoryTreePool instance);
 
-    Optional<PatriciaTreeNode> getByaddress(String address);
+    Option<PatriciaTreeNode> getByaddress(String address);
 
     String getRootHash() throws Exception;
 

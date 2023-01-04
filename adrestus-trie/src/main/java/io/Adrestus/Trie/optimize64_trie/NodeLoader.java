@@ -17,8 +17,8 @@ package io.Adrestus.Trie.optimize64_trie;
 import org.apache.tuweni.bytes.Bytes;
 import org.apache.tuweni.bytes.Bytes32;
 
-import java.util.Optional;
+import io.vavr.control.Option;
 
 public interface NodeLoader {
-    Optional<Bytes> getNode(Bytes location, Bytes32 hash);
+    Option<Bytes> getNode(Bytes location, Bytes32 hash);
 }

@@ -18,7 +18,7 @@ import org.apache.tuweni.bytes.Bytes;
 import org.apache.tuweni.bytes.Bytes32;
 
 import java.util.List;
-import java.util.Optional;
+import io.vavr.control.Option;
 import java.util.function.Function;
 
 public class RestoreVisitor<V> implements PathNodeVisitor<V> {
@@ -195,7 +195,7 @@ public class RestoreVisitor<V> implements PathNodeVisitor<V> {
         }
 
         @Override
-        public Optional<V> getValue() {
+        public Option<V> getValue() {
             throw new UnsupportedOperationException(
                     "A persisted node cannot have a value, as it's already been restored.");
         }

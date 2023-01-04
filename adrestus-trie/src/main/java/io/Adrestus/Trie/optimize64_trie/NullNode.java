@@ -20,7 +20,7 @@ import org.apache.tuweni.bytes.Bytes32;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
+import io.vavr.control.Option;
 
 public class NullNode<V> implements Node<V>, Serializable {
     @SuppressWarnings("rawtypes")
@@ -55,8 +55,8 @@ public class NullNode<V> implements Node<V>, Serializable {
     }
 
     @Override
-    public Optional<V> getValue() {
-        return Optional.empty();
+    public Option<V> getValue() {
+        return Option.none();
     }
 
     @Override

@@ -17,7 +17,7 @@ package io.Adrestus.Trie.optimize64_trie;
 import org.apache.tuweni.bytes.Bytes;
 
 import java.util.ArrayList;
-import java.util.Optional;
+import io.vavr.control.Option;
 
 public interface NodeFactory<V> {
 
@@ -25,7 +25,7 @@ public interface NodeFactory<V> {
 
     Node<V> createBranch(byte leftIndex, Node<V> left, byte rightIndex, Node<V> right);
 
-    Node<V> createBranch(ArrayList<Node<V>> newChildren, Optional<V> value);
+    Node<V> createBranch(ArrayList<Node<V>> newChildren, Option<V> value);
 
     Node<V> createLeaf(Bytes path, V value);
 }

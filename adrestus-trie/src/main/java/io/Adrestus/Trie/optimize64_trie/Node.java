@@ -18,7 +18,7 @@ import org.apache.tuweni.bytes.Bytes;
 import org.apache.tuweni.bytes.Bytes32;
 
 import java.util.List;
-import java.util.Optional;
+import io.vavr.control.Option;
 
 public interface Node<V> {
 
@@ -30,11 +30,11 @@ public interface Node<V> {
 
     Bytes getPath();
 
-    default Optional<Bytes> getLocation() {
-        return Optional.empty();
+    default Option<Bytes> getLocation() {
+        return Option.none();
     }
 
-    Optional<V> getValue();
+    Option<V> getValue();
 
     List<Node<V>> getChildren();
 

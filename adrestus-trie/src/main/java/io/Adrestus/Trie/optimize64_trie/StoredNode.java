@@ -6,7 +6,7 @@ import org.apache.tuweni.bytes.Bytes;
 import org.apache.tuweni.bytes.Bytes32;
 
 import java.util.List;
-import java.util.Optional;
+import io.vavr.control.Option;
 
 class StoredNode<V> implements Node<V> {
     private final StoredNodeFactory<V> nodeFactory;
@@ -72,12 +72,12 @@ class StoredNode<V> implements Node<V> {
     }
 
     @Override
-    public Optional<Bytes> getLocation() {
-        return Optional.ofNullable(location);
+    public Option<Bytes> getLocation() {
+        return Option.of(location);
     }
 
     @Override
-    public Optional<V> getValue() {
+    public Option<V> getValue() {
         return load().getValue();
     }
 
@@ -118,7 +118,7 @@ class StoredNode<V> implements Node<V> {
             loaded =
                     nodeFactory
                             .retrieve(location, hash)
-                            .orElseThrow(
+                            .getOrElseThrow(
                                     () ->
                                             new MerkleTrieException(
                                                     "Unable to load trie node value for hash "

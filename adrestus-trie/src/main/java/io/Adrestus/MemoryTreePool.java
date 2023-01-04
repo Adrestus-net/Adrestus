@@ -6,7 +6,7 @@ import io.Adrestus.Trie.optimize64_trie.MerklePatriciaTrie;
 import org.apache.tuweni.bytes.Bytes;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Optional;
+import io.vavr.control.Option;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -44,7 +44,7 @@ public class MemoryTreePool implements IMemoryTreePool {
         w.lock();
         try {
             Bytes key = Bytes.wrap(address.getBytes(StandardCharsets.UTF_8));
-            Optional<PatriciaTreeNode> prev = instance.getByaddress(address);
+            Option<PatriciaTreeNode> prev = instance.getByaddress(address);
             if (prev.isEmpty()) {
                 PatriciaTreeNode next = new PatriciaTreeNode(amount, 0, 0);
                 patriciaTreeImp.put(key, next);
@@ -65,7 +65,7 @@ public class MemoryTreePool implements IMemoryTreePool {
         w.lock();
         try {
             Bytes key = Bytes.wrap(address.getBytes(StandardCharsets.UTF_8));
-            Optional<PatriciaTreeNode> prev = instance.getByaddress(address);
+            Option<PatriciaTreeNode> prev = instance.getByaddress(address);
             if (prev.isEmpty()) {
                 PatriciaTreeNode next = new PatriciaTreeNode(amount, 0, 0);
                 patriciaTreeImp.put(key, next);
@@ -84,7 +84,7 @@ public class MemoryTreePool implements IMemoryTreePool {
 
 
     @Override
-    public Optional<PatriciaTreeNode> getByaddress(String address) {
+    public Option<PatriciaTreeNode> getByaddress(String address) {
         r.lock();
         try {
             Bytes key = Bytes.wrap(address.getBytes(StandardCharsets.UTF_8));

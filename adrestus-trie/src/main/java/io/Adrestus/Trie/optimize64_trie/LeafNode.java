@@ -24,14 +24,14 @@ import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
+import io.vavr.control.Option;
 import java.util.function.Function;
 
 import static io.Adrestus.crypto.HashUtil.keccak256;
 
 
 class LeafNode<V> implements Node<V>, Serializable {
-    private final Optional<Bytes> location;
+    private final Option<Bytes> location;
     private final Bytes path;
     private final V value;
     private final NodeFactory<V> nodeFactory;
@@ -46,7 +46,7 @@ class LeafNode<V> implements Node<V>, Serializable {
             final V value,
             final NodeFactory<V> nodeFactory,
             final Function<V, Bytes> valueSerializer) {
-        this.location = Optional.ofNullable(location);
+        this.location = Option.of(location);
         this.path = path;
         this.value = value;
         this.nodeFactory = nodeFactory;
@@ -58,7 +58,7 @@ class LeafNode<V> implements Node<V>, Serializable {
             final V value,
             final NodeFactory<V> nodeFactory,
             final Function<V, Bytes> valueSerializer) {
-        this.location = Optional.empty();
+        this.location = Option.none();
         this.path = path;
         this.value = value;
         this.nodeFactory = nodeFactory;
@@ -81,7 +81,7 @@ class LeafNode<V> implements Node<V>, Serializable {
     }
 
     @Override
-    public Optional<Bytes> getLocation() {
+    public Option<Bytes> getLocation() {
         return location;
     }
 
@@ -91,8 +91,8 @@ class LeafNode<V> implements Node<V>, Serializable {
     }
 
     @Override
-    public Optional<V> getValue() {
-        return Optional.of(value);
+    public Option<V> getValue() {
+        return Option.of(value);
     }
 
     @Override
@@ -154,7 +154,7 @@ class LeafNode<V> implements Node<V>, Serializable {
                 + "\n\tPath: "
                 + CompactEncoding.encode(path)
                 + "\n\tValue: "
-                + getValue().map(Object::toString).orElse("empty");
+                + getValue().map(Object::toString).orElse(Option.of("empty"));
     }
 
     @Override

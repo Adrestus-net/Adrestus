@@ -20,7 +20,7 @@ import org.apache.tuweni.bytes.Bytes32;
 
 import java.io.Serializable;
 import java.util.Map;
-import java.util.Optional;
+import io.vavr.control.Option;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Consumer;
@@ -43,7 +43,7 @@ public interface IMerklePatriciaTrie<K, V> extends Serializable {
      * @param key The key for the value.
      * @return an {@code Optional} of value mapped to the hash if it exists; otherwise empty
      */
-    Optional<V> get(K key);
+    Option<V> get(K key);
 
     /**
      * Returns an {@code Optional} of value mapped to the given path if it exists; otherwise empty.
@@ -51,7 +51,7 @@ public interface IMerklePatriciaTrie<K, V> extends Serializable {
      * @param path The path for the value.
      * @return an {@code Optional} of value mapped to the given path if it exists; otherwise empty
      */
-    Optional<V> getPath(final K path);
+    Option<V> getPath(final K path);
 
     /**
      * Returns value and ordered proof-related nodes mapped to the hash if it exists; otherwise empty.

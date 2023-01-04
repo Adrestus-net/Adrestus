@@ -23,14 +23,14 @@ import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
+import io.vavr.control.Option;
 
 import static io.Adrestus.crypto.HashUtil.keccak256;
 
 
 class ExtensionNode<V> implements Node<V> {
 
-    private final Optional<Bytes> location;
+    private final Option<Bytes> location;
     private final Bytes path;
     private final Node<V> child;
     private final NodeFactory<V> nodeFactory;
@@ -47,7 +47,7 @@ class ExtensionNode<V> implements Node<V> {
         assert (path.size() > 0);
         assert (path.get(path.size() - 1) != CompactEncoding.LEAF_TERMINATOR)
                 : "Extension path ends in a leaf terminator";
-        this.location = Optional.ofNullable(location);
+        this.location = Option.of(location);
         this.path = path;
         this.child = child;
         this.nodeFactory = nodeFactory;
@@ -57,7 +57,7 @@ class ExtensionNode<V> implements Node<V> {
         assert (path.size() > 0);
         assert (path.get(path.size() - 1) != CompactEncoding.LEAF_TERMINATOR)
                 : "Extension path ends in a leaf terminator";
-        this.location = Optional.empty();
+        this.location = Option.none();
         this.path = path;
         this.child = child;
         this.nodeFactory = nodeFactory;
@@ -79,7 +79,7 @@ class ExtensionNode<V> implements Node<V> {
     }
 
     @Override
-    public Optional<Bytes> getLocation() {
+    public Option<Bytes> getLocation() {
         return location;
     }
 
@@ -89,8 +89,8 @@ class ExtensionNode<V> implements Node<V> {
     }
 
     @Override
-    public Optional<V> getValue() {
-        return Optional.empty();
+    public Option<V> getValue() {
+        return Option.none();
     }
 
     @Override

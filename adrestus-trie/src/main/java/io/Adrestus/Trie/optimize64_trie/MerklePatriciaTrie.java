@@ -19,7 +19,7 @@ import org.apache.tuweni.bytes.Bytes32;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import io.vavr.control.Option;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Consumer;
@@ -54,13 +54,13 @@ public class MerklePatriciaTrie<K extends Bytes, V> implements IMerklePatriciaTr
     }
 
     @Override
-    public Optional<V> get(final K key) {
+    public Option<V> get(final K key) {
         checkNotNull(key);
         return root.accept(getVisitor, bytesToPath(key)).getValue();
     }
 
     @Override
-    public Optional<V> getPath(final K path) {
+    public Option<V> getPath(final K path) {
         checkNotNull(path);
         return root.accept(getVisitor, path).getValue();
     }
@@ -69,7 +69,7 @@ public class MerklePatriciaTrie<K extends Bytes, V> implements IMerklePatriciaTr
     public Proof<V> getValueWithProof(final K key) {
         checkNotNull(key);
         final ProofVisitor<V> proofVisitor = new ProofVisitor<>(root);
-        final Optional<V> value = root.accept(proofVisitor, bytesToPath(key)).getValue();
+        final Option<V> value = root.accept(proofVisitor, bytesToPath(key)).getValue();
         final List<Bytes> proof =
                 proofVisitor.getProof().stream().map(Node::getRlp).collect(Collectors.toList());
         return new Proof<>(value, proof);

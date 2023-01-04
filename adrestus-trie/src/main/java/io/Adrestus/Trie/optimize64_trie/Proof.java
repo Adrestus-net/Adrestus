@@ -17,20 +17,20 @@ package io.Adrestus.Trie.optimize64_trie;
 import org.apache.tuweni.bytes.Bytes;
 
 import java.util.List;
-import java.util.Optional;
+import io.vavr.control.Option;
 
 public class Proof<V> {
 
-    private final Optional<V> value;
+    private final Option<V> value;
 
     private final List<Bytes> proofRelatedNodes;
 
-    public Proof(final Optional<V> value, final List<Bytes> proofRelatedNodes) {
+    public Proof(final Option<V> value, final List<Bytes> proofRelatedNodes) {
         this.value = value;
         this.proofRelatedNodes = proofRelatedNodes;
     }
 
-    public Optional<V> getValue() {
+    public Option<V> getValue() {
         return value;
     }
 

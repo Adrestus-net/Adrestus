@@ -17,13 +17,17 @@ package io.Adrestus.Trie.optimize64_trie;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.util.BytesValueRLPOutput;
 import io.Adrestus.util.RLP;
+import io.vavr.control.Option;
 import org.apache.tuweni.bytes.Bytes;
 import org.apache.tuweni.bytes.Bytes32;
 import org.apache.tuweni.bytes.MutableBytes;
 
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
 
 
@@ -33,9 +37,9 @@ class BranchNode<V> implements Node<V> {
     @SuppressWarnings("rawtypes")
     private static final Node NULL_NODE = NullNode.instance();
 
-    private final Optional<Bytes> location;
+    private final Option<Bytes> location;
     private final ArrayList<Node<V>> children;
-    private final Optional<V> value;
+    private final Option<V> value;
     private final NodeFactory<V> nodeFactory;
     private final Function<V, Bytes> valueSerializer;
     private WeakReference<Bytes> rlp;
@@ -46,11 +50,11 @@ class BranchNode<V> implements Node<V> {
     BranchNode(
             final Bytes location,
             final ArrayList<Node<V>> children,
-            final Optional<V> value,
+            final Option<V> value,
             final NodeFactory<V> nodeFactory,
             final Function<V, Bytes> valueSerializer) {
         assert (children.size() == RADIX);
-        this.location = Optional.ofNullable(location);
+        this.location = Option.of(location);
         this.children = children;
         this.value = value;
         this.nodeFactory = nodeFactory;
@@ -59,11 +63,11 @@ class BranchNode<V> implements Node<V> {
 
     BranchNode(
             final ArrayList<Node<V>> children,
-            final Optional<V> value,
+            final Option<V> value,
             final NodeFactory<V> nodeFactory,
             final Function<V, Bytes> valueSerializer) {
         assert (children.size() == RADIX);
-        this.location = Optional.empty();
+        this.location = Option.none();
         this.children = children;
         this.value = value;
         this.nodeFactory = nodeFactory;
@@ -86,7 +90,7 @@ class BranchNode<V> implements Node<V> {
     }
 
     @Override
-    public Optional<Bytes> getLocation() {
+    public Option<Bytes> getLocation() {
         return location;
     }
 
@@ -96,7 +100,7 @@ class BranchNode<V> implements Node<V> {
     }
 
     @Override
-    public Optional<V> getValue() {
+    public Option<V> getValue() {
         return value;
     }
 
@@ -122,7 +126,7 @@ class BranchNode<V> implements Node<V> {
         for (int i = 0; i < RADIX; ++i) {
             out.writeRaw(children.get(i).getRlpRef());
         }
-        if (value.isPresent()) {
+        if (value.isDefined()) {
             out.writeBytes(valueSerializer.apply(value.get()));
         } else {
             out.writeNull();
@@ -170,11 +174,11 @@ class BranchNode<V> implements Node<V> {
         newChildren.set(index, updatedChild);
 
         if (updatedChild == NULL_NODE) {
-            if (value.isPresent() && !hasChildren()) {
+            if (value.isDefined() && !hasChildren()) {
                 return nodeFactory.createLeaf(Bytes.of(index), value.get());
             } else if (value.isEmpty() && allowFlatten) {
-                final Optional<Node<V>> flattened = maybeFlatten(newChildren);
-                if (flattened.isPresent()) {
+                final Option<Node<V>> flattened = maybeFlatten(newChildren);
+                if (flattened.isDefined()) {
                     return flattened.get();
                 }
             }
@@ -184,11 +188,11 @@ class BranchNode<V> implements Node<V> {
     }
 
     public Node<V> replaceValue(final V value) {
-        return nodeFactory.createBranch(children, Optional.of(value));
+        return nodeFactory.createBranch(children, Option.of(value));
     }
 
     public Node<V> removeValue() {
-        return maybeFlatten(children).orElse(nodeFactory.createBranch(children, Optional.empty()));
+        return (Node<V>) maybeFlatten(children).orElse(Option.of(nodeFactory.createBranch(children, Option.none())));
     }
 
     private boolean hasChildren() {
@@ -200,7 +204,7 @@ class BranchNode<V> implements Node<V> {
         return false;
     }
 
-    private static <V> Optional<Node<V>> maybeFlatten(final ArrayList<Node<V>> children) {
+    private static <V> Option<Node<V>> maybeFlatten(final ArrayList<Node<V>> children) {
         final int onlyChildIndex = findOnlyChild(children);
         if (onlyChildIndex >= 0) {
             // replace the path of the only child and return it
@@ -209,9 +213,9 @@ class BranchNode<V> implements Node<V> {
             final MutableBytes completePath = MutableBytes.create(1 + onlyChildPath.size());
             completePath.set(0, (byte) onlyChildIndex);
             onlyChildPath.copyTo(completePath, 1);
-            return Optional.of(onlyChild.replacePath(completePath));
+            return Option.of(onlyChild.replacePath(completePath));
         }
-        return Optional.empty();
+        return Option.none();
     }
 
     private static <V> int findOnlyChild(final ArrayList<Node<V>> children) {
@@ -241,7 +245,7 @@ class BranchNode<V> implements Node<V> {
                 builder.append("\n\t").append(branchLabel).append(childRep);
             }
         }
-        builder.append("\n\tValue: ").append(getValue().map(Object::toString).orElse("empty"));
+        builder.append("\n\tValue: ").append(getValue().map(Object::toString).orElse(Option.of("empty")));
         return builder.toString();
     }
 

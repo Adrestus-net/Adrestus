@@ -3,11 +3,11 @@ package io.Adrestus.core;
 
 import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.PatriciaTreeNode;
+import io.vavr.control.Option;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -28,10 +28,10 @@ public class MemoryTreePoolTest {
 
 
         TreeFactory.getMemoryTree(1).deposit(address, treeNode.getAmount(), TreeFactory.getMemoryTree(1));
-        Optional<PatriciaTreeNode> copy = TreeFactory.getMemoryTree(1).getByaddress(address);
+        Option<PatriciaTreeNode> copy = TreeFactory.getMemoryTree(1).getByaddress(address);
         System.out.println(copy.get().toString());
 
-        if (copy.isPresent())
+        if (copy.isDefined())
             System.out.println(copy.get().toString());
         System.out.println(TreeFactory.getMemoryTree(0).getRootHash());
     }
@@ -43,9 +43,9 @@ public class MemoryTreePoolTest {
         TreeFactory.getMemoryTree(1).store(address, treeNode);
 
 
-        Optional<PatriciaTreeNode> copy = TreeFactory.getMemoryTree(1).getByaddress(address);
+        Option<PatriciaTreeNode> copy = TreeFactory.getMemoryTree(1).getByaddress(address);
 
-        if (copy.isPresent())
+        if (copy.isDefined())
             System.out.println(copy.get().toString());
 
     }
@@ -59,9 +59,9 @@ public class MemoryTreePoolTest {
         TreeFactory.getMemoryTree(1).withdraw(address, 1,TreeFactory.getMemoryTree(1));
         System.out.println(TreeFactory.getMemoryTree(1).getByaddress(address).get().getAmount());
         assertEquals(9, TreeFactory.getMemoryTree(1).getByaddress(address).get().getAmount());
-        Optional<PatriciaTreeNode> copy = TreeFactory.getMemoryTree(0).getByaddress(address);
+        Option<PatriciaTreeNode> copy = TreeFactory.getMemoryTree(0).getByaddress(address);
 
-        if (copy.isPresent())
+        if (copy.isDefined())
             System.out.println(copy.get().toString());
 
     }
@@ -75,9 +75,9 @@ public class MemoryTreePoolTest {
         }
 
         for (int i = 0; i < size; i++) {
-            Optional<PatriciaTreeNode> copy = TreeFactory.getMemoryTree(0).getByaddress(String.valueOf(i));
+            Option<PatriciaTreeNode> copy = TreeFactory.getMemoryTree(0).getByaddress(String.valueOf(i));
 
-            if (!copy.isPresent())
+            if (!copy.isDefined())
                 System.out.println("error");
         }
     }
