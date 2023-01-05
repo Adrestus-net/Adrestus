@@ -1,5 +1,9 @@
 package io.Adrestus.core;
 
+import com.google.common.reflect.TypeToken;
+import io.Adrestus.MemoryTreePool;
+import io.Adrestus.TreeFactory;
+import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.crypto.bls.BLS381.ECP;
 import io.Adrestus.crypto.bls.BLS381.ECP2;
 import io.Adrestus.crypto.bls.mapper.ECP2mapper;
@@ -7,13 +11,14 @@ import io.Adrestus.crypto.bls.mapper.ECPmapper;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.crypto.elliptic.mapper.CustomSerializerTreeMap;
+import io.Adrestus.mapper.MemoryTreePoolSerializer;
 import io.Adrestus.util.SerializationUtil;
-import io.distributedLedger.DatabaseFactory;
-import io.distributedLedger.DatabaseInstance;
-import io.distributedLedger.DatabaseType;
-import io.distributedLedger.IDatabase;
+import io.distributedLedger.*;
+import io.vavr.control.Option;
+import org.apache.commons.lang3.SerializationUtils;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Type;
 import java.math.BigInteger;
 import java.util.*;
 
@@ -115,36 +120,36 @@ public class RocksDBBlockTest {
 
     @Test
     public void add_get4() throws Exception {
+        Type fluentType = new TypeToken<MemoryTreePool>() {
+        }.getType();
+        List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(MemoryTreePool.class, ctx -> new MemoryTreePoolSerializer()));
+        SerializationUtil valueMapper = new SerializationUtil<>(fluentType, list);
+
+        String address = "ADR-ADL3-VDZK-ZU7H-2BX5-M2H4-S7LF-5SR4-ECQA-EIUJ-CBFK";
+        PatriciaTreeNode treeNode = new PatriciaTreeNode(2, 1);
+        TreeFactory.getMemoryTree(1).store(address, treeNode);
+        MemoryTreePool m = (MemoryTreePool) TreeFactory.getMemoryTree(1);
+
+        //m.getByaddress(address);
+        //use only special
+        byte[] buffer = valueMapper.encode_special(m, SerializationUtils.serialize(m).length);
+
+        IDatabase<String, byte[]> database = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, PatriciaTreeInstance.PATRICIA_TREE_INSTANCE_0);
+        database.save("hash1",buffer);
+
+        Optional<byte[]> value = database.findByKey("hash1");
+
+        MemoryTreePool copy = (MemoryTreePool) valueMapper.decode(value.get());
 
 
-       /* SerializableFunction<PatriciaTreeNode, Bytes>  valueSerializer = value -> (value != null) ? Bytes.wrap("".getBytes(StandardCharsets.UTF_8)) : null;
-        IMerklePatriciaTrie<Bytes, PatriciaTreeNode> patriciaTreeImp = new MerklePatriciaTrie<Bytes, PatriciaTreeNode>(valueSerializer);
-        patriciaTreeImp.put(Bytes.wrap("1".getBytes(StandardCharsets.UTF_8)),new PatriciaTreeNode(10,0,0));
-        System.out.println(patriciaTreeImp.getRootHash());
-        ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-        ObjectOutputStream outstream = new ObjectOutputStream(byteOut);
-        outstream.writeObject(patriciaTreeImp);*/
+        //copy.store(address, treeNode);
+        Option<PatriciaTreeNode> pat = copy.getByaddress(address);
 
-
-     /*   CachedZoneIndex.getInstance().setZoneIndex(1);
-        IDatabase<String, RepositoryData> database = new DatabaseFactory(String.class, RepositoryData.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.ZONE_1_TRANSACTION_BLOCK);
-        MemoryTreePool m= (MemoryTreePool)TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex());
-        m.store("address",new PatriciaTreeNode(1,0,0));
-        m.store("address2",new PatriciaTreeNode(2,0,0));
-        m.store("address3",new PatriciaTreeNode(3,0,0));
-        String hash = "Hash";
-        System.out.println(m.getRootHash());
-        TransactionBlock prevblock = new TransactionBlock();
-        prevblock.setHeight(1);
-        prevblock.setHash(hash);
-        RepositoryData repositoryData=new RepositoryData(prevblock, m);
-        database.save(hash, repositoryData);
-        RepositoryData copy = (RepositoryData) database.findByKey(hash).get();
-        System.out.println(copy.getTree().getRootHash());
-        assertEquals(prevblock, copy.getBlock());
-        assertEquals(m, copy.getTree());
-        System.out.println(copy.toString());
-        database.delete_db();*/
+        if (!pat.isDefined())
+            System.out.println("error");
+        int g = 3;
+        database.delete_db();
     }
 
 }

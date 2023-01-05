@@ -25,6 +25,7 @@ import io.distributedLedger.DatabaseFactory;
 import io.distributedLedger.DatabaseInstance;
 import io.distributedLedger.DatabaseType;
 import io.distributedLedger.IDatabase;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -127,6 +128,11 @@ public class RPCExampleTest {
         }catch (Exception e){
            // e.printStackTrace();
         }
+
+    }
+
+    @AfterAll
+    public static void after(){
         serverOne.close();
         serverTwo.close();
         serverThree.close();

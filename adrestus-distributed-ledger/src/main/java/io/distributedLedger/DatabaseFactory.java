@@ -49,4 +49,19 @@ public class DatabaseFactory {
                 throw new IllegalArgumentException("Database not supported.");
         }
     }
+
+    public IDatabase getDatabase(DatabaseType type, PatriciaTreeInstance instance) {
+
+        switch (type) {
+            case LEVEL_DB:
+                if (value_type == null)
+                    return (IDatabase) new LevelDBConnectionManager(key, value);
+                else
+                    return (IDatabase) new LevelDBConnectionManager(key, value_type);
+            case ROCKS_DB:
+                return (IDatabase) new RocksDBConnectionManager(key, value, instance);
+            default:
+                throw new IllegalArgumentException("Database not supported.");
+        }
+    }
 }

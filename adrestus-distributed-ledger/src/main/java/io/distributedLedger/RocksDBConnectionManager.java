@@ -34,7 +34,8 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
     private static final boolean enableDbCompression = false;
 
 
-    private final DatabaseInstance instance;
+    private final DatabaseInstance databaseInstance;
+    private final PatriciaTreeInstance patriciaTreeInstance;
     private final SerializationUtil valueMapper;
     private final SerializationUtil keyMapper;
     private final Class<K> keyClass;
@@ -50,7 +51,8 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
     private RocksDB rocksDB;
 
     public RocksDBConnectionManager(Class<K> keyClass, Class<V> valueClass) {
-        this.instance = DatabaseInstance.COMMITTEE_BLOCK;
+        this.databaseInstance = DatabaseInstance.COMMITTEE_BLOCK;
+        this.patriciaTreeInstance = null;
         this.rwl = new ReentrantReadWriteLock();
         this.r = rwl.readLock();
         this.w = rwl.writeLock();
@@ -72,12 +74,37 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
         load_connection();
     }
 
-    public RocksDBConnectionManager(Class<K> keyClass, Class<V> valueClass, DatabaseInstance instances) {
-        this.instance = instances;
+    public RocksDBConnectionManager(Class<K> keyClass, Class<V> valueClass, DatabaseInstance databaseInstance) {
+        this.databaseInstance = databaseInstance;
+        this.patriciaTreeInstance = null;
         this.rwl = new ReentrantReadWriteLock();
         this.r = rwl.readLock();
         this.w = rwl.writeLock();
-        this.CONNECTION_NAME = instances.getTitle();
+        this.CONNECTION_NAME = databaseInstance.getTitle();
+        this.dbFile = new File(Directory.getConfigPath() + "\\" + CONNECTION_NAME);
+        this.valueClass = valueClass;
+        this.keyClass = keyClass;
+        List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
+        list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
+        list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
+        list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
+        list.add(new SerializationUtil.Mapping(Bytes.class, ctx -> new BytesSerializer()));
+        list.add(new SerializationUtil.Mapping(Bytes32.class, ctx -> new Bytes32Serializer()));
+        list.add(new SerializationUtil.Mapping(MutableBytes.class, ctx -> new MutableBytesSerializer()));
+        this.keyMapper = new SerializationUtil<>(this.keyClass);
+        this.valueMapper = new SerializationUtil<>(this.valueClass, list);
+        setupOptions();
+        load_connection();
+    }
+
+    public RocksDBConnectionManager(Class<K> keyClass, Class<V> valueClass, PatriciaTreeInstance patriciaTreeInstance) {
+        this.databaseInstance = null;
+        this.patriciaTreeInstance = patriciaTreeInstance;
+        this.rwl = new ReentrantReadWriteLock();
+        this.r = rwl.readLock();
+        this.w = rwl.writeLock();
+        this.CONNECTION_NAME = patriciaTreeInstance.getTitle();
         this.dbFile = new File(Directory.getConfigPath() + "\\" + CONNECTION_NAME);
         this.valueClass = valueClass;
         this.keyClass = keyClass;
@@ -150,7 +177,10 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
             Files.createDirectories(dbFile.getParentFile().toPath());
             //Files.createDirectories(dbFile.getAbsoluteFile().toPath());
             // rocksDB = RocksDB.open(options,dbFile.getAbsolutePath());
-            rocksDB = ZoneDatabaseFactory.getDatabaseInstance(this.instance, options, dbFile.getAbsolutePath());
+            if (this.databaseInstance != null)
+                rocksDB = ZoneDatabaseFactory.getDatabaseInstance(this.databaseInstance, options, dbFile.getAbsolutePath());
+            else
+                rocksDB = ZoneDatabaseFactory.getDatabaseInstance(this.patriciaTreeInstance, options, dbFile.getAbsolutePath());
         } catch (IOException e) {
             LOGGER.error("Path to create file is incorrect. {}", e.getMessage());
         } catch (Exception e) {
@@ -338,7 +368,10 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
 
             RocksDB.destroyDB(Directory.getConfigPath(), options);
             options.close();
-            ZoneDatabaseFactory.closeDatabaseInstance(instance, options, dbFile.getAbsolutePath());
+            if (this.databaseInstance != null)
+               ZoneDatabaseFactory.closeDatabaseInstance(databaseInstance, options, dbFile.getAbsolutePath());
+            else
+                ZoneDatabaseFactory.closeDatabaseInstance(patriciaTreeInstance, options, dbFile.getAbsolutePath());
             rocksDB = null;
             FileUtils.deleteDirectory(dbFile);
             return del;

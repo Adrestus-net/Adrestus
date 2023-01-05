@@ -4,24 +4,24 @@ import lombok.SneakyThrows;
 import org.rocksdb.Options;
 import org.rocksdb.RocksDB;
 
-public class DatabaseZone1 implements IDriver {
-    private static volatile DatabaseZone1 instance;
+public class DatabasePatriciaTreeZone3 implements IDriver {
+    private static volatile DatabasePatriciaTreeZone3 instance;
     private static RocksDB rocksDB;
 
-    private DatabaseZone1() {
+    private DatabasePatriciaTreeZone3() {
         if (instance != null) {
             throw new IllegalStateException("Already initialized.");
         }
     }
 
-    public static DatabaseZone1 getInstance(Options options, String path) {
+    public static DatabasePatriciaTreeZone3 getInstance(Options options, String path) {
 
         var result = instance;
         if (result == null) {
-            synchronized (DatabaseZone1.class) {
+            synchronized (DatabasePatriciaTreeZone2.class) {
                 result = instance;
                 if (result == null) {
-                    instance = result = new DatabaseZone1();
+                    instance = result = new DatabasePatriciaTreeZone3();
                     load_connection(options, path);
                 }
             }
@@ -51,6 +51,6 @@ public class DatabaseZone1 implements IDriver {
     }
 
     public void setRocksDB(RocksDB rocksDB) {
-        DatabaseZone1.rocksDB = rocksDB;
+        DatabasePatriciaTreeZone3.rocksDB = rocksDB;
     }
 }
