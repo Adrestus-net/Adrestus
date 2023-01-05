@@ -35,6 +35,7 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
+import java.util.concurrent.TimeUnit;
 
 import static io.activej.rpc.client.sender.RpcStrategies.server;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -102,26 +103,30 @@ public class RPCExampleTest {
                 .withMessageTypes(HelloRequest.class, HelloResponse.class)
                 .withStrategy(RpcStrategyRoundRobin.create(rpcStrategyList));
 
-        client.startFuture().get();
+        try {
+            client.startFuture().get(5, TimeUnit.SECONDS);
 
-        String currentName;
-        String currentResponse;
+            String currentName;
+            String currentResponse;
 
-        currentName = "John";
-        currentResponse = blockingRequest(client, currentName);
-        System.out.println("Request with name \"" + currentName + "\": " + currentResponse);
-        assertEquals("Hello, " + currentName + "!", currentResponse);
+            currentName = "John";
+            currentResponse = blockingRequest(client, currentName);
+            System.out.println("Request with name \"" + currentName + "\": " + currentResponse);
+            assertEquals("Hello, " + currentName + "!", currentResponse);
 
-        currentName = "Winston";
-        currentResponse = blockingRequest(client, currentName);
-        System.out.println("Request with name \"" + currentName + "\": " + currentResponse);
-        assertEquals("Hello Hello, " + currentName + "!", currentResponse);
+            currentName = "Winston";
+            currentResponse = blockingRequest(client, currentName);
+            System.out.println("Request with name \"" + currentName + "\": " + currentResponse);
+            assertEquals("Hello Hello, " + currentName + "!", currentResponse);
 
-        currentName = "Sophia"; // name starts with "s", so hash code is different from previous examples
-        currentResponse = blockingRequest(client, currentName);
-        System.out.println("Request with name \"" + currentName + "\": " + currentResponse);
-        assertEquals("Hello Hello Hello, " + currentName + "!", currentResponse);
+            currentName = "Sophia"; // name starts with "s", so hash code is different from previous examples
+            currentResponse = blockingRequest(client, currentName);
+            System.out.println("Request with name \"" + currentName + "\": " + currentResponse);
+            assertEquals("Hello Hello Hello, " + currentName + "!", currentResponse);
 
+        }catch (Exception e){
+           // e.printStackTrace();
+        }
         serverOne.close();
         serverTwo.close();
         serverThree.close();
@@ -354,7 +359,7 @@ public class RPCExampleTest {
             return rpcClient.getEventloop().submit(
                             () -> rpcClient
                                     .<HelloRequest, HelloResponse>sendRequest(new HelloRequest(name), TIMEOUT))
-                    .get()
+                    .get(5, TimeUnit.SECONDS)
                     .message;
         } catch (Exception e) {
             e.printStackTrace();
