@@ -21,8 +21,6 @@ import io.Adrestus.util.bytes.Bytes32;
 import io.Adrestus.util.bytes.MutableBytes;
 import io.vavr.control.Option;
 
-import java.lang.ref.SoftReference;
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -41,8 +39,8 @@ class BranchNode<V> implements Node<V> {
     private final Option<V> value;
     private final NodeFactory<V> nodeFactory;
     private final Function<V, Bytes> valueSerializer;
-    private WeakReference<Bytes> rlp;
-    private SoftReference<Bytes32> hash;
+    private Bytes rlp;
+    private Bytes32 hash;
     private boolean dirty = false;
     private boolean needHeal = false;
 
@@ -115,7 +113,7 @@ class BranchNode<V> implements Node<V> {
     @Override
     public Bytes getRlp() {
         if (rlp != null) {
-            final Bytes encoded = rlp.get();
+            final Bytes encoded = rlp;
             if (encoded != null) {
                 return encoded;
             }
@@ -132,7 +130,7 @@ class BranchNode<V> implements Node<V> {
         }
         out.endList();
         final Bytes encoded = out.encoded();
-        rlp = new WeakReference<>(encoded);
+        rlp = encoded;
         return encoded;
     }
 
@@ -148,13 +146,13 @@ class BranchNode<V> implements Node<V> {
     @Override
     public Bytes32 getHash() {
         if (hash != null) {
-            final Bytes32 hashed = hash.get();
+            final Bytes32 hashed = hash;
             if (hashed != null) {
                 return hashed;
             }
         }
         final Bytes32 hashed = Util.keccak256(getRlp());
-        hash = new SoftReference<>(hashed);
+        hash = hashed;
         return hashed;
     }
 
