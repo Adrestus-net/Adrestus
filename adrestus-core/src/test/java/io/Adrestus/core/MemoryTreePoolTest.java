@@ -119,7 +119,7 @@ public class MemoryTreePoolTest {
         if (!pat.isDefined())
             System.out.println("error");
 
-        assertEquals(m,copy);
+        assertEquals(m, copy);
 
     }
 
@@ -133,11 +133,11 @@ public class MemoryTreePoolTest {
 
         TreeFactory.getMemoryTree(1).store(address, new PatriciaTreeNode(1, 3));
         System.out.println(TreeFactory.getMemoryTree(1).getRootHash());
-        Option<PatriciaTreeNode> pats=TreeFactory.getMemoryTree(1).getByaddress(address);
+        Option<PatriciaTreeNode> pats = TreeFactory.getMemoryTree(1).getByaddress(address);
         MemoryTreePool m = (MemoryTreePool) TreeFactory.getMemoryTree(1);
 
         byte[] bt = SerializationUtils.serialize(m);
-        MemoryTreePool copy = (MemoryTreePool)SerializationUtils.deserialize(bt);
+        MemoryTreePool copy = (MemoryTreePool) SerializationUtils.deserialize(bt);
 
         Option<PatriciaTreeNode> pat = copy.getByaddress(address);
 
@@ -145,6 +145,6 @@ public class MemoryTreePoolTest {
             System.out.println("error");
         int g = 3;
 
-      assertEquals(m,copy);
+        assertEquals(m, copy);
     }
 }

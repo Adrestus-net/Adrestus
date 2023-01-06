@@ -16,7 +16,7 @@ public class PatriciaTreeEventHandler implements BlockEventHandler<AbstractBlock
     @Override
     public void onEvent(AbstractBlockEvent blockEvent, long l, boolean b) throws Exception {
         TransactionBlock transactionBlock = (TransactionBlock) blockEvent.getBlock();
-        MemoryTreePool replica= (MemoryTreePool) ((MemoryTreePool) TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex())).clone();
+        MemoryTreePool replica = (MemoryTreePool) ((MemoryTreePool) TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex())).clone();
 
         if (!transactionBlock.getTransactionList().isEmpty()) {
             for (int i = 0; i < transactionBlock.getTransactionList().size(); i++) {

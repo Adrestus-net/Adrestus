@@ -9,7 +9,6 @@ import io.vavr.control.Option;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.SerializationUtils;
 
-import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -30,11 +29,11 @@ public class MemoryTreePool implements IMemoryTreePool, Cloneable {
     }
 
     public MemoryTreePool(MemoryTreePool memoryTreePool) throws CloneNotSupportedException {
-            this.patriciaTreeImp = (MerklePatriciaTrie<Bytes, PatriciaTreeNode>) memoryTreePool.patriciaTreeImp.clone();
-            this.valueSerializer = memoryTreePool.valueSerializer;
-            this.rwl = memoryTreePool.rwl;
-            this.r = memoryTreePool.r;
-            this.w = memoryTreePool.w;
+        this.patriciaTreeImp = (MerklePatriciaTrie<Bytes, PatriciaTreeNode>) memoryTreePool.patriciaTreeImp.clone();
+        this.valueSerializer = memoryTreePool.valueSerializer;
+        this.rwl = memoryTreePool.rwl;
+        this.r = memoryTreePool.r;
+        this.w = memoryTreePool.w;
     }
 
     @Override
@@ -72,14 +71,14 @@ public class MemoryTreePool implements IMemoryTreePool, Cloneable {
 
     @SneakyThrows
     @Override
-    public void depositReplica(String address, double amount, IMemoryTreePool instance){
+    public void depositReplica(String address, double amount, IMemoryTreePool instance) {
         Bytes key = Bytes.wrap(address.getBytes(StandardCharsets.UTF_8));
         Option<PatriciaTreeNode> prev = instance.getByaddress(address);
         if (prev.isEmpty()) {
             PatriciaTreeNode next = new PatriciaTreeNode(amount, 0, 0);
             instance.getTrie().put(key, next);
         } else {
-            PatriciaTreeNode patriciaTreeNode= (PatriciaTreeNode) prev.get().clone();
+            PatriciaTreeNode patriciaTreeNode = (PatriciaTreeNode) prev.get().clone();
             Double new_cash = prev.get().getAmount() + amount;
             // System.out.println("Deposit "+address+ " "+prev.get().getAmount()+" + "+patriciaTreeNode.getAmount()+" = "+amount);
             patriciaTreeNode.setAmount(new_cash);
@@ -114,14 +113,14 @@ public class MemoryTreePool implements IMemoryTreePool, Cloneable {
 
     @SneakyThrows
     @Override
-    public void withdrawReplica(String address, double amount, IMemoryTreePool instance){
+    public void withdrawReplica(String address, double amount, IMemoryTreePool instance) {
         Bytes key = Bytes.wrap(address.getBytes(StandardCharsets.UTF_8));
         Option<PatriciaTreeNode> prev = instance.getByaddress(address);
         if (prev.isEmpty()) {
             PatriciaTreeNode next = new PatriciaTreeNode(amount, 0, 0);
             instance.getTrie().put(key, next);
         } else {
-            PatriciaTreeNode patriciaTreeNode= (PatriciaTreeNode) prev.get().clone();
+            PatriciaTreeNode patriciaTreeNode = (PatriciaTreeNode) prev.get().clone();
             Double new_cash = prev.get().getAmount() - amount;
             //System.out.println("Widraw "+address+ " "+prev.get().getAmount()+" - "+patriciaTreeNode.getAmount()+" = "+amount);
             patriciaTreeNode.setAmount(new_cash);
@@ -129,6 +128,7 @@ public class MemoryTreePool implements IMemoryTreePool, Cloneable {
             instance.getTrie().put(key, patriciaTreeNode);
         }
     }
+
     @Override
     public Option<PatriciaTreeNode> getByaddress(String address) {
         r.lock();

@@ -49,7 +49,7 @@ public class BlockEventPublisher implements Publisher<AbstractBlock> {
         return this;
     }
 
-    public BlockEventPublisher withPatriciaTreeEventHandler(){
+    public BlockEventPublisher withPatriciaTreeEventHandler() {
         group.add(new PatriciaTreeEventHandler());
         return this;
     }

@@ -37,7 +37,7 @@ import static java.util.stream.Collectors.toUnmodifiableSet;
  *
  * @param <V> The type of values stored by this trie.
  */
-public class MerklePatriciaTrie<K extends Bytes, V> implements IMerklePatriciaTrie<K, V>,Cloneable {
+public class MerklePatriciaTrie<K extends Bytes, V> implements IMerklePatriciaTrie<K, V>, Cloneable {
     private final PathNodeVisitor<V> getVisitor = new GetVisitor<>();
     private final PathNodeVisitor<V> removeVisitor = new RemoveVisitor<>();
     private final DefaultNodeFactory<V> nodeFactory;
@@ -192,7 +192,7 @@ public class MerklePatriciaTrie<K extends Bytes, V> implements IMerklePatriciaTr
     }
 
     @Override
-    public Object clone()throws CloneNotSupportedException{
+    public Object clone() throws CloneNotSupportedException {
         return super.clone();
     }
 }

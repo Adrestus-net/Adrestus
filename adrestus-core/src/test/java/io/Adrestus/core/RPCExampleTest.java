@@ -125,14 +125,14 @@ public class RPCExampleTest {
             System.out.println("Request with name \"" + currentName + "\": " + currentResponse);
             assertEquals("Hello Hello Hello, " + currentName + "!", currentResponse);
 
-        }catch (Exception e){
-           // e.printStackTrace();
+        } catch (Exception e) {
+            // e.printStackTrace();
         }
 
     }
 
     @AfterAll
-    public static void after(){
+    public static void after() {
         serverOne.close();
         serverTwo.close();
         serverThree.close();

@@ -254,7 +254,7 @@ public class ConsensusTransactionTimer2Test {
                             CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).values().forEach(ip -> {
                                 eventloop.connect(new InetSocketAddress(ip, TransactionConfigOptions.TRANSACTION_PORT), (socketChannel, e) -> {
                                     if (e == null) {
-                                       // System.out.println("Connected to server, enter some text and send it by pressing 'Enter'.");
+                                        // System.out.println("Connected to server, enter some text and send it by pressing 'Enter'.");
                                         try {
                                             socket = AsyncTcpSocketNio.wrapChannel(getCurrentEventloop(), socketChannel, null);
                                         } catch (IOException ioException) {

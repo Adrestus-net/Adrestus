@@ -118,7 +118,7 @@ class LeafNode<V> implements Node<V>, Serializable {
         out.writeBytes(valueSerializer.apply(value));
         out.endList();
         final Bytes encoded = out.encoded();
-        rlp =encoded;
+        rlp = encoded;
         return encoded;
     }
 
@@ -142,7 +142,7 @@ class LeafNode<V> implements Node<V>, Serializable {
             }
         }
         final Bytes32 hashed = Util.keccak256(getRlp());
-        hash =hashed;
+        hash = hashed;
         return hashed;
     }
 

@@ -5,7 +5,6 @@ import io.Adrestus.MemoryTreePool;
 import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.MerkleNode;
 import io.Adrestus.Trie.MerkleTreeImp;
-import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.core.Resourses.*;
 import io.Adrestus.core.RingBuffer.publisher.BlockEventPublisher;
@@ -23,7 +22,6 @@ import io.Adrestus.util.GetTime;
 import io.Adrestus.util.MathOperationUtil;
 import io.Adrestus.util.SerializationUtil;
 import io.distributedLedger.*;
-import io.vavr.control.Option;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.SerializationUtils;
 import org.slf4j.Logger;
@@ -32,7 +30,10 @@ import org.spongycastle.util.encoders.Hex;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 
@@ -88,8 +89,8 @@ public class RegularBlock implements BlockForge, BlockInvent {
 
 
         //######################Patricia_Tree#############################################
-       // MemoryTreePool S= (MemoryTreePool) TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex());
-        MemoryTreePool replica= new MemoryTreePool (((MemoryTreePool) TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex())));
+        // MemoryTreePool S= (MemoryTreePool) TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex());
+        MemoryTreePool replica = new MemoryTreePool(((MemoryTreePool) TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex())));
         if (!transactionBlock.getTransactionList().isEmpty()) {
             for (int i = 0; i < transactionBlock.getTransactionList().size(); i++) {
                 Transaction transaction = transactionBlock.getTransactionList().get(i);
@@ -310,7 +311,6 @@ public class RegularBlock implements BlockForge, BlockInvent {
         IDatabase<String, TransactionBlock> block_database = new DatabaseFactory(String.class, TransactionBlock.class)
                 .getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
         IDatabase<String, byte[]> tree_datasbase = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getPatriciaTreeZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
-
 
 
         block_database.save(transactionBlock.getHash(), transactionBlock);

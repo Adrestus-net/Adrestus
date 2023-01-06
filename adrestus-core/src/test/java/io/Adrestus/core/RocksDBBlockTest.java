@@ -136,7 +136,7 @@ public class RocksDBBlockTest {
         byte[] buffer = valueMapper.encode_special(m, SerializationUtils.serialize(m).length);
 
         IDatabase<String, byte[]> database = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, PatriciaTreeInstance.PATRICIA_TREE_INSTANCE_0);
-        database.save("hash1",buffer);
+        database.save("hash1", buffer);
 
         Optional<byte[]> value = database.findByKey("hash1");
 

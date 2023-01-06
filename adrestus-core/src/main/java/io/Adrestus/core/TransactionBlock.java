@@ -42,6 +42,7 @@ public class TransactionBlock extends AbstractBlock implements BlockFactory, Dis
         this.Outbound = new OutBoundRelay();
         this.TransactionProposer = "";
         this.MerkleRoot = "";
+        this.PatriciaMerkleRoot = "";
     }
 
     @Override
@@ -141,12 +142,12 @@ public class TransactionBlock extends AbstractBlock implements BlockFactory, Dis
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
         TransactionBlock that = (TransactionBlock) o;
-        return Zone == that.Zone && Objects.equal(TransactionList, that.TransactionList) && Objects.equal(StakingTransactionList, that.StakingTransactionList) && Objects.equal(Inbound, that.Inbound) && Objects.equal(Outbound, that.Outbound) && Objects.equal(TransactionProposer, that.TransactionProposer) && Objects.equal(LeaderPublicKey, that.LeaderPublicKey) && Objects.equal(MerkleRoot, that.MerkleRoot)&& Objects.equal(PatriciaMerkleRoot, that.PatriciaMerkleRoot);
+        return Zone == that.Zone && Objects.equal(TransactionList, that.TransactionList) && Objects.equal(StakingTransactionList, that.StakingTransactionList) && Objects.equal(Inbound, that.Inbound) && Objects.equal(Outbound, that.Outbound) && Objects.equal(TransactionProposer, that.TransactionProposer) && Objects.equal(LeaderPublicKey, that.LeaderPublicKey) && Objects.equal(MerkleRoot, that.MerkleRoot) && Objects.equal(PatriciaMerkleRoot, that.PatriciaMerkleRoot);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(super.hashCode(), Zone, TransactionList, StakingTransactionList, Inbound, Outbound, TransactionProposer, LeaderPublicKey, MerkleRoot,PatriciaMerkleRoot);
+        return Objects.hashCode(super.hashCode(), Zone, TransactionList, StakingTransactionList, Inbound, Outbound, TransactionProposer, LeaderPublicKey, MerkleRoot, PatriciaMerkleRoot);
     }
 
     @Override

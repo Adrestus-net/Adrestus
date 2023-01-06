@@ -369,7 +369,7 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
             RocksDB.destroyDB(Directory.getConfigPath(), options);
             options.close();
             if (this.databaseInstance != null)
-               ZoneDatabaseFactory.closeDatabaseInstance(databaseInstance, options, dbFile.getAbsolutePath());
+                ZoneDatabaseFactory.closeDatabaseInstance(databaseInstance, options, dbFile.getAbsolutePath());
             else
                 ZoneDatabaseFactory.closeDatabaseInstance(patriciaTreeInstance, options, dbFile.getAbsolutePath());
             rocksDB = null;
