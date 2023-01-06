@@ -14,6 +14,10 @@ public interface IMemoryTreePool extends Serializable {
 
     void withdraw(String address, double amount, IMemoryTreePool instance);
 
+    void depositReplica(String address, double amount, IMemoryTreePool instance);
+
+    void withdrawReplica(String address, double amount, IMemoryTreePool instance);
+
     Option<PatriciaTreeNode> getByaddress(String address);
 
     String getRootHash() throws Exception;

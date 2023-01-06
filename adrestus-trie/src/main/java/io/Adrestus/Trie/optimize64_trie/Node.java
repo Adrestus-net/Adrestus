@@ -20,11 +20,12 @@ import io.activej.serializer.annotations.Serialize;
 import io.activej.serializer.annotations.SerializeClass;
 import io.vavr.control.Option;
 
+import java.io.Serializable;
 import java.util.List;
 
 
 @SerializeClass(subclasses = {StoredNode.class, RestoreVisitor.PersistedNode.class, PersistVisitor.class, NullNode.class, LeafNode.class, ExtensionNode.class, DefaultNodeFactory.class, BranchNode.class, AllNodesVisitor.class})
-public interface Node<V> {
+public interface Node<V> extends Serializable {
 
     Node<V> accept(PathNodeVisitor<V> visitor, Bytes path);
 

@@ -1,9 +1,11 @@
 package io.Adrestus.core;
 
 import com.google.common.primitives.Ints;
+import io.Adrestus.MemoryTreePool;
 import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.MerkleNode;
 import io.Adrestus.Trie.MerkleTreeImp;
+import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.core.Resourses.*;
 import io.Adrestus.core.RingBuffer.publisher.BlockEventPublisher;
@@ -21,17 +23,16 @@ import io.Adrestus.util.GetTime;
 import io.Adrestus.util.MathOperationUtil;
 import io.Adrestus.util.SerializationUtil;
 import io.distributedLedger.*;
+import io.vavr.control.Option;
 import lombok.SneakyThrows;
+import org.apache.commons.lang3.SerializationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -84,6 +85,37 @@ public class RegularBlock implements BlockForge, BlockInvent {
         });
         tree.my_generate2(merkleNodeArrayList);
         transactionBlock.setMerkleRoot(tree.getRootHash());
+
+
+        //######################Patricia_Tree#############################################
+       // MemoryTreePool S= (MemoryTreePool) TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex());
+        MemoryTreePool replica= new MemoryTreePool (((MemoryTreePool) TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex())));
+        if (!transactionBlock.getTransactionList().isEmpty()) {
+            for (int i = 0; i < transactionBlock.getTransactionList().size(); i++) {
+                Transaction transaction = transactionBlock.getTransactionList().get(i);
+                if ((transaction.getZoneFrom() == CachedZoneIndex.getInstance().getZoneIndex()) && (transaction.getZoneTo() == CachedZoneIndex.getInstance().getZoneIndex())) {
+                    replica.withdrawReplica(transaction.getFrom(), transaction.getAmount(), replica);
+                    replica.depositReplica(transaction.getTo(), transaction.getAmount(), replica);
+                } else {
+                    replica.withdrawReplica(transaction.getFrom(), transaction.getAmount(), replica);
+                }
+            }
+        }
+        if (!transactionBlock.getInbound().getMap_receipts().isEmpty())
+            transactionBlock
+                    .getInbound()
+                    .getMap_receipts()
+                    .get(transactionBlock.getInbound().getMap_receipts().keySet().toArray()[0])
+                    .entrySet()
+                    .stream()
+                    .forEach(entry -> {
+                        entry.getValue().stream().forEach(receipt -> {
+                            replica.depositReplica(receipt.getAddress(), receipt.getAmount(), replica);
+                        });
+
+                    });
+        transactionBlock.setPatriciaMerkleRoot(replica.getRootHash());
+        //######################Patricia_Tree#############################################
 
         //##########OutBound############
         Receipt.ReceiptBlock receiptBlock = new Receipt.ReceiptBlock(transactionBlock.getHash(), transactionBlock.getHeight(), transactionBlock.getGeneration(), transactionBlock.getMerkleRoot());
@@ -275,16 +307,14 @@ public class RegularBlock implements BlockForge, BlockInvent {
     @Override
     public void InventTransactionBlock(TransactionBlock transactionBlock) {
 
-        IDatabase<String, TransactionBlock> database = new DatabaseFactory(String.class, TransactionBlock.class)
+        IDatabase<String, TransactionBlock> block_database = new DatabaseFactory(String.class, TransactionBlock.class)
                 .getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
+        IDatabase<String, byte[]> tree_datasbase = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getPatriciaTreeZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
 
-        database.save(transactionBlock.getHash(), transactionBlock);
 
-       /* ArrayList<String>toSearch=new ArrayList<>();
-        toSearch.add(transactionBlock.getHash());
-        RpcAdrestusClient<AbstractBlock> client = new RpcAdrestusClient<AbstractBlock>(new TransactionBlock(), IPFinder.getLocal_address(), NetworkConfiguration.RPC_PORT, CachedEventLoop.getInstance().getEventloop());
-        client.connect();
-        List<AbstractBlock> current = client.getBlock(toSearch);*/
+
+        block_database.save(transactionBlock.getHash(), transactionBlock);
+        tree_datasbase.save(transactionBlock.getHash(), SerializationUtils.serialize(TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex())));
 
 
         MemoryTransactionPool.getInstance().delete(transactionBlock.getTransactionList());

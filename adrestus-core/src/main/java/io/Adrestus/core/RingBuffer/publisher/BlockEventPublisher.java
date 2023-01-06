@@ -49,6 +49,11 @@ public class BlockEventPublisher implements Publisher<AbstractBlock> {
         return this;
     }
 
+    public BlockEventPublisher withPatriciaTreeEventHandler(){
+        group.add(new PatriciaTreeEventHandler());
+        return this;
+    }
+
     public BlockEventPublisher withHashHandler() {
         group.add(new HashEventHandler());
         return this;

@@ -21,8 +21,6 @@ import io.Adrestus.util.bytes.Bytes32;
 import io.activej.serializer.annotations.Serialize;
 import io.vavr.control.Option;
 
-import java.lang.ref.SoftReference;
-import java.lang.ref.WeakReference;
 import java.util.Collections;
 import java.util.List;
 
@@ -33,8 +31,8 @@ class ExtensionNode<V> implements Node<V> {
     private final Bytes path;
     private final Node<V> child;
     private final NodeFactory<V> nodeFactory;
-    private WeakReference<Bytes> rlp;
-    private SoftReference<Bytes32> hash;
+    private Bytes rlp;
+    private Bytes32 hash;
     private boolean dirty = false;
     private boolean needHeal = false;
 
@@ -105,7 +103,7 @@ class ExtensionNode<V> implements Node<V> {
     @Override
     public Bytes getRlp() {
         if (rlp != null) {
-            final Bytes encoded = rlp.get();
+            final Bytes encoded = rlp;
             if (encoded != null) {
                 return encoded;
             }
@@ -116,7 +114,7 @@ class ExtensionNode<V> implements Node<V> {
         out.writeRaw(child.getRlpRef());
         out.endList();
         final Bytes encoded = out.encoded();
-        rlp = new WeakReference<>(encoded);
+        rlp = encoded;
         return encoded;
     }
 
@@ -132,14 +130,14 @@ class ExtensionNode<V> implements Node<V> {
     @Override
     public Bytes32 getHash() {
         if (hash != null) {
-            final Bytes32 hashed = hash.get();
+            final Bytes32 hashed = hash;
             if (hashed != null) {
                 return hashed;
             }
         }
         final Bytes rlp = getRlp();
         final Bytes32 hashed = Util.keccak256(rlp);
-        hash = new SoftReference<>(hashed);
+        hash = hashed;
         return hashed;
     }
 

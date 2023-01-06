@@ -6,7 +6,7 @@ import io.activej.serializer.annotations.Serialize;
 
 import java.io.Serializable;
 
-public class PatriciaTreeNode implements Serializable {
+public class PatriciaTreeNode implements Serializable,Cloneable {
 
     private double amount;
     private double staking_amount;
@@ -72,7 +72,10 @@ public class PatriciaTreeNode implements Serializable {
         return Objects.hashCode(amount, staking_amount, nonce);
     }
 
-
+    @Override
+    public Object clone()throws CloneNotSupportedException{
+        return super.clone();
+    }
     @Override
     public String toString() {
         return "PatriciaTreeNode{" +

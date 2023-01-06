@@ -254,7 +254,7 @@ public class ConsensusTransactionTimer2Test {
                             CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).values().forEach(ip -> {
                                 eventloop.connect(new InetSocketAddress(ip, TransactionConfigOptions.TRANSACTION_PORT), (socketChannel, e) -> {
                                     if (e == null) {
-                                        System.out.println("Connected to server, enter some text and send it by pressing 'Enter'.");
+                                       // System.out.println("Connected to server, enter some text and send it by pressing 'Enter'.");
                                         try {
                                             socket = AsyncTcpSocketNio.wrapChannel(getCurrentEventloop(), socketChannel, null);
                                         } catch (IOException ioException) {
@@ -339,8 +339,8 @@ public class ConsensusTransactionTimer2Test {
             System.out.println(addreses.get(i) + " " + TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(addreses.get(i)).get().getAmount());
         }
         if (CachedZoneIndex.getInstance().getZoneIndex() == 0) {
-            assertEquals(1020, TreeFactory.getMemoryTree(1).getByaddress(addreses.get(1)).get().getAmount());
-            assertEquals(1022, TreeFactory.getMemoryTree(1).getByaddress(addreses.get(2)).get().getAmount());
+            assertEquals(1020, TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(addreses.get(1)).get().getAmount());
+            assertEquals(1022, TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(addreses.get(2)).get().getAmount());
         }
 
     }

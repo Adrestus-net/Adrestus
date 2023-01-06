@@ -118,8 +118,33 @@ public class MemoryTreePoolTest {
 
         if (!pat.isDefined())
             System.out.println("error");
+
+        assertEquals(m,copy);
+
+    }
+
+    @Test
+    public void serialization_tree2() throws Exception {
+        String address = "ADR-ADL3-VDZK-ZU7H-2BX5-M2H4-S7LF-5SR4-ECQA-EIUJ-CBFK";
+        PatriciaTreeNode treeNode = new PatriciaTreeNode(2, 112);
+        TreeFactory.getMemoryTree(1).store(address, treeNode);
+        System.out.println(TreeFactory.getMemoryTree(1).getRootHash());
+
+
+        TreeFactory.getMemoryTree(1).store(address, new PatriciaTreeNode(1, 3));
+        System.out.println(TreeFactory.getMemoryTree(1).getRootHash());
+        Option<PatriciaTreeNode> pats=TreeFactory.getMemoryTree(1).getByaddress(address);
+        MemoryTreePool m = (MemoryTreePool) TreeFactory.getMemoryTree(1);
+
+        byte[] bt = SerializationUtils.serialize(m);
+        MemoryTreePool copy = (MemoryTreePool)SerializationUtils.deserialize(bt);
+
+        Option<PatriciaTreeNode> pat = copy.getByaddress(address);
+
+        if (!pat.isDefined())
+            System.out.println("error");
         int g = 3;
 
-
+      assertEquals(m,copy);
     }
 }

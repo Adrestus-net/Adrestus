@@ -6,6 +6,7 @@ import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.Trie.optimize64_trie.IMerklePatriciaTrie;
 import io.Adrestus.Trie.optimize64_trie.MerklePatriciaTrie;
 import io.Adrestus.util.bytes.Bytes;
+import org.apache.commons.lang3.SerializationUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -26,9 +27,20 @@ public class PatriciaTreeTest {
     void setUp() throws Exception {
         trie = new MerklePatriciaTreeImp();
         valueSerializer = value -> (value != null) ? Bytes.wrap(value.getBytes(StandardCharsets.UTF_8)) : null;
-        valueSerializer2 = value -> (value != null) ? Bytes.wrap("".getBytes(StandardCharsets.UTF_8)) : null;
+        valueSerializer2 = value -> (value != null) ? Bytes.wrap(SerializationUtils.serialize(value)) : null;
         optimized = new MerklePatriciaTrie<Bytes, String>(valueSerializer);
         optimized2 = new MerklePatriciaTrie<Bytes, PatriciaTreeNode>(valueSerializer2);
+    }
+
+    @Test
+    public void simple_test() {
+        IMerklePatriciaTrie<Bytes, PatriciaTreeNode> optimized2 = new MerklePatriciaTrie<Bytes, PatriciaTreeNode>(valueSerializer2);
+        final Bytes key1 = Bytes.of(1, 5, 8, 9);
+        optimized2.put(key1, new PatriciaTreeNode(1, 2));
+        String hash1 = optimized2.getRootHash().toHexString();
+        optimized2.put(key1, new PatriciaTreeNode(1, 2));
+        String hash2 = optimized2.getRootHash().toHexString();
+        assertEquals(hash1, hash2);
     }
 
     @Test
@@ -85,7 +97,10 @@ public class PatriciaTreeTest {
         assertEquals("0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421", hash);
         optimized2.put(key1, node);
         final String hash1 = optimized2.getRootHash().toHexString();
-        assertEquals("0x1ba4b3ad7d229d2b852cc7277a1f79395383ab60fd6b257ff6dbd723047ed382", hash1);
+        node.setNonce(12);
+        optimized2.put(key1, node);
+        final String hash2 = optimized2.getRootHash().toHexString();
+        assertEquals("0x405e0abd6f43a48cf72faa71152b9c8a3450b51f827a96b0519f96239f67352a", hash2);
         assertEquals(node, optimized2.get(key1).get());
     }
 
