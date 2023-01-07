@@ -317,7 +317,8 @@ public class RegularBlock implements BlockForge, BlockInvent {
         tree_datasbase.save(transactionBlock.getHash(), SerializationUtils.serialize(TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex())));
 
 
-        Optional<TransactionBlock> val=block_database.findByKey(transactionBlock.getHash());
+
+       /* Optional<TransactionBlock> val=block_database.findByKey(transactionBlock.getHash());
         TransactionBlock blockclone= (TransactionBlock) val.get().clone();
         blockclone.setSignatureData(new HashMap<BLSPublicKey, SignatureData>());
         val.get().getSignatureData().entrySet().forEach(vall->{
@@ -325,7 +326,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
             boolean res2=BLSSignature.verify(vall.getValue().getSignature()[1],encode.encode(blockclone),vall.getKey());
             if(!res1||!res2)
                 System.out.println("false");
-        });
+        });*/
 
         MemoryTransactionPool.getInstance().delete(transactionBlock.getTransactionList());
 

@@ -137,7 +137,6 @@ public class TransactionBlock extends AbstractBlock implements BlockFactory, Dis
         PatriciaMerkleRoot = patriciaMerkleRoot;
     }
 
-    @Serialize
     @Override
     public Map<BLSPublicKey, SignatureData> getSignatureData() {
         return super.getSignatureData();
