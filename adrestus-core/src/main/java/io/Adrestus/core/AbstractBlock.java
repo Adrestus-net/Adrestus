@@ -3,8 +3,14 @@ package io.Adrestus.core;
 import com.google.common.base.Objects;
 import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.core.RingBuffer.handler.blocks.DisruptorBlock;
+import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.activej.serializer.annotations.Serialize;
 import io.activej.serializer.annotations.SerializeClass;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @SerializeClass(subclasses = {CommitteeBlock.class, TransactionBlock.class})
 public abstract class AbstractBlock extends Object implements BlockFactory, DisruptorBlock, Cloneable {
@@ -16,6 +22,7 @@ public abstract class AbstractBlock extends Object implements BlockFactory, Disr
     private int Height;
     private int Generation;
     private int ViewID;
+    private Map<BLSPublicKey,SignatureData> signatureData;
 
 
     public AbstractBlock(Header headerData, String hash, int size, int height, int generation, int viewID) {
@@ -25,12 +32,14 @@ public abstract class AbstractBlock extends Object implements BlockFactory, Disr
         this.Height = height;
         this.Generation = generation;
         this.ViewID = viewID;
+        this.signatureData=new HashMap<BLSPublicKey,SignatureData>();
     }
 
     public AbstractBlock(String previousHash, int height, int generation) {
         this.header = new Header(previousHash);
         this.Height = height;
         this.Generation = generation;
+        this.signatureData=new HashMap<BLSPublicKey,SignatureData>();
     }
 
     public AbstractBlock(String Hash, String previousHash, int size, int height, String timestamp) {
@@ -38,6 +47,7 @@ public abstract class AbstractBlock extends Object implements BlockFactory, Disr
         this.header = new Header(previousHash, timestamp);
         this.Height = height;
         this.Size = size;
+        this.signatureData=new HashMap<BLSPublicKey,SignatureData>();
     }
 
     public AbstractBlock() {
@@ -48,6 +58,7 @@ public abstract class AbstractBlock extends Object implements BlockFactory, Disr
         this.Height = 0;
         this.Generation = 0;
         this.ViewID = 0;
+        this.signatureData=new HashMap<BLSPublicKey,SignatureData>();
     }
 
     @Serialize
@@ -118,17 +129,35 @@ public abstract class AbstractBlock extends Object implements BlockFactory, Disr
     }
 
 
+    @Serialize
+    public Header getHeader() {
+        return header;
+    }
+
+    public void setHeader(Header header) {
+        this.header = header;
+    }
+
+    @Serialize
+    public Map<BLSPublicKey, SignatureData> getSignatureData() {
+        return signatureData;
+    }
+
+    public void setSignatureData(Map<BLSPublicKey, SignatureData> signatureData) {
+        this.signatureData = signatureData;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        AbstractBlock that = (AbstractBlock) o;
-        return Size == that.Size && Height == that.Height && Generation == that.Generation && ViewID == that.ViewID && Objects.equal(header, that.header) && Statustype == that.Statustype && Objects.equal(Hash, that.Hash);
+        AbstractBlock block = (AbstractBlock) o;
+        return Size == block.Size && Height == block.Height && Generation == block.Generation && ViewID == block.ViewID && Objects.equal(header, block.header) && Statustype == block.Statustype && Objects.equal(Hash, block.Hash) && Objects.equal(signatureData, block.signatureData);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(header, Statustype, Hash, Size, Height, Generation, ViewID);
+        return Objects.hashCode(header, Statustype, Hash, Size, Height, Generation, ViewID, signatureData);
     }
 
     @Override
@@ -141,6 +170,7 @@ public abstract class AbstractBlock extends Object implements BlockFactory, Disr
                 ", Height=" + Height +
                 ", Generation=" + Generation +
                 ", ViewID=" + ViewID +
+                ", signatureData=" + signatureData +
                 '}';
     }
 

@@ -22,9 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Type;
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 
@@ -42,7 +40,7 @@ public class OrganizerConsensusPhases {
         private final SerializationUtil<ConsensusMessage> consensus_serialize;
         private final boolean DEBUG;
         private final IBlockIndex blockIndex;
-
+        private final Map<BLSPublicKey,SignatureData> signatureDataMap;
         private CountDownLatch latch;
         private int N;
         private int F;
@@ -62,6 +60,7 @@ public class OrganizerConsensusPhases {
             list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
             this.block_serialize = new SerializationUtil<AbstractBlock>(AbstractBlock.class, list);
             this.consensus_serialize = new SerializationUtil<ConsensusMessage>(fluentType, list);
+            this.signatureDataMap=new HashMap<BLSPublicKey,SignatureData>();
         }
 
         @Override
@@ -150,8 +149,18 @@ public class OrganizerConsensusPhases {
             if (!verify)
                 throw new IllegalArgumentException("Abort consensus phase BLS multi_signature is invalid during prepare phase");
 
+            //##############################################################
+            int pos=0;
+            for (BLSPublicKey blsPublicKey : publicKeys) {
+                SignatureData signatureData=new SignatureData(blsPublicKey);
+                signatureData.getSignature()[0]=signature.get(pos);
+                signatureDataMap.put(blsPublicKey,signatureData);
+                pos++;
+            }
+            //##############################################################
             if (DEBUG)
                 return;
+
 
             Signature sig = BLSSignature.sign(block_serialize.encode(data.getData()), CachedBLSKeyPair.getInstance().getPrivateKey());
             data.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
@@ -222,8 +231,17 @@ public class OrganizerConsensusPhases {
             if (!verify)
                 throw new IllegalArgumentException("CommitPhase: Abort consensus phase BLS multi_signature is invalid during commit phase");
 
-            //commit save to db
 
+            //##############################################################
+            int pos=0;
+            for (BLSPublicKey blsPublicKey : publicKeys) {
+                SignatureData signatureData=signatureDataMap.get(blsPublicKey);
+                signatureData.getSignature()[1]=signature.get(pos);
+                signatureDataMap.put(blsPublicKey,signatureData);
+                pos++;
+            }
+            //##############################################################
+            //commit save to db
             if (DEBUG)
                 return;
 
