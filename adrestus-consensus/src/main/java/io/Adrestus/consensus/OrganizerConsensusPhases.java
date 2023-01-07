@@ -261,6 +261,7 @@ public class OrganizerConsensusPhases {
                 data.getData().setLeaderPublicKey(this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), current + 1));
             }*/
             // CachedLatestBlocks.getInstance().setTransactionBlock(data.getData());
+            data.getData().setSignatureData(signatureDataMap);
             BlockInvent regural_block = (BlockInvent) factory.getBlock(BlockType.REGULAR);
             regural_block.InventTransactionBlock(data.getData());
             while (i > 0) {

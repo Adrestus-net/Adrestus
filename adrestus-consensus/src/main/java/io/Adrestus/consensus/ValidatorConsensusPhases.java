@@ -38,10 +38,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.Type;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 
@@ -561,6 +558,7 @@ public class ValidatorConsensusPhases {
         private final SerializationUtil<AbstractBlock> block_serialize;
         private final SerializationUtil<ConsensusMessage> consensus_serialize;
         private final DefaultFactory factory;
+        private final Map<BLSPublicKey,SignatureData> signatureDataMap;
 
         public VerifyTransactionBlock(boolean DEBUG) {
             this.DEBUG = DEBUG;
@@ -572,6 +570,7 @@ public class ValidatorConsensusPhases {
             list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
             this.block_serialize = new SerializationUtil<AbstractBlock>(AbstractBlock.class, list);
             this.consensus_serialize = new SerializationUtil<ConsensusMessage>(fluentType, list);
+            this.signatureDataMap=new HashMap<BLSPublicKey,SignatureData>();
         }
 
         @Override
@@ -725,6 +724,17 @@ public class ValidatorConsensusPhases {
                 return;
             }
 
+            //##############################################################
+            int pos=0;
+            for (BLSPublicKey blsPublicKey : publicKeys) {
+                SignatureData signatureData=new SignatureData(blsPublicKey);
+                signatureData.getSignature()[0]=signature.get(pos);
+                signatureDataMap.put(blsPublicKey,signatureData);
+                pos++;
+            }
+            //##############################################################
+
+
             // data.clear();
             data.setStatusType(ConsensusStatusType.SUCCESS);
 
@@ -793,8 +803,21 @@ public class ValidatorConsensusPhases {
                 LOG.info("CommitPhase: Abort consensus phase BLS multi_signature is invalid in prepare phase");
                 data.setStatusType(ConsensusStatusType.ABORT);
             }
+
+            //##############################################################
+            int pos=0;
+            for (BLSPublicKey blsPublicKey : publicKeys) {
+                SignatureData signatureData=signatureDataMap.get(blsPublicKey);
+                signatureData.getSignature()[1]=signature.get(pos);
+                signatureDataMap.put(blsPublicKey,signatureData);
+                pos++;
+            }
+            //##############################################################
+
             if (DEBUG)
                 return;
+
+
 
            /* if (current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).size() - 1)
                 data.getData().setLeaderPublicKey(this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), 0));
@@ -803,7 +826,7 @@ public class ValidatorConsensusPhases {
             }*/
             //CachedLatestBlocks.getInstance().setTransactionBlock(data.getData());
             //commit save to db
-
+            data.getData().setSignatureData(signatureDataMap);
             BlockInvent regural_block = (BlockInvent) factory.getBlock(BlockType.REGULAR);
             regural_block.InventTransactionBlock(data.getData());
             consensusClient.send_heartbeat(HEARTBEAT_MESSAGE);

@@ -13,6 +13,8 @@ import io.Adrestus.crypto.bls.BLS381.ECP;
 import io.Adrestus.crypto.bls.BLS381.ECP2;
 import io.Adrestus.crypto.bls.mapper.ECP2mapper;
 import io.Adrestus.crypto.bls.mapper.ECPmapper;
+import io.Adrestus.crypto.bls.model.BLSPublicKey;
+import io.Adrestus.crypto.bls.model.BLSSignature;
 import io.Adrestus.crypto.bls.model.CachedBLSKeyPair;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.crypto.elliptic.mapper.CustomSerializerTreeMap;
@@ -30,10 +32,7 @@ import org.spongycastle.util.encoders.Hex;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -305,6 +304,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
         committeeBlock.setHash(hash);
     }
 
+    @SneakyThrows
     @Override
     public void InventTransactionBlock(TransactionBlock transactionBlock) {
 
@@ -316,6 +316,16 @@ public class RegularBlock implements BlockForge, BlockInvent {
         block_database.save(transactionBlock.getHash(), transactionBlock);
         tree_datasbase.save(transactionBlock.getHash(), SerializationUtils.serialize(TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex())));
 
+
+        Optional<TransactionBlock> val=block_database.findByKey(transactionBlock.getHash());
+        TransactionBlock blockclone= (TransactionBlock) val.get().clone();
+        blockclone.setSignatureData(new HashMap<BLSPublicKey, SignatureData>());
+        val.get().getSignatureData().entrySet().forEach(vall->{
+            boolean res1=BLSSignature.verify(vall.getValue().getSignature()[0],encode.encode(blockclone),vall.getKey());
+            boolean res2=BLSSignature.verify(vall.getValue().getSignature()[1],encode.encode(blockclone),vall.getKey());
+            if(!res1||!res2)
+                System.out.println("false");
+        });
 
         MemoryTransactionPool.getInstance().delete(transactionBlock.getTransactionList());
 

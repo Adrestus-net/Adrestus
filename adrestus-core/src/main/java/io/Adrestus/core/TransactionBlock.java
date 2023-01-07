@@ -9,6 +9,7 @@ import io.activej.serializer.annotations.Serialize;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class TransactionBlock extends AbstractBlock implements BlockFactory, DisruptorBlock, Serializable {
     private int Zone;
@@ -134,6 +135,17 @@ public class TransactionBlock extends AbstractBlock implements BlockFactory, Dis
 
     public void setPatriciaMerkleRoot(String patriciaMerkleRoot) {
         PatriciaMerkleRoot = patriciaMerkleRoot;
+    }
+
+    @Serialize
+    @Override
+    public Map<BLSPublicKey, SignatureData> getSignatureData() {
+        return super.getSignatureData();
+    }
+
+    @Override
+    public void setSignatureData(Map<BLSPublicKey, SignatureData> signatureData) {
+        super.setSignatureData(signatureData);
     }
 
     @Override
