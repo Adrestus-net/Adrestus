@@ -87,6 +87,36 @@ public class RegularBlock implements BlockForge, BlockInvent {
         transactionBlock.setMerkleRoot(tree.getRootHash());
 
 
+        //##########OutBound############
+        Receipt.ReceiptBlock receiptBlock = new Receipt.ReceiptBlock(transactionBlock.getHash(), transactionBlock.getHeight(), transactionBlock.getGeneration(), transactionBlock.getMerkleRoot());
+        ArrayList<Receipt> receiptList = new ArrayList<>();
+        for (int i = 0; i < transactionBlock.getTransactionList().size(); i++) {
+            Transaction transaction = transactionBlock.getTransactionList().get(i);
+            MerkleNode node = new MerkleNode(transaction.getHash());
+            tree.build_proofs2(merkleNodeArrayList, node);
+            if (transaction.getZoneFrom() != transaction.getZoneTo())
+                receiptList.add(new Receipt(transaction.getZoneFrom(), transaction.getZoneTo(), receiptBlock, new RegularTransaction(transaction.getHash()), i, tree.getMerkleeproofs(), transaction.getTo(), transaction.getAmount()));
+        }
+
+        Map<Integer, Map<Receipt.ReceiptBlock, List<Receipt>>> outbound = receiptList
+                .stream()
+                .collect(Collectors.groupingBy(Receipt::getZoneTo, Collectors.groupingBy(Receipt::getReceiptBlock, Collectors.mapping(Receipt::merge, Collectors.toList()))));
+
+        OutBoundRelay outBoundRelay = new OutBoundRelay(outbound);
+        transactionBlock.setOutbound(outBoundRelay);
+        //##########OutBound############
+
+
+        //##########InBound############
+        if (!MemoryReceiptPool.getInstance().getAll().isEmpty()) {
+            Map<Integer, Map<Receipt.ReceiptBlock, List<Receipt>>> inbound_map = ((ArrayList<Receipt>) MemoryReceiptPool.getInstance().getAll())
+                    .stream()
+                    .collect(Collectors.groupingBy(Receipt::getZoneFrom, Collectors.groupingBy(Receipt::getReceiptBlock, Collectors.mapping(Receipt::merge, Collectors.toList()))));
+            InboundRelay inboundRelay = new InboundRelay(inbound_map);
+            transactionBlock.setInbound(inboundRelay);
+        }
+        //##########InBound############
+
         //######################Patricia_Tree#############################################
         // MemoryTreePool S= (MemoryTreePool) TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex());
         MemoryTreePool replica = new MemoryTreePool(((MemoryTreePool) TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex())));
@@ -116,38 +146,6 @@ public class RegularBlock implements BlockForge, BlockInvent {
                     });
         transactionBlock.setPatriciaMerkleRoot(replica.getRootHash());
         //######################Patricia_Tree#############################################
-
-        //##########OutBound############
-        Receipt.ReceiptBlock receiptBlock = new Receipt.ReceiptBlock(transactionBlock.getHash(), transactionBlock.getHeight(), transactionBlock.getGeneration(), transactionBlock.getMerkleRoot());
-        ArrayList<Receipt> receiptList = new ArrayList<>();
-        for (int i = 0; i < transactionBlock.getTransactionList().size(); i++) {
-            Transaction transaction = transactionBlock.getTransactionList().get(i);
-            MerkleNode node = new MerkleNode(transaction.getHash());
-            tree.build_proofs2(merkleNodeArrayList, node);
-            if (transaction.getZoneFrom() != transaction.getZoneTo())
-                receiptList.add(new Receipt(transaction.getZoneFrom(), transaction.getZoneTo(), receiptBlock, new RegularTransaction(transaction.getHash()), i, tree.getMerkleeproofs(), transaction.getTo(), transaction.getAmount()));
-        }
-
-        Map<Integer, Map<Receipt.ReceiptBlock, List<Receipt>>> outbound = receiptList
-                .stream()
-                .collect(Collectors.groupingBy(Receipt::getZoneTo, Collectors.groupingBy(Receipt::getReceiptBlock, Collectors.mapping(Receipt::merge, Collectors.toList()))));
-
-        OutBoundRelay outBoundRelay = new OutBoundRelay(outbound);
-        transactionBlock.setOutbound(outBoundRelay);
-        //##########OutBound############
-
-
-        //##########InBound############
-        if (!MemoryReceiptPool.getInstance().getAll().isEmpty()) {
-            Map<Integer, Map<Receipt.ReceiptBlock, List<Receipt>>> inbound_map = ((ArrayList<Receipt>) MemoryReceiptPool.getInstance().getAll())
-                    .stream()
-                    .collect(Collectors.groupingBy(Receipt::getZoneFrom, Collectors.groupingBy(Receipt::getReceiptBlock, Collectors.mapping(Receipt::merge, Collectors.toList()))));
-            InboundRelay inboundRelay = new InboundRelay(inbound_map);
-            transactionBlock.setInbound(inboundRelay);
-        }
-
-
-        //##########InBound############
 
         try {
             byte[] tohash = encode.encode(transactionBlock);
