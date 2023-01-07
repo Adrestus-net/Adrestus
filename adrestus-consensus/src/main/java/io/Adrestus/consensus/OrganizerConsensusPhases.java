@@ -149,6 +149,10 @@ public class OrganizerConsensusPhases {
             if (!verify)
                 throw new IllegalArgumentException("Abort consensus phase BLS multi_signature is invalid during prepare phase");
 
+
+            if (DEBUG)
+                return;
+
             //##############################################################
             int pos=0;
             for (BLSPublicKey blsPublicKey : publicKeys) {
@@ -158,9 +162,6 @@ public class OrganizerConsensusPhases {
                 pos++;
             }
             //##############################################################
-            if (DEBUG)
-                return;
-
 
             Signature sig = BLSSignature.sign(block_serialize.encode(data.getData()), CachedBLSKeyPair.getInstance().getPrivateKey());
             data.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
@@ -232,6 +233,10 @@ public class OrganizerConsensusPhases {
                 throw new IllegalArgumentException("CommitPhase: Abort consensus phase BLS multi_signature is invalid during commit phase");
 
 
+            //commit save to db
+            if (DEBUG)
+                return;
+
             //##############################################################
             int pos=0;
             for (BLSPublicKey blsPublicKey : publicKeys) {
@@ -241,9 +246,6 @@ public class OrganizerConsensusPhases {
                 pos++;
             }
             //##############################################################
-            //commit save to db
-            if (DEBUG)
-                return;
 
             Signature sig = BLSSignature.sign(block_serialize.encode(data.getData()), CachedBLSKeyPair.getInstance().getPrivateKey());
             data.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));

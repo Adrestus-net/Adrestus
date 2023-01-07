@@ -804,6 +804,11 @@ public class ValidatorConsensusPhases {
                 data.setStatusType(ConsensusStatusType.ABORT);
             }
 
+
+            if (DEBUG)
+                return;
+
+
             //##############################################################
             int pos=0;
             for (BLSPublicKey blsPublicKey : publicKeys) {
@@ -813,12 +818,6 @@ public class ValidatorConsensusPhases {
                 pos++;
             }
             //##############################################################
-
-            if (DEBUG)
-                return;
-
-
-
            /* if (current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).size() - 1)
                 data.getData().setLeaderPublicKey(this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), 0));
             else {
