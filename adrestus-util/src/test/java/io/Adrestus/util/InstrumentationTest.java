@@ -18,7 +18,7 @@ public class InstrumentationTest {
 
             Just4Test o1 = new Just4Test("example", "example2");
             for (int i = 0; i < loop; i++) {
-                o1.getList().add("Value" + String.valueOf(i));
+                o1.getList().add("Value" + i);
             }
             long full_size = ObjectSizeCalculator.getObjectSize(o1);
             int buffer_size = (int) full_size;
@@ -36,7 +36,7 @@ public class InstrumentationTest {
         //Test o2=new Test("example","example2");
         int size = 3;
         for (int i = 0; i < size; i++) {
-            o1.getList().add("Value" + String.valueOf(i));
+            o1.getList().add("Value" + i);
         }
 
         //ObjectSizer.getUnsafe();
