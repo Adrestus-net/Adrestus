@@ -78,10 +78,9 @@ public class ConsensusCommitteeTimer {
         @Override
         public void run() {
             ConsensusMessage<CommitteeBlock> consensusMessage = new ConsensusMessage<>(new CommitteeBlock());
-            int index = blockIndex.getPublicKeyIndex(0, CachedBLSKeyPair.getInstance().getPublicKey());
-
-            CachedLeaderIndex.getInstance().setCommitteePositionLeader(0);
-            if (index == 0) {
+            int target = blockIndex.getPublicKeyIndex(0, CachedBLSKeyPair.getInstance().getPublicKey());
+            int current=CachedLeaderIndex.getInstance().getCommitteePositionLeader();
+            if (target == current) {
                 LOG.info("ORGANIZER State");
                 consensusManager.changeStateTo(ConsensusRoleType.SUPERVISOR);
                 var organizerphase = consensusManager.getRole().manufacturePhases(ConsensusType.COMMITTEE_BLOCK);

@@ -3,6 +3,7 @@ package io.Adrestus.consensus;
 import com.google.common.reflect.TypeToken;
 import io.Adrestus.core.*;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
+import io.Adrestus.core.Resourses.CachedLeaderIndex;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.crypto.bls.BLS381.ECP;
 import io.Adrestus.crypto.bls.BLS381.ECP2;
@@ -70,11 +71,13 @@ public class OrganizerConsensusPhases {
                 this.N = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).size() - 1;
                 this.F = (this.N - 1) / 3;
                 this.latch = new CountDownLatch(N);
-                this.current = this.blockIndex.getPublicKeyIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedLatestBlocks.getInstance().getTransactionBlock().getLeaderPublicKey());
+                this.current = CachedLeaderIndex.getInstance().getTransactionPositionLeader();
                 if (current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).size() - 1) {
+                    CachedLeaderIndex.getInstance().setTransactionPositionLeader(0);
                     this.leader_bls = this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), 0);
                     this.consensusServer = new ConsensusServer(this.blockIndex.getIpValue(CachedZoneIndex.getInstance().getZoneIndex(), this.leader_bls), latch);
                 } else {
+                    CachedLeaderIndex.getInstance().setTransactionPositionLeader(current+1);
                     this.leader_bls = this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), current + 1);
                     this.consensusServer = new ConsensusServer(this.blockIndex.getIpValue(CachedZoneIndex.getInstance().getZoneIndex(), this.leader_bls), latch);
                 }
@@ -123,8 +126,8 @@ public class OrganizerConsensusPhases {
                         }
                     } catch (IllegalArgumentException e) {
                         LOG.info("PreparePhase: Problem at message deserialization");
-                        data.setStatusType(ConsensusStatusType.ABORT);
-                        cleanup();
+                        //data.setStatusType(ConsensusStatusType.ABORT);
+                       // cleanup();
                         return;
                     }
                 }
@@ -146,8 +149,12 @@ public class OrganizerConsensusPhases {
 
             Bytes message = Bytes.wrap(block_serialize.encode(data.getData()));
             boolean verify = BLSSignature.fastAggregateVerify(publicKeys, message, aggregatedSignature);
-            if (!verify)
-                throw new IllegalArgumentException("Abort consensus phase BLS multi_signature is invalid during prepare phase");
+            if (!verify) {
+                LOG.info("Abort consensus phase BLS multi_signature is invalid during prepare phase");
+                data.setStatusType(ConsensusStatusType.ABORT);
+                cleanup();
+                return;
+            }
 
 
             if (DEBUG)
@@ -206,9 +213,9 @@ public class OrganizerConsensusPhases {
                         }
                     } catch (IllegalArgumentException e) {
                         LOG.info("CommitPhase: Problem at message deserialization");
-                        data.setStatusType(ConsensusStatusType.ABORT);
-                        cleanup();
-                        return;
+                        //data.setStatusType(ConsensusStatusType.ABORT);
+                      //  cleanup();
+                      //  return;
                     }
                 }
 
@@ -229,8 +236,12 @@ public class OrganizerConsensusPhases {
             Signature aggregatedSignature = BLSSignature.aggregate(signature);
             Bytes message = Bytes.wrap(block_serialize.encode(data.getData()));
             boolean verify = BLSSignature.fastAggregateVerify(publicKeys, message, aggregatedSignature);
-            if (!verify)
-                throw new IllegalArgumentException("CommitPhase: Abort consensus phase BLS multi_signature is invalid during commit phase");
+            if (!verify) {
+                LOG.info("CommitPhase: Abort consensus phase BLS multi_signature is invalid during commit phase");
+                data.setStatusType(ConsensusStatusType.ABORT);
+                cleanup();
+                return;
+            }
 
 
             //commit save to db

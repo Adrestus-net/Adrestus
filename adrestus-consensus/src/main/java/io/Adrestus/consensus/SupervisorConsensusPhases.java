@@ -6,6 +6,7 @@ import io.Adrestus.core.*;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedLeaderIndex;
 import io.Adrestus.core.Resourses.CachedSecurityHeaders;
+import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.crypto.bls.BLS381.ECP;
 import io.Adrestus.crypto.bls.BLS381.ECP2;
 import io.Adrestus.crypto.bls.mapper.ECP2mapper;
@@ -737,6 +738,12 @@ public class SupervisorConsensusPhases {
                 } finally {
                     i--;
                 }
+            }
+
+            if (current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).size() - 1)
+               CachedLeaderIndex.getInstance().setCommitteePositionLeader(0);
+            else {
+                CachedLeaderIndex.getInstance().setCommitteePositionLeader( CachedLeaderIndex.getInstance().getCommitteePositionLeader()+1);
             }
             CachedLatestBlocks.getInstance().setCommitteeBlock(block.getData());
             database.save(block.getData().getHash(), block.getData());

@@ -7,6 +7,7 @@ import io.Adrestus.config.KademliaConfiguration;
 import io.Adrestus.consensus.helper.ConsensusCommitteeTimer;
 import io.Adrestus.core.CommitteeBlock;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
+import io.Adrestus.core.Resourses.CachedLeaderIndex;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.SecurityAuditProofs;
 import io.Adrestus.crypto.WalletAddress;
@@ -88,6 +89,7 @@ public class ConsensusCommitteeTimerTest {
         committeeBlock.getStakingMap().put(13.0, new KademliaData(new SecurityAuditProofs(address2, vk2, ecKeyPair2.getPublicKey(), signatureData2), new NettyConnectionInfo("192.168.1.116", KademliaConfiguration.PORT)));
 
         CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
+        CachedLeaderIndex.getInstance().setCommitteePositionLeader(0);
     }
 
     @Test
