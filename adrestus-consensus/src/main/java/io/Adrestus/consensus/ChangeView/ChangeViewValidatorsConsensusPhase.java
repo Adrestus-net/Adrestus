@@ -8,10 +8,16 @@ import io.Adrestus.core.AbstractBlock;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedLeaderIndex;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
+import io.Adrestus.crypto.bls.BLS381.ECP;
+import io.Adrestus.crypto.bls.BLS381.ECP2;
+import io.Adrestus.crypto.bls.mapper.ECP2mapper;
+import io.Adrestus.crypto.bls.mapper.ECPmapper;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.Adrestus.crypto.bls.model.BLSSignature;
 import io.Adrestus.crypto.bls.model.CachedBLSKeyPair;
 import io.Adrestus.crypto.bls.model.Signature;
+import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
+import io.Adrestus.crypto.elliptic.mapper.CustomSerializerTreeMap;
 import io.Adrestus.network.ConsensusClient;
 import io.Adrestus.util.SerializationUtil;
 import org.apache.tuweni.bytes.Bytes;
@@ -19,21 +25,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Type;
+import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import static io.Adrestus.config.ConsensusConfiguration.HEARTBEAT_MESSAGE;
 
 public class ChangeViewValidatorsConsensusPhase extends ChangeViewConsensusPhase {
     protected static Logger LOG = LoggerFactory.getLogger(ChangeViewValidatorsConsensusPhase.class);
-    protected final SerializationUtil<ConsensusMessage> consensus_serialize;
     protected ConsensusClient consensusClient;
     private static final Type fluentType = new TypeToken<ConsensusMessage<ChangeViewData>>() {
     }.getType();
 
     public ChangeViewValidatorsConsensusPhase(boolean DEBUG) {
         super(DEBUG);
-        this.consensus_serialize = new SerializationUtil<ConsensusMessage>(fluentType);
     }
 
 
@@ -46,19 +53,15 @@ public class ChangeViewValidatorsConsensusPhase extends ChangeViewConsensusPhase
         @Override
         public void InitialSetup() {
             if (!DEBUG) {
-                this.current = CachedLeaderIndex.getInstance().getTransactionPositionLeader();
-                if (current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).size() - 1) {
-                    this.leader_bls = this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), 0);
-                    CachedLeaderIndex.getInstance().setTransactionPositionLeader(0);
+                try {
+                    this.current = CachedLeaderIndex.getInstance().getTransactionPositionLeader();
+                    this.leader_bls = this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), this.current);
                     this.consensusClient = new ConsensusClient(this.blockIndex.getIpValue(CachedZoneIndex.getInstance().getZoneIndex(), this.leader_bls));
                     this.consensusClient.receive_handler();
-                } else {
-                    CachedLeaderIndex.getInstance().setTransactionPositionLeader(current + 1);
-                    this.leader_bls = this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), current + 1);
-                    this.consensusClient = new ConsensusClient(this.blockIndex.getIpValue(CachedZoneIndex.getInstance().getZoneIndex(), this.leader_bls));
-                    this.consensusClient.receive_handler();
+                    this.consensusClient.send_heartbeat(HEARTBEAT_MESSAGE);
+                } catch (Exception e) {
+                    LOG.info("Initial Setup Exception: " + e.toString());
                 }
-
             }
         }
 
@@ -111,7 +114,7 @@ public class ChangeViewValidatorsConsensusPhase extends ChangeViewConsensusPhase
                         data.setStatusType(ConsensusStatusType.ABORT);
                         return;
                     } catch (ArrayIndexOutOfBoundsException e) {
-                        LOG.info("AnnouncePhase: Receiving null response from organizer");
+                        LOG.info("PreparePhase: Receiving null response from organizer");
                         data.setStatusType(ConsensusStatusType.ABORT);
                         return;
                     }
@@ -155,19 +158,15 @@ public class ChangeViewValidatorsConsensusPhase extends ChangeViewConsensusPhase
         @Override
         public void InitialSetup() {
             if (!DEBUG) {
-                this.current = CachedLeaderIndex.getInstance().getCommitteePositionLeader();
-                if (current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).size() - 1) {
-                    this.leader_bls = this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), 0);
-                    CachedLeaderIndex.getInstance().setTransactionPositionLeader(0);
+                try {
+                    this.current = CachedLeaderIndex.getInstance().getCommitteePositionLeader();
+                    this.leader_bls = this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), this.current);
                     this.consensusClient = new ConsensusClient(this.blockIndex.getIpValue(CachedZoneIndex.getInstance().getZoneIndex(), this.leader_bls));
                     this.consensusClient.receive_handler();
-                } else {
-                    CachedLeaderIndex.getInstance().setTransactionPositionLeader(current + 1);
-                    this.leader_bls = this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), current + 1);
-                    this.consensusClient = new ConsensusClient(this.blockIndex.getIpValue(CachedZoneIndex.getInstance().getZoneIndex(), this.leader_bls));
-                    this.consensusClient.receive_handler();
+                    this.consensusClient.send_heartbeat(HEARTBEAT_MESSAGE);
+                } catch (Exception e) {
+                    LOG.info("Initial Setup Exception: " + e.toString());
                 }
-
             }
         }
 
@@ -220,7 +219,7 @@ public class ChangeViewValidatorsConsensusPhase extends ChangeViewConsensusPhase
                         data.setStatusType(ConsensusStatusType.ABORT);
                         return;
                     } catch (ArrayIndexOutOfBoundsException e) {
-                        LOG.info("AnnouncePhase: Receiving null response from organizer");
+                        LOG.info("PreparePhase: Receiving null response from organizer");
                         data.setStatusType(ConsensusStatusType.ABORT);
                         return;
                     }

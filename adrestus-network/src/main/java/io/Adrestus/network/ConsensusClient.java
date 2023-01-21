@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.zeromq.SocketType;
 import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
+import org.zeromq.ZMQException;
 
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.Semaphore;
@@ -98,7 +99,13 @@ public class ConsensusClient {
                 while (MESSAGES > 0 && MAX_MESSAGES > 0) {
                     //available.acquire();
                     //         System.out.println("acquire");
-                    data = subscriber.recv();
+                    try {
+                        data = subscriber.recv();
+                    } catch (ZMQException e) {
+                        if (e.getErrorCode() != 156384765) {
+                            LOG.info("ZMQ EXCEPTION caught");
+                        }
+                    }
                     if (data != null) {
                         message_deque.add(data);
                         MESSAGES--;

@@ -4,13 +4,23 @@ import com.google.common.reflect.TypeToken;
 import io.Adrestus.consensus.ConsensusMessage;
 import io.Adrestus.core.BlockIndex;
 import io.Adrestus.core.IBlockIndex;
+import io.Adrestus.crypto.bls.BLS381.ECP;
+import io.Adrestus.crypto.bls.BLS381.ECP2;
+import io.Adrestus.crypto.bls.mapper.ECP2mapper;
+import io.Adrestus.crypto.bls.mapper.ECPmapper;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
+import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
+import io.Adrestus.crypto.elliptic.mapper.CustomSerializerTreeMap;
 import io.Adrestus.network.ConsensusServer;
 import io.Adrestus.util.SerializationUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Type;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.TreeMap;
 import java.util.concurrent.CountDownLatch;
 
 public abstract class ChangeViewConsensusPhase {
@@ -34,7 +44,12 @@ public abstract class ChangeViewConsensusPhase {
         this.DEBUG = DEBUG;
         this.blockIndex = new BlockIndex();
         this.change_view_ser = new SerializationUtil<ChangeViewData>(ChangeViewData.class);
-        this.consensus_serialize = new SerializationUtil<ConsensusMessage>(fluentType);
+        List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
+        list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
+        list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
+        list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
+        this.consensus_serialize = new SerializationUtil<ConsensusMessage>(fluentType,list);
     }
 
     public void InitialSetup() throws Exception {

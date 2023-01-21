@@ -34,6 +34,7 @@ public class ChangeViewCommitteeState extends AbstractState {
         else {
             current= CachedLeaderIndex.getInstance().getCommitteePositionLeader()+1;
         }
+        CachedLeaderIndex.getInstance().setCommitteePositionLeader(current);
     }
 
     @SneakyThrows
@@ -41,7 +42,7 @@ public class ChangeViewCommitteeState extends AbstractState {
     public boolean onActiveState() {
         ConsensusMessage<ChangeViewData> consensusMessage = new ConsensusMessage<ChangeViewData>(new ChangeViewData());
 
-        if (target == current + 1 || (target == 0 && current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).size() - 1)) {
+        if (target == current) {
             LOG.info("Change View Transaction Block Organizer State");
             consensusManager.changeStateTo(ConsensusRoleType.ORGANIZER);
             var organizerphase = consensusManager.getRole().manufacterChangeViewPhases(ConsensusType.CHANGE_VIEW_COMMITTEE_BLOCK);

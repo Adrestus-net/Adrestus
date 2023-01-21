@@ -34,15 +34,16 @@ public class ConsensusState {
         this.transaction_block_timer = new Timer(ConsensusConfiguration.CONSENSUS);
         this.committee_block_timer = new Timer(ConsensusConfiguration.CONSENSUS);
         this.state = new ConsensusTransactionBlockState();
+        this.state.onEnterState(null);
     }
 
     public ConsensusState(CountDownLatch latch) {
         this.state = new ConsensusTransactionBlockState();
+        this.state.onEnterState(null);
         this.blockIndex = new BlockIndex();
         this.transaction_block_timer = new Timer(ConsensusConfiguration.CONSENSUS);
         this.committee_block_timer = new Timer(ConsensusConfiguration.CONSENSUS);
         this.latch = latch;
-        //this.timer.scheduleAtFixedRate(normalConsensusTask, ConsensusConfiguration.CONSENSUS_TIMER, ConsensusConfiguration.CONSENSUS_TIMER);
     }
 
     public ConsensusState(AbstractState state) {
@@ -119,6 +120,7 @@ public class ConsensusState {
         @Override
         public void run() {
             committee_block_timer.cancel();
+            committee_block_timer.purge();
             w.lock();
             try {
                 if (CachedEpochGeneration.getInstance().getEpoch_counter() < ConsensusConfiguration.EPOCH_TRANSITION) {
@@ -152,9 +154,10 @@ public class ConsensusState {
         @Override
         public void run() {
             transaction_block_timer.cancel();
+            transaction_block_timer.purge();
             w.lock();
             try {
-                if (CachedEpochGeneration.getInstance().getEpoch_counter() < ConsensusConfiguration.EPOCH_TRANSITION) {
+                if (CachedEpochGeneration.getInstance().getEpoch_counter() >= ConsensusConfiguration.EPOCH_TRANSITION) {
                     transaction_block_timer = new Timer(ConsensusConfiguration.CONSENSUS);
                     transaction_block_timer.scheduleAtFixedRate(new TransactionBlockConsensusTask(), ConsensusConfiguration.CONSENSUS_TIMER, ConsensusConfiguration.CONSENSUS_TIMER);
                 } else {

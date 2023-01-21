@@ -41,7 +41,7 @@ public class OrganizerConsensusPhases {
         private final SerializationUtil<ConsensusMessage> consensus_serialize;
         private final boolean DEBUG;
         private final IBlockIndex blockIndex;
-        private final Map<BLSPublicKey,SignatureData> signatureDataMap;
+        private final Map<BLSPublicKey, SignatureData> signatureDataMap;
         private CountDownLatch latch;
         private int N;
         private int F;
@@ -61,31 +61,43 @@ public class OrganizerConsensusPhases {
             list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
             this.block_serialize = new SerializationUtil<AbstractBlock>(AbstractBlock.class, list);
             this.consensus_serialize = new SerializationUtil<ConsensusMessage>(fluentType, list);
-            this.signatureDataMap=new HashMap<BLSPublicKey,SignatureData>();
+            this.signatureDataMap = new HashMap<BLSPublicKey, SignatureData>();
         }
 
         @Override
         public void InitialSetup() {
-            if (!DEBUG) {
-                //this.N = 1;
-                this.N = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).size() - 1;
-                this.F = (this.N - 1) / 3;
-                this.latch = new CountDownLatch(N);
-                this.current = CachedLeaderIndex.getInstance().getTransactionPositionLeader();
-                if (current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).size() - 1) {
-                    CachedLeaderIndex.getInstance().setTransactionPositionLeader(0);
-                    this.leader_bls = this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), 0);
-                    this.consensusServer = new ConsensusServer(this.blockIndex.getIpValue(CachedZoneIndex.getInstance().getZoneIndex(), this.leader_bls), latch);
-                } else {
-                    CachedLeaderIndex.getInstance().setTransactionPositionLeader(current+1);
-                    this.leader_bls = this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), current + 1);
-                    this.consensusServer = new ConsensusServer(this.blockIndex.getIpValue(CachedZoneIndex.getInstance().getZoneIndex(), this.leader_bls), latch);
+            try {
+                if (!DEBUG) {
+                    //this.N = 1;
+                    this.N = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).size() - 1;
+                    this.F = (this.N - 1) / 3;
+                    this.latch = new CountDownLatch(N);
+                    this.current = CachedLeaderIndex.getInstance().getTransactionPositionLeader();
+                    if (current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).size() - 1) {
+                        CachedLeaderIndex.getInstance().setTransactionPositionLeader(0);
+                        this.leader_bls = this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), 0);
+                        this.consensusServer = new ConsensusServer(this.blockIndex.getIpValue(CachedZoneIndex.getInstance().getZoneIndex(), this.leader_bls), latch);
+                    } else {
+                        CachedLeaderIndex.getInstance().setTransactionPositionLeader(current + 1);
+                        this.leader_bls = this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), current + 1);
+                        this.consensusServer = new ConsensusServer(this.blockIndex.getIpValue(CachedZoneIndex.getInstance().getZoneIndex(), this.leader_bls), latch);
+                    }
                 }
+            } catch (Exception e) {
+                cleanup();
+                LOG.info("InitialSetup: Exception caught " + e.toString());
+                throw new IllegalArgumentException("Exception caught " + e.toString());
             }
         }
 
         @Override
         public void AnnouncePhase(ConsensusMessage<TransactionBlock> data) throws Exception {
+            if (this.consensusServer.getPeers_not_connected() >F) {
+                LOG.info("AnnouncePhase: Byzantine network not meet requirements abort " + String.valueOf(this.consensusServer.getPeers_not_connected()));
+                data.setStatusType(ConsensusStatusType.ABORT);
+                cleanup();
+                return;
+            }
             var regural_block = factory.getBlock(BlockType.REGULAR);
             regural_block.forgeTransactionBlock(data.getData());
             data.setMessageType(ConsensusMessageType.ANNOUNCE);
@@ -127,7 +139,7 @@ public class OrganizerConsensusPhases {
                     } catch (IllegalArgumentException e) {
                         LOG.info("PreparePhase: Problem at message deserialization");
                         //data.setStatusType(ConsensusStatusType.ABORT);
-                       // cleanup();
+                        // cleanup();
                         return;
                     }
                 }
@@ -161,11 +173,11 @@ public class OrganizerConsensusPhases {
                 return;
 
             //##############################################################
-            int pos=0;
+            int pos = 0;
             for (BLSPublicKey blsPublicKey : publicKeys) {
-                SignatureData signatureData=new SignatureData(blsPublicKey);
-                signatureData.getSignature()[0]=signature.get(pos);
-                signatureDataMap.put(blsPublicKey,signatureData);
+                SignatureData signatureData = new SignatureData(blsPublicKey);
+                signatureData.getSignature()[0] = signature.get(pos);
+                signatureDataMap.put(blsPublicKey, signatureData);
                 pos++;
             }
             //##############################################################
@@ -214,8 +226,8 @@ public class OrganizerConsensusPhases {
                     } catch (IllegalArgumentException e) {
                         LOG.info("CommitPhase: Problem at message deserialization");
                         //data.setStatusType(ConsensusStatusType.ABORT);
-                      //  cleanup();
-                      //  return;
+                        //  cleanup();
+                        //  return;
                     }
                 }
 
@@ -249,11 +261,11 @@ public class OrganizerConsensusPhases {
                 return;
 
             //##############################################################
-            int pos=0;
+            int pos = 0;
             for (BLSPublicKey blsPublicKey : publicKeys) {
-                SignatureData signatureData=signatureDataMap.get(blsPublicKey);
-                signatureData.getSignature()[1]=signature.get(pos);
-                signatureDataMap.put(blsPublicKey,signatureData);
+                SignatureData signatureData = signatureDataMap.get(blsPublicKey);
+                signatureData.getSignature()[1] = signature.get(pos);
+                signatureDataMap.put(blsPublicKey, signatureData);
                 pos++;
             }
             //##############################################################
@@ -291,6 +303,7 @@ public class OrganizerConsensusPhases {
 
         private void cleanup() {
             consensusServer.close();
+            consensusServer = null;
         }
     }
 

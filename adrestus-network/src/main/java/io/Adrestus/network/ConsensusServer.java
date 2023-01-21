@@ -60,6 +60,34 @@ public class ConsensusServer {
         this.BlockUntilConnected();
     }
 
+    public ConsensusServer(String IP, CountDownLatch latch,int collector_timeout,int connected_timeout) {
+        this.peers_not_connected = 0;
+        this.terminate = false;
+        this.IP = IP;
+        this.latch = latch;
+        this.ctx = new ZContext();
+        this.publisher = ctx.createSocket(SocketType.PUB);
+        this.collector = ctx.createSocket(SocketType.PULL);
+        this.connected = ctx.createSocket(SocketType.REP);
+
+
+        this.publisher.setHWM(10000);
+
+
+        this.publisher.bind("tcp://" + IP + ":" + PUBLISHER_PORT);
+        this.collector.bind("tcp://" + IP + ":" + COLLECTOR_PORT);
+        this.connected.bind("tcp://" + IP + ":" + CONNECTED_PORT);
+
+        this.collector.setReceiveTimeOut(collector_timeout);
+        this.publisher.setSendTimeOut(CONSENSUS_TIMEOUT);
+        this.connected.setSendTimeOut(connected_timeout);
+        this.connected.setReceiveTimeOut(connected_timeout);
+
+        this.timer = new Timer(ConsensusConfiguration.CONSENSUS);
+        this.task = new ConnectedTaskTimeout();
+        this.BlockUntilConnected();
+    }
+
     public ConsensusServer(String IP) {
         this.IP = IP;
         this.ctx = new ZContext();
@@ -94,9 +122,12 @@ public class ConsensusServer {
         while (latch.getCount() > 0 && !terminate) {
             String rec = receiveStringData();
             System.out.println(rec);
-            connected.send(HEARTBEAT_MESSAGE.getBytes(StandardCharsets.UTF_8));
-            latch.countDown();
-            setPeers_not_connected((int) latch.getCount());
+            if(!rec.equals(""))
+               connected.send(HEARTBEAT_MESSAGE.getBytes(StandardCharsets.UTF_8));
+            if(!terminate) {
+                latch.countDown();
+                setPeers_not_connected((int) latch.getCount());
+            }
         }
         task.cancel();
         timer.purge();
@@ -196,10 +227,11 @@ public class ConsensusServer {
         public void run() {
             LOG.info("ConnectedTaskTimeout Terminated!!!");
             terminate = true;
-            setPeers_not_connected((int) latch.getCount());
+            int peers= (int) latch.getCount();
             while (latch.getCount() > 0) {
                 latch.countDown();
             }
+            setPeers_not_connected(peers);
             cancel();
         }
 

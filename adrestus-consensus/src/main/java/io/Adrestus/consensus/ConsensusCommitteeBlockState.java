@@ -54,7 +54,7 @@ public class ConsensusCommitteeBlockState extends AbstractState{
             validatorphase.CommitPhase(consensusMessage);
         }
 
-        if (consensusMessage.getData().getStatustype().equals(StatusType.ABORT))
+        if (consensusMessage.getStatusType().equals(ConsensusStatusType.ABORT))
             return false;
         return true;
     }

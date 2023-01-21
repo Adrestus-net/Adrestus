@@ -1,5 +1,7 @@
 package io.Adrestus.consensus.ChangeView;
 
+import io.Adrestus.config.AdrestusConfiguration;
+import io.Adrestus.config.ConsensusConfiguration;
 import io.Adrestus.consensus.ConsensusMessage;
 import io.Adrestus.consensus.ConsensusMessageType;
 import io.Adrestus.consensus.ConsensusStatusType;
@@ -21,7 +23,7 @@ import java.util.stream.Collectors;
 
 public class ChangeViewOrganizerConsensusPhase extends ChangeViewConsensusPhase {
 
-    protected static Logger LOG = LoggerFactory.getLogger(ChangeViewValidatorsConsensusPhase.class);
+    protected static Logger LOG = LoggerFactory.getLogger(ChangeViewOrganizerConsensusPhase.class);
 
     public ChangeViewOrganizerConsensusPhase(boolean DEBUG) {
         super(DEBUG);
@@ -34,15 +36,8 @@ public class ChangeViewOrganizerConsensusPhase extends ChangeViewConsensusPhase 
             this.F = (this.N - 1) / 3;
             this.latch = new CountDownLatch(N);
             this.current = CachedLeaderIndex.getInstance().getTransactionPositionLeader();
-            if (current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).size() - 1) {
-                CachedLeaderIndex.getInstance().setTransactionPositionLeader(0);
-                this.leader_bls = this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), 0);
-                this.consensusServer = new ConsensusServer(this.blockIndex.getIpValue(CachedZoneIndex.getInstance().getZoneIndex(), this.leader_bls), latch);
-            } else {
-                CachedLeaderIndex.getInstance().setTransactionPositionLeader(current + 1);
-                this.leader_bls = this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), current + 1);
-                this.consensusServer = new ConsensusServer(this.blockIndex.getIpValue(CachedZoneIndex.getInstance().getZoneIndex(), this.leader_bls), latch);
-            }
+            this.leader_bls = this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), this.current);
+            this.consensusServer = new ConsensusServer(this.blockIndex.getIpValue(CachedZoneIndex.getInstance().getZoneIndex(), this.leader_bls), latch, ConsensusConfiguration.CHANGE_VIEW_COLLECTOR_TIMEOUT,ConsensusConfiguration.CHANGE_VIEW_CONNECTED_TIMEOUT);
         }
     }
 
@@ -124,5 +119,6 @@ public class ChangeViewOrganizerConsensusPhase extends ChangeViewConsensusPhase 
     @Override
     public void PreparePhase(ConsensusMessage<ChangeViewData> data) throws InterruptedException {
         super.PreparePhase(data);
+        super.cleanup();
     }
 }

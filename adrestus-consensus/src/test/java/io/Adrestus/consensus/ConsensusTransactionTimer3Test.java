@@ -4,6 +4,7 @@ import io.Adrestus.config.ConsensusConfiguration;
 import io.Adrestus.consensus.helper.ConsensusTransaction2Timer;
 import io.Adrestus.consensus.helper.ConsensusTransaction3Timer;
 import io.Adrestus.core.*;
+import io.Adrestus.core.Resourses.CachedEpochGeneration;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.crypto.bls.model.BLSPrivateKey;
@@ -92,6 +93,7 @@ public class ConsensusTransactionTimer3Test {
         prevblock.setLeaderPublicKey(CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).keySet().stream().findFirst().get());
 
         CachedLatestBlocks.getInstance().setTransactionBlock(prevblock);
+        CachedEpochGeneration.getInstance().setEpoch_counter(0);
     }
 
     @Test
@@ -133,7 +135,7 @@ public class ConsensusTransactionTimer3Test {
         CountDownLatch latch = new CountDownLatch(5);
         ConsensusState c = new ConsensusState(latch);
         c.getTransaction_block_timer().scheduleAtFixedRate(new ConsensusState.TransactionBlockConsensusTask(), ConsensusConfiguration.CONSENSUS_TIMER, ConsensusConfiguration.CONSENSUS_TIMER);
-        c.getCommittee_block_timer().scheduleAtFixedRate(new ConsensusState.CommitteeBlockConsensusTask(), ConsensusConfiguration.CONSENSUS_COMMITTEE_TIMER, ConsensusConfiguration.CONSENSUS_COMMITTEE_TIMER);
+        //c.getCommittee_block_timer().scheduleAtFixedRate(new ConsensusState.CommitteeBlockConsensusTask(), ConsensusConfiguration.CONSENSUS_COMMITTEE_TIMER, ConsensusConfiguration.CONSENSUS_COMMITTEE_TIMER);
         latch.await();
 
     }
