@@ -74,13 +74,13 @@ public class OrganizerConsensusPhases {
                     this.latch = new CountDownLatch(N);
                     this.current = CachedLeaderIndex.getInstance().getTransactionPositionLeader();
                     if (current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).size() - 1) {
+                        this.leader_bls = this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), this.current);
+                        this.consensusServer = new ConsensusServer(this.blockIndex.getIpValue(CachedZoneIndex.getInstance().getZoneIndex(), this.leader_bls), latch);
                         CachedLeaderIndex.getInstance().setTransactionPositionLeader(0);
-                        this.leader_bls = this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), 0);
-                        this.consensusServer = new ConsensusServer(this.blockIndex.getIpValue(CachedZoneIndex.getInstance().getZoneIndex(), this.leader_bls), latch);
                     } else {
-                        CachedLeaderIndex.getInstance().setTransactionPositionLeader(current + 1);
-                        this.leader_bls = this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), current + 1);
+                        this.leader_bls = this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), this.current);
                         this.consensusServer = new ConsensusServer(this.blockIndex.getIpValue(CachedZoneIndex.getInstance().getZoneIndex(), this.leader_bls), latch);
+                        CachedLeaderIndex.getInstance().setTransactionPositionLeader(current + 1);
                     }
                 }
             } catch (Exception e) {
@@ -302,8 +302,10 @@ public class OrganizerConsensusPhases {
         }
 
         private void cleanup() {
-            consensusServer.close();
-            consensusServer = null;
+            if(consensusServer!=null) {
+                consensusServer.close();
+                consensusServer = null;
+            }
         }
     }
 
