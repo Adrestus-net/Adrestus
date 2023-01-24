@@ -37,14 +37,14 @@ public class ChangeViewOrganizerConsensusPhase extends ChangeViewConsensusPhase 
             this.current = CachedLeaderIndex.getInstance().getTransactionPositionLeader();
             this.leader_bls = this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), this.current);
             this.consensusServer = new ConsensusServer(this.blockIndex.getIpValue(CachedZoneIndex.getInstance().getZoneIndex(), this.leader_bls), latch, ConsensusConfiguration.CHANGE_VIEW_COLLECTOR_TIMEOUT, ConsensusConfiguration.CHANGE_VIEW_CONNECTED_TIMEOUT);
-            this.N = (this.N-1) - consensusServer.getPeers_not_connected();
+            this.N_COPY = (this.N-1) - consensusServer.getPeers_not_connected();
         }
     }
 
     @Override
     public void AnnouncePhase(ConsensusMessage<ChangeViewData> data) throws Exception {
         if (!DEBUG) {
-            int i = N;
+            int i = N_COPY;
             while (i > 0) {
                 byte[] receive = consensusServer.receiveData();
                 try {
@@ -65,7 +65,7 @@ public class ChangeViewOrganizerConsensusPhase extends ChangeViewConsensusPhase 
                             i--;
                         } else {
                             data.getSignatures().add(received.getChecksumData());
-                            N--;
+                            N_COPY--;
                             i--;
                         }
                     }
@@ -107,7 +107,7 @@ public class ChangeViewOrganizerConsensusPhase extends ChangeViewConsensusPhase 
             Signature sig = BLSSignature.sign(change_view_ser.encode(data.getData()), CachedBLSKeyPair.getInstance().getPrivateKey());
             data.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
 
-            this.N = (this.N-1) - consensusServer.getPeers_not_connected();
+            this.N_COPY = (this.N-1) - consensusServer.getPeers_not_connected();
 
 
             byte[] toSend = consensus_serialize.encode(data);

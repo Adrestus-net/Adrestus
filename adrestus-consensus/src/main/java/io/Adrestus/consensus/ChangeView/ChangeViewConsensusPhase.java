@@ -37,7 +37,7 @@ public abstract class ChangeViewConsensusPhase {
 
     protected ConsensusClient consensusClient;
     protected ConsensusServer consensusServer;
-    protected int N;
+    protected int N,N_COPY;
     protected int F;
     protected CountDownLatch latch;
     protected static final Type fluentType = new TypeToken<ConsensusMessage<ChangeViewData>>() {

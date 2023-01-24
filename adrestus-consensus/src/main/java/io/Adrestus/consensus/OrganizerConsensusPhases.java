@@ -43,7 +43,7 @@ public class OrganizerConsensusPhases {
         private final IBlockIndex blockIndex;
         private final Map<BLSPublicKey, SignatureData> signatureDataMap;
         private CountDownLatch latch;
-        private int N;
+        private int N,N_COPY;
         private int F;
 
         private ConsensusServer consensusServer;
@@ -82,7 +82,7 @@ public class OrganizerConsensusPhases {
                         this.consensusServer = new ConsensusServer(this.blockIndex.getIpValue(CachedZoneIndex.getInstance().getZoneIndex(), this.leader_bls), latch);
                         CachedLeaderIndex.getInstance().setTransactionPositionLeader(current + 1);
                     }
-                    this.N = (this.N-1) - consensusServer.getPeers_not_connected();
+                    this.N_COPY = (this.N-1) - consensusServer.getPeers_not_connected();
                 }
             } catch (Exception e) {
                 cleanup();
@@ -121,7 +121,7 @@ public class OrganizerConsensusPhases {
                 return;
 
             if (!DEBUG) {
-                int i = N;
+                int i = N_COPY;
                 while (i > 0) {
                     byte[] receive = consensusServer.receiveData();
                     try {
@@ -136,7 +136,7 @@ public class OrganizerConsensusPhases {
                                 i--;
                             } else {
                                 data.getSignatures().add(received.getChecksumData());
-                                N--;
+                                N_COPY--;
                                 i--;
                             }
                         }
@@ -149,7 +149,7 @@ public class OrganizerConsensusPhases {
                 }
 
 
-                if (N > F) {
+                if (N_COPY > F) {
                     LOG.info("PreparePhase: Byzantine network not meet requirements abort " + String.valueOf(N));
                     data.setStatusType(ConsensusStatusType.ABORT);
                     cleanup();
@@ -189,7 +189,7 @@ public class OrganizerConsensusPhases {
             Signature sig = BLSSignature.sign(block_serialize.encode(data.getData()), CachedBLSKeyPair.getInstance().getPrivateKey());
             data.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
 
-            this.N = (this.N-1) - consensusServer.getPeers_not_connected();
+            this.N_COPY = (this.N-1) - consensusServer.getPeers_not_connected();
 
 
             byte[] toSend = consensus_serialize.encode(data);
@@ -202,7 +202,7 @@ public class OrganizerConsensusPhases {
                 return;
 
             if (!DEBUG) {
-                int i = N;
+                int i = N_COPY;
                 data.getSignatures().clear();
                 while (i > 0) {
                     byte[] receive = consensusServer.receiveData();
@@ -225,7 +225,7 @@ public class OrganizerConsensusPhases {
                                 i--;
                             } else {
                                 data.getSignatures().add(received.getChecksumData());
-                                N--;
+                                N_COPY--;
                                 i--;
                             }
                         }
@@ -238,7 +238,7 @@ public class OrganizerConsensusPhases {
                 }
 
 
-                if (N > F) {
+                if (N_COPY > F) {
                     LOG.info("CommitPhase: Byzantine network not meet requirements abort " + String.valueOf(N));
                     data.setStatusType(ConsensusStatusType.ABORT);
                     cleanup();
@@ -279,7 +279,7 @@ public class OrganizerConsensusPhases {
             Signature sig = BLSSignature.sign(block_serialize.encode(data.getData()), CachedBLSKeyPair.getInstance().getPrivateKey());
             data.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
 
-            this.N = (this.N-1) - consensusServer.getPeers_not_connected();
+            this.N_COPY = (this.N-1) - consensusServer.getPeers_not_connected();
             int i = N;
 
             byte[] toSend = consensus_serialize.encode(data);
