@@ -61,7 +61,7 @@ public class ConsensusServer {
         this.BlockUntilConnected();
     }
 
-    public ConsensusServer(String IP, CountDownLatch latch,int collector_timeout,int connected_timeout) {
+    public ConsensusServer(String IP, CountDownLatch latch, int collector_timeout, int connected_timeout) {
         this.peers_not_connected = 0;
         this.terminate = false;
         this.IP = IP;
@@ -120,16 +120,16 @@ public class ConsensusServer {
         this.timer = new Timer(ConsensusConfiguration.CONSENSUS);
         this.task = new ConnectedTaskTimeout();
         this.timer.scheduleAtFixedRate(task, CONSENSUS_TIMEOUT, CONSENSUS_TIMEOUT);
-        int counter= (int) latch.getCount();
+        int counter = (int) latch.getCount();
         while (latch.getCount() > 0 && !terminate) {
             String rec = receiveStringData();
             System.out.println(rec);
-            if(!rec.equals("")) {
+            if (!rec.equals("")) {
                 connected.send(HEARTBEAT_MESSAGE.getBytes(StandardCharsets.UTF_8));
                 counter--;
                 setPeers_not_connected(counter);
             }
-            if(!terminate) {
+            if (!terminate) {
                 latch.countDown();
             }
         }
@@ -168,9 +168,9 @@ public class ConsensusServer {
             byte[] recv = connected.recv();
             return new String(recv, StandardCharsets.UTF_8);
         } catch (Exception e) {
-           // LOG.info("receiveStringData: Socket Closed");
+            // LOG.info("receiveStringData: Socket Closed");
             connected.close();
-            connected=null;
+            connected = null;
         }
         return data;
     }
@@ -208,10 +208,14 @@ public class ConsensusServer {
     }
 
     public void close() {
-        this.publisher.close();
-        this.collector.close();
-        this.connected.close();
-        this.ctx.close();
+        if (this.publisher != null)
+            this.publisher.close();
+        if (this.collector != null)
+            this.collector.close();
+        if (this.connected != null)
+            this.connected.close();
+        if (this.ctx != null)
+            this.ctx.close();
     }
 
     protected final class ConnectedTaskTimeout extends TimerTask {
@@ -221,7 +225,7 @@ public class ConsensusServer {
         public void run() {
             LOG.info("ConnectedTaskTimeout Terminated!!!");
             terminate = true;
-            int peers= (int) latch.getCount();
+            int peers = (int) latch.getCount();
             while (latch.getCount() > 0) {
                 latch.countDown();
             }
