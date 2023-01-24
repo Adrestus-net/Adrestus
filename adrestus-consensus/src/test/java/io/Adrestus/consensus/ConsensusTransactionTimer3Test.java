@@ -6,6 +6,7 @@ import io.Adrestus.consensus.helper.ConsensusTransaction3Timer;
 import io.Adrestus.core.*;
 import io.Adrestus.core.Resourses.CachedEpochGeneration;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
+import io.Adrestus.core.Resourses.CachedLeaderIndex;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.crypto.bls.model.BLSPrivateKey;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
@@ -94,6 +95,7 @@ public class ConsensusTransactionTimer3Test {
 
         CachedLatestBlocks.getInstance().setTransactionBlock(prevblock);
         CachedEpochGeneration.getInstance().setEpoch_counter(0);
+        CachedLeaderIndex.getInstance().setTransactionPositionLeader(0);
     }
 
     @Test

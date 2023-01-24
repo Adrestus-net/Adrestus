@@ -578,15 +578,15 @@ public class ValidatorConsensusPhases {
             if (!DEBUG) {
                 this.current = CachedLeaderIndex.getInstance().getTransactionPositionLeader();
                 if (current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).size() - 1) {
-                    this.leader_bls = this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), 0);
+                    this.leader_bls = this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(),  this.current);
+                    this.consensusClient = new ConsensusClient(this.blockIndex.getIpValue(CachedZoneIndex.getInstance().getZoneIndex(), this.leader_bls));
+                    this.consensusClient.receive_handler();
                     CachedLeaderIndex.getInstance().setTransactionPositionLeader(0);
-                    this.consensusClient = new ConsensusClient(this.blockIndex.getIpValue(CachedZoneIndex.getInstance().getZoneIndex(), this.leader_bls));
-                    this.consensusClient.receive_handler();
                 } else {
-                    CachedLeaderIndex.getInstance().setTransactionPositionLeader(current + 1);
-                    this.leader_bls = this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), current + 1);
+                    this.leader_bls = this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(),  this.current);
                     this.consensusClient = new ConsensusClient(this.blockIndex.getIpValue(CachedZoneIndex.getInstance().getZoneIndex(), this.leader_bls));
                     this.consensusClient.receive_handler();
+                    CachedLeaderIndex.getInstance().setTransactionPositionLeader(current + 1);
                 }
 
             }
