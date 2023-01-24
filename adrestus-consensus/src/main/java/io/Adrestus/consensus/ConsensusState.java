@@ -170,8 +170,9 @@ public class ConsensusState {
                             state.onEnterState(null);
                         }
                         else {
+                            LOG.info("State changed to  ConsensusTransactionBlockState");
                             changeStateTo(new ConsensusTransactionBlockState());
-                            state.onEnterState(blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedLeaderIndex.getInstance().getTransactionPositionLeader()));
+                            state.onEnterState(null);
                         }
                     } else {
                         transaction_block_timer = new Timer(ConsensusConfiguration.CONSENSUS);
