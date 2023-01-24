@@ -280,7 +280,7 @@ public class OrganizerConsensusPhases {
             data.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
 
             this.N_COPY = (this.N-1) - consensusServer.getPeers_not_connected();
-            int i = N;
+            int i = this.N_COPY;
 
             byte[] toSend = consensus_serialize.encode(data);
             consensusServer.publishMessage(toSend);
