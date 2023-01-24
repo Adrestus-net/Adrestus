@@ -1,6 +1,5 @@
 package io.Adrestus.consensus.ChangeView;
 
-import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.config.ConsensusConfiguration;
 import io.Adrestus.consensus.ConsensusMessage;
 import io.Adrestus.consensus.ConsensusMessageType;
@@ -37,7 +36,8 @@ public class ChangeViewOrganizerConsensusPhase extends ChangeViewConsensusPhase 
             this.latch = new CountDownLatch(N);
             this.current = CachedLeaderIndex.getInstance().getTransactionPositionLeader();
             this.leader_bls = this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), this.current);
-            this.consensusServer = new ConsensusServer(this.blockIndex.getIpValue(CachedZoneIndex.getInstance().getZoneIndex(), this.leader_bls), latch, ConsensusConfiguration.CHANGE_VIEW_COLLECTOR_TIMEOUT,ConsensusConfiguration.CHANGE_VIEW_CONNECTED_TIMEOUT);
+            this.consensusServer = new ConsensusServer(this.blockIndex.getIpValue(CachedZoneIndex.getInstance().getZoneIndex(), this.leader_bls), latch, ConsensusConfiguration.CHANGE_VIEW_COLLECTOR_TIMEOUT, ConsensusConfiguration.CHANGE_VIEW_CONNECTED_TIMEOUT);
+            this.N = this.N - consensusServer.getPeers_not_connected();
         }
     }
 
@@ -54,9 +54,9 @@ public class ChangeViewOrganizerConsensusPhase extends ChangeViewConsensusPhase 
                     } else {
                         ConsensusMessage<ChangeViewData> received = consensus_serialize.decode(receive);
                         data.setData(received.getData());
-                        if (!data.getMessageType().equals(ConsensusMessageType.ANNOUNCE)||
-                                !data.getData().getPrev_hash().equals(CachedLatestBlocks.getInstance().getTransactionBlock().getHash())||
-                                data.getData().getViewID()!=CachedLatestBlocks.getInstance().getTransactionBlock().getViewID()+1) {
+                        if (!data.getMessageType().equals(ConsensusMessageType.ANNOUNCE) ||
+                                !data.getData().getPrev_hash().equals(CachedLatestBlocks.getInstance().getTransactionBlock().getHash()) ||
+                                data.getData().getViewID() != CachedLatestBlocks.getInstance().getTransactionBlock().getViewID() + 1) {
                             LOG.info("AnnouncePhase: Problem at message validation");
                             i--;
                         }
@@ -107,7 +107,7 @@ public class ChangeViewOrganizerConsensusPhase extends ChangeViewConsensusPhase 
             Signature sig = BLSSignature.sign(change_view_ser.encode(data.getData()), CachedBLSKeyPair.getInstance().getPrivateKey());
             data.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
 
-            this.N = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).size() - 1;
+            this.N = this.N - consensusServer.getPeers_not_connected();
             this.F = (this.N - 1) / 3;
 
 

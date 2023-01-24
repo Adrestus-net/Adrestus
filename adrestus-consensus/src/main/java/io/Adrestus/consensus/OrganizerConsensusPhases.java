@@ -117,6 +117,9 @@ public class OrganizerConsensusPhases {
 
         @Override
         public void PreparePhase(ConsensusMessage<TransactionBlock> data) {
+            if (data.getStatusType().equals(ConsensusStatusType.ABORT))
+                return;
+
             if (!DEBUG) {
                 int i = N;
                 while (i > 0) {
@@ -196,6 +199,9 @@ public class OrganizerConsensusPhases {
 
         @Override
         public void CommitPhase(ConsensusMessage<TransactionBlock> data) {
+            if (data.getStatusType().equals(ConsensusStatusType.ABORT))
+                return;
+
             if (!DEBUG) {
                 int i = N;
                 data.getSignatures().clear();
