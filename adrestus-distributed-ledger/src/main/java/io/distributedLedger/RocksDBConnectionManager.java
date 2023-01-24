@@ -200,6 +200,9 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
             byte[] serializedkey = keyMapper.encode(key);
             byte[] serializedValue = valueMapper.encode(value);
             rocksDB.put(serializedkey, serializedValue);
+        } catch (NullPointerException exception) {
+            LOGGER.error("NullPointer exception occurred during save operation. {}", exception.getMessage());
+            throw exception;
         } catch (final SerializationException exception) {
             LOGGER.error("Serialization exception occurred during save operation. {}", exception.getMessage());
             throw exception;
@@ -225,6 +228,9 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
                 byte[] serializedValue = valueMapper.encode(values[i]);
                 rocksDB.put(serializedkey, serializedValue);
             }
+        } catch (NullPointerException exception) {
+            LOGGER.error("NullPointer exception occurred during save operation. {}", exception.getMessage());
+            throw exception;
         } catch (final SerializationException exception) {
             LOGGER.error("Serialization exception occurred during save operation. {}", exception.getMessage());
             throw exception;

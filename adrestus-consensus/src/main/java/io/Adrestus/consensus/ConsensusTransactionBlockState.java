@@ -56,6 +56,7 @@ public class ConsensusTransactionBlockState extends AbstractState {
                 validatorphase.CommitPhase(consensusMessage);
             }
         } catch (Exception e) {
+            e.printStackTrace();
             LOG.info("Exception caught " + e.getMessage());
             return false;
         }

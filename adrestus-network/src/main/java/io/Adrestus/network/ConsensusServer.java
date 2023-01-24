@@ -50,10 +50,11 @@ public class ConsensusServer {
         this.collector.bind("tcp://" + IP + ":" + COLLECTOR_PORT);
         this.connected.bind("tcp://" + IP + ":" + CONNECTED_PORT);
 
-        this.collector.setReceiveTimeOut(CONSENSUS_TIMEOUT);
-        this.publisher.setSendTimeOut(CONSENSUS_TIMEOUT);
-        this.connected.setSendTimeOut(CONSENSUS_TIMEOUT);
-        this.connected.setReceiveTimeOut(CONSENSUS_TIMEOUT);
+        this.collector.setReceiveTimeOut(CONSENSUS_COLLECTED_TIMEOUT);
+        this.publisher.setSendTimeOut(CONSENSUS_PUBLISHER_TIMEOUT);
+
+        this.connected.setSendTimeOut(CONSENSUS_CONNECTED_TIMEOUT);
+        this.connected.setReceiveTimeOut(CONSENSUS_CONNECTED_TIMEOUT);
 
         this.timer = new Timer(ConsensusConfiguration.CONSENSUS);
         this.task = new ConnectedTaskTimeout();

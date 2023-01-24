@@ -605,7 +605,7 @@ public class ValidatorConsensusPhases {
                     return;
                 }
                 byte[] receive = this.consensusClient.deque_message();
-                if (receive == null) {
+                if (receive == null || receive.length<=0) {
                     cleanup();
                     LOG.info("AnnouncePhase: Leader is not active fail to send message");
                     data.setStatusType(ConsensusStatusType.ABORT);

@@ -4,6 +4,7 @@ import com.google.common.base.Objects;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.Adrestus.crypto.bls.model.Signature;
 import io.activej.serializer.annotations.Serialize;
+import io.activej.serializer.annotations.SerializeNullable;
 
 import java.util.Arrays;
 
@@ -27,6 +28,7 @@ public class SignatureData {
     }
 
     @Serialize
+    @SerializeNullable
     public Signature[] getSignature() {
         return signature;
     }
@@ -36,6 +38,7 @@ public class SignatureData {
     }
 
     @Serialize
+    @SerializeNullable
     public BLSPublicKey getBlsPublicKey() {
         return blsPublicKey;
     }

@@ -38,8 +38,8 @@ public class ConsensusClient {
         this.push = ctx.createSocket(SocketType.PUSH);
 
         this.connected = ctx.createSocket(SocketType.REQ);
-        this.connected.setReceiveTimeOut(CONSENSUS_TIMEOUT);
-        this.connected.setSendTimeOut(CONSENSUS_TIMEOUT);
+        this.connected.setReceiveTimeOut(CONSENSUS_CONNECTED_TIMEOUT);
+        this.connected.setSendTimeOut(CONSENSUS_CONNECTED_TIMEOUT);
 
         this.subscriber.setReceiveBufferSize(10000);
         this.subscriber.setLinger(-1);
