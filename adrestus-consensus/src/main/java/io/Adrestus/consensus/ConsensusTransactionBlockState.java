@@ -3,6 +3,7 @@ package io.Adrestus.consensus;
 import io.Adrestus.core.BlockIndex;
 import io.Adrestus.core.IBlockIndex;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
+import io.Adrestus.core.Resourses.CachedLeaderIndex;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.core.TransactionBlock;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
@@ -27,7 +28,7 @@ public class ConsensusTransactionBlockState extends AbstractState {
     public void onEnterState(BLSPublicKey blsPublicKey) {
         target = blockIndex.getPublicKeyIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedBLSKeyPair.getInstance().getPublicKey());
         if (blsPublicKey == null)
-            current = blockIndex.getPublicKeyIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedLatestBlocks.getInstance().getTransactionBlock().getLeaderPublicKey());
+            current = CachedLeaderIndex.getInstance().getTransactionPositionLeader();
         else
             current = blockIndex.getPublicKeyIndex(CachedZoneIndex.getInstance().getZoneIndex(), blsPublicKey);
     }
@@ -37,7 +38,7 @@ public class ConsensusTransactionBlockState extends AbstractState {
         ConsensusMessage<TransactionBlock> consensusMessage = new ConsensusMessage<>(new TransactionBlock());
 
         try {
-            if (target == current + 1 || (target == 0 && current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).size() - 1)) {
+            if (target == current) {
                 LOG.info("Transaction Block Organizer State");
                 consensusManager.changeStateTo(ConsensusRoleType.ORGANIZER);
                 var organizerphase = consensusManager.getRole().manufacturePhases(ConsensusType.TRANSACTION_BLOCK);
