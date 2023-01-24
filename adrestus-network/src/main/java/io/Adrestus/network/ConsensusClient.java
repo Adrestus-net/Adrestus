@@ -36,8 +36,10 @@ public class ConsensusClient {
         this.available = new Semaphore(MAX_AVAILABLE, true);
         this.subscriber = ctx.createSocket(SocketType.SUB);
         this.push = ctx.createSocket(SocketType.PUSH);
-        this.connected = ctx.createSocket(SocketType.REQ);
 
+        this.connected = ctx.createSocket(SocketType.REQ);
+        this.connected.setReceiveTimeOut(CONSENSUS_TIMEOUT);
+        this.connected.setSendTimeOut(CONSENSUS_TIMEOUT);
 
         this.subscriber.setReceiveBufferSize(10000);
         this.subscriber.setLinger(-1);
