@@ -169,8 +169,10 @@ public class ConsensusServer {
             return new String(recv, StandardCharsets.UTF_8);
         } catch (Exception e) {
             LOG.info("receiveStringData: Socket Closed");
-            connected.close();
-            connected = null;
+            if (connected != null) {
+                connected.close();
+                connected = null;
+            }
         }
         return data;
     }
