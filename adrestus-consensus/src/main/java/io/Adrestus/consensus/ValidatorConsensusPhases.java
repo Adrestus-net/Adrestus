@@ -578,12 +578,12 @@ public class ValidatorConsensusPhases {
             if (!DEBUG) {
                 this.current = CachedLeaderIndex.getInstance().getTransactionPositionLeader();
                 if (current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).size() - 1) {
-                    this.leader_bls = this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(),  this.current);
+                    this.leader_bls = this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), this.current);
                     this.consensusClient = new ConsensusClient(this.blockIndex.getIpValue(CachedZoneIndex.getInstance().getZoneIndex(), this.leader_bls));
                     this.consensusClient.receive_handler();
                     CachedLeaderIndex.getInstance().setTransactionPositionLeader(0);
                 } else {
-                    this.leader_bls = this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(),  this.current);
+                    this.leader_bls = this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), this.current);
                     this.consensusClient = new ConsensusClient(this.blockIndex.getIpValue(CachedZoneIndex.getInstance().getZoneIndex(), this.leader_bls));
                     this.consensusClient.receive_handler();
                     CachedLeaderIndex.getInstance().setTransactionPositionLeader(current + 1);
@@ -594,6 +594,8 @@ public class ValidatorConsensusPhases {
 
         @Override
         public void AnnouncePhase(ConsensusMessage<TransactionBlock> data) throws InterruptedException {
+            if (data.getStatusType().equals(ConsensusStatusType.ABORT))
+                return;
 
             if (!DEBUG) {
                 consensusClient.send_heartbeat(HEARTBEAT_MESSAGE);
@@ -605,7 +607,7 @@ public class ValidatorConsensusPhases {
                     return;
                 }
                 byte[] receive = this.consensusClient.deque_message();
-                if (receive == null || receive.length<=0) {
+                if (receive == null || receive.length <= 0) {
                     cleanup();
                     LOG.info("AnnouncePhase: Leader is not active fail to send message");
                     data.setStatusType(ConsensusStatusType.ABORT);
@@ -689,6 +691,9 @@ public class ValidatorConsensusPhases {
 
         @Override
         public void PreparePhase(ConsensusMessage<TransactionBlock> data) throws InterruptedException {
+
+            if (data.getStatusType().equals(ConsensusStatusType.ABORT))
+                return;
 
             if (!DEBUG) {
                 byte[] receive = this.consensusClient.deque_message();
@@ -779,6 +784,9 @@ public class ValidatorConsensusPhases {
 
         @Override
         public void CommitPhase(ConsensusMessage<TransactionBlock> data) throws InterruptedException {
+
+            if (data.getStatusType().equals(ConsensusStatusType.ABORT))
+                return;
 
             if (!DEBUG) {
                 byte[] receive = this.consensusClient.deque_message();
