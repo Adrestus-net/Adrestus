@@ -37,7 +37,7 @@ public abstract class ChangeViewConsensusPhase {
 
     protected ConsensusClient consensusClient;
     protected ConsensusServer consensusServer;
-    protected int N,N_COPY;
+    protected int N, N_COPY;
     protected int F;
     protected CountDownLatch latch;
     protected static final Type fluentType = new TypeToken<ConsensusMessage<ChangeViewData>>() {
@@ -79,9 +79,13 @@ public abstract class ChangeViewConsensusPhase {
     }
 
     protected void cleanup() {
-        if (consensusServer != null)
+        if (consensusServer != null) {
             consensusServer.close();
-        if (consensusClient != null)
+            consensusServer = null;
+        }
+        if (consensusClient != null) {
             consensusClient.close();
+            consensusClient = null;
+        }
     }
 }

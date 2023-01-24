@@ -79,7 +79,7 @@ public class ChangeViewOrganizerConsensusPhase extends ChangeViewConsensusPhase 
 
 
             if (N_COPY > F) {
-                LOG.info("AnnouncePhase: Byzantine network not meet requirements abort " + String.valueOf(N));
+                LOG.info("AnnouncePhase: Byzantine network not meet requirements abort " + String.valueOf(N_COPY));
                 data.setStatusType(ConsensusStatusType.ABORT);
                 cleanup();
                 return;

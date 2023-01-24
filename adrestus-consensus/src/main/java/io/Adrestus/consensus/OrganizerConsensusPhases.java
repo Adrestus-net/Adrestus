@@ -150,7 +150,7 @@ public class OrganizerConsensusPhases {
 
 
                 if (N_COPY > F) {
-                    LOG.info("PreparePhase: Byzantine network not meet requirements abort " + String.valueOf(N));
+                    LOG.info("PreparePhase: Byzantine network not meet requirements abort " + String.valueOf(N_COPY));
                     data.setStatusType(ConsensusStatusType.ABORT);
                     cleanup();
                     return;
@@ -239,7 +239,7 @@ public class OrganizerConsensusPhases {
 
 
                 if (N_COPY > F) {
-                    LOG.info("CommitPhase: Byzantine network not meet requirements abort " + String.valueOf(N));
+                    LOG.info("CommitPhase: Byzantine network not meet requirements abort " + String.valueOf(N_COPY));
                     data.setStatusType(ConsensusStatusType.ABORT);
                     cleanup();
                     return;
