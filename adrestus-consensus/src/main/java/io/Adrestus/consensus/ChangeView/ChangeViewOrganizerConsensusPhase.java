@@ -78,12 +78,12 @@ public class ChangeViewOrganizerConsensusPhase extends ChangeViewConsensusPhase 
             }
 
 
-            if (N > F) {
+          /*  if (N > F) {
                 LOG.info("AnnouncePhase: Byzantine network not meet requirements abort " + String.valueOf(N));
                 data.setStatusType(ConsensusStatusType.ABORT);
                 cleanup();
                 return;
-            }
+            }*/
 
             data.setMessageType(ConsensusMessageType.PREPARE);
 
@@ -120,5 +120,10 @@ public class ChangeViewOrganizerConsensusPhase extends ChangeViewConsensusPhase 
     public void PreparePhase(ConsensusMessage<ChangeViewData> data) throws InterruptedException {
         super.PreparePhase(data);
         super.cleanup();
+
+        CachedLatestBlocks.getInstance().getTransactionBlock().setLeaderPublicKey(this.leader_bls);
+        CachedLatestBlocks.getInstance().getTransactionBlock().setViewID(data.getData().getViewID());
+        CachedLatestBlocks.getInstance().getTransactionBlock().setTransactionProposer(this.leader_bls.toRaw());
+        LOG.info("Change View is finalized with Success");
     }
 }

@@ -166,7 +166,13 @@ public class ConsensusState {
                         latch.countDown();
                         transaction_block_timer = new Timer(ConsensusConfiguration.CONSENSUS);
                         transaction_block_timer.scheduleAtFixedRate(new TransactionBlockConsensusTask(), ConsensusConfiguration.CONSENSUS_TIMER, ConsensusConfiguration.CONSENSUS_TIMER);
-                        state.onEnterState(null);
+                        if (state.getClass().equals(ConsensusTransactionBlockState.class)) {
+                            state.onEnterState(null);
+                        }
+                        else {
+                            changeStateTo(new ConsensusTransactionBlockState());
+                            state.onEnterState(blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedLeaderIndex.getInstance().getTransactionPositionLeader()));
+                        }
                     } else {
                         transaction_block_timer = new Timer(ConsensusConfiguration.CONSENSUS);
                         transaction_block_timer.scheduleAtFixedRate(new TransactionBlockConsensusTask(), ConsensusConfiguration.CHANGE_VIEW_TIMER, ConsensusConfiguration.CHANGE_VIEW_TIMER);

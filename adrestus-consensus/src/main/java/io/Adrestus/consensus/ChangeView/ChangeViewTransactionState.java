@@ -51,7 +51,7 @@ public class ChangeViewTransactionState extends AbstractState {
             organizerphase.AnnouncePhase(consensusMessage);
             organizerphase.PreparePhase(consensusMessage);
         } else {
-            LOG.info("Transaction Block Validator State");
+            LOG.info("Change View Transaction Block Validator State");
             consensusManager.changeStateTo(ConsensusRoleType.VALIDATOR);
             var validatorphase = consensusManager.getRole().manufacterChangeViewPhases(ConsensusType.CHANGE_VIEW_TRANSACTION_BLOCK);
             validatorphase.InitialSetup();

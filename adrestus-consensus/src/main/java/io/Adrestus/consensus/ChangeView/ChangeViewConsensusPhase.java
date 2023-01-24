@@ -2,6 +2,7 @@ package io.Adrestus.consensus.ChangeView;
 
 import com.google.common.reflect.TypeToken;
 import io.Adrestus.consensus.ConsensusMessage;
+import io.Adrestus.consensus.ConsensusStatusType;
 import io.Adrestus.core.BlockIndex;
 import io.Adrestus.core.IBlockIndex;
 import io.Adrestus.crypto.bls.BLS381.ECP;
@@ -11,6 +12,7 @@ import io.Adrestus.crypto.bls.mapper.ECPmapper;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.crypto.elliptic.mapper.CustomSerializerTreeMap;
+import io.Adrestus.network.ConsensusClient;
 import io.Adrestus.network.ConsensusServer;
 import io.Adrestus.util.SerializationUtil;
 import org.slf4j.Logger;
@@ -33,6 +35,7 @@ public abstract class ChangeViewConsensusPhase {
 
     protected final SerializationUtil<ConsensusMessage> consensus_serialize;
 
+    protected ConsensusClient consensusClient;
     protected ConsensusServer consensusServer;
     protected int N;
     protected int F;
@@ -49,7 +52,7 @@ public abstract class ChangeViewConsensusPhase {
         list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
-        this.consensus_serialize = new SerializationUtil<ConsensusMessage>(fluentType,list);
+        this.consensus_serialize = new SerializationUtil<ConsensusMessage>(fluentType, list);
     }
 
     public void InitialSetup() throws Exception {
@@ -60,6 +63,9 @@ public abstract class ChangeViewConsensusPhase {
     }
 
     public void PreparePhase(ConsensusMessage<ChangeViewData> data) throws InterruptedException {
+        if (data.getStatusType().equals(ConsensusStatusType.ABORT))
+            return;
+
         int i = N;
         while (i > 0) {
             try {
@@ -70,10 +76,12 @@ public abstract class ChangeViewConsensusPhase {
             }
         }
         cleanup();
-        LOG.info("Change View is finalized with Success");
     }
 
     protected void cleanup() {
-        consensusServer.close();
+        if (consensusServer != null)
+            consensusServer.close();
+        if (consensusClient != null)
+            consensusClient.close();
     }
 }

@@ -123,7 +123,7 @@ public class ConsensusServer {
             String rec = receiveStringData();
             System.out.println(rec);
             if(!rec.equals(""))
-               connected.send(HEARTBEAT_MESSAGE.getBytes(StandardCharsets.UTF_8));
+              connected.send(HEARTBEAT_MESSAGE.getBytes(StandardCharsets.UTF_8));
             if(!terminate) {
                 latch.countDown();
                 setPeers_not_connected((int) latch.getCount());
@@ -138,7 +138,8 @@ public class ConsensusServer {
         while (latch.getCount() > 0 && !terminate) {
             String rec = receiveStringData();
             System.out.println(rec);
-            //connected.send(HEARTBEAT_MESSAGE.getBytes(StandardCharsets.UTF_8));
+            if(!rec.equals(""))
+               connected.send(HEARTBEAT_MESSAGE.getBytes(StandardCharsets.UTF_8));
             latch.countDown();
             setPeers_not_connected((int) latch.getCount());
         }
@@ -177,7 +178,8 @@ public class ConsensusServer {
             byte[] recv = connected.recv();
             return new String(recv, StandardCharsets.UTF_8);
         } catch (Exception e) {
-            LOG.info("Socket Closed");
+            LOG.info("receiveStringData: Socket Closed");
+            connected.close();
         }
         return data;
     }
@@ -217,6 +219,7 @@ public class ConsensusServer {
     public void close() {
         this.publisher.close();
         this.collector.close();
+        this.connected.close();
         this.ctx.close();
     }
 
