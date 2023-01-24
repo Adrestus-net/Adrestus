@@ -31,13 +31,13 @@ public class ChangeViewOrganizerConsensusPhase extends ChangeViewConsensusPhase 
     @Override
     public void InitialSetup() {
         if (!DEBUG) {
-            this.N = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).size() - 1;
+            this.N = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).size();
             this.F = (this.N - 1) / 3;
-            this.latch = new CountDownLatch(N);
+            this.latch = new CountDownLatch(N-1);
             this.current = CachedLeaderIndex.getInstance().getTransactionPositionLeader();
             this.leader_bls = this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), this.current);
             this.consensusServer = new ConsensusServer(this.blockIndex.getIpValue(CachedZoneIndex.getInstance().getZoneIndex(), this.leader_bls), latch, ConsensusConfiguration.CHANGE_VIEW_COLLECTOR_TIMEOUT, ConsensusConfiguration.CHANGE_VIEW_CONNECTED_TIMEOUT);
-            this.N = this.N - consensusServer.getPeers_not_connected();
+            this.N = (this.N-1) - consensusServer.getPeers_not_connected();
         }
     }
 
@@ -78,12 +78,12 @@ public class ChangeViewOrganizerConsensusPhase extends ChangeViewConsensusPhase 
             }
 
 
-          /*  if (N > F) {
+            if (N > F) {
                 LOG.info("AnnouncePhase: Byzantine network not meet requirements abort " + String.valueOf(N));
                 data.setStatusType(ConsensusStatusType.ABORT);
                 cleanup();
                 return;
-            }*/
+            }
 
             data.setMessageType(ConsensusMessageType.PREPARE);
 
@@ -107,8 +107,7 @@ public class ChangeViewOrganizerConsensusPhase extends ChangeViewConsensusPhase 
             Signature sig = BLSSignature.sign(change_view_ser.encode(data.getData()), CachedBLSKeyPair.getInstance().getPrivateKey());
             data.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
 
-            this.N = this.N - consensusServer.getPeers_not_connected();
-            this.F = (this.N - 1) / 3;
+            this.N = (this.N-1) - consensusServer.getPeers_not_connected();
 
 
             byte[] toSend = consensus_serialize.encode(data);

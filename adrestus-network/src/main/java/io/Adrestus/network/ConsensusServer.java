@@ -120,29 +120,18 @@ public class ConsensusServer {
         this.timer = new Timer(ConsensusConfiguration.CONSENSUS);
         this.task = new ConnectedTaskTimeout();
         this.timer.scheduleAtFixedRate(task, CONSENSUS_TIMEOUT, CONSENSUS_TIMEOUT);
+        int counter= (int) latch.getCount();
         while (latch.getCount() > 0 && !terminate) {
             String rec = receiveStringData();
             System.out.println(rec);
-            if(!rec.equals(""))
-              connected.send(HEARTBEAT_MESSAGE.getBytes(StandardCharsets.UTF_8));
+            if(!rec.equals("")) {
+                connected.send(HEARTBEAT_MESSAGE.getBytes(StandardCharsets.UTF_8));
+                counter--;
+                setPeers_not_connected(counter);
+            }
             if(!terminate) {
                 latch.countDown();
-                setPeers_not_connected((int) latch.getCount());
             }
-        }
-        task.cancel();
-        timer.purge();
-    }
-
-    public void BlockUntilConnected(CountDownLatch latch) {
-        this.timer.scheduleAtFixedRate(task, CONSENSUS_TIMEOUT, CONSENSUS_TIMEOUT);
-        while (latch.getCount() > 0 && !terminate) {
-            String rec = receiveStringData();
-            System.out.println(rec);
-            if(!rec.equals(""))
-               connected.send(HEARTBEAT_MESSAGE.getBytes(StandardCharsets.UTF_8));
-            latch.countDown();
-            setPeers_not_connected((int) latch.getCount());
         }
         task.cancel();
         timer.purge();
