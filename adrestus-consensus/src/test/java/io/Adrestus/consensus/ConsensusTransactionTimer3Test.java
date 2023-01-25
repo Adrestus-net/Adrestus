@@ -1,8 +1,6 @@
 package io.Adrestus.consensus;
 
 import io.Adrestus.config.ConsensusConfiguration;
-import io.Adrestus.consensus.helper.ConsensusTransaction2Timer;
-import io.Adrestus.consensus.helper.ConsensusTransaction3Timer;
 import io.Adrestus.core.*;
 import io.Adrestus.core.Resourses.CachedEpochGeneration;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
@@ -11,8 +9,6 @@ import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.crypto.bls.model.BLSPrivateKey;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.Adrestus.crypto.bls.model.CachedBLSKeyPair;
-import io.Adrestus.crypto.elliptic.ECDSASign;
-import io.Adrestus.crypto.elliptic.ECKeyPair;
 import io.Adrestus.util.GetTime;
 import io.Adrestus.util.SerializationUtil;
 import org.junit.jupiter.api.BeforeAll;
@@ -20,7 +16,6 @@ import org.junit.jupiter.api.Test;
 
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 

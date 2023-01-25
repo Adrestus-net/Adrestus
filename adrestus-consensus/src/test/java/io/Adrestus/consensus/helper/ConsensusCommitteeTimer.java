@@ -79,7 +79,7 @@ public class ConsensusCommitteeTimer {
         public void run() {
             ConsensusMessage<CommitteeBlock> consensusMessage = new ConsensusMessage<>(new CommitteeBlock());
             int target = blockIndex.getPublicKeyIndex(0, CachedBLSKeyPair.getInstance().getPublicKey());
-            int current=CachedLeaderIndex.getInstance().getCommitteePositionLeader();
+            int current = CachedLeaderIndex.getInstance().getCommitteePositionLeader();
             if (target == current) {
                 LOG.info("ORGANIZER State");
                 consensusManager.changeStateTo(ConsensusRoleType.SUPERVISOR);

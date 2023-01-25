@@ -226,8 +226,13 @@ public class ConsensusTransactionTimer2Test {
         CachedZoneIndex.getInstance().setZoneIndexInternalIP();
 
 
-        prevblock.setTransactionProposer(CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).keySet().stream().findFirst().get().toRaw());
-        prevblock.setLeaderPublicKey(CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).keySet().stream().findFirst().get());
+        if (CachedZoneIndex.getInstance().getZoneIndex() == 1) {
+            prevblock.setTransactionProposer(vk2.toRaw());
+            prevblock.setLeaderPublicKey(vk2);
+        } else {
+            prevblock.setTransactionProposer(vk5.toRaw());
+            prevblock.setLeaderPublicKey(vk5);
+        }
 
         CachedLatestBlocks.getInstance().setTransactionBlock(prevblock);
 

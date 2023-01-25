@@ -6,7 +6,6 @@ import io.Adrestus.core.IBlockIndex;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedLeaderIndex;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
-import io.Adrestus.core.StatusType;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.Adrestus.crypto.bls.model.CachedBLSKeyPair;
 import lombok.SneakyThrows;
@@ -31,9 +30,9 @@ public class ChangeViewTransactionState extends AbstractState {
         target = blockIndex.getPublicKeyIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedBLSKeyPair.getInstance().getPublicKey());
         current = blockIndex.getPublicKeyIndex(CachedZoneIndex.getInstance().getZoneIndex(), blsPublicKey);
         if (current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).size() - 1)
-            current=0;
+            current = 0;
         else {
-            current=CachedLeaderIndex.getInstance().getTransactionPositionLeader()+1;
+            current = CachedLeaderIndex.getInstance().getTransactionPositionLeader() + 1;
         }
         CachedLeaderIndex.getInstance().setTransactionPositionLeader(current);
     }

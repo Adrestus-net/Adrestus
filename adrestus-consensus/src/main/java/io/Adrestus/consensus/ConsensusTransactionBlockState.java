@@ -2,7 +2,6 @@ package io.Adrestus.consensus;
 
 import io.Adrestus.core.BlockIndex;
 import io.Adrestus.core.IBlockIndex;
-import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedLeaderIndex;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.core.TransactionBlock;

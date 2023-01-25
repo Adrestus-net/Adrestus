@@ -741,9 +741,9 @@ public class SupervisorConsensusPhases {
             }
 
             if (current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).size() - 1)
-               CachedLeaderIndex.getInstance().setCommitteePositionLeader(0);
+                CachedLeaderIndex.getInstance().setCommitteePositionLeader(0);
             else {
-                CachedLeaderIndex.getInstance().setCommitteePositionLeader( CachedLeaderIndex.getInstance().getCommitteePositionLeader()+1);
+                CachedLeaderIndex.getInstance().setCommitteePositionLeader(CachedLeaderIndex.getInstance().getCommitteePositionLeader() + 1);
             }
             CachedLatestBlocks.getInstance().setCommitteeBlock(block.getData());
             database.save(block.getData().getHash(), block.getData());

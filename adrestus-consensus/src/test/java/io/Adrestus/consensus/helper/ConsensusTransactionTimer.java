@@ -143,7 +143,7 @@ public class ConsensusTransactionTimer {
             int target = blockIndex.getPublicKeyIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedBLSKeyPair.getInstance().getPublicKey());
             int current = blockIndex.getPublicKeyIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedLatestBlocks.getInstance().getTransactionBlock().getLeaderPublicKey());
             CachedLeaderIndex.getInstance().setTransactionPositionLeader(current);
-            if (target == current + 1 || (target == 0 && current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).size() - 1)) {
+            if (target == current) {
                 LOG.info("ORGANIZER State");
                 chooser();
                 consensusManager.changeStateTo(ConsensusRoleType.ORGANIZER);

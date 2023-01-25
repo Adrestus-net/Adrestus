@@ -872,6 +872,9 @@ public class ValidatorConsensusPhases {
             //commit save to db
             data.getData().setSignatureData(signatureDataMap);
             BlockInvent regural_block = (BlockInvent) factory.getBlock(BlockType.REGULAR);
+            BLSPublicKey next_key = blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedLeaderIndex.getInstance().getTransactionPositionLeader());
+            data.getData().setTransactionProposer(next_key.toRaw());
+            data.getData().setLeaderPublicKey(next_key);
             regural_block.InventTransactionBlock(data.getData());
             consensusClient.send_heartbeat(HEARTBEAT_MESSAGE);
             cleanup();

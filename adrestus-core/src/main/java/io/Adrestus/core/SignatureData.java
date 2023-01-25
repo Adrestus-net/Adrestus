@@ -19,12 +19,12 @@ public class SignatureData {
 
     public SignatureData(BLSPublicKey blsPublicKey) {
         this.blsPublicKey = blsPublicKey;
-        this.signature=new Signature[2];
+        this.signature = new Signature[2];
     }
 
     public SignatureData() {
         this.blsPublicKey = new BLSPublicKey();
-        this.signature=new Signature[2];
+        this.signature = new Signature[2];
     }
 
     @Serialize

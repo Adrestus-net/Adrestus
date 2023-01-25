@@ -168,8 +168,7 @@ public class ConsensusState {
                         transaction_block_timer.scheduleAtFixedRate(new TransactionBlockConsensusTask(), ConsensusConfiguration.CONSENSUS_TIMER, ConsensusConfiguration.CONSENSUS_TIMER);
                         if (state.getClass().equals(ConsensusTransactionBlockState.class)) {
                             state.onEnterState(null);
-                        }
-                        else {
+                        } else {
                             LOG.info("State changed to  ConsensusTransactionBlockState");
                             changeStateTo(new ConsensusTransactionBlockState());
                             state.onEnterState(null);

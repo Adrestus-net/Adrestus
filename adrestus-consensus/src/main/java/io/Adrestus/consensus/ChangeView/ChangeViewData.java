@@ -9,8 +9,8 @@ public class ChangeViewData {
     private int ViewID;
 
     public ChangeViewData() {
-        this.prev_hash="";
-        this.ViewID=0;
+        this.prev_hash = "";
+        this.ViewID = 0;
     }
 
     public ChangeViewData(String prev_hash, int viewID) {

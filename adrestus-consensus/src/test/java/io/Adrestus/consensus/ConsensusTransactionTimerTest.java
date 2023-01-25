@@ -180,8 +180,8 @@ public class ConsensusTransactionTimerTest {
         prevblock.setHeight(1);
         prevblock.setHash("hash");
         prevblock.getHeaderData().setTimestamp(GetTime.GetTimeStampInString());
-        prevblock.setTransactionProposer(vk5.toRaw());
-        prevblock.setLeaderPublicKey(vk5);
+        prevblock.setTransactionProposer(vk1.toRaw());
+        prevblock.setLeaderPublicKey(vk1);
         CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
         CachedLatestBlocks.getInstance().setTransactionBlock(prevblock);
 

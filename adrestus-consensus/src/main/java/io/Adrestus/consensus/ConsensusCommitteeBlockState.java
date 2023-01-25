@@ -4,7 +4,6 @@ import io.Adrestus.core.BlockIndex;
 import io.Adrestus.core.IBlockIndex;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
-import io.Adrestus.core.StatusType;
 import io.Adrestus.core.TransactionBlock;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.Adrestus.crypto.bls.model.CachedBLSKeyPair;
@@ -12,7 +11,7 @@ import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ConsensusCommitteeBlockState extends AbstractState{
+public class ConsensusCommitteeBlockState extends AbstractState {
     private static Logger LOG = LoggerFactory.getLogger(ConsensusCommitteeBlockState.class);
 
     private IBlockIndex blockIndex;

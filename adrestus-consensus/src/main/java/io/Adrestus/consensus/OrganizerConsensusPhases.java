@@ -43,7 +43,7 @@ public class OrganizerConsensusPhases {
         private final IBlockIndex blockIndex;
         private final Map<BLSPublicKey, SignatureData> signatureDataMap;
         private CountDownLatch latch;
-        private int N,N_COPY;
+        private int N, N_COPY;
         private int F;
 
         private ConsensusServer consensusServer;
@@ -71,7 +71,7 @@ public class OrganizerConsensusPhases {
                     //this.N = 1;
                     this.N = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).size();
                     this.F = (this.N - 1) / 3;
-                    this.latch = new CountDownLatch(N-1);
+                    this.latch = new CountDownLatch(N - 1);
                     this.current = CachedLeaderIndex.getInstance().getTransactionPositionLeader();
                     if (current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).size() - 1) {
                         this.leader_bls = this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), this.current);
@@ -82,7 +82,7 @@ public class OrganizerConsensusPhases {
                         this.consensusServer = new ConsensusServer(this.blockIndex.getIpValue(CachedZoneIndex.getInstance().getZoneIndex(), this.leader_bls), latch);
                         CachedLeaderIndex.getInstance().setTransactionPositionLeader(current + 1);
                     }
-                    this.N_COPY = (this.N-1) - consensusServer.getPeers_not_connected();
+                    this.N_COPY = (this.N - 1) - consensusServer.getPeers_not_connected();
                 }
             } catch (Exception e) {
                 cleanup();
@@ -93,11 +93,13 @@ public class OrganizerConsensusPhases {
 
         @Override
         public void AnnouncePhase(ConsensusMessage<TransactionBlock> data) throws Exception {
-            if (this.consensusServer.getPeers_not_connected() > F) {
-                LOG.info("AnnouncePhase: Byzantine network not meet requirements abort " + String.valueOf(this.consensusServer.getPeers_not_connected()));
-                data.setStatusType(ConsensusStatusType.ABORT);
-                cleanup();
-                return;
+            if (!DEBUG) {
+                if (this.consensusServer.getPeers_not_connected() > F) {
+                    LOG.info("AnnouncePhase: Byzantine network not meet requirements abort " + String.valueOf(this.consensusServer.getPeers_not_connected()));
+                    data.setStatusType(ConsensusStatusType.ABORT);
+                    cleanup();
+                    return;
+                }
             }
             var regural_block = factory.getBlock(BlockType.REGULAR);
             regural_block.forgeTransactionBlock(data.getData());
@@ -189,7 +191,7 @@ public class OrganizerConsensusPhases {
             Signature sig = BLSSignature.sign(block_serialize.encode(data.getData()), CachedBLSKeyPair.getInstance().getPrivateKey());
             data.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
 
-            this.N_COPY = (this.N-1) - consensusServer.getPeers_not_connected();
+            this.N_COPY = (this.N - 1) - consensusServer.getPeers_not_connected();
 
 
             byte[] toSend = consensus_serialize.encode(data);
@@ -279,7 +281,7 @@ public class OrganizerConsensusPhases {
             Signature sig = BLSSignature.sign(block_serialize.encode(data.getData()), CachedBLSKeyPair.getInstance().getPrivateKey());
             data.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
 
-            this.N_COPY = (this.N-1) - consensusServer.getPeers_not_connected();
+            this.N_COPY = (this.N - 1) - consensusServer.getPeers_not_connected();
             int i = this.N_COPY;
 
             byte[] toSend = consensus_serialize.encode(data);
@@ -293,6 +295,11 @@ public class OrganizerConsensusPhases {
             // CachedLatestBlocks.getInstance().setTransactionBlock(data.getData());
             data.getData().setSignatureData(signatureDataMap);
             BlockInvent regural_block = (BlockInvent) factory.getBlock(BlockType.REGULAR);
+
+            BLSPublicKey next_key = blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedLeaderIndex.getInstance().getTransactionPositionLeader());
+            data.getData().setTransactionProposer(next_key.toRaw());
+            data.getData().setLeaderPublicKey(next_key);
+
             regural_block.InventTransactionBlock(data.getData());
             while (i > 0) {
                 try {

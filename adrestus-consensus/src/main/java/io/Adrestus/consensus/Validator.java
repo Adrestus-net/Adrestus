@@ -1,7 +1,6 @@
 package io.Adrestus.consensus;
 
 import io.Adrestus.consensus.ChangeView.ChangeViewConsensusPhase;
-import io.Adrestus.consensus.ChangeView.ChangeViewOrganizerConsensusPhase;
 import io.Adrestus.consensus.ChangeView.ChangeViewValidatorsConsensusPhase;
 
 import java.util.EnumMap;
@@ -21,8 +20,8 @@ public class Validator implements ConsensusRole {
         this.validator_map.put(ConsensusType.TRANSACTION_BLOCK, new ValidatorConsensusPhases.VerifyTransactionBlock(this.DEBUG));
         this.validator_map.put(ConsensusType.COMMITTEE_BLOCK, new ValidatorConsensusPhases.VerifyCommitteeBlock(this.DEBUG));
 
-        this.change_view_map.put(ConsensusType.CHANGE_VIEW_TRANSACTION_BLOCK,new ChangeViewValidatorsConsensusPhase.ChangeViewTransactionBlock(this.DEBUG));
-        this.change_view_map.put(ConsensusType.CHANGE_VIEW_COMMITTEE_BLOCK,new ChangeViewValidatorsConsensusPhase.ChangeCommiteeBlockView(this.DEBUG));
+        this.change_view_map.put(ConsensusType.CHANGE_VIEW_TRANSACTION_BLOCK, new ChangeViewValidatorsConsensusPhase.ChangeViewTransactionBlock(this.DEBUG));
+        this.change_view_map.put(ConsensusType.CHANGE_VIEW_COMMITTEE_BLOCK, new ChangeViewValidatorsConsensusPhase.ChangeCommiteeBlockView(this.DEBUG));
     }
 
     @Override

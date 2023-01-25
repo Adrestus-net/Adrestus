@@ -30,9 +30,9 @@ public class ChangeViewCommitteeState extends AbstractState {
         target = blockIndex.getPublicKeyIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedBLSKeyPair.getInstance().getPublicKey());
         current = blockIndex.getPublicKeyIndex(CachedZoneIndex.getInstance().getZoneIndex(), blsPublicKey);
         if (current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).size() - 1)
-            current=0;
+            current = 0;
         else {
-            current= CachedLeaderIndex.getInstance().getCommitteePositionLeader()+1;
+            current = CachedLeaderIndex.getInstance().getCommitteePositionLeader() + 1;
         }
         CachedLeaderIndex.getInstance().setCommitteePositionLeader(current);
     }
