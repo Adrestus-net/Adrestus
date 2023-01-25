@@ -7,6 +7,7 @@ import io.Adrestus.consensus.ConsensusRoleType;
 import io.Adrestus.consensus.ConsensusType;
 import io.Adrestus.core.*;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
+import io.Adrestus.core.Resourses.CachedLeaderIndex;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.core.Resourses.MemoryTransactionPool;
 import io.Adrestus.core.RingBuffer.handler.transactions.SignatureEventHandler;
@@ -208,7 +209,7 @@ public class ConsensusTransaction2Timer {
             ConsensusMessage<TransactionBlock> consensusMessage = new ConsensusMessage<>(new TransactionBlock());
             int target = blockIndex.getPublicKeyIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedBLSKeyPair.getInstance().getPublicKey());
             int current = blockIndex.getPublicKeyIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedLatestBlocks.getInstance().getTransactionBlock().getLeaderPublicKey());
-
+            CachedLeaderIndex.getInstance().setTransactionPositionLeader(current);
             if (target == current) {
                 LOG.info("ORGANIZER State");
                 chooser();

@@ -108,6 +108,9 @@ public class ConsensusClient {
                             LOG.info("ZMQ EXCEPTION caught");
                         }
                     }
+                    catch (NullPointerException exception){
+                        LOG.info("NullPointerException caught "+ exception.toString());
+                    }
                     if (data != null) {
                         message_deque.add(data);
                         MESSAGES--;
