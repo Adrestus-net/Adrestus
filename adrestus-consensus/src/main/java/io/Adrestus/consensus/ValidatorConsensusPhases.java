@@ -937,19 +937,28 @@ public class ValidatorConsensusPhases {
                     block.setStatusType(ConsensusStatusType.ABORT);
                     return;
                 } else {
-
-                    block = consensus_serialize.decode(receive);
-                    if (!block.getChecksumData().getBlsPublicKey().toRaw().equals(leader_bls.toRaw())) {
-                        LOG.info("AnnouncePhase: This is not the valid leader for this round");
+                    try {
+                        block = consensus_serialize.decode(receive);
+                        if (!block.getChecksumData().getBlsPublicKey().toRaw().equals(leader_bls.toRaw())) {
+                            LOG.info("AnnouncePhase: This is not the valid leader for this round");
+                            block.setStatusType(ConsensusStatusType.ABORT);
+                            return;
+                        } else {
+                            byte[] message = block_serialize.encode(block.getData());
+                            boolean verify = BLSSignature.verify(block.getChecksumData().getSignature(), message, block.getChecksumData().getBlsPublicKey());
+                            if (!verify) {
+                                block.setStatusType(ConsensusStatusType.ABORT);
+                                throw new IllegalArgumentException("AnnouncePhase: Abort consensus phase BLS leader signature is invalid during announce phase");
+                            }
+                        }
+                    } catch (IllegalArgumentException e) {
+                        LOG.info("PreparePhase: Problem at message deserialization Abort");
                         block.setStatusType(ConsensusStatusType.ABORT);
                         return;
-                    } else {
-                        byte[] message = block_serialize.encode(block.getData());
-                        boolean verify = BLSSignature.verify(block.getChecksumData().getSignature(), message, block.getChecksumData().getBlsPublicKey());
-                        if (!verify) {
-                            block.setStatusType(ConsensusStatusType.ABORT);
-                            throw new IllegalArgumentException("AnnouncePhase: Abort consensus phase BLS leader signature is invalid during announce phase");
-                        }
+                    } catch (ArrayIndexOutOfBoundsException e) {
+                        LOG.info("AnnouncePhase: Receiving null response from organizer");
+                        block.setStatusType(ConsensusStatusType.ABORT);
+                        return;
                     }
                 }
             }
@@ -996,6 +1005,8 @@ public class ValidatorConsensusPhases {
 
         @Override
         public void PreparePhase(ConsensusMessage<CommitteeBlock> block) {
+            if (block.getStatusType().equals(ConsensusStatusType.ABORT))
+                return;
 
             if (!DEBUG) {
                 byte[] receive = this.consensusClient.deque_message();
@@ -1018,6 +1029,10 @@ public class ValidatorConsensusPhases {
                         }
                     } catch (IllegalArgumentException e) {
                         LOG.info("PreparePhase: Problem at message deserialization Abort");
+                        block.setStatusType(ConsensusStatusType.ABORT);
+                        return;
+                    } catch (ArrayIndexOutOfBoundsException e) {
+                        LOG.info("PreparePhase: Receiving null response from organizer");
                         block.setStatusType(ConsensusStatusType.ABORT);
                         return;
                     }
@@ -1060,6 +1075,8 @@ public class ValidatorConsensusPhases {
 
         @Override
         public void CommitPhase(ConsensusMessage<CommitteeBlock> block) {
+            if (block.getStatusType().equals(ConsensusStatusType.ABORT))
+                return;
 
             if (!DEBUG) {
                 byte[] receive = this.consensusClient.deque_message();
@@ -1082,6 +1099,10 @@ public class ValidatorConsensusPhases {
                         }
                     } catch (IllegalArgumentException e) {
                         LOG.info("CommitPhase: Problem at message deserialization Abort");
+                        block.setStatusType(ConsensusStatusType.ABORT);
+                        return;
+                    } catch (ArrayIndexOutOfBoundsException e) {
+                        LOG.info("CommitPhase: Receiving null response from organizer");
                         block.setStatusType(ConsensusStatusType.ABORT);
                         return;
                     }

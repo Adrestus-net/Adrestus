@@ -1,6 +1,7 @@
 package io.Adrestus.consensus;
 
 import io.Adrestus.core.BlockIndex;
+import io.Adrestus.core.CommitteeBlock;
 import io.Adrestus.core.IBlockIndex;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
@@ -33,9 +34,9 @@ public class ConsensusCommitteeBlockState extends AbstractState {
     @SneakyThrows
     @Override
     public boolean onActiveState() {
-        ConsensusMessage<TransactionBlock> consensusMessage = new ConsensusMessage<>(new TransactionBlock());
+        ConsensusMessage<CommitteeBlock> consensusMessage = new ConsensusMessage<>(new CommitteeBlock());
 
-        if (target == current + 1 || (target == 0 && current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).size() - 1)) {
+        if (target == current) {
             LOG.info("Committee Block Organizer State");
             consensusManager.changeStateTo(ConsensusRoleType.SUPERVISOR);
             var supervisorphase = consensusManager.getRole().manufacturePhases(ConsensusType.COMMITTEE_BLOCK);

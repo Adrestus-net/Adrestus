@@ -616,6 +616,9 @@ public class SupervisorConsensusPhases {
 
         @Override
         public void PreparePhase(ConsensusMessage<CommitteeBlock> block) {
+            if (block.getStatusType().equals(ConsensusStatusType.ABORT))
+                return;
+
             if (!DEBUG) {
                 int i = N_COPY;
                 while (i > 0) {
@@ -682,6 +685,9 @@ public class SupervisorConsensusPhases {
 
         @Override
         public void CommitPhase(ConsensusMessage<CommitteeBlock> block) {
+            if (block.getStatusType().equals(ConsensusStatusType.ABORT))
+                return;
+
             if (!DEBUG) {
                 int i = N_COPY;
                 block.getSignatures().clear();
