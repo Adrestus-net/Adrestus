@@ -137,14 +137,12 @@ public class ConsensusCommitteeTimerTest3 {
 
 
         committeeBlock.getStakingMap().put(10.0, new KademliaData(new SecurityAuditProofs(address1, vk1, ecKeyPair1.getPublicKey(), signatureData1), new NettyConnectionInfo("192.168.1.106", KademliaConfiguration.PORT)));
-        committeeBlock.getStakingMap().put(13.0, new KademliaData(new SecurityAuditProofs(address2, vk2, ecKeyPair2.getPublicKey(), signatureData2), new NettyConnectionInfo("192.168.1.113", KademliaConfiguration.PORT)));
-        committeeBlock.getStakingMap().put(13.0, new KademliaData(new SecurityAuditProofs(address3, vk3, ecKeyPair3.getPublicKey(), signatureData3), new NettyConnectionInfo("192.168.1.116", KademliaConfiguration.PORT)));
-        committeeBlock.getStakingMap().put(13.0, new KademliaData(new SecurityAuditProofs(address4, vk4, ecKeyPair4.getPublicKey(), signatureData4), new NettyConnectionInfo("192.168.1.110", KademliaConfiguration.PORT)));
-        committeeBlock.getStakingMap().put(13.0, new KademliaData(new SecurityAuditProofs(address5, vk5, ecKeyPair5.getPublicKey(), signatureData5), new NettyConnectionInfo("192.168.1.112", KademliaConfiguration.PORT)));
+        committeeBlock.getStakingMap().put(14.0, new KademliaData(new SecurityAuditProofs(address2, vk2, ecKeyPair2.getPublicKey(), signatureData2), new NettyConnectionInfo("192.168.1.113", KademliaConfiguration.PORT)));
+        committeeBlock.getStakingMap().put(15.0, new KademliaData(new SecurityAuditProofs(address3, vk3, ecKeyPair3.getPublicKey(), signatureData3), new NettyConnectionInfo("192.168.1.116", KademliaConfiguration.PORT)));
+        committeeBlock.getStakingMap().put(16.0, new KademliaData(new SecurityAuditProofs(address4, vk4, ecKeyPair4.getPublicKey(), signatureData4), new NettyConnectionInfo("192.168.1.110", KademliaConfiguration.PORT)));
+        committeeBlock.getStakingMap().put(17.0, new KademliaData(new SecurityAuditProofs(address5, vk5, ecKeyPair5.getPublicKey(), signatureData5), new NettyConnectionInfo("192.168.1.112", KademliaConfiguration.PORT)));
 
         CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
-        CachedLeaderIndex.getInstance().setCommitteePositionLeader(0);
-
         IDatabase<String, CommitteeBlock> database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
 
         CachedLatestBlocks.getInstance().getCommitteeBlock().setDifficulty(112);

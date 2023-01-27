@@ -915,6 +915,11 @@ public class ValidatorConsensusPhases {
             if (!DEBUG) {
                 this.current = CachedLeaderIndex.getInstance().getCommitteePositionLeader();
                 this.leader_bls = this.blockIndex.getPublicKeyByIndex(0, current);
+                if (current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).size() - 1)
+                    CachedLeaderIndex.getInstance().setCommitteePositionLeader(0);
+                else {
+                    CachedLeaderIndex.getInstance().setCommitteePositionLeader(CachedLeaderIndex.getInstance().getCommitteePositionLeader() + 1);
+                }
                 this.consensusClient = new ConsensusClient(this.blockIndex.getIpValue(0, this.leader_bls));
                 this.consensusClient.receive_handler();
             }
@@ -927,12 +932,14 @@ public class ValidatorConsensusPhases {
                 consensusClient.send_heartbeat(HEARTBEAT_MESSAGE);
                 String heartbeat = consensusClient.rec_heartbeat();
                 if (heartbeat == null) {
+                    cleanup();
                     LOG.info("AnnouncePhase: heartbeat message is null");
                     block.setStatusType(ConsensusStatusType.ABORT);
                     return;
                 }
                 byte[] receive = this.consensusClient.deque_message();
                 if (receive == null) {
+                    cleanup();
                     LOG.info("AnnouncePhase: Leader is not active fail to send message");
                     block.setStatusType(ConsensusStatusType.ABORT);
                     return;
@@ -940,6 +947,7 @@ public class ValidatorConsensusPhases {
                     try {
                         block = consensus_serialize.decode(receive);
                         if (!block.getChecksumData().getBlsPublicKey().toRaw().equals(leader_bls.toRaw())) {
+                            cleanup();
                             LOG.info("AnnouncePhase: This is not the valid leader for this round");
                             block.setStatusType(ConsensusStatusType.ABORT);
                             return;
@@ -947,23 +955,31 @@ public class ValidatorConsensusPhases {
                             byte[] message = block_serialize.encode(block.getData());
                             boolean verify = BLSSignature.verify(block.getChecksumData().getSignature(), message, block.getChecksumData().getBlsPublicKey());
                             if (!verify) {
+                                cleanup();
+                                LOG.info("AnnouncePhase: Abort consensus phase BLS leader signature is invalid during announce phase");
                                 block.setStatusType(ConsensusStatusType.ABORT);
-                                throw new IllegalArgumentException("AnnouncePhase: Abort consensus phase BLS leader signature is invalid during announce phase");
+                                return;
                             }
                         }
                     } catch (IllegalArgumentException e) {
+                        cleanup();
                         LOG.info("PreparePhase: Problem at message deserialization Abort");
                         block.setStatusType(ConsensusStatusType.ABORT);
                         return;
                     } catch (ArrayIndexOutOfBoundsException e) {
+                        cleanup();
                         LOG.info("AnnouncePhase: Receiving null response from organizer");
                         block.setStatusType(ConsensusStatusType.ABORT);
                         return;
                     }
                 }
             }
-            if (!block.getMessageType().equals(ConsensusMessageType.ANNOUNCE))
+            if (!block.getMessageType().equals(ConsensusMessageType.ANNOUNCE)) {
                 LOG.info("AnnouncePhase: Organizer not send correct header message expected " + ConsensusMessageType.ANNOUNCE);
+                cleanup();
+                block.setStatusType(ConsensusStatusType.ABORT);
+                return;
+            }
 
             BlockEventPublisher publisher = new BlockEventPublisher(1024);
 
@@ -989,6 +1005,7 @@ public class ValidatorConsensusPhases {
             publisher.getJobSyncUntilRemainingCapacityZero();
 
             if (block.getData().getStatustype().equals(StatusType.ABORT)) {
+                cleanup();
                 LOG.info("AnnouncePhase: Block is not valid marked as ABORT");
                 return;
             }
@@ -1011,6 +1028,7 @@ public class ValidatorConsensusPhases {
             if (!DEBUG) {
                 byte[] receive = this.consensusClient.deque_message();
                 if (receive == null) {
+                    cleanup();
                     LOG.info("PreparePhase: Leader is not active fail to send message");
                     block.setStatusType(ConsensusStatusType.ABORT);
                     return;
@@ -1018,20 +1036,27 @@ public class ValidatorConsensusPhases {
                     try {
                         block = consensus_serialize.decode(receive);
                         if (!block.getChecksumData().getBlsPublicKey().toRaw().equals(leader_bls.toRaw())) {
+                            cleanup();
                             LOG.info("PreparePhase: This is not the valid leader for this round");
                             block.setStatusType(ConsensusStatusType.ABORT);
                             return;
                         } else {
                             byte[] message = block_serialize.encode(block.getData());
                             boolean verify = BLSSignature.verify(block.getChecksumData().getSignature(), message, block.getChecksumData().getBlsPublicKey());
-                            if (!verify)
-                                throw new IllegalArgumentException("PreparePhase: Abort consensus phase BLS leader signature is invalid during prepare phase");
+                            if (!verify) {
+                                LOG.info("PreparePhase: Abort consensus phase BLS leader signature is invalid during prepare phase");
+                                cleanup();
+                                block.setStatusType(ConsensusStatusType.ABORT);
+                                return;
+                            }
                         }
                     } catch (IllegalArgumentException e) {
+                        cleanup();
                         LOG.info("PreparePhase: Problem at message deserialization Abort");
                         block.setStatusType(ConsensusStatusType.ABORT);
                         return;
                     } catch (ArrayIndexOutOfBoundsException e) {
+                        cleanup();
                         LOG.info("PreparePhase: Receiving null response from organizer");
                         block.setStatusType(ConsensusStatusType.ABORT);
                         return;
@@ -1041,7 +1066,7 @@ public class ValidatorConsensusPhases {
 
             if (!block.getMessageType().equals(ConsensusMessageType.PREPARE)) {
                 LOG.info("PreparePhase: Organizer not send correct header message expected " + ConsensusMessageType.PREPARE);
-                //  data.clear();
+                cleanup();
                 block.setStatusType(ConsensusStatusType.ABORT);
                 return;
             }
@@ -1053,6 +1078,7 @@ public class ValidatorConsensusPhases {
             Bytes toVerify = Bytes.wrap(block_serialize.encode(block.getData()));
             boolean verify = BLSSignature.fastAggregateVerify(publicKeys, toVerify, aggregatedSignature);
             if (!verify) {
+                cleanup();
                 LOG.info("PreparePhase: Abort consensus phase BLS multi_signature is invalid in prepare phase");
                 block.setStatusType(ConsensusStatusType.ABORT);
                 return;
@@ -1081,6 +1107,7 @@ public class ValidatorConsensusPhases {
             if (!DEBUG) {
                 byte[] receive = this.consensusClient.deque_message();
                 if (receive == null) {
+                    cleanup();
                     LOG.info("CommitPhase: Leader is not active fail to send message");
                     block.setStatusType(ConsensusStatusType.ABORT);
                     return;
@@ -1088,6 +1115,7 @@ public class ValidatorConsensusPhases {
                     try {
                         block = consensus_serialize.decode(receive);
                         if (!block.getChecksumData().getBlsPublicKey().toRaw().equals(leader_bls.toRaw())) {
+                            cleanup();
                             LOG.info("CommitPhase: This is not the valid leader for this round");
                             block.setStatusType(ConsensusStatusType.ABORT);
                             return;
@@ -1098,10 +1126,12 @@ public class ValidatorConsensusPhases {
                                 throw new IllegalArgumentException("CommitPhase: Abort consensus phase BLS leader signature is invalid during commit phase");
                         }
                     } catch (IllegalArgumentException e) {
+                        cleanup();
                         LOG.info("CommitPhase: Problem at message deserialization Abort");
                         block.setStatusType(ConsensusStatusType.ABORT);
                         return;
                     } catch (ArrayIndexOutOfBoundsException e) {
+                        cleanup();
                         LOG.info("CommitPhase: Receiving null response from organizer");
                         block.setStatusType(ConsensusStatusType.ABORT);
                         return;
@@ -1110,6 +1140,7 @@ public class ValidatorConsensusPhases {
             }
 
             if (!block.getMessageType().equals(ConsensusMessageType.COMMIT)) {
+                cleanup();
                 LOG.info("CommitPhase: Organizer not send correct header message expected " + ConsensusMessageType.COMMIT);
                 block.setStatusType(ConsensusStatusType.ABORT);
                 return;
@@ -1141,7 +1172,15 @@ public class ValidatorConsensusPhases {
                 CachedLeaderIndex.getInstance().setCommitteePositionLeader(CachedLeaderIndex.getInstance().getCommitteePositionLeader() + 1);
             }
             consensusClient.send_heartbeat(HEARTBEAT_MESSAGE);
+            cleanup();
             LOG.info("Committee is finalized with Success");
+        }
+
+        private void cleanup() {
+            if (consensusClient != null) {
+                consensusClient.close();
+                consensusClient = null;
+            }
         }
     }
 

@@ -3,8 +3,6 @@ package io.Adrestus.consensus.ChangeView;
 import io.Adrestus.consensus.*;
 import io.Adrestus.core.BlockIndex;
 import io.Adrestus.core.IBlockIndex;
-import io.Adrestus.core.Resourses.CachedLatestBlocks;
-import io.Adrestus.core.Resourses.CachedLeaderIndex;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.Adrestus.crypto.bls.model.CachedBLSKeyPair;
@@ -37,14 +35,14 @@ public class ChangeViewCommitteeState extends AbstractState {
         ConsensusMessage<ChangeViewData> consensusMessage = new ConsensusMessage<ChangeViewData>(new ChangeViewData());
         try {
             if (target == current) {
-                LOG.info("Change View Transaction Block Organizer State");
-                consensusManager.changeStateTo(ConsensusRoleType.ORGANIZER);
+                LOG.info("Change View Committee Block Supervisor State");
+                consensusManager.changeStateTo(ConsensusRoleType.SUPERVISOR);
                 var organizerphase = consensusManager.getRole().manufacterChangeViewPhases(ConsensusType.CHANGE_VIEW_COMMITTEE_BLOCK);
                 organizerphase.InitialSetup();
                 organizerphase.AnnouncePhase(consensusMessage);
                 organizerphase.PreparePhase(consensusMessage);
             } else {
-                LOG.info("Transaction Block Validator State");
+                LOG.info("Change View Committee Block Validator State");
                 consensusManager.changeStateTo(ConsensusRoleType.VALIDATOR);
                 var validatorphase = consensusManager.getRole().manufacterChangeViewPhases(ConsensusType.CHANGE_VIEW_COMMITTEE_BLOCK);
                 validatorphase.InitialSetup();

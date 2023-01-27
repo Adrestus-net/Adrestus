@@ -571,7 +571,6 @@ public class SupervisorConsensusPhases {
         public void InitialSetup() {
             try {
                 if (!DEBUG) {
-                    this.N = 1;
                     this.N = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).size();
                     this.F = (this.N - 1) / 3;
                     this.latch = new CountDownLatch(N - 1);
@@ -587,6 +586,7 @@ public class SupervisorConsensusPhases {
                 }
             } catch (Exception e) {
                 cleanup();
+                CommitteeBlock s=CachedLatestBlocks.getInstance().getCommitteeBlock();
                 LOG.info("InitialSetup: Exception caught " + e.toString());
                 throw new IllegalArgumentException("Exception caught " + e.toString());
             }
@@ -773,6 +773,7 @@ public class SupervisorConsensusPhases {
     }
 
     protected void cleanup() {
-        consensusServer.close();
+        if (consensusServer != null)
+            consensusServer.close();
     }
 }

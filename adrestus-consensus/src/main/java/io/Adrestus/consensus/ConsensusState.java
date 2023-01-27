@@ -101,6 +101,7 @@ public class ConsensusState {
         public CommitteeBlockConsensusTask() {
             this.state = new ConsensusCommitteeBlockState();
             this.state.onEnterState(blockIndex.getPublicKeyByIndex(0, 0));
+            CachedLeaderIndex.getInstance().setCommitteePositionLeader(0);
         }
 
         public CommitteeBlockConsensusTask(AbstractState state) {
@@ -122,9 +123,8 @@ public class ConsensusState {
         @SneakyThrows
         @Override
         public void run() {
-            committee_block_timer.cancel();
-            committee_block_timer.purge();
             w.lock();
+            clear();
             try {
                 boolean result = false;
                 while (!result) {
@@ -132,12 +132,25 @@ public class ConsensusState {
                     if (!result) {
                         changeStateTo(new ChangeViewCommitteeState());
                         LOG.info("State changed to ChangeViewCommitteeState");
-                        state.onEnterState(blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedLeaderIndex.getInstance().getTransactionPositionLeader()));
+                        System.out.println(CachedLeaderIndex.getInstance().getCommitteePositionLeader());
+                        state.onEnterState(blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedLeaderIndex.getInstance().getCommitteePositionLeader()));
+                    } else {
+                        state.onEnterState(blockIndex.getPublicKeyByIndex(0, 0));
+                        CachedLeaderIndex.getInstance().setCommitteePositionLeader(0);
                     }
                 }
             } finally {
+                latch.countDown();
                 w.unlock();
                 CachedEpochGeneration.getInstance().setEpoch_counter(0);
+            }
+        }
+
+        public void clear() {
+            if (committee_block_timer != null) {
+                committee_block_timer.cancel();
+                committee_block_timer.purge();
+                committee_block_timer = null;
             }
         }
     }
@@ -169,13 +182,14 @@ public class ConsensusState {
         @SneakyThrows
         @Override
         public void run() {
-            transaction_block_timer.cancel();
-            transaction_block_timer.purge();
             w.lock();
+            clear();
             try {
                 if (CachedEpochGeneration.getInstance().getEpoch_counter() >= ConsensusConfiguration.EPOCH_TRANSITION) {
                     committee_block_timer = new Timer(ConsensusConfiguration.CONSENSUS);
                     committee_block_timer.scheduleAtFixedRate(new CommitteeBlockConsensusTask(), ConsensusConfiguration.CONSENSUS_COMMITTEE_TIMER, ConsensusConfiguration.CONSENSUS_COMMITTEE_TIMER);
+                    transaction_block_timer = new Timer(ConsensusConfiguration.CONSENSUS);
+                    transaction_block_timer.scheduleAtFixedRate(new TransactionBlockConsensusTask(state), ConsensusConfiguration.CHANGE_VIEW_TIMER, ConsensusConfiguration.CHANGE_VIEW_TIMER);
                 } else {
                     boolean result = state.onActiveState();
                     if (result) {
@@ -213,6 +227,14 @@ public class ConsensusState {
         public boolean cancel() {
             super.cancel();
             return true;
+        }
+
+        public void clear() {
+            if (transaction_block_timer != null) {
+                transaction_block_timer.cancel();
+                transaction_block_timer.purge();
+                transaction_block_timer = null;
+            }
         }
     }
 
