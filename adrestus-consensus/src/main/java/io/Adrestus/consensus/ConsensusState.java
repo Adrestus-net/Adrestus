@@ -19,7 +19,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class ConsensusState {
+public class ConsensusState extends ConsensusDataState {
     private static Logger LOG = LoggerFactory.getLogger(ConsensusState.class);
     private static final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
     private static final Lock r = rwl.readLock();
@@ -96,28 +96,32 @@ public class ConsensusState {
     }
 
     protected static final class CommitteeBlockConsensusTask extends TimerTask {
-        private AbstractState state;
 
         public CommitteeBlockConsensusTask() {
-            this.state = new ConsensusCommitteeBlockState();
-            this.state.onEnterState(blockIndex.getPublicKeyByIndex(0, 0));
+            committee_state = new ConsensusCommitteeBlockState();
+            committee_state.onEnterState(blockIndex.getPublicKeyByIndex(0, 0));
             CachedLeaderIndex.getInstance().setCommitteePositionLeader(0);
         }
 
         public CommitteeBlockConsensusTask(AbstractState state) {
-            this.state = state;
+            if (committee_state == null) {
+                committee_state = new ConsensusCommitteeBlockState();
+                committee_state.onEnterState(blockIndex.getPublicKeyByIndex(0, 0));
+                CachedLeaderIndex.getInstance().setCommitteePositionLeader(0);
+            }
+            committee_state = state;
         }
 
         private void changeStateTo(AbstractState newState) {
-            this.state = newState;
+            committee_state = newState;
         }
 
         public AbstractState getState() {
-            return state;
+            return committee_state;
         }
 
         public void setState(AbstractState state) {
-            this.state = state;
+            committee_state = state;
         }
 
         @SneakyThrows
@@ -127,16 +131,20 @@ public class ConsensusState {
             clear();
             try {
                 boolean result = false;
-                while (!result) {
-                    result = state.onActiveState();
+                while (!result && committee_state.getClass().equals(ChangeViewCommitteeState.class)) {
+                    result = committee_state.onActiveState();
                     if (!result) {
                         changeStateTo(new ChangeViewCommitteeState());
                         LOG.info("State changed to ChangeViewCommitteeState");
-                        System.out.println(CachedLeaderIndex.getInstance().getCommitteePositionLeader());
-                        state.onEnterState(blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedLeaderIndex.getInstance().getCommitteePositionLeader()));
+                        committee_state.onEnterState(blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedLeaderIndex.getInstance().getCommitteePositionLeader()));
                     } else {
-                        state.onEnterState(blockIndex.getPublicKeyByIndex(0, 0));
-                        CachedLeaderIndex.getInstance().setCommitteePositionLeader(0);
+                        if (committee_state.getClass().equals(ChangeViewCommitteeState.class)) {
+                            changeStateTo(new ConsensusCommitteeBlockState());
+                            committee_state.onEnterState(blockIndex.getPublicKeyByIndex(0, CachedLeaderIndex.getInstance().getCommitteePositionLeader()));
+                        } else {
+                            committee_state.onEnterState(blockIndex.getPublicKeyByIndex(0, 0));
+                            CachedLeaderIndex.getInstance().setCommitteePositionLeader(0);
+                        }
                     }
                 }
             } finally {
@@ -187,7 +195,7 @@ public class ConsensusState {
             try {
                 if (CachedEpochGeneration.getInstance().getEpoch_counter() >= ConsensusConfiguration.EPOCH_TRANSITION) {
                     committee_block_timer = new Timer(ConsensusConfiguration.CONSENSUS);
-                    committee_block_timer.scheduleAtFixedRate(new CommitteeBlockConsensusTask(), ConsensusConfiguration.CONSENSUS_COMMITTEE_TIMER, ConsensusConfiguration.CONSENSUS_COMMITTEE_TIMER);
+                    committee_block_timer.scheduleAtFixedRate(new CommitteeBlockConsensusTask(committee_state), ConsensusConfiguration.CONSENSUS_COMMITTEE_TIMER, ConsensusConfiguration.CONSENSUS_COMMITTEE_TIMER);
                     transaction_block_timer = new Timer(ConsensusConfiguration.CONSENSUS);
                     transaction_block_timer.scheduleAtFixedRate(new TransactionBlockConsensusTask(state), ConsensusConfiguration.CHANGE_VIEW_TIMER, ConsensusConfiguration.CHANGE_VIEW_TIMER);
                 } else {

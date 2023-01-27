@@ -60,6 +60,7 @@ public class ConsensusCommitteeBlockState extends AbstractState {
             }
             if (consensusMessage.getStatusType().equals(ConsensusStatusType.ABORT))
                 return false;
+
             CachedSecurityHeaders.getInstance().getSecurityHeader().setRnd(vdf.solve(CachedSecurityHeaders.getInstance().getSecurityHeader().getpRnd(), CachedLatestBlocks.getInstance().getCommitteeBlock().getDifficulty()));
             return true;
         } catch (Exception e) {
