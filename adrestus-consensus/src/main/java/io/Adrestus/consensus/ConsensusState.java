@@ -108,8 +108,9 @@ public class ConsensusState extends ConsensusDataState {
                 committee_state = new ConsensusCommitteeBlockState();
                 committee_state.onEnterState(blockIndex.getPublicKeyByIndex(0, 0));
                 CachedLeaderIndex.getInstance().setCommitteePositionLeader(0);
+            } else {
+                committee_state = state;
             }
-            committee_state = state;
         }
 
         private void changeStateTo(AbstractState newState) {
@@ -131,7 +132,7 @@ public class ConsensusState extends ConsensusDataState {
             clear();
             try {
                 boolean result = false;
-                while (!result && committee_state.getClass().equals(ChangeViewCommitteeState.class)) {
+                while (!result) {
                     result = committee_state.onActiveState();
                     if (!result) {
                         changeStateTo(new ChangeViewCommitteeState());
@@ -140,7 +141,13 @@ public class ConsensusState extends ConsensusDataState {
                     } else {
                         if (committee_state.getClass().equals(ChangeViewCommitteeState.class)) {
                             changeStateTo(new ConsensusCommitteeBlockState());
-                            committee_state.onEnterState(blockIndex.getPublicKeyByIndex(0, CachedLeaderIndex.getInstance().getCommitteePositionLeader()));
+                            if (CachedLeaderIndex.getInstance().getCommitteePositionLeader() == 0) {
+                                CachedLeaderIndex.getInstance().setCommitteePositionLeader(CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).size() - 1);
+                                committee_state.onEnterState(blockIndex.getPublicKeyByIndex(0, CachedLeaderIndex.getInstance().getCommitteePositionLeader()));
+                            } else {
+                                CachedLeaderIndex.getInstance().setCommitteePositionLeader(CachedLeaderIndex.getInstance().getCommitteePositionLeader() - 1);
+                                committee_state.onEnterState(blockIndex.getPublicKeyByIndex(0, CachedLeaderIndex.getInstance().getCommitteePositionLeader()));
+                            }
                         } else {
                             committee_state.onEnterState(blockIndex.getPublicKeyByIndex(0, 0));
                             CachedLeaderIndex.getInstance().setCommitteePositionLeader(0);

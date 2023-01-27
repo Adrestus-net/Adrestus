@@ -257,6 +257,7 @@ public class ChangeViewValidatorsConsensusPhase extends ChangeViewConsensusPhase
                 return;
 
             consensusClient.send_heartbeat(HEARTBEAT_MESSAGE);
+            cleanup();
             LOG.info("Change View is finalized with Success");
         }
     }

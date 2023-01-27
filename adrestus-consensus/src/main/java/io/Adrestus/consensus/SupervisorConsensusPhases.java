@@ -775,5 +775,6 @@ public class SupervisorConsensusPhases {
     protected void cleanup() {
         if (consensusServer != null)
             consensusServer.close();
+            consensusServer = null;
     }
 }

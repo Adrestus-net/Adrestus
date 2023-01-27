@@ -65,7 +65,6 @@ public abstract class ChangeViewConsensusPhase {
     public void PreparePhase(ConsensusMessage<ChangeViewData> data) throws InterruptedException {
         if (data.getStatusType().equals(ConsensusStatusType.ABORT))
             return;
-
         int i = N;
         while (i > 0) {
             try {
