@@ -120,6 +120,16 @@ public class CommitteeBlock extends AbstractBlock implements BlockFactory, Disru
     }
 
     @Override
+    public int getViewID() {
+        return ViewID;
+    }
+
+    @Override
+    public void setViewID(int viewID) {
+        ViewID = viewID;
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;

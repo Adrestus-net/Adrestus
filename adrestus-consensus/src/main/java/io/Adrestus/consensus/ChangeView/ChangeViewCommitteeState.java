@@ -29,33 +29,32 @@ public class ChangeViewCommitteeState extends AbstractState {
     public void onEnterState(BLSPublicKey blsPublicKey) {
         target = blockIndex.getPublicKeyIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedBLSKeyPair.getInstance().getPublicKey());
         current = blockIndex.getPublicKeyIndex(CachedZoneIndex.getInstance().getZoneIndex(), blsPublicKey);
-        if (current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).size() - 1)
-            current = 0;
-        else {
-            current = CachedLeaderIndex.getInstance().getCommitteePositionLeader() + 1;
-        }
-        CachedLeaderIndex.getInstance().setCommitteePositionLeader(current);
     }
 
     @SneakyThrows
     @Override
     public boolean onActiveState() {
         ConsensusMessage<ChangeViewData> consensusMessage = new ConsensusMessage<ChangeViewData>(new ChangeViewData());
-
-        if (target == current) {
-            LOG.info("Change View Transaction Block Organizer State");
-            consensusManager.changeStateTo(ConsensusRoleType.ORGANIZER);
-            var organizerphase = consensusManager.getRole().manufacterChangeViewPhases(ConsensusType.CHANGE_VIEW_COMMITTEE_BLOCK);
-            organizerphase.InitialSetup();
-            organizerphase.AnnouncePhase(consensusMessage);
-            organizerphase.PreparePhase(consensusMessage);
-        } else {
-            LOG.info("Transaction Block Validator State");
-            consensusManager.changeStateTo(ConsensusRoleType.VALIDATOR);
-            var validatorphase = consensusManager.getRole().manufacterChangeViewPhases(ConsensusType.CHANGE_VIEW_COMMITTEE_BLOCK);
-            validatorphase.InitialSetup();
-            validatorphase.AnnouncePhase(consensusMessage);
-            validatorphase.PreparePhase(consensusMessage);
+        try {
+            if (target == current) {
+                LOG.info("Change View Transaction Block Organizer State");
+                consensusManager.changeStateTo(ConsensusRoleType.ORGANIZER);
+                var organizerphase = consensusManager.getRole().manufacterChangeViewPhases(ConsensusType.CHANGE_VIEW_COMMITTEE_BLOCK);
+                organizerphase.InitialSetup();
+                organizerphase.AnnouncePhase(consensusMessage);
+                organizerphase.PreparePhase(consensusMessage);
+            } else {
+                LOG.info("Transaction Block Validator State");
+                consensusManager.changeStateTo(ConsensusRoleType.VALIDATOR);
+                var validatorphase = consensusManager.getRole().manufacterChangeViewPhases(ConsensusType.CHANGE_VIEW_COMMITTEE_BLOCK);
+                validatorphase.InitialSetup();
+                validatorphase.AnnouncePhase(consensusMessage);
+                validatorphase.PreparePhase(consensusMessage);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            LOG.info("Exception caught " + e.getMessage());
+            return false;
         }
 
         if (consensusMessage.getStatusType().equals(ConsensusStatusType.ABORT))

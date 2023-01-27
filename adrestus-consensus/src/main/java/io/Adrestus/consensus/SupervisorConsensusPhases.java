@@ -46,7 +46,8 @@ import java.util.stream.Collectors;
 public class SupervisorConsensusPhases {
     protected boolean DEBUG;
     protected CountDownLatch latch;
-    protected int N;
+    protected int N, N_COPY;
+    ;
     protected int F;
     protected int current;
     protected ConsensusServer consensusServer;
@@ -568,14 +569,26 @@ public class SupervisorConsensusPhases {
 
         @Override
         public void InitialSetup() {
-            if (!DEBUG) {
-                this.N = 1;
-                //this.N = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).size() - 1;
-                this.F = (this.N - 1) / 3;
-                this.latch = new CountDownLatch(N);
-                this.current = CachedLeaderIndex.getInstance().getCommitteePositionLeader();
-                this.leader_bls = this.blockIndex.getPublicKeyByIndex(0, current);
-                this.consensusServer = new ConsensusServer(this.blockIndex.getIpValue(0, this.leader_bls), latch);
+            try {
+                if (!DEBUG) {
+                    this.N = 1;
+                    this.N = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).size();
+                    this.F = (this.N - 1) / 3;
+                    this.latch = new CountDownLatch(N - 1);
+                    this.current = CachedLeaderIndex.getInstance().getCommitteePositionLeader();
+                    this.leader_bls = this.blockIndex.getPublicKeyByIndex(0, current);
+                    if (current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).size() - 1)
+                        CachedLeaderIndex.getInstance().setCommitteePositionLeader(0);
+                    else {
+                        CachedLeaderIndex.getInstance().setCommitteePositionLeader(CachedLeaderIndex.getInstance().getCommitteePositionLeader() + 1);
+                    }
+                    this.consensusServer = new ConsensusServer(this.blockIndex.getIpValue(0, this.leader_bls), latch);
+                    this.N_COPY = (this.N - 1) - consensusServer.getPeers_not_connected();
+                }
+            } catch (Exception e) {
+                cleanup();
+                LOG.info("InitialSetup: Exception caught " + e.toString());
+                throw new IllegalArgumentException("Exception caught " + e.toString());
             }
         }
 
@@ -604,7 +617,7 @@ public class SupervisorConsensusPhases {
         @Override
         public void PreparePhase(ConsensusMessage<CommitteeBlock> block) {
             if (!DEBUG) {
-                int i = N;
+                int i = N_COPY;
                 while (i > 0) {
                     byte[] receive = consensusServer.receiveData();
                     try {
@@ -618,7 +631,7 @@ public class SupervisorConsensusPhases {
                                 i--;
                             } else {
                                 block.getSignatures().add(received.getChecksumData());
-                                N--;
+                                N_COPY--;
                                 i--;
                             }
                         }
@@ -631,8 +644,8 @@ public class SupervisorConsensusPhases {
                 }
 
 
-                if (N > F) {
-                    LOG.info("PreparePhase: Byzantine network not meet requirements abort " + String.valueOf(N));
+                if (N_COPY > F) {
+                    LOG.info("PreparePhase: Byzantine network not meet requirements abort " + String.valueOf(N_COPY));
                     block.setStatusType(ConsensusStatusType.ABORT);
                     cleanup();
                     return;
@@ -647,8 +660,11 @@ public class SupervisorConsensusPhases {
 
             Bytes message = Bytes.wrap(block_serialize.encode(block.getData()));
             boolean verify = BLSSignature.fastAggregateVerify(publicKeys, message, aggregatedSignature);
-            if (!verify)
-                throw new IllegalArgumentException("Abort consensus phase BLS multi_signature is invalid during prepare phase");
+            if (!verify) {
+                LOG.info("Abort consensus phase BLS multi_signature is invalid during prepare phase");
+                block.setStatusType(ConsensusStatusType.ABORT);
+                cleanup();
+            }
 
             if (DEBUG)
                 return;
@@ -657,8 +673,7 @@ public class SupervisorConsensusPhases {
             Signature sig = BLSSignature.sign(block_serialize.encode(block.getData()), CachedBLSKeyPair.getInstance().getPrivateKey());
             block.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
 
-            this.N = 1;
-            this.F = (this.N - 1) / 3;
+            this.N_COPY = (this.N - 1) - consensusServer.getPeers_not_connected();
 
 
             byte[] toSend = consensus_serialize.encode(block);
@@ -668,7 +683,7 @@ public class SupervisorConsensusPhases {
         @Override
         public void CommitPhase(ConsensusMessage<CommitteeBlock> block) {
             if (!DEBUG) {
-                int i = N;
+                int i = N_COPY;
                 block.getSignatures().clear();
                 while (i > 0) {
                     byte[] receive = consensusServer.receiveData();
@@ -683,7 +698,7 @@ public class SupervisorConsensusPhases {
                                 i--;
                             } else {
                                 block.getSignatures().add(received.getChecksumData());
-                                N--;
+                                N_COPY--;
                                 i--;
                             }
                         }
@@ -696,8 +711,8 @@ public class SupervisorConsensusPhases {
                 }
 
 
-                if (N > F) {
-                    LOG.info("CommitPhase: Byzantine network not meet requirements abort " + String.valueOf(N));
+                if (N_COPY > F) {
+                    LOG.info("CommitPhase: Byzantine network not meet requirements abort " + String.valueOf(N_COPY));
                     block.setStatusType(ConsensusStatusType.ABORT);
                     cleanup();
                     return;
@@ -712,8 +727,11 @@ public class SupervisorConsensusPhases {
             Signature aggregatedSignature = BLSSignature.aggregate(signature);
             Bytes message = Bytes.wrap(block_serialize.encode(block.getData()));
             boolean verify = BLSSignature.fastAggregateVerify(publicKeys, message, aggregatedSignature);
-            if (!verify)
-                throw new IllegalArgumentException("CommitPhase: Abort consensus phase BLS multi_signature is invalid during commit phase");
+            if (!verify) {
+                LOG.info("CommitPhase: Abort consensus phase BLS multi_signature is invalid during commit phase");
+                block.setStatusType(ConsensusStatusType.ABORT);
+                cleanup();
+            }
 
             //commit save to db
 
@@ -723,9 +741,8 @@ public class SupervisorConsensusPhases {
             Signature sig = BLSSignature.sign(block_serialize.encode(block.getData()), CachedBLSKeyPair.getInstance().getPrivateKey());
             block.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
 
-            this.N = 1;
-            this.F = (this.N - 1) / 3;
-            int i = N;
+            this.N_COPY = (this.N - 1) - consensusServer.getPeers_not_connected();
+            int i = N_COPY;
 
             byte[] toSend = consensus_serialize.encode(block);
             consensusServer.publishMessage(toSend);
@@ -740,11 +757,6 @@ public class SupervisorConsensusPhases {
                 }
             }
 
-            if (current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).size() - 1)
-                CachedLeaderIndex.getInstance().setCommitteePositionLeader(0);
-            else {
-                CachedLeaderIndex.getInstance().setCommitteePositionLeader(CachedLeaderIndex.getInstance().getCommitteePositionLeader() + 1);
-            }
             CachedLatestBlocks.getInstance().setCommitteeBlock(block.getData());
             database.save(block.getData().getHash(), block.getData());
             cleanup();

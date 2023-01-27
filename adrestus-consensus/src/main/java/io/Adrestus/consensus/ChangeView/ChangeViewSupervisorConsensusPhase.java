@@ -38,20 +38,32 @@ public class ChangeViewSupervisorConsensusPhase extends ChangeViewConsensusPhase
 
     @Override
     public void InitialSetup() {
-        if (!DEBUG) {
-            this.N = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).size() - 1;
-            this.F = (this.N - 1) / 3;
-            this.latch = new CountDownLatch(N);
-            this.current = CachedLeaderIndex.getInstance().getCommitteePositionLeader();
-            this.leader_bls = this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), this.current);
-            this.consensusServer = new ConsensusServer(this.blockIndex.getIpValue(CachedZoneIndex.getInstance().getZoneIndex(), this.leader_bls), latch, ConsensusConfiguration.CHANGE_VIEW_COLLECTOR_TIMEOUT, ConsensusConfiguration.CHANGE_VIEW_CONNECTED_TIMEOUT);
+        try {
+            if (!DEBUG) {
+                this.N = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).size();
+                this.F = (this.N - 1) / 3;
+                this.latch = new CountDownLatch(N - 1);
+                this.current = CachedLeaderIndex.getInstance().getCommitteePositionLeader();
+                this.leader_bls = this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), this.current);
+                if (current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).size() - 1)
+                    CachedLeaderIndex.getInstance().setCommitteePositionLeader(0);
+                else {
+                    CachedLeaderIndex.getInstance().setCommitteePositionLeader(CachedLeaderIndex.getInstance().getCommitteePositionLeader() + 1);
+                }
+                this.consensusServer = new ConsensusServer(this.blockIndex.getIpValue(CachedZoneIndex.getInstance().getZoneIndex(), this.leader_bls), latch, ConsensusConfiguration.CHANGE_VIEW_COLLECTOR_TIMEOUT, ConsensusConfiguration.CHANGE_VIEW_CONNECTED_TIMEOUT);
+                this.N_COPY = (this.N - 1) - consensusServer.getPeers_not_connected();
+            }
+        } catch (Exception e) {
+            cleanup();
+            LOG.info("Change View InitialSetup: Exception caught " + e.toString());
+            throw new IllegalArgumentException("Exception caught " + e.toString());
         }
     }
 
     @Override
     public void AnnouncePhase(ConsensusMessage<ChangeViewData> data) throws Exception {
         if (!DEBUG) {
-            int i = N;
+            int i = N_COPY;
             while (i > 0) {
                 byte[] receive = consensusServer.receiveData();
                 try {
@@ -72,7 +84,7 @@ public class ChangeViewSupervisorConsensusPhase extends ChangeViewConsensusPhase
                             i--;
                         } else {
                             data.getSignatures().add(received.getChecksumData());
-                            N--;
+                            N_COPY--;
                             i--;
                         }
                     }
@@ -85,8 +97,8 @@ public class ChangeViewSupervisorConsensusPhase extends ChangeViewConsensusPhase
             }
 
 
-            if (N > F) {
-                LOG.info("AnnouncePhase: Byzantine network not meet requirements abort " + String.valueOf(N));
+            if (N_COPY > F) {
+                LOG.info("AnnouncePhase: Byzantine network not meet requirements abort " + String.valueOf(N_COPY));
                 data.setStatusType(ConsensusStatusType.ABORT);
                 cleanup();
                 return;
@@ -114,8 +126,7 @@ public class ChangeViewSupervisorConsensusPhase extends ChangeViewConsensusPhase
             Signature sig = BLSSignature.sign(change_view_ser.encode(data.getData()), CachedBLSKeyPair.getInstance().getPrivateKey());
             data.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
 
-            this.N = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).size() - 1;
-            this.F = (this.N - 1) / 3;
+            this.N_COPY = (this.N - 1) - consensusServer.getPeers_not_connected();
 
 
             byte[] toSend = consensus_serialize.encode(data);
@@ -127,5 +138,7 @@ public class ChangeViewSupervisorConsensusPhase extends ChangeViewConsensusPhase
     public void PreparePhase(ConsensusMessage<ChangeViewData> data) throws InterruptedException {
         super.PreparePhase(data);
         super.cleanup();
+        CachedLatestBlocks.getInstance().getCommitteeBlock().setViewID(data.getData().getViewID());
+        LOG.info("Change View Committee is finalized with Success");
     }
 }

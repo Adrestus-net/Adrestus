@@ -19,7 +19,7 @@ public abstract class AbstractBlock extends Object implements BlockFactory, Disr
     private int Size;
     private int Height;
     private int Generation;
-    private int ViewID;
+    protected int ViewID;
     private Map<BLSPublicKey, SignatureData> signatureData;
 
 

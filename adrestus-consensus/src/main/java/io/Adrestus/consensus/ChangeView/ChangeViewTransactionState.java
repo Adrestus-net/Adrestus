@@ -41,21 +41,26 @@ public class ChangeViewTransactionState extends AbstractState {
     @Override
     public boolean onActiveState() {
         ConsensusMessage<ChangeViewData> consensusMessage = new ConsensusMessage<ChangeViewData>(new ChangeViewData());
-
-        if (target == current) {
-            LOG.info("Change View Transaction Block Organizer State");
-            consensusManager.changeStateTo(ConsensusRoleType.ORGANIZER);
-            var organizerphase = consensusManager.getRole().manufacterChangeViewPhases(ConsensusType.CHANGE_VIEW_TRANSACTION_BLOCK);
-            organizerphase.InitialSetup();
-            organizerphase.AnnouncePhase(consensusMessage);
-            organizerphase.PreparePhase(consensusMessage);
-        } else {
-            LOG.info("Change View Transaction Block Validator State");
-            consensusManager.changeStateTo(ConsensusRoleType.VALIDATOR);
-            var validatorphase = consensusManager.getRole().manufacterChangeViewPhases(ConsensusType.CHANGE_VIEW_TRANSACTION_BLOCK);
-            validatorphase.InitialSetup();
-            validatorphase.AnnouncePhase(consensusMessage);
-            validatorphase.PreparePhase(consensusMessage);
+        try {
+            if (target == current) {
+                LOG.info("Change View Transaction Block Organizer State");
+                consensusManager.changeStateTo(ConsensusRoleType.ORGANIZER);
+                var organizerphase = consensusManager.getRole().manufacterChangeViewPhases(ConsensusType.CHANGE_VIEW_TRANSACTION_BLOCK);
+                organizerphase.InitialSetup();
+                organizerphase.AnnouncePhase(consensusMessage);
+                organizerphase.PreparePhase(consensusMessage);
+            } else {
+                LOG.info("Change View Transaction Block Validator State");
+                consensusManager.changeStateTo(ConsensusRoleType.VALIDATOR);
+                var validatorphase = consensusManager.getRole().manufacterChangeViewPhases(ConsensusType.CHANGE_VIEW_TRANSACTION_BLOCK);
+                validatorphase.InitialSetup();
+                validatorphase.AnnouncePhase(consensusMessage);
+                validatorphase.PreparePhase(consensusMessage);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            LOG.info("Exception caught " + e.getMessage());
+            return false;
         }
 
         if (consensusMessage.getStatusType().equals(ConsensusStatusType.ABORT))
