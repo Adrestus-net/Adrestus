@@ -45,6 +45,11 @@ public class ChangeViewValidatorsConsensusPhase extends ChangeViewConsensusPhase
                 try {
                     this.current = CachedLeaderIndex.getInstance().getTransactionPositionLeader();
                     this.leader_bls = this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), this.current);
+                    if (current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).size() - 1)
+                        CachedLeaderIndex.getInstance().setCommitteePositionLeader(0);
+                    else {
+                        CachedLeaderIndex.getInstance().setCommitteePositionLeader(CachedLeaderIndex.getInstance().getCommitteePositionLeader() + 1);
+                    }
                     this.consensusClient = new ConsensusClient(this.blockIndex.getIpValue(CachedZoneIndex.getInstance().getZoneIndex(), this.leader_bls));
                     this.consensusClient.receive_handler();
                     this.consensusClient.send_heartbeat(HEARTBEAT_MESSAGE);
