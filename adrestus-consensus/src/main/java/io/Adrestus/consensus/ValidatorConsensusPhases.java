@@ -1166,11 +1166,6 @@ public class ValidatorConsensusPhases {
             database.save(block.getData().getHash(), block.getData());
             //commit save to db
 
-            if (current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).size() - 1)
-                CachedLeaderIndex.getInstance().setCommitteePositionLeader(0);
-            else {
-                CachedLeaderIndex.getInstance().setCommitteePositionLeader(CachedLeaderIndex.getInstance().getCommitteePositionLeader() + 1);
-            }
             consensusClient.send_heartbeat(HEARTBEAT_MESSAGE);
             cleanup();
             LOG.info("Committee is finalized with Success");
