@@ -8,6 +8,7 @@ import io.Adrestus.consensus.helper.ConsensusCommitteeTimer;
 import io.Adrestus.core.CommitteeBlock;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedLeaderIndex;
+import io.Adrestus.crypto.elliptic.mapper.StakingData;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.SecurityAuditProofs;
 import io.Adrestus.crypto.WalletAddress;
@@ -85,8 +86,8 @@ public class ConsensusCommitteeTimerTest {
         committeeBlock.getStructureMap().get(0).put(vk1, "192.168.1.106");
         committeeBlock.getStructureMap().get(0).put(vk2, "192.168.1.116");
 
-        committeeBlock.getStakingMap().put(10.0, new KademliaData(new SecurityAuditProofs(address1, vk1, ecKeyPair1.getPublicKey(), signatureData1), new NettyConnectionInfo("192.168.1.106", KademliaConfiguration.PORT)));
-        committeeBlock.getStakingMap().put(13.0, new KademliaData(new SecurityAuditProofs(address2, vk2, ecKeyPair2.getPublicKey(), signatureData2), new NettyConnectionInfo("192.168.1.116", KademliaConfiguration.PORT)));
+        committeeBlock.getStakingMap().put(new StakingData(1,10.0), new KademliaData(new SecurityAuditProofs(address1, vk1, ecKeyPair1.getPublicKey(), signatureData1), new NettyConnectionInfo("192.168.1.106", KademliaConfiguration.PORT)));
+        committeeBlock.getStakingMap().put(new StakingData(2,13.0), new KademliaData(new SecurityAuditProofs(address2, vk2, ecKeyPair2.getPublicKey(), signatureData2), new NettyConnectionInfo("192.168.1.116", KademliaConfiguration.PORT)));
 
         CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
         CachedLeaderIndex.getInstance().setCommitteePositionLeader(0);

@@ -10,15 +10,15 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.TreeMap;
 
-public class CustomSerializerTreeMap extends SimpleSerializerDef<TreeMap<Double, SecurityAuditProofs>> {
+public class CustomSerializerTreeMap extends SimpleSerializerDef<TreeMap<StakingData, SecurityAuditProofs>> {
 
 
     @Override
-    protected BinarySerializer<TreeMap<Double, SecurityAuditProofs>> createSerializer(int version, CompatibilityLevel compatibilityLevel) {
-        return new BinarySerializer<TreeMap<Double, SecurityAuditProofs>>() {
+    protected BinarySerializer<TreeMap<StakingData, SecurityAuditProofs>> createSerializer(int version, CompatibilityLevel compatibilityLevel) {
+        return new BinarySerializer<TreeMap<StakingData, SecurityAuditProofs>>() {
             @SneakyThrows
             @Override
-            public void encode(BinaryOutput out, TreeMap<Double, SecurityAuditProofs> item) {
+            public void encode(BinaryOutput out, TreeMap<StakingData, SecurityAuditProofs> item) {
                 ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
                 ObjectOutputStream outstream = new ObjectOutputStream(byteOut);
                 outstream.writeObject(item);
@@ -29,12 +29,12 @@ public class CustomSerializerTreeMap extends SimpleSerializerDef<TreeMap<Double,
 
             @SneakyThrows
             @Override
-            public TreeMap<Double, SecurityAuditProofs> decode(BinaryInput in) throws CorruptedDataException {
+            public TreeMap<StakingData, SecurityAuditProofs> decode(BinaryInput in) throws CorruptedDataException {
                 byte[] bytes = new byte[in.readVarInt()];
                 in.read(bytes);
                 ByteArrayInputStream byteIn = new ByteArrayInputStream(bytes);
                 ObjectInputStream instream = new ObjectInputStream(byteIn);
-                TreeMap<Double, SecurityAuditProofs> treemap = (TreeMap<Double, SecurityAuditProofs>) instream.readObject();
+                TreeMap<StakingData, SecurityAuditProofs> treemap = (TreeMap<StakingData, SecurityAuditProofs>) instream.readObject();
                 return treemap;
             }
         };

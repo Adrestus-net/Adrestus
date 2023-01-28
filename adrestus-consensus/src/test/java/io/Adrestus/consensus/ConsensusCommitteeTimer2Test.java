@@ -9,6 +9,7 @@ import io.Adrestus.consensus.helper.ConsensusCommitteeTimer;
 import io.Adrestus.core.CommitteeBlock;
 import io.Adrestus.core.Resourses.CachedKademliaNodes;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
+import io.Adrestus.crypto.elliptic.mapper.StakingData;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.SecurityAuditProofs;
 import io.Adrestus.crypto.WalletAddress;
@@ -130,8 +131,8 @@ public class ConsensusCommitteeTimer2Test {
             committeeBlock.getStructureMap().get(0).put(list_data.get(0).getAddressData().getValidatorBlSPublicKey(), list_data.get(0).getNettyConnectionInfo().getHost());
             committeeBlock.getStructureMap().get(0).put(list_data.get(1).getAddressData().getValidatorBlSPublicKey(), list_data.get(1).getNettyConnectionInfo().getHost());
 
-            committeeBlock.getStakingMap().put(10.0, list_data.get(0));
-            committeeBlock.getStakingMap().put(13.0, list_data.get(1));
+            committeeBlock.getStakingMap().put(new StakingData(1,10.0), list_data.get(0));
+            committeeBlock.getStakingMap().put(new StakingData(2,13.0), list_data.get(1));
         } else if (IP.equals("192.168.1.116")) {
             dhtBootstrapNode.Init();
             nettyConnectionInfo = new NettyConnectionInfo(IP, KademliaConfiguration.PORT);
@@ -148,8 +149,8 @@ public class ConsensusCommitteeTimer2Test {
             committeeBlock.getStructureMap().get(0).put(list_data.get(1).getAddressData().getValidatorBlSPublicKey(), list_data.get(1).getNettyConnectionInfo().getHost());
             committeeBlock.getStructureMap().get(0).put(list_data.get(0).getAddressData().getValidatorBlSPublicKey(), list_data.get(0).getNettyConnectionInfo().getHost());
 
-            committeeBlock.getStakingMap().put(10.0, list_data.get(1));
-            committeeBlock.getStakingMap().put(13.0, list_data.get(0));
+            committeeBlock.getStakingMap().put(new StakingData(1,10.0), list_data.get(1));
+            committeeBlock.getStakingMap().put(new StakingData(2,13.0), list_data.get(0));
         } else {
 
         }

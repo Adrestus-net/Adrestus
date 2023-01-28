@@ -11,6 +11,7 @@ import io.Adrestus.crypto.bls.mapper.ECPmapper;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.crypto.elliptic.mapper.CustomSerializerTreeMap;
+import io.Adrestus.crypto.elliptic.mapper.StakingData;
 import io.Adrestus.mapper.MemoryTreePoolSerializer;
 import io.Adrestus.util.SerializationUtil;
 import io.distributedLedger.*;
@@ -55,8 +56,8 @@ public class RocksDBBlockTest {
         SerializationUtil<AbstractBlock> serenc = new SerializationUtil<AbstractBlock>(AbstractBlock.class, list);
         String hash = "Hash";
         CommitteeBlock committeeBlock = new CommitteeBlock();
-        committeeBlock.getStakingMap().put(10.0, null);
-        committeeBlock.getStakingMap().put(13.0, null);
+        committeeBlock.getStakingMap().put(new StakingData(1,10.0), null);
+        committeeBlock.getStakingMap().put(new StakingData(2,13.0), null);
         committeeBlock.getStructureMap().get(0).put(new BLSPublicKey(), "");
         committeeBlock.getStructureMap().put(0, new LinkedHashMap<BLSPublicKey, String>());
         committeeBlock.setGeneration(1);

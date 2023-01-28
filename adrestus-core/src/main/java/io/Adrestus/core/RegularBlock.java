@@ -16,6 +16,7 @@ import io.Adrestus.crypto.bls.mapper.ECPmapper;
 import io.Adrestus.crypto.bls.model.CachedBLSKeyPair;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.crypto.elliptic.mapper.CustomSerializerTreeMap;
+import io.Adrestus.crypto.elliptic.mapper.StakingData;
 import io.Adrestus.p2p.kademlia.repository.KademliaData;
 import io.Adrestus.util.CustomRandom;
 import io.Adrestus.util.GetTime;
@@ -173,9 +174,12 @@ public class RegularBlock implements BlockForge, BlockInvent {
                     .getActiveNodes()
                     .stream()
                     .collect(Collectors.toList());
-            kademliaData.stream().forEach(val -> committeeBlock
-                    .getStakingMap()
-                    .put(TreeFactory.getMemoryTree(0).getByaddress(val.getAddressData().getAddress()).get().getStaking_amount(), val));
+
+            for(int i=0;i<kademliaData.size();i++){
+                committeeBlock
+                        .getStakingMap()
+                        .put(new StakingData(i,TreeFactory.getMemoryTree(0).getByaddress(kademliaData.get(i).getAddressData().getAddress()).get().getStaking_amount()), kademliaData.get(i));
+            }
         } else {
             committeeBlock.setStakingMap(CachedLatestBlocks.getInstance().getCommitteeBlock().getStakingMap());
         }
@@ -238,7 +242,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
         //#####RANDOM ASSIGN TO STRUCTRURE MAP ##############
         ArrayList<Integer> exclude = new ArrayList<Integer>();
         ArrayList<Integer> order = new ArrayList<Integer>();
-        for (Map.Entry<Double, KademliaData> entry : committeeBlock.getStakingMap().entrySet()) {
+        for (Map.Entry<StakingData, KademliaData> entry : committeeBlock.getStakingMap().entrySet()) {
             int nextInt = CustomRandom.generateRandom(zone_random, 0, committeeBlock.getStakingMap().size() - 1, exclude);
             if (!exclude.contains(nextInt)) {
                 exclude.add(nextInt);
@@ -246,7 +250,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
             order.add(nextInt);
         }
         int zone_count = 0;
-        List<Map.Entry<Double, KademliaData>> entryList = committeeBlock.getStakingMap().entrySet().stream().collect(Collectors.toList());
+        List<Map.Entry<StakingData, KademliaData>> entryList = committeeBlock.getStakingMap().entrySet().stream().collect(Collectors.toList());
         int MAX_ZONE_SIZE = committeeBlock.getStakingMap().size() / 4;
 
         if (MAX_ZONE_SIZE >= 2) {

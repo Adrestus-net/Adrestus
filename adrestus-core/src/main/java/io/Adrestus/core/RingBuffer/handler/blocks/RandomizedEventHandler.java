@@ -3,6 +3,7 @@ package io.Adrestus.core.RingBuffer.handler.blocks;
 import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.core.CommitteeBlock;
 import io.Adrestus.core.RingBuffer.event.AbstractBlockEvent;
+import io.Adrestus.crypto.elliptic.mapper.StakingData;
 import io.Adrestus.core.StatusType;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.Adrestus.p2p.kademlia.repository.KademliaData;
@@ -37,7 +38,7 @@ public class RandomizedEventHandler implements BlockEventHandler<AbstractBlockEv
 
         ArrayList<Integer> exclude = new ArrayList<Integer>();
         ArrayList<Integer> order = new ArrayList<Integer>();
-        for (Map.Entry<Double, KademliaData> entry : committeeBlock.getStakingMap().entrySet()) {
+        for (Map.Entry<StakingData, KademliaData> entry : committeeBlock.getStakingMap().entrySet()) {
             int nextInt = generateRandom(0, committeeBlock.getStakingMap().size() - 1, exclude);
             if (!exclude.contains(nextInt)) {
                 exclude.add(nextInt);
@@ -45,7 +46,7 @@ public class RandomizedEventHandler implements BlockEventHandler<AbstractBlockEv
             order.add(nextInt);
         }
         int zone_count = 0;
-        List<Map.Entry<Double, KademliaData>> entryList = committeeBlock.getStakingMap().entrySet().stream().collect(Collectors.toList());
+        List<Map.Entry<StakingData, KademliaData>> entryList = committeeBlock.getStakingMap().entrySet().stream().collect(Collectors.toList());
         int MAX_ZONE_SIZE = committeeBlock.getStakingMap().size() / 4;
 
         if (MAX_ZONE_SIZE >= 2) {

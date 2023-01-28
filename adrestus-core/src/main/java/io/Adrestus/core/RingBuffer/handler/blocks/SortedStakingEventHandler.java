@@ -2,10 +2,12 @@ package io.Adrestus.core.RingBuffer.handler.blocks;
 
 import io.Adrestus.core.CommitteeBlock;
 import io.Adrestus.core.RingBuffer.event.AbstractBlockEvent;
+import io.Adrestus.crypto.elliptic.mapper.StakingData;
 import io.Adrestus.core.StatusType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Serializable;
 import java.util.*;
 
 public class SortedStakingEventHandler implements BlockEventHandler<AbstractBlockEvent> {
@@ -17,18 +19,18 @@ public class SortedStakingEventHandler implements BlockEventHandler<AbstractBloc
         try {
             CommitteeBlock block = (CommitteeBlock) blockEvent.getBlock();
 
-            Set<Double> values = block.getStakingMap().keySet();
-            SortedSet<Double> keys = new TreeSet<Double>(Collections.reverseOrder());
+            Set<StakingData> values = block.getStakingMap().keySet();
+            SortedSet<StakingData> keys = new TreeSet<StakingData>(new StakingValueComparator());
             keys.addAll(values);
             if (!Objects.equals(values.size(), keys.size())) {
                 LOG.info("Staking Map does not have valid size");
                 block.setStatustype(StatusType.ABORT);
                 return;
             }
-            List<Double> old = new ArrayList<>(values);
-            List<Double> neww = new ArrayList<>(keys);
+            List<StakingData> old = new ArrayList<>(values);
+            List<StakingData> neww = new ArrayList<>(keys);
             for (int i = 0; i < old.size(); i++) {
-                if (old.get(i).compareTo(neww.get(i)) != 0) {
+                if (Double.compare(old.get(i).getStake(),neww.get(i).getStake()) != 0) {
                     LOG.info("Staking Map elements is not sorted or equal");
                     block.setStatustype(StatusType.ABORT);
                     return;
@@ -36,6 +38,17 @@ public class SortedStakingEventHandler implements BlockEventHandler<AbstractBloc
             }
         } catch (NullPointerException ex) {
             LOG.info("Block is empty");
+        }
+    }
+
+    private static final class StakingValueComparator implements Comparator<StakingData>, Serializable {
+        @Override
+        public int compare(StakingData a, StakingData b) {
+            if (a.getStake() >= b.getStake()) {
+                return -1;
+            } else {
+                return 1;
+            } // returning 0 would merge keys
         }
     }
 }

@@ -4,6 +4,7 @@ import com.google.common.base.Objects;
 import io.Adrestus.core.RingBuffer.handler.blocks.DisruptorBlock;
 import io.Adrestus.core.RingBuffer.handler.blocks.DisruptorBlockVisitor;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
+import io.Adrestus.crypto.elliptic.mapper.StakingData;
 import io.Adrestus.p2p.kademlia.repository.KademliaData;
 import io.activej.serializer.annotations.Serialize;
 
@@ -14,7 +15,7 @@ public class CommitteeBlock extends AbstractBlock implements BlockFactory, Disru
     private int[] CommitteeProposer;
     private String VRF;
     private String VDF;
-    private TreeMap<Double, KademliaData> StakingMap;
+    private TreeMap<StakingData, KademliaData> StakingMap;
     private Map<Integer, LinkedHashMap<BLSPublicKey, String>> StructureMap;
     private int difficulty;
 
@@ -23,7 +24,7 @@ public class CommitteeBlock extends AbstractBlock implements BlockFactory, Disru
         this.CommitteeProposer = committeeProposer;
         this.VRF = VRF;
         this.VDF = VDF;
-        this.StakingMap = new TreeMap<Double, KademliaData>(Collections.reverseOrder());
+        this.StakingMap = new TreeMap<StakingData, KademliaData>(new StakingValueComparator());
         this.StructureMap = new HashMap<Integer, LinkedHashMap<BLSPublicKey, String>>();
         this.difficulty = difficulty;
         Init();
@@ -34,7 +35,7 @@ public class CommitteeBlock extends AbstractBlock implements BlockFactory, Disru
         this.CommitteeProposer = new int[0];
         this.VRF = "";
         this.VDF = "";
-        this.StakingMap = new TreeMap<Double, KademliaData>(Collections.reverseOrder());
+        this.StakingMap = new TreeMap<StakingData, KademliaData>(new StakingValueComparator());
         this.StructureMap = new HashMap<Integer, LinkedHashMap<BLSPublicKey, String>>();
         Init();
     }
@@ -92,11 +93,11 @@ public class CommitteeBlock extends AbstractBlock implements BlockFactory, Disru
     }
 
     @Serialize
-    public TreeMap<Double, KademliaData> getStakingMap() {
+    public TreeMap<StakingData, KademliaData> getStakingMap() {
         return StakingMap;
     }
 
-    public void setStakingMap(TreeMap<Double, KademliaData> stakingMap) {
+    public void setStakingMap(TreeMap<StakingData, KademliaData> stakingMap) {
         StakingMap = stakingMap;
     }
 
@@ -156,10 +157,10 @@ public class CommitteeBlock extends AbstractBlock implements BlockFactory, Disru
                 '}';
     }
 
-    private static final class StakingValueComparator implements Comparator<Double>, Serializable {
+    private static final class StakingValueComparator implements Comparator<StakingData>, Serializable {
         @Override
-        public int compare(Double a, Double b) {
-            if (a >= b) {
+        public int compare(StakingData a, StakingData b) {
+            if (a.getStake() >= b.getStake()) {
                 return -1;
             } else {
                 return 1;
