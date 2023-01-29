@@ -17,6 +17,10 @@ public final class SecurityAuditProofs implements Serializable {
     private SignatureData eCDSASignature;
 
     public SecurityAuditProofs() {
+        this.address="";
+        this.validatorBlSPublicKey=new BLSPublicKey();
+        this.eCDSAPublicKey=new BigInteger("0");
+        this.eCDSASignature=new SignatureData();
     }
 
 

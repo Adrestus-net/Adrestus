@@ -49,6 +49,7 @@ public class OrganizerConsensusPhases {
         private ConsensusServer consensusServer;
         private BLSPublicKey leader_bls;
         private int current;
+        private TransactionBlock original_copy;
 
         public ProposeTransactionBlock(boolean DEBUG) {
             this.DEBUG = DEBUG;
@@ -103,6 +104,7 @@ public class OrganizerConsensusPhases {
             }
             var regural_block = factory.getBlock(BlockType.REGULAR);
             regural_block.forgeTransactionBlock(data.getData());
+            this.original_copy= (TransactionBlock) data.getData().clone();
             data.setMessageType(ConsensusMessageType.ANNOUNCE);
             if (DEBUG)
                 return;
@@ -132,7 +134,7 @@ public class OrganizerConsensusPhases {
                             i--;
                         } else {
                             ConsensusMessage<TransactionBlock> received = consensus_serialize.decode(receive);
-                            data.setData(received.getData());
+                            //data.setData(received.getData());
                             if (!CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).containsKey(received.getChecksumData().getBlsPublicKey())) {
                                 LOG.info("PreparePhase: Validator does not exist on consensus... Ignore");
                                 i--;
@@ -158,6 +160,14 @@ public class OrganizerConsensusPhases {
                     return;
                 }
             }
+
+            data.setData(new TransactionBlock(
+                    original_copy.getHash(),
+                    original_copy.getHeaderData().getPreviousHash(),
+                    original_copy.getSize(),original_copy.getHeight(),
+                    original_copy.getZone(),original_copy.getViewID(),
+                    original_copy.getHeaderData().getTimestamp(),
+                    original_copy.getZone()));
             data.setMessageType(ConsensusMessageType.PREPARE);
 
             List<BLSPublicKey> publicKeys = data.getSignatures().stream().map(ConsensusMessage.ChecksumData::getBlsPublicKey).collect(Collectors.toList());
@@ -165,7 +175,7 @@ public class OrganizerConsensusPhases {
 
             Signature aggregatedSignature = BLSSignature.aggregate(signature);
 
-            Bytes message = Bytes.wrap(block_serialize.encode(data.getData()));
+            Bytes message = Bytes.wrap(block_serialize.encode(this.original_copy));
             boolean verify = BLSSignature.fastAggregateVerify(publicKeys, message, aggregatedSignature);
             if (!verify) {
                 LOG.info("Abort consensus phase BLS multi_signature is invalid during prepare phase");
@@ -214,7 +224,6 @@ public class OrganizerConsensusPhases {
                             i--;
                         } else {
                             ConsensusMessage<TransactionBlock> received = consensus_serialize.decode(receive);
-                            data.setData(received.getData());
                             if (!CachedLatestBlocks.
                                     getInstance()
                                     .getCommitteeBlock()

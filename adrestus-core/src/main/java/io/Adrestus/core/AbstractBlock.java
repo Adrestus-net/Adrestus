@@ -42,10 +42,21 @@ public abstract class AbstractBlock extends Object implements BlockFactory, Disr
 
     public AbstractBlock(String Hash, String previousHash, int size, int height, String timestamp) {
         this.Hash = Hash;
+        this.header = new Header(previousHash,timestamp);
+        this.Size = size;
+        this.Height = height;
+        this.signatureData = new HashMap<BLSPublicKey, SignatureData>();
+    }
+
+    public AbstractBlock(String Hash, String previousHash, int size, int height,int generation,int viewID, String timestamp) {
+        this.Hash = Hash;
         this.header = new Header(previousHash, timestamp);
         this.Height = height;
         this.Size = size;
+        this.Generation = generation;
+        this.ViewID = viewID;
         this.signatureData = new HashMap<BLSPublicKey, SignatureData>();
+        this.Statustype = StatusType.PENDING;
     }
 
     public AbstractBlock() {

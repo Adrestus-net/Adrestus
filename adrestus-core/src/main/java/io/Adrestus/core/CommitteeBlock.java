@@ -130,13 +130,33 @@ public class CommitteeBlock extends AbstractBlock implements BlockFactory, Disru
         ViewID = viewID;
     }
 
+
+    //NEVER DELETE THIS ONLY CHANGE INSIDE
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
         CommitteeBlock that = (CommitteeBlock) o;
-        return difficulty == that.difficulty && Arrays.equals(CommitteeProposer, that.CommitteeProposer) && Objects.equal(VRF, that.VRF) && Objects.equal(VDF, that.VDF) && Objects.equal(StakingMap, that.StakingMap) && Objects.equal(StructureMap, that.StructureMap);
+        List<StakingData> key_list1 = new ArrayList<StakingData>(StakingMap.keySet());
+        List<StakingData> key_list2 = new ArrayList<StakingData>(that.StakingMap.keySet());
+        List<KademliaData> val_list1 = new ArrayList<KademliaData>(StakingMap.values());
+        List<KademliaData> val_list2 = new ArrayList<KademliaData>(that.StakingMap.values());
+        boolean key = true;
+        for (int i = 0; i < key_list1.size(); i++) {
+            key = key_list1.get(i).equals(key_list2.get(i));
+            if (!key)
+                break;
+        }
+        boolean val = true;
+        for (int i = 0; i < val_list1.size(); i++) {
+            key = val_list1.get(i).equals(val_list2.get(i));
+            if (!key)
+                break;
+        }
+
+        boolean finaly = Objects.equal(key, val);
+        return difficulty == that.difficulty && Arrays.equals(CommitteeProposer, that.CommitteeProposer) && Objects.equal(VRF, that.VRF) && Objects.equal(VDF, that.VDF) && finaly && Objects.equal(StructureMap, that.StructureMap);
     }
 
     @Override
