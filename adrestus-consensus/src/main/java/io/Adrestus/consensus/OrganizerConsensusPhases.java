@@ -175,7 +175,7 @@ public class OrganizerConsensusPhases {
 
             Signature aggregatedSignature = BLSSignature.aggregate(signature);
 
-            Bytes message = Bytes.wrap(block_serialize.encode(this.original_copy));
+            Bytes message = Bytes.wrap(block_serialize.encode(data.getData()));
             boolean verify = BLSSignature.fastAggregateVerify(publicKeys, message, aggregatedSignature);
             if (!verify) {
                 LOG.info("Abort consensus phase BLS multi_signature is invalid during prepare phase");
@@ -302,14 +302,14 @@ public class OrganizerConsensusPhases {
                 data.getData().setLeaderPublicKey(this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), current + 1));
             }*/
             // CachedLatestBlocks.getInstance().setTransactionBlock(data.getData());
-            data.getData().setSignatureData(signatureDataMap);
+            this.original_copy.setSignatureData(signatureDataMap);
             BlockInvent regural_block = (BlockInvent) factory.getBlock(BlockType.REGULAR);
 
             BLSPublicKey next_key = blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedLeaderIndex.getInstance().getTransactionPositionLeader());
-            data.getData().setTransactionProposer(next_key.toRaw());
-            data.getData().setLeaderPublicKey(next_key);
+            this.original_copy.setTransactionProposer(next_key.toRaw());
+            this.original_copy.setLeaderPublicKey(next_key);
 
-            regural_block.InventTransactionBlock(data.getData());
+            regural_block.InventTransactionBlock(this.original_copy);
             while (i > 0) {
                 try {
                     consensusServer.receiveStringData();

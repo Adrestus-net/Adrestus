@@ -559,6 +559,7 @@ public class ValidatorConsensusPhases {
         private final SerializationUtil<ConsensusMessage> consensus_serialize;
         private final DefaultFactory factory;
         private final Map<BLSPublicKey, SignatureData> signatureDataMap;
+        private TransactionBlock original_copy;
 
         public VerifyTransactionBlock(boolean DEBUG) {
             this.DEBUG = DEBUG;
@@ -678,6 +679,14 @@ public class ValidatorConsensusPhases {
                 return;
             }
             data.setStatusType(ConsensusStatusType.SUCCESS);
+            this.original_copy= data.getData();
+            data.setData(new TransactionBlock(
+                    original_copy.getHash(),
+                    original_copy.getHeaderData().getPreviousHash(),
+                    original_copy.getSize(),original_copy.getHeight(),
+                    original_copy.getZone(),original_copy.getViewID(),
+                    original_copy.getHeaderData().getTimestamp(),
+                    original_copy.getZone()));
             Signature sig = BLSSignature.sign(block_serialize.encode(data.getData()), CachedBLSKeyPair.getInstance().getPrivateKey());
             data.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
 
@@ -870,12 +879,12 @@ public class ValidatorConsensusPhases {
             }*/
             //CachedLatestBlocks.getInstance().setTransactionBlock(data.getData());
             //commit save to db
-            data.getData().setSignatureData(signatureDataMap);
+            this.original_copy.setSignatureData(signatureDataMap);
             BlockInvent regural_block = (BlockInvent) factory.getBlock(BlockType.REGULAR);
             BLSPublicKey next_key = blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedLeaderIndex.getInstance().getTransactionPositionLeader());
-            data.getData().setTransactionProposer(next_key.toRaw());
-            data.getData().setLeaderPublicKey(next_key);
-            regural_block.InventTransactionBlock(data.getData());
+            this.original_copy.setTransactionProposer(next_key.toRaw());
+            this.original_copy.setLeaderPublicKey(next_key);
+            regural_block.InventTransactionBlock(this.original_copy);
             consensusClient.send_heartbeat(HEARTBEAT_MESSAGE);
             cleanup();
             LOG.info("Block is finalized with Success");
