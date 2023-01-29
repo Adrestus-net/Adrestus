@@ -23,6 +23,7 @@ import io.Adrestus.util.GetTime;
 import io.Adrestus.util.MathOperationUtil;
 import io.Adrestus.util.SerializationUtil;
 import io.distributedLedger.*;
+import jdk.swing.interop.SwingInterOpUtils;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.SerializationUtils;
 import org.slf4j.Logger;
@@ -331,7 +332,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
                 System.out.println("false");
         });*/
 
-        MemoryTransactionPool.getInstance().delete(transactionBlock.getTransactionList());
+
 
         if (!transactionBlock.getTransactionList().isEmpty()) {
             for (int i = 0; i < transactionBlock.getTransactionList().size(); i++) {
@@ -344,6 +345,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
                 }
             }
         }
+        MemoryTransactionPool.getInstance().delete(transactionBlock.getTransactionList());
 
         if (!transactionBlock.getInbound().getMap_receipts().isEmpty())
             transactionBlock
