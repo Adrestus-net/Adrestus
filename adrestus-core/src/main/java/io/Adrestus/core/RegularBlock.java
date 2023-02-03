@@ -345,7 +345,6 @@ public class RegularBlock implements BlockForge, BlockInvent {
                 }
             }
         }
-        MemoryTransactionPool.getInstance().delete(transactionBlock.getTransactionList());
 
         if (!transactionBlock.getInbound().getMap_receipts().isEmpty())
             transactionBlock
@@ -363,6 +362,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
                     });
 
         CachedLatestBlocks.getInstance().setTransactionBlock(transactionBlock);
+        MemoryTransactionPool.getInstance().delete(transactionBlock.getTransactionList());
         CachedReceiptSemaphore.getInstance().getSemaphore().release();
     }
 
