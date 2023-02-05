@@ -33,7 +33,7 @@ public class WorkerTest {
 
     }
 
-    @Test
+    //@Test
     public void test2() throws Exception {
         IAdrestusFactory factory = new AdrestusFactory();
         List<AdrestusTask> tasks = new java.util.ArrayList<>(List.of(

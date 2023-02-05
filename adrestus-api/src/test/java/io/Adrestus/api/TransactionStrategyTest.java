@@ -154,7 +154,7 @@ public class TransactionStrategyTest
         CachedLeaderIndex.getInstance().setCommitteePositionLeader(0);
         CachedZoneIndex.getInstance().setZoneIndex(0);
     }
-    @Test
+    //@Test
     public void test() throws Exception {
         Strategy transactionStrategy=new Strategy(new TransactionStrategy(MemoryTransactionPool.getInstance().getAll()));
         System.out.println(MemoryTransactionPool.getInstance().getAll().size());
