@@ -33,6 +33,7 @@ import io.Adrestus.crypto.mnemonic.WordList;
 import io.Adrestus.p2p.kademlia.common.NettyConnectionInfo;
 import io.Adrestus.p2p.kademlia.repository.KademliaData;
 import io.Adrestus.util.GetTime;
+import io.Adrestus.util.ObjectSizeCalculator;
 import io.Adrestus.util.SerializationUtil;
 import org.apache.commons.codec.binary.StringUtils;
 import org.junit.jupiter.api.BeforeAll;
@@ -86,7 +87,7 @@ public class TransactionStrategyTest
         SerializationUtil<Transaction> serenc = new SerializationUtil<Transaction>(Transaction.class);
 
         CachedZoneIndex.getInstance().setZoneIndex(0);
-        TransactionEventPublisher publisher = new TransactionEventPublisher(1024);
+        TransactionEventPublisher publisher = new TransactionEventPublisher(4096);
         publisher
                 .withAddressSizeEventHandler()
                 .withAmountEventHandler()
@@ -105,7 +106,7 @@ public class TransactionStrategyTest
         publisher.start();
         ArrayList<String> addreses = new ArrayList<>();
         ArrayList<ECKeyPair> keypair = new ArrayList<>();
-        int size = 5;
+        int size = 5000;
         for (int i = 0; i < size; i++) {
             Mnemonic mnem = new Mnemonic(Security.NORMAL, WordList.ENGLISH);
             char[] mnemonic_sequence = mnem.create();
@@ -119,6 +120,7 @@ public class TransactionStrategyTest
         }
 
         for (int i = 0; i < size - 1; i++) {
+            serenc = new SerializationUtil<Transaction>(Transaction.class);
             Transaction transaction = new RegularTransaction();
             transaction.setFrom(addreses.get(i));
             transaction.setTo(addreses.get(i + 1));
@@ -129,7 +131,8 @@ public class TransactionStrategyTest
             transaction.setAmount(100);
             transaction.setAmountWithTransactionFee(transaction.getAmount() * (10.0 / 100.0));
             transaction.setNonce(1);
-            byte byf[] = serenc.encode(transaction);
+
+            byte byf[] = serenc.encode(transaction,1024);
             transaction.setHash(HashUtil.sha256_bytetoString(byf));
 
             SignatureData signatureData = ecdsaSign.secp256SignMessage(Hex.decode(transaction.getHash()), keypair.get(i));
@@ -138,7 +141,7 @@ public class TransactionStrategyTest
             publisher.publish(transaction);
             //publisher.publish(transaction);
         }
-
+        publisher.getJobSyncUntilRemainingCapacityZero();
         CommitteeBlock committeeBlock = new CommitteeBlock();
         committeeBlock.getHeaderData().setTimestamp("2022-11-18 15:01:29.304");
         committeeBlock.getStructureMap().get(0).put(vk1, "192.168.1.106");
@@ -154,6 +157,7 @@ public class TransactionStrategyTest
     @Test
     public void test() throws Exception {
         Strategy transactionStrategy=new Strategy(new TransactionStrategy(MemoryTransactionPool.getInstance().getAll()));
+        System.out.println(MemoryTransactionPool.getInstance().getAll().size());
         transactionStrategy.execute();
     }
 }

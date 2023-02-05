@@ -136,8 +136,9 @@ public class SerializationUtil<T> {
     public byte[] encode(T value, int size) {
         buffer = new byte[size];
         serializer.encode(buffer, 0, value);
-        byte[] test = trim(buffer);
-        return buffer;
+        byte[] res = buffer.clone();
+        buffer = new byte[size];
+        return res;
     }
 
     public byte[] encode_special(T value, int size) {

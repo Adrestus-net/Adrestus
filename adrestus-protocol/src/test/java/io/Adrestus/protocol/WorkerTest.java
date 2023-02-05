@@ -51,7 +51,6 @@ public class WorkerTest {
             int left = MemoryTransactionPool.getInstance().getAll().size() - size;
             System.out.println(left);
             size = size + MemoryTransactionPool.getInstance().getAll().size();
-
         }
 
     }

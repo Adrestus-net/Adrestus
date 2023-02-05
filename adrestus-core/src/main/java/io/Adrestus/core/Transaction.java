@@ -5,11 +5,12 @@ import io.Adrestus.crypto.elliptic.SignatureData;
 import io.activej.serializer.annotations.Serialize;
 import io.activej.serializer.annotations.SerializeClass;
 
+import java.io.Serializable;
 import java.util.Comparator;
 
 
 @SerializeClass(subclasses = {RegularTransaction.class, RewardsTransaction.class, StakingTransaction.class, DelegateTransaction.class})
-public abstract class Transaction implements Cloneable, Comparable<Transaction>, Comparator<Transaction> {
+public abstract class Transaction implements Cloneable, Comparable<Transaction>, Comparator<Transaction>, Serializable {
 
 
     protected String Hash;
