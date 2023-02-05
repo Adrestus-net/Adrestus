@@ -79,6 +79,7 @@
         <module>adrestus-protocol</module>
         <module>adrestus-distributed-ledger</module>
         <module>adrestus-trie</module>
+        <module>adrestus-api</module>
     </modules>
     <distributionManagement>
         <repository>

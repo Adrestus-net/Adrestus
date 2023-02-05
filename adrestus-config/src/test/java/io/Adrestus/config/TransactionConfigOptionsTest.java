@@ -8,6 +8,7 @@ public class TransactionConfigOptionsTest {
 
     @Test
     public void test() {
-        assertEquals(5556, TransactionConfigOptions.TRANSACTION_PORT);
+        assertEquals(4556, TransactionConfigOptions.TRANSACTION_PORT);
+        assertEquals(4557, TransactionConfigOptions.RECEIPT_PORT);
     }
 }

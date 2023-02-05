@@ -9,5 +9,6 @@ public class NetworkConfigurationTest {
     @Test
     public void test() {
         assertEquals(8082, NetworkConfiguration.RPC_PORT);
+        assertEquals(8083, NetworkConfiguration.RPC_PORT2);
     }
 }
