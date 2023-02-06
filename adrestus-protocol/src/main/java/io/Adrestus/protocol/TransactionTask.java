@@ -47,7 +47,7 @@ public class TransactionTask extends AdrestusTask {
     }
 
     public void callBackReceive() {
-        TCPTransactionConsumer<byte[]> receive = x -> {
+        this.receive = x -> {
             Transaction transaction = serenc.decode(x);
             System.out.println("Server Message:" + transaction.toString());
             publisher.publish(transaction);

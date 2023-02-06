@@ -59,6 +59,17 @@ public class TransactionStrategy implements IStrategy {
     }
 
     @Override
+    public void block_until_send() {
+        while (!transaction_list.isEmpty() || transaction != null) {
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Override
     public void terminate() {
         this.awaitTerminationAfterShutdown();
         if (this.transaction_list != null) {
@@ -126,8 +137,7 @@ public class TransactionStrategy implements IStrategy {
                         throw new RuntimeException(ioException);
                     }
 
-                    Transaction transaction = new RegularTransaction("hash2");
-                    byte[] data = transaction_encode.encode(transaction);
+                    byte[] data = transaction_encode.encode(transaction, 1024);
                     socket.write(ByteBuf.wrapForReading(ArrayUtils.addAll(data, "\r\n".getBytes(UTF_8))));
 
                 } else {
@@ -158,7 +168,7 @@ public class TransactionStrategy implements IStrategy {
         }
 
         private static @NotNull Promise<byte[]> loadData(Transaction transaction) {
-            byte transaction_hash[] = transaction_encode.encode(transaction);
+            byte transaction_hash[] = transaction_encode.encode(transaction, 1024);
             byte[] concatBytes = ArrayUtils.addAll(transaction_hash, "\r\n".getBytes());
             return Promise.of(concatBytes);
         }

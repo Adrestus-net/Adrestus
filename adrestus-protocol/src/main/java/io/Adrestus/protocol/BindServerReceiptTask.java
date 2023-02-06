@@ -24,7 +24,7 @@ public class BindServerReceiptTask extends AdrestusTask {
 
 
     public void callBackReceive() {
-        TCPTransactionConsumer<byte[]> receive = x -> {
+        this.receive = x -> {
             Receipt receipt = recep.decode(x);
             if (receipt.getReceiptBlock() != null && !receipt.getReceiptBlock().getBlock_hash().equals(""))
                 MemoryReceiptPool.getInstance().add(receipt);

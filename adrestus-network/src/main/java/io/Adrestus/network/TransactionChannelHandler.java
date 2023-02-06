@@ -11,6 +11,8 @@ import io.activej.csp.binary.ByteBufsDecoder;
 import io.activej.eventloop.Eventloop;
 import io.activej.eventloop.net.SocketSettings;
 import io.activej.net.SimpleServer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.time.Duration;
@@ -20,7 +22,7 @@ import static io.activej.bytebuf.ByteBufStrings.LF;
 import static io.activej.promise.Promises.repeat;
 
 public class TransactionChannelHandler<T> {
-
+    private static Logger LOG = LoggerFactory.getLogger(TransactionChannelHandler.class);
     private static final ByteBufsDecoder<ByteBuf> DECODER = ByteBufsDecoder.ofCrlfTerminatedBytes(5000);
     private String IP;
     private final InetSocketAddress ADDRESS;
@@ -57,7 +59,11 @@ public class TransactionChannelHandler<T> {
                                     .peek(buf -> {
                                         try {
                                             callback.accept((T) buf.asArray());
+                                        } catch (NullPointerException e) {
+                                            LOG.info("Null Transaction: " + e.toString());
+                                            e.printStackTrace();
                                         } catch (Exception e) {
+                                            LOG.info("Null Transaction: " + e.toString());
                                             e.printStackTrace();
                                         }
                                     })
@@ -90,6 +96,7 @@ public class TransactionChannelHandler<T> {
     public void close() {
         this.eventloop.breakEventloop();
         this.server.close();
+        this.server=null;
     }
 
 }

@@ -106,13 +106,15 @@ public class TransactionStrategyTest
         publisher.start();
         ArrayList<String> addreses = new ArrayList<>();
         ArrayList<ECKeyPair> keypair = new ArrayList<>();
-        int size = 5000;
+        int size = 5;
         for (int i = 0; i < size; i++) {
             Mnemonic mnem = new Mnemonic(Security.NORMAL, WordList.ENGLISH);
-            char[] mnemonic_sequence = mnem.create();
-            char[] passphrase = "p4ssphr4se".toCharArray();
+            char[] mnemonic_sequence = "sample sail jungle learn general promote task puppy own conduct green affair ".toCharArray();
+            char[] passphrase = ("p4ssphr4se"+String.valueOf(i)).toCharArray();
             byte[] key = mnem.createSeed(mnemonic_sequence, passphrase);
-            ECKeyPair ecKeyPair = Keys.createEcKeyPair(new SecureRandom(key));
+            SecureRandom randoms = SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
+            randoms.setSeed(key);
+            ECKeyPair ecKeyPair = Keys.createEcKeyPair(randoms);
             String adddress = WalletAddress.generate_address((byte) version, ecKeyPair.getPublicKey());
             addreses.add(adddress);
             keypair.add(ecKeyPair);
@@ -154,10 +156,13 @@ public class TransactionStrategyTest
         CachedLeaderIndex.getInstance().setCommitteePositionLeader(0);
         CachedZoneIndex.getInstance().setZoneIndex(0);
     }
-    //@Test
+    @Test
     public void test() throws Exception {
         Strategy transactionStrategy=new Strategy(new TransactionStrategy(MemoryTransactionPool.getInstance().getAll()));
+        Strategy transactionStrategy1=new Strategy(new TransactionStrategy((Transaction) MemoryTransactionPool.getInstance().getAll().get(0)));
         System.out.println(MemoryTransactionPool.getInstance().getAll().size());
+        transactionStrategy1.execute();
         transactionStrategy.execute();
+        transactionStrategy.block_until_send();
     }
 }
