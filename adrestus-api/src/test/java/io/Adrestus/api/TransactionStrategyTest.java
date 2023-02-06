@@ -106,8 +106,9 @@ public class TransactionStrategyTest
         publisher.start();
         ArrayList<String> addreses = new ArrayList<>();
         ArrayList<ECKeyPair> keypair = new ArrayList<>();
-        int size = 5;
-        for (int i = 0; i < size; i++) {
+        int start = 0;
+        int end = 5;
+        for (int i = start; i < end; i++) {
             Mnemonic mnem = new Mnemonic(Security.NORMAL, WordList.ENGLISH);
             char[] mnemonic_sequence = "sample sail jungle learn general promote task puppy own conduct green affair ".toCharArray();
             char[] passphrase = ("p4ssphr4se"+String.valueOf(i)).toCharArray();
@@ -121,7 +122,7 @@ public class TransactionStrategyTest
             TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(adddress, new PatriciaTreeNode(1000, 0));
         }
 
-        for (int i = 0; i < size - 1; i++) {
+        for (int i = start; i < end - 1; i++) {
             serenc = new SerializationUtil<Transaction>(Transaction.class);
             Transaction transaction = new RegularTransaction();
             transaction.setFrom(addreses.get(i));

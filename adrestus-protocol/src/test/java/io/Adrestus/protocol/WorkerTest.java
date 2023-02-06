@@ -24,7 +24,7 @@ public class WorkerTest {
     @BeforeAll
     public static void setup() throws Exception {
         int version = 0x00;
-        int size = 5;
+        int size = 5000;
         for (int i = 0; i < size; i++) {
             Mnemonic mnem = new Mnemonic(Security.NORMAL, WordList.ENGLISH);
             char[] mnemonic_sequence = "sample sail jungle learn general promote task puppy own conduct green affair ".toCharArray();
@@ -78,10 +78,8 @@ public class WorkerTest {
         int size = 0;
         int count = 0;
         while (count < 100) {
-            Thread.sleep(200);
-            int left = MemoryTransactionPool.getInstance().getAll().size() - size;
-            System.out.println(left);
-            size = size + MemoryTransactionPool.getInstance().getAll().size();
+            Thread.sleep(2000);
+            System.out.println(MemoryTransactionPool.getInstance().getAll().size());
             count++;
         }
 
