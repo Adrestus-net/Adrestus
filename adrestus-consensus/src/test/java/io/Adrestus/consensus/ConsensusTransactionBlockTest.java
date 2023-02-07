@@ -166,10 +166,13 @@ public class ConsensusTransactionBlockTest {
         CachedBLSKeyPair.getInstance().setPrivateKey(sk);
         CachedBLSKeyPair.getInstance().setPublicKey(vk);
 
+        TransactionBlock newblock = consensusMessage.getData();
+        consensusMessage.setData(transactionBlock);
         validatorphase.AnnouncePhase(consensusMessage);
         if (consensusMessage.getStatusType().equals(ConsensusStatusType.SUCCESS))
             consensusMessage.getSignatures().add(consensusMessage.getChecksumData());
 
+        consensusMessage.setData(newblock);
         organizerphase.PreparePhase(consensusMessage);
 
         List<ConsensusMessage.ChecksumData> list = new ArrayList<>();

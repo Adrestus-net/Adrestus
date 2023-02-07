@@ -2,6 +2,7 @@ package io.distributedLedger;
 
 public enum DatabaseInstance {
     COMMITTEE_BLOCK("COMMITTEE_BLOCK"),
+    RAW_TRANSACTION("RAW_TRANSACTION"),
     ZONE_0_TRANSACTION_BLOCK(ZoneInstance.ZONE_0.getTitle() + "\\" + "TRANSACTION_BLOCK_0"),
     ZONE_1_TRANSACTION_BLOCK(ZoneInstance.ZONE_1.getTitle() + "\\" + "TRANSACTION_BLOCK_1"),
     ZONE_2_TRANSACTION_BLOCK(ZoneInstance.ZONE_2.getTitle() + "\\" + "TRANSACTION_BLOCK_2"),

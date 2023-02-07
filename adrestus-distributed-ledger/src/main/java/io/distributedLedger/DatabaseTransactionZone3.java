@@ -4,7 +4,7 @@ import lombok.SneakyThrows;
 import org.rocksdb.Options;
 import org.rocksdb.RocksDB;
 
-public class DatabaseTransactionZone3 implements IDriver {
+public class DatabaseTransactionZone3 implements IDriver<Options, RocksDB> {
     private static volatile DatabaseTransactionZone3 instance;
     private static RocksDB rocksDB;
 
@@ -46,7 +46,7 @@ public class DatabaseTransactionZone3 implements IDriver {
     }
 
     @Override
-    public RocksDB getRocksDB() {
+    public RocksDB getDB() {
         return rocksDB;
     }
 

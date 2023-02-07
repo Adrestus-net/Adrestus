@@ -16,6 +16,7 @@ public class BindServerReceiptTask extends AdrestusTask {
     private final SerializationUtil<Receipt> recep;
     private TCPTransactionConsumer<byte[]> receive;
     private TransactionChannelHandler transactionChannelHandler;
+
     public BindServerReceiptTask() {
         super();
         this.recep = new SerializationUtil<Receipt>(Receipt.class);
@@ -34,7 +35,7 @@ public class BindServerReceiptTask extends AdrestusTask {
     @SneakyThrows
     @Override
     public void execute() {
-        transactionChannelHandler=new TransactionChannelHandler<byte[]>(IPFinder.getLocal_address(), TransactionConfigOptions.RECEIPT_PORT);
+        transactionChannelHandler = new TransactionChannelHandler<byte[]>(IPFinder.getLocal_address(), TransactionConfigOptions.RECEIPT_PORT);
         transactionChannelHandler.BindServerAndReceive(receive);
         LOG.info("Receipt: TransactionChannelHandler " + IPFinder.getLocal_address());
     }
@@ -42,7 +43,7 @@ public class BindServerReceiptTask extends AdrestusTask {
     @SneakyThrows
     @Override
     public void close() {
-        if(transactionChannelHandler!=null) {
+        if (transactionChannelHandler != null) {
             transactionChannelHandler.close();
             transactionChannelHandler = null;
         }

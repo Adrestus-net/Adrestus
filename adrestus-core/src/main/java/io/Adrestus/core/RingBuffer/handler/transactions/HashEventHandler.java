@@ -9,8 +9,6 @@ import io.Adrestus.util.SerializationUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
-
 public class HashEventHandler extends TransactionEventHandler {
     private static Logger LOG = LoggerFactory.getLogger(HashEventHandler.class);
     private SerializationUtil<Transaction> wrapper;
@@ -34,7 +32,7 @@ public class HashEventHandler extends TransactionEventHandler {
             cloneable.setHash("");
             cloneable.setSignature(new SignatureData());
 
-            byte[] toHash = wrapper.encode(cloneable,1024);
+            byte[] toHash = wrapper.encode(cloneable, 1024);
             String result_hash = HashUtil.sha256_bytetoString(toHash);
             if (!result_hash.equals(transaction.getHash())) {
                 LOG.info("Transaction hashes does not match");

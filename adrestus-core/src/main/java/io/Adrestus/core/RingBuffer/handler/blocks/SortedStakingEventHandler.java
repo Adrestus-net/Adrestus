@@ -2,8 +2,8 @@ package io.Adrestus.core.RingBuffer.handler.blocks;
 
 import io.Adrestus.core.CommitteeBlock;
 import io.Adrestus.core.RingBuffer.event.AbstractBlockEvent;
-import io.Adrestus.crypto.elliptic.mapper.StakingData;
 import io.Adrestus.core.StatusType;
+import io.Adrestus.crypto.elliptic.mapper.StakingData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +30,7 @@ public class SortedStakingEventHandler implements BlockEventHandler<AbstractBloc
             List<StakingData> old = new ArrayList<>(values);
             List<StakingData> neww = new ArrayList<>(keys);
             for (int i = 0; i < old.size(); i++) {
-                if (Double.compare(old.get(i).getStake(),neww.get(i).getStake()) != 0) {
+                if (Double.compare(old.get(i).getStake(), neww.get(i).getStake()) != 0) {
                     LOG.info("Staking Map elements is not sorted or equal");
                     block.setStatustype(StatusType.ABORT);
                     return;

@@ -14,10 +14,11 @@ import org.slf4j.LoggerFactory;
 
 public class TransactionTask extends AdrestusTask {
     private static Logger LOG = LoggerFactory.getLogger(TransactionTask.class);
-    private final SerializationUtil<Transaction> serenc;
+    private SerializationUtil<Transaction> serenc;
     private final TransactionEventPublisher publisher;
     private TCPTransactionConsumer<byte[]> receive;
     private TransactionChannelHandler transactionChannelHandler;
+    int counter = 0;
 
     public TransactionTask() {
         super();
@@ -49,7 +50,9 @@ public class TransactionTask extends AdrestusTask {
     public void callBackReceive() {
         this.receive = x -> {
             Transaction transaction = serenc.decode(x);
+            counter++;
             System.out.println("Server Message:" + transaction.toString());
+            //System.out.println("s "+counter);
             publisher.publish(transaction);
         };
     }
@@ -65,11 +68,11 @@ public class TransactionTask extends AdrestusTask {
     @SneakyThrows
     @Override
     public void close() {
-        if(transactionChannelHandler!=null) {
+        if (transactionChannelHandler != null) {
             transactionChannelHandler.close();
             transactionChannelHandler = null;
         }
-        if(publisher!=null) {
+        if (publisher != null) {
             publisher.getJobSyncUntilRemainingCapacityZero();
             publisher.close();
         }

@@ -21,7 +21,7 @@ public class Worker implements Runnable {
         return task;
     }
 
-    public void close(){
+    public void close() {
         task.close();
     }
 

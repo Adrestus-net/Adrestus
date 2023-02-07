@@ -8,32 +8,32 @@ public class ZoneDatabaseFactory {
     public static RocksDB getDatabaseInstance(DatabaseInstance instance, Options options, String path) {
         switch (instance) {
             case COMMITTEE_BLOCK:
-                return DatabaseCommitteeZone.getInstance(options, path).getRocksDB();
+                return DatabaseCommitteeZone.getInstance(options, path).getDB();
             case ZONE_0_TRANSACTION_BLOCK:
-                return DatabaseTransactionZone0.getInstance(options, path).getRocksDB();
+                return DatabaseTransactionZone0.getInstance(options, path).getDB();
             case ZONE_1_TRANSACTION_BLOCK:
-                return DatabaseTransactionZone1.getInstance(options, path).getRocksDB();
+                return DatabaseTransactionZone1.getInstance(options, path).getDB();
             case ZONE_2_TRANSACTION_BLOCK:
-                return DatabaseTransactionZone2.getInstance(options, path).getRocksDB();
+                return DatabaseTransactionZone2.getInstance(options, path).getDB();
             case ZONE_3_TRANSACTION_BLOCK:
-                return DatabaseTransactionZone3.getInstance(options, path).getRocksDB();
+                return DatabaseTransactionZone3.getInstance(options, path).getDB();
             default:
-                return DatabaseCommitteeZone.getInstance(options, path).getRocksDB();
+                return DatabaseCommitteeZone.getInstance(options, path).getDB();
         }
     }
 
     public static RocksDB getDatabaseInstance(PatriciaTreeInstance instance, Options options, String path) {
         switch (instance) {
             case PATRICIA_TREE_INSTANCE_0:
-                return DatabasePatriciaTreeZone0.getInstance(options, path).getRocksDB();
+                return DatabasePatriciaTreeZone0.getInstance(options, path).getDB();
             case PATRICIA_TREE_INSTANCE_1:
-                return DatabasePatriciaTreeZone1.getInstance(options, path).getRocksDB();
+                return DatabasePatriciaTreeZone1.getInstance(options, path).getDB();
             case PATRICIA_TREE_INSTANCE_2:
-                return DatabasePatriciaTreeZone2.getInstance(options, path).getRocksDB();
+                return DatabasePatriciaTreeZone2.getInstance(options, path).getDB();
             case PATRICIA_TREE_INSTANCE_3:
-                return DatabasePatriciaTreeZone3.getInstance(options, path).getRocksDB();
+                return DatabasePatriciaTreeZone3.getInstance(options, path).getDB();
             default:
-                return DatabasePatriciaTreeZone0.getInstance(options, path).getRocksDB();
+                return DatabasePatriciaTreeZone0.getInstance(options, path).getDB();
         }
     }
 

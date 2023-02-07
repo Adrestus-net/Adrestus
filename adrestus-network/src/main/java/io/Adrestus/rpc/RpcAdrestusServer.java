@@ -157,6 +157,6 @@ public class RpcAdrestusServer<T> implements Runnable {
     public void close() {
         rpcServer.close();
         rpcServer.stopMonitoring();
-        rpcServer=null;
+        rpcServer = null;
     }
 }

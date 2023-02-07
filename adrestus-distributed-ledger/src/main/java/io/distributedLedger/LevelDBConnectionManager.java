@@ -14,6 +14,9 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -58,7 +61,7 @@ public class LevelDBConnectionManager<K, V> implements IDatabase<K, V> {
         this.rwl = new ReentrantReadWriteLock();
         this.r = rwl.readLock();
         this.w = rwl.writeLock();
-        this.dbFile = new File(Directory.getConfigPath() + CONNECTION_NAME);
+        this.dbFile = new File(Directory.getConfigPath() + "\\" + CONNECTION_NAME + "\\");
         this.keyClass = keyClass;
         this.keyMapper = new SerializationUtil<>(this.keyClass);
         this.valueMapper = new SerializationUtil<>(fluentType);
@@ -85,10 +88,11 @@ public class LevelDBConnectionManager<K, V> implements IDatabase<K, V> {
     @Override
     public void load_connection() {
         w.lock();
-        dbFile = new File(Directory.getConfigPath(), CONNECTION_NAME);
+        this.dbFile = new File(Directory.getConfigPath() + "\\" + CONNECTION_NAME + "\\");
+        Path path = Files.createDirectories(Paths.get(dbFile.getAbsolutePath()));
         try {
             dbFile.createNewFile();
-            level_db = factory.open(dbFile.getParentFile(), options);
+            level_db = DatabaseRawTransactionInstance.getInstance(options, path.toAbsolutePath().toString()).getDB();
         } catch (IOException e) {
             LOGGER.error("Path to create file is incorrect. {}", e.getMessage());
         } catch (Exception e) {
@@ -249,7 +253,8 @@ public class LevelDBConnectionManager<K, V> implements IDatabase<K, V> {
                 level_db.delete(iterator.peekNext().getKey());
             }
             level_db.close();
-
+            factory.destroy(dbFile.getParentFile(), options);
+            level_db = null;
         } catch (NullPointerException exception) {
             LOGGER.error("Exception occurred during delete_db operation. {}", exception.getMessage());
         } catch (final Exception exception) {
@@ -280,8 +285,11 @@ public class LevelDBConnectionManager<K, V> implements IDatabase<K, V> {
             for (iterator.seekToFirst(); iterator.hasNext(); iterator.next()) {
                 level_db.delete(iterator.peekNext().getKey());
             }
+
+            DatabaseRawTransactionInstance.getInstance(options, dbFile.getParentFile().getAbsolutePath()).close(options);
             level_db.close();
             factory.destroy(dbFile.getParentFile(), options);
+            level_db = null;
         } catch (NullPointerException exception) {
             LOGGER.error("Exception occurred during delete_db operation. {}", exception.getMessage());
         } catch (final Exception exception) {

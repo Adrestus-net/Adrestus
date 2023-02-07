@@ -57,9 +57,9 @@ public class RocksDBBlockTest {
         SerializationUtil<AbstractBlock> serenc = new SerializationUtil<AbstractBlock>(AbstractBlock.class, list);
         String hash = "Hash";
         CommitteeBlock committeeBlock = new CommitteeBlock();
-        KademliaData data=new KademliaData();
-        committeeBlock.getStakingMap().put(new StakingData(1,10.0), data);
-        committeeBlock.getStakingMap().put(new StakingData(2,13.0), data);
+        KademliaData data = new KademliaData();
+        committeeBlock.getStakingMap().put(new StakingData(1, 10.0), data);
+        committeeBlock.getStakingMap().put(new StakingData(2, 13.0), data);
         committeeBlock.getStructureMap().get(0).put(new BLSPublicKey(), "");
         committeeBlock.getStructureMap().put(0, new LinkedHashMap<BLSPublicKey, String>());
         committeeBlock.setGeneration(1);

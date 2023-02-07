@@ -23,14 +23,8 @@
         <vertx.core>4.3.7</vertx.core>
         <jupiter.version>5.9.2</jupiter.version>
         <mockito.version>4.11.0</mockito.version>
-        <commons_net.version>3.9.0</commons_net.version>
     </properties>
     <dependencies>
-        <dependency>
-            <groupId>commons-net</groupId>
-            <artifactId>commons-net</artifactId>
-            <version>${commons_net.version}</version>
-        </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>

@@ -23,7 +23,6 @@ import io.Adrestus.util.GetTime;
 import io.Adrestus.util.MathOperationUtil;
 import io.Adrestus.util.SerializationUtil;
 import io.distributedLedger.*;
-import jdk.swing.interop.SwingInterOpUtils;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.SerializationUtils;
 import org.slf4j.Logger;
@@ -176,10 +175,10 @@ public class RegularBlock implements BlockForge, BlockInvent {
                     .stream()
                     .collect(Collectors.toList());
 
-            for(int i=0;i<kademliaData.size();i++){
+            for (int i = 0; i < kademliaData.size(); i++) {
                 committeeBlock
                         .getStakingMap()
-                        .put(new StakingData(i,TreeFactory.getMemoryTree(0).getByaddress(kademliaData.get(i).getAddressData().getAddress()).get().getStaking_amount()), kademliaData.get(i));
+                        .put(new StakingData(i, TreeFactory.getMemoryTree(0).getByaddress(kademliaData.get(i).getAddressData().getAddress()).get().getStaking_amount()), kademliaData.get(i));
             }
         } else {
             committeeBlock.setStakingMap(CachedLatestBlocks.getInstance().getCommitteeBlock().getStakingMap());
@@ -331,7 +330,6 @@ public class RegularBlock implements BlockForge, BlockInvent {
             if(!res1||!res2)
                 System.out.println("false");
         });*/
-
 
 
         if (!transactionBlock.getTransactionList().isEmpty()) {

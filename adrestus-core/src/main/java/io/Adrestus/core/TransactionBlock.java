@@ -42,8 +42,8 @@ public class TransactionBlock extends AbstractBlock implements BlockFactory, Dis
         this.PatriciaMerkleRoot = "";
     }
 
-    public TransactionBlock(String hash, String previousHash, int size, int height, int generation,int viewID,String timestamp,int zone) {
-        super(hash, previousHash, size, height,generation,viewID, timestamp);
+    public TransactionBlock(String hash, String previousHash, int size, int height, int generation, int viewID, String timestamp, int zone) {
+        super(hash, previousHash, size, height, generation, viewID, timestamp);
         this.LeaderPublicKey = new BLSPublicKey();
         this.Zone = zone;
         this.TransactionList = new ArrayList<>();
@@ -54,6 +54,7 @@ public class TransactionBlock extends AbstractBlock implements BlockFactory, Dis
         this.MerkleRoot = "";
         this.PatriciaMerkleRoot = "";
     }
+
     public TransactionBlock() {
         super();
         this.LeaderPublicKey = new BLSPublicKey();

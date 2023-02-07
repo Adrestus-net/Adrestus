@@ -7,7 +7,6 @@ import io.Adrestus.core.AbstractBlock;
 import io.Adrestus.core.CommitteeBlock;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedSecurityHeaders;
-import io.Adrestus.crypto.elliptic.mapper.StakingData;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.SecurityAuditProofs;
 import io.Adrestus.crypto.WalletAddress;
@@ -24,6 +23,7 @@ import io.Adrestus.crypto.elliptic.Keys;
 import io.Adrestus.crypto.elliptic.SignatureData;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.crypto.elliptic.mapper.CustomSerializerTreeMap;
+import io.Adrestus.crypto.elliptic.mapper.StakingData;
 import io.Adrestus.crypto.mnemonic.Mnemonic;
 import io.Adrestus.crypto.mnemonic.Security;
 import io.Adrestus.crypto.mnemonic.WordList;
@@ -227,14 +227,14 @@ public class ConsensusCommitteeTest {
         prevblock.setHeight(0);
         prevblock.setDifficulty(113);
 
-        prevblock.getStakingMap().put(new StakingData(1,1010.0), new KademliaData(new SecurityAuditProofs(addreses.get(0), vk1, keypair.get(0).getPublicKey(), signatureData.get(0)), new NettyConnectionInfo("192.168.1.101", KademliaConfiguration.PORT)));
-        prevblock.getStakingMap().put(new StakingData(2,1013.0), new KademliaData(new SecurityAuditProofs(addreses.get(1), vk2, keypair.get(1).getPublicKey(), signatureData.get(1)), new NettyConnectionInfo("192.168.1.101", KademliaConfiguration.PORT)));
-        prevblock.getStakingMap().put(new StakingData(3,1007.0), new KademliaData(new SecurityAuditProofs(addreses.get(2), vk3, keypair.get(2).getPublicKey(), signatureData.get(2)), new NettyConnectionInfo("192.168.1.101", KademliaConfiguration.PORT)));
-        prevblock.getStakingMap().put(new StakingData(4,1022.0), new KademliaData(new SecurityAuditProofs(addreses.get(3), vk4, keypair.get(3).getPublicKey(), signatureData.get(3)), new NettyConnectionInfo("192.168.1.101", KademliaConfiguration.PORT)));
-        prevblock.getStakingMap().put(new StakingData(5,1006.0), new KademliaData(new SecurityAuditProofs(addreses.get(4), vk5, keypair.get(4).getPublicKey(), signatureData.get(4)), new NettyConnectionInfo("192.168.1.101", KademliaConfiguration.PORT)));
-        prevblock.getStakingMap().put(new StakingData(6,1032.0), new KademliaData(new SecurityAuditProofs(addreses.get(5), vk6, keypair.get(5).getPublicKey(), signatureData.get(5)), new NettyConnectionInfo("192.168.1.101", KademliaConfiguration.PORT)));
-        prevblock.getStakingMap().put(new StakingData(7,1012.0), new KademliaData(new SecurityAuditProofs(addreses.get(6), vk7, keypair.get(6).getPublicKey(), signatureData.get(6)), new NettyConnectionInfo("192.168.1.101", KademliaConfiguration.PORT)));
-        prevblock.getStakingMap().put(new StakingData(8,1031.0), new KademliaData(new SecurityAuditProofs(addreses.get(7), vk8, keypair.get(7).getPublicKey(), signatureData.get(7)), new NettyConnectionInfo("192.168.1.101", KademliaConfiguration.PORT)));
+        prevblock.getStakingMap().put(new StakingData(1, 1010.0), new KademliaData(new SecurityAuditProofs(addreses.get(0), vk1, keypair.get(0).getPublicKey(), signatureData.get(0)), new NettyConnectionInfo("192.168.1.101", KademliaConfiguration.PORT)));
+        prevblock.getStakingMap().put(new StakingData(2, 1013.0), new KademliaData(new SecurityAuditProofs(addreses.get(1), vk2, keypair.get(1).getPublicKey(), signatureData.get(1)), new NettyConnectionInfo("192.168.1.101", KademliaConfiguration.PORT)));
+        prevblock.getStakingMap().put(new StakingData(3, 1007.0), new KademliaData(new SecurityAuditProofs(addreses.get(2), vk3, keypair.get(2).getPublicKey(), signatureData.get(2)), new NettyConnectionInfo("192.168.1.101", KademliaConfiguration.PORT)));
+        prevblock.getStakingMap().put(new StakingData(4, 1022.0), new KademliaData(new SecurityAuditProofs(addreses.get(3), vk4, keypair.get(3).getPublicKey(), signatureData.get(3)), new NettyConnectionInfo("192.168.1.101", KademliaConfiguration.PORT)));
+        prevblock.getStakingMap().put(new StakingData(5, 1006.0), new KademliaData(new SecurityAuditProofs(addreses.get(4), vk5, keypair.get(4).getPublicKey(), signatureData.get(4)), new NettyConnectionInfo("192.168.1.101", KademliaConfiguration.PORT)));
+        prevblock.getStakingMap().put(new StakingData(6, 1032.0), new KademliaData(new SecurityAuditProofs(addreses.get(5), vk6, keypair.get(5).getPublicKey(), signatureData.get(5)), new NettyConnectionInfo("192.168.1.101", KademliaConfiguration.PORT)));
+        prevblock.getStakingMap().put(new StakingData(7, 1012.0), new KademliaData(new SecurityAuditProofs(addreses.get(6), vk7, keypair.get(6).getPublicKey(), signatureData.get(6)), new NettyConnectionInfo("192.168.1.101", KademliaConfiguration.PORT)));
+        prevblock.getStakingMap().put(new StakingData(8, 1031.0), new KademliaData(new SecurityAuditProofs(addreses.get(7), vk8, keypair.get(7).getPublicKey(), signatureData.get(7)), new NettyConnectionInfo("192.168.1.101", KademliaConfiguration.PORT)));
 
 
         CachedLatestBlocks.getInstance().setCommitteeBlock(prevblock);

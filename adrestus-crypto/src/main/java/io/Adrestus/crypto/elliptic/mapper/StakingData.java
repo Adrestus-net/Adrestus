@@ -15,8 +15,8 @@ public class StakingData implements Serializable {
     }
 
     public StakingData() {
-        this.uid=0;
-        this.stake=0.0;
+        this.uid = 0;
+        this.stake = 0.0;
     }
 
     @Serialize

@@ -81,7 +81,7 @@ public class SendReceiptTask extends AdrestusTask {
 
     @Override
     public void close() {
-        runner=true;
+        runner = true;
         if (socket != null) {
             socket.close();
             socket = null;

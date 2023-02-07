@@ -4,7 +4,6 @@ import io.Adrestus.config.ConsensusConfiguration;
 import io.Adrestus.consensus.ChangeView.ChangeViewCommitteeState;
 import io.Adrestus.consensus.ChangeView.ChangeViewTransactionState;
 import io.Adrestus.core.BlockIndex;
-import io.Adrestus.core.CommitteeBlock;
 import io.Adrestus.core.IBlockIndex;
 import io.Adrestus.core.Resourses.CachedEpochGeneration;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;

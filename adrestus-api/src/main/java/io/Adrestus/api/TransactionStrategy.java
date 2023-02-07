@@ -2,7 +2,6 @@ package io.Adrestus.api;
 
 import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.config.TransactionConfigOptions;
-import io.Adrestus.core.RegularTransaction;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.core.Transaction;

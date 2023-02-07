@@ -96,7 +96,7 @@ public class TransactionChannelHandler<T> {
     public void close() {
         this.eventloop.breakEventloop();
         this.server.close();
-        this.server=null;
+        this.server = null;
     }
 
 }

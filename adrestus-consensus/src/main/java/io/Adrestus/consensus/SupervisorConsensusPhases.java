@@ -586,7 +586,7 @@ public class SupervisorConsensusPhases {
                 }
             } catch (Exception e) {
                 cleanup();
-                CommitteeBlock s=CachedLatestBlocks.getInstance().getCommitteeBlock();
+                CommitteeBlock s = CachedLatestBlocks.getInstance().getCommitteeBlock();
                 LOG.info("InitialSetup: Exception caught " + e.toString());
                 throw new IllegalArgumentException("Exception caught " + e.toString());
             }
@@ -775,6 +775,6 @@ public class SupervisorConsensusPhases {
     protected void cleanup() {
         if (consensusServer != null)
             consensusServer.close();
-            consensusServer = null;
+        consensusServer = null;
     }
 }

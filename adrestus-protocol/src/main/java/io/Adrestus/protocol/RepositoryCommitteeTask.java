@@ -3,7 +3,6 @@ package io.Adrestus.protocol;
 import io.Adrestus.config.NetworkConfiguration;
 import io.Adrestus.core.AbstractBlock;
 import io.Adrestus.core.CommitteeBlock;
-import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.network.CachedEventLoop;
 import io.Adrestus.network.IPFinder;
 import io.Adrestus.rpc.RpcAdrestusServer;
@@ -21,11 +20,12 @@ public class RepositoryCommitteeTask extends AdrestusTask {
     private final CommitteeBlock committeeBlock;
     private final DatabaseInstance databaseInstance;
     private final ExecutorService executorService;
-    private  RpcAdrestusServer<AbstractBlock> rpcAdrestusServer;
+    private RpcAdrestusServer<AbstractBlock> rpcAdrestusServer;
+
     public RepositoryCommitteeTask() {
         this.committeeBlock = new CommitteeBlock();
         this.databaseInstance = ZoneDatabaseFactory.getZoneInstance(4);
-        this.executorService= Executors.newSingleThreadExecutor();
+        this.executorService = Executors.newSingleThreadExecutor();
     }
 
     @SneakyThrows
@@ -36,9 +36,9 @@ public class RepositoryCommitteeTask extends AdrestusTask {
         LOG.info("execute");
     }
 
-    public void close(){
+    public void close() {
         this.executorService.shutdownNow();
         this.rpcAdrestusServer.close();
-        this.rpcAdrestusServer=null;
+        this.rpcAdrestusServer = null;
     }
 }

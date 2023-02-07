@@ -1,8 +1,6 @@
 package io.Adrestus.api;
 
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.config.AdrestusConfiguration;
@@ -33,7 +31,6 @@ import io.Adrestus.crypto.mnemonic.WordList;
 import io.Adrestus.p2p.kademlia.common.NettyConnectionInfo;
 import io.Adrestus.p2p.kademlia.repository.KademliaData;
 import io.Adrestus.util.GetTime;
-import io.Adrestus.util.ObjectSizeCalculator;
 import io.Adrestus.util.SerializationUtil;
 import org.apache.commons.codec.binary.StringUtils;
 import org.junit.jupiter.api.BeforeAll;
@@ -42,13 +39,11 @@ import org.spongycastle.util.encoders.Hex;
 
 import java.security.SecureRandom;
 import java.util.ArrayList;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Unit test for simple App.
  */
-public class TransactionStrategyTest
-{
+public class TransactionStrategyTest {
     private static BLSPrivateKey sk1;
     private static BLSPublicKey vk1;
 
@@ -111,7 +106,7 @@ public class TransactionStrategyTest
         for (int i = start; i < end; i++) {
             Mnemonic mnem = new Mnemonic(Security.NORMAL, WordList.ENGLISH);
             char[] mnemonic_sequence = "sample sail jungle learn general promote task puppy own conduct green affair ".toCharArray();
-            char[] passphrase = ("p4ssphr4se"+String.valueOf(i)).toCharArray();
+            char[] passphrase = ("p4ssphr4se" + String.valueOf(i)).toCharArray();
             byte[] key = mnem.createSeed(mnemonic_sequence, passphrase);
             SecureRandom randoms = SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
             randoms.setSeed(key);
@@ -135,7 +130,7 @@ public class TransactionStrategyTest
             transaction.setAmountWithTransactionFee(transaction.getAmount() * (10.0 / 100.0));
             transaction.setNonce(1);
 
-            byte byf[] = serenc.encode(transaction,1024);
+            byte byf[] = serenc.encode(transaction, 1024);
             transaction.setHash(HashUtil.sha256_bytetoString(byf));
 
             SignatureData signatureData = ecdsaSign.secp256SignMessage(Hex.decode(transaction.getHash()), keypair.get(i));
@@ -150,17 +145,18 @@ public class TransactionStrategyTest
         committeeBlock.getStructureMap().get(0).put(vk1, "192.168.1.106");
         committeeBlock.getStructureMap().get(0).put(vk2, "192.168.1.116");
 
-        committeeBlock.getStakingMap().put(new StakingData(1,10.0), new KademliaData(new SecurityAuditProofs(addreses.get(0), vk1, ecKeyPair1.getPublicKey(), signatureData1), new NettyConnectionInfo("192.168.1.106", KademliaConfiguration.PORT)));
-        committeeBlock.getStakingMap().put(new StakingData(2,13.0), new KademliaData(new SecurityAuditProofs(addreses.get(1), vk2, ecKeyPair2.getPublicKey(), signatureData2), new NettyConnectionInfo("192.168.1.116", KademliaConfiguration.PORT)));
+        committeeBlock.getStakingMap().put(new StakingData(1, 10.0), new KademliaData(new SecurityAuditProofs(addreses.get(0), vk1, ecKeyPair1.getPublicKey(), signatureData1), new NettyConnectionInfo("192.168.1.106", KademliaConfiguration.PORT)));
+        committeeBlock.getStakingMap().put(new StakingData(2, 13.0), new KademliaData(new SecurityAuditProofs(addreses.get(1), vk2, ecKeyPair2.getPublicKey(), signatureData2), new NettyConnectionInfo("192.168.1.116", KademliaConfiguration.PORT)));
 
         CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
         CachedLeaderIndex.getInstance().setCommitteePositionLeader(0);
         CachedZoneIndex.getInstance().setZoneIndex(0);
     }
+
     @Test
     public void test() throws Exception {
-        Strategy transactionStrategy=new Strategy(new TransactionStrategy(MemoryTransactionPool.getInstance().getAll()));
-        Strategy transactionStrategy1=new Strategy(new TransactionStrategy((Transaction) MemoryTransactionPool.getInstance().getAll().get(0)));
+        Strategy transactionStrategy = new Strategy(new TransactionStrategy(MemoryTransactionPool.getInstance().getAll()));
+        Strategy transactionStrategy1 = new Strategy(new TransactionStrategy((Transaction) MemoryTransactionPool.getInstance().getAll().get(0)));
         System.out.println(MemoryTransactionPool.getInstance().getAll().size());
         transactionStrategy1.execute();
         transactionStrategy.execute();

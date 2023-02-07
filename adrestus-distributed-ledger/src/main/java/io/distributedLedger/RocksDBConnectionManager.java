@@ -368,17 +368,22 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
                 rocksDB.deleteRange(firstKey, lastKey);
                 rocksDB.delete(lastKey);
             }
-            rocksDB.close();
 
             boolean del = dbFile.delete();
+            //RocksDB.destroyDB(Directory.getConfigPath(), options);
 
-            RocksDB.destroyDB(Directory.getConfigPath(), options);
-            options.close();
             if (this.databaseInstance != null)
                 ZoneDatabaseFactory.closeDatabaseInstance(databaseInstance, options, dbFile.getAbsolutePath());
             else
                 ZoneDatabaseFactory.closeDatabaseInstance(patriciaTreeInstance, options, dbFile.getAbsolutePath());
+
+            if (options != null)
+                options.close();
+            if (rocksDB != null)
+                rocksDB.close();
             rocksDB = null;
+            if (databaseInstance.equals(DatabaseInstance.ZONE_0_TRANSACTION_BLOCK) || databaseInstance.equals(DatabaseInstance.ZONE_1_TRANSACTION_BLOCK) || databaseInstance.equals(DatabaseInstance.ZONE_2_TRANSACTION_BLOCK) || databaseInstance.equals(DatabaseInstance.ZONE_3_TRANSACTION_BLOCK))
+                FileUtils.deleteDirectory(dbFile.getParentFile());
             FileUtils.deleteDirectory(dbFile);
             return del;
         } catch (NullPointerException exception) {

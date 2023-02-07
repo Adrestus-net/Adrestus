@@ -104,7 +104,7 @@ public class OrganizerConsensusPhases {
             }
             var regural_block = factory.getBlock(BlockType.REGULAR);
             regural_block.forgeTransactionBlock(data.getData());
-            this.original_copy= (TransactionBlock) data.getData().clone();
+            this.original_copy = (TransactionBlock) data.getData().clone();
             data.setMessageType(ConsensusMessageType.ANNOUNCE);
             if (DEBUG)
                 return;
@@ -164,8 +164,8 @@ public class OrganizerConsensusPhases {
             data.setData(new TransactionBlock(
                     original_copy.getHash(),
                     original_copy.getHeaderData().getPreviousHash(),
-                    original_copy.getSize(),original_copy.getHeight(),
-                    original_copy.getZone(),original_copy.getViewID(),
+                    original_copy.getSize(), original_copy.getHeight(),
+                    original_copy.getZone(), original_copy.getViewID(),
                     original_copy.getHeaderData().getTimestamp(),
                     original_copy.getZone()));
             data.setMessageType(ConsensusMessageType.PREPARE);

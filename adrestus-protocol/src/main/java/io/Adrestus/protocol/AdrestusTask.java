@@ -15,8 +15,10 @@ public abstract class AdrestusTask {
     }
 
 
-    public  abstract void execute();
-    public void close(){}
+    public abstract void execute();
+
+    public void close() {
+    }
 
 
     @Override
