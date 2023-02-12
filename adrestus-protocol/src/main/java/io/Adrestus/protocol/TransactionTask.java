@@ -4,6 +4,8 @@ import io.Adrestus.config.TransactionConfigOptions;
 import io.Adrestus.core.RingBuffer.handler.transactions.SignatureEventHandler;
 import io.Adrestus.core.RingBuffer.publisher.TransactionEventPublisher;
 import io.Adrestus.core.Transaction;
+import io.Adrestus.crypto.elliptic.ECDSASignatureData;
+import io.Adrestus.crypto.elliptic.mapper.SignatureDataSerializer;
 import io.Adrestus.network.IPFinder;
 import io.Adrestus.network.TCPTransactionConsumer;
 import io.Adrestus.network.TransactionChannelHandler;
@@ -12,6 +14,9 @@ import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class TransactionTask extends AdrestusTask {
     private static Logger LOG = LoggerFactory.getLogger(TransactionTask.class);
     private SerializationUtil<Transaction> serenc;
@@ -19,10 +24,12 @@ public class TransactionTask extends AdrestusTask {
     private TCPTransactionConsumer<byte[]> receive;
     private TransactionChannelHandler transactionChannelHandler;
     int counter = 0;
-
+    private ArrayList<Transaction>list=new ArrayList<>();
     public TransactionTask() {
         super();
-        this.serenc = new SerializationUtil<Transaction>(Transaction.class);
+        List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(ECDSASignatureData.class, ctx -> new SignatureDataSerializer()));
+        this.serenc = new SerializationUtil<Transaction>(Transaction.class,list);
         this.publisher = new TransactionEventPublisher(2048);
         this.callBackReceive();
         this.setup();
@@ -49,11 +56,19 @@ public class TransactionTask extends AdrestusTask {
 
     public void callBackReceive() {
         this.receive = x -> {
-            Transaction transaction = serenc.decode(x);
-            counter++;
-            System.out.println("Server Message:" + transaction.toString());
-            //System.out.println("s "+counter);
-            publisher.publish(transaction);
+            try {
+                Transaction transaction = serenc.decode(x);
+                counter++;
+                //System.out.println("Server Message:" + transaction.toString());
+                System.out.println("s "+counter);
+               // publisher.publish(transaction);
+              //  if(list.contains(transaction))
+              //      System.out.println("edw "+transaction);
+              //  else
+              //      list.add(transaction);
+            }catch (Exception e){
+               e.printStackTrace();
+            }
         };
     }
 

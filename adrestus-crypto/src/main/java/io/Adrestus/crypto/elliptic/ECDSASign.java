@@ -27,28 +27,28 @@ public class ECDSASign implements SignInterface {
      * @param keyPair
      * @return
      */
-    public SignatureData secp256SignMessage(byte[] message, ECKeyPair keyPair) {
-        SignatureData signatureData = signMessage(message, keyPair);
-        return new SignatureData(
+    public ECDSASignatureData secp256SignMessage(byte[] message, ECKeyPair keyPair) {
+        ECDSASignatureData signatureData = signMessage(message, keyPair);
+        return new ECDSASignatureData(
                 (byte) (signatureData.getV() - 27), signatureData.getR(), signatureData.getS());
     }
 
 
-    public boolean secp256Verify(byte[] hash, BigInteger publicKey, SignatureData signatureData) {
+    public boolean secp256Verify(byte[] hash, BigInteger publicKey, ECDSASignatureData signatureData) {
         return verify(
                 hash,
                 publicKey,
-                new SignatureData(
+                new ECDSASignatureData(
                         (byte) (signatureData.getV() + 27),
                         signatureData.getR(),
                         signatureData.getS()));
     }
 
-    public boolean secp256Verify(byte[] hash, String publicKey, SignatureData signatureData) {
+    public boolean secp256Verify(byte[] hash, String publicKey, ECDSASignatureData signatureData) {
         return verify(
                 hash,
                 publicKey,
-                new SignatureData(
+                new ECDSASignatureData(
                         (byte) (signatureData.getV() + 27),
                         signatureData.getR(),
                         signatureData.getS()));
@@ -56,7 +56,7 @@ public class ECDSASign implements SignInterface {
 
 
     @Override
-    public SignatureData signMessage(byte[] message, ECKeyPair keyPair) {
+    public ECDSASignatureData signMessage(byte[] message, ECKeyPair keyPair) {
         BigInteger privateKey = keyPair.getPrivateKey();
         BigInteger publicKey = keyPair.getPublicKey();
 
@@ -86,11 +86,11 @@ public class ECDSASign implements SignInterface {
         byte[] r = PrimitiveUtil.toBytesPadded(sig.getR(), 32);
         byte[] s = PrimitiveUtil.toBytesPadded(sig.getS(), 32);
 
-        return new SignatureData(v, r, s);
+        return new ECDSASignatureData(v, r, s);
     }
 
 
-    public boolean verify(byte[] hash, BigInteger publicKey, SignatureData signatureData) {
+    public boolean verify(byte[] hash, BigInteger publicKey, ECDSASignatureData signatureData) {
         ECDSASignature sig =
                 new ECDSASignature(
                         PrimitiveUtil.toBigInt(signatureData.getR()),
@@ -100,7 +100,7 @@ public class ECDSASign implements SignInterface {
         return publicKey.equals(k);
     }
 
-    public boolean verify(byte[] hash, String given_address, SignatureData signatureData) {
+    public boolean verify(byte[] hash, String given_address, ECDSASignatureData signatureData) {
         ECDSASignature sig =
                 new ECDSASignature(
                         PrimitiveUtil.toBigInt(signatureData.getR()),

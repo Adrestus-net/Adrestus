@@ -10,6 +10,8 @@ public interface IMemoryPool<T> {
 
     List<T> getAll() throws Exception;
 
+    int getSize();
+
     Lock getR();
 
     Lock getW();

@@ -1,15 +1,30 @@
 package io.Adrestus.protocol;
 
+import io.Adrestus.TreeFactory;
+import io.Adrestus.Trie.PatriciaTreeNode;
+import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.config.TransactionConfigOptions;
 import io.Adrestus.core.RegularTransaction;
+import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.core.StatusType;
 import io.Adrestus.core.Transaction;
 import io.Adrestus.crypto.HashUtil;
+import io.Adrestus.crypto.WalletAddress;
+import io.Adrestus.crypto.elliptic.ECDSASign;
+import io.Adrestus.crypto.elliptic.ECDSASignatureData;
+import io.Adrestus.crypto.elliptic.ECKeyPair;
+import io.Adrestus.crypto.elliptic.Keys;
+import io.Adrestus.crypto.elliptic.mapper.SignatureDataSerializer;
+import io.Adrestus.crypto.mnemonic.Mnemonic;
+import io.Adrestus.crypto.mnemonic.MnemonicException;
+import io.Adrestus.crypto.mnemonic.Security;
+import io.Adrestus.crypto.mnemonic.WordList;
 import io.Adrestus.network.TCPTransactionConsumer;
 import io.Adrestus.network.TransactionChannelHandler;
 import io.Adrestus.util.GetTime;
 import io.Adrestus.util.SerializationUtil;
 import io.activej.bytebuf.ByteBuf;
+import io.activej.bytebuf.ByteBufPool;
 import io.activej.csp.ChannelSupplier;
 import io.activej.csp.binary.BinaryChannelSupplier;
 import io.activej.eventloop.Eventloop;
@@ -20,24 +35,41 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.spongycastle.util.encoders.Hex;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.List;
 
 import static io.activej.eventloop.Eventloop.getCurrentEventloop;
 import static io.activej.promise.Promises.loop;
 
 public class TransactionChannelTest {
-    private static final InetSocketAddress ADDRESS = new InetSocketAddress("localhost", TransactionConfigOptions.TRANSACTION_PORT);
     private static Eventloop eventloop = Eventloop.create().withCurrentThread();
-    private static SerializationUtil<Transaction> serenc;
+    private static SerializationUtil<Transaction> encode;
+    private static SerializationUtil<Transaction> decode;
     static AsyncTcpSocket socket;
+    static int counter;
+    private static ArrayList<Transaction> toSendlist = new ArrayList<>();
+    private static ArrayList<String> addreses = new ArrayList<>();
+    private static ArrayList<ECKeyPair> keypair = new ArrayList<>();
+    private static int version = 0x00;
+    private static ECDSASign ecdsaSign = new ECDSASign();
 
+    private static int start = 0;
+    private static int end = 5000;
     @BeforeAll
-    public static void setup() throws InterruptedException {
+    public static void setup() throws InterruptedException, MnemonicException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException {
         TCPTransactionConsumer<byte[]> print = x -> {
-            System.out.println("Server Message:" + serenc.decode(x));
+            Transaction transaction = decode.decode(x);
+            counter++;
+            System.out.println("Counter"+counter+"Server Message:" + transaction);
+            Thread.sleep(10);
         };
         (new Thread() {
             public void run() {
@@ -50,21 +82,34 @@ public class TransactionChannelTest {
                 }
             }
         }).start();
-        Thread.sleep(100);
+        //Thread.sleep(100);
+
+
+        for (int i = start; i < end; i++) {
+            Mnemonic mnem = new Mnemonic(Security.NORMAL, WordList.ENGLISH);
+            char[] mnemonic_sequence = "sample sail jungle learn general promote task puppy own conduct green affair ".toCharArray();
+            char[] passphrase = ("p4ssphr4se" + String.valueOf(i)).toCharArray();
+            byte[] key = mnem.createSeed(mnemonic_sequence, passphrase);
+            SecureRandom randoms = SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
+            randoms.setSeed(key);
+            ECKeyPair ecKeyPair = Keys.createEcKeyPair(randoms);
+            String adddress = WalletAddress.generate_address((byte) version, ecKeyPair.getPublicKey());
+            addreses.add(adddress);
+            keypair.add(ecKeyPair);
+        }
     }
 
     @Test
     public void NetworkChannelTest() {
+        List<SerializationUtil.Mapping> mapp_list = new ArrayList<>();
+        mapp_list.add(new SerializationUtil.Mapping(ECDSASignatureData.class, ctx -> new SignatureDataSerializer()));
+        decode = new SerializationUtil<Transaction>(Transaction.class, mapp_list);
+        encode = new SerializationUtil<Transaction>(Transaction.class, mapp_list);
 
-
-        serenc = new SerializationUtil<Transaction>(Transaction.class);
-        int size = 10;
-
-        ArrayList<Transaction> list = new ArrayList<>();
-        for (int j = 0; j < size; j++) {
+        for (int j = 0; j < end-1; j++) {
             Transaction transaction = new RegularTransaction();
-            transaction.setFrom("ADR-ADML-SVUG-O7QD-R5IA-HWBD-XUGY-TVJA-3KAG-HLBI-G5EC");
-            transaction.setTo("ADR-ADWE-NMZY-K4DI-WZBZ-ARSA-BI3N-AI3C-S744-5L5E-F4BR");
+            transaction.setFrom(addreses.get(j));
+            transaction.setTo(addreses.get(j + 1));
             transaction.setStatus(StatusType.PENDING);
             transaction.setTimestamp(GetTime.GetTimeStampInString());
             transaction.setZoneFrom(0);
@@ -72,10 +117,13 @@ public class TransactionChannelTest {
             transaction.setAmount(j);
             transaction.setAmountWithTransactionFee(transaction.getAmount() * (10.0 / 100.0));
             transaction.setNonce(1);
-            byte before_hash[] = serenc.encode(transaction);
+            byte before_hash[] = encode.encode(transaction);
             transaction.setHash(HashUtil.sha256_bytetoString(before_hash));
 
-            list.add(transaction);
+            ECDSASignatureData signatureData = ecdsaSign.secp256SignMessage(Hex.decode(transaction.getHash()), keypair.get(j));
+            transaction.setSignature(signatureData);
+
+            toSendlist.add(transaction);
         }
         //byte transaction_hash[] = serenc.encodeWithTerminatedBytes(transaction);
         //Transaction copy=serenc.decode(transaction_hash);
@@ -90,10 +138,15 @@ public class TransactionChannelTest {
                 }
                 BinaryChannelSupplier bufsSupplier = BinaryChannelSupplier.of(ChannelSupplier.ofSocket(socket));
                 loop(0,
-                        i -> i < list.size(),
-                        i -> loadData(list.get(i)).then(bytes -> socket.write(ByteBuf.wrapForReading((bytes)))).then(() -> bufsSupplier.needMoreData())
+                        i -> i < toSendlist.size(),
+                        i -> loadData(toSendlist.get(i))
+                                .then(byff -> socket.write(byff))
+                                .then(() -> bufsSupplier.needMoreData())
                                 .map($2 -> i + 1))
-                        .whenComplete(socket::close);
+                        .whenComplete(socket::close)
+                        .whenException(ex -> {
+                            throw new RuntimeException(ex);
+                        });
             } else {
                 System.out.printf("Could not connect to server, make sure it is started: %s%n", e);
             }
@@ -102,9 +155,9 @@ public class TransactionChannelTest {
         eventloop.run();
     }
 
-    private static @NotNull Promise<byte[]> loadData(Transaction transaction) {
-        byte transaction_hash[] = serenc.encode(transaction);
-        byte[] concatBytes = ArrayUtils.addAll(transaction_hash, "\r\n".getBytes());
-        return Promise.of(concatBytes);
+    private static @NotNull Promise<ByteBuf> loadData(Transaction transaction) {
+        byte transaction_hash[] = encode.encode(transaction, 1024);
+        ByteBuf appendedBuf = ByteBufPool.append(ByteBuf.wrapForReading(transaction_hash), ByteBuf.wrapForReading("\r\n".getBytes()));
+        return Promise.of(appendedBuf);
     }
 }

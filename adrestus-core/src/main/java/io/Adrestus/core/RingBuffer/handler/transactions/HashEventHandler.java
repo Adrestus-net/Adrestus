@@ -4,7 +4,7 @@ import io.Adrestus.core.RingBuffer.event.TransactionEvent;
 import io.Adrestus.core.StatusType;
 import io.Adrestus.core.Transaction;
 import io.Adrestus.crypto.HashUtil;
-import io.Adrestus.crypto.elliptic.SignatureData;
+import io.Adrestus.crypto.elliptic.ECDSASignatureData;
 import io.Adrestus.util.SerializationUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,10 +30,11 @@ public class HashEventHandler extends TransactionEventHandler {
             }
 
             cloneable.setHash("");
-            cloneable.setSignature(new SignatureData());
+            cloneable.setSignature(new ECDSASignatureData());
 
-            byte[] toHash = wrapper.encode(cloneable, 1024);
+            byte[] toHash = wrapper.encode(cloneable,1024);
             String result_hash = HashUtil.sha256_bytetoString(toHash);
+
             if (!result_hash.equals(transaction.getHash())) {
                 LOG.info("Transaction hashes does not match");
                 transaction.setStatus(StatusType.ABORT);

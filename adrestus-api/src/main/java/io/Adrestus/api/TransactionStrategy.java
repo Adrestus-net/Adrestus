@@ -18,7 +18,10 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -34,32 +37,33 @@ public class TransactionStrategy implements IStrategy {
     private final ExecutorService executorService;
     private Transaction transaction;
     private List<Transaction> transaction_list;
+    private volatile Boolean[] termination;
 
     public TransactionStrategy(Transaction transaction) {
+        this.transaction_list = new ArrayList<>();
         this.transaction = transaction;
         this.executorService = Executors.newFixedThreadPool(AdrestusConfiguration.CORES);
         this.list_ip = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).values().stream().collect(Collectors.toList());
+        this.termination = new Boolean[this.list_ip.size()];
+        Arrays.fill(this.termination, Boolean.FALSE);
     }
 
     public TransactionStrategy(List<Transaction> transaction_list) {
         this.transaction_list = transaction_list;
         this.executorService = Executors.newFixedThreadPool(AdrestusConfiguration.CORES);
         this.list_ip = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).values().stream().collect(Collectors.toList());
+        this.termination = new Boolean[this.list_ip.size()];
+        Arrays.fill(this.termination, Boolean.FALSE);
     }
 
     @Override
     public void execute() {
-        for (int i = 0; i < list_ip.size(); i++) {
-            if (transaction_list == null)
-                this.executorService.execute(new TransactionWorker(list_ip.get(i), transaction));
-            else
-                this.executorService.execute(new TransactionWorker(list_ip.get(i), transaction_list));
-        }
+        list_ip.stream().forEach(val -> executorService.execute(new TransactionWorker(this, val, new CountDownLatch(transaction_list.size()))));
     }
 
     @Override
     public void block_until_send() {
-        while (!transaction_list.isEmpty() || transaction != null) {
+        while (Arrays.stream(this.termination).filter(val -> val.equals(Boolean.FALSE)).findFirst().isPresent()) {
             try {
                 Thread.sleep(100);
             } catch (InterruptedException e) {
@@ -96,25 +100,29 @@ public class TransactionStrategy implements IStrategy {
 
         private final String ip;
 
+
+        private TransactionStrategy instance;
         private Eventloop eventloop;
         private Transaction transaction;
         private List<Transaction> transaction_list;
         private static SerializationUtil<Transaction> transaction_encode;
+        private static CountDownLatch termination;
         private AsyncTcpSocket socket;
 
-        public TransactionWorker(String ip, Transaction transaction) {
+
+        public TransactionWorker(TransactionStrategy instance, String ip, CountDownLatch terminate) {
+            this.instance = instance;
             this.transaction_encode = new SerializationUtil<Transaction>(Transaction.class);
-            this.transaction = transaction;
+            if (this.instance.transaction_list == null) {
+                this.transaction = this.instance.transaction;
+                this.transaction_list = new ArrayList<>();
+            } else
+                this.transaction_list = this.instance.transaction_list;
             this.ip = ip;
+            termination = terminate;
             this.eventloop = Eventloop.create().withCurrentThread();
         }
 
-        public TransactionWorker(String ip, List<Transaction> transaction_list) {
-            this.transaction_encode = new SerializationUtil<Transaction>(Transaction.class);
-            this.transaction_list = transaction_list;
-            this.ip = ip;
-            this.eventloop = Eventloop.create().withCurrentThread();
-        }
 
         @Override
         public void run() {
@@ -123,7 +131,6 @@ public class TransactionStrategy implements IStrategy {
             else
                 this.SingleAsync();
             eventloop.run();
-            this.clean();
         }
 
         private void SingleAsync() {
@@ -138,9 +145,21 @@ public class TransactionStrategy implements IStrategy {
 
                     byte[] data = transaction_encode.encode(transaction, 1024);
                     socket.write(ByteBuf.wrapForReading(ArrayUtils.addAll(data, "\r\n".getBytes(UTF_8))));
+                    try {
+                        Thread.sleep(100);
+                        termination.await();
+                    } catch (InterruptedException ex) {
+                        ex.printStackTrace();
+                    }
+                    transaction = null;
+                    this.clean();
 
                 } else {
                     System.out.printf("Could not connect to server, make sure it is started: %s%n", e);
+                    while (termination.getCount() > 0) {
+                        termination.countDown();
+                    }
+                    this.clean();
                 }
             });
         }
@@ -157,11 +176,28 @@ public class TransactionStrategy implements IStrategy {
                     BinaryChannelSupplier bufsSupplier = BinaryChannelSupplier.of(ChannelSupplier.ofSocket(socket));
                     loop(0,
                             i -> i < this.transaction_list.size(),
-                            i -> loadData(this.transaction_list.get(i)).then(bytes -> socket.write(ByteBuf.wrapForReading((bytes)))).then(() -> bufsSupplier.needMoreData())
+                            i -> loadData(this.transaction_list.get(i))
+                                    .then(bytes -> socket.write(ByteBuf.wrapForReading((bytes))))
+                                    .then(() -> bufsSupplier.needMoreData())
+                                    .then(() -> decrease())
                                     .map($2 -> i + 1))
-                            .whenComplete(socket::close);
+                            .whenComplete(socket::close)
+                            .whenException(ex -> {
+                                throw new RuntimeException(ex);
+                            });
+                    try {
+                        termination.await();
+                        this.clean();
+                    } catch (InterruptedException ex) {
+                        ex.printStackTrace();
+                    }
+                    this.clean();
                 } else {
                     System.out.printf("Could not connect to server, make sure it is started: %s%n", e);
+                    while (termination.getCount() > 0) {
+                        termination.countDown();
+                    }
+                    this.clean();
                 }
             });
         }
@@ -170,6 +206,11 @@ public class TransactionStrategy implements IStrategy {
             byte transaction_hash[] = transaction_encode.encode(transaction, 1024);
             byte[] concatBytes = ArrayUtils.addAll(transaction_hash, "\r\n".getBytes());
             return Promise.of(concatBytes);
+        }
+
+        private static @NotNull Promise<Void> decrease() {
+            termination.countDown();
+            return Promise.complete();
         }
 
         private void clean() {
@@ -185,8 +226,11 @@ public class TransactionStrategy implements IStrategy {
                 eventloop.breakEventloop();
                 eventloop = null;
             }
+            int index = this.instance.list_ip.indexOf(ip);
+            this.instance.termination[index] = Boolean.TRUE;
             transaction = null;
             transaction_encode = null;
+            instance = null;
         }
     }
 

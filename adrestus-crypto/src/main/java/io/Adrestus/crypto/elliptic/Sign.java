@@ -96,17 +96,17 @@ public class Sign {
         return CURVE.getCurve().decodePoint(compEnc);
     }
 
-    public static BigInteger signedMessageToKey(byte[] message, SignatureData signatureData)
+    public static BigInteger signedMessageToKey(byte[] message, ECDSASignatureData signatureData)
             throws SignatureException {
         return signedMessageHashToKey(HashUtil.sha3(message), signatureData);
     }
 
-    public static BigInteger signedPrefixedMessageToKey(byte[] message, SignatureData signatureData)
+    public static BigInteger signedPrefixedMessageToKey(byte[] message, ECDSASignatureData signatureData)
             throws SignatureException {
         return signedMessageHashToKey(getEthereumMessageHash(message), signatureData);
     }
 
-    public static BigInteger signedMessageHashToKey(byte[] messageHash, SignatureData signatureData)
+    public static BigInteger signedMessageHashToKey(byte[] messageHash, ECDSASignatureData signatureData)
             throws SignatureException {
 
         byte[] r = signatureData.getR();

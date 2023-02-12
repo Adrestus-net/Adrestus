@@ -23,7 +23,7 @@ import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.Adrestus.crypto.elliptic.ECDSASign;
 import io.Adrestus.crypto.elliptic.ECKeyPair;
 import io.Adrestus.crypto.elliptic.Keys;
-import io.Adrestus.crypto.elliptic.SignatureData;
+import io.Adrestus.crypto.elliptic.ECDSASignatureData;
 import io.Adrestus.crypto.elliptic.mapper.StakingData;
 import io.Adrestus.crypto.mnemonic.Mnemonic;
 import io.Adrestus.crypto.mnemonic.Security;
@@ -76,8 +76,8 @@ public class TransactionStrategyTest {
         ecKeyPair2 = Keys.createEcKeyPair(random);
         String address1 = WalletAddress.generate_address((byte) version, ecKeyPair1.getPublicKey());
         String address2 = WalletAddress.generate_address((byte) version, ecKeyPair2.getPublicKey());
-        SignatureData signatureData1 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address1)), ecKeyPair1);
-        SignatureData signatureData2 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address2)), ecKeyPair2);
+        ECDSASignatureData signatureData1 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address1)), ecKeyPair1);
+        ECDSASignatureData signatureData2 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address2)), ecKeyPair2);
 
         SerializationUtil<Transaction> serenc = new SerializationUtil<Transaction>(Transaction.class);
 
@@ -133,7 +133,7 @@ public class TransactionStrategyTest {
             byte byf[] = serenc.encode(transaction, 1024);
             transaction.setHash(HashUtil.sha256_bytetoString(byf));
 
-            SignatureData signatureData = ecdsaSign.secp256SignMessage(Hex.decode(transaction.getHash()), keypair.get(i));
+            ECDSASignatureData signatureData = ecdsaSign.secp256SignMessage(Hex.decode(transaction.getHash()), keypair.get(i));
             transaction.setSignature(signatureData);
 
             publisher.publish(transaction);
@@ -156,10 +156,13 @@ public class TransactionStrategyTest {
     @Test
     public void test() throws Exception {
         Strategy transactionStrategy = new Strategy(new TransactionStrategy(MemoryTransactionPool.getInstance().getAll()));
-        Strategy transactionStrategy1 = new Strategy(new TransactionStrategy((Transaction) MemoryTransactionPool.getInstance().getAll().get(0)));
+       // Strategy transactionStrategy1 = new Strategy(new TransactionStrategy((Transaction) MemoryTransactionPool.getInstance().getAll().get(0)));
         System.out.println(MemoryTransactionPool.getInstance().getAll().size());
-        transactionStrategy1.execute();
+        //transactionStrategy1.execute();
         transactionStrategy.execute();
+        //transactionStrategy1.block_until_send();
         transactionStrategy.block_until_send();
+        transactionStrategy.terminate();
+        //transactionStrategy1.terminate();
     }
 }

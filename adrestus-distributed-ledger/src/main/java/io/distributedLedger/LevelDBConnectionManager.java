@@ -187,7 +187,7 @@ public class LevelDBConnectionManager<K, V> implements IDatabase<K, V> {
             final byte[] bytes = level_db.get(serializedKey);
             return (Optional<V>) Optional.ofNullable(valueMapper.decode(bytes));
         } catch (final NullPointerException exception) {
-            LOGGER.info("Key value not exists in Database return empty");
+           // LOGGER.info("Key value not exists in Database return empty");
             return Optional.empty();
         } catch (final SerializationException exception) {
             LOGGER.error("Serialization exception occurred during findByKey operation. {}", exception.getMessage());

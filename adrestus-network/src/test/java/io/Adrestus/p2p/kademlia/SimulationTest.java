@@ -9,7 +9,7 @@ import io.Adrestus.crypto.WalletAddress;
 import io.Adrestus.crypto.elliptic.ECDSASign;
 import io.Adrestus.crypto.elliptic.ECKeyPair;
 import io.Adrestus.crypto.elliptic.Keys;
-import io.Adrestus.crypto.elliptic.SignatureData;
+import io.Adrestus.crypto.elliptic.ECDSASignatureData;
 import io.Adrestus.crypto.mnemonic.Mnemonic;
 import io.Adrestus.crypto.mnemonic.Security;
 import io.Adrestus.crypto.mnemonic.WordList;
@@ -150,7 +150,7 @@ public class SimulationTest {
             NettyConnectionInfo nettyConnectionInfo = new NettyConnectionInfo("127.0.0.1", port + (int) i);
             RoutingTable<BigInteger, NettyConnectionInfo, Bucket<BigInteger, NettyConnectionInfo>> routingTable = routingTableFactory.getRoutingTable(BigInteger.valueOf(i));
             DHTRegularNode nextnode = new DHTRegularNode(nettyConnectionInfo, BigInteger.valueOf(i), keyHashGenerator);
-            SignatureData signatureData = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(addreses.get(i))), keypair.get(i));
+            ECDSASignatureData signatureData = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(addreses.get(i))), keypair.get(i));
             KademliaData kademliaData = new KademliaData(new SecurityAuditProofs(addreses.get(i), keypair.get(i).getPublicKey(), signatureData), nettyConnectionInfo);
 
             //boolean verify = ecdsaSign.secp256Verify(value.getAddressData().getAddress().getBytes(StandardCharsets.UTF_8), value.getAddressData().getAddress(), value.getAddressData().getECDSASignature());

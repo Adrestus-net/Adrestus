@@ -4,7 +4,7 @@ import com.google.common.reflect.TypeToken;
 import com.google.gson.*;
 import io.Adrestus.crypto.SecurityAuditProofs;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
-import io.Adrestus.crypto.elliptic.SignatureData;
+import io.Adrestus.crypto.elliptic.ECDSASignatureData;
 import io.Adrestus.p2p.kademlia.common.NettyConnectionInfo;
 
 import java.lang.reflect.Type;
@@ -16,7 +16,7 @@ public class KademliaDataDeserializer implements JsonDeserializer<KademliaData> 
         Gson gson = new Gson();
         final Type blstoken = new TypeToken<BLSPublicKey>() {
         }.getType();
-        final Type ecdsaSignatureData = new TypeToken<SignatureData>() {
+        final Type ecdsaSignatureData = new TypeToken<ECDSASignatureData>() {
         }.getType();
         final JsonObject resourceJson = jsonElement.getAsJsonObject();
 

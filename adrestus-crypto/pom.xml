@@ -68,6 +68,11 @@
             <artifactId>activej-serializer</artifactId>
             <version>${serializer.version}</version>
         </dependency>
+        <dependency>
+            <groupId>io.activej</groupId>
+            <artifactId>activej-bytebuf</artifactId>
+            <version>${serializer.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

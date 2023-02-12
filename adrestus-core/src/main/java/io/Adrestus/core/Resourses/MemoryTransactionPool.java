@@ -77,6 +77,16 @@ public class MemoryTransactionPool implements IMemoryPool<Transaction> {
         }
     }
 
+    @Override
+    public int getSize() {
+        r.lock();
+        try {
+            return memorypool.size();
+        } finally {
+            r.unlock();
+        }
+    }
+
 
     @Override
     public Optional<Transaction> getObjectByHash(String hash) throws Exception {

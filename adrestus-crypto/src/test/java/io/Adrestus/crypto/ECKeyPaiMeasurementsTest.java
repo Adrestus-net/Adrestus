@@ -26,7 +26,7 @@ public class ECKeyPaiMeasurementsTest {
     private static byte[] hash;
     private static ECKeyPair ecKeyPair;
     private static ECDSASign ecdsaSign;
-    private static SignatureData signatureData;
+    private static ECDSASignatureData signatureData;
     private static String message = "verify test";
     private static ECKeyPair ecKeyPair2;
     private static ECDSASignature signature;

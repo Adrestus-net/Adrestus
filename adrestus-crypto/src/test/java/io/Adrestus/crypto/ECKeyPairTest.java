@@ -41,7 +41,7 @@ public class ECKeyPairTest {
         String message = "message";
 
 
-        SignatureData signatureData = ecdsaSign.secp256SignMessage(message.getBytes(), ecKeyPair);
+        ECDSASignatureData signatureData = ecdsaSign.secp256SignMessage(message.getBytes(), ecKeyPair);
         String r = Hex.toHexString(signatureData.getR());
         String s = Hex.toHexString(signatureData.getS());
 
@@ -64,13 +64,13 @@ public class ECKeyPairTest {
         ECDSASign ecdsaSign = new ECDSASign();
 
 
-        SignatureData signatureData = ecdsaSign.secp256SignMessage(message.getBytes(StandardCharsets.UTF_8), ecKeyPair);
+        ECDSASignatureData signatureData = ecdsaSign.secp256SignMessage(message.getBytes(StandardCharsets.UTF_8), ecKeyPair);
         boolean verify = ecdsaSign.secp256Verify(message.getBytes(StandardCharsets.UTF_8), adddress, signatureData);
 
         assertEquals(verify, true);
 
 
-        SignatureData signatureData2 = ecdsaSign.secp256SignMessage(HashUtil.sha256(adddress.getBytes(StandardCharsets.UTF_8)), ecKeyPair);
+        ECDSASignatureData signatureData2 = ecdsaSign.secp256SignMessage(HashUtil.sha256(adddress.getBytes(StandardCharsets.UTF_8)), ecKeyPair);
         boolean verify2 = ecdsaSign.secp256Verify(HashUtil.sha256(adddress.getBytes(StandardCharsets.UTF_8)), adddress, signatureData2);
 
         assertEquals(verify2, true);

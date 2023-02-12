@@ -28,6 +28,8 @@ public class NonceEventHandler extends TransactionEventHandler {
             patriciaTreeNode = TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(transaction.getFrom()).get();
         } catch (NullPointerException ex) {
             LOG.info("Transaction is empty");
+            transaction.setStatus(StatusType.ABORT);
+            return;
         }
 
         if (patriciaTreeNode.getNonce() + 1 != transaction.getNonce()) {

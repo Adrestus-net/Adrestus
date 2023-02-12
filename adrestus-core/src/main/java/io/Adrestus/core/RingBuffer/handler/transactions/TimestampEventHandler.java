@@ -20,7 +20,6 @@ import java.util.Optional;
 
 public class TimestampEventHandler extends TransactionEventHandler {
     private static Logger LOG = LoggerFactory.getLogger(TimestampEventHandler.class);
-
     private final IDatabase<String, LevelDBTransactionWrapper<Transaction>> database;
 
     public TimestampEventHandler() {
@@ -48,9 +47,13 @@ public class TimestampEventHandler extends TransactionEventHandler {
             });
             Timestamp old = GetTime.GetTimestampFromString(wrapper.get().getFrom().get(0).getTimestamp());
             Timestamp current = GetTime.GetTimestampFromString(transaction.getTimestamp());
-
+            Timestamp check=GetTime.GetTimeStampWithDelay();
             if (current.before(old)) {
                 LOG.info("Transaction abort: Transaction timestamp is not a valid timestamp");
+                transaction.setStatus(StatusType.ABORT);
+            }
+            if(check.before(old)){
+                LOG.info("Transaction abort: Transaction timestamp is not older than one minute delay");
                 transaction.setStatus(StatusType.ABORT);
             }
         } catch (NullPointerException ex) {

@@ -5,6 +5,7 @@ import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.core.Resourses.MemoryTransactionPool;
+import io.Adrestus.core.Transaction;
 import io.Adrestus.crypto.WalletAddress;
 import io.Adrestus.crypto.elliptic.ECKeyPair;
 import io.Adrestus.crypto.elliptic.Keys;
@@ -15,16 +16,21 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class WorkerTest {
 
     @BeforeAll
     public static void setup() throws Exception {
         int version = 0x00;
-        int size = 5;
+        int size = 5000;
         for (int i = 0; i < size; i++) {
             Mnemonic mnem = new Mnemonic(Security.NORMAL, WordList.ENGLISH);
             char[] mnemonic_sequence = "sample sail jungle learn general promote task puppy own conduct green affair ".toCharArray();
@@ -77,9 +83,9 @@ public class WorkerTest {
         // All tasks were executed, now shutdown
         int size = 0;
         int count = 0;
-        while (count < 10) {
-            Thread.sleep(2000);
-            System.out.println(MemoryTransactionPool.getInstance().getAll().size());
+        while (count < 100) {
+            Thread.sleep(4000);
+            System.out.println(MemoryTransactionPool.getInstance().getSize());
             count++;
         }
 

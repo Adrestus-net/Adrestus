@@ -6,28 +6,28 @@ import io.activej.serializer.annotations.Serialize;
 import java.io.Serializable;
 import java.util.Arrays;
 
-public class SignatureData implements Serializable {
+public class ECDSASignatureData implements Serializable {
     private byte v;
     private byte[] r;
     private byte[] s;
     private byte[] pub;
 
 
-    public SignatureData() {
+    public ECDSASignatureData() {
         this.v = 0;
         this.r = new byte[0];
         this.s = new byte[0];
         this.pub = new byte[0];
     }
 
-    public SignatureData(byte v, byte[] r, byte[] s) {
+    public ECDSASignatureData(byte v, byte[] r, byte[] s) {
         this.v = v;
         this.r = r;
         this.s = s;
         this.pub = new byte[0];
     }
 
-    public SignatureData(@Deserialize("v") byte v, @Deserialize("r") byte[] r, @Deserialize("s") byte[] s, @Deserialize("pub") byte[] pub) {
+    public ECDSASignatureData(@Deserialize("v") byte v, @Deserialize("r") byte[] r, @Deserialize("s") byte[] s, @Deserialize("pub") byte[] pub) {
         this.v = v;
         this.r = r;
         this.s = s;
@@ -63,7 +63,7 @@ public class SignatureData implements Serializable {
             return false;
         }
 
-        SignatureData that = (SignatureData) o;
+        ECDSASignatureData that = (ECDSASignatureData) o;
 
         if (v != that.v) {
             return false;

@@ -1,6 +1,6 @@
 package io.Adrestus.core;
 
-import io.Adrestus.crypto.elliptic.SignatureData;
+import io.Adrestus.crypto.elliptic.ECDSASignatureData;
 import io.activej.serializer.annotations.Serialize;
 
 
@@ -11,7 +11,7 @@ public class RewardsTransaction extends Transaction {
         this.RecipientAddress = RecipientAddress;
     }
 
-    public RewardsTransaction(String hash, TransactionType type, StatusType status, int zoneFrom, int zoneTo, String timestamp, int blockNumber, String from, String to, double amount, double transactionFee, int nonce, SignatureData signature, String RecipientAddress) {
+    public RewardsTransaction(String hash, TransactionType type, StatusType status, int zoneFrom, int zoneTo, String timestamp, int blockNumber, String from, String to, double amount, double transactionFee, int nonce, ECDSASignatureData signature, String RecipientAddress) {
         super(hash, type, status, zoneFrom, zoneTo, timestamp, blockNumber, from, to, amount, transactionFee, nonce, signature);
         this.RecipientAddress = RecipientAddress;
     }

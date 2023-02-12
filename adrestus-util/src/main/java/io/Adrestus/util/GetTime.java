@@ -10,7 +10,7 @@ import java.util.TimeZone;
 
 public class GetTime {
     private static final String FORMAT_STRING = "yyyy-MM-dd HH:mm:ss.SSS";
-
+    private static final int ONE_MINUTE = 1 * 60 * 1000;
 
     private static long ExtractUTCTimestamp() {
         try {
@@ -29,6 +29,11 @@ public class GetTime {
 
     public static Timestamp GetTimeStamp() {
         Timestamp timestamp = new Timestamp(ExtractUTCTimestamp());
+        return timestamp;
+    }
+
+    public static Timestamp GetTimeStampWithDelay() {
+        Timestamp timestamp = new Timestamp(ExtractUTCTimestamp()+ONE_MINUTE);
         return timestamp;
     }
 

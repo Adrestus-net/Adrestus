@@ -1,7 +1,7 @@
 package io.Adrestus.core;
 
 import com.google.common.base.Objects;
-import io.Adrestus.crypto.elliptic.SignatureData;
+import io.Adrestus.crypto.elliptic.ECDSASignatureData;
 import io.activej.serializer.annotations.Serialize;
 import io.activej.serializer.annotations.SerializeClass;
 
@@ -25,7 +25,7 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
     protected double Amount;
     protected double AmountWithTransactionFee;
     protected int Nonce;
-    protected SignatureData Signature;
+    protected ECDSASignatureData Signature;
 
 
     public Transaction() {
@@ -41,7 +41,7 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
         this.Amount = 0;
         this.AmountWithTransactionFee = 0;
         this.Nonce = 0;
-        this.Signature = new SignatureData();
+        this.Signature = new ECDSASignatureData();
     }
 
     public Transaction(TransactionType type) {
@@ -57,7 +57,7 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
         this.Amount = 0;
         this.AmountWithTransactionFee = 0;
         this.Nonce = 0;
-        this.Signature = new SignatureData();
+        this.Signature = new ECDSASignatureData();
     }
 
     public Transaction(String hash) {
@@ -73,10 +73,10 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
         this.Amount = 0;
         this.AmountWithTransactionFee = 0;
         this.Nonce = 0;
-        this.Signature = new SignatureData();
+        this.Signature = new ECDSASignatureData();
     }
 
-    public Transaction(String hash, TransactionType type, StatusType status, int zoneFrom, int zoneTo, String timestamp, int blockNumber, String from, String to, double amount, double AmountWithTransactionFee, int nonce, SignatureData signature) {
+    public Transaction(String hash, TransactionType type, StatusType status, int zoneFrom, int zoneTo, String timestamp, int blockNumber, String from, String to, double amount, double AmountWithTransactionFee, int nonce, ECDSASignatureData signature) {
         this.Hash = hash;
         this.Type = type;
         this.Status = status;
@@ -192,11 +192,11 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
     }
 
     @Serialize
-    public SignatureData getSignature() {
+    public ECDSASignatureData getSignature() {
         return Signature;
     }
 
-    public void setSignature(SignatureData signature) {
+    public void setSignature(ECDSASignatureData signature) {
         this.Signature = signature;
     }
 

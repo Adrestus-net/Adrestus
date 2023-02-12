@@ -20,9 +20,9 @@ public class SerializationUtil<T> {
 
     private static final byte[] END_BYTES = "\r\n".getBytes(UTF_8);
     private Class type;
-    private final BinarySerializer<T> serializer;
+    private BinarySerializer<T> serializer;
     private BinarySerializer<List<T>> list_serializer;
-    private static byte[] buffer;
+    private byte[] buffer;
     private static Integer size[];
 
     static {
@@ -31,7 +31,6 @@ public class SerializationUtil<T> {
     }
 
     public SerializationUtil(Class type) {
-
         this.type = type;
         serializer = SerializerBuilder.create().build(this.type);
     }
@@ -118,7 +117,7 @@ public class SerializationUtil<T> {
         this.type = type;
     }
 
-    public byte[] encode(T value) {
+    public synchronized byte[] encode(T value) {
         // int buff_size2 = search((int) (ObjectSizer.retainedSize(value)));
         int buff_size = search((int) (ObjectSizeCalculator.getObjectSize(value)));
         buffer = new byte[buff_size];
@@ -133,12 +132,10 @@ public class SerializationUtil<T> {
         return buffer;
     }
 
-    public byte[] encode(T value, int size) {
+    public synchronized byte[] encode(T value, int size) {
         buffer = new byte[size];
         serializer.encode(buffer, 0, value);
-        byte[] res = buffer.clone();
-        buffer = new byte[size];
-        return res;
+        return buffer;
     }
 
     public byte[] encode_special(T value, int size) {
@@ -186,7 +183,7 @@ public class SerializationUtil<T> {
         return trimmedData;
     }
 
-    public T decode(byte[] buffer) {
+    public synchronized T decode(byte[] buffer) {
         return serializer.decode(buffer, 0);
     }
 
