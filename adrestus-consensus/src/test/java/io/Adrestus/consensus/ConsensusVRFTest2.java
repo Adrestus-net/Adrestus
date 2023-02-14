@@ -22,6 +22,12 @@ public class ConsensusVRFTest2 {
     private static BLSPrivateKey sk2;
     private static BLSPublicKey vk2;
 
+    private static BLSPrivateKey sk3;
+    private static BLSPublicKey vk3;
+
+    private static BLSPrivateKey sk4;
+    private static BLSPublicKey vk4;
+
     @BeforeAll
     public static void setup() throws Exception {
         sk1 = new BLSPrivateKey(1);
@@ -30,6 +36,12 @@ public class ConsensusVRFTest2 {
         sk2 = new BLSPrivateKey(2);
         vk2 = new BLSPublicKey(sk2);
 
+        sk3 = new BLSPrivateKey(3);
+        vk3 = new BLSPublicKey(sk3);
+
+        sk4 = new BLSPrivateKey(2);
+        vk4 = new BLSPublicKey(sk4);
+
         CommitteeBlock committeeBlock = new CommitteeBlock();
         committeeBlock.setHash("hash");
         committeeBlock.setViewID(10);
@@ -37,6 +49,8 @@ public class ConsensusVRFTest2 {
         committeeBlock.getHeaderData().setTimestamp("2022-11-18 15:01:29.304");
         committeeBlock.getStructureMap().get(0).put(vk1, "192.168.1.106");
         committeeBlock.getStructureMap().get(0).put(vk2, "192.168.1.116");
+        committeeBlock.getStructureMap().get(0).put(vk3, "192.168.1.110");
+        committeeBlock.getStructureMap().get(0).put(vk4, "192.168.1.112");
 
         CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
     }

@@ -24,6 +24,12 @@ public class ConsensusVDF2Test {
     private static BLSPrivateKey sk2;
     private static BLSPublicKey vk2;
 
+    private static BLSPrivateKey sk3;
+    private static BLSPublicKey vk3;
+
+    private static BLSPrivateKey sk4;
+    private static BLSPublicKey vk4;
+
     @BeforeAll
     public static void setup() throws Exception {
         sk1 = new BLSPrivateKey(1);
@@ -37,6 +43,8 @@ public class ConsensusVDF2Test {
         committeeBlock.getHeaderData().setTimestamp("2022-11-18 15:01:29.304");
         committeeBlock.getStructureMap().get(0).put(vk1, "192.168.1.106");
         committeeBlock.getStructureMap().get(0).put(vk2, "192.168.1.116");
+        committeeBlock.getStructureMap().get(0).put(vk3, "192.168.1.110");
+        committeeBlock.getStructureMap().get(0).put(vk4, "192.168.1.112");
 
         CachedSecurityHeaders.getInstance().getSecurityHeader().setpRnd(Hex.decode("c1f72aa5bd1e1d53c723b149259b63f759f40d5ab003b547d5c13d45db9a5da8"));
         CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
