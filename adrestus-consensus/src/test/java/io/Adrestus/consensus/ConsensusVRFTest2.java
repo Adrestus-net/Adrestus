@@ -39,7 +39,7 @@ public class ConsensusVRFTest2 {
         sk3 = new BLSPrivateKey(3);
         vk3 = new BLSPublicKey(sk3);
 
-        sk4 = new BLSPrivateKey(2);
+        sk4 = new BLSPrivateKey(4);
         vk4 = new BLSPublicKey(sk4);
 
         CommitteeBlock committeeBlock = new CommitteeBlock();
@@ -69,6 +69,14 @@ public class ConsensusVRFTest2 {
                 } else if (vk2.equals(entry.getKey())) {
                     CachedBLSKeyPair.getInstance().setPrivateKey(sk2);
                     CachedBLSKeyPair.getInstance().setPublicKey(vk2);
+                }
+                else if (vk3.equals(entry.getKey())) {
+                    CachedBLSKeyPair.getInstance().setPrivateKey(sk3);
+                    CachedBLSKeyPair.getInstance().setPublicKey(vk3);
+                }
+                else if (vk4.equals(entry.getKey())) {
+                    CachedBLSKeyPair.getInstance().setPrivateKey(sk4);
+                    CachedBLSKeyPair.getInstance().setPublicKey(vk4);
                 }
                 hit = 1;
                 break;

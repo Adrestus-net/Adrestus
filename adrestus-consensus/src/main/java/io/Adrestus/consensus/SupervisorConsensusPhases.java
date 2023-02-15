@@ -78,7 +78,7 @@ public class SupervisorConsensusPhases {
             if (!DEBUG) {
                 try {
                     //this.N = 1;
-                    this.N = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).size() - 1;
+                    this.N = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).size();
                     this.F = (this.N - 1) / 3;
                     this.latch = new CountDownLatch(N - 1);
                     this.current = CachedLeaderIndex.getInstance().getCommitteePositionLeader();
@@ -143,10 +143,13 @@ public class SupervisorConsensusPhases {
                         }
                     } catch (IllegalArgumentException e) {
                         LOG.info("PreparePhase: Problem at message deserialization");
-                        data.setStatusType(ConsensusStatusType.ABORT);
+                    } catch (ArrayIndexOutOfBoundsException e) {
                         cleanup();
-                        return;
+                        LOG.info("PreparePhase: Receiving out of bounds response from organizer");
+                    } catch (NullPointerException e) {
+                        cleanup();
                     }
+
                 }
 
 
@@ -170,6 +173,7 @@ public class SupervisorConsensusPhases {
                 LOG.info("Abort consensus phase BLS multi_signature is invalid during prepare phase");
                 data.setStatusType(ConsensusStatusType.ABORT);
                 cleanup();
+                return;
             }
 
 
@@ -213,9 +217,10 @@ public class SupervisorConsensusPhases {
                         }
                     } catch (IllegalArgumentException e) {
                         LOG.info("CommitPhase: Problem at message deserialization");
-                        data.setStatusType(ConsensusStatusType.ABORT);
-                        cleanup();
-                        return;
+                    } catch (ArrayIndexOutOfBoundsException e) {
+                        LOG.info("CommitPhase: Receiving out of bounds response from organizer");
+                    } catch (NullPointerException e) {
+                        LOG.info("CommitPhase: Receiving null response from organizer");
                     }
                 }
 
@@ -242,6 +247,7 @@ public class SupervisorConsensusPhases {
                 LOG.info("CommitPhase: Abort consensus phase BLS multi_signature is invalid during commit phase");
                 data.setStatusType(ConsensusStatusType.ABORT);
                 cleanup();
+                return;
             }
 
             //commit save to db
@@ -300,7 +306,7 @@ public class SupervisorConsensusPhases {
                 if (!DEBUG) {
                     this.N = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).size();
                     this.F = (this.N - 1) / 3;
-                    this.latch = new CountDownLatch(N);
+                    this.latch = new CountDownLatch(N - 1);
                     this.current = CachedLeaderIndex.getInstance().getCommitteePositionLeader();
                     this.leader_bls = this.blockIndex.getPublicKeyByIndex(0, current);
                     if (current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).size() - 1)
@@ -309,6 +315,7 @@ public class SupervisorConsensusPhases {
                         CachedLeaderIndex.getInstance().setCommitteePositionLeader(CachedLeaderIndex.getInstance().getCommitteePositionLeader() + 1);
                     }
                     this.consensusServer = new ConsensusServer(this.blockIndex.getIpValue(0, this.leader_bls), latch);
+                    this.N_COPY = (this.N - 1) - consensusServer.getPeers_not_connected();
                 }
             } catch (Exception e) {
                 cleanup();
@@ -351,9 +358,10 @@ public class SupervisorConsensusPhases {
                         }
                     } catch (IllegalArgumentException e) {
                         LOG.info("AggregateVRF: Problem at message deserialization");
-                        message.setType(VRFMessage.vrfMessageType.ABORT);
-                        cleanup();
-                        return;
+                    } catch (ArrayIndexOutOfBoundsException e) {
+                        LOG.info("AggregateVRF: Receiving out of bounds response from organizer");
+                    } catch (NullPointerException e) {
+                        LOG.info("AggregateVRF: Receiving null response from organizer");
                     }
                 }
 
@@ -409,6 +417,9 @@ public class SupervisorConsensusPhases {
 
         @Override
         public void AnnouncePhase(ConsensusMessage<VRFMessage> data) {
+            if (data.getStatusType().equals(ConsensusStatusType.ABORT))
+                return;
+
             data.setMessageType(ConsensusMessageType.ANNOUNCE);
 
             if (DEBUG) return;
@@ -448,9 +459,10 @@ public class SupervisorConsensusPhases {
                         }
                     } catch (IllegalArgumentException e) {
                         LOG.info("PreparePhase: Problem at message deserialization");
-                        data.setStatusType(ConsensusStatusType.ABORT);
-                        cleanup();
-                        return;
+                    } catch (ArrayIndexOutOfBoundsException e) {
+                        LOG.info("PreparePhase: Receiving out of bounds response from organizer");
+                    } catch (NullPointerException e) {
+                        LOG.info("PreparePhase: Receiving null response from organizer");
                     }
                 }
 
@@ -476,6 +488,7 @@ public class SupervisorConsensusPhases {
                 LOG.info("Abort consensus phase BLS multi_signature is invalid during prepare phase");
                 data.setStatusType(ConsensusStatusType.ABORT);
                 cleanup();
+                return;
             }
 
 
@@ -519,9 +532,10 @@ public class SupervisorConsensusPhases {
                         }
                     } catch (IllegalArgumentException e) {
                         LOG.info("CommitPhase: Problem at message deserialization");
-                        data.setStatusType(ConsensusStatusType.ABORT);
-                        cleanup();
-                        return;
+                    } catch (ArrayIndexOutOfBoundsException e) {
+                        LOG.info("CommitPhase: Receiving out of bounds response from organizer");
+                    } catch (NullPointerException e) {
+                        LOG.info("CommitPhase: Receiving null response from organizer");
                     }
                 }
 
@@ -548,6 +562,7 @@ public class SupervisorConsensusPhases {
                 LOG.info("Abort consensus phase BLS multi_signature is invalid during prepare phase");
                 data.setStatusType(ConsensusStatusType.ABORT);
                 cleanup();
+                return;
             }
 
             //commit save to db
@@ -674,9 +689,10 @@ public class SupervisorConsensusPhases {
                         }
                     } catch (IllegalArgumentException e) {
                         LOG.info("PreparePhase: Problem at message deserialization");
-                        block.setStatusType(ConsensusStatusType.ABORT);
-                        cleanup();
-                        return;
+                    } catch (ArrayIndexOutOfBoundsException e) {
+                        LOG.info("PreparePhase: Receiving out of bounds response from organizer");
+                    } catch (NullPointerException e) {
+                        LOG.info("PreparePhase: Receiving null response from organizer");
                     }
                 }
 
@@ -701,6 +717,7 @@ public class SupervisorConsensusPhases {
                 LOG.info("Abort consensus phase BLS multi_signature is invalid during prepare phase");
                 block.setStatusType(ConsensusStatusType.ABORT);
                 cleanup();
+                return;
             }
 
             if (DEBUG) return;
@@ -742,9 +759,10 @@ public class SupervisorConsensusPhases {
                         }
                     } catch (IllegalArgumentException e) {
                         LOG.info("CommitPhase: Problem at message deserialization");
-                        block.setStatusType(ConsensusStatusType.ABORT);
-                        cleanup();
-                        return;
+                    } catch (ArrayIndexOutOfBoundsException e) {
+                        LOG.info("CommitPhase: Receiving out of bounds response from organizer");
+                    } catch (NullPointerException e) {
+                        LOG.info("CommitPhase: Receiving null response from organizer");
                     }
                 }
 
@@ -769,6 +787,7 @@ public class SupervisorConsensusPhases {
                 LOG.info("CommitPhase: Abort consensus phase BLS multi_signature is invalid during commit phase");
                 block.setStatusType(ConsensusStatusType.ABORT);
                 cleanup();
+                return;
             }
 
             //commit save to db

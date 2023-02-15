@@ -146,9 +146,10 @@ public class OrganizerConsensusPhases {
                         }
                     } catch (IllegalArgumentException e) {
                         LOG.info("PreparePhase: Problem at message deserialization");
-                        //data.setStatusType(ConsensusStatusType.ABORT);
-                        // cleanup();
-                        return;
+                    } catch (ArrayIndexOutOfBoundsException e) {
+                        LOG.info("PreparePhase: Receiving out of bounds response from organizer");
+                    } catch (NullPointerException e) {
+                        LOG.info("PreparePhase: Receiving null response from organizer");
                     }
                 }
 
@@ -242,9 +243,10 @@ public class OrganizerConsensusPhases {
                         }
                     } catch (IllegalArgumentException e) {
                         LOG.info("CommitPhase: Problem at message deserialization");
-                        //data.setStatusType(ConsensusStatusType.ABORT);
-                        //  cleanup();
-                        //  return;
+                    } catch (ArrayIndexOutOfBoundsException e) {
+                        LOG.info("CommitPhase: Receiving out of bounds response from organizer");
+                    } catch (NullPointerException e) {
+                        LOG.info("CommitPhase: Receiving null response from organizer");
                     }
                 }
 
