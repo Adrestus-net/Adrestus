@@ -62,10 +62,10 @@ public class TransactionTask extends AdrestusTask {
                 //System.out.println("Server Message:" + transaction.toString());
                 System.out.println("s "+counter);
                // publisher.publish(transaction);
-              //  if(list.contains(transaction))
-              //      System.out.println("edw "+transaction);
-              //  else
-              //      list.add(transaction);
+                if(list.contains(transaction))
+                    System.out.println("edw "+transaction);
+                else
+                    list.add(transaction);
             }catch (Exception e){
                e.printStackTrace();
             }

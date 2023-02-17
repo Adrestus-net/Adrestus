@@ -7,6 +7,7 @@ import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.core.Transaction;
 import io.Adrestus.util.SerializationUtil;
 import io.activej.bytebuf.ByteBuf;
+import io.activej.bytebuf.ByteBufPool;
 import io.activej.csp.ChannelSupplier;
 import io.activej.csp.binary.BinaryChannelSupplier;
 import io.activej.eventloop.Eventloop;
@@ -177,7 +178,7 @@ public class TransactionStrategy implements IStrategy {
                     loop(0,
                             i -> i < this.transaction_list.size(),
                             i -> loadData(this.transaction_list.get(i))
-                                    .then(bytes -> socket.write(ByteBuf.wrapForReading((bytes))))
+                                    .then(bytes -> socket.write(bytes))
                                     .then(() -> bufsSupplier.needMoreData())
                                     .then(() -> decrease())
                                     .map($2 -> i + 1))
@@ -202,10 +203,12 @@ public class TransactionStrategy implements IStrategy {
             });
         }
 
-        private static @NotNull Promise<byte[]> loadData(Transaction transaction) {
+        private static @NotNull Promise<ByteBuf> loadData(Transaction transaction) {
             byte transaction_hash[] = transaction_encode.encode(transaction, 1024);
-            byte[] concatBytes = ArrayUtils.addAll(transaction_hash, "\r\n".getBytes());
-            return Promise.of(concatBytes);
+            ByteBuf sizeBuf = ByteBufPool.allocate(2); // enough to serialize size 1024
+            sizeBuf.writeVarInt(transaction_hash.length);
+            ByteBuf appendedBuf = ByteBufPool.append(sizeBuf, ByteBuf.wrapForReading(transaction_hash));
+            return Promise.of(appendedBuf);
         }
 
         private static @NotNull Promise<Void> decrease() {

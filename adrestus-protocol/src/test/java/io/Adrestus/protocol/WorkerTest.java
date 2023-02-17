@@ -83,8 +83,8 @@ public class WorkerTest {
         // All tasks were executed, now shutdown
         int size = 0;
         int count = 0;
-        while (count < 100) {
-            Thread.sleep(4000);
+        while (count < 20) {
+            Thread.sleep(2000);
             System.out.println(MemoryTransactionPool.getInstance().getSize());
             count++;
         }

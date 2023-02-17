@@ -62,14 +62,13 @@ public class TransactionChannelTest {
     private static ECDSASign ecdsaSign = new ECDSASign();
 
     private static int start = 0;
-    private static int end = 5000;
+    private static int end = 10000;
     @BeforeAll
     public static void setup() throws InterruptedException, MnemonicException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException {
         TCPTransactionConsumer<byte[]> print = x -> {
             Transaction transaction = decode.decode(x);
             counter++;
-            System.out.println("Counter"+counter+"Server Message:" + transaction);
-            Thread.sleep(10);
+            System.out.println("Counter" + counter + "Server Message:" + transaction);
         };
         (new Thread() {
             public void run() {
@@ -106,7 +105,7 @@ public class TransactionChannelTest {
         decode = new SerializationUtil<Transaction>(Transaction.class, mapp_list);
         encode = new SerializationUtil<Transaction>(Transaction.class, mapp_list);
 
-        for (int j = 0; j < end-1; j++) {
+        for (int j = 0; j < end - 1; j++) {
             Transaction transaction = new RegularTransaction();
             transaction.setFrom(addreses.get(j));
             transaction.setTo(addreses.get(j + 1));
@@ -157,7 +156,9 @@ public class TransactionChannelTest {
 
     private static @NotNull Promise<ByteBuf> loadData(Transaction transaction) {
         byte transaction_hash[] = encode.encode(transaction, 1024);
-        ByteBuf appendedBuf = ByteBufPool.append(ByteBuf.wrapForReading(transaction_hash), ByteBuf.wrapForReading("\r\n".getBytes()));
+        ByteBuf sizeBuf = ByteBufPool.allocate(2); // enough to serialize size 1024
+        sizeBuf.writeVarInt(transaction_hash.length);
+        ByteBuf appendedBuf = ByteBufPool.append(sizeBuf, ByteBuf.wrapForReading(transaction_hash));
         return Promise.of(appendedBuf);
     }
 }

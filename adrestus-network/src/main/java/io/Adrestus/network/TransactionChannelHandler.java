@@ -22,7 +22,7 @@ import static io.activej.promise.Promises.repeat;
 
 public class TransactionChannelHandler<T> {
     private static Logger LOG = LoggerFactory.getLogger(TransactionChannelHandler.class);
-    private static final ByteBufsDecoder<ByteBuf> DECODER = ByteBufsDecoder.ofCrlfTerminatedBytes(3000);
+    private static final ByteBufsDecoder<ByteBuf> DECODER = ByteBufsDecoder.ofVarIntSizePrefixedBytes();
     private String IP;
     private final InetSocketAddress ADDRESS;
     private final Eventloop eventloop;
