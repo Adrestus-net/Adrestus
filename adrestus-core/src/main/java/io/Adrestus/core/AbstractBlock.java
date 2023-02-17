@@ -3,6 +3,7 @@ package io.Adrestus.core;
 import com.google.common.base.Objects;
 import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.core.RingBuffer.handler.blocks.DisruptorBlock;
+import io.Adrestus.crypto.bls.BLSSignatureData;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.activej.serializer.annotations.Serialize;
 import io.activej.serializer.annotations.SerializeClass;
@@ -12,7 +13,6 @@ import java.util.Map;
 
 @SerializeClass(subclasses = {CommitteeBlock.class, TransactionBlock.class})
 public abstract class AbstractBlock extends Object implements BlockFactory, DisruptorBlock, Cloneable {
-
     private Header header;
     private StatusType Statustype;
     private String Hash;
@@ -20,7 +20,7 @@ public abstract class AbstractBlock extends Object implements BlockFactory, Disr
     private int Height;
     private int Generation;
     protected int ViewID;
-    private Map<BLSPublicKey, SignatureData> signatureData;
+    private Map<BLSPublicKey, BLSSignatureData> signatureData;
 
 
     public AbstractBlock(Header headerData, String hash, int size, int height, int generation, int viewID) {
@@ -30,14 +30,14 @@ public abstract class AbstractBlock extends Object implements BlockFactory, Disr
         this.Height = height;
         this.Generation = generation;
         this.ViewID = viewID;
-        this.signatureData = new HashMap<BLSPublicKey, SignatureData>();
+        this.signatureData = new HashMap<BLSPublicKey, BLSSignatureData>();
     }
 
     public AbstractBlock(String previousHash, int height, int generation) {
         this.header = new Header(previousHash);
         this.Height = height;
         this.Generation = generation;
-        this.signatureData = new HashMap<BLSPublicKey, SignatureData>();
+        this.signatureData = new HashMap<BLSPublicKey, BLSSignatureData>();
     }
 
     public AbstractBlock(String Hash, String previousHash, int size, int height, String timestamp) {
@@ -45,7 +45,7 @@ public abstract class AbstractBlock extends Object implements BlockFactory, Disr
         this.header = new Header(previousHash, timestamp);
         this.Size = size;
         this.Height = height;
-        this.signatureData = new HashMap<BLSPublicKey, SignatureData>();
+        this.signatureData = new HashMap<BLSPublicKey, BLSSignatureData>();
     }
 
     public AbstractBlock(String Hash, String previousHash, int size, int height, int generation, int viewID, String timestamp) {
@@ -55,7 +55,7 @@ public abstract class AbstractBlock extends Object implements BlockFactory, Disr
         this.Size = size;
         this.Generation = generation;
         this.ViewID = viewID;
-        this.signatureData = new HashMap<BLSPublicKey, SignatureData>();
+        this.signatureData = new HashMap<BLSPublicKey, BLSSignatureData>();
         this.Statustype = StatusType.PENDING;
     }
 
@@ -67,7 +67,7 @@ public abstract class AbstractBlock extends Object implements BlockFactory, Disr
         this.Height = 0;
         this.Generation = 0;
         this.ViewID = 0;
-        this.signatureData = new HashMap<BLSPublicKey, SignatureData>();
+        this.signatureData = new HashMap<BLSPublicKey, BLSSignatureData>();
     }
 
     @Serialize
@@ -148,11 +148,11 @@ public abstract class AbstractBlock extends Object implements BlockFactory, Disr
     }
 
     @Serialize
-    public Map<BLSPublicKey, SignatureData> getSignatureData() {
+    public Map<BLSPublicKey, BLSSignatureData> getSignatureData() {
         return signatureData;
     }
 
-    public void setSignatureData(Map<BLSPublicKey, SignatureData> signatureData) {
+    public void setSignatureData(Map<BLSPublicKey, BLSSignatureData> signatureData) {
         this.signatureData = signatureData;
     }
 

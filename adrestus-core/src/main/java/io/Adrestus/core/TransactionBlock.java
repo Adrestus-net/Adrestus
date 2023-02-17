@@ -3,6 +3,7 @@ package io.Adrestus.core;
 import com.google.common.base.Objects;
 import io.Adrestus.core.RingBuffer.handler.blocks.DisruptorBlock;
 import io.Adrestus.core.RingBuffer.handler.blocks.DisruptorBlockVisitor;
+import io.Adrestus.crypto.bls.BLSSignatureData;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.activej.serializer.annotations.Serialize;
 
@@ -160,12 +161,12 @@ public class TransactionBlock extends AbstractBlock implements BlockFactory, Dis
     }
 
     @Override
-    public Map<BLSPublicKey, SignatureData> getSignatureData() {
+    public Map<BLSPublicKey, BLSSignatureData> getSignatureData() {
         return super.getSignatureData();
     }
 
     @Override
-    public void setSignatureData(Map<BLSPublicKey, SignatureData> signatureData) {
+    public void setSignatureData(Map<BLSPublicKey, BLSSignatureData> signatureData) {
         super.setSignatureData(signatureData);
     }
 

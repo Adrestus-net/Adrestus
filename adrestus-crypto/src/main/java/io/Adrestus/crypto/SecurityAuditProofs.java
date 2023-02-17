@@ -11,6 +11,7 @@ import java.math.BigInteger;
 import java.util.Arrays;
 
 public final class SecurityAuditProofs implements Serializable {
+   // private static final long serialVersionUID = -3101892752984639388L;
     private String address;
     private BLSPublicKey validatorBlSPublicKey;
     private BigInteger eCDSAPublicKey;

@@ -5,8 +5,9 @@ public class ConsensusConfiguration {
     public static final long CONSENSUS_COMMITTEE_TIMER = 2 * 1000;
     public static final long CONSENSUS_TIMER = 2 * 1000;
     public static final int CONSENSUS_TIMEOUT = 22 * 1000;
-    public static final int CONSENSUS_CONNECTED_TIMEOUT = 10 * 1000;
-    public static final int CONSENSUS_COLLECTED_TIMEOUT = 4 * 1000;
+    public static final int CONSENSUS_CONNECTED_RECEIVE_TIMEOUT = 10 * 1000;
+    public static final int CONSENSUS_CONNECTED_SEND_TIMEOUT = 6 * 1000;
+    public static final int CONSENSUS_COLLECTED_TIMEOUT = 8 * 1000;
     public static final int CONSENSUS_PUBLISHER_TIMEOUT = 4 * 1000;
 
     public static final long CHANGE_VIEW_TIMER = 2 * 1000;

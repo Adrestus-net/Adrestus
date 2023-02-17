@@ -7,6 +7,7 @@ import io.Adrestus.core.Resourses.CachedLeaderIndex;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.crypto.bls.BLS381.ECP;
 import io.Adrestus.crypto.bls.BLS381.ECP2;
+import io.Adrestus.crypto.bls.BLSSignatureData;
 import io.Adrestus.crypto.bls.mapper.ECP2mapper;
 import io.Adrestus.crypto.bls.mapper.ECPmapper;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
@@ -41,7 +42,7 @@ public class OrganizerConsensusPhases {
         private final SerializationUtil<ConsensusMessage> consensus_serialize;
         private final boolean DEBUG;
         private final IBlockIndex blockIndex;
-        private final Map<BLSPublicKey, SignatureData> signatureDataMap;
+        private final Map<BLSPublicKey, BLSSignatureData> signatureDataMap;
         private CountDownLatch latch;
         private int N, N_COPY;
         private int F;
@@ -62,7 +63,7 @@ public class OrganizerConsensusPhases {
             list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
             this.block_serialize = new SerializationUtil<AbstractBlock>(AbstractBlock.class, list);
             this.consensus_serialize = new SerializationUtil<ConsensusMessage>(fluentType, list);
-            this.signatureDataMap = new HashMap<BLSPublicKey, SignatureData>();
+            this.signatureDataMap = new HashMap<BLSPublicKey, BLSSignatureData>();
         }
 
         @Override
@@ -192,9 +193,9 @@ public class OrganizerConsensusPhases {
             //##############################################################
             int pos = 0;
             for (BLSPublicKey blsPublicKey : publicKeys) {
-                SignatureData signatureData = new SignatureData(blsPublicKey);
-                signatureData.getSignature()[0] = signature.get(pos);
-                signatureDataMap.put(blsPublicKey, signatureData);
+                BLSSignatureData BLSSignatureData = new BLSSignatureData(blsPublicKey);
+                BLSSignatureData.getSignature()[0] = signature.get(pos);
+                signatureDataMap.put(blsPublicKey, BLSSignatureData);
                 pos++;
             }
             //##############################################################
@@ -282,9 +283,9 @@ public class OrganizerConsensusPhases {
             //##############################################################
             int pos = 0;
             for (BLSPublicKey blsPublicKey : publicKeys) {
-                SignatureData signatureData = signatureDataMap.get(blsPublicKey);
-                signatureData.getSignature()[1] = signature.get(pos);
-                signatureDataMap.put(blsPublicKey, signatureData);
+                BLSSignatureData BLSSignatureData = signatureDataMap.get(blsPublicKey);
+                BLSSignatureData.getSignature()[1] = signature.get(pos);
+                signatureDataMap.put(blsPublicKey, BLSSignatureData);
                 pos++;
             }
             //##############################################################

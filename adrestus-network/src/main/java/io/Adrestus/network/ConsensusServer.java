@@ -53,8 +53,8 @@ public class ConsensusServer {
         this.collector.setReceiveTimeOut(CONSENSUS_COLLECTED_TIMEOUT);
         this.publisher.setSendTimeOut(CONSENSUS_PUBLISHER_TIMEOUT);
 
-        this.connected.setSendTimeOut(CONSENSUS_CONNECTED_TIMEOUT);
-        this.connected.setReceiveTimeOut(CONSENSUS_CONNECTED_TIMEOUT);
+        this.connected.setSendTimeOut(CONSENSUS_CONNECTED_SEND_TIMEOUT);
+        this.connected.setReceiveTimeOut(CONSENSUS_CONNECTED_RECEIVE_TIMEOUT);
 
         this.timer = new Timer(ConsensusConfiguration.CONSENSUS);
         this.task = new ConnectedTaskTimeout();

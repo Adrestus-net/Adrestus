@@ -1,4 +1,4 @@
-package io.Adrestus.core;
+package io.Adrestus.crypto.bls;
 
 import com.google.common.base.Objects;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
@@ -8,21 +8,21 @@ import io.activej.serializer.annotations.SerializeNullable;
 
 import java.util.Arrays;
 
-public class SignatureData {
+public class BLSSignatureData {
     private Signature[] signature;
     private BLSPublicKey blsPublicKey;
 
-    public SignatureData(Signature[] signature, BLSPublicKey blsPublicKey) {
+    public BLSSignatureData(Signature[] signature, BLSPublicKey blsPublicKey) {
         this.signature = signature;
         this.blsPublicKey = blsPublicKey;
     }
 
-    public SignatureData(BLSPublicKey blsPublicKey) {
+    public BLSSignatureData(BLSPublicKey blsPublicKey) {
         this.blsPublicKey = blsPublicKey;
         this.signature = new Signature[2];
     }
 
-    public SignatureData() {
+    public BLSSignatureData() {
         this.blsPublicKey = new BLSPublicKey();
         this.signature = new Signature[2];
     }
@@ -51,7 +51,7 @@ public class SignatureData {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        SignatureData that = (SignatureData) o;
+        BLSSignatureData that = (BLSSignatureData) o;
         return Objects.equal(signature, that.signature) && Objects.equal(blsPublicKey, that.blsPublicKey);
     }
 

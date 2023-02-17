@@ -6,6 +6,7 @@
         <artifactId>Adrestus-build</artifactId>
         <groupId>io.Adrestus.v1</groupId>
         <version>1.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>adrestus-trie</artifactId>
     <version>1.0-SNAPSHOT</version>
