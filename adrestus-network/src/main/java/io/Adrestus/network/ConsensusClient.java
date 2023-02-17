@@ -130,7 +130,11 @@ public class ConsensusClient {
     }
 
     public void send_heartbeat(String data) {
-        this.connected.send(data);
+        try {
+            this.connected.send(data);
+        }catch (ZMQException e){
+            LOG.info("Operation cannot be accomplished in current state");
+        }
     }
 
     public void close() {

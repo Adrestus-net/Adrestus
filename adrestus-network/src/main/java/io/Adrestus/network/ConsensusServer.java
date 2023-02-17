@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.zeromq.SocketType;
 import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
+import org.zeromq.ZMQException;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Timer;
@@ -149,15 +150,28 @@ public class ConsensusServer {
 
 
     public void publishMessage(byte[] data) {
+        try{
         publisher.send(data, 0);
+        } catch (ZMQException e) {
+            if (e.getErrorCode() == 156384765) {
+            }
+            else {
+                LOG.info("ZMQException" + e.toString());
+            }
+        }
     }
 
     public byte[] receiveData() {
         byte[] data = null;
         try {
             data = collector.recv(0);
-        } catch (Exception e) {
-            LOG.info("Socket Closed");
+        } catch (NullPointerException e) {
+        } catch (ZMQException e) {
+            if (e.getErrorCode() == 156384765) {
+            }
+            else {
+                LOG.info("ZMQException" + e.toString());
+            }
         }
         return data;
     }
@@ -167,11 +181,12 @@ public class ConsensusServer {
         try {
             byte[] recv = connected.recv();
             return new String(recv, StandardCharsets.UTF_8);
-        } catch (Exception e) {
-            LOG.info("receiveStringData: Socket Closed");
-            if (connected != null) {
-                connected.close();
-                connected = null;
+        } catch (NullPointerException e) {
+        } catch (ZMQException e) {
+            if (e.getErrorCode() == 156384765) {
+            }
+            else {
+                LOG.info("ZMQException" + e.toString());
             }
         }
         return data;

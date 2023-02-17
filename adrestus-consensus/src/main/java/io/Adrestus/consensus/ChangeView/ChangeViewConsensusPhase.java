@@ -1,6 +1,7 @@
 package io.Adrestus.consensus.ChangeView;
 
 import com.google.common.reflect.TypeToken;
+import io.Adrestus.config.ConsensusConfiguration;
 import io.Adrestus.consensus.ConsensusMessage;
 import io.Adrestus.consensus.ConsensusStatusType;
 import io.Adrestus.core.BlockIndex;
@@ -63,18 +64,23 @@ public abstract class ChangeViewConsensusPhase {
     }
 
     public void PreparePhase(ConsensusMessage<ChangeViewData> data) throws InterruptedException {
-        if (data.getStatusType().equals(ConsensusStatusType.ABORT))
-            return;
-        int i = N;
+        int i = N_COPY;
         while (i > 0) {
             try {
-                consensusServer.receiveStringData();
+                String heartbeat = consensusServer.receiveStringData();
+                if (heartbeat.equals(ConsensusConfiguration.HEARTBEAT_MESSAGE))
+                    N_COPY--;
             } catch (NullPointerException ex) {
             } finally {
                 i--;
             }
         }
-        cleanup();
+        if (N_COPY > F) {
+            LOG.info("Prepare phase not meet byzantine requirement at the end");
+            data.setStatusType(ConsensusStatusType.ABORT);
+            cleanup();
+            return;
+        }
     }
 
     protected void cleanup() {

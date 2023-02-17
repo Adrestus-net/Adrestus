@@ -137,8 +137,10 @@ public class ChangeViewSupervisorConsensusPhase extends ChangeViewConsensusPhase
     public void PreparePhase(ConsensusMessage<ChangeViewData> data) throws InterruptedException {
         super.PreparePhase(data);
         super.cleanup();
+
         if (data.getStatusType().equals(ConsensusStatusType.ABORT))
             return;
+
         CachedLatestBlocks.getInstance().getCommitteeBlock().setViewID(data.getData().getViewID());
         LOG.info("Change View Committee is finalized with Success");
     }

@@ -169,7 +169,10 @@ public class ChangeViewValidatorsConsensusPhase extends ChangeViewConsensusPhase
                     this.consensusClient = new ConsensusClient(this.blockIndex.getIpValue(CachedZoneIndex.getInstance().getZoneIndex(), this.leader_bls));
                     this.consensusClient.receive_handler();
                     this.consensusClient.send_heartbeat(HEARTBEAT_MESSAGE);
-                    this.consensusClient.rec_heartbeat();
+                    String heartbeat = consensusClient.rec_heartbeat();
+                    if (!heartbeat.equals("1"))
+                        throw new IllegalArgumentException("Heartbeat message is not valid");
+
                 } catch (Exception e) {
                     LOG.info("Initial Setup Exception: " + e.toString());
                 }
@@ -225,12 +228,12 @@ public class ChangeViewValidatorsConsensusPhase extends ChangeViewConsensusPhase
                         }
                     } catch (IllegalArgumentException e) {
                         cleanup();
-                        LOG.info("PreparePhase: Problem at message deserialization Abort");
+                        LOG.info("PreparePhase: Problem at message deserialization Abort "+e.toString());
                         data.setStatusType(ConsensusStatusType.ABORT);
                         return;
                     } catch (ArrayIndexOutOfBoundsException e) {
                         cleanup();
-                        LOG.info("PreparePhase: Receiving null response from organizer");
+                        LOG.info("PreparePhase: Receiving out of bounds from organizer "+e.toString());
                         data.setStatusType(ConsensusStatusType.ABORT);
                         return;
                     }
