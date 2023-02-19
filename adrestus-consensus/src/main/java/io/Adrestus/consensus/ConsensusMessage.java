@@ -6,10 +6,11 @@ import io.Adrestus.crypto.bls.model.Signature;
 import io.activej.serializer.annotations.Deserialize;
 import io.activej.serializer.annotations.Serialize;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ConsensusMessage<T> {
+public class ConsensusMessage<T> implements Serializable {
     private ConsensusMessageType messageType;
     private ConsensusStatusType statusType;
     private T data;
@@ -104,7 +105,7 @@ public class ConsensusMessage<T> {
                 '}';
     }
 
-    public static class ChecksumData {
+    public static class ChecksumData implements Serializable{
         private Signature signature;
         private BLSPublicKey blsPublicKey;
 
