@@ -8,11 +8,12 @@ import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.activej.serializer.annotations.Serialize;
 import io.activej.serializer.annotations.SerializeClass;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
 @SerializeClass(subclasses = {CommitteeBlock.class, TransactionBlock.class})
-public abstract class AbstractBlock extends Object implements BlockFactory, DisruptorBlock, Cloneable {
+public abstract class AbstractBlock extends Object implements BlockFactory, DisruptorBlock, Cloneable, Serializable {
     private Header header;
     private StatusType Statustype;
     private String Hash;
@@ -183,7 +184,7 @@ public abstract class AbstractBlock extends Object implements BlockFactory, Disr
                 '}';
     }
 
-    public static class Header {
+    public static class Header implements Serializable{
         private int Version;
         private String PreviousHash;
         private String timestamp;

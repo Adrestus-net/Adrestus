@@ -6,9 +6,10 @@ import io.Adrestus.crypto.bls.model.Signature;
 import io.activej.serializer.annotations.Serialize;
 import io.activej.serializer.annotations.SerializeNullable;
 
+import java.io.Serializable;
 import java.util.Arrays;
 
-public class BLSSignatureData {
+public class BLSSignatureData implements Serializable {
     private Signature[] signature;
     private BLSPublicKey blsPublicKey;
 

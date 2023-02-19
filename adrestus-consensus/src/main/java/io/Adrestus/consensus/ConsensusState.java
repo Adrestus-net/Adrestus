@@ -108,8 +108,10 @@ public class ConsensusState extends ConsensusDataState {
                 committee_state = new ConsensusVRFState();
                 committee_state.onEnterState(blockIndex.getPublicKeyByIndex(0, 0));
                 CachedLeaderIndex.getInstance().setCommitteePositionLeader(0);
+                previous_state = committee_state;
             } else {
                 committee_state = state;
+                previous_state = state;
             }
         }
 
@@ -135,6 +137,7 @@ public class ConsensusState extends ConsensusDataState {
                 while (!result) {
                     result = committee_state.onActiveState();
                     if (!result) {
+                        previous_state = committee_state;
                         changeStateTo(new ChangeViewCommitteeState());
                         LOG.info("State changed to ChangeViewCommitteeState");
                         committee_state.onEnterState(blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedLeaderIndex.getInstance().getCommitteePositionLeader()));
@@ -145,10 +148,13 @@ public class ConsensusState extends ConsensusDataState {
                             } else {
                                 CachedLeaderIndex.getInstance().setCommitteePositionLeader(CachedLeaderIndex.getInstance().getCommitteePositionLeader() - 1);
                             }
-                        } else if(committee_state.getClass().equals(ConsensusCommitteeBlockState.class)){
+                        } else {
                             CachedLeaderIndex.getInstance().setCommitteePositionLeader(0);
                         }
-                        if (committee_state.getClass().equals(ChangeViewCommitteeState.class) || committee_state.getClass().equals(ConsensusCommitteeBlockState.class)) {
+                        if (committee_state.getClass().equals(ChangeViewCommitteeState.class)) {
+                            committee_state = previous_state;
+                            committee_state.onEnterState(blockIndex.getPublicKeyByIndex(0, CachedLeaderIndex.getInstance().getCommitteePositionLeader()));
+                        } else if (committee_state.getClass().equals(ConsensusCommitteeBlockState.class)) {
                             changeStateTo(new ConsensusVRFState());
                             committee_state.onEnterState(blockIndex.getPublicKeyByIndex(0, CachedLeaderIndex.getInstance().getCommitteePositionLeader()));
                         } else if (committee_state.getClass().equals(ConsensusVRFState.class)) {

@@ -7,7 +7,12 @@ import io.activej.serializer.BinarySerializer;
 import io.activej.serializer.SerializerBuilder;
 import io.activej.serializer.SerializerDef;
 import io.activej.types.scanner.TypeScannerRegistry;
+import lombok.SneakyThrows;
+import org.apache.commons.lang3.SerializationUtils;
 
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -117,9 +122,11 @@ public class SerializationUtil<T> {
         this.type = type;
     }
 
+    @SneakyThrows
     public synchronized byte[] encode(T value) {
         // int buff_size2 = search((int) (ObjectSizer.retainedSize(value)));
-        int buff_size = search((int) (ObjectSizeCalculator.getObjectSize(value)));
+        int buff_size = search((int) (SerializationUtils.serialize((Serializable) value).length));
+        //int buff_size = search((int) (ObjectSizeCalculator.getObjectSize(value)));
         buffer = new byte[buff_size];
         serializer.encode(buffer, 0, value);
         return buffer;

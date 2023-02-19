@@ -24,11 +24,13 @@ import io.Adrestus.crypto.vrf.VRFMessage;
 import io.Adrestus.crypto.vrf.engine.VrfEngine2;
 import io.Adrestus.network.ConsensusServer;
 import io.Adrestus.util.ByteUtil;
+import io.Adrestus.util.ObjectSizeCalculator;
 import io.Adrestus.util.SerializationUtil;
 import io.distributedLedger.DatabaseFactory;
 import io.distributedLedger.DatabaseInstance;
 import io.distributedLedger.DatabaseType;
 import io.distributedLedger.IDatabase;
+import org.apache.commons.lang3.SerializationUtils;
 import org.apache.tuweni.bytes.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -559,7 +561,7 @@ public class SupervisorConsensusPhases {
             Bytes message = Bytes.wrap(wrapp);
             boolean verify = BLSSignature.fastAggregateVerify(publicKeys, message, aggregatedSignature);
             if (!verify) {
-                LOG.info("Abort consensus phase BLS multi_signature is invalid during prepare phase");
+                LOG.info("Abort consensus phase BLS multi_signature is invalid during commit phase");
                 data.setStatusType(ConsensusStatusType.ABORT);
                 cleanup();
                 return;
@@ -677,7 +679,7 @@ public class SupervisorConsensusPhases {
                             LOG.info("PreparePhase: Null message from validators");
                             i--;
                         } else {
-                            ConsensusMessage<TransactionBlock> received = consensus_serialize.decode(receive);
+                            ConsensusMessage<CommitteeBlock> received = consensus_serialize.decode(receive);
                             if (!CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).containsKey(received.getChecksumData().getBlsPublicKey())) {
                                 LOG.info("PreparePhase: Validator does not exist on consensus... Ignore");
                                 i--;
@@ -711,6 +713,7 @@ public class SupervisorConsensusPhases {
 
             Signature aggregatedSignature = BLSSignature.aggregate(signature);
 
+            System.out.println("edw"+ ObjectSizeCalculator.getObjectSize(block.getData())+" "+ SerializationUtils.serialize(block.getData()).length);
             Bytes message = Bytes.wrap(block_serialize.encode(block.getData()));
             boolean verify = BLSSignature.fastAggregateVerify(publicKeys, message, aggregatedSignature);
             if (!verify) {
@@ -747,7 +750,7 @@ public class SupervisorConsensusPhases {
                             LOG.info("CommitPhase: Not Receiving from Validators");
                             i--;
                         } else {
-                            ConsensusMessage<TransactionBlock> received = consensus_serialize.decode(receive);
+                            ConsensusMessage<CommitteeBlock> received = consensus_serialize.decode(receive);
                             if (!CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).containsKey(received.getChecksumData().getBlsPublicKey())) {
                                 LOG.info("CommitPhase: Validator does not exist on consensus... Ignore");
                                 i--;
