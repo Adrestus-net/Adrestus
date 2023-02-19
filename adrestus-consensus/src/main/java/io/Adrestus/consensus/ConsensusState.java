@@ -98,14 +98,14 @@ public class ConsensusState extends ConsensusDataState {
     protected static final class CommitteeBlockConsensusTask extends TimerTask {
 
         public CommitteeBlockConsensusTask() {
-            committee_state = new ConsensusCommitteeBlockState();
+            committee_state = new ConsensusVRFState();
             committee_state.onEnterState(blockIndex.getPublicKeyByIndex(0, 0));
             CachedLeaderIndex.getInstance().setCommitteePositionLeader(0);
         }
 
         public CommitteeBlockConsensusTask(AbstractState state) {
             if (committee_state == null) {
-                committee_state = new ConsensusCommitteeBlockState();
+                committee_state = new ConsensusVRFState();
                 committee_state.onEnterState(blockIndex.getPublicKeyByIndex(0, 0));
                 CachedLeaderIndex.getInstance().setCommitteePositionLeader(0);
             } else {
@@ -140,23 +140,31 @@ public class ConsensusState extends ConsensusDataState {
                         committee_state.onEnterState(blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedLeaderIndex.getInstance().getCommitteePositionLeader()));
                     } else {
                         if (committee_state.getClass().equals(ChangeViewCommitteeState.class)) {
-                            changeStateTo(new ConsensusCommitteeBlockState());
                             if (CachedLeaderIndex.getInstance().getCommitteePositionLeader() == 0) {
                                 CachedLeaderIndex.getInstance().setCommitteePositionLeader(CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).size() - 1);
-                                committee_state.onEnterState(blockIndex.getPublicKeyByIndex(0, CachedLeaderIndex.getInstance().getCommitteePositionLeader()));
                             } else {
                                 CachedLeaderIndex.getInstance().setCommitteePositionLeader(CachedLeaderIndex.getInstance().getCommitteePositionLeader() - 1);
-                                committee_state.onEnterState(blockIndex.getPublicKeyByIndex(0, CachedLeaderIndex.getInstance().getCommitteePositionLeader()));
                             }
-                        } else {
-                            committee_state.onEnterState(blockIndex.getPublicKeyByIndex(0, 0));
+                        } else if(committee_state.getClass().equals(ConsensusCommitteeBlockState.class)){
                             CachedLeaderIndex.getInstance().setCommitteePositionLeader(0);
+                        }
+                        if (committee_state.getClass().equals(ChangeViewCommitteeState.class) || committee_state.getClass().equals(ConsensusCommitteeBlockState.class)) {
+                            changeStateTo(new ConsensusVRFState());
+                            committee_state.onEnterState(blockIndex.getPublicKeyByIndex(0, CachedLeaderIndex.getInstance().getCommitteePositionLeader()));
+                        } else if (committee_state.getClass().equals(ConsensusVRFState.class)) {
+                            changeStateTo(new ConsensusVDFState());
+                            committee_state.onEnterState(blockIndex.getPublicKeyByIndex(0, CachedLeaderIndex.getInstance().getCommitteePositionLeader()));
+                        } else if (committee_state.getClass().equals(ConsensusVDFState.class)) {
+                            changeStateTo(new ConsensusCommitteeBlockState());
+                            committee_state.onEnterState(blockIndex.getPublicKeyByIndex(0, CachedLeaderIndex.getInstance().getCommitteePositionLeader()));
                         }
                     }
                 }
             } finally {
                 latch.countDown();
                 w.unlock();
+
+                //when to change the structure of the commitee block after how much epochs
                 CachedEpochGeneration.getInstance().setEpoch_counter(0);
             }
         }

@@ -264,6 +264,7 @@ public class ChangeViewValidatorsConsensusPhase extends ChangeViewConsensusPhase
             if (DEBUG)
                 return;
 
+            CachedLatestBlocks.getInstance().getCommitteeBlock().setViewID(data.getData().getViewID());
             consensusClient.send_heartbeat(HEARTBEAT_MESSAGE);
             cleanup();
             LOG.info("Change View is finalized with Success");

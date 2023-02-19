@@ -187,6 +187,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
         committeeBlock.setGeneration(CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration() + 1);
         committeeBlock.getHeaderData().setPreviousHash(CachedLatestBlocks.getInstance().getCommitteeBlock().getHash());
         committeeBlock.setHeight(CachedLatestBlocks.getInstance().getCommitteeBlock().getHeight() + 1);
+        committeeBlock.setViewID(CachedLatestBlocks.getInstance().getCommitteeBlock().getViewID() + 1);
         committeeBlock.getHeaderData().setTimestamp(GetTime.GetTimeStampInString());
         committeeBlock.setVRF(Hex.toHexString(CachedSecurityHeaders.getInstance().getSecurityHeader().getpRnd()));
 

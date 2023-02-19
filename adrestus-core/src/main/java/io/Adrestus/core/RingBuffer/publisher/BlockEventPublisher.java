@@ -54,6 +54,11 @@ public class BlockEventPublisher implements Publisher<AbstractBlock> {
         return this;
     }
 
+    public BlockEventPublisher withViewIDEventHandler() {
+        group.add(new ViewIDEventHandler());
+        return this;
+    }
+
     public BlockEventPublisher withHashHandler() {
         group.add(new HashEventHandler());
         return this;
