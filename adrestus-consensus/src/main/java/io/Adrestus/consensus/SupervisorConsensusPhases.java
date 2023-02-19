@@ -714,7 +714,7 @@ public class SupervisorConsensusPhases {
             Signature aggregatedSignature = BLSSignature.aggregate(signature);
 
             System.out.println("edw"+ ObjectSizeCalculator.getObjectSize(block.getData())+" "+ SerializationUtils.serialize(block.getData()).length);
-            Bytes message = Bytes.wrap(block_serialize.encode(block.getData()));
+            Bytes message = Bytes.wrap(block_serialize.encodeNotOptimal(block.getData(),SerializationUtils.serialize(block.getData()).length));
             boolean verify = BLSSignature.fastAggregateVerify(publicKeys, message, aggregatedSignature);
             if (!verify) {
                 LOG.info("Abort consensus phase BLS multi_signature is invalid during prepare phase");
@@ -784,7 +784,7 @@ public class SupervisorConsensusPhases {
 
 
             Signature aggregatedSignature = BLSSignature.aggregate(signature);
-            Bytes message = Bytes.wrap(block_serialize.encode(block.getData()));
+            Bytes message = Bytes.wrap(block_serialize.encodeNotOptimal(block.getData(),SerializationUtils.serialize(block.getData()).length));
             boolean verify = BLSSignature.fastAggregateVerify(publicKeys, message, aggregatedSignature);
             if (!verify) {
                 LOG.info("CommitPhase: Abort consensus phase BLS multi_signature is invalid during commit phase");

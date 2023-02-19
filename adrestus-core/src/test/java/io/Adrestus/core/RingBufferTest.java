@@ -5,7 +5,14 @@ import io.Adrestus.core.RingBuffer.publisher.TransactionEventPublisher;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.util.GetTime;
 import io.Adrestus.util.SerializationUtil;
+import org.apache.commons.lang3.SerializationUtils;
 import org.junit.jupiter.api.Test;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class RingBufferTest {
 
@@ -33,12 +40,18 @@ public class RingBufferTest {
 
 
     @Test
-    public void CommitBlockTest() throws InterruptedException {
+    public void CommitBlockTest() throws InterruptedException, IOException {
         BlockEventPublisher publisher = new BlockEventPublisher(1024);
         CommitteeBlock block = new CommitteeBlock();
         block.setHash("hash");
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream out = new ObjectOutputStream(baos);
+        out.writeObject(block);
+        out.close();
 
-
+        byte[] buff= SerializationUtils.serialize(block);
+        CommitteeBlock copy=SerializationUtils.deserialize(buff);
+        assertEquals(block, copy);
         publisher.withHashHandler().mergeEvents();
         publisher.start();
         publisher.publish(block);

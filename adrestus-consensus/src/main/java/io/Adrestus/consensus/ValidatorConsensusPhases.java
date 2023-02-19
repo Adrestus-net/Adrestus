@@ -32,6 +32,7 @@ import io.distributedLedger.DatabaseInstance;
 import io.distributedLedger.DatabaseType;
 import io.distributedLedger.IDatabase;
 import lombok.SneakyThrows;
+import org.apache.commons.lang3.SerializationUtils;
 import org.apache.tuweni.bytes.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1261,7 +1262,7 @@ public class ValidatorConsensusPhases {
                 return;
             }
             block.setStatusType(ConsensusStatusType.SUCCESS);
-            Signature sig = BLSSignature.sign(block_serialize.encode(block.getData()), CachedBLSKeyPair.getInstance().getPrivateKey());
+            Signature sig = BLSSignature.sign(block_serialize.encodeNotOptimal(block.getData(), SerializationUtils.serialize(block.getData()).length), CachedBLSKeyPair.getInstance().getPrivateKey());
             block.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
 
             if (DEBUG)
@@ -1331,7 +1332,7 @@ public class ValidatorConsensusPhases {
 
 
             Signature aggregatedSignature = BLSSignature.aggregate(signature);
-            Bytes toVerify = Bytes.wrap(block_serialize.encode(block.getData()));
+            Bytes toVerify = Bytes.wrap(block_serialize.encodeNotOptimal(block.getData(),SerializationUtils.serialize(block.getData()).length));
             boolean verify = BLSSignature.fastAggregateVerify(publicKeys, toVerify, aggregatedSignature);
             if (!verify) {
                 cleanup();
@@ -1345,7 +1346,7 @@ public class ValidatorConsensusPhases {
 
 
             byte[] message = block_serialize.encode(block.getData());
-            Signature sig = BLSSignature.sign(message, CachedBLSKeyPair.getInstance().getPrivateKey());
+            Signature sig = BLSSignature.sign(block_serialize.encodeNotOptimal(block.getData(), SerializationUtils.serialize(block.getData()).length), CachedBLSKeyPair.getInstance().getPrivateKey());
             block.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
 
             if (DEBUG)
@@ -1412,7 +1413,7 @@ public class ValidatorConsensusPhases {
 
 
             Signature aggregatedSignature = BLSSignature.aggregate(signature);
-            byte[] message = block_serialize.encode(block.getData());
+            byte[] message = block_serialize.encodeNotOptimal(block.getData(),SerializationUtils.serialize(block.getData()).length);
             Bytes toVerify = Bytes.wrap(message);
             boolean verify = BLSSignature.fastAggregateVerify(publicKeys, toVerify, aggregatedSignature);
             if (!verify) {

@@ -3,7 +3,9 @@ package io.Adrestus.consensus.ChangeView;
 import com.google.common.base.Objects;
 import io.activej.serializer.annotations.Serialize;
 
-public class ChangeViewData {
+import java.io.Serializable;
+
+public class ChangeViewData implements Serializable {
 
     private String prev_hash;
     private int ViewID;
