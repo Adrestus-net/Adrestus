@@ -4,11 +4,12 @@ import com.google.common.base.Objects;
 import io.activej.serializer.annotations.Serialize;
 import org.spongycastle.util.encoders.Hex;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public final class VRFMessage {
+public final class VRFMessage implements Serializable {
     private vrfMessageType type;
     private String BlockHash;
     private byte[] prnd;

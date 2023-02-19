@@ -3,9 +3,10 @@ package io.Adrestus.crypto.vdf;
 import com.google.common.base.Objects;
 import io.activej.serializer.annotations.Serialize;
 
+import java.io.Serializable;
 import java.util.Arrays;
 
-public class VDFMessage {
+public class VDFMessage implements Serializable {
     private byte[] VDFSolution;
 
     public VDFMessage(byte[] buffer) {
