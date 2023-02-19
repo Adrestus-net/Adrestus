@@ -75,7 +75,7 @@ public final class VRFMessage implements Serializable {
     }
 
 
-    public static class VRFData implements Cloneable {
+    public static class VRFData implements Cloneable,Serializable {
         private byte[] bls_pubkey;
         private byte[] ri;
         private byte[] pi;
