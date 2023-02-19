@@ -3,13 +3,14 @@ package io.Adrestus.crypto.bls.model;
 import io.activej.serializer.annotations.Deserialize;
 import io.activej.serializer.annotations.Serialize;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
 
-public class Signature implements Cloneable {
+public class Signature implements Cloneable, Serializable {
     private G2Point point;
     private Supplier<G2Point> supplier_point;
 
