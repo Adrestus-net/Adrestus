@@ -21,6 +21,7 @@ public class ConsensusDataState {
         ConsensusDataState.previous_state = previous_state;
     }
 
+
     @Override
     public String toString() {
         return "ConsensusDataState{}";

@@ -85,11 +85,6 @@ public class SupervisorConsensusPhases {
                     this.latch = new CountDownLatch(N - 1);
                     this.current = CachedLeaderIndex.getInstance().getCommitteePositionLeader();
                     this.leader_bls = this.blockIndex.getPublicKeyByIndex(0, current);
-                    if (current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).size() - 1)
-                        CachedLeaderIndex.getInstance().setCommitteePositionLeader(0);
-                    else {
-                        CachedLeaderIndex.getInstance().setCommitteePositionLeader(CachedLeaderIndex.getInstance().getCommitteePositionLeader() + 1);
-                    }
                     this.consensusServer = new ConsensusServer(this.blockIndex.getIpValue(0, this.leader_bls), latch);
                     this.N_COPY = (this.N - 1) - consensusServer.getPeers_not_connected();
                 } catch (Exception e) {
@@ -311,11 +306,6 @@ public class SupervisorConsensusPhases {
                     this.latch = new CountDownLatch(N - 1);
                     this.current = CachedLeaderIndex.getInstance().getCommitteePositionLeader();
                     this.leader_bls = this.blockIndex.getPublicKeyByIndex(0, current);
-                    if (current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).size() - 1)
-                        CachedLeaderIndex.getInstance().setCommitteePositionLeader(0);
-                    else {
-                        CachedLeaderIndex.getInstance().setCommitteePositionLeader(CachedLeaderIndex.getInstance().getCommitteePositionLeader() + 1);
-                    }
                     this.consensusServer = new ConsensusServer(this.blockIndex.getIpValue(0, this.leader_bls), latch);
                     this.N_COPY = (this.N - 1) - consensusServer.getPeers_not_connected();
                 }
@@ -631,11 +621,6 @@ public class SupervisorConsensusPhases {
                     this.latch = new CountDownLatch(N - 1);
                     this.current = CachedLeaderIndex.getInstance().getCommitteePositionLeader();
                     this.leader_bls = this.blockIndex.getPublicKeyByIndex(0, current);
-                    if (current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).size() - 1)
-                        CachedLeaderIndex.getInstance().setCommitteePositionLeader(0);
-                    else {
-                        CachedLeaderIndex.getInstance().setCommitteePositionLeader(CachedLeaderIndex.getInstance().getCommitteePositionLeader() + 1);
-                    }
                     this.consensusServer = new ConsensusServer(this.blockIndex.getIpValue(0, this.leader_bls), latch);
                     this.N_COPY = (this.N - 1) - consensusServer.getPeers_not_connected();
                 }
@@ -713,7 +698,6 @@ public class SupervisorConsensusPhases {
 
             Signature aggregatedSignature = BLSSignature.aggregate(signature);
 
-            System.out.println("edw"+ ObjectSizeCalculator.getObjectSize(block.getData())+" "+ SerializationUtils.serialize(block.getData()).length);
             Bytes message = Bytes.wrap(block_serialize.encodeNotOptimal(block.getData(),SerializationUtils.serialize(block.getData()).length));
             boolean verify = BLSSignature.fastAggregateVerify(publicKeys, message, aggregatedSignature);
             if (!verify) {

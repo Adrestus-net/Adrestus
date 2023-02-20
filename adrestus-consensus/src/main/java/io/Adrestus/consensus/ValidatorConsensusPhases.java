@@ -85,11 +85,6 @@ public class ValidatorConsensusPhases {
             if (!DEBUG) {
                 this.current = CachedLeaderIndex.getInstance().getCommitteePositionLeader();
                 this.leader_bls = this.blockIndex.getPublicKeyByIndex(0, current);
-                if (current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).size() - 1)
-                    CachedLeaderIndex.getInstance().setCommitteePositionLeader(0);
-                else {
-                    CachedLeaderIndex.getInstance().setCommitteePositionLeader(CachedLeaderIndex.getInstance().getCommitteePositionLeader() + 1);
-                }
                 this.consensusClient = new ConsensusClient(this.blockIndex.getIpValue(0, this.leader_bls));
                 this.consensusClient.receive_handler();
             }
@@ -383,11 +378,6 @@ public class ValidatorConsensusPhases {
             if (!DEBUG) {
                 this.current = CachedLeaderIndex.getInstance().getCommitteePositionLeader();
                 this.leader_bls = this.blockIndex.getPublicKeyByIndex(0, current);
-                if (current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).size() - 1)
-                    CachedLeaderIndex.getInstance().setCommitteePositionLeader(0);
-                else {
-                    CachedLeaderIndex.getInstance().setCommitteePositionLeader(CachedLeaderIndex.getInstance().getCommitteePositionLeader() + 1);
-                }
                 this.consensusClient = new ConsensusClient(this.blockIndex.getIpValue(0, this.leader_bls));
                 this.consensusClient.receive_handler();
             }
@@ -1161,11 +1151,6 @@ public class ValidatorConsensusPhases {
             if (!DEBUG) {
                 this.current = CachedLeaderIndex.getInstance().getCommitteePositionLeader();
                 this.leader_bls = this.blockIndex.getPublicKeyByIndex(0, current);
-                if (current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).size() - 1)
-                    CachedLeaderIndex.getInstance().setCommitteePositionLeader(0);
-                else {
-                    CachedLeaderIndex.getInstance().setCommitteePositionLeader(CachedLeaderIndex.getInstance().getCommitteePositionLeader() + 1);
-                }
                 this.consensusClient = new ConsensusClient(this.blockIndex.getIpValue(0, this.leader_bls));
                 this.consensusClient.receive_handler();
             }
