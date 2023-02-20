@@ -50,7 +50,6 @@ public class ChangeViewCommitteeState extends AbstractState {
                 validatorphase.PreparePhase(consensusMessage);
             }
         } catch (Exception e) {
-            e.printStackTrace();
             LOG.info("Exception caught " + e.getMessage());
             return false;
         }
