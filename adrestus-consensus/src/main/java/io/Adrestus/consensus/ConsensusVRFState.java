@@ -13,7 +13,7 @@ import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ConsensusVRFState extends AbstractState{
+public class ConsensusVRFState extends AbstractState {
     private static Logger LOG = LoggerFactory.getLogger(ConsensusVDFState.class);
 
     private IBlockIndex blockIndex;
@@ -46,6 +46,8 @@ public class ConsensusVRFState extends AbstractState{
                 supervisorphase.InitialSetup();
                 supervisorphase.Initialize(vrfMessage);
                 supervisorphase.AggregateVRF(vrfMessage);
+                if (vrfMessage.getType().equals(VRFMessage.vrfMessageType.ABORT))
+                    return false;
                 supervisorphase.AnnouncePhase(consensusMessage);
                 supervisorphase.PreparePhase(consensusMessage);
                 supervisorphase.CommitPhase(consensusMessage);
@@ -55,6 +57,8 @@ public class ConsensusVRFState extends AbstractState{
                 var validatorphase = (VRFConsensusPhase) consensusManager.getRole().manufacturePhases(ConsensusType.VRF);
                 validatorphase.InitialSetup();
                 validatorphase.Initialize(vrfMessage);
+                if (vrfMessage.getType().equals(VRFMessage.vrfMessageType.ABORT))
+                    return false;
                 validatorphase.AnnouncePhase(consensusMessage);
                 validatorphase.PreparePhase(consensusMessage);
                 validatorphase.CommitPhase(consensusMessage);
