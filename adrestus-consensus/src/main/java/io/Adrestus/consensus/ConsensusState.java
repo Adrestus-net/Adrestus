@@ -137,9 +137,16 @@ public class ConsensusState extends ConsensusDataState {
                 while (!result) {
                     result = committee_state.onActiveState();
                     if (!result) {
-                        previous_state = (AbstractState) committee_state.clone();
+                        if (!committee_state.getClass().equals(ChangeViewCommitteeState.class)) {
+                            previous_state = (AbstractState) committee_state.clone();
+                        }
                         changeStateTo(new ChangeViewCommitteeState());
                         LOG.info("State changed to ChangeViewCommitteeState");
+                        if (CachedLeaderIndex.getInstance().getCommitteePositionLeader() == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).size() - 1)
+                            CachedLeaderIndex.getInstance().setCommitteePositionLeader(0);
+                        else {
+                            CachedLeaderIndex.getInstance().setCommitteePositionLeader(CachedLeaderIndex.getInstance().getCommitteePositionLeader() + 1);
+                        }
                         committee_state.onEnterState(blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedLeaderIndex.getInstance().getCommitteePositionLeader()));
                     } else {
                         if (committee_state.getClass().equals(ChangeViewCommitteeState.class)) {

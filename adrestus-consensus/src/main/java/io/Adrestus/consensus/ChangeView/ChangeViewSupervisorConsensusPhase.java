@@ -43,14 +43,6 @@ public class ChangeViewSupervisorConsensusPhase extends ChangeViewConsensusPhase
                 this.F = (this.N - 1) / 3;
                 this.latch = new CountDownLatch(N - 1);
                 this.current = CachedLeaderIndex.getInstance().getCommitteePositionLeader();
-                if (current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).size() - 1) {
-                    CachedLeaderIndex.getInstance().setCommitteePositionLeader(0);
-                    this.current=CachedLeaderIndex.getInstance().getCommitteePositionLeader();
-                }
-                else {
-                    CachedLeaderIndex.getInstance().setCommitteePositionLeader(CachedLeaderIndex.getInstance().getCommitteePositionLeader() + 1);
-                    this.current=CachedLeaderIndex.getInstance().getCommitteePositionLeader();
-                }
                 this.leader_bls = this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), this.current);
                 this.consensusServer = new ConsensusServer(this.blockIndex.getIpValue(CachedZoneIndex.getInstance().getZoneIndex(), this.leader_bls), latch, ConsensusConfiguration.CHANGE_VIEW_COLLECTOR_TIMEOUT, ConsensusConfiguration.CHANGE_VIEW_CONNECTED_TIMEOUT);
                 this.N_COPY = (this.N - 1) - consensusServer.getPeers_not_connected();

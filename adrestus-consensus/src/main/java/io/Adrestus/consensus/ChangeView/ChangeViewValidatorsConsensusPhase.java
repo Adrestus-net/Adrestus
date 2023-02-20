@@ -160,19 +160,13 @@ public class ChangeViewValidatorsConsensusPhase extends ChangeViewConsensusPhase
             if (!DEBUG) {
                 try {
                     this.current = CachedLeaderIndex.getInstance().getCommitteePositionLeader();
-                    if (current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).size() - 1) {
-                        CachedLeaderIndex.getInstance().setCommitteePositionLeader(0);
-                        this.current=CachedLeaderIndex.getInstance().getCommitteePositionLeader();
-                    }
-                    else {
-                        CachedLeaderIndex.getInstance().setCommitteePositionLeader(CachedLeaderIndex.getInstance().getCommitteePositionLeader() + 1);
-                        this.current=CachedLeaderIndex.getInstance().getCommitteePositionLeader();
-                    }
                     this.leader_bls = this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), this.current);
                     this.consensusClient = new ConsensusClient(this.blockIndex.getIpValue(CachedZoneIndex.getInstance().getZoneIndex(), this.leader_bls));
                     this.consensusClient.receive_handler();
                     this.consensusClient.send_heartbeat(HEARTBEAT_MESSAGE);
                     String heartbeat = consensusClient.rec_heartbeat();
+                    if(heartbeat==null)
+                        throw new IllegalArgumentException("Heartbeat message is null no response from leader");
                     if (!heartbeat.equals("1"))
                         throw new IllegalArgumentException("Heartbeat message is not valid");
 
