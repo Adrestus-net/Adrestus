@@ -70,12 +70,10 @@ public class ConsensusVDF2Test {
                 } else if (vk2.equals(entry.getKey())) {
                     CachedBLSKeyPair.getInstance().setPrivateKey(sk2);
                     CachedBLSKeyPair.getInstance().setPublicKey(vk2);
-                }
-                else if (vk3.equals(entry.getKey())) {
+                } else if (vk3.equals(entry.getKey())) {
                     CachedBLSKeyPair.getInstance().setPrivateKey(sk3);
                     CachedBLSKeyPair.getInstance().setPublicKey(vk3);
-                }
-                else if (vk4.equals(entry.getKey())) {
+                } else if (vk4.equals(entry.getKey())) {
                     CachedBLSKeyPair.getInstance().setPrivateKey(sk4);
                     CachedBLSKeyPair.getInstance().setPublicKey(vk4);
                 }

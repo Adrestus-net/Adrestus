@@ -6,7 +6,6 @@ import io.Adrestus.core.*;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedLeaderIndex;
 import io.Adrestus.core.Resourses.CachedSecurityHeaders;
-import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.crypto.bls.BLS381.ECP;
 import io.Adrestus.crypto.bls.BLS381.ECP2;
 import io.Adrestus.crypto.bls.mapper.ECP2mapper;
@@ -24,12 +23,12 @@ import io.Adrestus.crypto.vrf.VRFMessage;
 import io.Adrestus.crypto.vrf.engine.VrfEngine2;
 import io.Adrestus.network.ConsensusServer;
 import io.Adrestus.util.ByteUtil;
-import io.Adrestus.util.ObjectSizeCalculator;
 import io.Adrestus.util.SerializationUtil;
 import io.distributedLedger.DatabaseFactory;
 import io.distributedLedger.DatabaseInstance;
 import io.distributedLedger.DatabaseType;
 import io.distributedLedger.IDatabase;
+import lombok.SneakyThrows;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.tuweni.bytes.Bytes;
 import org.slf4j.Logger;
@@ -187,6 +186,7 @@ public class SupervisorConsensusPhases {
             consensusServer.publishMessage(toSend);
         }
 
+        @SneakyThrows
         @Override
         public void CommitPhase(ConsensusMessage<VDFMessage> data) {
             if (data.getStatusType().equals(ConsensusStatusType.ABORT))
@@ -262,14 +262,15 @@ public class SupervisorConsensusPhases {
 
             CachedSecurityHeaders.getInstance().getSecurityHeader().setRnd(data.getData().getVDFSolution());
 
-            while (i > 0) {
+            /*while (i > 0) {
                 try {
                     consensusServer.receiveStringData();
                 } catch (NullPointerException ex) {
                 } finally {
                     i--;
                 }
-            }
+            }*/
+            // Thread.sleep(500);
             cleanup();
             LOG.info("VDF is finalized with Success");
         }
@@ -323,7 +324,7 @@ public class SupervisorConsensusPhases {
             if (DEBUG) return;
 
             try {
-                Thread.sleep(100);
+                Thread.sleep(200);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -497,6 +498,7 @@ public class SupervisorConsensusPhases {
             consensusServer.publishMessage(toSend);
         }
 
+        @SneakyThrows
         @Override
         public void CommitPhase(ConsensusMessage<VRFMessage> data) {
             if (data.getStatusType().equals(ConsensusStatusType.ABORT))
@@ -572,14 +574,15 @@ public class SupervisorConsensusPhases {
 
             CachedSecurityHeaders.getInstance().getSecurityHeader().setpRnd(data.getData().getPrnd());
 
-            while (i > 0) {
+            /*while (i > 0) {
                 try {
                     consensusServer.receiveStringData();
                 } catch (NullPointerException ex) {
                 } finally {
                     i--;
                 }
-            }
+            }*/
+            // Thread.sleep(500);
             cleanup();
             LOG.info("VRF is finalized with Success");
         }
@@ -698,7 +701,7 @@ public class SupervisorConsensusPhases {
 
             Signature aggregatedSignature = BLSSignature.aggregate(signature);
 
-            Bytes message = Bytes.wrap(block_serialize.encodeNotOptimal(block.getData(),SerializationUtils.serialize(block.getData()).length));
+            Bytes message = Bytes.wrap(block_serialize.encodeNotOptimal(block.getData(), SerializationUtils.serialize(block.getData()).length));
             boolean verify = BLSSignature.fastAggregateVerify(publicKeys, message, aggregatedSignature);
             if (!verify) {
                 LOG.info("Abort consensus phase BLS multi_signature is invalid during prepare phase");
@@ -720,6 +723,7 @@ public class SupervisorConsensusPhases {
             consensusServer.publishMessage(toSend);
         }
 
+        @SneakyThrows
         @Override
         public void CommitPhase(ConsensusMessage<CommitteeBlock> block) {
             if (block.getStatusType().equals(ConsensusStatusType.ABORT)) return;
@@ -768,7 +772,7 @@ public class SupervisorConsensusPhases {
 
 
             Signature aggregatedSignature = BLSSignature.aggregate(signature);
-            Bytes message = Bytes.wrap(block_serialize.encodeNotOptimal(block.getData(),SerializationUtils.serialize(block.getData()).length));
+            Bytes message = Bytes.wrap(block_serialize.encodeNotOptimal(block.getData(), SerializationUtils.serialize(block.getData()).length));
             boolean verify = BLSSignature.fastAggregateVerify(publicKeys, message, aggregatedSignature);
             if (!verify) {
                 LOG.info("CommitPhase: Abort consensus phase BLS multi_signature is invalid during commit phase");
@@ -791,15 +795,15 @@ public class SupervisorConsensusPhases {
             consensusServer.publishMessage(toSend);
 
 
-            while (i > 0) {
+             /*while (i > 0) {
                 try {
                     consensusServer.receiveStringData();
                 } catch (NullPointerException ex) {
                 } finally {
                     i--;
                 }
-            }
-
+            }*/
+            //Thread.sleep(500);
             CachedLatestBlocks.getInstance().setCommitteeBlock(block.getData());
             database.save(block.getData().getHash(), block.getData());
             cleanup();

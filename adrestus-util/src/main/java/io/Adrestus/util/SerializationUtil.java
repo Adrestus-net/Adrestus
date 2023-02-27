@@ -7,10 +7,7 @@ import io.activej.serializer.BinarySerializer;
 import io.activej.serializer.SerializerBuilder;
 import io.activej.serializer.SerializerDef;
 import io.activej.types.scanner.TypeScannerRegistry;
-import lombok.SneakyThrows;
 
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectOutputStream;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -128,7 +125,8 @@ public class SerializationUtil<T> {
         serializer.encode(buffer, 0, value);
         return buffer;
     }
-    public synchronized byte[] encodeNotOptimal(T value,int length) {
+
+    public synchronized byte[] encodeNotOptimal(T value, int length) {
         // int buff_size2 = search((int) (ObjectSizer.retainedSize(value)));
         int buff_size = search(length);
         buffer = new byte[buff_size];

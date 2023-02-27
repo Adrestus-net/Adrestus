@@ -33,7 +33,7 @@ public class GetTime {
     }
 
     public static Timestamp GetTimeStampWithDelay() {
-        Timestamp timestamp = new Timestamp(ExtractUTCTimestamp()+ONE_MINUTE);
+        Timestamp timestamp = new Timestamp(ExtractUTCTimestamp() + ONE_MINUTE);
         return timestamp;
     }
 

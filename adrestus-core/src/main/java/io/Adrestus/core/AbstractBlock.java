@@ -184,7 +184,7 @@ public abstract class AbstractBlock extends Object implements BlockFactory, Disr
                 '}';
     }
 
-    public static class Header implements Serializable{
+    public static class Header implements Serializable {
         private int Version;
         private String PreviousHash;
         private String timestamp;

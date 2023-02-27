@@ -1,7 +1,6 @@
 package io.Adrestus.network;
 
 import io.Adrestus.config.TransactionConfigOptions;
-import io.Adrestus.util.SerializationUtil;
 import io.activej.bytebuf.ByteBuf;
 import io.activej.bytebuf.ByteBufs;
 import io.activej.common.exception.MalformedDataException;
@@ -30,6 +29,7 @@ public class TransactionChannelHandler<T> {
     private final ByteBufs tempBufs = new ByteBufs();
     private final SocketSettings settings;
     private SimpleServer server;
+
     public TransactionChannelHandler(String IP) {
         this.IP = IP;
         this.eventloop = Eventloop.create().withCurrentThread();

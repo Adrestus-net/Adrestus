@@ -1,11 +1,8 @@
 package io.Adrestus.protocol;
 
-import io.Adrestus.TreeFactory;
-import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.config.TransactionConfigOptions;
 import io.Adrestus.core.RegularTransaction;
-import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.core.StatusType;
 import io.Adrestus.core.Transaction;
 import io.Adrestus.crypto.HashUtil;
@@ -31,7 +28,6 @@ import io.activej.eventloop.Eventloop;
 import io.activej.net.socket.tcp.AsyncTcpSocket;
 import io.activej.net.socket.tcp.AsyncTcpSocketNio;
 import io.activej.promise.Promise;
-import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -63,6 +59,7 @@ public class TransactionChannelTest {
 
     private static int start = 0;
     private static int end = 10000;
+
     @BeforeAll
     public static void setup() throws InterruptedException, MnemonicException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException {
         TCPTransactionConsumer<byte[]> print = x -> {

@@ -32,7 +32,7 @@ public class HashEventHandler extends TransactionEventHandler {
             cloneable.setHash("");
             cloneable.setSignature(new ECDSASignatureData());
 
-            byte[] toHash = wrapper.encode(cloneable,1024);
+            byte[] toHash = wrapper.encode(cloneable, 1024);
             String result_hash = HashUtil.sha256_bytetoString(toHash);
 
             if (!result_hash.equals(transaction.getHash())) {

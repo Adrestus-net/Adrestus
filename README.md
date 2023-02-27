@@ -225,15 +225,15 @@ simplify the use of docker.
 
 The main folders are:
 
-| Folder   | Content                          |
-|----------|----------------------------------|
-| `config`   | The [config](config) dependency.     |
+| Folder      | Content                                |
+|-------------|----------------------------------------|
+| `config`    | The [config](config) dependency.       |
 | `consensus` | The [consensus](consensus) dependency. |
-| `core`   | The [core](core) dependency.     |
+| `core`      | The [core](core) dependency.           |
 | `crypto`    | The [crypto](crypto) dependency.       |
-| `network`    | The [network](network) dependency.       |
-| `protocol`    | The [protocol](protocol) dependency.       |
-| `util`    | The [util](util) dependency.       |
+| `network`   | The [network](network) dependency.     |
+| `protocol`  | The [protocol](protocol) dependency.   |
+| `util`      | The [util](util) dependency.           |
 
 # Project Layout
 

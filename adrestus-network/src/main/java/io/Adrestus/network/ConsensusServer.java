@@ -150,12 +150,11 @@ public class ConsensusServer {
 
 
     public void publishMessage(byte[] data) {
-        try{
-        publisher.send(data, 0);
+        try {
+            publisher.send(data, 0);
         } catch (ZMQException e) {
             if (e.getErrorCode() == 156384765) {
-            }
-            else {
+            } else {
                 LOG.info("ZMQException" + e.toString());
             }
         }
@@ -168,8 +167,7 @@ public class ConsensusServer {
         } catch (NullPointerException e) {
         } catch (ZMQException e) {
             if (e.getErrorCode() == 156384765) {
-            }
-            else {
+            } else {
                 LOG.info("ZMQException" + e.toString());
             }
         }
@@ -184,8 +182,7 @@ public class ConsensusServer {
         } catch (NullPointerException e) {
         } catch (ZMQException e) {
             if (e.getErrorCode() == 156384765) {
-            }
-            else {
+            } else {
                 LOG.info("ZMQException" + e.toString());
             }
         }

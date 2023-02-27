@@ -261,6 +261,7 @@ public class ValidatorConsensusPhases {
             consensusClient.pushMessage(toSend);
         }
 
+        @SneakyThrows
         @Override
         public void CommitPhase(ConsensusMessage<VDFMessage> data) {
             if (data.getStatusType().equals(ConsensusStatusType.ABORT))
@@ -344,6 +345,8 @@ public class ValidatorConsensusPhases {
 
             consensusClient.send_heartbeat(HEARTBEAT_MESSAGE);
             LOG.info("VDF is finalized with Success");
+            cleanup();
+            Thread.sleep(500);
         }
 
         private void cleanup() {
@@ -661,6 +664,7 @@ public class ValidatorConsensusPhases {
             consensusClient.pushMessage(toSend);
         }
 
+        @SneakyThrows
         @Override
         public void CommitPhase(ConsensusMessage<VRFMessage> data) {
             if (data.getStatusType().equals(ConsensusStatusType.ABORT))
@@ -750,6 +754,8 @@ public class ValidatorConsensusPhases {
 
             consensusClient.send_heartbeat(HEARTBEAT_MESSAGE);
             LOG.info("VRF is finalized with Success");
+            cleanup();
+            Thread.sleep(500);
         }
 
         private void cleanup() {
@@ -1113,8 +1119,9 @@ public class ValidatorConsensusPhases {
             this.original_copy.setLeaderPublicKey(next_key);
             regural_block.InventTransactionBlock(this.original_copy);
             consensusClient.send_heartbeat(HEARTBEAT_MESSAGE);
-            cleanup();
             LOG.info("Block is finalized with Success");
+            cleanup();
+            Thread.sleep(500);
         }
 
         private void cleanup() {
@@ -1317,7 +1324,7 @@ public class ValidatorConsensusPhases {
 
 
             Signature aggregatedSignature = BLSSignature.aggregate(signature);
-            Bytes toVerify = Bytes.wrap(block_serialize.encodeNotOptimal(block.getData(),SerializationUtils.serialize(block.getData()).length));
+            Bytes toVerify = Bytes.wrap(block_serialize.encodeNotOptimal(block.getData(), SerializationUtils.serialize(block.getData()).length));
             boolean verify = BLSSignature.fastAggregateVerify(publicKeys, toVerify, aggregatedSignature);
             if (!verify) {
                 cleanup();
@@ -1341,6 +1348,7 @@ public class ValidatorConsensusPhases {
             consensusClient.pushMessage(toSend);
         }
 
+        @SneakyThrows
         @Override
         public void CommitPhase(ConsensusMessage<CommitteeBlock> block) {
             if (block.getStatusType().equals(ConsensusStatusType.ABORT))
@@ -1398,7 +1406,7 @@ public class ValidatorConsensusPhases {
 
 
             Signature aggregatedSignature = BLSSignature.aggregate(signature);
-            byte[] message = block_serialize.encodeNotOptimal(block.getData(),SerializationUtils.serialize(block.getData()).length);
+            byte[] message = block_serialize.encodeNotOptimal(block.getData(), SerializationUtils.serialize(block.getData()).length);
             Bytes toVerify = Bytes.wrap(message);
             boolean verify = BLSSignature.fastAggregateVerify(publicKeys, toVerify, aggregatedSignature);
             if (!verify) {
@@ -1414,8 +1422,9 @@ public class ValidatorConsensusPhases {
             //commit save to db
 
             consensusClient.send_heartbeat(HEARTBEAT_MESSAGE);
-            cleanup();
             LOG.info("Committee is finalized with Success");
+            cleanup();
+            Thread.sleep(500);
         }
 
         private void cleanup() {

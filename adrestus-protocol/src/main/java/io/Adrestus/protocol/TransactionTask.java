@@ -24,12 +24,13 @@ public class TransactionTask extends AdrestusTask {
     private TCPTransactionConsumer<byte[]> receive;
     private TransactionChannelHandler transactionChannelHandler;
     int counter = 0;
-    private ArrayList<Transaction>list=new ArrayList<>();
+    private ArrayList<Transaction> list = new ArrayList<>();
+
     public TransactionTask() {
         super();
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(ECDSASignatureData.class, ctx -> new SignatureDataSerializer()));
-        this.serenc = new SerializationUtil<Transaction>(Transaction.class,list);
+        this.serenc = new SerializationUtil<Transaction>(Transaction.class, list);
         this.publisher = new TransactionEventPublisher(2048);
         this.callBackReceive();
         this.setup();
@@ -60,14 +61,14 @@ public class TransactionTask extends AdrestusTask {
                 Transaction transaction = serenc.decode(x);
                 counter++;
                 //System.out.println("Server Message:" + transaction.toString());
-                System.out.println("s "+counter);
-               // publisher.publish(transaction);
-                if(list.contains(transaction))
-                    System.out.println("edw "+transaction);
+                System.out.println("s " + counter);
+                // publisher.publish(transaction);
+                if (list.contains(transaction))
+                    System.out.println("edw " + transaction);
                 else
                     list.add(transaction);
-            }catch (Exception e){
-               e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         };
     }

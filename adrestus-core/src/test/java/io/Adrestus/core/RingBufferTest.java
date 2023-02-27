@@ -49,8 +49,8 @@ public class RingBufferTest {
         out.writeObject(block);
         out.close();
 
-        byte[] buff= SerializationUtils.serialize(block);
-        CommitteeBlock copy=SerializationUtils.deserialize(buff);
+        byte[] buff = SerializationUtils.serialize(block);
+        CommitteeBlock copy = SerializationUtils.deserialize(buff);
         assertEquals(block, copy);
         publisher.withHashHandler().mergeEvents();
         publisher.start();

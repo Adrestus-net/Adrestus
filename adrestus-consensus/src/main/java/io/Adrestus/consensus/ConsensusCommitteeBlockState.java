@@ -3,8 +3,6 @@ package io.Adrestus.consensus;
 import io.Adrestus.core.BlockIndex;
 import io.Adrestus.core.CommitteeBlock;
 import io.Adrestus.core.IBlockIndex;
-import io.Adrestus.core.Resourses.CachedLatestBlocks;
-import io.Adrestus.core.Resourses.CachedSecurityHeaders;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.Adrestus.crypto.bls.model.CachedBLSKeyPair;

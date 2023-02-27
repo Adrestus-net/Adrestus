@@ -105,7 +105,7 @@ public class ConsensusMessage<T> implements Serializable {
                 '}';
     }
 
-    public static class ChecksumData implements Serializable{
+    public static class ChecksumData implements Serializable {
         private Signature signature;
         private BLSPublicKey blsPublicKey;
 
