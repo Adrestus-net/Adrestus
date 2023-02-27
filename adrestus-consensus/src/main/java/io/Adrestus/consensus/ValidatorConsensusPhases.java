@@ -343,7 +343,7 @@ public class ValidatorConsensusPhases {
             CachedSecurityHeaders.getInstance().getSecurityHeader().setRnd(data.getData().getVDFSolution());
             //commit save to db
 
-            consensusClient.send_heartbeat(HEARTBEAT_MESSAGE);
+          //  consensusClient.send_heartbeat(HEARTBEAT_MESSAGE);
             LOG.info("VDF is finalized with Success");
             cleanup();
             Thread.sleep(500);
@@ -752,7 +752,7 @@ public class ValidatorConsensusPhases {
             CachedSecurityHeaders.getInstance().getSecurityHeader().setpRnd(data.getData().getPrnd());
             //commit save to db
 
-            consensusClient.send_heartbeat(HEARTBEAT_MESSAGE);
+           // consensusClient.send_heartbeat(HEARTBEAT_MESSAGE);
             LOG.info("VRF is finalized with Success");
             cleanup();
             Thread.sleep(500);
@@ -1421,7 +1421,7 @@ public class ValidatorConsensusPhases {
             database.save(block.getData().getHash(), block.getData());
             //commit save to db
 
-            consensusClient.send_heartbeat(HEARTBEAT_MESSAGE);
+           // consensusClient.send_heartbeat(HEARTBEAT_MESSAGE);
             LOG.info("Committee is finalized with Success");
             cleanup();
             Thread.sleep(500);
