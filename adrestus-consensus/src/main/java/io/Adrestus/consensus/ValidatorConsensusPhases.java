@@ -261,7 +261,7 @@ public class ValidatorConsensusPhases {
             consensusClient.pushMessage(toSend);
         }
 
-        @SneakyThrows
+
         @Override
         public void CommitPhase(ConsensusMessage<VDFMessage> data) {
             if (data.getStatusType().equals(ConsensusStatusType.ABORT))
@@ -346,7 +346,6 @@ public class ValidatorConsensusPhases {
           //  consensusClient.send_heartbeat(HEARTBEAT_MESSAGE);
             LOG.info("VDF is finalized with Success");
             cleanup();
-            Thread.sleep(500);
         }
 
         private void cleanup() {
@@ -664,7 +663,6 @@ public class ValidatorConsensusPhases {
             consensusClient.pushMessage(toSend);
         }
 
-        @SneakyThrows
         @Override
         public void CommitPhase(ConsensusMessage<VRFMessage> data) {
             if (data.getStatusType().equals(ConsensusStatusType.ABORT))
@@ -755,7 +753,6 @@ public class ValidatorConsensusPhases {
            // consensusClient.send_heartbeat(HEARTBEAT_MESSAGE);
             LOG.info("VRF is finalized with Success");
             cleanup();
-            Thread.sleep(500);
         }
 
         private void cleanup() {
@@ -1163,6 +1160,7 @@ public class ValidatorConsensusPhases {
             }
         }
 
+
         @SneakyThrows
         @Override
         public void AnnouncePhase(ConsensusMessage<CommitteeBlock> block) {
@@ -1348,7 +1346,6 @@ public class ValidatorConsensusPhases {
             consensusClient.pushMessage(toSend);
         }
 
-        @SneakyThrows
         @Override
         public void CommitPhase(ConsensusMessage<CommitteeBlock> block) {
             if (block.getStatusType().equals(ConsensusStatusType.ABORT))
@@ -1424,7 +1421,6 @@ public class ValidatorConsensusPhases {
            // consensusClient.send_heartbeat(HEARTBEAT_MESSAGE);
             LOG.info("Committee is finalized with Success");
             cleanup();
-            Thread.sleep(500);
         }
 
         private void cleanup() {

@@ -186,7 +186,7 @@ public class SupervisorConsensusPhases {
             consensusServer.publishMessage(toSend);
         }
 
-        @SneakyThrows
+
         @Override
         public void CommitPhase(ConsensusMessage<VDFMessage> data) {
             if (data.getStatusType().equals(ConsensusStatusType.ABORT))
@@ -270,7 +270,6 @@ public class SupervisorConsensusPhases {
                     i--;
                 }
             }*/
-            // Thread.sleep(500);
             cleanup();
             LOG.info("VDF is finalized with Success");
         }
@@ -498,7 +497,7 @@ public class SupervisorConsensusPhases {
             consensusServer.publishMessage(toSend);
         }
 
-        @SneakyThrows
+
         @Override
         public void CommitPhase(ConsensusMessage<VRFMessage> data) {
             if (data.getStatusType().equals(ConsensusStatusType.ABORT))
@@ -582,7 +581,6 @@ public class SupervisorConsensusPhases {
                     i--;
                 }
             }*/
-            // Thread.sleep(500);
             cleanup();
             LOG.info("VRF is finalized with Success");
         }
@@ -723,7 +721,7 @@ public class SupervisorConsensusPhases {
             consensusServer.publishMessage(toSend);
         }
 
-        @SneakyThrows
+
         @Override
         public void CommitPhase(ConsensusMessage<CommitteeBlock> block) {
             if (block.getStatusType().equals(ConsensusStatusType.ABORT)) return;
@@ -803,7 +801,6 @@ public class SupervisorConsensusPhases {
                     i--;
                 }
             }*/
-            //Thread.sleep(500);
             CachedLatestBlocks.getInstance().setCommitteeBlock(block.getData());
             database.save(block.getData().getHash(), block.getData());
             cleanup();

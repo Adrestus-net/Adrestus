@@ -19,7 +19,7 @@ public class ConsensusConfigurationTest {
         assertEquals(8 * 1000, ConsensusConfiguration.CHANGE_VIEW_COLLECTOR_TIMEOUT);
         assertEquals(8 * 1000, ConsensusConfiguration.CHANGE_VIEW_CONNECTED_TIMEOUT);
         assertEquals(2 * 1000, ConsensusConfiguration.CONSENSUS_TEST_TIMEOUT);
-        assertEquals(8, ConsensusConfiguration.EPOCH_TRANSITION);
+        assertEquals(15, ConsensusConfiguration.EPOCH_TRANSITION);
         assertEquals("CONSENSUS", ConsensusConfiguration.CONSENSUS);
         assertEquals("CHANGE_VIEW", ConsensusConfiguration.CHANGE_VIEW);
 
