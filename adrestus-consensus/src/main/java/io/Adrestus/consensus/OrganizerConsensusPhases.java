@@ -313,16 +313,16 @@ public class OrganizerConsensusPhases {
             this.original_copy.setLeaderPublicKey(next_key);
 
             regural_block.InventTransactionBlock(this.original_copy);
-            while (i > 0) {
+            /*while (i > 0) {
                 try {
                     consensusServer.receiveStringData();
                 } catch (NullPointerException ex) {
                 } finally {
                     i--;
                 }
-            }
-            cleanup();
+            }*/
             LOG.info("Block is finalized with Success");
+            cleanup();
         }
 
         private void cleanup() {
