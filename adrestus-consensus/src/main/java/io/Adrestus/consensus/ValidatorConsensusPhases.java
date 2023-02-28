@@ -1115,10 +1115,10 @@ public class ValidatorConsensusPhases {
             this.original_copy.setTransactionProposer(next_key.toRaw());
             this.original_copy.setLeaderPublicKey(next_key);
             regural_block.InventTransactionBlock(this.original_copy);
-            consensusClient.send_heartbeat(HEARTBEAT_MESSAGE);
+           // consensusClient.send_heartbeat(HEARTBEAT_MESSAGE);
             LOG.info("Block is finalized with Success");
             cleanup();
-            Thread.sleep(500);
+           // Thread.sleep(500);
         }
 
         private void cleanup() {
