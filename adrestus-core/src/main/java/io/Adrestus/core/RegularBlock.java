@@ -1,6 +1,7 @@
 package io.Adrestus.core;
 
 import com.google.common.primitives.Ints;
+import com.google.common.reflect.TypeToken;
 import io.Adrestus.MemoryTreePool;
 import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.MerkleNode;
@@ -312,13 +313,16 @@ public class RegularBlock implements BlockForge, BlockInvent {
     @Override
     public void InventTransactionBlock(TransactionBlock transactionBlock) {
 
-        IDatabase<String, TransactionBlock> block_database = new DatabaseFactory(String.class, TransactionBlock.class)
-                .getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
+        IDatabase<String, TransactionBlock> block_database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
         IDatabase<String, byte[]> tree_datasbase = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getPatriciaTreeZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
-
+        IDatabase<String, LevelDBTransactionWrapper<Transaction>> transaction_database = new DatabaseFactory(String.class, Transaction.class, new TypeToken<LevelDBTransactionWrapper<Transaction>>() {}.getType()).getDatabase(DatabaseType.LEVEL_DB);
 
         block_database.save(transactionBlock.getHash(), transactionBlock);
         tree_datasbase.save(transactionBlock.getHash(), SerializationUtils.serialize(TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex())));
+        transactionBlock.getTransactionList().stream().forEach(transaction->{
+            transaction_database.save(transaction.getFrom(),transaction);
+            transaction_database.save(transaction.getTo(),transaction);
+        });
 
 
 
@@ -365,10 +369,16 @@ public class RegularBlock implements BlockForge, BlockInvent {
         CachedReceiptSemaphore.getInstance().getSemaphore().release();
     }
 
-    @Override
-    public void InventCommitteBlock(CommitteeBlock committeeBlock) {
-
-    }
 
     //invent
+    @SneakyThrows
+    @Override
+    public void InventCommitteBlock(CommitteeBlock committeeBlock) {
+        CommitteeBlock cloned_block= (CommitteeBlock) committeeBlock.clone();
+        IDatabase<String, CommitteeBlock> database=new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
+        database.save(committeeBlock.getHash(), committeeBlock);
+        CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
+        CachedZoneIndex.getInstance().setZoneIndexInternalIP();
+    }
+
 }

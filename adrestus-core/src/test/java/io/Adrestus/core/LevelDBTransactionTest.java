@@ -27,9 +27,15 @@ public class LevelDBTransactionTest {
 
         Transaction transaction2 = new RegularTransaction();
         transaction2.setAmount(200);
-        transaction2.setHash("Hash1");
+        transaction2.setHash("Hash12");
         transaction2.setFrom("3");
         transaction2.setTo("1");
+
+        Transaction transaction3 = new RegularTransaction();
+        transaction3.setAmount(200);
+        transaction3.setHash("Hash3");
+        transaction3.setFrom("4");
+        transaction3.setTo("1");
 
         database.save("1", transaction);
         Optional<LevelDBTransactionWrapper<Transaction>> wrapper = database.findByKey("1");
@@ -37,12 +43,15 @@ public class LevelDBTransactionTest {
         database.save("1", transaction);
         database.save("1", transaction2);
         database.save("1", transaction2);
+        database.save("1", transaction3);
         //   database.save("1",transaction2);
         Optional<LevelDBTransactionWrapper<Transaction>> wrapper2 = database.findByKey("1");
 
         System.out.println(wrapper2.get().toString());
         assertEquals(1, wrapper2.get().getFrom().size());
-        assertEquals(1, wrapper2.get().getTo().size());
+        assertEquals(2, wrapper2.get().getTo().size());
+        assertEquals(transaction3,wrapper2.get().getTo().get(1));
+        assertEquals(transaction2,wrapper2.get().getTo().get(0));
         database.delete_db();
     }
 
@@ -51,6 +60,7 @@ public class LevelDBTransactionTest {
     public void TransactionTest1() throws InterruptedException {
         IDatabase<String, LevelDBTransactionWrapper<Transaction>> database = new DatabaseFactory(String.class, Transaction.class, new TypeToken<LevelDBTransactionWrapper<Transaction>>() {
         }.getType()).getDatabase(DatabaseType.LEVEL_DB);
+
         Transaction transaction = new RegularTransaction();
         transaction.setAmount(100);
         transaction.setHash("Hash1");

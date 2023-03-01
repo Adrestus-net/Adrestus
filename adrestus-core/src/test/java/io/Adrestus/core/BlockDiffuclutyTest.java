@@ -134,4 +134,9 @@ public class BlockDiffuclutyTest {
         database.delete_db();
     }
 
+    @Test
+    public void diffuclty_test3(){
+        int val=(int) Math.round((5.577364284397163E7) / 99.37588652482269);
+        int difficulty = MathOperationUtil.multiplication((int) Math.round((5.577364284397163E7) / 99.37588652482269));
+    }
 }

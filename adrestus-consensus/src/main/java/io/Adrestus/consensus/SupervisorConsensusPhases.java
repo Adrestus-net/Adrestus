@@ -597,8 +597,6 @@ public class SupervisorConsensusPhases {
         private static final Type fluentType = new TypeToken<ConsensusMessage<CommitteeBlock>>() {
         }.getType();
         private static Logger LOG = LoggerFactory.getLogger(ProposeCommitteeBlock.class);
-
-        private final IDatabase<String, CommitteeBlock> database;
         private final SerializationUtil<AbstractBlock> block_serialize;
         private final SerializationUtil<ConsensusMessage> consensus_serialize;
         private final DefaultFactory factory;
@@ -608,7 +606,6 @@ public class SupervisorConsensusPhases {
             this.blockIndex = new BlockIndex();
             this.DEBUG = DEBUG;
             this.factory = new DefaultFactory();
-            this.database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
             List<SerializationUtil.Mapping> list = new ArrayList<>();
             list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
             list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
@@ -807,8 +804,8 @@ public class SupervisorConsensusPhases {
                     i--;
                 }
             }*/
-            CachedLatestBlocks.getInstance().setCommitteeBlock(block.getData());
-            database.save(block.getData().getHash(), block.getData());
+            BlockInvent regural_block = (BlockInvent) factory.getBlock(BlockType.REGULAR);
+            regural_block.InventCommitteBlock(block.getData());
             LOG.info("Committee is finalized with Success");
             Thread.sleep(100);
             cleanup();

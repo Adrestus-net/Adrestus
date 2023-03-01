@@ -1136,11 +1136,10 @@ public class ValidatorConsensusPhases {
         }.getType();
         private final SerializationUtil<AbstractBlock> block_serialize;
         private final SerializationUtil<ConsensusMessage> consensus_serialize;
-        private final IDatabase<String, CommitteeBlock> database;
-
+        private final DefaultFactory factory;
         public VerifyCommitteeBlock(boolean DEBUG) {
             this.DEBUG = DEBUG;
-            this.database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
+            this.factory = new DefaultFactory();
             List<SerializationUtil.Mapping> list = new ArrayList<>();
             list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
             list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
@@ -1414,8 +1413,8 @@ public class ValidatorConsensusPhases {
                 return;
 
 
-            CachedLatestBlocks.getInstance().setCommitteeBlock(block.getData());
-            database.save(block.getData().getHash(), block.getData());
+            BlockInvent regural_block = (BlockInvent) factory.getBlock(BlockType.REGULAR);
+            regural_block.InventCommitteBlock(block.getData());
             //commit save to db
 
            // consensusClient.send_heartbeat(HEARTBEAT_MESSAGE);

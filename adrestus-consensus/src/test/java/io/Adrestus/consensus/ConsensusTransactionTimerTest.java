@@ -1,5 +1,6 @@
 package io.Adrestus.consensus;
 
+import com.google.common.reflect.TypeToken;
 import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.config.AdrestusConfiguration;
@@ -21,6 +22,7 @@ import io.Adrestus.crypto.mnemonic.Security;
 import io.Adrestus.crypto.mnemonic.WordList;
 import io.Adrestus.util.GetTime;
 import io.Adrestus.util.SerializationUtil;
+import io.distributedLedger.*;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -251,6 +253,13 @@ public class ConsensusTransactionTimerTest {
         assertEquals(1000, TreeFactory.getMemoryTree(1).getByaddress(addreses.get(7)).get().getAmount());
         assertEquals(1000, TreeFactory.getMemoryTree(1).getByaddress(addreses.get(8)).get().getAmount());
 
+        IDatabase<String, TransactionBlock> block_database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
+        IDatabase<String, byte[]> tree_datasbase = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getPatriciaTreeZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
+        IDatabase<String, LevelDBTransactionWrapper<Transaction>> transaction_database = new DatabaseFactory(String.class, Transaction.class, new TypeToken<LevelDBTransactionWrapper<Transaction>>() {}.getType()).getDatabase(DatabaseType.LEVEL_DB);
+
+        tree_datasbase.delete_db();
+        transaction_database.delete_db();
+        block_database.delete_db();
 
     }
  /*   public static void setup() throws Exception {

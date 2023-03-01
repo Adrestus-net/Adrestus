@@ -121,7 +121,7 @@ public class ConsensusCommitteeTimerTest {
         latch.await();
         c.close();
 
-        database.deleteAll();
+        database.delete_db();
     }
 
 }

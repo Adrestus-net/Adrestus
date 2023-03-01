@@ -5,7 +5,7 @@ public final class MathOperationUtil {
 
     private static int countNumberDigits(int number) {
         int length = String.valueOf(number).length();
-        return length - 1;
+        return length-1;
     }
 
 
@@ -23,17 +23,15 @@ public final class MathOperationUtil {
 
 
     public static int multiplication(int number) {
-
         int digits = countNumberDigits(number);
         if (digits == 0)
             return number * 100;
         else if (digits == 1)
             return number * 10;
         else {
-            int div = number / 100;
-            return number / div;
+            int first_n = (int) (number / Math.pow(10, Math.floor(Math.log10(number)) - (digits-2) + 1));
+            return first_n;
         }
-
     }
 
 }

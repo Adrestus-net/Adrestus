@@ -205,9 +205,11 @@ public class ConsensusCommitteeTimer4Test {
                     dhtBootstrapNode.setKademliaData(kad1);
                     dhtBootstrapNode.start();
                     dhtBootstrapNode.scheduledFuture();
+                    Thread.sleep(4000);
                 } else if (vk2.equals(entry.getKey())) {
                     CachedBLSKeyPair.getInstance().setPrivateKey(sk2);
                     CachedBLSKeyPair.getInstance().setPublicKey(vk2);
+                    dhtBootstrapNode.Init();
                     DHTRegularNode nextnode = new DHTRegularNode(kad2.getNettyConnectionInfo(), BigInteger.valueOf(1), keyHashGenerator);
                     nextnode.setKademliaData(kad2);
                     nextnode.start(dhtBootstrapNode);
@@ -216,7 +218,8 @@ public class ConsensusCommitteeTimer4Test {
                 } else if (vk3.equals(entry.getKey())) {
                     CachedBLSKeyPair.getInstance().setPrivateKey(sk3);
                     CachedBLSKeyPair.getInstance().setPublicKey(vk3);
-                    DHTRegularNode nextnode = new DHTRegularNode(kad3.getNettyConnectionInfo(), BigInteger.valueOf(1), keyHashGenerator);
+                    dhtBootstrapNode.Init();
+                    DHTRegularNode nextnode = new DHTRegularNode(kad3.getNettyConnectionInfo(), BigInteger.valueOf(2), keyHashGenerator);
                     nextnode.setKademliaData(kad3);
                     nextnode.start(dhtBootstrapNode);
                     nextnode.scheduledFuture();
@@ -224,7 +227,8 @@ public class ConsensusCommitteeTimer4Test {
                 } else if (vk4.equals(entry.getKey())) {
                     CachedBLSKeyPair.getInstance().setPrivateKey(sk4);
                     CachedBLSKeyPair.getInstance().setPublicKey(vk4);
-                    DHTRegularNode nextnode = new DHTRegularNode(kad4.getNettyConnectionInfo(), BigInteger.valueOf(1), keyHashGenerator);
+                    dhtBootstrapNode.Init();
+                    DHTRegularNode nextnode = new DHTRegularNode(kad4.getNettyConnectionInfo(), BigInteger.valueOf(3), keyHashGenerator);
                     nextnode.setKademliaData(kad4);
                     nextnode.start(dhtBootstrapNode);
                     nextnode.scheduledFuture();
@@ -232,7 +236,8 @@ public class ConsensusCommitteeTimer4Test {
                 } else if (vk5.equals(entry.getKey())) {
                     CachedBLSKeyPair.getInstance().setPrivateKey(sk5);
                     CachedBLSKeyPair.getInstance().setPublicKey(vk5);
-                    DHTRegularNode nextnode = new DHTRegularNode(kad5.getNettyConnectionInfo(), BigInteger.valueOf(1), keyHashGenerator);
+                    dhtBootstrapNode.Init();
+                    DHTRegularNode nextnode = new DHTRegularNode(kad5.getNettyConnectionInfo(), BigInteger.valueOf(4), keyHashGenerator);
                     nextnode.setKademliaData(kad5);
                     nextnode.start(dhtBootstrapNode);
                     nextnode.scheduledFuture();
@@ -246,12 +251,16 @@ public class ConsensusCommitteeTimer4Test {
         if (hit == 0)
             return;
 
+        IDatabase<String, CommitteeBlock> database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
+
         ConsensusConfiguration.EPOCH_TRANSITION = 0;
         CountDownLatch latch = new CountDownLatch(5);
         ConsensusState c = new ConsensusState(latch);
         c.getTransaction_block_timer().scheduleAtFixedRate(new ConsensusState.TransactionBlockConsensusTask(), ConsensusConfiguration.CONSENSUS_TIMER, ConsensusConfiguration.CONSENSUS_TIMER);
         //c.getCommittee_block_timer().scheduleAtFixedRate(new ConsensusState.CommitteeBlockConsensusTask(), ConsensusConfiguration.CONSENSUS_COMMITTEE_TIMER, ConsensusConfiguration.CONSENSUS_COMMITTEE_TIMER);
         latch.await();
+
+        database.delete_db();
     }
 }
 

@@ -188,6 +188,7 @@ public class ConsensusCommitteeTimerTest3 {
         }
         if (hit == 0)
             return;
+        IDatabase<String, CommitteeBlock> database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
 
         ConsensusConfiguration.EPOCH_TRANSITION = 0;
         CountDownLatch latch = new CountDownLatch(5);
@@ -195,5 +196,7 @@ public class ConsensusCommitteeTimerTest3 {
         c.getTransaction_block_timer().scheduleAtFixedRate(new ConsensusState.TransactionBlockConsensusTask(), ConsensusConfiguration.CONSENSUS_TIMER, ConsensusConfiguration.CONSENSUS_TIMER);
         //c.getCommittee_block_timer().scheduleAtFixedRate(new ConsensusState.CommitteeBlockConsensusTask(), ConsensusConfiguration.CONSENSUS_COMMITTEE_TIMER, ConsensusConfiguration.CONSENSUS_COMMITTEE_TIMER);
         latch.await();
+
+        database.delete_db();
     }
 }
