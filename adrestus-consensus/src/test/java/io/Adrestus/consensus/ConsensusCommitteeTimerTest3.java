@@ -64,6 +64,9 @@ public class ConsensusCommitteeTimerTest3 {
 
     @BeforeAll
     public static void setup() throws Exception {
+        IDatabase<String, CommitteeBlock> database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
+        database.delete_db();
+
         vdf = new VdfEnginePietrzak(2048);
 
         int version = 0x00;
@@ -143,7 +146,6 @@ public class ConsensusCommitteeTimerTest3 {
         committeeBlock.getStakingMap().put(new StakingData(5, 271.0), new KademliaData(new SecurityAuditProofs(address5, vk5, ecKeyPair5.getPublicKey(), signatureData5), new NettyConnectionInfo("192.168.1.112", KademliaConfiguration.PORT)));
 
         CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
-        IDatabase<String, CommitteeBlock> database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
 
         CachedLatestBlocks.getInstance().getCommitteeBlock().setDifficulty(112);
         CachedLatestBlocks.getInstance().getCommitteeBlock().setHash("hash");
@@ -188,7 +190,6 @@ public class ConsensusCommitteeTimerTest3 {
         }
         if (hit == 0)
             return;
-        IDatabase<String, CommitteeBlock> database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
 
         ConsensusConfiguration.EPOCH_TRANSITION = 0;
         CountDownLatch latch = new CountDownLatch(5);
@@ -197,6 +198,5 @@ public class ConsensusCommitteeTimerTest3 {
         //c.getCommittee_block_timer().scheduleAtFixedRate(new ConsensusState.CommitteeBlockConsensusTask(), ConsensusConfiguration.CONSENSUS_COMMITTEE_TIMER, ConsensusConfiguration.CONSENSUS_COMMITTEE_TIMER);
         latch.await();
 
-        database.delete_db();
     }
 }

@@ -61,6 +61,8 @@ public class ConsensusCommitteeTimer2Test {
     @BeforeAll
     public static void setup() throws Exception {
 
+        IDatabase<String, CommitteeBlock> database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
+        database.delete_db();
 
         int version = 0x00;
         LoggerKademlia.setLevelOFF();
@@ -186,13 +188,11 @@ public class ConsensusCommitteeTimer2Test {
         }
         if (hit == 0)
             return;
-        IDatabase<String, CommitteeBlock> database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
 
         CountDownLatch latch = new CountDownLatch(5);
         ConsensusCommitteeTimer c = new ConsensusCommitteeTimer(latch);
         latch.await();
         c.close();
 
-        database.delete_db();
     }
 }

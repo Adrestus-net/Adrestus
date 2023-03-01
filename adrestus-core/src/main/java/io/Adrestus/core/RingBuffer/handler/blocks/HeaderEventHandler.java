@@ -44,16 +44,15 @@ public class HeaderEventHandler implements BlockEventHandler<AbstractBlockEvent>
         if (finish == 0)
             return;
 
-        Map<String, CommitteeBlock> transaction_block_entries = this.committeeBlockIDatabase.seekBetweenRange(finish, finish);
+        Optional<CommitteeBlock> committeeBlockDBentry = this.committeeBlockIDatabase.seekLast();
 
-        Optional<CommitteeBlock> firstKey = transaction_block_entries.values().stream().findFirst();
-        if (!firstKey.isPresent()) {
+        if (committeeBlockDBentry.isEmpty()) {
             LOG.info("committeeBlock hashes is empty");
             committeeBlock.setStatustype(StatusType.ABORT);
             return;
         }
 
-        if (!committeeBlock.getHeaderData().getPreviousHash().equals(firstKey.get().getHash())) {
+        if (!committeeBlock.getHeaderData().getPreviousHash().equals(committeeBlockDBentry.get().getHash())) {
             LOG.info("Database committeeBlock previous hashes does not match");
             committeeBlock.setStatustype(StatusType.ABORT);
         }
@@ -69,16 +68,15 @@ public class HeaderEventHandler implements BlockEventHandler<AbstractBlockEvent>
         if (finish == 0)
             return;
 
-        Map<String, TransactionBlock> transaction_block_entries = this.transactionBlockIDatabase.seekBetweenRange(finish, finish);
+       Optional<TransactionBlock> transactionBlockDBEntry = this.transactionBlockIDatabase.seekLast();
 
-        Optional<TransactionBlock> firstKey = transaction_block_entries.values().stream().findFirst();
-        if (!firstKey.isPresent()) {
+        if (transactionBlockDBEntry.isEmpty()) {
             LOG.info("TransactionBlock hashes is empty");
             transactionBlock.setStatustype(StatusType.ABORT);
             return;
         }
 
-        if (!transactionBlock.getHeaderData().getPreviousHash().equals(firstKey.get().getHash())) {
+        if (!transactionBlock.getHeaderData().getPreviousHash().equals(transactionBlockDBEntry.get().getHash())) {
             LOG.info("Database TransactionBlock previous hashes does not match");
             transactionBlock.setStatustype(StatusType.ABORT);
         }

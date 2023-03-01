@@ -51,6 +51,8 @@ public interface IDatabase<K, V> {
 
     Map<K, V> seekBetweenRange(int start, int finish);
 
+    Optional<V> seekLast();
+
     int findDBsize();
 
     boolean isEmpty();

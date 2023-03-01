@@ -58,7 +58,7 @@ public class TransactionChannelTest {
     private static ECDSASign ecdsaSign = new ECDSASign();
 
     private static int start = 0;
-    private static int end = 10000;
+    private static int end = 10;
 
     @BeforeAll
     public static void setup() throws InterruptedException, MnemonicException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException {

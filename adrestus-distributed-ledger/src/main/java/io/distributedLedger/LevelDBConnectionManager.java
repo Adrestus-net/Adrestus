@@ -349,6 +349,22 @@ public class LevelDBConnectionManager<K, V> implements IDatabase<K, V> {
         return (Map<K, V>) hashmap;
     }
 
+    @Override
+    public Optional<V> seekLast() {
+        r.lock();
+        try {
+            final DBIterator iterator = level_db.iterator();
+            iterator.seekToLast();
+            byte[] serializedValue = iterator.peekNext().getValue();
+            return (Optional<V>) Optional.of(valueMapper.decode(serializedValue));
+        } catch (final SerializationException exception) {
+            LOGGER.error("Serialization exception occurred during findByKey operation. {}", exception.getMessage());
+        } finally {
+            r.unlock();
+        }
+        return Optional.empty();
+    }
+
     @SneakyThrows
     @Override
     public int findDBsize() {

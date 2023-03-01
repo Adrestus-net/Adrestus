@@ -319,10 +319,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
 
         block_database.save(transactionBlock.getHash(), transactionBlock);
         tree_datasbase.save(transactionBlock.getHash(), SerializationUtils.serialize(TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex())));
-        transactionBlock.getTransactionList().stream().forEach(transaction->{
-            transaction_database.save(transaction.getFrom(),transaction);
-            transaction_database.save(transaction.getTo(),transaction);
-        });
+
 
 
 
@@ -340,6 +337,8 @@ public class RegularBlock implements BlockForge, BlockInvent {
         if (!transactionBlock.getTransactionList().isEmpty()) {
             for (int i = 0; i < transactionBlock.getTransactionList().size(); i++) {
                 Transaction transaction = transactionBlock.getTransactionList().get(i);
+                transaction_database.save(transaction.getFrom(),transaction);
+                transaction_database.save(transaction.getTo(),transaction);
                 if ((transaction.getZoneFrom() == CachedZoneIndex.getInstance().getZoneIndex()) && (transaction.getZoneTo() == CachedZoneIndex.getInstance().getZoneIndex())) {
                     TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).withdraw(transaction.getFrom(), transaction.getAmount(), TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()));
                     TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).deposit(transaction.getTo(), transaction.getAmount(), TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()));
