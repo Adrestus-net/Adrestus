@@ -30,6 +30,7 @@ import io.Adrestus.rpc.RpcAdrestusServer;
 import io.Adrestus.util.GetTime;
 import io.Adrestus.util.SerializationUtil;
 import io.activej.bytebuf.ByteBuf;
+import io.activej.bytebuf.ByteBufPool;
 import io.activej.eventloop.Eventloop;
 import io.activej.net.socket.tcp.AsyncTcpSocket;
 import io.activej.net.socket.tcp.AsyncTcpSocketNio;
@@ -280,8 +281,11 @@ public class ConsensusTransactionTimer2Test {
                                                 TransactionBlock transactionBlock = CachedLatestBlocks.getInstance().getTransactionBlock();
                                                 if (!transactionBlock.getHash().equals("hash")) {
                                                     receipt.setReceiptBlock(new Receipt.ReceiptBlock(transactionBlock.getHash(), transactionBlock.getHeight(), transactionBlock.getGeneration(), transactionBlock.getMerkleRoot()));
-                                                    byte[] data = recep.encode(receipt);
-                                                    socket.write(ByteBuf.wrapForReading(ArrayUtils.addAll(data, "\r\n".getBytes(UTF_8))));
+                                                    byte data[] = recep.encode(receipt, 1024);
+                                                    ByteBuf sizeBuf = ByteBufPool.allocate(2); // enough to serialize size 1024
+                                                    sizeBuf.writeVarInt(data.length);
+                                                    ByteBuf appendedBuf = ByteBufPool.append(sizeBuf, ByteBuf.wrapForReading(data));
+                                                    socket.write(appendedBuf);
                                                 }
                                             });
                                         });

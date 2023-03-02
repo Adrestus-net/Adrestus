@@ -38,10 +38,7 @@ import io.Adrestus.p2p.kademlia.repository.KademliaData;
 import io.Adrestus.util.GetTime;
 import io.Adrestus.util.MathOperationUtil;
 import io.Adrestus.util.SerializationUtil;
-import io.distributedLedger.DatabaseFactory;
-import io.distributedLedger.DatabaseInstance;
-import io.distributedLedger.DatabaseType;
-import io.distributedLedger.IDatabase;
+import io.distributedLedger.*;
 import lombok.SneakyThrows;
 import org.apache.commons.codec.binary.StringUtils;
 import org.junit.jupiter.api.BeforeAll;
@@ -90,9 +87,38 @@ public class BlockTest {
     private static BLSPrivateKey sk8;
     private static BLSPublicKey vk8;
 
+    public static void delete_test(){
+        IDatabase<String, TransactionBlock> transaction_block1 = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.ZONE_0_TRANSACTION_BLOCK);
+        IDatabase<String, TransactionBlock> transaction_block2 = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.ZONE_1_TRANSACTION_BLOCK);
+        IDatabase<String, TransactionBlock> transaction_block3 = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.ZONE_2_TRANSACTION_BLOCK);
+        IDatabase<String, TransactionBlock> transaction_block4 = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.ZONE_3_TRANSACTION_BLOCK);
+
+        IDatabase<String, byte[]> patricia_tree0 = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, PatriciaTreeInstance.PATRICIA_TREE_INSTANCE_0);
+        IDatabase<String, byte[]> patricia_tree1 = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, PatriciaTreeInstance.PATRICIA_TREE_INSTANCE_1);
+        IDatabase<String, byte[]> patricia_tree2 = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, PatriciaTreeInstance.PATRICIA_TREE_INSTANCE_2);
+        IDatabase<String, byte[]> patricia_tree3 = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, PatriciaTreeInstance.PATRICIA_TREE_INSTANCE_3);
+
+        IDatabase<String, CommitteeBlock> commit = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
+
+
+        //ITS IMPORTANT FIRST DELETE PATRICIA TREE AND AFTER TRASNACTION BLOCKS
+        patricia_tree0.delete_db();
+        patricia_tree1.delete_db();
+        patricia_tree2.delete_db();
+        patricia_tree3.delete_db();
+
+        transaction_block1.delete_db();
+        transaction_block2.delete_db();
+        transaction_block3.delete_db();
+        transaction_block4.delete_db();
+
+
+        commit.delete_db();
+    }
     @SneakyThrows
     @BeforeAll
     public static void setup() {
+        delete_test();
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
         list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
@@ -274,7 +300,6 @@ public class BlockTest {
 
     @Test
     public void commit_block_test() throws Exception {
-
         sk1 = new BLSPrivateKey(1);
         vk1 = new BLSPublicKey(sk1);
 
@@ -412,7 +437,7 @@ public class BlockTest {
         CommitteeBlock prevblock = new CommitteeBlock();
         prevblock.getHeaderData().setTimestamp(GetTime.GetTimeStampInString());
         Thread.sleep(100);
-        prevblock.setHash("hash");
+        prevblock.setHash("hash3");
         prevblock.setGeneration(0);
         prevblock.setHeight(0);
         CachedLatestBlocks.getInstance().setCommitteeBlock(prevblock);
@@ -431,6 +456,7 @@ public class BlockTest {
         committeeBlock.getHeaderData().setPreviousHash("hash");
         committeeBlock.setHeight(1);
         //committeeBlock.setVRF();
+        committeeBlock.getHeaderData().setPreviousHash("hash3");
         committeeBlock.getHeaderData().setTimestamp(GetTime.GetTimeStampInString());
 
         //########################################################################
@@ -449,6 +475,7 @@ public class BlockTest {
         Thread.sleep(200);
         database.save("2", secondblock);
         CommitteeBlock thirdblock = new CommitteeBlock();
+        thirdblock.setHash("hash3");
         thirdblock.setDifficulty(119);
         thirdblock.getHeaderData().setTimestamp(GetTime.GetTimeStampInString());
         database.save("3", thirdblock);

@@ -52,9 +52,9 @@ public class ConsensusCommitteeTimerTest {
 
     @BeforeAll
     public static void setup() throws Exception {
-
+        IDatabase<String, CommitteeBlock> db = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
+        db.delete_db();
         IDatabase<String, CommitteeBlock> database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
-        database.delete_db();
 
         int version = 0x00;
         sk1 = new BLSPrivateKey(1);

@@ -64,9 +64,9 @@ public class ConsensusCommitteeTimerTest3 {
 
     @BeforeAll
     public static void setup() throws Exception {
+        IDatabase<String, CommitteeBlock> db = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
+        db.delete_db();
         IDatabase<String, CommitteeBlock> database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
-        database.delete_db();
-
         vdf = new VdfEnginePietrzak(2048);
 
         int version = 0x00;
@@ -152,7 +152,7 @@ public class ConsensusCommitteeTimerTest3 {
         CachedLatestBlocks.getInstance().getCommitteeBlock().setGeneration(0);
         CachedLatestBlocks.getInstance().getCommitteeBlock().setHeight(0);
 
-        database.save(CachedLatestBlocks.getInstance().getCommitteeBlock().getHash(), CachedLatestBlocks.getInstance().getCommitteeBlock());
+        database.save(String.valueOf(CachedLatestBlocks.getInstance().getCommitteeBlock().getHeight()), CachedLatestBlocks.getInstance().getCommitteeBlock());
 
         CachedSecurityHeaders.getInstance().getSecurityHeader().setpRnd(Hex.decode("c1f72aa5bd1e1d53c723b149259b63f759f40d5ab003b547d5c13d45db9a5da8"));
         CachedSecurityHeaders.getInstance().getSecurityHeader().setRnd(vdf.solve(CachedSecurityHeaders.getInstance().getSecurityHeader().getpRnd(), CachedLatestBlocks.getInstance().getCommitteeBlock().getDifficulty()));
