@@ -5,6 +5,7 @@ import io.Adrestus.network.TCPTransactionConsumer;
 import io.Adrestus.network.TransactionChannelHandler;
 import io.Adrestus.util.SerializationUtil;
 import io.activej.bytebuf.ByteBuf;
+import io.activej.bytebuf.ByteBufPool;
 import io.activej.eventloop.Eventloop;
 import io.activej.net.socket.tcp.AsyncTcpSocket;
 import io.activej.net.socket.tcp.AsyncTcpSocketNio;
@@ -43,8 +44,11 @@ public class SocketChannelTest {
                 }
 
                 Receipt receipt = new Receipt(1, 1, new RegularTransaction("hash1"));
-                byte[] data = recep.encode(receipt);
-                socket.write(ByteBuf.wrapForReading(ArrayUtils.addAll(data, "\r\n".getBytes(UTF_8))));
+                byte data[] = recep.encode(receipt,1024);
+                ByteBuf sizeBuf = ByteBufPool.allocate(2); // enough to serialize size 1024
+                sizeBuf.writeVarInt(data.length);
+                ByteBuf appendedBuf = ByteBufPool.append(sizeBuf, ByteBuf.wrapForReading(data));
+                socket.write(appendedBuf);
                 socket.close();
 
             } else {
@@ -80,8 +84,11 @@ public class SocketChannelTest {
                         }
 
                         Receipt receipt = new Receipt(1, 1, new RegularTransaction("hash1"));
-                        byte[] data = recep.encode(receipt);
-                        socket.write(ByteBuf.wrapForReading(ArrayUtils.addAll(data, "\r\n".getBytes(UTF_8))));
+                        byte data[] = recep.encode(receipt,1024);
+                        ByteBuf sizeBuf = ByteBufPool.allocate(2); // enough to serialize size 1024
+                        sizeBuf.writeVarInt(data.length);
+                        ByteBuf appendedBuf = ByteBufPool.append(sizeBuf, ByteBuf.wrapForReading(data));
+                        socket.write(appendedBuf);
                         socket.close();
 
                     } else {
@@ -119,8 +126,11 @@ public class SocketChannelTest {
                 }
 
                 Transaction transaction = new RegularTransaction("hash2");
-                byte[] data = trans.encode(transaction);
-                socket.write(ByteBuf.wrapForReading(ArrayUtils.addAll(data, "\r\n".getBytes(UTF_8))));
+                byte []data = trans.encode(transaction,1024);
+                ByteBuf sizeBuf = ByteBufPool.allocate(2); // enough to serialize size 1024
+                sizeBuf.writeVarInt(data.length);
+                ByteBuf appendedBuf = ByteBufPool.append(sizeBuf, ByteBuf.wrapForReading(data));
+                socket.write(appendedBuf);
                 socket.close();
 
             } else {
