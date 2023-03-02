@@ -23,7 +23,8 @@ public final class MathOperationUtil {
 
 
     public static int multiplication(int number) {
-        int digits = countNumberDigits(Math.abs(number));
+        number=Math.abs(number);
+        int digits = countNumberDigits(number);
         if (digits == 0)
             return number * 100;
         else if (digits == 1)
