@@ -30,9 +30,7 @@ public final class MathOperationUtil {
         else if (digits == 1)
             return number * 10;
         else {
-            System.out.println(number);
             int first_n = (int) (number / Math.pow(10, Math.floor(Math.log10(number)) - (3) + 1));
-            System.out.println(first_n);
             return first_n;
         }
     }
