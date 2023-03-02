@@ -376,7 +376,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
     public void InventCommitteBlock(CommitteeBlock committeeBlock) {
         CommitteeBlock cloned_block= (CommitteeBlock) committeeBlock.clone();
         IDatabase<String, CommitteeBlock> database=new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
-        database.save(committeeBlock.getHash(), committeeBlock);
+        database.save(String.valueOf(committeeBlock.getHeight()), committeeBlock);
         CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
         CachedZoneIndex.getInstance().setZoneIndexInternalIP();
     }
