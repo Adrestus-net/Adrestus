@@ -317,8 +317,8 @@ public class RegularBlock implements BlockForge, BlockInvent {
         IDatabase<String, byte[]> tree_datasbase = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getPatriciaTreeZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
         IDatabase<String, LevelDBTransactionWrapper<Transaction>> transaction_database = new DatabaseFactory(String.class, Transaction.class, new TypeToken<LevelDBTransactionWrapper<Transaction>>() {}.getType()).getDatabase(DatabaseType.LEVEL_DB);
 
-        block_database.save(transactionBlock.getHash(), transactionBlock);
-        tree_datasbase.save(transactionBlock.getHash(), SerializationUtils.serialize(TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex())));
+        block_database.save(String.valueOf(transactionBlock.getHeight()), transactionBlock);
+        tree_datasbase.save(String.valueOf(transactionBlock.getHeight()), SerializationUtils.serialize(TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex())));
 
 
 
@@ -366,6 +366,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
         CachedLatestBlocks.getInstance().setTransactionBlock(transactionBlock);
         MemoryTransactionPool.getInstance().delete(transactionBlock.getTransactionList());
         CachedReceiptSemaphore.getInstance().getSemaphore().release();
+
     }
 
 

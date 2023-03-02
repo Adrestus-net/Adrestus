@@ -69,7 +69,7 @@ public class HeaderEventHandler implements BlockEventHandler<AbstractBlockEvent>
             return;
 
        Optional<TransactionBlock> transactionBlockDBEntry = this.transactionBlockIDatabase.seekLast();
-
+       Map<String, TransactionBlock> transaction_block_entries = this.transactionBlockIDatabase.seekBetweenRange(0, finish);
         if (transactionBlockDBEntry.isEmpty()) {
             LOG.info("TransactionBlock hashes is empty");
             transactionBlock.setStatustype(StatusType.ABORT);

@@ -155,4 +155,45 @@ public class RocksDBBlockTest {
         database.delete_db();
     }
 
+    @Test
+    public void seek_last() {
+        IDatabase<String, TransactionBlock> database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.ZONE_1_TRANSACTION_BLOCK);
+        String hash = "Hash";
+        TransactionBlock transactionBlock1 = new TransactionBlock();
+        transactionBlock1.setHeight(1);
+        transactionBlock1.setHash("hash1");
+
+        TransactionBlock transactionBlock2 = new TransactionBlock();
+        transactionBlock2.setHeight(2);
+        transactionBlock2.setHash("hash2");
+
+        TransactionBlock transactionBlock3 = new TransactionBlock();
+        transactionBlock3.setHeight(3);
+        transactionBlock3.setHash("hash3");
+
+        TransactionBlock transactionBlock4 = new TransactionBlock();
+        transactionBlock4.setHeight(4);
+        transactionBlock4.setHash("hash4");
+
+        TransactionBlock transactionBlock5 = new TransactionBlock();
+        transactionBlock5.setHeight(5);
+        transactionBlock5.setHash("hash5");
+
+        TransactionBlock transactionBlock6 = new TransactionBlock();
+        transactionBlock6.setHeight(6);
+        transactionBlock6.setHash("hash6");
+
+        database.save("hash1", transactionBlock1);
+        database.save("hash2", transactionBlock2);
+        database.save("hash3", transactionBlock3);
+        database.save("hash4", transactionBlock4);
+        database.save("hash5", transactionBlock5);
+        database.save("hash6", transactionBlock6);
+
+
+
+        Optional<TransactionBlock> copy = database.seekLast();
+        assertEquals(transactionBlock6, copy.get());
+        database.delete_db();
+    }
 }

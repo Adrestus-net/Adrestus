@@ -147,7 +147,7 @@ public class InBoundEventHandler implements BlockEventHandler<AbstractBlockEvent
         }
         ArrayList<String> to_search = new ArrayList<>();
         for (Receipt.ReceiptBlock receiptBlock : zone.keySet()) {
-            to_search.add(receiptBlock.getBlock_hash());
+            to_search.add(String.valueOf(receiptBlock.getHeight()));
         }
         RpcAdrestusClient<TransactionBlock> client = new RpcAdrestusClient<TransactionBlock>(new TransactionBlock(), IP, NetworkConfiguration.RPC_PORT, CachedEventLoop.getInstance().getEventloop());
         client.connect();
