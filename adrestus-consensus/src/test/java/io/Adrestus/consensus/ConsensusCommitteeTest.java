@@ -51,7 +51,6 @@ import java.util.TreeMap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ConsensusCommitteeTest {
-    private static IDatabase<String, CommitteeBlock> database;
     public static ArrayList<String> addreses;
     private static ArrayList<ECKeyPair> keypair;
     private static ArrayList<ECDSASignatureData> signatureData;
@@ -84,7 +83,9 @@ public class ConsensusCommitteeTest {
 
     @BeforeAll
     public static void setup() throws Exception {
-
+        IDatabase<String, CommitteeBlock> db = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
+        db.delete_db();
+        IDatabase<String, CommitteeBlock> database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
         list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
@@ -222,7 +223,7 @@ public class ConsensusCommitteeTest {
 
         CommitteeBlock prevblock = new CommitteeBlock();
         prevblock.getHeaderData().setTimestamp(GetTime.GetTimeStampInString());
-        prevblock.setHash("hash");
+        prevblock.setHash("hash3");
         prevblock.setGeneration(0);
         prevblock.setHeight(0);
         prevblock.setDifficulty(113);
@@ -259,6 +260,7 @@ public class ConsensusCommitteeTest {
         thirdblock.setDifficulty(119);
         thirdblock.setHeight(254);
         thirdblock.setVRF("asdas");
+        thirdblock.setHash("hash3");
         thirdblock.getHeaderData().setTimestamp(GetTime.GetTimeStampInString());
         database.save("3", thirdblock);
         Thread.sleep(200);
@@ -326,6 +328,5 @@ public class ConsensusCommitteeTest {
         validatorphase.CommitPhase(consensusMessage);
         validatorphase.CommitPhase(consensusMessage);
 
-        database.deleteAll();
     }
 }

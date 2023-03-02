@@ -1131,7 +1131,7 @@ public class ValidatorConsensusPhases {
 
     protected static class VerifyCommitteeBlock extends ValidatorConsensusPhases implements BFTConsensusPhase<CommitteeBlock> {
 
-        private static Logger LOG = LoggerFactory.getLogger(VerifyTransactionBlock.class);
+        private static Logger LOG = LoggerFactory.getLogger(VerifyCommitteeBlock.class);
         private static final Type fluentType = new TypeToken<ConsensusMessage<CommitteeBlock>>() {
         }.getType();
         private final SerializationUtil<AbstractBlock> block_serialize;

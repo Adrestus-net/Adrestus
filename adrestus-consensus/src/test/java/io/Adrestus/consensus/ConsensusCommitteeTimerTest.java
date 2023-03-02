@@ -46,8 +46,11 @@ public class ConsensusCommitteeTimerTest {
     private static BLSPrivateKey sk2;
     private static BLSPublicKey vk2;
 
-    private static ECKeyPair ecKeyPair1, ecKeyPair2;
-    private static String address1, address2;
+    private static BLSPrivateKey sk3;
+    private static BLSPublicKey vk3;
+
+    private static ECKeyPair ecKeyPair1, ecKeyPair2, ecKeyPair3;
+    private static String address1, address2, address3;
     private static ECDSASign ecdsaSign = new ECDSASign();
 
     @BeforeAll
@@ -63,35 +66,47 @@ public class ConsensusCommitteeTimerTest {
         sk2 = new BLSPrivateKey(2);
         vk2 = new BLSPublicKey(sk2);
 
+        sk3 = new BLSPrivateKey(3);
+        vk3 = new BLSPublicKey(sk3);
+
         char[] mnemonic1 = "sample sail jungle learn general promote task puppy own conduct green affair ".toCharArray();
         char[] mnemonic2 = "photo monitor cushion indicate civil witness orchard estate online favorite sustain extend".toCharArray();
+        char[] mnemonic3 = "struggle travel ketchup tomato satoshi caught fog process grace pupil item ahead ".toCharArray();
         char[] passphrase = "p4ssphr4se".toCharArray();
 
         Mnemonic mnem = new Mnemonic(Security.NORMAL, WordList.ENGLISH);
         byte[] key1 = mnem.createSeed(mnemonic1, passphrase);
         byte[] key2 = mnem.createSeed(mnemonic2, passphrase);
+        byte[] key3 = mnem.createSeed(mnemonic3, passphrase);
         SecureRandom random = SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
         random.setSeed(key1);
         ecKeyPair1 = Keys.createEcKeyPair(random);
         random.setSeed(key2);
         ecKeyPair2 = Keys.createEcKeyPair(random);
+        random.setSeed(key3);
+        ecKeyPair3 = Keys.createEcKeyPair(random);
 
         address1 = WalletAddress.generate_address((byte) version, ecKeyPair1.getPublicKey());
         address2 = WalletAddress.generate_address((byte) version, ecKeyPair2.getPublicKey());
+        address3 = WalletAddress.generate_address((byte) version, ecKeyPair3.getPublicKey());
 
         ECDSASignatureData signatureData1 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address1)), ecKeyPair1);
         ECDSASignatureData signatureData2 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address2)), ecKeyPair2);
+        ECDSASignatureData signatureData3 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address3)), ecKeyPair3);
 
         TreeFactory.getMemoryTree(0).store(address1, new PatriciaTreeNode(3000, 0));
         TreeFactory.getMemoryTree(0).store(address2, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(0).store(address3, new PatriciaTreeNode(3000, 0));
 
         CommitteeBlock committeeBlock = new CommitteeBlock();
         committeeBlock.getHeaderData().setTimestamp("2022-11-18 15:01:29.304");
         committeeBlock.getStructureMap().get(0).put(vk1, "192.168.1.106");
         committeeBlock.getStructureMap().get(0).put(vk2, "192.168.1.116");
+        committeeBlock.getStructureMap().get(0).put(vk3, "192.168.1.113");
 
         committeeBlock.getStakingMap().put(new StakingData(1, 10.0), new KademliaData(new SecurityAuditProofs(address1, vk1, ecKeyPair1.getPublicKey(), signatureData1), new NettyConnectionInfo("192.168.1.106", KademliaConfiguration.PORT)));
         committeeBlock.getStakingMap().put(new StakingData(2, 13.0), new KademliaData(new SecurityAuditProofs(address2, vk2, ecKeyPair2.getPublicKey(), signatureData2), new NettyConnectionInfo("192.168.1.116", KademliaConfiguration.PORT)));
+        committeeBlock.getStakingMap().put(new StakingData(2, 17.0), new KademliaData(new SecurityAuditProofs(address3, vk3, ecKeyPair3.getPublicKey(), signatureData3), new NettyConnectionInfo("192.168.1.113", KademliaConfiguration.PORT)));
 
         CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
         CachedLeaderIndex.getInstance().setCommitteePositionLeader(0);
@@ -111,6 +126,9 @@ public class ConsensusCommitteeTimerTest {
                 } else if (vk2.equals(entry.getKey())) {
                     CachedBLSKeyPair.getInstance().setPrivateKey(sk2);
                     CachedBLSKeyPair.getInstance().setPublicKey(vk2);
+                } else if (vk3.equals(entry.getKey())) {
+                    CachedBLSKeyPair.getInstance().setPrivateKey(sk3);
+                    CachedBLSKeyPair.getInstance().setPublicKey(vk3);
                 }
                 hit = 1;
                 break;
