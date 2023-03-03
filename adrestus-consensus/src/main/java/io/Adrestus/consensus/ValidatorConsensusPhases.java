@@ -1187,7 +1187,7 @@ public class ValidatorConsensusPhases {
                             block.setStatusType(ConsensusStatusType.ABORT);
                             return;
                         } else {
-                            byte[] message = block_serialize.encode(block.getData());
+                            byte[] message = block_serialize.encodeNotOptimal(block.getData(), SerializationUtils.serialize(block.getData()).length);
                             boolean verify = BLSSignature.verify(block.getChecksumData().getSignature(), message, block.getChecksumData().getBlsPublicKey());
                             if (!verify) {
                                 cleanup();
@@ -1282,7 +1282,7 @@ public class ValidatorConsensusPhases {
                             block.setStatusType(ConsensusStatusType.ABORT);
                             return;
                         } else {
-                            byte[] message = block_serialize.encode(block.getData());
+                            byte[] message = block_serialize.encodeNotOptimal(block.getData(), SerializationUtils.serialize(block.getData()).length);
                             boolean verify = BLSSignature.verify(block.getChecksumData().getSignature(), message, block.getChecksumData().getBlsPublicKey());
                             if (!verify) {
                                 LOG.info("PreparePhase: Abort consensus phase BLS leader signature is invalid during prepare phase");
@@ -1366,7 +1366,7 @@ public class ValidatorConsensusPhases {
                             block.setStatusType(ConsensusStatusType.ABORT);
                             return;
                         } else {
-                            byte[] message = block_serialize.encode(block.getData());
+                            byte[] message = block_serialize.encodeNotOptimal(block.getData(), SerializationUtils.serialize(block.getData()).length);
                             boolean verify = BLSSignature.verify(block.getChecksumData().getSignature(), message, block.getChecksumData().getBlsPublicKey());
                             if (!verify)
                                 throw new IllegalArgumentException("CommitPhase: Abort consensus phase BLS leader signature is invalid during commit phase");
