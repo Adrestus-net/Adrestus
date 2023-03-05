@@ -10,6 +10,7 @@ import io.Adrestus.core.RingBuffer.event.AbstractBlockEvent;
 import io.Adrestus.crypto.bls.model.CachedBLSKeyPair;
 import io.Adrestus.network.CachedEventLoop;
 import io.Adrestus.rpc.RpcAdrestusClient;
+import io.distributedLedger.ZoneDatabaseFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -149,7 +150,7 @@ public class InBoundEventHandler implements BlockEventHandler<AbstractBlockEvent
         for (Receipt.ReceiptBlock receiptBlock : zone.keySet()) {
             to_search.add(String.valueOf(receiptBlock.getHeight()));
         }
-        RpcAdrestusClient<TransactionBlock> client = new RpcAdrestusClient<TransactionBlock>(new TransactionBlock(), IP, NetworkConfiguration.RPC_PORT, CachedEventLoop.getInstance().getEventloop());
+        RpcAdrestusClient<TransactionBlock> client = new RpcAdrestusClient<TransactionBlock>(new TransactionBlock(), IP, ZoneDatabaseFactory.getDatabaseRPCPort(blockIndex.getZone(IP)), CachedEventLoop.getInstance().getEventloop());
         client.connect();
         List<TransactionBlock> current = client.getBlock(to_search);
         int position = -1;

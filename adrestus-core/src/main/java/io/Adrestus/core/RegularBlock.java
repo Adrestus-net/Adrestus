@@ -19,10 +19,12 @@ import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.crypto.elliptic.mapper.CustomSerializerTreeMap;
 import io.Adrestus.crypto.elliptic.mapper.StakingData;
 import io.Adrestus.p2p.kademlia.repository.KademliaData;
+import io.Adrestus.rpc.RpcAdrestusClient;
 import io.Adrestus.util.CustomRandom;
 import io.Adrestus.util.GetTime;
 import io.Adrestus.util.MathOperationUtil;
 import io.Adrestus.util.SerializationUtil;
+import io.activej.eventloop.Eventloop;
 import io.distributedLedger.*;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.SerializationUtils;
@@ -31,11 +33,11 @@ import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
 
 import java.math.BigInteger;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
 import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -43,6 +45,10 @@ public class RegularBlock implements BlockForge, BlockInvent {
     private static Logger LOG = LoggerFactory.getLogger(RegularBlock.class);
 
     private final SerializationUtil<AbstractBlock> encode;
+    private final IBlockIndex blockIndex;
+
+    private static Eventloop eventloop = Eventloop.create().withCurrentThread();
+
 
     public RegularBlock() {
         List<SerializationUtil.Mapping> list = new ArrayList<>();
@@ -51,6 +57,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
         encode = new SerializationUtil<AbstractBlock>(AbstractBlock.class, list);
+        this.blockIndex = new BlockIndex();
     }
 
     @Override
@@ -315,7 +322,8 @@ public class RegularBlock implements BlockForge, BlockInvent {
 
         IDatabase<String, TransactionBlock> block_database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
         IDatabase<String, byte[]> tree_datasbase = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getPatriciaTreeZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
-        IDatabase<String, LevelDBTransactionWrapper<Transaction>> transaction_database = new DatabaseFactory(String.class, Transaction.class, new TypeToken<LevelDBTransactionWrapper<Transaction>>() {}.getType()).getDatabase(DatabaseType.LEVEL_DB);
+        IDatabase<String, LevelDBTransactionWrapper<Transaction>> transaction_database = new DatabaseFactory(String.class, Transaction.class, new TypeToken<LevelDBTransactionWrapper<Transaction>>() {
+        }.getType()).getDatabase(DatabaseType.LEVEL_DB);
 
         block_database.save(String.valueOf(transactionBlock.getHeight()), transactionBlock);
         tree_datasbase.save(String.valueOf(transactionBlock.getHeight()), SerializationUtils.serialize(TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex())));
@@ -337,8 +345,8 @@ public class RegularBlock implements BlockForge, BlockInvent {
         if (!transactionBlock.getTransactionList().isEmpty()) {
             for (int i = 0; i < transactionBlock.getTransactionList().size(); i++) {
                 Transaction transaction = transactionBlock.getTransactionList().get(i);
-                transaction_database.save(transaction.getFrom(),transaction);
-                transaction_database.save(transaction.getTo(),transaction);
+                transaction_database.save(transaction.getFrom(), transaction);
+                transaction_database.save(transaction.getTo(), transaction);
                 if ((transaction.getZoneFrom() == CachedZoneIndex.getInstance().getZoneIndex()) && (transaction.getZoneTo() == CachedZoneIndex.getInstance().getZoneIndex())) {
                     TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).withdraw(transaction.getFrom(), transaction.getAmount(), TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()));
                     TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).deposit(transaction.getTo(), transaction.getAmount(), TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()));
@@ -374,11 +382,50 @@ public class RegularBlock implements BlockForge, BlockInvent {
     @SneakyThrows
     @Override
     public void InventCommitteBlock(CommitteeBlock committeeBlock) {
-        CommitteeBlock cloned_block= (CommitteeBlock) committeeBlock.clone();
-        IDatabase<String, CommitteeBlock> database=new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
+        CommitteeBlock prevblock = (CommitteeBlock) CachedLatestBlocks.getInstance().getCommitteeBlock().clone();
+        CommitteeBlock cloned_block = (CommitteeBlock) committeeBlock.clone();
+        IDatabase<String, CommitteeBlock> database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
         database.save(String.valueOf(committeeBlock.getHeight()), committeeBlock);
         CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
         CachedZoneIndex.getInstance().setZoneIndexInternalIP();
+        List<String> ips = prevblock.getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).values().stream().collect(Collectors.toList());
+        int RPCZonePort = ZoneDatabaseFactory.getDatabaseRPCPort(CachedZoneIndex.getInstance().getZoneIndex());
+        ArrayList<InetSocketAddress> toConnect = new ArrayList<>();
+        ips.stream().forEach(ip -> {
+            try {
+                toConnect.add(new InetSocketAddress(InetAddress.getByName(ip), RPCZonePort));
+            } catch (UnknownHostException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        RpcAdrestusClient client = null;
+        try {
+            IDatabase<String, TransactionBlock> block_database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
+            client = new RpcAdrestusClient(new CommitteeBlock(), toConnect, eventloop);
+            client.connect();
+
+            Optional<TransactionBlock>block=block_database.seekLast();
+
+            if(block.isPresent()) {
+                List<TransactionBlock> blocks = client.getBlocksList(String.valueOf(block.get().getHeight()));
+                Map<String ,TransactionBlock> toSave=new HashMap<>();
+                if(!blocks.isEmpty()){
+                    blocks.stream().forEach(val->toSave.put(String.valueOf(val.getHeight()),val));
+                }
+            }
+            else {
+                List<TransactionBlock> blocks = client.getBlocksList("1");
+                Map<String ,TransactionBlock> toSave=new HashMap<>();
+                if(!blocks.isEmpty()){
+                    blocks.stream().forEach(val->toSave.put(String.valueOf(val.getHeight()),val));
+                }
+            }
+
+            if (client != null)
+                client.close();
+        } catch (IllegalArgumentException e) {
+        }
+
     }
 
 }

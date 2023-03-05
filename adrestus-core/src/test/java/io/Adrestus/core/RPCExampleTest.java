@@ -271,6 +271,75 @@ public class RPCExampleTest {
 
     }
 
+    @Test
+    public void multiple_download_noserver() throws Exception {
+        ArrayList<InetSocketAddress> list = new ArrayList<>();
+        InetSocketAddress address1 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 6070);
+        InetSocketAddress address2 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 6071);
+        InetSocketAddress address3 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 6072);
+        list.add(address1);
+        list.add(address2);
+        list.add(address3);
+        RpcAdrestusClient client = null;
+        try {
+            client = new RpcAdrestusClient(new CommitteeBlock(), list, eventloop);
+            client.connect();
+
+            if (client != null)
+                client.close();
+
+            List<AbstractBlock> blocks = client.getBlocksList("1");
+        } catch (IllegalArgumentException e) {
+        }
+
+    }
+
+    @Test
+    public void multiple_download_one_server() throws Exception {
+        ArrayList<InetSocketAddress> list = new ArrayList<>();
+        InetSocketAddress address1 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 4070);
+        InetSocketAddress address2 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 4071);
+        InetSocketAddress address3 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 4072);
+        list.add(address1);
+        list.add(address2);
+        list.add(address3);
+        RpcAdrestusServer server1 = new RpcAdrestusServer(new CommitteeBlock(), address1, eventloop);
+        new Thread(server1).start();
+        RpcAdrestusClient client = new RpcAdrestusClient(new CommitteeBlock(), list, eventloop);
+        client.connect();
+        List<AbstractBlock> blocks = client.getBlocksList("1");
+
+        client.close();
+    }
+
+    @Test
+    public void multiple_download_one_server_one_response() throws Exception {
+        IDatabase<String, CommitteeBlock> database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
+        CommitteeBlock firstblock = new CommitteeBlock();
+        firstblock.setDifficulty(112);
+        firstblock.getHeaderData().setTimestamp(GetTime.GetTimeStampInString());
+        database.save("1", firstblock);
+        Thread.sleep(200);
+        ArrayList<InetSocketAddress> list = new ArrayList<>();
+        InetSocketAddress address1 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 5070);
+        InetSocketAddress address2 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 5071);
+        InetSocketAddress address3 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 5072);
+        list.add(address1);
+        list.add(address2);
+        list.add(address3);
+        RpcAdrestusServer server1 = new RpcAdrestusServer(new CommitteeBlock(), address1, eventloop);
+        new Thread(server1).start();
+        RpcAdrestusClient client = new RpcAdrestusClient(new CommitteeBlock(), list, eventloop);
+        client.connect();
+        List<AbstractBlock> blocks = client.getBlocksList("1");
+        assertEquals(firstblock, blocks.get(0));
+
+
+        client.close();
+        server1.close();
+        server1 = null;
+        database.delete_db();
+    }
 
     //@Test
     public void test3() throws Exception {

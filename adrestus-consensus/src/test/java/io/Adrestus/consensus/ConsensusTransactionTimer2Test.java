@@ -247,7 +247,7 @@ public class ConsensusTransactionTimer2Test {
         CachedLatestBlocks.getInstance().setTransactionBlock(prevblock);
 
 
-        RpcAdrestusServer<AbstractBlock> example = new RpcAdrestusServer<AbstractBlock>(new TransactionBlock(), ZoneDatabaseFactory.getZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()), IPFinder.getLocal_address(), NetworkConfiguration.RPC_PORT, CachedEventLoop.getInstance().getEventloop());
+        RpcAdrestusServer<AbstractBlock> example = new RpcAdrestusServer<AbstractBlock>(new TransactionBlock(), ZoneDatabaseFactory.getZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()), IPFinder.getLocal_address(), ZoneDatabaseFactory.getDatabaseRPCPort(CachedZoneIndex.getInstance().getZoneIndex()), CachedEventLoop.getInstance().getEventloop());
         new Thread(example).start();
 
         TCPTransactionConsumer<byte[]> callback = x -> {

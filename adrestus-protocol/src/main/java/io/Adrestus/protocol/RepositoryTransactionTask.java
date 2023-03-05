@@ -32,7 +32,7 @@ public class RepositoryTransactionTask extends AdrestusTask {
     @SneakyThrows
     @Override
     public void execute() {
-        rpcAdrestusServer = new RpcAdrestusServer<AbstractBlock>(this.transactionBlock, this.databaseInstance, IPFinder.getLocal_address(), NetworkConfiguration.RPC_PORT2, CachedEventLoop.getInstance().getEventloop());
+        rpcAdrestusServer = new RpcAdrestusServer<AbstractBlock>(this.transactionBlock, this.databaseInstance, IPFinder.getLocal_address(), ZoneDatabaseFactory.getDatabaseRPCPort(databaseInstance), CachedEventLoop.getInstance().getEventloop());
         this.executorService.execute(rpcAdrestusServer);
         LOG.info("execute");
     }

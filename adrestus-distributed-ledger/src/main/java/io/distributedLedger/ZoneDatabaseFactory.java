@@ -1,5 +1,6 @@
 package io.distributedLedger;
 
+import io.Adrestus.config.NetworkConfiguration;
 import org.rocksdb.Options;
 import org.rocksdb.RocksDB;
 
@@ -95,6 +96,36 @@ public class ZoneDatabaseFactory {
                 return DatabaseInstance.COMMITTEE_BLOCK;
         }
     }
+    public static int getDatabaseRPCPort(int zone){
+        switch (zone) {
+            case 0:
+                return NetworkConfiguration.ZONE0_RPC_PORT;
+            case 1:
+                return NetworkConfiguration.ZONE1_RPC_PORT;
+            case 2:
+                return NetworkConfiguration.ZONE2_RPC_PORT;
+            case 3:
+                return NetworkConfiguration.ZONE3_RPC_PORT;
+            default:
+                return NetworkConfiguration.ZONE0_RPC_PORT;
+        }
+    }
+    public static int getDatabaseRPCPort(DatabaseInstance instance){
+        switch (instance) {
+            case ZONE_0_TRANSACTION_BLOCK:
+                return NetworkConfiguration.ZONE0_RPC_PORT;
+            case ZONE_1_TRANSACTION_BLOCK:
+                return NetworkConfiguration.ZONE1_RPC_PORT;
+            case ZONE_2_TRANSACTION_BLOCK:
+                return NetworkConfiguration.ZONE2_RPC_PORT;
+            case ZONE_3_TRANSACTION_BLOCK:
+                return NetworkConfiguration.ZONE3_RPC_PORT;
+            default:
+                return NetworkConfiguration.ZONE0_RPC_PORT;
+        }
+    }
+
+
 
     public static PatriciaTreeInstance getPatriciaTreeZoneInstance(int zone) {
         switch (zone) {

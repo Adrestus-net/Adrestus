@@ -1,5 +1,7 @@
 package io.Adrestus.rpc;
 
+import com.google.common.base.Predicates;
+import com.google.common.collect.Iterables;
 import io.Adrestus.crypto.bls.BLS381.ECP;
 import io.Adrestus.crypto.bls.BLS381.ECP2;
 import io.Adrestus.crypto.bls.mapper.ECP2mapper;
@@ -134,6 +136,7 @@ public class RpcAdrestusClient<T> {
             this.client.startFuture().get(TIMEOUT, TimeUnit.MILLISECONDS);
         } catch (Exception e) {
             LOG.info("Connection could not be established");
+            throw new IllegalArgumentException("Connection could not be established");
         }
     }
 
@@ -151,11 +154,17 @@ public class RpcAdrestusClient<T> {
         if (inetSocketAddresses != null) {
             ArrayList<ListBlockResponse> responses = new ArrayList<ListBlockResponse>();
             ArrayList<String> toCompare = new ArrayList<String>();
-            inetSocketAddresses.forEach(val -> responses.add(getBlockListResponse(this.client, hash)));
+            inetSocketAddresses.forEach(val -> {
+                ListBlockResponse blockResponse=getBlockListResponse(this.client,hash);
+                if(blockResponse.getByte_data()!=null)
+                    responses.add(getBlockListResponse(this.client, hash));
+            });
+            responses.removeIf(Objects::isNull);
             responses.forEach(val -> toCompare.add(Hex.toHexString(this.serializationUtil.encode(val))));
             toCompare.removeIf(Objects::isNull);
             if (toCompare.isEmpty()) {
                 LOG.info("Download blocks failed empty response");
+                return new ArrayList<T>();
             }
 
             Map<String, Long> collect = toCompare.stream()

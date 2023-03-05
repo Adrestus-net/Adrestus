@@ -98,7 +98,6 @@ public class ConsensusCommitteeTimer {
                 validatorphase.CommitPhase(consensusMessage);
             }
             latch.countDown();
-            System.out.println(CachedLatestBlocks.getInstance().getCommitteeBlock().getDifficulty());
             CachedSecurityHeaders.getInstance().getSecurityHeader().setRnd(vdf.solve(CachedSecurityHeaders.getInstance().getSecurityHeader().getpRnd(), CachedLatestBlocks.getInstance().getCommitteeBlock().getDifficulty()));
             //random.nextBytes(values);
             //CachedSecurityHeaders.getInstance().getSecurityHeader().setpRnd(values);
