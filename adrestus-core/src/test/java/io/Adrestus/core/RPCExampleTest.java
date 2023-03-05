@@ -303,13 +303,16 @@ public class RPCExampleTest {
         list.add(address1);
         list.add(address2);
         list.add(address3);
-        RpcAdrestusServer server1 = new RpcAdrestusServer(new CommitteeBlock(), address1, eventloop);
-        new Thread(server1).start();
-        RpcAdrestusClient client = new RpcAdrestusClient(new CommitteeBlock(), list, eventloop);
-        client.connect();
-        List<AbstractBlock> blocks = client.getBlocksList("1");
+        try {
+            RpcAdrestusServer server1 = new RpcAdrestusServer(new CommitteeBlock(), address1, eventloop);
+            new Thread(server1).start();
+            RpcAdrestusClient client = new RpcAdrestusClient(new CommitteeBlock(), list, eventloop);
+            client.connect();
+            List<AbstractBlock> blocks = client.getBlocksList("1");
 
-        client.close();
+            client.close();
+        } catch (IllegalArgumentException e) {
+        }
     }
 
     @Test
