@@ -1,5 +1,7 @@
 package io.Adrestus.protocol;
 
+import io.distributedLedger.DatabaseInstance;
+
 public interface IAdrestusFactory {
 
     AdrestusTask createTransactionTask();
@@ -8,7 +10,7 @@ public interface IAdrestusFactory {
 
     AdrestusTask createSendReceiptTask();
 
-    AdrestusTask createRepositoryTransactionTask();
+    AdrestusTask createRepositoryTransactionTask(DatabaseInstance databaseInstance);
 
     AdrestusTask createRepositoryCommitteeTask();
 }

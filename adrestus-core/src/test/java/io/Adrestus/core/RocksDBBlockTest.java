@@ -191,7 +191,6 @@ public class RocksDBBlockTest {
         database.save("hash6", transactionBlock6);
 
 
-
         Optional<TransactionBlock> copy = database.seekLast();
         assertEquals(transactionBlock6, copy.get());
         database.delete_db();

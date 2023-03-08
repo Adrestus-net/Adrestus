@@ -14,7 +14,6 @@ import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.crypto.elliptic.mapper.CustomSerializerTreeMap;
 import io.Adrestus.util.SerializationUtil;
 import org.apache.commons.lang3.SerializationUtils;
-import org.apache.tuweni.bytes.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,7 +55,7 @@ public class HashEventHandler implements BlockEventHandler<AbstractBlockEvent>, 
             }
             CommitteeBlock cloneable = (CommitteeBlock) committeeBlock.clone();
             cloneable.setHash("");
-            byte[] buffer = wrapper.encodeNotOptimal(cloneable,SerializationUtils.serialize(cloneable).length);
+            byte[] buffer = wrapper.encodeNotOptimal(cloneable, SerializationUtils.serialize(cloneable).length);
             String result_hash = HashUtil.sha256_bytetoString(buffer);
             if (!result_hash.equals(committeeBlock.getHash())) {
                 LOG.info("Block hash is manipulated");

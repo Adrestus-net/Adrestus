@@ -11,6 +11,7 @@ import io.Adrestus.crypto.elliptic.Keys;
 import io.Adrestus.crypto.mnemonic.Mnemonic;
 import io.Adrestus.crypto.mnemonic.Security;
 import io.Adrestus.crypto.mnemonic.WordList;
+import io.distributedLedger.DatabaseInstance;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -45,7 +46,10 @@ public class WorkerTest {
                 factory.createTransactionTask(),
                 factory.createBindServerReceiptTask(),
                 factory.createSendReceiptTask(),
-                factory.createRepositoryTransactionTask(),
+                factory.createRepositoryTransactionTask(DatabaseInstance.ZONE_0_TRANSACTION_BLOCK),
+                factory.createRepositoryTransactionTask(DatabaseInstance.ZONE_1_TRANSACTION_BLOCK),
+                factory.createRepositoryTransactionTask(DatabaseInstance.ZONE_2_TRANSACTION_BLOCK),
+                factory.createRepositoryTransactionTask(DatabaseInstance.ZONE_3_TRANSACTION_BLOCK),
                 factory.createRepositoryCommitteeTask()));
         ExecutorService executor = Executors.newFixedThreadPool(tasks.size());
         tasks.stream().map(Worker::new).forEach(executor::execute);
@@ -70,7 +74,10 @@ public class WorkerTest {
                 factory.createTransactionTask(),
                 factory.createBindServerReceiptTask(),
                 factory.createSendReceiptTask(),
-                factory.createRepositoryTransactionTask(),
+                factory.createRepositoryTransactionTask(DatabaseInstance.ZONE_0_TRANSACTION_BLOCK),
+                factory.createRepositoryTransactionTask(DatabaseInstance.ZONE_1_TRANSACTION_BLOCK),
+                factory.createRepositoryTransactionTask(DatabaseInstance.ZONE_2_TRANSACTION_BLOCK),
+                factory.createRepositoryTransactionTask(DatabaseInstance.ZONE_3_TRANSACTION_BLOCK),
                 factory.createRepositoryCommitteeTask()));
         ExecutorService executor = Executors.newFixedThreadPool(tasks.size());
         tasks.stream().map(Worker::new).forEach(executor::execute);

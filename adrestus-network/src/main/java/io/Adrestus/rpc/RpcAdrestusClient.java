@@ -1,13 +1,13 @@
 package io.Adrestus.rpc;
 
-import com.google.common.base.Predicates;
-import com.google.common.collect.Iterables;
+import io.Adrestus.MemoryTreePool;
 import io.Adrestus.crypto.bls.BLS381.ECP;
 import io.Adrestus.crypto.bls.BLS381.ECP2;
 import io.Adrestus.crypto.bls.mapper.ECP2mapper;
 import io.Adrestus.crypto.bls.mapper.ECPmapper;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.crypto.elliptic.mapper.CustomSerializerTreeMap;
+import io.Adrestus.mapper.MemoryTreePoolSerializer;
 import io.Adrestus.util.SerializationUtil;
 import io.activej.eventloop.Eventloop;
 import io.activej.rpc.client.RpcClient;
@@ -37,6 +37,7 @@ public class RpcAdrestusClient<T> {
     private static final int TIMEOUT = 4000;
 
     private final SerializationUtil<ListBlockResponse> serializationUtil;
+    private final SerializationUtil<PatriciaTreeResponse> serializationUtil2;
     private final SerializerBuilder rpc_serialize;
     private final Eventloop eventloop;
     private final T typeParameterClass;
@@ -64,6 +65,8 @@ public class RpcAdrestusClient<T> {
         list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
+        list.add(new SerializationUtil.Mapping(MemoryTreePool.class, ctx -> new MemoryTreePoolSerializer()));
+        this.serializationUtil2 = new SerializationUtil<PatriciaTreeResponse>(PatriciaTreeResponse.class, list);
         this.serializationUtil = new SerializationUtil<ListBlockResponse>(ListBlockResponse.class, list);
         this.valueMapper = new SerializationUtil(typeParameterClass.getClass(), list, true);
         this.valueMapper2 = new SerializationUtil(typeParameterClass.getClass(), list, true);
@@ -80,6 +83,8 @@ public class RpcAdrestusClient<T> {
         list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
+        list.add(new SerializationUtil.Mapping(MemoryTreePool.class, ctx -> new MemoryTreePoolSerializer()));
+        this.serializationUtil2 = new SerializationUtil<PatriciaTreeResponse>(PatriciaTreeResponse.class, list);
         this.serializationUtil = new SerializationUtil<ListBlockResponse>(ListBlockResponse.class, list);
         this.valueMapper = new SerializationUtil(typeParameterClass.getClass(), list, true);
         this.valueMapper2 = new SerializationUtil(typeParameterClass.getClass(), list, true);
@@ -96,6 +101,8 @@ public class RpcAdrestusClient<T> {
         list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
+        list.add(new SerializationUtil.Mapping(MemoryTreePool.class, ctx -> new MemoryTreePoolSerializer()));
+        this.serializationUtil2 = new SerializationUtil<PatriciaTreeResponse>(PatriciaTreeResponse.class, list);
         this.serializationUtil = new SerializationUtil<ListBlockResponse>(ListBlockResponse.class, list);
         this.valueMapper2 = new SerializationUtil(typeParameterClass.getClass(), list, true);
         this.valueMapper = new SerializationUtil(typeParameterClass.getClass(), list, true);
@@ -111,6 +118,8 @@ public class RpcAdrestusClient<T> {
         list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
+        list.add(new SerializationUtil.Mapping(MemoryTreePool.class, ctx -> new MemoryTreePoolSerializer()));
+        this.serializationUtil2 = new SerializationUtil<PatriciaTreeResponse>(PatriciaTreeResponse.class, list);
         this.serializationUtil = new SerializationUtil<ListBlockResponse>(ListBlockResponse.class, list);
         this.valueMapper2 = new SerializationUtil(typeParameterClass.getClass(), list, true);
         this.valueMapper = new SerializationUtil(typeParameterClass.getClass(), list, true);
@@ -124,12 +133,12 @@ public class RpcAdrestusClient<T> {
             RpcStrategyList rpcStrategyList = RpcStrategyList.ofStrategies(strategies);
             client = RpcClient.create(eventloop)
                     .withSerializerBuilder(this.rpc_serialize)
-                    .withMessageTypes(BlockRequest.class, ListBlockResponse.class, BlockRequest2.class, BlockResponse.class)
+                    .withMessageTypes(BlockRequest.class, ListBlockResponse.class, BlockRequest2.class, BlockResponse.class, PatriciaTreeRequest.class, PatriciaTreeResponse.class)
                     .withStrategy(RpcStrategyRoundRobin.create(rpcStrategyList));
         } else {
             client = RpcClient.create(eventloop)
                     .withSerializerBuilder(this.rpc_serialize)
-                    .withMessageTypes(BlockRequest.class, ListBlockResponse.class, BlockRequest2.class, BlockResponse.class)
+                    .withMessageTypes(BlockRequest.class, ListBlockResponse.class, BlockRequest2.class, BlockResponse.class, PatriciaTreeRequest.class, PatriciaTreeResponse.class)
                     .withStrategy(server(new InetSocketAddress(host, port)));
         }
         try {
@@ -155,9 +164,9 @@ public class RpcAdrestusClient<T> {
             ArrayList<ListBlockResponse> responses = new ArrayList<ListBlockResponse>();
             ArrayList<String> toCompare = new ArrayList<String>();
             inetSocketAddresses.forEach(val -> {
-                ListBlockResponse blockResponse=getBlockListResponse(this.client,hash);
-                if(blockResponse.getByte_data()!=null)
-                    responses.add(getBlockListResponse(this.client, hash));
+                ListBlockResponse blockResponse = getBlockListResponse(this.client, hash);
+                if (blockResponse.getByte_data() != null)
+                    responses.add(blockResponse);
             });
             responses.removeIf(Objects::isNull);
             responses.forEach(val -> toCompare.add(Hex.toHexString(this.serializationUtil.encode(val))));
@@ -175,6 +184,36 @@ public class RpcAdrestusClient<T> {
             return toSend;
         } else {
             byte[] data = getBlockListResponse(this.client, hash).getByte_data();
+            return data == null ? new ArrayList<T>() : this.valueMapper.decode_list(data);
+        }
+    }
+
+    @SneakyThrows
+    public List<T> getPatriciaTreeList(String hash) {
+        if (inetSocketAddresses != null) {
+            ArrayList<PatriciaTreeResponse> responses = new ArrayList<PatriciaTreeResponse>();
+            ArrayList<String> toCompare = new ArrayList<String>();
+            inetSocketAddresses.forEach(val -> {
+                PatriciaTreeResponse blockResponse = getPatriciaTreeListResponse(this.client, hash);
+                if (blockResponse.getByte_data() != null)
+                    responses.add(blockResponse);
+            });
+            responses.removeIf(Objects::isNull);
+            responses.forEach(val -> toCompare.add(Hex.toHexString(this.serializationUtil2.encode(val))));
+            toCompare.removeIf(Objects::isNull);
+            if (toCompare.isEmpty()) {
+                LOG.info("Download blocks failed empty response");
+                return new ArrayList<T>();
+            }
+
+            Map<String, Long> collect = toCompare.stream()
+                    .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+            byte[] list_data = this.serializationUtil2.decode(Hex.decode(collect.keySet().stream().findFirst().get())).getByte_data();
+            List<T> toSend = this.valueMapper.decode_list(list_data);
+            collect.clear();
+            return toSend;
+        } else {
+            byte[] data = getPatriciaTreeListResponse(this.client, hash).getByte_data();
             return data == null ? new ArrayList<T>() : this.valueMapper.decode_list(data);
         }
     }
@@ -208,11 +247,11 @@ public class RpcAdrestusClient<T> {
         return Optional.empty();
     }
 
-    private ListBlockResponse getBlockListResponse(RpcClient rpcClient, String name) {
+    private ListBlockResponse getBlockListResponse(RpcClient rpcClient, String hash) {
         try {
             ListBlockResponse response = rpcClient.getEventloop().submit(
                             () -> rpcClient
-                                    .<BlockRequest, ListBlockResponse>sendRequest(new BlockRequest(name), TIMEOUT))
+                                    .<BlockRequest, ListBlockResponse>sendRequest(new BlockRequest(hash), TIMEOUT))
                     .get(TIMEOUT, TimeUnit.MILLISECONDS);
             ///LOG.info("Download: ..... " + response.getAbstractBlock().toString());
             return response;
@@ -220,5 +259,19 @@ public class RpcAdrestusClient<T> {
             LOG.info(e.toString());
         }
         return new ListBlockResponse(null);
+    }
+
+    private PatriciaTreeResponse getPatriciaTreeListResponse(RpcClient rpcClient, String hash) {
+        try {
+            PatriciaTreeResponse response = rpcClient.getEventloop().submit(
+                            () -> rpcClient
+                                    .<PatriciaTreeRequest, PatriciaTreeResponse>sendRequest(new PatriciaTreeRequest(hash), TIMEOUT))
+                    .get(TIMEOUT, TimeUnit.MILLISECONDS);
+            ///LOG.info("Download: ..... " + response.getAbstractBlock().toString());
+            return response;
+        } catch (Exception e) {
+            LOG.info(e.toString());
+        }
+        return new PatriciaTreeResponse(null);
     }
 }

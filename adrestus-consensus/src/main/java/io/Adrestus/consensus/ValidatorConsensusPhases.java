@@ -27,10 +27,6 @@ import io.Adrestus.crypto.vrf.engine.VrfEngine2;
 import io.Adrestus.network.ConsensusClient;
 import io.Adrestus.util.ByteUtil;
 import io.Adrestus.util.SerializationUtil;
-import io.distributedLedger.DatabaseFactory;
-import io.distributedLedger.DatabaseInstance;
-import io.distributedLedger.DatabaseType;
-import io.distributedLedger.IDatabase;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.tuweni.bytes.Bytes;
@@ -343,7 +339,7 @@ public class ValidatorConsensusPhases {
             CachedSecurityHeaders.getInstance().getSecurityHeader().setRnd(data.getData().getVDFSolution());
             //commit save to db
 
-          //  consensusClient.send_heartbeat(HEARTBEAT_MESSAGE);
+            //  consensusClient.send_heartbeat(HEARTBEAT_MESSAGE);
             LOG.info("VDF is finalized with Success");
             cleanup();
         }
@@ -750,7 +746,7 @@ public class ValidatorConsensusPhases {
             CachedSecurityHeaders.getInstance().getSecurityHeader().setpRnd(data.getData().getPrnd());
             //commit save to db
 
-           // consensusClient.send_heartbeat(HEARTBEAT_MESSAGE);
+            // consensusClient.send_heartbeat(HEARTBEAT_MESSAGE);
             LOG.info("VRF is finalized with Success");
             cleanup();
         }
@@ -1115,10 +1111,10 @@ public class ValidatorConsensusPhases {
             this.original_copy.setTransactionProposer(next_key.toRaw());
             this.original_copy.setLeaderPublicKey(next_key);
             regural_block.InventTransactionBlock(this.original_copy);
-           // consensusClient.send_heartbeat(HEARTBEAT_MESSAGE);
+            // consensusClient.send_heartbeat(HEARTBEAT_MESSAGE);
             LOG.info("Block is finalized with Success");
             cleanup();
-           // Thread.sleep(500);
+            // Thread.sleep(500);
         }
 
         private void cleanup() {
@@ -1137,6 +1133,7 @@ public class ValidatorConsensusPhases {
         private final SerializationUtil<AbstractBlock> block_serialize;
         private final SerializationUtil<ConsensusMessage> consensus_serialize;
         private final DefaultFactory factory;
+
         public VerifyCommitteeBlock(boolean DEBUG) {
             this.DEBUG = DEBUG;
             this.factory = new DefaultFactory();
@@ -1417,7 +1414,7 @@ public class ValidatorConsensusPhases {
             regural_block.InventCommitteBlock(block.getData());
             //commit save to db
 
-           // consensusClient.send_heartbeat(HEARTBEAT_MESSAGE);
+            // consensusClient.send_heartbeat(HEARTBEAT_MESSAGE);
             LOG.info("Committee is finalized with Success");
             cleanup();
         }

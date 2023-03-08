@@ -1,5 +1,7 @@
 package io.Adrestus.core;
 
+import com.google.common.reflect.TypeToken;
+import io.Adrestus.MemoryTreePool;
 import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.config.AdrestusConfiguration;
@@ -19,18 +21,24 @@ import io.Adrestus.crypto.elliptic.mapper.StakingData;
 import io.Adrestus.crypto.mnemonic.Mnemonic;
 import io.Adrestus.crypto.mnemonic.Security;
 import io.Adrestus.crypto.mnemonic.WordList;
+import io.Adrestus.mapper.MemoryTreePoolSerializer;
 import io.Adrestus.p2p.kademlia.common.NettyConnectionInfo;
 import io.Adrestus.p2p.kademlia.repository.KademliaData;
-import io.distributedLedger.DatabaseFactory;
-import io.distributedLedger.DatabaseInstance;
-import io.distributedLedger.DatabaseType;
-import io.distributedLedger.IDatabase;
+import io.Adrestus.util.SerializationUtil;
+import io.distributedLedger.*;
+import io.vavr.control.Option;
 import org.apache.commons.codec.binary.StringUtils;
+import org.apache.commons.lang3.SerializationUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Type;
 import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TreemapSerializationTest {
     private static BLSPrivateKey sk1;
@@ -101,5 +109,34 @@ public class TreemapSerializationTest {
         Map<String, CommitteeBlock> block_entries = database.seekBetweenRange(0, finish);
 
         database.delete_db();
+    }
+
+    @Test
+    public void treemap_database_test() throws Exception {
+        IDatabase<String, byte[]> tree_datasbase = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getPatriciaTreeZoneInstance(0));
+
+        Type fluentType = new TypeToken<MemoryTreePool>() {
+        }.getType();
+        List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(MemoryTreePool.class, ctx -> new MemoryTreePoolSerializer()));
+        SerializationUtil valueMapper = new SerializationUtil<>(fluentType, list);
+
+        String address = "ADR-ADL3-VDZK-ZU7H-2BX5-M2H4-S7LF-5SR4-ECQA-EIUJ-CBFK";
+        PatriciaTreeNode treeNode = new PatriciaTreeNode(2, 1);
+        TreeFactory.getMemoryTree(1).store(address, treeNode);
+        MemoryTreePool m = (MemoryTreePool) TreeFactory.getMemoryTree(1);
+
+        //m.getByaddress(address);
+        //use only special
+        byte[] bt = valueMapper.encode_special(m, SerializationUtils.serialize(m).length);
+        tree_datasbase.save("patricia_tree_root", bt);
+        MemoryTreePool copy = (MemoryTreePool) valueMapper.decode(tree_datasbase.findByKey("patricia_tree_root").get());
+
+
+        //copy.store(address, treeNode);
+        Option<PatriciaTreeNode> pat = copy.getByaddress(address);
+
+        assertEquals(treeNode, pat.get());
+        assertEquals(m, copy);
     }
 }

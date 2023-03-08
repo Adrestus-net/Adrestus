@@ -7,10 +7,10 @@ import io.Adrestus.core.Resourses.CachedReceiptSemaphore;
 import io.Adrestus.core.TransactionBlock;
 import io.Adrestus.util.SerializationUtil;
 import io.activej.bytebuf.ByteBuf;
+import io.activej.bytebuf.ByteBufPool;
 import io.activej.eventloop.Eventloop;
 import io.activej.net.socket.tcp.AsyncTcpSocket;
 import io.activej.net.socket.tcp.AsyncTcpSocketNio;
-import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,10 +18,9 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 
 import static io.activej.eventloop.Eventloop.getCurrentEventloop;
-import static java.nio.charset.StandardCharsets.UTF_8;
 
-public class SendReceiptTask extends AdrestusTask {
-    private static Logger LOG = LoggerFactory.getLogger(SendReceiptTask.class);
+public class ReceiptTask extends AdrestusTask {
+    private static Logger LOG = LoggerFactory.getLogger(ReceiptTask.class);
 
     private final SerializationUtil<Receipt> recep;
 
@@ -29,7 +28,7 @@ public class SendReceiptTask extends AdrestusTask {
     private Eventloop eventloop;
     private AsyncTcpSocket socket;
 
-    public SendReceiptTask() {
+    public ReceiptTask() {
         this.eventloop = Eventloop.create().withCurrentThread();
         this.recep = new SerializationUtil<Receipt>(Receipt.class);
         this.runner = false;
@@ -56,8 +55,11 @@ public class SendReceiptTask extends AdrestusTask {
                                         TransactionBlock transactionBlock = CachedLatestBlocks.getInstance().getTransactionBlock();
                                         if (!transactionBlock.getHash().equals("hash")) {
                                             receipt.setReceiptBlock(new Receipt.ReceiptBlock(transactionBlock.getHash(), transactionBlock.getHeight(), transactionBlock.getGeneration(), transactionBlock.getMerkleRoot()));
-                                            byte[] data = recep.encode(receipt);
-                                            socket.write(ByteBuf.wrapForReading(ArrayUtils.addAll(data, "\r\n".getBytes(UTF_8))));
+                                            byte transaction_hash[] = recep.encode(receipt, 1024);
+                                            ByteBuf sizeBuf = ByteBufPool.allocate(2); // enough to serialize size 1024
+                                            sizeBuf.writeVarInt(transaction_hash.length);
+                                            ByteBuf appendedBuf = ByteBufPool.append(sizeBuf, ByteBuf.wrapForReading(transaction_hash));
+                                            socket.write(appendedBuf);
                                         }
                                     });
                                 });

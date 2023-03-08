@@ -96,7 +96,8 @@ public class ZoneDatabaseFactory {
                 return DatabaseInstance.COMMITTEE_BLOCK;
         }
     }
-    public static int getDatabaseRPCPort(int zone){
+
+    public static int getDatabaseRPCPort(int zone) {
         switch (zone) {
             case 0:
                 return NetworkConfiguration.ZONE0_RPC_PORT;
@@ -110,7 +111,8 @@ public class ZoneDatabaseFactory {
                 return NetworkConfiguration.ZONE0_RPC_PORT;
         }
     }
-    public static int getDatabaseRPCPort(DatabaseInstance instance){
+
+    public static int getDatabaseRPCPort(DatabaseInstance instance) {
         switch (instance) {
             case ZONE_0_TRANSACTION_BLOCK:
                 return NetworkConfiguration.ZONE0_RPC_PORT;
@@ -126,7 +128,6 @@ public class ZoneDatabaseFactory {
     }
 
 
-
     public static PatriciaTreeInstance getPatriciaTreeZoneInstance(int zone) {
         switch (zone) {
             case 0:
@@ -139,6 +140,21 @@ public class ZoneDatabaseFactory {
                 return PatriciaTreeInstance.PATRICIA_TREE_INSTANCE_3;
             default:
                 return PatriciaTreeInstance.PATRICIA_TREE_INSTANCE_0;
+        }
+    }
+
+    public static int getPatriciaTreeZoneInstance(PatriciaTreeInstance patriciaTreeInstance) {
+        switch (patriciaTreeInstance) {
+            case PATRICIA_TREE_INSTANCE_0:
+                return 0;
+            case PATRICIA_TREE_INSTANCE_1:
+                return 1;
+            case PATRICIA_TREE_INSTANCE_2:
+                return 2;
+            case PATRICIA_TREE_INSTANCE_3:
+                return 3;
+            default:
+                return 0;
         }
     }
 

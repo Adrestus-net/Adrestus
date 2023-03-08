@@ -1,9 +1,6 @@
 package io.Adrestus.rpc;
 
-import io.distributedLedger.DatabaseFactory;
-import io.distributedLedger.DatabaseInstance;
-import io.distributedLedger.DatabaseType;
-import io.distributedLedger.IDatabase;
+import io.distributedLedger.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,8 +22,21 @@ public class Service<T> implements IService<T> {
         this.database = factory.getDatabase(DatabaseType.ROCKS_DB, instance);
     }
 
+    public Service(Class<T> typeParameterClass, PatriciaTreeInstance instance) {
+        this.typeParameterClass = typeParameterClass;
+        DatabaseFactory factory = new DatabaseFactory(String.class, typeParameterClass);
+        this.database = factory.getDatabase(DatabaseType.ROCKS_DB, instance);
+    }
+
     @Override
     public List<T> download(String hash) throws Exception {
+        Map<String, T> map = database.findBetweenRange(hash);
+        List<T> result = new ArrayList<T>(map.values());
+        return result;
+    }
+
+    @Override
+    public List<T> downloadPatriciaTree(String hash) throws Exception {
         Map<String, T> map = database.findBetweenRange(hash);
         List<T> result = new ArrayList<T>(map.values());
         return result;

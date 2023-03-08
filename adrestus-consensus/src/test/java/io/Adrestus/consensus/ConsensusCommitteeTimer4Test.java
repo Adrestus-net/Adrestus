@@ -71,7 +71,7 @@ public class ConsensusCommitteeTimer4Test {
     private static ECDSASign ecdsaSign = new ECDSASign();
     private static VdfEngine vdf;
     private static KademliaData kad1, kad2, kad3, kad4, kad5;
-    private static  KeyHashGenerator<BigInteger, String> keyHashGenerator;
+    private static KeyHashGenerator<BigInteger, String> keyHashGenerator;
 
     @BeforeAll
     public static void setup() throws Exception {

@@ -9,14 +9,12 @@ import io.activej.bytebuf.ByteBufPool;
 import io.activej.eventloop.Eventloop;
 import io.activej.net.socket.tcp.AsyncTcpSocket;
 import io.activej.net.socket.tcp.AsyncTcpSocketNio;
-import org.apache.commons.lang3.ArrayUtils;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
 
 import static io.activej.eventloop.Eventloop.getCurrentEventloop;
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class SocketChannelTest {
     Eventloop eventloop = Eventloop.create().withCurrentThread();
@@ -44,7 +42,7 @@ public class SocketChannelTest {
                 }
 
                 Receipt receipt = new Receipt(1, 1, new RegularTransaction("hash1"));
-                byte data[] = recep.encode(receipt,1024);
+                byte data[] = recep.encode(receipt, 1024);
                 ByteBuf sizeBuf = ByteBufPool.allocate(2); // enough to serialize size 1024
                 sizeBuf.writeVarInt(data.length);
                 ByteBuf appendedBuf = ByteBufPool.append(sizeBuf, ByteBuf.wrapForReading(data));
@@ -84,7 +82,7 @@ public class SocketChannelTest {
                         }
 
                         Receipt receipt = new Receipt(1, 1, new RegularTransaction("hash1"));
-                        byte data[] = recep.encode(receipt,1024);
+                        byte data[] = recep.encode(receipt, 1024);
                         ByteBuf sizeBuf = ByteBufPool.allocate(2); // enough to serialize size 1024
                         sizeBuf.writeVarInt(data.length);
                         ByteBuf appendedBuf = ByteBufPool.append(sizeBuf, ByteBuf.wrapForReading(data));
@@ -126,7 +124,7 @@ public class SocketChannelTest {
                 }
 
                 Transaction transaction = new RegularTransaction("hash2");
-                byte []data = trans.encode(transaction,1024);
+                byte[] data = trans.encode(transaction, 1024);
                 ByteBuf sizeBuf = ByteBufPool.allocate(2); // enough to serialize size 1024
                 sizeBuf.writeVarInt(data.length);
                 ByteBuf appendedBuf = ByteBufPool.append(sizeBuf, ByteBuf.wrapForReading(data));

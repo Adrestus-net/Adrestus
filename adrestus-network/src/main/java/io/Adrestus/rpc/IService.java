@@ -6,5 +6,7 @@ import java.util.List;
 public interface IService<T> {
     List<T> download(String hash) throws Exception;
 
+    List<T> downloadPatriciaTree(String hash) throws Exception;
+
     List<T> migrateBlock(ArrayList<String> list_hash) throws Exception;
 }

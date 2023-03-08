@@ -53,6 +53,7 @@ public class ConsensusTransactionBlockTest {
 
         CachedZoneIndex.getInstance().setZoneIndex(1);
     }
+
     @BeforeAll
     public static void pre_setup() {
         delete();

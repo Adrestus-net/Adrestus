@@ -4,7 +4,6 @@ import com.google.common.reflect.TypeToken;
 import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.config.AdrestusConfiguration;
-import io.Adrestus.config.NetworkConfiguration;
 import io.Adrestus.config.TransactionConfigOptions;
 import io.Adrestus.consensus.helper.ConsensusTransaction2Timer;
 import io.Adrestus.core.*;
@@ -35,7 +34,6 @@ import io.activej.eventloop.Eventloop;
 import io.activej.net.socket.tcp.AsyncTcpSocket;
 import io.activej.net.socket.tcp.AsyncTcpSocketNio;
 import io.distributedLedger.*;
-import org.apache.commons.lang3.ArrayUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -48,7 +46,6 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
 import static io.activej.eventloop.Eventloop.getCurrentEventloop;
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ConsensusTransactionTimer2Test {
@@ -87,7 +84,8 @@ public class ConsensusTransactionTimer2Test {
     public static void construct() throws Exception {
         IDatabase<String, TransactionBlock> block_database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
         IDatabase<String, byte[]> tree_datasbase = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getPatriciaTreeZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
-        IDatabase<String, LevelDBTransactionWrapper<Transaction>> transaction_database = new DatabaseFactory(String.class, Transaction.class, new TypeToken<LevelDBTransactionWrapper<Transaction>>() {}.getType()).getDatabase(DatabaseType.LEVEL_DB);
+        IDatabase<String, LevelDBTransactionWrapper<Transaction>> transaction_database = new DatabaseFactory(String.class, Transaction.class, new TypeToken<LevelDBTransactionWrapper<Transaction>>() {
+        }.getType()).getDatabase(DatabaseType.LEVEL_DB);
 
         tree_datasbase.delete_db();
         transaction_database.delete_db();

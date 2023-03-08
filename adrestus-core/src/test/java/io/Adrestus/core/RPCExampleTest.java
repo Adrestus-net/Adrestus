@@ -1,5 +1,9 @@
 package io.Adrestus.core;
 
+import com.google.common.reflect.TypeToken;
+import io.Adrestus.MemoryTreePool;
+import io.Adrestus.TreeFactory;
+import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.bls.BLS381.ECP;
 import io.Adrestus.crypto.bls.BLS381.ECP2;
@@ -7,6 +11,7 @@ import io.Adrestus.crypto.bls.mapper.ECP2mapper;
 import io.Adrestus.crypto.bls.mapper.ECPmapper;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.crypto.elliptic.mapper.CustomSerializerTreeMap;
+import io.Adrestus.mapper.MemoryTreePoolSerializer;
 import io.Adrestus.rpc.RpcAdrestusClient;
 import io.Adrestus.rpc.RpcAdrestusServer;
 import io.Adrestus.util.GetTime;
@@ -21,15 +26,12 @@ import io.activej.rpc.server.RpcRequestHandler;
 import io.activej.rpc.server.RpcServer;
 import io.activej.serializer.annotations.Deserialize;
 import io.activej.serializer.annotations.Serialize;
-import io.distributedLedger.DatabaseFactory;
-import io.distributedLedger.DatabaseInstance;
-import io.distributedLedger.DatabaseType;
-import io.distributedLedger.IDatabase;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import io.distributedLedger.*;
+import org.apache.commons.lang3.SerializationUtils;
+import org.junit.jupiter.api.*;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -41,7 +43,8 @@ import java.util.concurrent.TimeUnit;
 import static io.activej.rpc.client.sender.RpcStrategies.server;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class RPCExampleTest {
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+class RPCExampleTest {
     private static final int TIMEOUT = 1500;
     private static RpcServer serverOne, serverTwo, serverThree;
     private static Thread thread;
@@ -61,7 +64,8 @@ public class RPCExampleTest {
     }
 
     @Test
-    public void test2() throws Exception {
+    @Order(1)
+    public void myAtest2() throws Exception {
 
         address1 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 8080);
         address2 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 8081);
@@ -143,7 +147,7 @@ public class RPCExampleTest {
     }
 
     @Test
-    public void download() throws Exception {
+    public void myEdownload() throws Exception {
 
         //this is important if ports its the same it needs time to close
         //Thread.sleep(3000);
@@ -191,7 +195,7 @@ public class RPCExampleTest {
     }
 
     @Test
-    public void download2() throws Exception {
+    public void myCdownload2() throws Exception {
         IDatabase<String, TransactionBlock> database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.ZONE_1_TRANSACTION_BLOCK);
         TransactionBlock transactionBlock = new TransactionBlock();
         String hash = HashUtil.sha256_bytetoString(encode.encode(transactionBlock));
@@ -220,7 +224,8 @@ public class RPCExampleTest {
     }
 
     @Test
-    public void multiple_download() throws Exception {
+    @Order(3)
+    public void myDmultiple_download() throws Exception {
         IDatabase<String, CommitteeBlock> database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
         CommitteeBlock firstblock = new CommitteeBlock();
         firstblock.setDifficulty(112);
@@ -272,7 +277,58 @@ public class RPCExampleTest {
     }
 
     @Test
-    public void multiple_download_noserver() throws Exception {
+    @Order(2)
+    public void myBmultiple_download_patricia_tree() throws Exception {
+        IDatabase<String, byte[]> tree_datasbase = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getPatriciaTreeZoneInstance(0));
+
+        Type fluentType = new TypeToken<MemoryTreePool>() {
+        }.getType();
+        List<SerializationUtil.Mapping> seri = new ArrayList<>();
+        seri.add(new SerializationUtil.Mapping(MemoryTreePool.class, ctx -> new MemoryTreePoolSerializer()));
+        SerializationUtil valueMapper = new SerializationUtil<>(fluentType, seri);
+
+        String address = "ADR-ADL3-VDZK-ZU7H-2BX5-M2H4-S7LF-5SR4-ECQA-EIUJ-CBFK";
+        PatriciaTreeNode treeNode = new PatriciaTreeNode(2, 1);
+        TreeFactory.getMemoryTree(0).store(address, treeNode);
+        MemoryTreePool m = (MemoryTreePool) TreeFactory.getMemoryTree(1);
+
+        //m.getByaddress(address);
+        //use only special
+        byte[] bt = valueMapper.encode_special(m, SerializationUtils.serialize(m).length);
+        tree_datasbase.save("patricia_tree_root", bt);
+
+        ArrayList<InetSocketAddress> list = new ArrayList<>();
+        InetSocketAddress address1 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 3070);
+        InetSocketAddress address2 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 3071);
+        InetSocketAddress address3 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 3072);
+        list.add(address1);
+        list.add(address2);
+        list.add(address3);
+        RpcAdrestusServer server1 = new RpcAdrestusServer(new byte[]{}, ZoneDatabaseFactory.getPatriciaTreeZoneInstance(0), address1, eventloop);
+        RpcAdrestusServer server2 = new RpcAdrestusServer(new byte[]{}, ZoneDatabaseFactory.getPatriciaTreeZoneInstance(0), address2, eventloop);
+        RpcAdrestusServer server3 = new RpcAdrestusServer(new byte[]{}, ZoneDatabaseFactory.getPatriciaTreeZoneInstance(0), address3, eventloop);
+        new Thread(server1).start();
+        new Thread(server2).start();
+        new Thread(server3).start();
+        RpcAdrestusClient client = new RpcAdrestusClient(new byte[]{}, list, eventloop);
+        client.connect();
+        List<byte[]> trees = client.getPatriciaTreeList("patricia_tree_root");
+
+        assertEquals(m, valueMapper.decode(trees.get(0)));
+
+        client.close();
+        server1.close();
+        server2.close();
+        server3.close();
+        server1 = null;
+        server2 = null;
+        server3 = null;
+        tree_datasbase.delete_db();
+
+    }
+
+    @Test
+    public void myFmultiple_download_noserver() throws Exception {
         ArrayList<InetSocketAddress> list = new ArrayList<>();
         InetSocketAddress address1 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 6070);
         InetSocketAddress address2 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 6071);
@@ -295,7 +351,7 @@ public class RPCExampleTest {
     }
 
     @Test
-    public void multiple_download_one_server() throws Exception {
+    public void myGmultiple_download_one_server() throws Exception {
         ArrayList<InetSocketAddress> list = new ArrayList<>();
         InetSocketAddress address1 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 4070);
         InetSocketAddress address2 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 4071);
@@ -316,7 +372,7 @@ public class RPCExampleTest {
     }
 
     @Test
-    public void multiple_download_one_server_one_response() throws Exception {
+    public void myHmultiple_download_one_server_one_response() throws Exception {
         IDatabase<String, CommitteeBlock> database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
         CommitteeBlock firstblock = new CommitteeBlock();
         firstblock.setDifficulty(112);

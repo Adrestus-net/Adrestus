@@ -1,5 +1,7 @@
 package io.Adrestus.protocol;
 
+import io.distributedLedger.DatabaseInstance;
+
 public class AdrestusFactory implements IAdrestusFactory {
     @Override
     public AdrestusTask createTransactionTask() {
@@ -13,12 +15,12 @@ public class AdrestusFactory implements IAdrestusFactory {
 
     @Override
     public AdrestusTask createSendReceiptTask() {
-        return new SendReceiptTask();
+        return new ReceiptTask();
     }
 
     @Override
-    public AdrestusTask createRepositoryTransactionTask() {
-        return new RepositoryTransactionTask();
+    public AdrestusTask createRepositoryTransactionTask(DatabaseInstance databaseInstance) {
+        return new RepositoryTransactionTask(databaseInstance);
     }
 
     @Override

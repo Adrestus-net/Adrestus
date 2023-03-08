@@ -5,7 +5,6 @@ import io.Adrestus.Trie.MerkleNode;
 import io.Adrestus.Trie.MerkleTreeImp;
 import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.config.AdrestusConfiguration;
-import io.Adrestus.config.NetworkConfiguration;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.core.Resourses.MemoryReceiptPool;
@@ -36,10 +35,7 @@ import io.Adrestus.network.IPFinder;
 import io.Adrestus.rpc.RpcAdrestusServer;
 import io.Adrestus.util.GetTime;
 import io.Adrestus.util.SerializationUtil;
-import io.distributedLedger.DatabaseFactory;
-import io.distributedLedger.DatabaseInstance;
-import io.distributedLedger.DatabaseType;
-import io.distributedLedger.IDatabase;
+import io.distributedLedger.*;
 import org.junit.jupiter.api.*;
 import org.spongycastle.util.encoders.Hex;
 
@@ -265,11 +261,11 @@ public class ReceiptsTest {
     @Test
     //@Order(3)
     public void inbound_test() throws Exception {
-        IDatabase<String, TransactionBlock> database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.ZONE_1_TRANSACTION_BLOCK);
-        database.save(transactionBlock.getHash(), transactionBlock);
+        IDatabase<String, TransactionBlock> database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.ZONE_0_TRANSACTION_BLOCK);
+        database.save(String.valueOf(transactionBlock.getHeight()), transactionBlock);
         //  CachedEventLoop.getInstance().setEventloop(Eventloop.create().withCurrentThread());
         // new Thread(CachedEventLoop.getInstance().getEventloop());
-        RpcAdrestusServer<AbstractBlock> example = new RpcAdrestusServer<AbstractBlock>(new TransactionBlock(), DatabaseInstance.ZONE_1_TRANSACTION_BLOCK, IPFinder.getLocal_address(), NetworkConfiguration.RPC_PORT, CachedEventLoop.getInstance().getEventloop());
+        RpcAdrestusServer<AbstractBlock> example = new RpcAdrestusServer<AbstractBlock>(new TransactionBlock(), DatabaseInstance.ZONE_0_TRANSACTION_BLOCK, IPFinder.getLocal_address(), ZoneDatabaseFactory.getDatabaseRPCPort(CachedZoneIndex.getInstance().getZoneIndex()), CachedEventLoop.getInstance().getEventloop());
         new Thread(example).start();
 
         BlockEventPublisher publisher = new BlockEventPublisher(1024);

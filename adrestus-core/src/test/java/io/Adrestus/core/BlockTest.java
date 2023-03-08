@@ -41,6 +41,7 @@ import io.Adrestus.util.SerializationUtil;
 import io.distributedLedger.*;
 import lombok.SneakyThrows;
 import org.apache.commons.codec.binary.StringUtils;
+import org.apache.commons.lang3.SerializationUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.spongycastle.util.encoders.Hex;
@@ -87,7 +88,7 @@ public class BlockTest {
     private static BLSPrivateKey sk8;
     private static BLSPublicKey vk8;
 
-    public static void delete_test(){
+    public static void delete_test() {
         IDatabase<String, TransactionBlock> transaction_block1 = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.ZONE_0_TRANSACTION_BLOCK);
         IDatabase<String, TransactionBlock> transaction_block2 = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.ZONE_1_TRANSACTION_BLOCK);
         IDatabase<String, TransactionBlock> transaction_block3 = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.ZONE_2_TRANSACTION_BLOCK);
@@ -115,6 +116,7 @@ public class BlockTest {
 
         commit.delete_db();
     }
+
     @SneakyThrows
     @BeforeAll
     public static void setup() {
@@ -589,7 +591,7 @@ public class BlockTest {
 
 
         Thread.sleep(100);
-        String hash = HashUtil.sha256_bytetoString(serenc.encode(committeeBlock));
+        String hash = HashUtil.sha256_bytetoString(serenc.encodeNotOptimal(committeeBlock, SerializationUtils.serialize(committeeBlock).length));
         committeeBlock.setHash(hash);
 
 

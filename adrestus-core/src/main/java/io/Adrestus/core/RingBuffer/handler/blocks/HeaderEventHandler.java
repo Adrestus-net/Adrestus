@@ -11,7 +11,6 @@ import io.distributedLedger.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Map;
 import java.util.Optional;
 
 public class HeaderEventHandler implements BlockEventHandler<AbstractBlockEvent>, DisruptorBlockVisitor {
@@ -68,7 +67,7 @@ public class HeaderEventHandler implements BlockEventHandler<AbstractBlockEvent>
         if (finish == 0)
             return;
 
-       Optional<TransactionBlock> transactionBlockDBEntry = this.transactionBlockIDatabase.seekLast();
+        Optional<TransactionBlock> transactionBlockDBEntry = this.transactionBlockIDatabase.seekLast();
 
         if (transactionBlockDBEntry.isEmpty()) {
             LOG.info("TransactionBlock hashes is empty");

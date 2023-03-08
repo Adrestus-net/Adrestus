@@ -11,14 +11,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class LevelDBConnectionTest {
 
     @Test
-    public void test_database_file() {
+    public void myEtest_database_file() {
         IDatabase<String, String> database = new DatabaseFactory(String.class, String.class).getDatabase(DatabaseType.LEVEL_DB);
         assertEquals(true, database.isDBexists());
         database.delete_db();
     }
 
     @Test
-    public void add_get1() {
+    public void myDadd_get1() {
         IDatabase<String, String> database = new DatabaseFactory(String.class, String.class).getDatabase(DatabaseType.LEVEL_DB);
         database.save("key", "value");
         Optional<String> value = database.findByKey("key");
@@ -29,7 +29,7 @@ public class LevelDBConnectionTest {
     }
 
     @Test
-    public void put_ALL() throws InterruptedException {
+    public void myCput_ALL() throws InterruptedException {
         IDatabase<String, String> database = new DatabaseFactory(String.class, String.class).getDatabase(DatabaseType.LEVEL_DB);
         Map<String, String> map = new HashMap<>();
         map.put("key1", "value1");
@@ -48,7 +48,7 @@ public class LevelDBConnectionTest {
     }
 
     @Test
-    public void find_between_range() {
+    public void myBfind_between_range() {
         IDatabase<String, String> database = new DatabaseFactory(String.class, String.class).getDatabase(DatabaseType.LEVEL_DB);
         Map<String, String> map = new HashMap<>();
         map.put("key1", "value1");
@@ -68,7 +68,7 @@ public class LevelDBConnectionTest {
     }
 
     @Test
-    public void delete() {
+    public void myAdelete() {
         IDatabase<String, String> database = new DatabaseFactory(String.class, String.class).getDatabase(DatabaseType.LEVEL_DB);
         database.save("key", "value");
         database.save("key", "values");

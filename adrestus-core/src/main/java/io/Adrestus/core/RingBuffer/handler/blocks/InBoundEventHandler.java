@@ -2,7 +2,6 @@ package io.Adrestus.core.RingBuffer.handler.blocks;
 
 import io.Adrestus.Trie.MerkleNode;
 import io.Adrestus.Trie.MerkleTreeImp;
-import io.Adrestus.config.NetworkConfiguration;
 import io.Adrestus.core.*;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedZoneIndex;

@@ -321,12 +321,11 @@ public class RegularBlock implements BlockForge, BlockInvent {
     public void InventTransactionBlock(TransactionBlock transactionBlock) {
 
         IDatabase<String, TransactionBlock> block_database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
-        IDatabase<String, byte[]> tree_datasbase = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getPatriciaTreeZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
+        IDatabase<String, byte[]> tree_database = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getPatriciaTreeZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
         IDatabase<String, LevelDBTransactionWrapper<Transaction>> transaction_database = new DatabaseFactory(String.class, Transaction.class, new TypeToken<LevelDBTransactionWrapper<Transaction>>() {
         }.getType()).getDatabase(DatabaseType.LEVEL_DB);
 
         block_database.save(String.valueOf(transactionBlock.getHeight()), transactionBlock);
-        tree_datasbase.save(String.valueOf(transactionBlock.getHeight()), SerializationUtils.serialize(TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex())));
 
 
 
@@ -371,6 +370,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
 
                     });
 
+        tree_database.save(transactionBlock.getPatriciaMerkleRoot(), SerializationUtils.serialize(TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex())));
         CachedLatestBlocks.getInstance().setTransactionBlock(transactionBlock);
         MemoryTransactionPool.getInstance().delete(transactionBlock.getTransactionList());
         CachedReceiptSemaphore.getInstance().getSemaphore().release();
@@ -404,20 +404,19 @@ public class RegularBlock implements BlockForge, BlockInvent {
             client = new RpcAdrestusClient(new CommitteeBlock(), toConnect, eventloop);
             client.connect();
 
-            Optional<TransactionBlock>block=block_database.seekLast();
+            Optional<TransactionBlock> block = block_database.seekLast();
 
-            if(block.isPresent()) {
+            if (block.isPresent()) {
                 List<TransactionBlock> blocks = client.getBlocksList(String.valueOf(block.get().getHeight()));
-                Map<String ,TransactionBlock> toSave=new HashMap<>();
-                if(!blocks.isEmpty()){
-                    blocks.stream().forEach(val->toSave.put(String.valueOf(val.getHeight()),val));
+                Map<String, TransactionBlock> toSave = new HashMap<>();
+                if (!blocks.isEmpty()) {
+                    blocks.stream().forEach(val -> toSave.put(String.valueOf(val.getHeight()), val));
                 }
-            }
-            else {
+            } else {
                 List<TransactionBlock> blocks = client.getBlocksList("1");
-                Map<String ,TransactionBlock> toSave=new HashMap<>();
-                if(!blocks.isEmpty()){
-                    blocks.stream().forEach(val->toSave.put(String.valueOf(val.getHeight()),val));
+                Map<String, TransactionBlock> toSave = new HashMap<>();
+                if (!blocks.isEmpty()) {
+                    blocks.stream().forEach(val -> toSave.put(String.valueOf(val.getHeight()), val));
                 }
             }
 
