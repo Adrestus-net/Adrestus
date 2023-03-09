@@ -17,16 +17,14 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TransactionTask extends AdrestusTask {
-    private static Logger LOG = LoggerFactory.getLogger(TransactionTask.class);
+public class BindServerTransactionTask extends AdrestusTask {
+    private static Logger LOG = LoggerFactory.getLogger(BindServerTransactionTask.class);
     private SerializationUtil<Transaction> serenc;
     private final TransactionEventPublisher publisher;
     private TCPTransactionConsumer<byte[]> receive;
     private TransactionChannelHandler transactionChannelHandler;
-    int counter = 0;
-    private ArrayList<Transaction> list = new ArrayList<>();
 
-    public TransactionTask() {
+    public BindServerTransactionTask() {
         super();
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(ECDSASignatureData.class, ctx -> new SignatureDataSerializer()));
@@ -59,14 +57,7 @@ public class TransactionTask extends AdrestusTask {
         this.receive = x -> {
             try {
                 Transaction transaction = serenc.decode(x);
-                counter++;
-                //System.out.println("Server Message:" + transaction.toString());
-                System.out.println("s " + counter);
-                // publisher.publish(transaction);
-                if (list.contains(transaction))
-                    System.out.println("edw " + transaction);
-                else
-                    list.add(transaction);
+                publisher.publish(transaction);
             } catch (Exception e) {
                 e.printStackTrace();
             }

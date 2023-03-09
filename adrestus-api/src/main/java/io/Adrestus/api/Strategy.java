@@ -11,8 +11,7 @@ public class Strategy {
         this.strategy = strategy;
     }
 
-    public void execute() {
-
+    public void SendTransactionSync() {
         strategy.execute();
     }
 

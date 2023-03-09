@@ -124,6 +124,23 @@ public class RpcAdrestusServer<T> implements Runnable {
         this.valueMapper2 = new SerializationUtil<T>(typeParameterClass.getClass(), list, true);
     }
 
+    public RpcAdrestusServer(T typeParameterClass, PatriciaTreeInstance patriciaTreeInstance, String host, int port, Eventloop eventloop) {
+        this.rpcserialize = SerializerBuilder.create();
+        this.patriciaTreeInstance = patriciaTreeInstance;
+        this.host = host;
+        this.port = port;
+        this.eventloop = eventloop;
+        this.typeParameterClass = typeParameterClass;
+        List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
+        list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
+        list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
+        list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
+        list.add(new SerializationUtil.Mapping(MemoryTreePool.class, ctx -> new MemoryTreePoolSerializer()));
+        this.valueMapper = new SerializationUtil(typeParameterClass.getClass(), list, true);
+        this.valueMapper2 = new SerializationUtil<T>(typeParameterClass.getClass(), list, true);
+    }
+
     @SneakyThrows
     @Override
     public void run() {

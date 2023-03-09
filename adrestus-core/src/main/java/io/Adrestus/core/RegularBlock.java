@@ -7,6 +7,7 @@ import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.MerkleNode;
 import io.Adrestus.Trie.MerkleTreeImp;
 import io.Adrestus.config.AdrestusConfiguration;
+import io.Adrestus.config.NetworkConfiguration;
 import io.Adrestus.core.Resourses.*;
 import io.Adrestus.core.RingBuffer.publisher.BlockEventPublisher;
 import io.Adrestus.crypto.HashUtil;
@@ -18,6 +19,7 @@ import io.Adrestus.crypto.bls.model.CachedBLSKeyPair;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.crypto.elliptic.mapper.CustomSerializerTreeMap;
 import io.Adrestus.crypto.elliptic.mapper.StakingData;
+import io.Adrestus.mapper.MemoryTreePoolSerializer;
 import io.Adrestus.p2p.kademlia.repository.KademliaData;
 import io.Adrestus.rpc.RpcAdrestusClient;
 import io.Adrestus.util.CustomRandom;
@@ -32,6 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
 
+import java.lang.reflect.Type;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -45,6 +48,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
     private static Logger LOG = LoggerFactory.getLogger(RegularBlock.class);
 
     private final SerializationUtil<AbstractBlock> encode;
+    private final SerializationUtil patricia_tree_wrapper;
     private final IBlockIndex blockIndex;
 
     private static Eventloop eventloop = Eventloop.create().withCurrentThread();
@@ -56,7 +60,12 @@ public class RegularBlock implements BlockForge, BlockInvent {
         list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
-        encode = new SerializationUtil<AbstractBlock>(AbstractBlock.class, list);
+        Type fluentType = new TypeToken<MemoryTreePool>() {
+        }.getType();
+        List<SerializationUtil.Mapping> list2 = new ArrayList<>();
+        list2.add(new SerializationUtil.Mapping(MemoryTreePool.class, ctx -> new MemoryTreePoolSerializer()));
+        this.patricia_tree_wrapper = new SerializationUtil<>(fluentType, list2);
+        this.encode = new SerializationUtil<AbstractBlock>(AbstractBlock.class, list);
         this.blockIndex = new BlockIndex();
     }
 
@@ -173,6 +182,9 @@ public class RegularBlock implements BlockForge, BlockInvent {
     @SneakyThrows
     @Override
     public void forgeCommitteBlock(CommitteeBlock committeeBlock) {
+        CachedReceiptSemaphore.getInstance().getSemaphore().acquire();
+
+
         IDatabase<String, CommitteeBlock> database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
 
         if (CachedKademliaNodes.getInstance().getDhtBootstrapNode() != null) {
@@ -370,9 +382,55 @@ public class RegularBlock implements BlockForge, BlockInvent {
 
                     });
 
-        tree_database.save(transactionBlock.getPatriciaMerkleRoot(), SerializationUtils.serialize(TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex())));
+        tree_database.save(transactionBlock.getPatriciaMerkleRoot(), patricia_tree_wrapper.encode_special(TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()), SerializationUtils.serialize(TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex())).length));
         CachedLatestBlocks.getInstance().setTransactionBlock(transactionBlock);
         MemoryTransactionPool.getInstance().delete(transactionBlock.getTransactionList());
+
+        //Sync committee block from zone0
+        if(CachedZoneIndex.getInstance().getZoneIndex()!=0){
+            List<String> ips = CachedLatestBlocks
+                    .getInstance()
+                    .getCommitteeBlock()
+                    .getStructureMap()
+                    .get(0)
+                    .values()
+                    .stream()
+                    .collect(Collectors.toList());
+
+            ArrayList<InetSocketAddress> toConnectCommitee = new ArrayList<>();
+            ips.stream().forEach(ip -> {
+                try {
+                    toConnectCommitee.add(new InetSocketAddress(InetAddress.getByName(ip), NetworkConfiguration.RPC_PORT));
+                } catch (UnknownHostException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+
+            RpcAdrestusClient client = null;
+            label:try {
+                IDatabase<String, CommitteeBlock> commitee_block_database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
+                client = new RpcAdrestusClient(new CommitteeBlock(), toConnectCommitee, eventloop);
+                client.connect();
+
+                List<CommitteeBlock>commitee_blocks = client.getBlocksList(String.valueOf(CachedLatestBlocks.getInstance().getCommitteeBlock().getHeight()));
+
+                if(commitee_blocks.isEmpty())
+                    break label;
+                CommitteeBlock last=commitee_blocks.get(commitee_blocks.size()-1);
+
+                if(last.getHeight()!=CachedLatestBlocks.getInstance().getCommitteeBlock().getHeight()) {
+                    commitee_block_database.save(String.valueOf(last.getHeight()), last);
+                    CachedLeaderIndex.getInstance().setCommitteePositionLeader(0);
+                    CachedLatestBlocks.getInstance().setCommitteeBlock(last);
+                    CachedZoneIndex.getInstance().setZoneIndexInternalIP();
+                    CachedEpochGeneration.getInstance().setEpoch_counter(0);
+                    CachedLeaderIndex.getInstance().setTransactionPositionLeader(CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).size() - 1);
+                }
+                if (client != null)
+                    client.close();
+            } catch (IllegalArgumentException e) {
+            }
+        }
         CachedReceiptSemaphore.getInstance().getSemaphore().release();
 
     }
@@ -383,17 +441,21 @@ public class RegularBlock implements BlockForge, BlockInvent {
     @Override
     public void InventCommitteBlock(CommitteeBlock committeeBlock) {
         CommitteeBlock prevblock = (CommitteeBlock) CachedLatestBlocks.getInstance().getCommitteeBlock().clone();
-        CommitteeBlock cloned_block = (CommitteeBlock) committeeBlock.clone();
         IDatabase<String, CommitteeBlock> database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
         database.save(String.valueOf(committeeBlock.getHeight()), committeeBlock);
         CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
         CachedZoneIndex.getInstance().setZoneIndexInternalIP();
+
+        //sync blocks from zone of previous validators for both transaction and patricia tree blocks
         List<String> ips = prevblock.getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).values().stream().collect(Collectors.toList());
-        int RPCZonePort = ZoneDatabaseFactory.getDatabaseRPCPort(CachedZoneIndex.getInstance().getZoneIndex());
-        ArrayList<InetSocketAddress> toConnect = new ArrayList<>();
+        int RPCTransactionZonePort = ZoneDatabaseFactory.getDatabaseRPCPort(CachedZoneIndex.getInstance().getZoneIndex());
+        int RPCPatriciaTreeZonePort = ZoneDatabaseFactory.getDatabasePatriciaRPCPort(ZoneDatabaseFactory.getPatriciaTreeZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
+        ArrayList<InetSocketAddress> toConnectTransaction = new ArrayList<>();
+        ArrayList<InetSocketAddress> toConnectPatricia = new ArrayList<>();
         ips.stream().forEach(ip -> {
             try {
-                toConnect.add(new InetSocketAddress(InetAddress.getByName(ip), RPCZonePort));
+                toConnectTransaction.add(new InetSocketAddress(InetAddress.getByName(ip), RPCTransactionZonePort));
+                toConnectPatricia.add(new InetSocketAddress(InetAddress.getByName(ip), RPCPatriciaTreeZonePort));
             } catch (UnknownHostException e) {
                 throw new RuntimeException(e);
             }
@@ -401,30 +463,56 @@ public class RegularBlock implements BlockForge, BlockInvent {
         RpcAdrestusClient client = null;
         try {
             IDatabase<String, TransactionBlock> block_database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
-            client = new RpcAdrestusClient(new CommitteeBlock(), toConnect, eventloop);
+            client = new RpcAdrestusClient(new TransactionBlock(), toConnectTransaction, eventloop);
             client.connect();
 
             Optional<TransactionBlock> block = block_database.seekLast();
-
+            List<TransactionBlock> blocks;
             if (block.isPresent()) {
-                List<TransactionBlock> blocks = client.getBlocksList(String.valueOf(block.get().getHeight()));
-                Map<String, TransactionBlock> toSave = new HashMap<>();
-                if (!blocks.isEmpty()) {
-                    blocks.stream().forEach(val -> toSave.put(String.valueOf(val.getHeight()), val));
-                }
+                blocks = client.getBlocksList(String.valueOf(block.get().getHeight()));
+
             } else {
-                List<TransactionBlock> blocks = client.getBlocksList("1");
-                Map<String, TransactionBlock> toSave = new HashMap<>();
-                if (!blocks.isEmpty()) {
-                    blocks.stream().forEach(val -> toSave.put(String.valueOf(val.getHeight()), val));
-                }
+                blocks = client.getBlocksList("");
             }
+            Map<String, TransactionBlock> toSave = new HashMap<>();
+            if (!blocks.isEmpty()) {
+                blocks.stream().forEach(val -> toSave.put(String.valueOf(val.getHeight()), val));
+            }
+            block_database.saveAll(toSave);
 
             if (client != null)
                 client.close();
         } catch (IllegalArgumentException e) {
         }
 
+        try {
+            IDatabase<String, byte[]> tree_database = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getPatriciaTreeZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
+            client = new RpcAdrestusClient(new byte[]{}, toConnectPatricia, eventloop);
+            client.connect();
+
+            Optional<byte[]> tree = tree_database.seekLast();
+            List<byte[]> treeObjects;
+            if (tree.isPresent()) {
+                treeObjects = client.getPatriciaTreeList(((MemoryTreePool) patricia_tree_wrapper.decode(tree.get())).getRootHash());
+            } else {
+                treeObjects = client.getPatriciaTreeList("");
+            }
+            Map<String, byte[]> toSave = new HashMap<>();
+            if (!treeObjects.isEmpty()) {
+                treeObjects.stream().forEach(val -> {
+                    try {
+                        toSave.put(((MemoryTreePool) patricia_tree_wrapper.decode(val)).getRootHash(), val);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                });
+                tree_database.saveAll(toSave);
+            }
+            if (client != null)
+                client.close();
+        } catch (IllegalArgumentException e) {
+        }
+        CachedReceiptSemaphore.getInstance().getSemaphore().release();
     }
 
 }

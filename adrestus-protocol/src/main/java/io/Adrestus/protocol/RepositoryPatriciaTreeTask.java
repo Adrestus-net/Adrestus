@@ -6,6 +6,7 @@ import io.Adrestus.network.CachedEventLoop;
 import io.Adrestus.network.IPFinder;
 import io.Adrestus.rpc.RpcAdrestusServer;
 import io.distributedLedger.DatabaseInstance;
+import io.distributedLedger.PatriciaTreeInstance;
 import io.distributedLedger.ZoneDatabaseFactory;
 import lombok.SneakyThrows;
 import org.slf4j.Logger;
@@ -14,24 +15,22 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class RepositoryTransactionTask extends AdrestusTask {
-    private static Logger LOG = LoggerFactory.getLogger(RepositoryTransactionTask.class);
-    private final TransactionBlock transactionBlock;
-    private RpcAdrestusServer<AbstractBlock> rpcAdrestusServer;
+public class RepositoryPatriciaTreeTask extends AdrestusTask{
+    private static Logger LOG = LoggerFactory.getLogger(RepositoryPatriciaTreeTask.class);
+    private RpcAdrestusServer<byte[]> rpcAdrestusServer;
     private final ExecutorService executorService;
 
-    private final DatabaseInstance databaseInstance;
+    private final PatriciaTreeInstance instance;
 
-    public RepositoryTransactionTask(DatabaseInstance databaseInstance) {
-        this.transactionBlock = new TransactionBlock();
-        this.databaseInstance = databaseInstance;
+    public RepositoryPatriciaTreeTask(PatriciaTreeInstance instance) {
+        this.instance = instance;
         this.executorService = Executors.newSingleThreadExecutor();
     }
 
     @SneakyThrows
     @Override
     public void execute() {
-        this.rpcAdrestusServer = new RpcAdrestusServer<AbstractBlock>(this.transactionBlock, this.databaseInstance, IPFinder.getLocal_address(), ZoneDatabaseFactory.getDatabaseRPCPort(databaseInstance), CachedEventLoop.getInstance().getEventloop());
+        this.rpcAdrestusServer = new RpcAdrestusServer<byte[]>(new byte[]{}, this.instance, IPFinder.getLocal_address(), ZoneDatabaseFactory.getDatabasePatriciaRPCPort(instance), CachedEventLoop.getInstance().getEventloop());
         this.executorService.execute(rpcAdrestusServer);
         LOG.info("execute");
     }

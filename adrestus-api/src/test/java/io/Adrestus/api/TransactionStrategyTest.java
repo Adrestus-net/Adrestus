@@ -154,12 +154,27 @@ public class TransactionStrategyTest {
     }
 
     @Test
-    public void test() throws Exception {
-        Strategy transactionStrategy = new Strategy(new TransactionStrategy(MemoryTransactionPool.getInstance().getAll()));
+    public void transaction_list() throws Exception {
+        ArrayList<Transaction>list=new ArrayList<>(MemoryTransactionPool.getInstance().getAll());
+        list.remove(0);
+        Strategy transactionStrategy = new Strategy(new TransactionStrategy(list));
         // Strategy transactionStrategy1 = new Strategy(new TransactionStrategy((Transaction) MemoryTransactionPool.getInstance().getAll().get(0)));
         System.out.println(MemoryTransactionPool.getInstance().getAll().size());
         //transactionStrategy1.execute();
-        transactionStrategy.execute();
+        transactionStrategy.SendTransactionSync();
+        //transactionStrategy1.block_until_send();
+        transactionStrategy.block_until_send();
+        transactionStrategy.terminate();
+        //transactionStrategy1.terminate();
+    }
+
+    @Test
+    public void single_transaction() throws Exception {
+        Strategy transactionStrategy = new Strategy(new TransactionStrategy((Transaction) MemoryTransactionPool.getInstance().getAll().get(0)));
+        // Strategy transactionStrategy1 = new Strategy(new TransactionStrategy((Transaction) MemoryTransactionPool.getInstance().getAll().get(0)));
+        System.out.println(MemoryTransactionPool.getInstance().getAll().size());
+        //transactionStrategy1.execute();
+        transactionStrategy.SendTransactionSync();
         //transactionStrategy1.block_until_send();
         transactionStrategy.block_until_send();
         transactionStrategy.terminate();

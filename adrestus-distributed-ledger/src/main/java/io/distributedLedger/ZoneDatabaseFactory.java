@@ -127,6 +127,21 @@ public class ZoneDatabaseFactory {
         }
     }
 
+    public static int getDatabasePatriciaRPCPort(PatriciaTreeInstance instance) {
+        switch (instance) {
+            case PATRICIA_TREE_INSTANCE_0:
+                return NetworkConfiguration.PATRICIATREE_ZONE0_RPC_PORT;
+            case PATRICIA_TREE_INSTANCE_1:
+                return NetworkConfiguration.PATRICIATREE_ZONE1_RPC_PORT;
+            case PATRICIA_TREE_INSTANCE_2:
+                return NetworkConfiguration.PATRICIATREE_ZONE2_RPC_PORT;
+            case PATRICIA_TREE_INSTANCE_3:
+                return NetworkConfiguration.PATRICIATREE_ZONE3_RPC_PORT;
+            default:
+                return NetworkConfiguration.PATRICIATREE_ZONE0_RPC_PORT;
+        }
+    }
+
 
     public static PatriciaTreeInstance getPatriciaTreeZoneInstance(int zone) {
         switch (zone) {

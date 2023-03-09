@@ -13,5 +13,11 @@ public class NetworkConfigurationTest {
         assertEquals(8084, NetworkConfiguration.ZONE1_RPC_PORT);
         assertEquals(8085, NetworkConfiguration.ZONE2_RPC_PORT);
         assertEquals(8086, NetworkConfiguration.ZONE3_RPC_PORT);
+
+
+        assertEquals(7083, NetworkConfiguration.PATRICIATREE_ZONE0_RPC_PORT);
+        assertEquals(7084, NetworkConfiguration.PATRICIATREE_ZONE1_RPC_PORT);
+        assertEquals(7085, NetworkConfiguration.PATRICIATREE_ZONE2_RPC_PORT);
+        assertEquals(7086, NetworkConfiguration.PATRICIATREE_ZONE3_RPC_PORT);
     }
 }

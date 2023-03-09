@@ -443,6 +443,26 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
     }
 
     @Override
+    public Map<K, V> seekFromStart() {
+        r.lock();
+        Map<Object, Object> hashmap = new LinkedHashMap<>();
+        try {
+            final RocksIterator iterator = rocksDB.newIterator();
+            iterator.seekToFirst();
+            do {
+                byte[] serializedKey = iterator.key();
+                byte[] serializedValue = iterator.value();
+                hashmap.put(keyMapper.decode(serializedKey), valueMapper.decode(serializedValue));
+                iterator.next();
+            } while (iterator.isValid());
+        } catch (final SerializationException exception) {
+            LOGGER.error("Serialization exception occurred during findByKey operation. {}", exception.getMessage());
+        } finally {
+            r.unlock();
+        }
+        return (Map<K, V>) hashmap;
+    }
+    @Override
     public Map<K, V> seekBetweenRange(int start, int finish) {
         r.lock();
         Map<Object, Object> hashmap = new LinkedHashMap<>();
@@ -463,6 +483,8 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
         }
         return (Map<K, V>) hashmap;
     }
+
+
 
     @Override
     public Optional<V> seekLast() {

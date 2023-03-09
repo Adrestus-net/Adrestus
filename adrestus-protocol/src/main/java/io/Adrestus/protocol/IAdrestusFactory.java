@@ -1,6 +1,7 @@
 package io.Adrestus.protocol;
 
 import io.distributedLedger.DatabaseInstance;
+import io.distributedLedger.PatriciaTreeInstance;
 
 public interface IAdrestusFactory {
 
@@ -13,4 +14,6 @@ public interface IAdrestusFactory {
     AdrestusTask createRepositoryTransactionTask(DatabaseInstance databaseInstance);
 
     AdrestusTask createRepositoryCommitteeTask();
+
+    AdrestusTask createRepositoryPatriciaTreeTask(PatriciaTreeInstance patriciaTreeInstance);
 }
