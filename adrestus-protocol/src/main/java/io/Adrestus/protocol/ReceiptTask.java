@@ -41,7 +41,7 @@ public class ReceiptTask extends AdrestusTask {
                 CachedReceiptSemaphore.getInstance().getSemaphore().acquire();
                 if (!CachedLatestBlocks.getInstance().getTransactionBlock().getOutbound().getMap_receipts().isEmpty()) {
                     CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).values().forEach(ip -> {
-                        eventloop.connect(new InetSocketAddress(ip, TransactionConfigOptions.TRANSACTION_PORT), (socketChannel, e) -> {
+                        eventloop.connect(new InetSocketAddress(ip, TransactionConfigOptions.RECEIPT_PORT), (socketChannel, e) -> {
                             if (e == null) {
                                 // System.out.println("Connected to server, enter some text and send it by pressing 'Enter'.");
                                 try {

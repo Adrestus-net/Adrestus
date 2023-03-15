@@ -8,6 +8,7 @@ import io.Adrestus.Trie.MerkleNode;
 import io.Adrestus.Trie.MerkleTreeImp;
 import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.config.NetworkConfiguration;
+import io.Adrestus.config.TransactionConfigOptions;
 import io.Adrestus.core.Resourses.*;
 import io.Adrestus.core.RingBuffer.publisher.BlockEventPublisher;
 import io.Adrestus.crypto.HashUtil;
@@ -20,6 +21,7 @@ import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.crypto.elliptic.mapper.CustomSerializerTreeMap;
 import io.Adrestus.crypto.elliptic.mapper.StakingData;
 import io.Adrestus.mapper.MemoryTreePoolSerializer;
+import io.Adrestus.network.AsyncService;
 import io.Adrestus.p2p.kademlia.repository.KademliaData;
 import io.Adrestus.rpc.RpcAdrestusClient;
 import io.Adrestus.util.CustomRandom;
@@ -48,6 +50,8 @@ public class RegularBlock implements BlockForge, BlockInvent {
     private static Logger LOG = LoggerFactory.getLogger(RegularBlock.class);
 
     private final SerializationUtil<AbstractBlock> encode;
+    private final SerializationUtil<Transaction> transaction_encode;
+    private final SerializationUtil<Receipt> receipt_encode;
     private final SerializationUtil patricia_tree_wrapper;
     private final IBlockIndex blockIndex;
 
@@ -66,6 +70,8 @@ public class RegularBlock implements BlockForge, BlockInvent {
         list2.add(new SerializationUtil.Mapping(MemoryTreePool.class, ctx -> new MemoryTreePoolSerializer()));
         this.patricia_tree_wrapper = new SerializationUtil<>(fluentType, list2);
         this.encode = new SerializationUtil<AbstractBlock>(AbstractBlock.class, list);
+        this.transaction_encode = new SerializationUtil<Transaction>(Transaction.class);
+        this.receipt_encode = new SerializationUtil<Receipt>(Receipt.class);
         this.blockIndex = new BlockIndex();
     }
 
@@ -128,6 +134,23 @@ public class RegularBlock implements BlockForge, BlockInvent {
 
         //##########InBound############
         if (!MemoryReceiptPool.getInstance().getAll().isEmpty()) {
+            List<Receipt> receiptList1 = MemoryReceiptPool.getInstance().getListNotByZone(CachedZoneIndex.getInstance().getZoneIndex());
+            if (!receiptList1.isEmpty()) {
+                Map<Integer, List<Receipt>> receiptListGrouped = receiptList1.stream().collect(Collectors.groupingBy(w -> w.getZoneTo()));
+                for (Map.Entry<Integer, List<Receipt>> entry : receiptListGrouped.entrySet()) {
+                    List<String> ReceiptIPWorkers = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(entry.getKey()).values().stream().collect(Collectors.toList());
+                    List<byte[]> toSendReceipt = new ArrayList<>();
+                    entry.getValue().stream().forEach(receipt -> toSendReceipt.add(receipt_encode.encode(receipt, 1024)));
+
+                    if (!toSendReceipt.isEmpty()) {
+                        var executor = new AsyncService<Long>(ReceiptIPWorkers, toSendReceipt, TransactionConfigOptions.RECEIPT_PORT);
+
+                        var asyncResult = executor.startListProcess(300L);
+                        var result = executor.endProcess(asyncResult);
+                        MemoryReceiptPool.getInstance().delete(entry.getValue());
+                    }
+                }
+            }
             Map<Integer, Map<Receipt.ReceiptBlock, List<Receipt>>> inbound_map = ((ArrayList<Receipt>) MemoryReceiptPool.getInstance().getAll())
                     .stream()
                     .collect(Collectors.groupingBy(Receipt::getZoneFrom, Collectors.groupingBy(Receipt::getReceiptBlock, Collectors.mapping(Receipt::merge, Collectors.toList()))));
@@ -442,6 +465,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
     @Override
     public void InventCommitteBlock(CommitteeBlock committeeBlock) {
         CommitteeBlock prevblock = (CommitteeBlock) CachedLatestBlocks.getInstance().getCommitteeBlock().clone();
+        int prevZone = Integer.valueOf(CachedZoneIndex.getInstance().getZoneIndex());
         IDatabase<String, CommitteeBlock> database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
         database.save(String.valueOf(committeeBlock.getHeight()), committeeBlock);
         CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
@@ -527,6 +551,34 @@ public class RegularBlock implements BlockForge, BlockInvent {
                 client.close();
         } catch (IllegalArgumentException e) {
         }
+
+        //find transactions that is not for this zone and sent them to the correct zone
+        List<Transaction> transactionList = MemoryTransactionPool.getInstance().getListByZone(prevZone);
+        List<byte[]> toSendTransaction = new ArrayList<>();
+        transactionList.stream().forEach(transaction -> toSendTransaction.add(transaction_encode.encode(transaction, 1024)));
+        List<String> TransactionIPWorkers = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(prevZone).values().stream().collect(Collectors.toList());
+
+        if (!toSendTransaction.isEmpty()) {
+            var executor = new AsyncService<Long>(TransactionIPWorkers, toSendTransaction, TransactionConfigOptions.TRANSACTION_PORT);
+
+            var asyncResult = executor.startListProcess(300L);
+            var result = executor.endProcess(asyncResult);
+            MemoryTransactionPool.getInstance().delete(transactionList);
+        }
+
+        //find receipts that is not for this zone and sent them to the correct zone
+        List<Receipt> receiptList = MemoryReceiptPool.getInstance().getListByZone(prevZone);
+        List<byte[]> toSendReceipt = new ArrayList<>();
+        receiptList.stream().forEach(receipt -> toSendReceipt.add(receipt_encode.encode(receipt, 1024)));
+        List<String> ReceiptIPWorkers = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(prevZone).values().stream().collect(Collectors.toList());
+
+        if (!toSendReceipt.isEmpty()) {
+            var executor = new AsyncService<Long>(ReceiptIPWorkers, toSendReceipt, TransactionConfigOptions.RECEIPT_PORT);
+
+            var asyncResult = executor.startListProcess(300L);
+            var result = executor.endProcess(asyncResult);
+            MemoryReceiptPool.getInstance().delete(transactionList);
+        }
         CachedReceiptSemaphore.getInstance().getSemaphore().release();
     }
 
@@ -534,6 +586,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
     @Override
     public void SyncBlockState() {
         CommitteeBlock prevblock = (CommitteeBlock) CachedLatestBlocks.getInstance().getCommitteeBlock().clone();
+        int prevZone = Integer.valueOf(CachedZoneIndex.getInstance().getZoneIndex());
         List<String> ips = prevblock.getStructureMap().get(0).values().stream().collect(Collectors.toList());
         ArrayList<InetSocketAddress> toConnectCommittee = new ArrayList<>();
         ips.stream().forEach(ip -> {
@@ -644,6 +697,33 @@ public class RegularBlock implements BlockForge, BlockInvent {
             if (client != null)
                 client.close();
         } catch (IllegalArgumentException e) {
+        }
+
+        //find transactions that is not for this zone and sent them to the correct zone
+        List<Transaction> transactionList = MemoryTransactionPool.getInstance().getListByZone(prevZone);
+        List<byte[]> toSend = new ArrayList<>();
+        transactionList.stream().forEach(transaction -> toSend.add(transaction_encode.encode(transaction, 1024)));
+        List<String> iptoSend = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(prevZone).values().stream().collect(Collectors.toList());
+
+        if (!toSend.isEmpty()) {
+            var executor = new AsyncService<Long>(iptoSend, toSend, TransactionConfigOptions.TRANSACTION_PORT);
+
+            var asyncResult = executor.startListProcess(300L);
+            var result = executor.endProcess(asyncResult);
+        }
+
+        //find receipts that is not for this zone and sent them to the correct zone
+        List<Receipt> receiptList = MemoryReceiptPool.getInstance().getListByZone(prevZone);
+        List<byte[]> toSendReceipt = new ArrayList<>();
+        receiptList.stream().forEach(receipt -> toSendReceipt.add(receipt_encode.encode(receipt, 1024)));
+        List<String> ReceiptIPWorkers = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(prevZone).values().stream().collect(Collectors.toList());
+
+        if (!toSendReceipt.isEmpty()) {
+            var executor = new AsyncService<Long>(ReceiptIPWorkers, toSendReceipt, TransactionConfigOptions.RECEIPT_PORT);
+
+            var asyncResult = executor.startListProcess(300L);
+            var result = executor.endProcess(asyncResult);
+            MemoryReceiptPool.getInstance().delete(transactionList);
         }
     }
 }

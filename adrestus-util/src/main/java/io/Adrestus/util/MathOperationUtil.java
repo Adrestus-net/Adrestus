@@ -38,8 +38,7 @@ public final class MathOperationUtil {
     }
 
 
-    public static int closestNumber(int n, int m)
-    {
+    public static int closestNumber(int n, int m) {
 
         int q = n / m;
         int n1 = m * q;

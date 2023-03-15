@@ -64,6 +64,7 @@ public class CommitteeBlock extends AbstractBlock implements BlockFactory, Disru
     public void accept(BlockInvent visitor) {
         visitor.InventCommitteBlock(this);
     }
+
     @Override
     public void accept(DisruptorBlockVisitor disruptorBlockVisitor) {
         disruptorBlockVisitor.visit(this);

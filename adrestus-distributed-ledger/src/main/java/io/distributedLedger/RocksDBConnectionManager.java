@@ -462,6 +462,7 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
         }
         return (Map<K, V>) hashmap;
     }
+
     @Override
     public Map<K, V> seekBetweenRange(int start, int finish) {
         r.lock();
@@ -483,7 +484,6 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
         }
         return (Map<K, V>) hashmap;
     }
-
 
 
     @Override

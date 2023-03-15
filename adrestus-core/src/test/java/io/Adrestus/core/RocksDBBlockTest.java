@@ -4,7 +4,6 @@ import com.google.common.reflect.TypeToken;
 import io.Adrestus.MemoryTreePool;
 import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.PatriciaTreeNode;
-import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.crypto.bls.BLS381.ECP;
 import io.Adrestus.crypto.bls.BLS381.ECP2;
 import io.Adrestus.crypto.bls.mapper.ECP2mapper;
@@ -305,8 +304,8 @@ public class RocksDBBlockTest {
         //m.getByaddress(address);
         //use only special
         byte[] bt = valueMapper.encode_special(m, SerializationUtils.serialize(m).length);
-        Map<String,byte[]>map=new HashMap<>();
-        map.put(m.getRootHash(),bt);
+        Map<String, byte[]> map = new HashMap<>();
+        map.put(m.getRootHash(), bt);
         tree_database.saveAll(map);
 
         Optional<byte[]> copy = tree_database.seekLast();

@@ -1,6 +1,5 @@
 package io.Adrestus.network;
 
-import io.Adrestus.config.TransactionConfigOptions;
 import io.activej.bytebuf.ByteBuf;
 import io.activej.bytebuf.ByteBufPool;
 import io.activej.csp.ChannelSupplier;
@@ -30,7 +29,7 @@ import static io.activej.promise.Promises.loop;
 public class AsyncService<T> {
     private static Logger LOG = LoggerFactory.getLogger(AsyncService.class);
 
-    private static final int TIMER_DELAY_TIMEOUT=15000;
+    private static final int TIMER_DELAY_TIMEOUT = 15000;
     private final ThreadAsyncExecutor executor;
     private final List<String> list_ip;
     private final int port;
@@ -54,7 +53,7 @@ public class AsyncService<T> {
         this.executor = new ThreadAsyncExecutor();
         this.list_ip = list_ip;
         this.port = port;
-        this.toSend=toSend;
+        this.toSend = toSend;
         this.eventloop = Eventloop.create().withCurrentThread();
         this.local_termination = new CountDownLatch[list_ip.size()];
     }
@@ -75,11 +74,12 @@ public class AsyncService<T> {
         }
         return list;
     }
+
     public List<AsyncResult<T>> startListProcess(T value) {
 
         List<AsyncResult<T>> list = new ArrayList<>();
         for (int i = 0; i < list_ip.size(); i++) {
-            AsyncResult<T> result = executor.startProcess(AsyncListCall(value, list_ip.get(i),i));
+            AsyncResult<T> result = executor.startProcess(AsyncListCall(value, list_ip.get(i), i));
             list.add(result);
             eventloop.run();
         }
@@ -121,6 +121,7 @@ public class AsyncService<T> {
             return value;
         };
     }
+
     private <T> Callable<T> AsyncListCall(T value, String ip, int pos) {
         return () -> {
             eventloop.connect(new InetSocketAddress(ip, this.port), (socketChannel, e) -> {

@@ -112,6 +112,17 @@ public class MemoryTransactionPool implements IMemoryPool<Transaction> {
     }
 
     @Override
+    public List<Transaction> getListNotByZone(int zone) throws Exception {
+        r.lock();
+        try {
+            List<Transaction> result = memorypool.stream().filter(val -> val.getZoneFrom() != zone).collect(Collectors.toList());
+            return result;
+        } finally {
+            r.unlock();
+        }
+    }
+
+    @Override
     public boolean add(Transaction transaction) throws Exception {
         w.lock();
         try {

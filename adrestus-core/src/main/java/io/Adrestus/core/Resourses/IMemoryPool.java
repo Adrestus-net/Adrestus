@@ -20,6 +20,8 @@ public interface IMemoryPool<T> {
 
     List<T> getListByZone(int zone) throws Exception;
 
+    List<T> getListNotByZone(int zone) throws Exception;
+
     boolean add(T Object) throws Exception;
 
     void delete(List<T> list_Object);

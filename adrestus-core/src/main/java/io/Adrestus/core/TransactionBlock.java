@@ -78,6 +78,7 @@ public class TransactionBlock extends AbstractBlock implements BlockFactory, Dis
     public void accept(BlockInvent visitor) throws Exception {
         visitor.InventTransactionBlock(this);
     }
+
     @Override
     public void accept(DisruptorBlockVisitor disruptorBlockVisitor) {
         disruptorBlockVisitor.visit(this);

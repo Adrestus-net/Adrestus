@@ -102,7 +102,18 @@ public class MemoryReceiptPool implements IMemoryPool<Receipt> {
     public List<Receipt> getListByZone(int zone) throws Exception {
         r.lock();
         try {
-            List<Receipt> result = memorypool.stream().filter(val -> val.getTransaction().getZoneFrom()==zone).collect(Collectors.toList());
+            List<Receipt> result = memorypool.stream().filter(val -> val.getTransaction().getZoneTo() == zone).collect(Collectors.toList());
+            return result;
+        } finally {
+            r.unlock();
+        }
+    }
+
+    @Override
+    public List<Receipt> getListNotByZone(int zone) throws Exception {
+        r.lock();
+        try {
+            List<Receipt> result = memorypool.stream().filter(val -> val.getTransaction().getZoneTo() != zone).collect(Collectors.toList());
             return result;
         } finally {
             r.unlock();

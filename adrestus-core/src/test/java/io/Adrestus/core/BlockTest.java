@@ -183,7 +183,7 @@ public class BlockTest {
         var regural_block = factory.getBlock(BlockType.REGULAR);
         //factory.accept(genesis);
         //factory.accept(regural_block);
-        int g=4;
+        int g = 4;
     }
 
     @Test
@@ -609,7 +609,6 @@ public class BlockTest {
         publisher.close();
         database.delete_db();
     }
-
 
 
     //ITS WRONG ONLY radmones_assignment_test ITS CORRECT PLEASE IGNORE IT

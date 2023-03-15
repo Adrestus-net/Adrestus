@@ -52,6 +52,7 @@ public class AsyncServiceTest {
     private static SerializationUtil<Transaction> transaction_encode;
 
     private static Transaction transaction;
+
     @BeforeAll
     public static void setup() throws Exception {
         int version = 0x00;
@@ -152,29 +153,30 @@ public class AsyncServiceTest {
         CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
         CachedLeaderIndex.getInstance().setCommitteePositionLeader(0);
         CachedZoneIndex.getInstance().setZoneIndex(0);
-        transaction= (Transaction) ((Transaction) MemoryTransactionPool.getInstance().getAll().get(0)).clone();
+        transaction = (Transaction) ((Transaction) MemoryTransactionPool.getInstance().getAll().get(0)).clone();
     }
+
     @SneakyThrows
     @Test
-    public void testList(){
+    public void testList() {
 
-        List<String> ips=CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).values().stream().collect(Collectors.toList());
-        List<byte[]> transaction_list=new ArrayList<>();
-        MemoryTransactionPool.getInstance().getAll().stream().skip(1).forEach(transaction->transaction_list.add(transaction_encode.encode((Transaction) transaction,1024)));
-        var executor=new AsyncService<Long>(ips, transaction_list,TransactionConfigOptions.TRANSACTION_PORT);
+        List<String> ips = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).values().stream().collect(Collectors.toList());
+        List<byte[]> transaction_list = new ArrayList<>();
+        MemoryTransactionPool.getInstance().getAll().stream().skip(1).forEach(transaction -> transaction_list.add(transaction_encode.encode((Transaction) transaction, 1024)));
+        var executor = new AsyncService<Long>(ips, transaction_list, TransactionConfigOptions.TRANSACTION_PORT);
 
-        var asyncResult1=executor.startListProcess(300L);
+        var asyncResult1 = executor.startListProcess(300L);
         final var result1 = executor.endProcess(asyncResult1);
     }
 
     @SneakyThrows
     @Test
-    public void testSingleValue(){
+    public void testSingleValue() {
 
-        List<String> ips=CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).values().stream().collect(Collectors.toList());
-        var executor=new AsyncService<Long>(ips, transaction_encode.encode(transaction),TransactionConfigOptions.TRANSACTION_PORT);
+        List<String> ips = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).values().stream().collect(Collectors.toList());
+        var executor = new AsyncService<Long>(ips, transaction_encode.encode(transaction, 1024), TransactionConfigOptions.TRANSACTION_PORT);
 
-        var asyncResult1=executor.startProcess(300L);
+        var asyncResult1 = executor.startProcess(300L);
         final var result1 = executor.endProcess(asyncResult1);
     }
 }

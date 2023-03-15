@@ -4,8 +4,6 @@ import io.Adrestus.config.TransactionConfigOptions;
 import io.Adrestus.core.RingBuffer.handler.transactions.SignatureEventHandler;
 import io.Adrestus.core.RingBuffer.publisher.TransactionEventPublisher;
 import io.Adrestus.core.Transaction;
-import io.Adrestus.crypto.elliptic.ECDSASignatureData;
-import io.Adrestus.crypto.elliptic.mapper.SignatureDataSerializer;
 import io.Adrestus.network.IPFinder;
 import io.Adrestus.network.TCPTransactionConsumer;
 import io.Adrestus.network.TransactionChannelHandler;
@@ -13,9 +11,6 @@ import io.Adrestus.util.SerializationUtil;
 import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class BindServerTransactionTask extends AdrestusTask {
     private static Logger LOG = LoggerFactory.getLogger(BindServerTransactionTask.class);
@@ -55,7 +50,7 @@ public class BindServerTransactionTask extends AdrestusTask {
         this.receive = x -> {
             try {
                 Transaction transaction = serenc.decode(x);
-               // System.out.println(transaction.toString());
+                // System.out.println(transaction.toString());
                 publisher.publish(transaction);
             } catch (Exception e) {
                 e.printStackTrace();

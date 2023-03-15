@@ -153,9 +153,9 @@ public class TransactionStrategyTest {
         CachedZoneIndex.getInstance().setZoneIndex(0);
     }
 
-   // @Test
+    // @Test
     public void transaction_list() throws Exception {
-        ArrayList<Transaction>list=new ArrayList<>(MemoryTransactionPool.getInstance().getAll());
+        ArrayList<Transaction> list = new ArrayList<>(MemoryTransactionPool.getInstance().getAll());
         list.remove(0);
         Strategy transactionStrategy = new Strategy(new TransactionStrategy(list));
         System.out.println(MemoryTransactionPool.getInstance().getAll().size());

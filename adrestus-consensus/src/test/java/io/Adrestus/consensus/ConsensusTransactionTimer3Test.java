@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.concurrent.CountDownLatch;
 
 public class ConsensusTransactionTimer3Test {
@@ -96,7 +97,10 @@ public class ConsensusTransactionTimer3Test {
         CachedZoneIndex.getInstance().setZoneIndexInternalIP();
 
 
-        prevblock.setTransactionProposer(CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).keySet().stream().findFirst().get().toRaw());
+        try {
+            prevblock.setTransactionProposer(CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).keySet().stream().findFirst().get().toRaw());
+        } catch (NoSuchElementException e) {
+        }
         prevblock.setLeaderPublicKey(CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).keySet().stream().findFirst().get());
 
         CachedLatestBlocks.getInstance().setTransactionBlock(prevblock);
