@@ -1,5 +1,6 @@
 package io.Adrestus.network;
 
+import io.Adrestus.config.TransactionConfigOptions;
 import io.activej.bytebuf.ByteBuf;
 import io.activej.bytebuf.ByteBufPool;
 import io.activej.csp.ChannelSupplier;
@@ -17,6 +18,8 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
@@ -26,27 +29,39 @@ import static io.activej.promise.Promises.loop;
 
 public class AsyncService<T> {
     private static Logger LOG = LoggerFactory.getLogger(AsyncService.class);
+
+    private static final int TIMER_DELAY_TIMEOUT=15000;
     private final ThreadAsyncExecutor executor;
     private final List<String> list_ip;
     private final int port;
-    private static List<byte[]> transaction_list;
+    private static List<byte[]> listToSend;
+    private static byte[] toSend;
     private static Eventloop eventloop;
 
     private static CountDownLatch[] local_termination;
 
-    public AsyncService(List<String> list_ip, List<byte[]> transaction_list, int port) {
+    public AsyncService(List<String> list_ip, List<byte[]> listToSend, int port) {
         this.executor = new ThreadAsyncExecutor();
         this.list_ip = list_ip;
         this.port = port;
-        this.transaction_list = transaction_list;
+        this.listToSend = listToSend;
         this.eventloop = Eventloop.create().withCurrentThread();
         this.local_termination = new CountDownLatch[list_ip.size()];
         this.Setup();
     }
 
+    public AsyncService(List<String> list_ip, byte[] toSend, int port) {
+        this.executor = new ThreadAsyncExecutor();
+        this.list_ip = list_ip;
+        this.port = port;
+        this.toSend=toSend;
+        this.eventloop = Eventloop.create().withCurrentThread();
+        this.local_termination = new CountDownLatch[list_ip.size()];
+    }
+
     private void Setup() {
         for (int i = 0; i < local_termination.length; i++) {
-            local_termination[i] = new CountDownLatch(transaction_list.size());
+            local_termination[i] = new CountDownLatch(listToSend.size());
         }
     }
 
@@ -54,8 +69,19 @@ public class AsyncService<T> {
 
         List<AsyncResult<T>> list = new ArrayList<>();
         for (int i = 0; i < list_ip.size(); i++) {
-            AsyncResult<T> result = executor.startProcess(AsyncCall(value, list_ip.get(i), i));
+            AsyncResult<T> result = executor.startProcess(AsyncCall(value, list_ip.get(i)));
             list.add(result);
+            eventloop.run();
+        }
+        return list;
+    }
+    public List<AsyncResult<T>> startListProcess(T value) {
+
+        List<AsyncResult<T>> list = new ArrayList<>();
+        for (int i = 0; i < list_ip.size(); i++) {
+            AsyncResult<T> result = executor.startProcess(AsyncListCall(value, list_ip.get(i),i));
+            list.add(result);
+            eventloop.run();
         }
         return list;
     }
@@ -75,7 +101,27 @@ public class AsyncService<T> {
     }
 
 
-    private <T> Callable<T> AsyncCall(T value, String ip, int pos) {
+    private <T> Callable<T> AsyncCall(T value, String ip) {
+        return () -> {
+            eventloop.connect(new InetSocketAddress(ip, port), (socketChannel, e) -> {
+                if (e == null) {
+                    try {
+                        AsyncTcpSocket socket = AsyncTcpSocketNio.wrapChannel(getCurrentEventloop(), socketChannel, null);
+                        ByteBuf sizeBuf = ByteBufPool.allocate(2); // enough to serialize size 1024
+                        sizeBuf.writeVarInt(toSend.length);
+                        ByteBuf appendedBuf = ByteBufPool.append(sizeBuf, ByteBuf.wrapForReading(toSend));
+                        socket.write(appendedBuf);
+                        socket.close();
+                        socket = null;
+                    } catch (IOException ioException) {
+                        throw new RuntimeException(ioException);
+                    }
+                }
+            });
+            return value;
+        };
+    }
+    private <T> Callable<T> AsyncListCall(T value, String ip, int pos) {
         return () -> {
             eventloop.connect(new InetSocketAddress(ip, this.port), (socketChannel, e) -> {
                 if (e == null) {
@@ -83,8 +129,8 @@ public class AsyncService<T> {
                         AsyncTcpSocket socket = AsyncTcpSocketNio.wrapChannel(getCurrentEventloop(), socketChannel, null);
                         BinaryChannelSupplier bufsSupplier = BinaryChannelSupplier.of(ChannelSupplier.ofSocket(socket));
                         loop(0,
-                                i -> i < transaction_list.size(),
-                                i -> loadData(transaction_list.get(i))
+                                i -> i < listToSend.size(),
+                                i -> loadData(listToSend.get(i))
                                         .then(socket::write)
                                         .then(bufsSupplier::needMoreData)
                                         .then(() -> decrease(pos))
@@ -93,17 +139,33 @@ public class AsyncService<T> {
                                 .whenException(ex -> {
                                     throw new RuntimeException(ex);
                                 });
-                        local_termination[pos].await();
                     } catch (IOException ex) {
                         ex.printStackTrace();
                         LOG.info("Exception caught" + ex.toString());
-                    } catch (InterruptedException ex) {
-                        throw new RuntimeException(ex);
                     }
 
                 } else {
+                    while (local_termination[pos].getCount() > 0) {
+                        local_termination[pos].countDown();
+                    }
                 }
             });
+            Timer timer = new Timer();
+            timer.schedule(new TimerTask() {
+                @SneakyThrows
+                @Override
+                public void run() {
+                    while (local_termination[pos].getCount() > 0) {
+                        local_termination[pos].countDown();
+                    }
+                }
+            }, TIMER_DELAY_TIMEOUT);
+            for (int i = 0; i < local_termination.length; i++) {
+                local_termination[i].await();
+            }
+            local_termination[pos].await();
+            timer.cancel();
+            timer.purge();
             return value;
         };
     }

@@ -76,7 +76,7 @@ services:
 
 # see: https://www.appveyor.com/docs/build-environment/
 #stack: node 9, jdk 8, jdk 11
-stack: jdk 8
+stack: jdk 11
 build_script:
   - mvn clean install -U
 test_script:

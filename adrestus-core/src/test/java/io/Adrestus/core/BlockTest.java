@@ -183,6 +183,7 @@ public class BlockTest {
         var regural_block = factory.getBlock(BlockType.REGULAR);
         //factory.accept(genesis);
         //factory.accept(regural_block);
+        int g=4;
     }
 
     @Test

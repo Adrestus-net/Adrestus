@@ -6,6 +6,7 @@ import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.core.*;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
+import io.Adrestus.core.Resourses.CachedReceiptSemaphore;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.core.RingBuffer.handler.transactions.SignatureEventHandler;
 import io.Adrestus.core.RingBuffer.publisher.TransactionEventPublisher;
@@ -57,6 +58,7 @@ public class ConsensusTransactionBlockTest {
     @BeforeAll
     public static void pre_setup() {
         delete();
+        CachedReceiptSemaphore.getInstance().getSemaphore().release();
         CachedZoneIndex.getInstance().setZoneIndex(1);
         TransactionBlock prevblock = new TransactionBlock();
         CommitteeBlock committeeBlock = new CommitteeBlock();

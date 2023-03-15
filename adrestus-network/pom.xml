@@ -16,8 +16,6 @@
     <url>http://maven.apache.org</url>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>1.7</maven.compiler.source>
-        <maven.compiler.target>1.7</maven.compiler.target>
         <jeromq.version>0.5.3-SNAPSHOT</jeromq.version>
         <config.version>1.0-SNAPSHOT</config.version>
         <activej.version>5.4.3</activej.version>
@@ -112,6 +110,14 @@
                         <forkCount>1</forkCount>
                         <threadCount>1</threadCount>
                         <reuseForks>false</reuseForks>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.11.0</version>
+                    <configuration>
+                        <release>11</release>
                     </configuration>
                 </plugin>
             </plugins>

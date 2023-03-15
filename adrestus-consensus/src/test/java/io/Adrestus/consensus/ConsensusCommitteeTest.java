@@ -6,6 +6,7 @@ import io.Adrestus.config.KademliaConfiguration;
 import io.Adrestus.core.AbstractBlock;
 import io.Adrestus.core.CommitteeBlock;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
+import io.Adrestus.core.Resourses.CachedReceiptSemaphore;
 import io.Adrestus.core.Resourses.CachedSecurityHeaders;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.SecurityAuditProofs;
@@ -83,6 +84,7 @@ public class ConsensusCommitteeTest {
 
     @BeforeAll
     public static void setup() throws Exception {
+        CachedReceiptSemaphore.getInstance().getSemaphore().release();
         IDatabase<String, CommitteeBlock> db = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
         db.delete_db();
         IDatabase<String, CommitteeBlock> database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
@@ -259,7 +261,7 @@ public class ConsensusCommitteeTest {
         thirdblock.setCommitteeProposer(new int[]{4, 2, 4, 2});
         thirdblock.setDifficulty(119);
         thirdblock.setHeight(254);
-        thirdblock.setVRF("asdas");
+        thirdblock.setVRF("c1f72aa5bd1e1d53c723b149259b63f759f40d5ab003b547d5c13d45db9a5da8");
         thirdblock.setHash("hash3");
         thirdblock.getHeaderData().setTimestamp(GetTime.GetTimeStampInString());
         database.save("3", thirdblock);
