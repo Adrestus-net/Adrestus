@@ -16,6 +16,9 @@
     <url>http://www.example.com</url>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <java.version>11</java.version>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
         <core.version>1.0-SNAPSHOT</core.version>
         <config.version>1.0-SNAPSHOT</config.version>
         <network.version>1.0-SNAPSHOT</network.version>
@@ -48,14 +51,6 @@
                         <forkCount>1</forkCount>
                         <threadCount>1</threadCount>
                         <reuseForks>false</reuseForks>
-                    </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.11.0</version>
-                    <configuration>
-                        <release>11</release>
                     </configuration>
                 </plugin>
             </plugins>

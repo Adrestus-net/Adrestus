@@ -21,6 +21,17 @@ public class DefaultFactory implements BlockFactory {
         });
     }
 
+    @Override
+    public void accept(BlockInvent invent) throws Exception {
+        Arrays.stream(children).forEach(child -> {
+            try {
+                child.accept(invent);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
     public BlockForge getBlock(BlockType type) {
         return type.getConstructor().get();
     }
