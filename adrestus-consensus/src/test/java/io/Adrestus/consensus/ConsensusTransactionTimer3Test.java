@@ -99,13 +99,14 @@ public class ConsensusTransactionTimer3Test {
 
         try {
             prevblock.setTransactionProposer(CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).keySet().stream().findFirst().get().toRaw());
-        } catch (NoSuchElementException e) {
-        }
-        prevblock.setLeaderPublicKey(CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).keySet().stream().findFirst().get());
+            prevblock.setLeaderPublicKey(CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).keySet().stream().findFirst().get());
 
-        CachedLatestBlocks.getInstance().setTransactionBlock(prevblock);
-        CachedEpochGeneration.getInstance().setEpoch_counter(0);
-        CachedLeaderIndex.getInstance().setTransactionPositionLeader(0);
+            CachedLatestBlocks.getInstance().setTransactionBlock(prevblock);
+            CachedEpochGeneration.getInstance().setEpoch_counter(0);
+            CachedLeaderIndex.getInstance().setTransactionPositionLeader(0);
+        } catch (NoSuchElementException e) {
+            System.out.println(e.toString());
+        }
     }
 
     @Test
