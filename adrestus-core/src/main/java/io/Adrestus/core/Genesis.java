@@ -17,4 +17,9 @@ public class Genesis implements BlockForge {
     public void forgeCommitteBlock(CommitteeBlock committeeBlock) {
 
     }
+
+    @Override
+    public void SyncBlockState() {
+
+    }
 }

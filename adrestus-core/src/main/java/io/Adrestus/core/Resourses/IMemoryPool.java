@@ -18,6 +18,8 @@ public interface IMemoryPool<T> {
 
     Optional<T> getObjectByHash(String hash) throws Exception;
 
+    List<T> getListByZone(int zone) throws Exception;
+
     boolean add(T Object) throws Exception;
 
     void delete(List<T> list_Object);

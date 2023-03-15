@@ -3,8 +3,7 @@ package io.Adrestus.consensus;
 import io.Adrestus.config.ConsensusConfiguration;
 import io.Adrestus.consensus.ChangeView.ChangeViewCommitteeState;
 import io.Adrestus.consensus.ChangeView.ChangeViewTransactionState;
-import io.Adrestus.core.BlockIndex;
-import io.Adrestus.core.IBlockIndex;
+import io.Adrestus.core.*;
 import io.Adrestus.core.Resourses.CachedEpochGeneration;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedLeaderIndex;
@@ -24,7 +23,8 @@ public class ConsensusState extends ConsensusDataState {
     private static final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
     private static final Lock r = rwl.readLock();
     private static final Lock w = rwl.writeLock();
-
+    private final DefaultFactory factory;
+    private static BlockForge blockForge;
     private static Timer transaction_block_timer;
     private static Timer committee_block_timer;
     private static CountDownLatch latch;
@@ -33,6 +33,8 @@ public class ConsensusState extends ConsensusDataState {
     public ConsensusState() {
         this.transaction_block_timer = new Timer(ConsensusConfiguration.CONSENSUS);
         this.committee_block_timer = new Timer(ConsensusConfiguration.CONSENSUS);
+        this.factory = new DefaultFactory(new TransactionBlock(), new CommitteeBlock());
+        this.blockForge = factory.getBlock(BlockType.REGULAR);
     }
 
     public ConsensusState(CountDownLatch latch) {
@@ -40,6 +42,8 @@ public class ConsensusState extends ConsensusDataState {
         this.transaction_block_timer = new Timer(ConsensusConfiguration.CONSENSUS);
         this.committee_block_timer = new Timer(ConsensusConfiguration.CONSENSUS);
         this.latch = latch;
+        this.factory = new DefaultFactory(new TransactionBlock(), new CommitteeBlock());
+        this.blockForge = factory.getBlock(BlockType.REGULAR);
     }
 
     public static Logger getLOG() {
@@ -162,15 +166,17 @@ public class ConsensusState extends ConsensusDataState {
                         } else if (committee_state.getClass().equals(ConsensusVDFState.class)) {
                             changeStateTo(new ConsensusCommitteeBlockState());
                             committee_state.onEnterState(blockIndex.getPublicKeyByIndex(0, CachedLeaderIndex.getInstance().getCommitteePositionLeader()));
+                        } else if (committee_state.getClass().equals(ConsensusCommitteeBlockState.class)) {
+                            clear();
+                            CachedEpochGeneration.getInstance().setEpoch_counter(0);
+                            transaction_block_timer = new Timer(ConsensusConfiguration.CONSENSUS);
+                            transaction_block_timer.scheduleAtFixedRate(new TransactionBlockConsensusTask(), ConsensusConfiguration.CHANGE_VIEW_TIMER, ConsensusConfiguration.CHANGE_VIEW_TIMER);
                         }
                     }
                 }
             } finally {
                 latch.countDown();
                 w.unlock();
-
-                //when to change the structure of the commitee block after how much epochs
-                CachedEpochGeneration.getInstance().setEpoch_counter(0);
             }
         }
 
@@ -214,10 +220,12 @@ public class ConsensusState extends ConsensusDataState {
             clear();
             try {
                 if (CachedEpochGeneration.getInstance().getEpoch_counter() >= ConsensusConfiguration.EPOCH_TRANSITION) {
-                    committee_block_timer = new Timer(ConsensusConfiguration.CONSENSUS);
-                    committee_block_timer.scheduleAtFixedRate(new CommitteeBlockConsensusTask(committee_state), ConsensusConfiguration.CONSENSUS_COMMITTEE_TIMER, ConsensusConfiguration.CONSENSUS_COMMITTEE_TIMER);
-                    transaction_block_timer = new Timer(ConsensusConfiguration.CONSENSUS);
-                    transaction_block_timer.scheduleAtFixedRate(new TransactionBlockConsensusTask(state), ConsensusConfiguration.CHANGE_VIEW_TIMER, ConsensusConfiguration.CHANGE_VIEW_TIMER);
+                    if (CachedZoneIndex.getInstance().getZoneIndex() == 0) {
+                        committee_block_timer = new Timer(ConsensusConfiguration.CONSENSUS);
+                        committee_block_timer.scheduleAtFixedRate(new CommitteeBlockConsensusTask(committee_state), ConsensusConfiguration.CONSENSUS_COMMITTEE_TIMER, ConsensusConfiguration.CONSENSUS_COMMITTEE_TIMER);
+                    } else {
+                        blockForge.SyncBlockState();
+                    }
                 } else {
                     boolean result = state.onActiveState();
                     if (result) {
@@ -266,61 +274,4 @@ public class ConsensusState extends ConsensusDataState {
         }
     }
 
-   /* protected static final class ChangeViewTransactionConsensusTask extends TimerTask {
-
-
-        @SneakyThrows
-        @Override
-        public void run() {
-            transaction_block_timer.cancel();
-            boolean result = state.onActiveState();
-            if (result) {
-                latch.countDown();
-                transaction_block_timer = new Timer(ConsensusConfiguration.CONSENSUS);
-                transaction_block_timer.scheduleAtFixedRate(new TransactionBlockConsensusTask(), ConsensusConfiguration.CONSENSUS_TIMER, ConsensusConfiguration.CONSENSUS_TIMER);
-                changeStateTo(new ConsensusTransactionBlockState());
-                LOG.info("State changed to TransactionBlockState");
-                state.onEnterState(blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedLeaderIndex.getInstance().getTransactionPositionLeader()));
-            } else {
-                transaction_block_timer = new Timer(ConsensusConfiguration.CONSENSUS);
-                transaction_block_timer.scheduleAtFixedRate(new ChangeViewTransactionConsensusTask(), ConsensusConfiguration.CHANGE_VIEW_TIMER, ConsensusConfiguration.CHANGE_VIEW_TIMER);
-                state.onEnterState(blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedLeaderIndex.getInstance().getTransactionPositionLeader()));
-            }
-        }
-
-        @Override
-        public boolean cancel() {
-            super.cancel();
-            return true;
-        }
-    }
-
-    protected static final class ChangeViewCommitteeConsensusTask extends TimerTask {
-
-
-        @SneakyThrows
-        @Override
-        public void run() {
-            committee_block_timer.cancel();
-            boolean result = state.onActiveState();
-            if (result) {
-                latch.countDown();
-                committee_block_timer = new Timer(ConsensusConfiguration.CONSENSUS);
-                committee_block_timer.scheduleAtFixedRate(new CommitteeBlockConsensusTask(), ConsensusConfiguration.CONSENSUS_COMMITTEE_TIMER, ConsensusConfiguration.CONSENSUS_COMMITTEE_TIMER);
-                changeStateTo(new ConsensusCommitteeBlockState());
-                LOG.info("State changed to CommitteeBlockState");
-                state.onEnterState(blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedLeaderIndex.getInstance().getCommitteePositionLeader()));
-            } else {
-                transaction_block_timer = new Timer(ConsensusConfiguration.CONSENSUS);
-                transaction_block_timer.scheduleAtFixedRate(new ChangeViewCommitteeConsensusTask(), ConsensusConfiguration.CONSENSUS_COMMITTEE_TIMER, ConsensusConfiguration.CONSENSUS_COMMITTEE_TIMER);
-                state.onEnterState(blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedLeaderIndex.getInstance().getCommitteePositionLeader()));
-            }
-        }
-
-        @Override
-        public boolean cancel() {
-            super.cancel();
-            return true;
-        }
-    }*/
 }

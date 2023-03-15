@@ -1,20 +1,16 @@
-package io.Adrestus.api;
-
+package io.Adrestus.core;
 
 import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.config.KademliaConfiguration;
-import io.Adrestus.core.CommitteeBlock;
-import io.Adrestus.core.RegularTransaction;
+import io.Adrestus.config.TransactionConfigOptions;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedLeaderIndex;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.core.Resourses.MemoryTransactionPool;
 import io.Adrestus.core.RingBuffer.handler.transactions.SignatureEventHandler;
 import io.Adrestus.core.RingBuffer.publisher.TransactionEventPublisher;
-import io.Adrestus.core.StatusType;
-import io.Adrestus.core.Transaction;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.SecurityAuditProofs;
 import io.Adrestus.crypto.WalletAddress;
@@ -28,10 +24,12 @@ import io.Adrestus.crypto.elliptic.mapper.StakingData;
 import io.Adrestus.crypto.mnemonic.Mnemonic;
 import io.Adrestus.crypto.mnemonic.Security;
 import io.Adrestus.crypto.mnemonic.WordList;
+import io.Adrestus.network.AsyncService;
 import io.Adrestus.p2p.kademlia.common.NettyConnectionInfo;
 import io.Adrestus.p2p.kademlia.repository.KademliaData;
 import io.Adrestus.util.GetTime;
 import io.Adrestus.util.SerializationUtil;
+import lombok.SneakyThrows;
 import org.apache.commons.codec.binary.StringUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -39,11 +37,11 @@ import org.spongycastle.util.encoders.Hex;
 
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
-/**
- * Unit test for simple App.
- */
-public class TransactionStrategyTest {
+public class AsyncServiceTest {
+
     private static BLSPrivateKey sk1;
     private static BLSPublicKey vk1;
 
@@ -51,10 +49,11 @@ public class TransactionStrategyTest {
     private static BLSPublicKey vk2;
 
     private static ECKeyPair ecKeyPair1, ecKeyPair2;
-
+    private static SerializationUtil<Transaction> transaction_encode;
     @BeforeAll
     public static void setup() throws Exception {
         int version = 0x00;
+        transaction_encode = new SerializationUtil<Transaction>(Transaction.class);
         ECDSASign ecdsaSign = new ECDSASign();
         sk1 = new BLSPrivateKey(1);
         vk1 = new BLSPublicKey(sk1);
@@ -142,32 +141,28 @@ public class TransactionStrategyTest {
         publisher.getJobSyncUntilRemainingCapacityZero();
         CommitteeBlock committeeBlock = new CommitteeBlock();
         committeeBlock.getHeaderData().setTimestamp("2022-11-18 15:01:29.304");
-        committeeBlock.getStructureMap().get(0).put(vk1, "192.168.1.106");
+        committeeBlock.getStructureMap().get(0).put(vk1, "192.168.1.116");
         committeeBlock.getStructureMap().get(0).put(vk2, "192.168.1.113");
 
-        committeeBlock.getStakingMap().put(new StakingData(1, 10.0), new KademliaData(new SecurityAuditProofs(addreses.get(0), vk1, ecKeyPair1.getPublicKey(), signatureData1), new NettyConnectionInfo("192.168.1.106", KademliaConfiguration.PORT)));
+        committeeBlock.getStakingMap().put(new StakingData(1, 10.0), new KademliaData(new SecurityAuditProofs(addreses.get(0), vk1, ecKeyPair1.getPublicKey(), signatureData1), new NettyConnectionInfo("192.168.1.116", KademliaConfiguration.PORT)));
         committeeBlock.getStakingMap().put(new StakingData(2, 13.0), new KademliaData(new SecurityAuditProofs(addreses.get(1), vk2, ecKeyPair2.getPublicKey(), signatureData2), new NettyConnectionInfo("192.168.1.113", KademliaConfiguration.PORT)));
 
         CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
         CachedLeaderIndex.getInstance().setCommitteePositionLeader(0);
         CachedZoneIndex.getInstance().setZoneIndex(0);
     }
-
-   // @Test
-    public void transaction_list() throws Exception {
-        ArrayList<Transaction>list=new ArrayList<>(MemoryTransactionPool.getInstance().getAll());
-        list.remove(0);
-        Strategy transactionStrategy = new Strategy(new TransactionStrategy(list));
-        System.out.println(MemoryTransactionPool.getInstance().getAll().size());
-        transactionStrategy.SendTransactionSync();
-    }
-
+    @SneakyThrows
     @Test
-    public void single_transaction() throws Exception {
-        Strategy transactionStrategy = new Strategy(new TransactionStrategy((Transaction) MemoryTransactionPool.getInstance().getAll().get(0)));
-        // Strategy transactionStrategy1 = new Strategy(new TransactionStrategy((Transaction) MemoryTransactionPool.getInstance().getAll().get(0)));
-        System.out.println(MemoryTransactionPool.getInstance().getAll().size());
-        transactionStrategy.SendTransactionSync();
+    public void test(){
+
+        List<String> ips=CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).values().stream().collect(Collectors.toList());
+        List<byte[]> transaction_list=new ArrayList<>();
+        MemoryTransactionPool.getInstance().getAll().forEach(transaction->transaction_list.add(transaction_encode.encode((Transaction) transaction,1024)));
+        var executor=new AsyncService<Long>(ips, transaction_list,TransactionConfigOptions.TRANSACTION_PORT);
+
+        var asyncResult1=executor.startProcess(300L);
+        final var result1 = executor.endProcess(asyncResult1);
+
 
     }
 }

@@ -88,6 +88,9 @@ public class BlockTest {
     private static BLSPrivateKey sk8;
     private static BLSPublicKey vk8;
 
+    private static BLSPrivateKey sk9;
+    private static BLSPublicKey vk9;
+
     public static void delete_test() {
         IDatabase<String, TransactionBlock> transaction_block1 = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.ZONE_0_TRANSACTION_BLOCK);
         IDatabase<String, TransactionBlock> transaction_block2 = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.ZONE_1_TRANSACTION_BLOCK);
@@ -547,6 +550,7 @@ public class BlockTest {
         //########################################################################
 
 
+        //ITS WRONG ONLY radmones_assignment_test ITS CORRECT PLEASE IGNORE IT
         //##### RANDOM ASSIGN TO STRUCTRURE MAP ##############
         ArrayList<Integer> exclude = new ArrayList<Integer>();
         ArrayList<Integer> order = new ArrayList<Integer>();
@@ -606,6 +610,8 @@ public class BlockTest {
     }
 
 
+
+    //ITS WRONG ONLY radmones_assignment_test ITS CORRECT PLEASE IGNORE IT
     @Test
     public void radmones_test() {
         SecureRandom random = new SecureRandom();
@@ -668,13 +674,16 @@ public class BlockTest {
         }
     }
 
-    @Test
+   /* @Test
     public void radmones_test2() {
         SecureRandom random = new SecureRandom();
         CommitteeBlock committeeBlock = new CommitteeBlock();
-        committeeBlock.getStakingMap().put(new StakingData(1, 10.0), new KademliaData(new SecurityAuditProofs(vk1), new NettyConnectionInfo("192.168.1.101", KademliaConfiguration.PORT)));
-        committeeBlock.getStakingMap().put(new StakingData(2, 13.0), new KademliaData(new SecurityAuditProofs(vk2), new NettyConnectionInfo("192.168.1.102", KademliaConfiguration.PORT)));
-
+        int finish = 9;
+        for (int i = 0; i < finish; i++) {
+            BLSPrivateKey sk = new BLSPrivateKey(i);
+            BLSPublicKey vk = new BLSPublicKey(sk);
+            committeeBlock.getStakingMap().put(new StakingData(i, i), new KademliaData(new SecurityAuditProofs(vk), new NettyConnectionInfo(String.valueOf(i), KademliaConfiguration.PORT)));
+        }
         ArrayList<Integer> exclude = new ArrayList<Integer>();
         ArrayList<Integer> order = new ArrayList<Integer>();
         for (Map.Entry<StakingData, KademliaData> entry : committeeBlock.getStakingMap().entrySet()) {
@@ -711,6 +720,64 @@ public class BlockTest {
                             .put(entryList.get(order.get(j)).getValue().getAddressData().getValidatorBlSPublicKey(), entryList.get(order.get(j)).getValue().getNettyConnectionInfo().getHost());
                     index_count++;
                     j++;
+                }
+                zone_count++;
+            }
+        } else {
+            for (int i = 0; i < order.size(); i++) {
+                committeeBlock
+                        .getStructureMap()
+                        .get(0)
+                        .put(entryList.get(order.get(i)).getValue().getAddressData().getValidatorBlSPublicKey(), entryList.get(order.get(i)).getValue().getNettyConnectionInfo().getHost());
+            }
+        }
+        int g = 3;
+    }*/
+
+    @Test
+    public void radmones_assignment_test() {
+        SecureRandom random = new SecureRandom();
+        CommitteeBlock committeeBlock = new CommitteeBlock();
+        int finish = 6;
+        for (int i = 0; i < finish; i++) {
+            BLSPrivateKey sk = new BLSPrivateKey(i);
+            BLSPublicKey vk = new BLSPublicKey(sk);
+            committeeBlock.getStakingMap().put(new StakingData(i, i), new KademliaData(new SecurityAuditProofs(vk), new NettyConnectionInfo(String.valueOf(i), KademliaConfiguration.PORT)));
+        }
+        ArrayList<Integer> exclude = new ArrayList<Integer>();
+        ArrayList<Integer> order = new ArrayList<Integer>();
+        for (Map.Entry<StakingData, KademliaData> entry : committeeBlock.getStakingMap().entrySet()) {
+            int nextInt = generateRandom(random, 0, committeeBlock.getStakingMap().size() - 1, exclude);
+            if (!exclude.contains(nextInt)) {
+                exclude.add(nextInt);
+            }
+            order.add(nextInt);
+        }
+        int zone_count = 0;
+        List<Map.Entry<StakingData, KademliaData>> entryList = committeeBlock.getStakingMap().entrySet().stream().collect(Collectors.toList());
+        int MAX_ZONE_SIZE = committeeBlock.getStakingMap().size() / 4;
+        int j = 0;
+        if (MAX_ZONE_SIZE >= 2) {
+            int addition = committeeBlock.getStakingMap().size() - MathOperationUtil.closestNumber(committeeBlock.getStakingMap().size(), 4);
+            while (zone_count < 4) {
+                if (zone_count == 0 && addition != 0) {
+                    while (j < MAX_ZONE_SIZE + addition) {
+                        committeeBlock
+                                .getStructureMap()
+                                .get(zone_count)
+                                .put(entryList.get(order.get(j)).getValue().getAddressData().getValidatorBlSPublicKey(), entryList.get(order.get(j)).getValue().getNettyConnectionInfo().getHost());
+                        j++;
+                    }
+                } else {
+                    int index_count = 0;
+                    while (index_count < MAX_ZONE_SIZE) {
+                        committeeBlock
+                                .getStructureMap()
+                                .get(zone_count)
+                                .put(entryList.get(order.get(j)).getValue().getAddressData().getValidatorBlSPublicKey(), entryList.get(order.get(j)).getValue().getNettyConnectionInfo().getHost());
+                        index_count++;
+                        j++;
+                    }
                 }
                 zone_count++;
             }

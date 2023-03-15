@@ -26,9 +26,7 @@ public class BindServerTransactionTask extends AdrestusTask {
 
     public BindServerTransactionTask() {
         super();
-        List<SerializationUtil.Mapping> list = new ArrayList<>();
-        list.add(new SerializationUtil.Mapping(ECDSASignatureData.class, ctx -> new SignatureDataSerializer()));
-        this.serenc = new SerializationUtil<Transaction>(Transaction.class, list);
+        this.serenc = new SerializationUtil<Transaction>(Transaction.class);
         this.publisher = new TransactionEventPublisher(2048);
         this.callBackReceive();
         this.setup();
@@ -57,6 +55,7 @@ public class BindServerTransactionTask extends AdrestusTask {
         this.receive = x -> {
             try {
                 Transaction transaction = serenc.decode(x);
+               // System.out.println(transaction.toString());
                 publisher.publish(transaction);
             } catch (Exception e) {
                 e.printStackTrace();

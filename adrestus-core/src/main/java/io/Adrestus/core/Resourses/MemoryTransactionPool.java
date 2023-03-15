@@ -12,6 +12,7 @@ import java.sql.Timestamp;
 import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class MemoryTransactionPool implements IMemoryPool<Transaction> {
@@ -93,6 +94,17 @@ public class MemoryTransactionPool implements IMemoryPool<Transaction> {
         r.lock();
         try {
             Optional<Transaction> result = memorypool.stream().filter(val -> val.getHash().equals(hash)).findFirst();
+            return result;
+        } finally {
+            r.unlock();
+        }
+    }
+
+    @Override
+    public List<Transaction> getListByZone(int zone) throws Exception {
+        r.lock();
+        try {
+            List<Transaction> result = memorypool.stream().filter(val -> val.getZoneFrom() == zone).collect(Collectors.toList());
             return result;
         } finally {
             r.unlock();

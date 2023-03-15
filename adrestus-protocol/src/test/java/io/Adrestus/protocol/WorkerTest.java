@@ -26,7 +26,7 @@ public class WorkerTest {
     @BeforeAll
     public static void setup() throws Exception {
         int version = 0x00;
-        int size = 5000;
+        int size =3000;
         for (int i = 0; i < size; i++) {
             Mnemonic mnem = new Mnemonic(Security.NORMAL, WordList.ENGLISH);
             char[] mnemonic_sequence = "sample sail jungle learn general promote task puppy own conduct green affair ".toCharArray();
@@ -44,7 +44,7 @@ public class WorkerTest {
     public void test() throws InterruptedException {
         IAdrestusFactory factory = new AdrestusFactory();
         List<AdrestusTask> tasks = new java.util.ArrayList<>(List.of(
-                factory.createTransactionTask(),
+                factory.createBindServerTransactionTask(),
                 factory.createBindServerReceiptTask(),
                 factory.createSendReceiptTask(),
                 factory.createRepositoryTransactionTask(DatabaseInstance.ZONE_0_TRANSACTION_BLOCK),
@@ -72,7 +72,7 @@ public class WorkerTest {
         Thread.sleep(2000);
         IAdrestusFactory factory = new AdrestusFactory();
         List<AdrestusTask> tasks = new java.util.ArrayList<>(List.of(
-                factory.createTransactionTask(),
+                factory.createBindServerTransactionTask(),
                 factory.createBindServerReceiptTask(),
                 factory.createSendReceiptTask(),
                 factory.createRepositoryTransactionTask(DatabaseInstance.ZONE_0_TRANSACTION_BLOCK),

@@ -5,7 +5,7 @@ import io.distributedLedger.PatriciaTreeInstance;
 
 public interface IAdrestusFactory {
 
-    AdrestusTask createTransactionTask();
+    AdrestusTask createBindServerTransactionTask();
 
     AdrestusTask createBindServerReceiptTask();
 

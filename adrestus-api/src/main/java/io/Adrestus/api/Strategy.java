@@ -15,10 +15,6 @@ public class Strategy {
         strategy.execute();
     }
 
-    public void terminate() {
-        strategy.terminate();
-    }
-
     public IStrategy getStrategy() {
         return strategy;
     }
@@ -27,7 +23,4 @@ public class Strategy {
         this.strategy = strategy;
     }
 
-    public void block_until_send() {
-        this.strategy.block_until_send();
-    }
 }

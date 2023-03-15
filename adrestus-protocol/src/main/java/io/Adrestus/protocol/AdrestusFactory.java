@@ -5,7 +5,7 @@ import io.distributedLedger.PatriciaTreeInstance;
 
 public class AdrestusFactory implements IAdrestusFactory {
     @Override
-    public AdrestusTask createTransactionTask() {
+    public AdrestusTask createBindServerTransactionTask() {
         return new BindServerTransactionTask();
     }
 
