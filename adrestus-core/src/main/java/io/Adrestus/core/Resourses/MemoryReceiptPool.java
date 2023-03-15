@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class MemoryReceiptPool implements IMemoryPool<Receipt> {
@@ -91,6 +92,17 @@ public class MemoryReceiptPool implements IMemoryPool<Receipt> {
         r.lock();
         try {
             Optional<Receipt> result = memorypool.stream().filter(val -> val.getTransaction().getHash().equals(hash)).findFirst();
+            return result;
+        } finally {
+            r.unlock();
+        }
+    }
+
+    @Override
+    public List<Receipt> getListByZone(int zone) throws Exception {
+        r.lock();
+        try {
+            List<Receipt> result = memorypool.stream().filter(val -> val.getTransaction().getZoneFrom()==zone).collect(Collectors.toList());
             return result;
         } finally {
             r.unlock();

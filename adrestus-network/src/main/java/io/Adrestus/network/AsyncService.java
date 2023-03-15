@@ -1,6 +1,5 @@
 package io.Adrestus.network;
 
-import io.Adrestus.config.TransactionConfigOptions;
 import io.activej.bytebuf.ByteBuf;
 import io.activej.bytebuf.ByteBufPool;
 import io.activej.csp.ChannelSupplier;
@@ -35,10 +34,10 @@ public class AsyncService<T> {
 
     private static CountDownLatch[] local_termination;
 
-    public AsyncService(List<String> list_ip, List<byte[]> transaction_list,int port) {
+    public AsyncService(List<String> list_ip, List<byte[]> transaction_list, int port) {
         this.executor = new ThreadAsyncExecutor();
         this.list_ip = list_ip;
-        this.port=port;
+        this.port = port;
         this.transaction_list = transaction_list;
         this.eventloop = Eventloop.create().withCurrentThread();
         this.local_termination = new CountDownLatch[list_ip.size()];
@@ -94,14 +93,17 @@ public class AsyncService<T> {
                                 .whenException(ex -> {
                                     throw new RuntimeException(ex);
                                 });
+                        local_termination[pos].await();
                     } catch (IOException ex) {
                         ex.printStackTrace();
                         LOG.info("Exception caught" + ex.toString());
+                    } catch (InterruptedException ex) {
+                        throw new RuntimeException(ex);
                     }
+
                 } else {
                 }
             });
-            local_termination[pos].await();
             return value;
         };
     }
