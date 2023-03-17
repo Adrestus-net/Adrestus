@@ -1,7 +1,7 @@
 package io.Adrestus.protocol;
 
 import io.Adrestus.config.AdrestusConfiguration;
-import io.Adrestus.config.TransactionConfigOptions;
+import io.Adrestus.config.SocketConfigOptions;
 import io.Adrestus.core.RegularTransaction;
 import io.Adrestus.core.StatusType;
 import io.Adrestus.core.Transaction;
@@ -124,7 +124,7 @@ public class TransactionChannelTest {
         //byte transaction_hash[] = serenc.encodeWithTerminatedBytes(transaction);
         //Transaction copy=serenc.decode(transaction_hash);
         //int a=1;
-        eventloop.connect(new InetSocketAddress("localhost", TransactionConfigOptions.TRANSACTION_PORT), (socketChannel, e) -> {
+        eventloop.connect(new InetSocketAddress("localhost", SocketConfigOptions.TRANSACTION_PORT), (socketChannel, e) -> {
             if (e == null) {
                 System.out.println("Connected to server, enter some text and send it by pressing 'Enter'.");
                 try {

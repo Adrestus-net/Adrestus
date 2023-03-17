@@ -4,7 +4,7 @@ import com.google.common.reflect.TypeToken;
 import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.config.AdrestusConfiguration;
-import io.Adrestus.config.TransactionConfigOptions;
+import io.Adrestus.config.SocketConfigOptions;
 import io.Adrestus.consensus.helper.ConsensusTransaction2Timer;
 import io.Adrestus.core.*;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
@@ -265,7 +265,7 @@ public class ConsensusTransactionTimer2Test {
                         CachedReceiptSemaphore.getInstance().getSemaphore().acquire();
                         if (!CachedLatestBlocks.getInstance().getTransactionBlock().getOutbound().getMap_receipts().isEmpty()) {
                             CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).values().forEach(ip -> {
-                                eventloop.connect(new InetSocketAddress(ip, TransactionConfigOptions.TRANSACTION_PORT), (socketChannel, e) -> {
+                                eventloop.connect(new InetSocketAddress(ip, SocketConfigOptions.TRANSACTION_PORT), (socketChannel, e) -> {
                                     if (e == null) {
                                         // System.out.println("Connected to server, enter some text and send it by pressing 'Enter'.");
                                         try {

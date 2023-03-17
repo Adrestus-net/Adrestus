@@ -44,6 +44,7 @@ public class WorkerTest {
     public void test() throws InterruptedException {
         IAdrestusFactory factory = new AdrestusFactory();
         List<AdrestusTask> tasks = new java.util.ArrayList<>(List.of(
+                //factory.createBindServerKademliaTask(),
                 factory.createBindServerTransactionTask(),
                 factory.createBindServerReceiptTask(),
                 factory.createSendReceiptTask(),
@@ -72,6 +73,7 @@ public class WorkerTest {
         Thread.sleep(2000);
         IAdrestusFactory factory = new AdrestusFactory();
         List<AdrestusTask> tasks = new java.util.ArrayList<>(List.of(
+                //factory.createBindServerKademliaTask(),
                 factory.createBindServerTransactionTask(),
                 factory.createBindServerReceiptTask(),
                 factory.createSendReceiptTask(),

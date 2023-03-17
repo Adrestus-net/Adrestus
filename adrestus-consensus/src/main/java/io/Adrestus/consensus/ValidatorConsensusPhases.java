@@ -146,7 +146,7 @@ public class ValidatorConsensusPhases {
                 return;
             }
 
-            boolean verify = vdf.verify(CachedSecurityHeaders.getInstance().getSecurityHeader().getpRnd(), CachedLatestBlocks.getInstance().getCommitteeBlock().getDifficulty(), data.getData().getVDFSolution());
+            boolean verify = vdf.verify(CachedSecurityHeaders.getInstance().getSecurityHeader().getPRnd(), CachedLatestBlocks.getInstance().getCommitteeBlock().getDifficulty(), data.getData().getVDFSolution());
             if (!verify) {
                 cleanup();
                 LOG.info("Abort consensus phase VDF solution is invalid");
@@ -554,7 +554,7 @@ public class ValidatorConsensusPhases {
                         data.setStatusType(ConsensusStatusType.ABORT);
                         return;
                     }
-                    CachedSecurityHeaders.getInstance().getSecurityHeader().setpRnd(data.getData().getPrnd());
+                    CachedSecurityHeaders.getInstance().getSecurityHeader().setPRnd(data.getData().getPrnd());
                     break;
                 }
                 res = ByteUtil.xor(res, list.get(i + 1).getRi());
@@ -743,7 +743,7 @@ public class ValidatorConsensusPhases {
                 return;
 
 
-            CachedSecurityHeaders.getInstance().getSecurityHeader().setpRnd(data.getData().getPrnd());
+            CachedSecurityHeaders.getInstance().getSecurityHeader().setPRnd(data.getData().getPrnd());
             //commit save to db
 
             // consensusClient.send_heartbeat(HEARTBEAT_MESSAGE);

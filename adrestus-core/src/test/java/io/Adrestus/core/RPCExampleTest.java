@@ -400,6 +400,44 @@ class RPCExampleTest {
         database.delete_db();
     }
 
+    @Test
+    public void myImultiple_download_one_server_one_response() throws Exception {
+        IDatabase<String, CommitteeBlock> database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
+        CommitteeBlock firstblock = new CommitteeBlock();
+        firstblock.setDifficulty(112);
+        firstblock.getHeaderData().setTimestamp(GetTime.GetTimeStampInString());
+        database.save("1", firstblock);
+        Thread.sleep(200);
+        CommitteeBlock secondblock = new CommitteeBlock();
+        secondblock.setDifficulty(117);
+        secondblock.getHeaderData().setTimestamp(GetTime.GetTimeStampInString());
+        Thread.sleep(200);
+        database.save("2", secondblock);
+        CommitteeBlock thirdblock = new CommitteeBlock();
+        thirdblock.setDifficulty(119);
+        thirdblock.getHeaderData().setTimestamp(GetTime.GetTimeStampInString());
+        database.save("3", thirdblock);
+
+
+        InetSocketAddress address1 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 6070);
+        RpcAdrestusServer server1 = new RpcAdrestusServer(new CommitteeBlock(), address1, eventloop);
+        new Thread(server1).start();
+
+
+        RpcAdrestusClient client = new RpcAdrestusClient(new CommitteeBlock(), address1, eventloop);
+        client.connect();
+        List<AbstractBlock> blocks = client.getBlocksList("1");
+
+        assertEquals(firstblock, blocks.get(0));
+        assertEquals(secondblock, blocks.get(1));
+        assertEquals(thirdblock, blocks.get(2));
+
+        client.close();
+        server1.close();
+        server1 = null;
+        database.delete_db();
+    }
+
     //@Test
     public void test3() throws Exception {
         Eventloop eventloop = Eventloop.create();

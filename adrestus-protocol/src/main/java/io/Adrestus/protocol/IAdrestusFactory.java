@@ -16,4 +16,8 @@ public interface IAdrestusFactory {
     AdrestusTask createRepositoryCommitteeTask();
 
     AdrestusTask createRepositoryPatriciaTreeTask(PatriciaTreeInstance patriciaTreeInstance);
+
+    AdrestusTask createBindServerKademliaTask();
+
+    AdrestusTask createBindServerCachedTask();
 }

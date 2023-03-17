@@ -1,6 +1,6 @@
 package io.Adrestus.protocol;
 
-import io.Adrestus.config.TransactionConfigOptions;
+import io.Adrestus.config.SocketConfigOptions;
 import io.Adrestus.core.RingBuffer.handler.transactions.SignatureEventHandler;
 import io.Adrestus.core.RingBuffer.publisher.TransactionEventPublisher;
 import io.Adrestus.core.Transaction;
@@ -61,7 +61,7 @@ public class BindServerTransactionTask extends AdrestusTask {
     @SneakyThrows
     @Override
     public void execute() {
-        transactionChannelHandler = new TransactionChannelHandler<byte[]>(IPFinder.getLocal_address(), TransactionConfigOptions.TRANSACTION_PORT);
+        transactionChannelHandler = new TransactionChannelHandler<byte[]>(IPFinder.getLocal_address(), SocketConfigOptions.TRANSACTION_PORT);
         transactionChannelHandler.BindServerAndReceive(receive);
         LOG.info("Transaction: TransactionChannelHandler " + IPFinder.getLocal_address());
     }

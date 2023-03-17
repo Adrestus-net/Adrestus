@@ -24,7 +24,7 @@ public class ConsensusState extends ConsensusDataState {
     private static final Lock r = rwl.readLock();
     private static final Lock w = rwl.writeLock();
     private final DefaultFactory factory;
-    private static BlockForge blockForge;
+    private static IBlockSync blockSync;
     private static Timer transaction_block_timer;
     private static Timer committee_block_timer;
     private static CountDownLatch latch;
@@ -34,7 +34,7 @@ public class ConsensusState extends ConsensusDataState {
         this.transaction_block_timer = new Timer(ConsensusConfiguration.CONSENSUS);
         this.committee_block_timer = new Timer(ConsensusConfiguration.CONSENSUS);
         this.factory = new DefaultFactory(new TransactionBlock(), new CommitteeBlock());
-        this.blockForge = factory.getBlock(BlockType.REGULAR);
+        blockSync = new BlockSync();
     }
 
     public ConsensusState(CountDownLatch latch) {
@@ -43,7 +43,6 @@ public class ConsensusState extends ConsensusDataState {
         this.committee_block_timer = new Timer(ConsensusConfiguration.CONSENSUS);
         this.latch = latch;
         this.factory = new DefaultFactory(new TransactionBlock(), new CommitteeBlock());
-        this.blockForge = factory.getBlock(BlockType.REGULAR);
     }
 
     public static Logger getLOG() {
@@ -224,7 +223,7 @@ public class ConsensusState extends ConsensusDataState {
                         committee_block_timer = new Timer(ConsensusConfiguration.CONSENSUS);
                         committee_block_timer.scheduleAtFixedRate(new CommitteeBlockConsensusTask(committee_state), ConsensusConfiguration.CONSENSUS_COMMITTEE_TIMER, ConsensusConfiguration.CONSENSUS_COMMITTEE_TIMER);
                     } else {
-                        blockForge.SyncBlockState();
+                        blockSync.SyncState();
                     }
                 } else {
                     boolean result = state.onActiveState();

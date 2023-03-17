@@ -1,8 +1,7 @@
 package io.Adrestus.core.Resourses;
 
 import com.google.common.base.Objects;
-
-import java.util.Arrays;
+import io.Adrestus.crypto.SecurityHeader;
 
 public class CachedSecurityHeaders {
 
@@ -59,53 +58,4 @@ public class CachedSecurityHeaders {
                 '}';
     }
 
-    public final class SecurityHeader {
-        private byte[] pRnd;
-        private byte[] Rnd;
-
-        public SecurityHeader() {
-        }
-
-        public SecurityHeader(byte[] pRnd, byte[] rnd) {
-            this.pRnd = pRnd;
-            Rnd = rnd;
-        }
-
-        public byte[] getpRnd() {
-            return pRnd;
-        }
-
-        public void setpRnd(byte[] pRnd) {
-            this.pRnd = pRnd;
-        }
-
-        public byte[] getRnd() {
-            return Rnd;
-        }
-
-        public void setRnd(byte[] rnd) {
-            Rnd = rnd;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            SecurityHeader that = (SecurityHeader) o;
-            return Objects.equal(pRnd, that.pRnd) && Objects.equal(Rnd, that.Rnd);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hashCode(pRnd, Rnd);
-        }
-
-        @Override
-        public String toString() {
-            return "SecurityHeader{" +
-                    "pRnd=" + Arrays.toString(pRnd) +
-                    ", Rnd=" + Arrays.toString(Rnd) +
-                    '}';
-        }
-    }
 }

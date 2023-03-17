@@ -52,7 +52,7 @@ public class ConsensusVDF2Test {
         committeeBlock.getStructureMap().get(0).put(vk3, "192.168.1.110");
         committeeBlock.getStructureMap().get(0).put(vk4, "192.168.1.112");
 
-        CachedSecurityHeaders.getInstance().getSecurityHeader().setpRnd(Hex.decode("c1f72aa5bd1e1d53c723b149259b63f759f40d5ab003b547d5c13d45db9a5da8"));
+        CachedSecurityHeaders.getInstance().getSecurityHeader().setPRnd(Hex.decode("c1f72aa5bd1e1d53c723b149259b63f759f40d5ab003b547d5c13d45db9a5da8"));
         CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
     }
 

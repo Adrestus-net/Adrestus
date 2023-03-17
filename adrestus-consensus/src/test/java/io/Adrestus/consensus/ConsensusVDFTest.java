@@ -26,7 +26,7 @@ public class ConsensusVDFTest {
 
     @Test
     public void ConsensusVDF() throws Exception {
-        CachedSecurityHeaders.getInstance().getSecurityHeader().setpRnd(pRnd);
+        CachedSecurityHeaders.getInstance().getSecurityHeader().setPRnd(pRnd);
         CachedLatestBlocks.getInstance().getCommitteeBlock().setDifficulty(100);
 
         ConsensusManager consensusManager = new ConsensusManager(true);

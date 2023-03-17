@@ -194,39 +194,39 @@ public class AdrestusNodeTest {
             // BigInteger id2 = BigInteger.valueOf(HashUtil.convertIPtoHex(ipString2, 16));
             BigInteger id1 = BigInteger.valueOf(0);
             // BigInteger id2 = BigInteger.valueOf("6166366639633865");
-            DHTBootstrapNode dhtBootstrapNode = new DHTBootstrapNode(new NettyConnectionInfo(KademliaConfiguration.BootstrapNodeIP, KademliaConfiguration.BootstrapNodePORT), id1);
+            DHTBootstrapNode dhtBootstrapNode = new DHTBootstrapNode(new NettyConnectionInfo(KademliaConfiguration.LOCAL_NODE_IP, KademliaConfiguration.BootstrapNodePORT), id1);
             dhtBootstrapNode.start();
 
             RoutingTableFactory<BigInteger, NettyConnectionInfo, Bucket<BigInteger, NettyConnectionInfo>> routingTableFactory = new DefaultRoutingTableFactory<>();
             DHTRegularNode regularNode =
-                    new DHTRegularNode(new NettyConnectionInfo(KademliaConfiguration.BootstrapNodeIP, 8083), BigInteger.valueOf(1));
+                    new DHTRegularNode(new NettyConnectionInfo(KademliaConfiguration.LOCAL_NODE_IP, 8083), BigInteger.valueOf(1));
             regularNode.start(dhtBootstrapNode, routingTableFactory.getRoutingTable(BigInteger.valueOf(1)));
 
             List<Bucket<BigInteger, NettyConnectionInfo>> asd1 = regularNode.getRegular_node().getRoutingTable().getBuckets();
 
-            DHTRegularNode regularNode2 = new DHTRegularNode(new NettyConnectionInfo(KademliaConfiguration.BootstrapNodeIP, 8084), BigInteger.valueOf(2));
+            DHTRegularNode regularNode2 = new DHTRegularNode(new NettyConnectionInfo(KademliaConfiguration.LOCAL_NODE_IP, 8084), BigInteger.valueOf(2));
             regularNode2.start(dhtBootstrapNode, routingTableFactory.getRoutingTable(BigInteger.valueOf(2)));
 
             List<Bucket<BigInteger, NettyConnectionInfo>> asd2 = regularNode2.getRegular_node().getRoutingTable().getBuckets();
 
-            DHTRegularNode regularNode3 = new DHTRegularNode(new NettyConnectionInfo(KademliaConfiguration.BootstrapNodeIP, 8085), BigInteger.valueOf(3));
+            DHTRegularNode regularNode3 = new DHTRegularNode(new NettyConnectionInfo(KademliaConfiguration.LOCAL_NODE_IP, 8085), BigInteger.valueOf(3));
             regularNode3.start(dhtBootstrapNode, routingTableFactory.getRoutingTable(BigInteger.valueOf(3)));
 
             List<Bucket<BigInteger, NettyConnectionInfo>> asd3 = regularNode3.getRegular_node().getRoutingTable().getBuckets();
 
-            DHTRegularNode regularNode4 = new DHTRegularNode(new NettyConnectionInfo(KademliaConfiguration.BootstrapNodeIP, 8086), BigInteger.valueOf(4));
+            DHTRegularNode regularNode4 = new DHTRegularNode(new NettyConnectionInfo(KademliaConfiguration.LOCAL_NODE_IP, 8086), BigInteger.valueOf(4));
             regularNode4.start(dhtBootstrapNode, routingTableFactory.getRoutingTable(BigInteger.valueOf(4)));
 
-            DHTRegularNode regularNode5 = new DHTRegularNode(new NettyConnectionInfo(KademliaConfiguration.BootstrapNodeIP, 8087), BigInteger.valueOf(5));
+            DHTRegularNode regularNode5 = new DHTRegularNode(new NettyConnectionInfo(KademliaConfiguration.LOCAL_NODE_IP, 8087), BigInteger.valueOf(5));
             regularNode5.start(dhtBootstrapNode, routingTableFactory.getRoutingTable(BigInteger.valueOf(5)));
 
-            DHTRegularNode regularNode6 = new DHTRegularNode(new NettyConnectionInfo(KademliaConfiguration.BootstrapNodeIP, 8088), BigInteger.valueOf(6));
+            DHTRegularNode regularNode6 = new DHTRegularNode(new NettyConnectionInfo(KademliaConfiguration.LOCAL_NODE_IP, 8088), BigInteger.valueOf(6));
             regularNode6.start(dhtBootstrapNode, routingTableFactory.getRoutingTable(BigInteger.valueOf(6)));
 
-            DHTRegularNode regularNode7 = new DHTRegularNode(new NettyConnectionInfo(KademliaConfiguration.BootstrapNodeIP, 8089), BigInteger.valueOf(7));
+            DHTRegularNode regularNode7 = new DHTRegularNode(new NettyConnectionInfo(KademliaConfiguration.LOCAL_NODE_IP, 8089), BigInteger.valueOf(7));
             regularNode7.start(dhtBootstrapNode, routingTableFactory.getRoutingTable(BigInteger.valueOf(7)));
 
-            DHTRegularNode regularNode8 = new DHTRegularNode(new NettyConnectionInfo(KademliaConfiguration.BootstrapNodeIP, 8090), BigInteger.valueOf(8));
+            DHTRegularNode regularNode8 = new DHTRegularNode(new NettyConnectionInfo(KademliaConfiguration.LOCAL_NODE_IP, 8090), BigInteger.valueOf(8));
             regularNode8.start(dhtBootstrapNode, routingTableFactory.getRoutingTable(BigInteger.valueOf(8)));
 
 

@@ -2,7 +2,7 @@ package io.Adrestus;
 
 public class TreeZone0 implements ITreeZone {
     private static volatile TreeZone0 instance;
-    private final IMemoryTreePool memoryTreePool;
+    private IMemoryTreePool memoryTreePool;
 
     private TreeZone0() {
         if (instance != null) {
@@ -29,4 +29,11 @@ public class TreeZone0 implements ITreeZone {
     public IMemoryTreePool getTree() {
         return this.memoryTreePool;
     }
+
+    @Override
+    public void setTree(IMemoryTreePool iMemoryTreePool) {
+        this.memoryTreePool = iMemoryTreePool;
+    }
+
+
 }

@@ -1,5 +1,8 @@
 package io.Adrestus.util;
 
+import java.math.BigInteger;
+import java.util.Random;
+
 public final class MathOperationUtil {
 
 
@@ -49,6 +52,12 @@ public final class MathOperationUtil {
             return n1;
 
         return n2;
+    }
+
+    public static BigInteger nextRandomBigInteger() {
+        Random rand = new Random();
+        BigInteger result = new BigInteger(14, rand);
+        return result;
     }
 
 }

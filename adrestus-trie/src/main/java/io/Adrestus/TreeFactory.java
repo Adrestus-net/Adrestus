@@ -18,4 +18,18 @@ public final class TreeFactory {
     }
 
 
+    public static void setMemoryTree(IMemoryTreePool iMemoryTreePool, int zone) {
+        switch (zone) {
+            case 0:
+                TreeZone0.getInstance().setTree(iMemoryTreePool);
+            case 1:
+                TreeZone1.getInstance().setTree(iMemoryTreePool);
+            case 2:
+                TreeZone2.getInstance().setTree(iMemoryTreePool);
+            case 3:
+                TreeZone3.getInstance().setTree(iMemoryTreePool);
+            default:
+                TreeZone0.getInstance().setTree(iMemoryTreePool);
+        }
+    }
 }

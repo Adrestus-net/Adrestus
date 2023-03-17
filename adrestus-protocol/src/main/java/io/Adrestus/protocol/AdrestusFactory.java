@@ -30,7 +30,17 @@ public class AdrestusFactory implements IAdrestusFactory {
     }
 
     @Override
+    public AdrestusTask createBindServerKademliaTask() {
+        return new BindServerKademliaTask();
+    }
+
+    @Override
     public AdrestusTask createRepositoryCommitteeTask() {
         return new RepositoryCommitteeTask();
+    }
+
+    @Override
+    public AdrestusTask createBindServerCachedTask() {
+        return new BindServerCachedTask();
     }
 }

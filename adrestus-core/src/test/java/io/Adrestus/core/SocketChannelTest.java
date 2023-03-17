@@ -1,6 +1,6 @@
 package io.Adrestus.core;
 
-import io.Adrestus.config.TransactionConfigOptions;
+import io.Adrestus.config.SocketConfigOptions;
 import io.Adrestus.network.TCPTransactionConsumer;
 import io.Adrestus.network.TransactionChannelHandler;
 import io.Adrestus.util.SerializationUtil;
@@ -28,11 +28,11 @@ public class SocketChannelTest {
             System.out.println("Callback" + recep.decode(x).toString());
         };
 
-        TransactionChannelHandler transactionChannelHandler = new TransactionChannelHandler<byte[]>("localhost", TransactionConfigOptions.TRANSACTION_PORT);
+        TransactionChannelHandler transactionChannelHandler = new TransactionChannelHandler<byte[]>("localhost", SocketConfigOptions.TRANSACTION_PORT);
         transactionChannelHandler.BindServerAndReceive(print);
 
         System.out.println("Connecting to server at localhost (port 9922)...");
-        eventloop.connect(new InetSocketAddress("localhost", TransactionConfigOptions.TRANSACTION_PORT), (socketChannel, e) -> {
+        eventloop.connect(new InetSocketAddress("localhost", SocketConfigOptions.TRANSACTION_PORT), (socketChannel, e) -> {
             if (e == null) {
                 System.out.println("Connected to server, enter some text and send it by pressing 'Enter'.");
                 try {
@@ -65,14 +65,14 @@ public class SocketChannelTest {
             System.out.println("Callback" + recep.decode(x).toString());
         };
 
-        TransactionChannelHandler transactionChannelHandler = new TransactionChannelHandler<byte[]>("localhost", TransactionConfigOptions.TRANSACTION_PORT + 1);
+        TransactionChannelHandler transactionChannelHandler = new TransactionChannelHandler<byte[]>("localhost", SocketConfigOptions.TRANSACTION_PORT + 1);
         transactionChannelHandler.BindServerAndReceive(print);
 
         System.out.println("Connecting to server at localhost (port 9922)...");
         (new Thread() {
             public void run() {
                 Eventloop eventloop = Eventloop.create().withCurrentThread();
-                eventloop.connect(new InetSocketAddress("localhost", TransactionConfigOptions.TRANSACTION_PORT + 1), (socketChannel, e) -> {
+                eventloop.connect(new InetSocketAddress("localhost", SocketConfigOptions.TRANSACTION_PORT + 1), (socketChannel, e) -> {
                     if (e == null) {
                         System.out.println("Connected to server, enter some text and send it by pressing 'Enter'.");
                         try {
@@ -110,11 +110,11 @@ public class SocketChannelTest {
             System.out.println("Callback" + trans.decode(x).toString());
         };
 
-        TransactionChannelHandler transactionChannelHandler = new TransactionChannelHandler<byte[]>("localhost", TransactionConfigOptions.TRANSACTION_PORT + 2);
+        TransactionChannelHandler transactionChannelHandler = new TransactionChannelHandler<byte[]>("localhost", SocketConfigOptions.TRANSACTION_PORT + 2);
         transactionChannelHandler.BindServerAndReceive(print);
 
         System.out.println("Connecting to server at localhost (port 9922)...");
-        eventloop.connect(new InetSocketAddress("localhost", TransactionConfigOptions.TRANSACTION_PORT + 2), (socketChannel, e) -> {
+        eventloop.connect(new InetSocketAddress("localhost", SocketConfigOptions.TRANSACTION_PORT + 2), (socketChannel, e) -> {
             if (e == null) {
                 System.out.println("Connected to server, enter some text and send it by pressing 'Enter'.");
                 try {

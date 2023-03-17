@@ -1,7 +1,7 @@
 package io.Adrestus.api;
 
 import io.Adrestus.config.AdrestusConfiguration;
-import io.Adrestus.config.TransactionConfigOptions;
+import io.Adrestus.config.SocketConfigOptions;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.core.Transaction;
@@ -88,7 +88,7 @@ public class TransactionStrategy implements IStrategy {
     }
 
     private void SingleAsync(String ip, Eventloop eventloop) {
-        eventloop.connect(new InetSocketAddress(ip, TransactionConfigOptions.TRANSACTION_PORT), (socketChannel, e) -> {
+        eventloop.connect(new InetSocketAddress(ip, SocketConfigOptions.TRANSACTION_PORT), (socketChannel, e) -> {
             if (e == null) {
                 try {
                     AsyncTcpSocket socket = AsyncTcpSocketNio.wrapChannel(getCurrentEventloop(), socketChannel, null);
@@ -108,7 +108,7 @@ public class TransactionStrategy implements IStrategy {
     }
 
     private void MultipleAsync(String ip, Eventloop eventloop, int pos) {
-        eventloop.connect(new InetSocketAddress(ip, TransactionConfigOptions.TRANSACTION_PORT), (socketChannel, e) -> {
+        eventloop.connect(new InetSocketAddress(ip, SocketConfigOptions.TRANSACTION_PORT), (socketChannel, e) -> {
             if (e == null) {
                 try {
                     available[pos].acquire();

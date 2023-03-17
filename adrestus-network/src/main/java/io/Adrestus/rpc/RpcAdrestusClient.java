@@ -136,10 +136,17 @@ public class RpcAdrestusClient<T> {
                     .withMessageTypes(BlockRequest.class, ListBlockResponse.class, BlockRequest2.class, BlockResponse.class, PatriciaTreeRequest.class, PatriciaTreeResponse.class)
                     .withStrategy(RpcStrategyRoundRobin.create(rpcStrategyList));
         } else {
-            client = RpcClient.create(eventloop)
-                    .withSerializerBuilder(this.rpc_serialize)
-                    .withMessageTypes(BlockRequest.class, ListBlockResponse.class, BlockRequest2.class, BlockResponse.class, PatriciaTreeRequest.class, PatriciaTreeResponse.class)
-                    .withStrategy(server(new InetSocketAddress(host, port)));
+            if (inetSocketAddress != null) {
+                client = RpcClient.create(eventloop)
+                        .withSerializerBuilder(this.rpc_serialize)
+                        .withMessageTypes(BlockRequest.class, ListBlockResponse.class, BlockRequest2.class, BlockResponse.class, PatriciaTreeRequest.class, PatriciaTreeResponse.class)
+                        .withStrategy(server(inetSocketAddress));
+            } else {
+                client = RpcClient.create(eventloop)
+                        .withSerializerBuilder(this.rpc_serialize)
+                        .withMessageTypes(BlockRequest.class, ListBlockResponse.class, BlockRequest2.class, BlockResponse.class, PatriciaTreeRequest.class, PatriciaTreeResponse.class)
+                        .withStrategy(server(new InetSocketAddress(host, port)));
+            }
         }
         try {
             this.client.startFuture().get(TIMEOUT, TimeUnit.MILLISECONDS);

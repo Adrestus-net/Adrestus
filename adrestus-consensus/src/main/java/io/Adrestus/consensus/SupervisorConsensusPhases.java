@@ -92,7 +92,7 @@ public class SupervisorConsensusPhases {
         @Override
         public void AnnouncePhase(ConsensusMessage<VDFMessage> data) {
             data.setMessageType(ConsensusMessageType.ANNOUNCE);
-            byte[] solution = vdf.solve(CachedSecurityHeaders.getInstance().getSecurityHeader().getpRnd(), CachedLatestBlocks.getInstance().getCommitteeBlock().getDifficulty());
+            byte[] solution = vdf.solve(CachedSecurityHeaders.getInstance().getSecurityHeader().getPRnd(), CachedLatestBlocks.getInstance().getCommitteeBlock().getDifficulty());
             data.getData().setVDFSolution(solution);
 
             if (DEBUG)
@@ -570,7 +570,7 @@ public class SupervisorConsensusPhases {
             byte[] toSend = consensus_serialize.encode(data);
             consensusServer.publishMessage(toSend);
 
-            CachedSecurityHeaders.getInstance().getSecurityHeader().setpRnd(data.getData().getPrnd());
+            CachedSecurityHeaders.getInstance().getSecurityHeader().setPRnd(data.getData().getPrnd());
 
             /*while (i > 0) {
                 try {

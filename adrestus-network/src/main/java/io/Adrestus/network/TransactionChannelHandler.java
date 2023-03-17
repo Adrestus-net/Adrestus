@@ -1,6 +1,6 @@
 package io.Adrestus.network;
 
-import io.Adrestus.config.TransactionConfigOptions;
+import io.Adrestus.config.SocketConfigOptions;
 import io.activej.bytebuf.ByteBuf;
 import io.activej.bytebuf.ByteBufs;
 import io.activej.common.exception.MalformedDataException;
@@ -33,7 +33,7 @@ public class TransactionChannelHandler<T> {
     public TransactionChannelHandler(String IP) {
         this.IP = IP;
         this.eventloop = Eventloop.create().withCurrentThread();
-        this.ADDRESS = new InetSocketAddress(IP, TransactionConfigOptions.TRANSACTION_PORT);
+        this.ADDRESS = new InetSocketAddress(IP, SocketConfigOptions.TRANSACTION_PORT);
         this.settings = SocketSettings.create().withImplReadTimeout(Duration.ofSeconds(3)).withImplWriteTimeout(Duration.ofSeconds(3));
     }
 

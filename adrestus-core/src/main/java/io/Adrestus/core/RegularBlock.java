@@ -8,7 +8,7 @@ import io.Adrestus.Trie.MerkleNode;
 import io.Adrestus.Trie.MerkleTreeImp;
 import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.config.NetworkConfiguration;
-import io.Adrestus.config.TransactionConfigOptions;
+import io.Adrestus.config.SocketConfigOptions;
 import io.Adrestus.core.Resourses.*;
 import io.Adrestus.core.RingBuffer.publisher.BlockEventPublisher;
 import io.Adrestus.crypto.HashUtil;
@@ -143,7 +143,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
                     entry.getValue().stream().forEach(receipt -> toSendReceipt.add(receipt_encode.encode(receipt, 1024)));
 
                     if (!toSendReceipt.isEmpty()) {
-                        var executor = new AsyncService<Long>(ReceiptIPWorkers, toSendReceipt, TransactionConfigOptions.RECEIPT_PORT);
+                        var executor = new AsyncService<Long>(ReceiptIPWorkers, toSendReceipt, SocketConfigOptions.RECEIPT_PORT);
 
                         var asyncResult = executor.startListProcess(300L);
                         var result = executor.endProcess(asyncResult);
@@ -232,7 +232,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
         committeeBlock.setHeight(CachedLatestBlocks.getInstance().getCommitteeBlock().getHeight() + 1);
         committeeBlock.setViewID(CachedLatestBlocks.getInstance().getCommitteeBlock().getViewID() + 1);
         committeeBlock.getHeaderData().setTimestamp(GetTime.GetTimeStampInString());
-        committeeBlock.setVRF(Hex.toHexString(CachedSecurityHeaders.getInstance().getSecurityHeader().getpRnd()));
+        committeeBlock.setVRF(Hex.toHexString(CachedSecurityHeaders.getInstance().getSecurityHeader().getRnd()));
 
 
         // ###################find difficulty##########################
@@ -469,6 +469,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
         IDatabase<String, CommitteeBlock> database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
         database.save(String.valueOf(committeeBlock.getHeight()), committeeBlock);
         CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
+        CachedLeaderIndex.getInstance().setCommitteePositionLeader(0);
         CachedZoneIndex.getInstance().setZoneIndexInternalIP();
 
         //sync blocks from zone of previous validators for both transaction and patricia tree blocks
@@ -507,7 +508,10 @@ public class RegularBlock implements BlockForge, BlockInvent {
                 }
             }
             block_database.saveAll(toSave);
-
+            if (!blocks.isEmpty()) {
+                CachedLatestBlocks.getInstance().setTransactionBlock(blocks.get(blocks.size() - 1));
+                CachedLeaderIndex.getInstance().setTransactionPositionLeader(0);
+            }
             if (client != null)
                 client.close();
         } catch (IllegalArgumentException e) {
@@ -546,6 +550,9 @@ public class RegularBlock implements BlockForge, BlockInvent {
                         }
                     });
                 }
+            }
+            if (!treeObjects.isEmpty()) {
+                TreeFactory.setMemoryTree((MemoryTreePool) patricia_tree_wrapper.decode(treeObjects.get(treeObjects.size() - 1)), CachedZoneIndex.getInstance().getZoneIndex());
             }
             if (client != null)
                 client.close();
@@ -559,7 +566,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
         List<String> TransactionIPWorkers = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(prevZone).values().stream().collect(Collectors.toList());
 
         if (!toSendTransaction.isEmpty()) {
-            var executor = new AsyncService<Long>(TransactionIPWorkers, toSendTransaction, TransactionConfigOptions.TRANSACTION_PORT);
+            var executor = new AsyncService<Long>(TransactionIPWorkers, toSendTransaction, SocketConfigOptions.TRANSACTION_PORT);
 
             var asyncResult = executor.startListProcess(300L);
             var result = executor.endProcess(asyncResult);
@@ -573,7 +580,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
         List<String> ReceiptIPWorkers = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(prevZone).values().stream().collect(Collectors.toList());
 
         if (!toSendReceipt.isEmpty()) {
-            var executor = new AsyncService<Long>(ReceiptIPWorkers, toSendReceipt, TransactionConfigOptions.RECEIPT_PORT);
+            var executor = new AsyncService<Long>(ReceiptIPWorkers, toSendReceipt, SocketConfigOptions.RECEIPT_PORT);
 
             var asyncResult = executor.startListProcess(300L);
             var result = executor.endProcess(asyncResult);
@@ -582,148 +589,4 @@ public class RegularBlock implements BlockForge, BlockInvent {
         CachedReceiptSemaphore.getInstance().getSemaphore().release();
     }
 
-    @SneakyThrows
-    @Override
-    public void SyncBlockState() {
-        CommitteeBlock prevblock = (CommitteeBlock) CachedLatestBlocks.getInstance().getCommitteeBlock().clone();
-        int prevZone = Integer.valueOf(CachedZoneIndex.getInstance().getZoneIndex());
-        List<String> ips = prevblock.getStructureMap().get(0).values().stream().collect(Collectors.toList());
-        ArrayList<InetSocketAddress> toConnectCommittee = new ArrayList<>();
-        ips.stream().forEach(ip -> {
-            try {
-                toConnectCommittee.add(new InetSocketAddress(InetAddress.getByName(ip), NetworkConfiguration.RPC_PORT));
-            } catch (UnknownHostException e) {
-                throw new RuntimeException(e);
-            }
-        });
-        List<CommitteeBlock> commitee_blocks;
-        do {
-            RpcAdrestusClient client = new RpcAdrestusClient(new CommitteeBlock(), toConnectCommittee, eventloop);
-            client.connect();
-
-            commitee_blocks = client.getBlocksList(String.valueOf(CachedLatestBlocks.getInstance().getCommitteeBlock().getHeight()));
-
-            if (client != null)
-                client.close();
-
-            Thread.sleep(1000);
-        } while (commitee_blocks.size() <= 1);
-
-        CachedLatestBlocks.getInstance().setCommitteeBlock(commitee_blocks.get(commitee_blocks.size() - 1));
-        IDatabase<String, CommitteeBlock> database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
-        database.save(String.valueOf(CachedLatestBlocks.getInstance().getCommitteeBlock().getHeight()), CachedLatestBlocks.getInstance().getCommitteeBlock());
-        CachedZoneIndex.getInstance().setZoneIndexInternalIP();
-
-        List<String> new_ips = prevblock.getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).values().stream().collect(Collectors.toList());
-        int RPCTransactionZonePort = ZoneDatabaseFactory.getDatabaseRPCPort(CachedZoneIndex.getInstance().getZoneIndex());
-        int RPCPatriciaTreeZonePort = ZoneDatabaseFactory.getDatabasePatriciaRPCPort(ZoneDatabaseFactory.getPatriciaTreeZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
-        ArrayList<InetSocketAddress> toConnectTransaction = new ArrayList<>();
-        ArrayList<InetSocketAddress> toConnectPatricia = new ArrayList<>();
-        new_ips.stream().forEach(ip -> {
-            try {
-                toConnectTransaction.add(new InetSocketAddress(InetAddress.getByName(ip), RPCTransactionZonePort));
-                toConnectPatricia.add(new InetSocketAddress(InetAddress.getByName(ip), RPCPatriciaTreeZonePort));
-            } catch (UnknownHostException e) {
-                throw new RuntimeException(e);
-            }
-        });
-
-
-        RpcAdrestusClient client = null;
-        try {
-            IDatabase<String, TransactionBlock> block_database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
-            client = new RpcAdrestusClient(new TransactionBlock(), toConnectTransaction, eventloop);
-            client.connect();
-
-            Optional<TransactionBlock> block = block_database.seekLast();
-            Map<String, TransactionBlock> toSave = new HashMap<>();
-            List<TransactionBlock> blocks;
-            if (block.isPresent()) {
-                blocks = client.getBlocksList(String.valueOf(block.get().getHeight()));
-                if (!blocks.isEmpty()) {
-                    blocks.stream().skip(1).forEach(val -> toSave.put(String.valueOf(val.getHeight()), val));
-                }
-
-            } else {
-                blocks = client.getBlocksList("");
-                if (!blocks.isEmpty()) {
-                    blocks.stream().forEach(val -> toSave.put(String.valueOf(val.getHeight()), val));
-                }
-            }
-
-            block_database.saveAll(toSave);
-
-            if (client != null)
-                client.close();
-        } catch (IllegalArgumentException e) {
-        }
-
-
-        try {
-            IDatabase<String, byte[]> tree_database = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getPatriciaTreeZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
-            client = new RpcAdrestusClient(new byte[]{}, toConnectPatricia, eventloop);
-            client.connect();
-
-            Optional<byte[]> tree = tree_database.seekLast();
-            List<byte[]> treeObjects;
-            if (tree.isPresent()) {
-                treeObjects = client.getPatriciaTreeList(((MemoryTreePool) patricia_tree_wrapper.decode(tree.get())).getRootHash());
-            } else {
-                treeObjects = client.getPatriciaTreeList("");
-            }
-            Map<String, byte[]> toSave = new HashMap<>();
-            if (tree.isPresent()) {
-                if (!treeObjects.isEmpty()) {
-                    treeObjects.stream().skip(1).forEach(val -> {
-                        try {
-                            toSave.put(((MemoryTreePool) patricia_tree_wrapper.decode(val)).getRootHash(), val);
-                        } catch (Exception e) {
-                            throw new RuntimeException(e);
-                        }
-                    });
-                }
-            } else {
-                if (!treeObjects.isEmpty()) {
-                    treeObjects.stream().forEach(val -> {
-                        try {
-                            toSave.put(((MemoryTreePool) patricia_tree_wrapper.decode(val)).getRootHash(), val);
-                        } catch (Exception e) {
-                            throw new RuntimeException(e);
-                        }
-                    });
-                }
-            }
-            tree_database.saveAll(toSave);
-            if (client != null)
-                client.close();
-        } catch (IllegalArgumentException e) {
-        }
-
-        //find transactions that is not for this zone and sent them to the correct zone
-        List<Transaction> transactionList = MemoryTransactionPool.getInstance().getListByZone(prevZone);
-        List<byte[]> toSend = new ArrayList<>();
-        transactionList.stream().forEach(transaction -> toSend.add(transaction_encode.encode(transaction, 1024)));
-        List<String> iptoSend = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(prevZone).values().stream().collect(Collectors.toList());
-
-        if (!toSend.isEmpty()) {
-            var executor = new AsyncService<Long>(iptoSend, toSend, TransactionConfigOptions.TRANSACTION_PORT);
-
-            var asyncResult = executor.startListProcess(300L);
-            var result = executor.endProcess(asyncResult);
-        }
-
-        //find receipts that is not for this zone and sent them to the correct zone
-        List<Receipt> receiptList = MemoryReceiptPool.getInstance().getListByZone(prevZone);
-        List<byte[]> toSendReceipt = new ArrayList<>();
-        receiptList.stream().forEach(receipt -> toSendReceipt.add(receipt_encode.encode(receipt, 1024)));
-        List<String> ReceiptIPWorkers = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(prevZone).values().stream().collect(Collectors.toList());
-
-        if (!toSendReceipt.isEmpty()) {
-            var executor = new AsyncService<Long>(ReceiptIPWorkers, toSendReceipt, TransactionConfigOptions.RECEIPT_PORT);
-
-            var asyncResult = executor.startListProcess(300L);
-            var result = executor.endProcess(asyncResult);
-            MemoryReceiptPool.getInstance().delete(transactionList);
-        }
-    }
 }

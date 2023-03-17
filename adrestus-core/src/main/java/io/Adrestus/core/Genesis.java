@@ -18,8 +18,4 @@ public class Genesis implements BlockForge {
 
     }
 
-    @Override
-    public void SyncBlockState() {
-
-    }
 }

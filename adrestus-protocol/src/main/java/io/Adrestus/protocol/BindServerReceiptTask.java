@@ -1,6 +1,6 @@
 package io.Adrestus.protocol;
 
-import io.Adrestus.config.TransactionConfigOptions;
+import io.Adrestus.config.SocketConfigOptions;
 import io.Adrestus.core.Receipt;
 import io.Adrestus.core.Resourses.MemoryReceiptPool;
 import io.Adrestus.network.IPFinder;
@@ -35,7 +35,7 @@ public class BindServerReceiptTask extends AdrestusTask {
     @SneakyThrows
     @Override
     public void execute() {
-        transactionChannelHandler = new TransactionChannelHandler<byte[]>(IPFinder.getLocal_address(), TransactionConfigOptions.RECEIPT_PORT);
+        transactionChannelHandler = new TransactionChannelHandler<byte[]>(IPFinder.getLocal_address(), SocketConfigOptions.RECEIPT_PORT);
         transactionChannelHandler.BindServerAndReceive(receive);
         LOG.info("Receipt: TransactionChannelHandler " + IPFinder.getLocal_address());
     }

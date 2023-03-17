@@ -150,6 +150,11 @@ public class MemoryTreePool implements IMemoryTreePool, Cloneable {
         return this.patriciaTreeImp;
     }
 
+    @Override
+    public void setTrie(MerklePatriciaTrie<Bytes, PatriciaTreeNode> patriciaTreeImp) {
+        this.patriciaTreeImp = patriciaTreeImp;
+    }
+
 
     public void setPatriciaTreeImp(MerklePatriciaTrie<Bytes, PatriciaTreeNode> patriciaTreeImp) {
         this.patriciaTreeImp = patriciaTreeImp;

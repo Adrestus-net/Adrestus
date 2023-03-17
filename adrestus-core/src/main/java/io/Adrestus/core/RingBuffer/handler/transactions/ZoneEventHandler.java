@@ -1,6 +1,6 @@
 package io.Adrestus.core.RingBuffer.handler.transactions;
 
-import io.Adrestus.config.TransactionConfigOptions;
+import io.Adrestus.config.SocketConfigOptions;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.core.RingBuffer.event.TransactionEvent;
@@ -35,7 +35,7 @@ public class ZoneEventHandler extends TransactionEventHandler {
                 Thread.sleep(500);
 
                 List<String> ips = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(transaction.getZoneFrom()).values().stream().collect(Collectors.toList());
-                var executor = new AsyncService<Long>(ips, transaction_encode.encode(transaction, 1024), TransactionConfigOptions.TRANSACTION_PORT);
+                var executor = new AsyncService<Long>(ips, transaction_encode.encode(transaction, 1024), SocketConfigOptions.TRANSACTION_PORT);
 
                 var asyncResult1 = executor.startProcess(300L);
                 final var result1 = executor.endProcess(asyncResult1);

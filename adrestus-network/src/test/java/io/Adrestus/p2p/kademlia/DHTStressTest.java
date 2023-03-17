@@ -128,19 +128,19 @@ public class DHTStressTest {
             nettyMessageSender5 = new OkHttpMessageSender<>();
 
             DHTBootstrapNode dhtBootstrapNode = new DHTBootstrapNode(
-                    new NettyConnectionInfo(KademliaConfiguration.BootstrapNodeIP, KademliaConfiguration.BootstrapNodePORT), id1, keyHashGenerator);
+                    new NettyConnectionInfo(KademliaConfiguration.LOCAL_NODE_IP, KademliaConfiguration.BootstrapNodePORT), id1, keyHashGenerator);
             dhtBootstrapNode.start();
 
             DHTRegularNode regularNode = new DHTRegularNode(
-                    new NettyConnectionInfo(KademliaConfiguration.BootstrapNodeIP, KademliaConfiguration.PORT), id2, keyHashGenerator);
+                    new NettyConnectionInfo(KademliaConfiguration.LOCAL_NODE_IP, KademliaConfiguration.PORT), id2, keyHashGenerator);
             regularNode.start(dhtBootstrapNode);
 
             DHTRegularNode regularNode2 = new DHTRegularNode(
-                    new NettyConnectionInfo(KademliaConfiguration.BootstrapNodeIP, KademliaConfiguration.PORT + 1), id3, keyHashGenerator);
+                    new NettyConnectionInfo(KademliaConfiguration.LOCAL_NODE_IP, KademliaConfiguration.PORT + 1), id3, keyHashGenerator);
             regularNode2.start(dhtBootstrapNode);
 
             DHTRegularNode regularNode3 = new DHTRegularNode(
-                    new NettyConnectionInfo(KademliaConfiguration.BootstrapNodeIP, KademliaConfiguration.PORT + 2), id4, keyHashGenerator);
+                    new NettyConnectionInfo(KademliaConfiguration.LOCAL_NODE_IP, KademliaConfiguration.PORT + 2), id4, keyHashGenerator);
             regularNode3.start(dhtBootstrapNode);
 
             StoreAnswer<BigInteger, String> storeAnswer = regularNode.getRegular_node().store("V", seridata).get(5, TimeUnit.SECONDS);

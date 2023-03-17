@@ -4,7 +4,7 @@ import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.config.KademliaConfiguration;
-import io.Adrestus.config.TransactionConfigOptions;
+import io.Adrestus.config.SocketConfigOptions;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedLeaderIndex;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
@@ -163,7 +163,7 @@ public class AsyncServiceTest {
         List<String> ips = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).values().stream().collect(Collectors.toList());
         List<byte[]> transaction_list = new ArrayList<>();
         MemoryTransactionPool.getInstance().getAll().stream().skip(1).forEach(transaction -> transaction_list.add(transaction_encode.encode((Transaction) transaction, 1024)));
-        var executor = new AsyncService<Long>(ips, transaction_list, TransactionConfigOptions.TRANSACTION_PORT);
+        var executor = new AsyncService<Long>(ips, transaction_list, SocketConfigOptions.TRANSACTION_PORT);
 
         var asyncResult1 = executor.startListProcess(300L);
         final var result1 = executor.endProcess(asyncResult1);
@@ -174,7 +174,7 @@ public class AsyncServiceTest {
     public void testSingleValue() {
 
         List<String> ips = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).values().stream().collect(Collectors.toList());
-        var executor = new AsyncService<Long>(ips, transaction_encode.encode(transaction, 1024), TransactionConfigOptions.TRANSACTION_PORT);
+        var executor = new AsyncService<Long>(ips, transaction_encode.encode(transaction, 1024), SocketConfigOptions.TRANSACTION_PORT);
 
         var asyncResult1 = executor.startProcess(300L);
         final var result1 = executor.endProcess(asyncResult1);

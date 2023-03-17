@@ -24,6 +24,8 @@ public interface IMemoryTreePool extends Serializable {
 
     MerklePatriciaTrie<Bytes, PatriciaTreeNode> getTrie();
 
+    void setTrie(MerklePatriciaTrie<Bytes, PatriciaTreeNode> patriciaTrie);
+
     MerklePatriciaTrie<Bytes, PatriciaTreeNode> getPatriciaTreeImp();
 
     void setPatriciaTreeImp(MerklePatriciaTrie<Bytes, PatriciaTreeNode> patriciaTreeImp);

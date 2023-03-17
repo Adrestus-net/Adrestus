@@ -16,7 +16,7 @@ public class VRFEventHandler implements BlockEventHandler<AbstractBlockEvent> {
         CommitteeBlock block = (CommitteeBlock) blockEvent.getBlock();
         String cachedVRF = "EMPTY";
         try {
-            cachedVRF = Hex.toHexString(CachedSecurityHeaders.getInstance().getSecurityHeader().getpRnd());
+            cachedVRF = Hex.toHexString(CachedSecurityHeaders.getInstance().getSecurityHeader().getPRnd());
         } catch (NullPointerException e) {
             LOG.info("VRF Null Pointer exception caught " + e.toString());
             block.setStatustype(StatusType.ABORT);

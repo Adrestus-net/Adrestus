@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 public class TreemapSerializationTest {
     private static BLSPrivateKey sk1;
@@ -138,5 +139,45 @@ public class TreemapSerializationTest {
 
         assertEquals(treeNode, pat.get());
         assertEquals(m, copy);
+
+        tree_datasbase.delete_db();
+    }
+
+    @Test
+    public void treemap_database_test2() throws Exception {
+        IDatabase<String, byte[]> tree_database = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getPatriciaTreeZoneInstance(0));
+
+        Type fluentType = new TypeToken<MemoryTreePool>() {
+        }.getType();
+        List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(MemoryTreePool.class, ctx -> new MemoryTreePoolSerializer()));
+        SerializationUtil valueMapper = new SerializationUtil<>(fluentType, list);
+
+        String address = "ADR-ADL3-VDZK-ZU7H-2BX5-M2H4-S7LF-5SR4-ECQA-EIUJ-CBFK";
+        PatriciaTreeNode treeNode = new PatriciaTreeNode(2, 1);
+        TreeFactory.getMemoryTree(1).store(address, treeNode);
+        MemoryTreePool m = (MemoryTreePool) TreeFactory.getMemoryTree(1);
+
+        //m.getByaddress(address);
+        //use only special
+        byte[] bt = valueMapper.encode_special(m, SerializationUtils.serialize(m).length);
+        tree_database.save("patricia_tree_root", bt);
+        MemoryTreePool copy = (MemoryTreePool) valueMapper.decode(tree_database.findByKey("patricia_tree_root").get());
+
+        PatriciaTreeNode treeNode2 = new PatriciaTreeNode(3, 3);
+        TreeFactory.getMemoryTree(1).store("address", treeNode2);
+        assertEquals(treeNode2, TreeFactory.getMemoryTree(1).getByaddress("address").get());
+
+        //copy.store(address, treeNode);
+        Option<PatriciaTreeNode> pat = copy.getByaddress(address);
+
+        assertEquals(treeNode, pat.get());
+        assertNotEquals(m, copy);
+
+        TreeFactory.setMemoryTree(copy, 1);
+
+        assertEquals(treeNode, TreeFactory.getMemoryTree(1).getByaddress(address).get());
+
+        tree_database.delete_db();
     }
 }

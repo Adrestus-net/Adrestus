@@ -1,6 +1,6 @@
 package io.Adrestus.protocol;
 
-import io.Adrestus.config.TransactionConfigOptions;
+import io.Adrestus.config.SocketConfigOptions;
 import io.Adrestus.core.Receipt;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedReceiptSemaphore;
@@ -41,7 +41,7 @@ public class ReceiptTask extends AdrestusTask {
                 CachedReceiptSemaphore.getInstance().getSemaphore().acquire();
                 if (!CachedLatestBlocks.getInstance().getTransactionBlock().getOutbound().getMap_receipts().isEmpty()) {
                     CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).values().forEach(ip -> {
-                        eventloop.connect(new InetSocketAddress(ip, TransactionConfigOptions.RECEIPT_PORT), (socketChannel, e) -> {
+                        eventloop.connect(new InetSocketAddress(ip, SocketConfigOptions.RECEIPT_PORT), (socketChannel, e) -> {
                             if (e == null) {
                                 // System.out.println("Connected to server, enter some text and send it by pressing 'Enter'.");
                                 try {

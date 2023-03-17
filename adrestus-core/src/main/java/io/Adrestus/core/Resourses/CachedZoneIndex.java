@@ -39,6 +39,36 @@ public class CachedZoneIndex {
         }
     }
 
+    public boolean isNodeExistOnBlockInternal() {
+        boolean result = false;
+        Map<Integer, LinkedHashMap<BLSPublicKey, String>> outer_map = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap();
+        outerloop:
+        for (Map.Entry<Integer, LinkedHashMap<BLSPublicKey, String>> outer : outer_map.entrySet()) {
+            for (Map.Entry<BLSPublicKey, String> inner : outer.getValue().entrySet()) {
+                if (inner.getValue().equals(IPFinder.getLocal_address())) {
+                    result = true;
+                    break outerloop;
+                }
+            }
+        }
+        return result;
+    }
+
+    public boolean isNodeExistOnBlockExternal() {
+        boolean result = false;
+        Map<Integer, LinkedHashMap<BLSPublicKey, String>> outer_map = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap();
+        outerloop:
+        for (Map.Entry<Integer, LinkedHashMap<BLSPublicKey, String>> outer : outer_map.entrySet()) {
+            for (Map.Entry<BLSPublicKey, String> inner : outer.getValue().entrySet()) {
+                if (inner.getValue().equals(IPFinder.getExternal_address())) {
+                    result = true;
+                    break outerloop;
+                }
+            }
+        }
+        return result;
+    }
+
     public void setZoneIndexExternalIP() {
         Map<Integer, LinkedHashMap<BLSPublicKey, String>> outer_map = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap();
         outerloop:
