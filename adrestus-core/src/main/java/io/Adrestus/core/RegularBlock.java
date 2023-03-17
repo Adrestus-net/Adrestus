@@ -232,7 +232,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
         committeeBlock.setHeight(CachedLatestBlocks.getInstance().getCommitteeBlock().getHeight() + 1);
         committeeBlock.setViewID(CachedLatestBlocks.getInstance().getCommitteeBlock().getViewID() + 1);
         committeeBlock.getHeaderData().setTimestamp(GetTime.GetTimeStampInString());
-        committeeBlock.setVRF(Hex.toHexString(CachedSecurityHeaders.getInstance().getSecurityHeader().getRnd()));
+        committeeBlock.setVRF(Hex.toHexString(CachedSecurityHeaders.getInstance().getSecurityHeader().getPRnd()));
 
 
         // ###################find difficulty##########################
