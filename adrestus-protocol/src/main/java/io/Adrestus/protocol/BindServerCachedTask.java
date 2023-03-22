@@ -63,6 +63,7 @@ public class BindServerCachedTask extends AdrestusTask {
                             BinaryChannelSupplier bufsSupplier = BinaryChannelSupplier.of(ChannelSupplier.ofSocket(socket));
                             repeat(() ->
                                     bufsSupplier.decode(DECODER)
+                                            .whenResult(x -> System.out.println(x))
                                             .then(() -> loadData())
                                             .then(socket::write)
                                             .map($ -> true))
@@ -72,7 +73,11 @@ public class BindServerCachedTask extends AdrestusTask {
                 .withSocketSettings(settings)
                 .withAcceptOnce();
         server.listen();
-        eventloop.run();
+        (new Thread() {
+            public void run() {
+                eventloop.run();
+            }
+        }).start();
     }
 
     private static @NotNull Promise<ByteBuf> loadData() {

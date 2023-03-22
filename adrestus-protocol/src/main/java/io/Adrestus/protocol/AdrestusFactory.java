@@ -3,6 +3,8 @@ package io.Adrestus.protocol;
 import io.distributedLedger.DatabaseInstance;
 import io.distributedLedger.PatriciaTreeInstance;
 
+import java.security.SecureRandom;
+
 public class AdrestusFactory implements IAdrestusFactory {
     @Override
     public AdrestusTask createBindServerTransactionTask() {
@@ -32,6 +34,11 @@ public class AdrestusFactory implements IAdrestusFactory {
     @Override
     public AdrestusTask createBindServerKademliaTask() {
         return new BindServerKademliaTask();
+    }
+
+    @Override
+    public AdrestusTask createBindServerKademliaTask(SecureRandom secureRandom,byte[] passphrase) {
+        return new BindServerKademliaTask(secureRandom,passphrase);
     }
 
     @Override

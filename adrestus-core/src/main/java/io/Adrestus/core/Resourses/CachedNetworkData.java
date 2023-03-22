@@ -118,6 +118,9 @@ public class CachedNetworkData {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         CachedNetworkData that = (CachedNetworkData) o;
+        boolean val=Objects.equals(committeeBlock, that.committeeBlock);
+        boolean val2=Objects.equals(transactionBlock, that.transactionBlock);
+        boolean val3=Objects.equals(securityHeader, that.securityHeader);
         return epoch_counter == that.epoch_counter && CommitteePositionLeader == that.CommitteePositionLeader && TransactionPositionLeader == that.TransactionPositionLeader && ZoneIndex == that.ZoneIndex && Objects.equals(committeeBlock, that.committeeBlock) && Objects.equals(transactionBlock, that.transactionBlock) && Objects.equals(securityHeader, that.securityHeader);
     }
 

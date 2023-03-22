@@ -188,7 +188,7 @@ public class ConsensusState extends ConsensusDataState {
         }
     }
 
-    protected static final class TransactionBlockConsensusTask extends TimerTask {
+    public static final class TransactionBlockConsensusTask extends TimerTask {
         private AbstractState state;
 
         public TransactionBlockConsensusTask() {

@@ -1,5 +1,6 @@
 package io.Adrestus.network;
 
+import io.Adrestus.config.SocketConfigOptions;
 import io.activej.bytebuf.ByteBuf;
 import io.activej.bytebuf.ByteBufPool;
 import io.activej.csp.ChannelSupplier;
@@ -37,16 +38,12 @@ public class AsyncServiceNetworkData<T> {
 
     private final List<byte[]> data_bytes;
     private final ThreadAsyncExecutor executor;
-    private final int port;
-    private static Eventloop eventloop;
 
     private static CountDownLatch[] local_termination;
 
-    public AsyncServiceNetworkData(List<String> list_ip, int port) {
+    public AsyncServiceNetworkData(List<String> list_ip) {
         this.executor = new ThreadAsyncExecutor();
         this.list_ip = list_ip;
-        this.port = port;
-        this.eventloop = Eventloop.create().withCurrentThread();
         this.local_termination = new CountDownLatch[list_ip.size()];
         this.data_bytes = Collections.synchronizedList(new ArrayList<byte[]>());
         this.Setup();
@@ -64,7 +61,6 @@ public class AsyncServiceNetworkData<T> {
         for (int i = 0; i < list_ip.size(); i++) {
             AsyncResult<T> result = executor.startProcess(AsyncCall(value, list_ip.get(i), i));
             list.add(result);
-            eventloop.run();
         }
         return list;
     }
@@ -85,7 +81,8 @@ public class AsyncServiceNetworkData<T> {
 
     private <T> Callable<T> AsyncCall(T value, String ip, int pos) {
         return () -> {
-            eventloop.connect(new InetSocketAddress(ip, port), (socketChannel, e) -> {
+            Eventloop eventloop=Eventloop.create().withCurrentThread();
+            eventloop.connect(new InetSocketAddress(ip,SocketConfigOptions.CACHED_DATA_PORT), (socketChannel, e) -> {
                 if (e == null) {
                     try {
                         AsyncTcpSocket socket = AsyncTcpSocketNio.wrapChannel(getCurrentEventloop(), socketChannel, null);
@@ -108,12 +105,12 @@ public class AsyncServiceNetworkData<T> {
                     }
 
                 } else {
-                    System.out.println("edw");
                     while (local_termination[pos].getCount() > 0) {
                         local_termination[pos].countDown();
                     }
                 }
             });
+            eventloop.run();
             Timer timer = new Timer();
             timer.schedule(new TimerTask() {
                 @SneakyThrows
@@ -124,9 +121,17 @@ public class AsyncServiceNetworkData<T> {
                     }
                 }
             }, TIMER_DELAY_TIMEOUT);
+            for (int i = 0; i < local_termination.length; i++) {
+                local_termination[i].await();
+            }
             local_termination[pos].await();
             timer.cancel();
             timer.purge();
+            this.terminate();
+            if (eventloop != null) {
+                eventloop.breakEventloop();
+                eventloop=null;;
+            }
             return value;
         };
     }
@@ -151,6 +156,11 @@ public class AsyncServiceNetworkData<T> {
         Map<String, Long> collect = toCompare.stream().collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
         byte[] result = Hex.decode(collect.keySet().stream().findFirst().get());
         return result;
+    }
+
+    private void terminate(){
+        if(this.list_ip!=null)
+            this.list_ip.clear();
     }
 
 }

@@ -35,7 +35,6 @@ public class AsyncService<T> {
     private final int port;
     private static List<byte[]> listToSend;
     private static byte[] toSend;
-    private static Eventloop eventloop;
 
     private static CountDownLatch[] local_termination;
 
@@ -44,7 +43,6 @@ public class AsyncService<T> {
         this.list_ip = list_ip;
         this.port = port;
         this.listToSend = listToSend;
-        this.eventloop = Eventloop.create().withCurrentThread();
         this.local_termination = new CountDownLatch[list_ip.size()];
         this.Setup();
     }
@@ -54,7 +52,6 @@ public class AsyncService<T> {
         this.list_ip = list_ip;
         this.port = port;
         this.toSend = toSend;
-        this.eventloop = Eventloop.create().withCurrentThread();
         this.local_termination = new CountDownLatch[list_ip.size()];
     }
 
@@ -70,7 +67,6 @@ public class AsyncService<T> {
         for (int i = 0; i < list_ip.size(); i++) {
             AsyncResult<T> result = executor.startProcess(AsyncCall(value, list_ip.get(i)));
             list.add(result);
-            eventloop.run();
         }
         return list;
     }
@@ -81,7 +77,6 @@ public class AsyncService<T> {
         for (int i = 0; i < list_ip.size(); i++) {
             AsyncResult<T> result = executor.startProcess(AsyncListCall(value, list_ip.get(i), i));
             list.add(result);
-            eventloop.run();
         }
         return list;
     }
@@ -103,6 +98,7 @@ public class AsyncService<T> {
 
     private <T> Callable<T> AsyncCall(T value, String ip) {
         return () -> {
+            Eventloop eventloop = Eventloop.create().withCurrentThread();
             eventloop.connect(new InetSocketAddress(ip, port), (socketChannel, e) -> {
                 if (e == null) {
                     try {
@@ -118,12 +114,19 @@ public class AsyncService<T> {
                     }
                 }
             });
+            eventloop.run();
+            this.terminate();
+            if (eventloop != null) {
+                eventloop.breakEventloop();
+                eventloop=null;;
+            }
             return value;
         };
     }
 
     private <T> Callable<T> AsyncListCall(T value, String ip, int pos) {
         return () -> {
+            Eventloop eventloop = Eventloop.create().withCurrentThread();
             eventloop.connect(new InetSocketAddress(ip, this.port), (socketChannel, e) -> {
                 if (e == null) {
                     try {
@@ -161,12 +164,18 @@ public class AsyncService<T> {
                     }
                 }
             }, TIMER_DELAY_TIMEOUT);
+            eventloop.run();
             for (int i = 0; i < local_termination.length; i++) {
                 local_termination[i].await();
             }
             local_termination[pos].await();
             timer.cancel();
             timer.purge();
+            this.terminate();
+            if (eventloop != null) {
+                eventloop.breakEventloop();
+                eventloop=null;;
+            }
             return value;
         };
     }
@@ -181,5 +190,12 @@ public class AsyncService<T> {
     private static @NotNull Promise<Void> decrease(int pos) {
         local_termination[pos].countDown();
         return Promise.complete();
+    }
+
+    private void terminate(){
+        if(listToSend!=null)
+            this.listToSend.clear();
+        if(this.list_ip!=null)
+            this.list_ip.clear();
     }
 }

@@ -8,15 +8,25 @@ import io.Adrestus.config.KademliaConfiguration;
 import io.Adrestus.config.NetworkConfiguration;
 import io.Adrestus.config.SocketConfigOptions;
 import io.Adrestus.core.Resourses.*;
+import io.Adrestus.crypto.bls.BLS381.ECP;
+import io.Adrestus.crypto.bls.BLS381.ECP2;
+import io.Adrestus.crypto.bls.mapper.ECP2mapper;
+import io.Adrestus.crypto.bls.mapper.ECPmapper;
+import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
+import io.Adrestus.crypto.elliptic.mapper.CustomSerializerTreeMap;
 import io.Adrestus.mapper.MemoryTreePoolSerializer;
 import io.Adrestus.network.AsyncService;
+import io.Adrestus.network.AsyncServiceNetworkData;
 import io.Adrestus.rpc.RpcAdrestusClient;
 import io.Adrestus.util.SerializationUtil;
 import io.activej.eventloop.Eventloop;
 import io.distributedLedger.*;
 import lombok.SneakyThrows;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Type;
+import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
@@ -24,9 +34,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class BlockSync implements IBlockSync {
+    private static Logger LOG = LoggerFactory.getLogger(BlockSync.class);
     private final SerializationUtil<Transaction> transaction_encode;
     private final SerializationUtil<Receipt> receipt_encode;
-
+    private static SerializationUtil<CachedNetworkData> serialize_cached;
     private final SerializationUtil patricia_tree_wrapper;
 
     private final Eventloop eventloop;
@@ -37,6 +48,12 @@ public class BlockSync implements IBlockSync {
         }.getType();
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(MemoryTreePool.class, ctx -> new MemoryTreePoolSerializer()));
+        List<SerializationUtil.Mapping> list2 = new ArrayList<>();
+        list2.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
+        list2.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
+        list2.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
+        list2.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
+        serialize_cached = new SerializationUtil<CachedNetworkData>(CachedNetworkData.class, list2);
         this.patricia_tree_wrapper = new SerializationUtil<>(fluentType, list);
         this.transaction_encode = new SerializationUtil<Transaction>(Transaction.class);
         this.receipt_encode = new SerializationUtil<Receipt>(Receipt.class);
@@ -167,6 +184,23 @@ public class BlockSync implements IBlockSync {
         } catch (IllegalArgumentException e) {
         }
 
+        //send request to receive cached Data used for consenus
+        boolean bError = false;
+        do {
+            try {
+
+                var ex = new AsyncServiceNetworkData<Long>(new_ips);
+
+                var asyncResult = ex.startProcess(300L);
+                var cached_result = ex.endProcess(asyncResult);
+
+                CachedNetworkData networkData = serialize_cached.decode(ex.getResult());
+                networkData.SetCacheData();
+            } catch (NoSuchElementException ex) {
+                LOG.info("NoSuchElementException: " + ex.toString());
+                bError = true;
+            }
+        } while (bError);
     }
 
     @Override

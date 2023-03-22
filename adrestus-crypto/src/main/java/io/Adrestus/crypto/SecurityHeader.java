@@ -45,7 +45,7 @@ public final class SecurityHeader {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         SecurityHeader that = (SecurityHeader) o;
-        return Objects.equal(pRnd, that.pRnd) && Objects.equal(Rnd, that.Rnd);
+        return Arrays.equals(pRnd, that.pRnd) && Arrays.equals(Rnd, that.Rnd);
     }
 
     @Override

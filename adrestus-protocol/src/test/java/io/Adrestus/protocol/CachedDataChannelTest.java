@@ -1,6 +1,5 @@
 package io.Adrestus.protocol;
 
-import io.Adrestus.config.SocketConfigOptions;
 import io.Adrestus.core.CommitteeBlock;
 import io.Adrestus.core.Resourses.*;
 import io.Adrestus.core.TransactionBlock;
@@ -12,8 +11,9 @@ import io.Adrestus.crypto.bls.mapper.ECPmapper;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.crypto.elliptic.mapper.CustomSerializerTreeMap;
 import io.Adrestus.network.AsyncServiceNetworkData;
-import io.Adrestus.network.IPFinder;
 import io.Adrestus.util.SerializationUtil;
+import io.activej.bytebuf.ByteBuf;
+import io.activej.csp.binary.ByteBufsDecoder;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -21,7 +21,6 @@ import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -30,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class CachedDataChannelTest {
     private static SerializationUtil<CachedNetworkData> serialize;
-
+    private static final ByteBufsDecoder<ByteBuf> DECODER = ByteBufsDecoder.ofVarIntSizePrefixedBytes();
 
     @BeforeAll
     public static void setup() {
@@ -67,20 +66,21 @@ public class CachedDataChannelTest {
 
 
         Thread.sleep(4000);
-        ArrayList<String> ips = new ArrayList<>();
-        ips.add(new String(IPFinder.getLocal_address()));
 
-        var ex = new AsyncServiceNetworkData<Long>(ips, SocketConfigOptions.TRANSACTION_PORT);
+
+        //eventloop.run();*/
+        ArrayList<String> ips = new ArrayList<>();
+        ips.add(new String("192.168.1.106"));
+        ips.add(new String("192.168.1.113"));
+
+        var ex = new AsyncServiceNetworkData<Long>(ips);
 
         var asyncResult = ex.startProcess(300L);
         var result = ex.endProcess(asyncResult);
 
-        try {
+        CachedNetworkData networkData = serialize.decode(ex.getResult());
 
-            CachedNetworkData networkData = serialize.decode(ex.getResult());
-
-            assertEquals(cachedNetworkData, networkData);
-        } catch (NoSuchElementException e) {
-        }
+        assertEquals(cachedNetworkData, networkData);
     }
+
 }
