@@ -81,8 +81,8 @@ public class AsyncServiceNetworkData<T> {
 
     private <T> Callable<T> AsyncCall(T value, String ip, int pos) {
         return () -> {
-            Eventloop eventloop=Eventloop.create().withCurrentThread();
-            eventloop.connect(new InetSocketAddress(ip,SocketConfigOptions.CACHED_DATA_PORT), (socketChannel, e) -> {
+            Eventloop eventloop = Eventloop.create().withCurrentThread();
+            eventloop.connect(new InetSocketAddress(ip, SocketConfigOptions.CACHED_DATA_PORT), (socketChannel, e) -> {
                 if (e == null) {
                     try {
                         AsyncTcpSocket socket = AsyncTcpSocketNio.wrapChannel(getCurrentEventloop(), socketChannel, null);
@@ -130,7 +130,8 @@ public class AsyncServiceNetworkData<T> {
             this.terminate();
             if (eventloop != null) {
                 eventloop.breakEventloop();
-                eventloop=null;;
+                eventloop = null;
+                ;
             }
             return value;
         };
@@ -158,8 +159,8 @@ public class AsyncServiceNetworkData<T> {
         return result;
     }
 
-    private void terminate(){
-        if(this.list_ip!=null)
+    private void terminate() {
+        if (this.list_ip != null)
             this.list_ip.clear();
     }
 
