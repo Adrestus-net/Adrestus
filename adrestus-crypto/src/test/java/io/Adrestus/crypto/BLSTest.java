@@ -1,12 +1,19 @@
 package io.Adrestus.crypto;
 
+import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.crypto.bls.model.*;
 import io.Adrestus.crypto.bls.utils.MultiSigFastUtils;
 import io.Adrestus.crypto.bls.utils.ThresholdSigUtils;
+import io.Adrestus.crypto.mnemonic.Mnemonic;
+import io.Adrestus.crypto.mnemonic.MnemonicException;
+import io.Adrestus.crypto.mnemonic.Security;
+import io.Adrestus.crypto.mnemonic.WordList;
 import org.apache.tuweni.bytes.Bytes;
 import org.junit.jupiter.api.*;
 import org.spongycastle.util.encoders.Hex;
 
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -183,5 +190,23 @@ public class BLSTest {
         BLSPublicKey copy = BLSPublicKey.fromByte(Hex.decode(b));
 
         assertEquals(vk1.toRaw(), copy.toRaw());
+    }
+
+    @Test
+    @Order(9)
+    public void bls_key_test_with_address() throws MnemonicException, NoSuchAlgorithmException, NoSuchProviderException {
+        Mnemonic mnem = new Mnemonic(Security.NORMAL, WordList.ENGLISH);
+        char[] mnemonic1 = "sample sail jungle learn general promote task puppy own conduct green affair ".toCharArray();
+        char[] passphrase = "p4ssphr4se".toCharArray();
+        byte[] key1 = mnem.createSeed(mnemonic1, passphrase);
+        SecureRandom random = SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
+        random.setSeed(key1);
+        BLSPrivateKey sk1 = new BLSPrivateKey(random);
+        BLSPublicKey vk1 = new BLSPublicKey(sk1,new Params(new String(passphrase).getBytes(UTF_8)));
+
+
+        assertEquals("0416eecd805539a6449c3a38da5293d032cf69dac8d890c3aa20ab77780d66277ad579baf235bf1b80e6b716612a5341260da3dae5af5122cc4bbc7b43c57a153ce90ef6d165ad08aa13efa87d5fd8675e017d7ce14b611e577b44e4cd3ac0af96",vk1.toRaw());
+        assertEquals("0000000000000000000000000000000015efa50455889bca09fbd5853b024c613c766684e1ad5a22d55617d99dce40c0",Hex.toHexString(sk1.toBytes()));
+
     }
 }

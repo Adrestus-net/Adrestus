@@ -54,6 +54,23 @@ public class ECDSASignatureData implements Serializable {
         return pub;
     }
 
+
+    public void setV(byte v) {
+        this.v = v;
+    }
+
+    public void setR(byte[] r) {
+        this.r = r;
+    }
+
+    public void setS(byte[] s) {
+        this.s = s;
+    }
+
+    public void setPub(byte[] pub) {
+        this.pub = pub;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {

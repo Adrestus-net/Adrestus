@@ -26,8 +26,14 @@
         <milagro.version>0.4.0</milagro.version>
         <jnr.version>2.2.12</jnr.version>
         <config.version>1.0-SNAPSHOT</config.version>
+        <http.components>5.2.1</http.components>
     </properties>
     <dependencies>
+        <dependency>
+            <groupId>org.apache.httpcomponents.core5</groupId>
+            <artifactId>httpcore5</artifactId>
+            <version>${http.components}</version>
+        </dependency>
         <dependency>
             <groupId>com.madgag.spongycastle</groupId>
             <artifactId>core</artifactId>
