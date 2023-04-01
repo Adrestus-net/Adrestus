@@ -44,4 +44,11 @@ public class AddressTest {
         String address=JavascriptWalletAddress.generate_address((byte) version,key);
         assertEquals(address,"ADR-GBQW-FKOL-XRJH-2YZ7-UN5S-SGAG-AJJH-4U2Z-TBLY-OOV2");
     }
+
+    @Test
+    public void Javascript_addrees2(){
+        String key="04a359cbf789702dd4d6da661e90c0c1c3bc13bb3a7588b9c5c093cf2c9f65678f3afe11d2fb05dbed6553f63a6bb5d9b66c1a52abb7daade24a31fd870922d253";
+        String address=JavascriptWalletAddress.generate_address((byte) version,key);
+        assertEquals(address,"ADR-GDQJ-JJTL-4IWX-4CUH-J73M-IRJP-BA44-UFXC-BNGK-HB6B");
+    }
 }
