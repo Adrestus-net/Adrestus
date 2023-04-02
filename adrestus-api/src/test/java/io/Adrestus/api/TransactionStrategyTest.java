@@ -24,6 +24,7 @@ import io.Adrestus.crypto.elliptic.ECDSASign;
 import io.Adrestus.crypto.elliptic.ECDSASignatureData;
 import io.Adrestus.crypto.elliptic.ECKeyPair;
 import io.Adrestus.crypto.elliptic.Keys;
+import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.crypto.elliptic.mapper.StakingData;
 import io.Adrestus.crypto.mnemonic.Mnemonic;
 import io.Adrestus.crypto.mnemonic.Security;
@@ -37,8 +38,10 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.spongycastle.util.encoders.Hex;
 
+import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Unit test for simple App.
@@ -79,7 +82,9 @@ public class TransactionStrategyTest {
         ECDSASignatureData signatureData1 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address1)), ecKeyPair1);
         ECDSASignatureData signatureData2 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address2)), ecKeyPair2);
 
-        SerializationUtil<Transaction> serenc = new SerializationUtil<Transaction>(Transaction.class);
+        List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
+        SerializationUtil<Transaction> serenc = new SerializationUtil<Transaction>(Transaction.class,list);
 
         CachedZoneIndex.getInstance().setZoneIndex(0);
         TransactionEventPublisher publisher = new TransactionEventPublisher(4096);
@@ -116,9 +121,10 @@ public class TransactionStrategyTest {
             keypair.add(ecKeyPair);
             TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(adddress, new PatriciaTreeNode(1000, 0));
         }
-
+        List<SerializationUtil.Mapping> lists = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
+        serenc = new SerializationUtil<Transaction>(Transaction.class,lists);
         for (int i = start; i < end - 1; i++) {
-            serenc = new SerializationUtil<Transaction>(Transaction.class);
             Transaction transaction = new RegularTransaction();
             transaction.setFrom(addreses.get(i));
             transaction.setTo(addreses.get(i + 1));

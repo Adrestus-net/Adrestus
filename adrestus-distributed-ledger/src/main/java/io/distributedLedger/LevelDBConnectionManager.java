@@ -1,6 +1,7 @@
 package io.distributedLedger;
 
 import io.Adrestus.config.Directory;
+import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.util.SerializationUtil;
 import io.distributedLedger.exception.*;
 import lombok.SneakyThrows;
@@ -14,6 +15,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -58,13 +60,15 @@ public class LevelDBConnectionManager<K, V> implements IDatabase<K, V> {
     }
 
     public LevelDBConnectionManager(Class<V> keyClass, Type fluentType) {
+        List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         this.rwl = new ReentrantReadWriteLock();
         this.r = rwl.readLock();
         this.w = rwl.writeLock();
         this.dbFile = new File(Directory.getConfigPath() + "\\" + CONNECTION_NAME + "\\");
         this.keyClass = keyClass;
         this.keyMapper = new SerializationUtil<>(this.keyClass);
-        this.valueMapper = new SerializationUtil<>(fluentType);
+        this.valueMapper = new SerializationUtil<>(fluentType,list);
         setupOptions();
         load_connection();
     }

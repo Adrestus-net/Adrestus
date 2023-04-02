@@ -2,10 +2,12 @@ package io.Adrestus.core;
 
 import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.core.Resourses.MemoryReceiptPool;
+import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.util.SerializationUtil;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -152,7 +154,9 @@ public class MemoryReceiptPoolTest {
     @Test
     // @Order(3)
     public void group_by() throws Exception {
-        SerializationUtil<Receipt> serenc = new SerializationUtil<Receipt>(Receipt.class);
+        List<SerializationUtil.Mapping> lists = new ArrayList<>();
+        lists.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
+        SerializationUtil<Receipt> serenc = new SerializationUtil<Receipt>(Receipt.class,lists);
         MemoryReceiptPool.getInstance().getAll().clear();
         Receipt.ReceiptBlock receiptBlock1 = new Receipt.ReceiptBlock("1", 1, 1, "1");
         Receipt.ReceiptBlock receiptBlock2 = new Receipt.ReceiptBlock("2", 2, 2, "2");

@@ -15,4 +15,9 @@ public class AdrestusConfiguration {
     public static final String ALGORITHM = "SHA1PRNG";
     public static final String PROVIDER = "SUN";
 
+
+    public static final String SIGN_ALGORITHM = "EC";
+    public static final String SIGN_PROVIDER = "BC";
+
+    public static final String SIGN_CURVE = "secp256k1";
 }

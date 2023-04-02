@@ -208,7 +208,9 @@ public class BlockTest {
 
     @Test
     public void transaction_block() {
-        SerializationUtil<TransactionBlock> encode = new SerializationUtil<TransactionBlock>(TransactionBlock.class);
+        List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
+        SerializationUtil<TransactionBlock> encode = new SerializationUtil<TransactionBlock>(TransactionBlock.class,list);
         //byte[] buffer = new byte[200];
         // BinarySerializer<DelegateTransaction> serenc = SerializerBuilder.create().build(DelegateTransaction.class);
         TransactionBlock block = new TransactionBlock();
@@ -241,6 +243,7 @@ public class BlockTest {
                 .withTimestampEventHandler()
                 .withSameOriginEventHandler()
                 .withZoneEventHandler()
+                .withSecp256k1EventHandler()
                 .mergeEventsAndPassThen(new SignatureEventHandler(SignatureEventHandler.SignatureBehaviorType.SIMPLE_TRANSACTIONS));
         publisher.start();
 
@@ -252,7 +255,9 @@ public class BlockTest {
 
         ECDSASign ecdsaSign = new ECDSASign();
 
-        SerializationUtil<Transaction> serenc = new SerializationUtil<Transaction>(Transaction.class);
+        List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
+        SerializationUtil<Transaction> serenc = new SerializationUtil<Transaction>(Transaction.class,list);
 
         ArrayList<String> addreses = new ArrayList<>();
         ArrayList<ECKeyPair> keypair = new ArrayList<>();

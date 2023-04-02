@@ -1,6 +1,7 @@
 package io.Adrestus.core;
 
 import io.Adrestus.config.SocketConfigOptions;
+import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.network.TCPTransactionConsumer;
 import io.Adrestus.network.TransactionChannelHandler;
 import io.Adrestus.util.SerializationUtil;
@@ -9,19 +10,30 @@ import io.activej.bytebuf.ByteBufPool;
 import io.activej.eventloop.Eventloop;
 import io.activej.net.socket.tcp.AsyncTcpSocket;
 import io.activej.net.socket.tcp.AsyncTcpSocketNio;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.List;
 
 import static io.activej.eventloop.Eventloop.getCurrentEventloop;
 
 public class SocketChannelTest {
-    Eventloop eventloop = Eventloop.create().withCurrentThread();
-    static AsyncTcpSocket socket;
-    SerializationUtil<Receipt> recep = new SerializationUtil<Receipt>(Receipt.class);
-    SerializationUtil<Transaction> trans = new SerializationUtil<Transaction>(Transaction.class);
+    private Eventloop eventloop = Eventloop.create().withCurrentThread();
+    private static AsyncTcpSocket socket;
+    private static SerializationUtil<Receipt> recep;
+    private static SerializationUtil<Transaction> trans;
 
+    @BeforeAll
+    public static void setup(){
+        List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
+        trans = new SerializationUtil<Transaction>(Transaction.class,list);
+        recep = new SerializationUtil<Receipt>(Receipt.class,list);
+    }
     @Test
     public void receipt_test() throws Exception {
         TCPTransactionConsumer<byte[]> print = x -> {

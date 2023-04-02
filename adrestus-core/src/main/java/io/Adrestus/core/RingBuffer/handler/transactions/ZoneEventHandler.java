@@ -6,11 +6,14 @@ import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.core.RingBuffer.event.TransactionEvent;
 import io.Adrestus.core.StatusType;
 import io.Adrestus.core.Transaction;
+import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.network.AsyncService;
 import io.Adrestus.util.SerializationUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,7 +22,9 @@ public class ZoneEventHandler extends TransactionEventHandler {
     private final SerializationUtil<Transaction> transaction_encode;
 
     public ZoneEventHandler() {
-        transaction_encode = new SerializationUtil<Transaction>(Transaction.class);
+        List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
+        transaction_encode = new SerializationUtil<Transaction>(Transaction.class,list);
     }
 
     @Override

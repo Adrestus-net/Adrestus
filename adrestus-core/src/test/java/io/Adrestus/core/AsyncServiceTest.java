@@ -20,6 +20,7 @@ import io.Adrestus.crypto.elliptic.ECDSASign;
 import io.Adrestus.crypto.elliptic.ECDSASignatureData;
 import io.Adrestus.crypto.elliptic.ECKeyPair;
 import io.Adrestus.crypto.elliptic.Keys;
+import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.crypto.elliptic.mapper.StakingData;
 import io.Adrestus.crypto.mnemonic.Mnemonic;
 import io.Adrestus.crypto.mnemonic.Security;
@@ -35,6 +36,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.spongycastle.util.encoders.Hex;
 
+import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
@@ -56,7 +58,9 @@ public class AsyncServiceTest {
     @BeforeAll
     public static void setup() throws Exception {
         int version = 0x00;
-        transaction_encode = new SerializationUtil<Transaction>(Transaction.class);
+        List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
+        transaction_encode = new SerializationUtil<Transaction>(Transaction.class,list);
         ECDSASign ecdsaSign = new ECDSASign();
         sk1 = new BLSPrivateKey(1);
         vk1 = new BLSPublicKey(sk1);
@@ -81,7 +85,9 @@ public class AsyncServiceTest {
         ECDSASignatureData signatureData1 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address1)), ecKeyPair1);
         ECDSASignatureData signatureData2 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address2)), ecKeyPair2);
 
-        SerializationUtil<Transaction> serenc = new SerializationUtil<Transaction>(Transaction.class);
+        List<SerializationUtil.Mapping> lists = new ArrayList<>();
+        lists.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
+        SerializationUtil<Transaction> serenc = new SerializationUtil<Transaction>(Transaction.class,lists);
 
         CachedZoneIndex.getInstance().setZoneIndex(0);
         TransactionEventPublisher publisher = new TransactionEventPublisher(4096);
@@ -119,8 +125,10 @@ public class AsyncServiceTest {
             TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(adddress, new PatriciaTreeNode(1000, 0));
         }
 
+        List<SerializationUtil.Mapping> listss = new ArrayList<>();
+        listss.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
+        serenc = new SerializationUtil<Transaction>(Transaction.class,listss);
         for (int i = start; i < end - 1; i++) {
-            serenc = new SerializationUtil<Transaction>(Transaction.class);
             Transaction transaction = new RegularTransaction();
             transaction.setFrom(addreses.get(i));
             transaction.setTo(addreses.get(i + 1));

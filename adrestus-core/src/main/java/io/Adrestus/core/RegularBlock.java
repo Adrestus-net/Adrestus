@@ -70,8 +70,8 @@ public class RegularBlock implements BlockForge, BlockInvent {
         list2.add(new SerializationUtil.Mapping(MemoryTreePool.class, ctx -> new MemoryTreePoolSerializer()));
         this.patricia_tree_wrapper = new SerializationUtil<>(fluentType, list2);
         this.encode = new SerializationUtil<AbstractBlock>(AbstractBlock.class, list);
-        this.transaction_encode = new SerializationUtil<Transaction>(Transaction.class);
-        this.receipt_encode = new SerializationUtil<Receipt>(Receipt.class);
+        this.transaction_encode = new SerializationUtil<Transaction>(Transaction.class,list);
+        this.receipt_encode = new SerializationUtil<Receipt>(Receipt.class,list);
         this.blockIndex = new BlockIndex();
     }
 

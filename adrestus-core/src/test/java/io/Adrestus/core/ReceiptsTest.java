@@ -105,7 +105,9 @@ public class ReceiptsTest {
 
         ECDSASign ecdsaSign = new ECDSASign();
 
-        SerializationUtil<Transaction> enc = new SerializationUtil<Transaction>(Transaction.class);
+        List<SerializationUtil.Mapping> lists = new ArrayList<>();
+        lists.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
+        SerializationUtil<Transaction> enc = new SerializationUtil<Transaction>(Transaction.class,lists);
 
         ArrayList<String> addreses = new ArrayList<>();
         ArrayList<ECKeyPair> keypair = new ArrayList<>();

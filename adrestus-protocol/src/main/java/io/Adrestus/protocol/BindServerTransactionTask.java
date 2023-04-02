@@ -4,6 +4,7 @@ import io.Adrestus.config.SocketConfigOptions;
 import io.Adrestus.core.RingBuffer.handler.transactions.SignatureEventHandler;
 import io.Adrestus.core.RingBuffer.publisher.TransactionEventPublisher;
 import io.Adrestus.core.Transaction;
+import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.network.IPFinder;
 import io.Adrestus.network.TCPTransactionConsumer;
 import io.Adrestus.network.TransactionChannelHandler;
@@ -11,6 +12,10 @@ import io.Adrestus.util.SerializationUtil;
 import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 
 public class BindServerTransactionTask extends AdrestusTask {
     private static Logger LOG = LoggerFactory.getLogger(BindServerTransactionTask.class);
@@ -21,7 +26,9 @@ public class BindServerTransactionTask extends AdrestusTask {
 
     public BindServerTransactionTask() {
         super();
-        this.serenc = new SerializationUtil<Transaction>(Transaction.class);
+        List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
+        this.serenc = new SerializationUtil<Transaction>(Transaction.class,list);
         this.publisher = new TransactionEventPublisher(2048);
         this.callBackReceive();
         this.setup();

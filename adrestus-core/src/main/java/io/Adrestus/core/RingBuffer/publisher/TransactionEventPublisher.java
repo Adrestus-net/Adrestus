@@ -120,6 +120,10 @@ public class TransactionEventPublisher implements Publisher<Transaction> {
         return this;
     }
 
+    public TransactionEventPublisher withSecp256k1EventHandler(){
+        group.add(new Secp256k1EventHandler());
+        return this;
+    }
     public TransactionEventPublisher withZoneEventHandler() {
         group.add(new ZoneEventHandler());
         return this;

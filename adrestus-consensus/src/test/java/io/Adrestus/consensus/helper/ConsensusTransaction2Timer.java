@@ -33,7 +33,7 @@ import java.util.concurrent.CountDownLatch;
 
 public class ConsensusTransaction2Timer {
     private static Logger LOG = LoggerFactory.getLogger(ConsensusTransactionTimer.class);
-    private static SerializationUtil<Transaction> serenc = new SerializationUtil<Transaction>(Transaction.class);
+    private static SerializationUtil<Transaction> serenc;
     private static ECDSASign ecdsaSign = new ECDSASign();
     private Timer timer;
     private final ConsensusTask task;

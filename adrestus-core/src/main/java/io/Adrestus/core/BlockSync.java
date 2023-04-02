@@ -55,8 +55,8 @@ public class BlockSync implements IBlockSync {
         list2.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
         serialize_cached = new SerializationUtil<CachedNetworkData>(CachedNetworkData.class, list2);
         this.patricia_tree_wrapper = new SerializationUtil<>(fluentType, list);
-        this.transaction_encode = new SerializationUtil<Transaction>(Transaction.class);
-        this.receipt_encode = new SerializationUtil<Receipt>(Receipt.class);
+        this.transaction_encode = new SerializationUtil<Transaction>(Transaction.class,list2);
+        this.receipt_encode = new SerializationUtil<Receipt>(Receipt.class,list2);
         this.eventloop = Eventloop.create().withCurrentThread();
     }
 

@@ -18,6 +18,7 @@ import io.Adrestus.crypto.bls.model.CachedBLSKeyPair;
 import io.Adrestus.crypto.elliptic.ECDSASign;
 import io.Adrestus.crypto.elliptic.ECDSASignatureData;
 import io.Adrestus.crypto.elliptic.ECKeyPair;
+import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.util.GetTime;
 import io.Adrestus.util.SerializationUtil;
 import lombok.SneakyThrows;
@@ -25,14 +26,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.CountDownLatch;
 
 public class ConsensusTransactionTimer {
     private static Logger LOG = LoggerFactory.getLogger(ConsensusTransactionTimer.class);
-    private static SerializationUtil<Transaction> serenc = new SerializationUtil<Transaction>(Transaction.class);
+    private static SerializationUtil<Transaction> serenc;
     private static ECDSASign ecdsaSign = new ECDSASign();
     private Timer timer;
     private final ConsensusTask task;
@@ -52,6 +55,9 @@ public class ConsensusTransactionTimer {
         this.task = new ConsensusTask();
         this.latch = latch;
         this.timer.scheduleAtFixedRate(task, ConsensusConfiguration.CONSENSUS_TIMER, ConsensusConfiguration.CONSENSUS_TIMER);
+        List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
+        serenc = new SerializationUtil<Transaction>(Transaction.class,list);
     }
 
 

@@ -16,5 +16,9 @@ public class AdrestusConfigurationTest {
         assertEquals(3, AdrestusConfiguration.MAX_ZONES);
         assertEquals("SHA1PRNG", AdrestusConfiguration.ALGORITHM);
         assertEquals("SUN", AdrestusConfiguration.PROVIDER);
+
+        assertEquals("EC", AdrestusConfiguration.SIGN_ALGORITHM);
+        assertEquals("BC", AdrestusConfiguration.SIGN_PROVIDER);
+        assertEquals("secp256k1", AdrestusConfiguration.SIGN_CURVE);
     }
 }

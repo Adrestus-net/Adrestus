@@ -146,7 +146,26 @@ public class ECKeyPairTest {
 
     }
 
-     @Test
+    @Test
+    public void verifySecp256ECDSASignFromeNodJStest2() throws InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException, InvalidKeySpecException, InvalidParameterSpecException {
+
+        BigInteger x = new BigInteger("73885651435926854515264701221164520142160681037984229233067136520784684869519");
+        BigInteger y = new BigInteger("26683047389995651185679566240952828910936171073908714048119596426948530852435");
+
+        ECDSASign ecdsaSign = new ECDSASign();
+        String message = "dd6d5849a507fc670db1c9ce77fea2166658e1c9b697b33ee9e1d07c03290da3";
+        ECDSASignatureData signatureData = new ECDSASignatureData();
+        signatureData.setV((byte) 0);
+        signatureData.setR(new BigInteger("30179190089666276834887403079562508974417649980904472865724382004973443579854").toByteArray());
+        signatureData.setS(new BigInteger("14029798542497621816798343676332730497595770105064178818079147459382128035034").toByteArray());
+
+        BigInteger publicKeyValue=ecdsaSign.recoverPublicKeyValue(x,y);
+        boolean verify = ecdsaSign.secp256Verify(HashUtil.sha256(message.getBytes(StandardCharsets.UTF_8)), publicKeyValue, signatureData);
+        assertEquals(verify, true);
+
+    }
+
+    @Test
     public void verifySecp256ECDSAWithAdressSignTest() throws Exception {
         String message = "message";
         String mnemonic_code = "fd8cee9c1a3f3f57ab51b25740b24341ae093c8f697fde4df948050d3acd1700f6379d716104d2159e4912509c40ac81714d833e93b822e5ba0fadd68d5568a2";
@@ -171,4 +190,22 @@ public class ECKeyPairTest {
         assertEquals(verify2, true);
     }
 
+    @Test
+    public void verifySecp256ECDSAWithAdressSignFromNodeJSTest() throws Exception {
+        String adddress ="ADR-GDQJ-JJTL-4IWX-4CUH-J73M-IRJP-BA44-UFXC-BNGK-HB6B";
+        String OriginalKey="04a359cbf789702dd4d6da661e90c0c1c3bc13bb3a7588b9c5c093cf2c9f65678f3afe11d2fb05dbed6553f63a6bb5d9b66c1a52abb7daade24a31fd870922d253";
+        BigInteger x = new BigInteger("73885651435926854515264701221164520142160681037984229233067136520784684869519");
+        BigInteger y = new BigInteger("26683047389995651185679566240952828910936171073908714048119596426948530852435");
+
+        ECDSASign ecdsaSign = new ECDSASign();
+        String message = "dd6d5849a507fc670db1c9ce77fea2166658e1c9b697b33ee9e1d07c03290da3";
+        ECDSASignatureData signatureData = new ECDSASignatureData();
+        signatureData.setV((byte) 0);
+        signatureData.setR(new BigInteger("30179190089666276834887403079562508974417649980904472865724382004973443579854").toByteArray());
+        signatureData.setS(new BigInteger("14029798542497621816798343676332730497595770105064178818079147459382128035034").toByteArray());
+
+        BigInteger publicKeyValue=ecdsaSign.recoverPublicKeyValue(x,y);
+        boolean verify = ecdsaSign.secp256Verify(HashUtil.sha256(message.getBytes(StandardCharsets.UTF_8)),adddress,signatureData, publicKeyValue, OriginalKey);
+        assertEquals(verify, true);
+    }
 }

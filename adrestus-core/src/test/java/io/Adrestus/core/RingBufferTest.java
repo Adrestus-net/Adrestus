@@ -3,6 +3,7 @@ package io.Adrestus.core;
 import io.Adrestus.core.RingBuffer.publisher.BlockEventPublisher;
 import io.Adrestus.core.RingBuffer.publisher.TransactionEventPublisher;
 import io.Adrestus.crypto.HashUtil;
+import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.util.GetTime;
 import io.Adrestus.util.SerializationUtil;
 import org.apache.commons.lang3.SerializationUtils;
@@ -11,6 +12,9 @@ import org.junit.jupiter.api.Test;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -18,7 +22,9 @@ public class RingBufferTest {
 
     @Test
     public void TransactionTest() throws InterruptedException {
-        SerializationUtil<Transaction> serenc = new SerializationUtil<Transaction>(Transaction.class);
+        List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
+        SerializationUtil<Transaction> serenc = new SerializationUtil<Transaction>(Transaction.class,list);
 
         Transaction transaction = new RewardsTransaction("Delegator Address");
         transaction.setStatus(StatusType.PENDING);

@@ -6,6 +6,7 @@ import io.activej.serializer.annotations.Serialize;
 import io.activej.serializer.annotations.SerializeClass;
 
 import java.io.Serializable;
+import java.math.BigInteger;
 import java.util.Comparator;
 
 
@@ -25,6 +26,11 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
     protected double Amount;
     protected double AmountWithTransactionFee;
     protected int Nonce;
+
+
+    protected String SignerPub;
+    protected BigInteger XAxis;
+    protected BigInteger YAxis;
     protected ECDSASignatureData Signature;
 
 
@@ -41,6 +47,9 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
         this.Amount = 0;
         this.AmountWithTransactionFee = 0;
         this.Nonce = 0;
+        this.SignerPub="";
+        this.XAxis=new BigInteger("0");
+        this.YAxis=new BigInteger("0");
         this.Signature = new ECDSASignatureData();
     }
 
@@ -57,6 +66,9 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
         this.Amount = 0;
         this.AmountWithTransactionFee = 0;
         this.Nonce = 0;
+        this.SignerPub="";
+        this.XAxis=new BigInteger("0");
+        this.YAxis=new BigInteger("0");
         this.Signature = new ECDSASignatureData();
     }
 
@@ -73,6 +85,9 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
         this.Amount = 0;
         this.AmountWithTransactionFee = 0;
         this.Nonce = 0;
+        this.SignerPub="";
+        this.XAxis=new BigInteger("0");
+        this.YAxis=new BigInteger("0");
         this.Signature = new ECDSASignatureData();
     }
 
@@ -92,45 +107,64 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
         this.Signature = signature;
     }
 
+    public Transaction(String hash, TransactionType type, StatusType status, int zoneFrom, int zoneTo, String timestamp, int blockNumber, String from, String to, double amount, double amountWithTransactionFee, int nonce, String signerPub, BigInteger XAxis, BigInteger YAxis, ECDSASignatureData signature) {
+        this.Hash = hash;
+        this.Type = type;
+        this.Status = status;
+        this.ZoneFrom = zoneFrom;
+        this.ZoneTo = zoneTo;
+        this.timestamp = timestamp;
+        this.BlockNumber = blockNumber;
+        this.From = from;
+        this.To = to;
+        this.Amount = amount;
+        this.AmountWithTransactionFee = amountWithTransactionFee;
+        this.Nonce = nonce;
+        this.SignerPub = signerPub;
+        this.XAxis = XAxis;
+        this.YAxis = YAxis;
+        this.Signature = signature;
+    }
+
     @Serialize
     public TransactionType getType() {
-        return Type;
+        return  this.Type;
     }
 
     public void setType(TransactionType type) {
-        Type = type;
+        this.Type = type;
     }
 
     @Serialize
     public StatusType getStatus() {
-        return Status;
+        return  this.Status;
     }
 
     public void setStatus(StatusType status) {
-        Status = status;
+        this.Status = status;
     }
 
     @Serialize
     public int getZoneFrom() {
-        return ZoneFrom;
+        return  this.ZoneFrom;
     }
 
     public void setZoneFrom(int zoneFrom) {
-        ZoneFrom = zoneFrom;
+        this.ZoneFrom = zoneFrom;
     }
 
     @Serialize
     public int getZoneTo() {
-        return ZoneTo;
+        return  this.ZoneTo;
     }
 
     public void setZoneTo(int zoneTo) {
-        ZoneTo = zoneTo;
+        this.ZoneTo = zoneTo;
     }
 
     @Serialize
     public String getTimestamp() {
-        return timestamp;
+        return  this.timestamp;
     }
 
     public void setTimestamp(String timestamp) {
@@ -139,34 +173,34 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
 
     @Serialize
     public int getBlockNumber() {
-        return BlockNumber;
+        return  this.BlockNumber;
     }
 
     public void setBlockNumber(int blockNumber) {
-        BlockNumber = blockNumber;
+        this.BlockNumber = blockNumber;
     }
 
     @Serialize
     public String getFrom() {
-        return From;
+        return  this.From;
     }
 
     public void setFrom(String from) {
-        From = from;
+        this.From = from;
     }
 
     @Serialize
     public String getTo() {
-        return To;
+        return  this.To;
     }
 
     public void setTo(String to) {
-        To = to;
+        this.To = to;
     }
 
     @Serialize
     public double getAmount() {
-        return Amount;
+        return  this.Amount;
     }
 
     public void setAmount(double amount) {
@@ -175,7 +209,7 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
 
     @Serialize
     public double getAmountWithTransactionFee() {
-        return AmountWithTransactionFee;
+        return  this.AmountWithTransactionFee;
     }
 
     public void setAmountWithTransactionFee(double AmountWithTransactionFee) {
@@ -193,7 +227,7 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
 
     @Serialize
     public ECDSASignatureData getSignature() {
-        return Signature;
+        return  this.Signature;
     }
 
     public void setSignature(ECDSASignatureData signature) {
@@ -202,11 +236,37 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
 
     @Serialize
     public String getHash() {
-        return Hash;
+        return  this.Hash;
     }
 
     public void setHash(String hash) {
         this.Hash = hash;
+    }
+
+    @Serialize
+    public String getSignerPub() {
+        return  this.SignerPub;
+    }
+
+    public void setSignerPub(String signerPub) {
+        this.SignerPub = signerPub;
+    }
+    @Serialize
+    public BigInteger getXAxis() {
+        return  this.XAxis;
+    }
+
+    public void setXAxis(BigInteger XAxis) {
+        this.XAxis = XAxis;
+    }
+
+    @Serialize
+    public BigInteger getYAxis() {
+        return YAxis;
+    }
+
+    public void setYAxis(BigInteger YAxis) {
+        this.YAxis = YAxis;
     }
 
     @Override
@@ -224,12 +284,12 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Transaction that = (Transaction) o;
-        return ZoneFrom == that.ZoneFrom && ZoneTo == that.ZoneTo && BlockNumber == that.BlockNumber && Double.compare(that.Amount, Amount) == 0 && Double.compare(that.AmountWithTransactionFee, AmountWithTransactionFee) == 0 && Nonce == that.Nonce && Objects.equal(Hash, that.Hash) && Type == that.Type && Status == that.Status && Objects.equal(timestamp, that.timestamp) && Objects.equal(From, that.From) && Objects.equal(To, that.To) && Objects.equal(Signature, that.Signature);
+        return ZoneFrom == that.ZoneFrom && ZoneTo == that.ZoneTo && BlockNumber == that.BlockNumber && Double.compare(that.Amount, Amount) == 0 && Double.compare(that.AmountWithTransactionFee, AmountWithTransactionFee) == 0 && Nonce == that.Nonce && Objects.equal(Hash, that.Hash) && Type == that.Type && Status == that.Status && Objects.equal(timestamp, that.timestamp) && Objects.equal(From, that.From) && Objects.equal(To, that.To) && Objects.equal(SignerPub, that.SignerPub) && Objects.equal(XAxis, that.XAxis) && Objects.equal(YAxis, that.YAxis) && Objects.equal(Signature, that.Signature);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(Hash, Type, Status, ZoneFrom, ZoneTo, timestamp, BlockNumber, From, To, Amount, AmountWithTransactionFee, Nonce, Signature);
+        return Objects.hashCode(Hash, Type, Status, ZoneFrom, ZoneTo, timestamp, BlockNumber, From, To, Amount, AmountWithTransactionFee, Nonce, SignerPub, XAxis, YAxis, Signature);
     }
 
     public Object clone() throws CloneNotSupportedException {
@@ -251,6 +311,9 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
                 ", Amount=" + Amount +
                 ", AmountWithTransactionFee=" + AmountWithTransactionFee +
                 ", Nonce=" + Nonce +
+                ", SignerPub='" + SignerPub + '\'' +
+                ", XAxis=" + XAxis +
+                ", YAxis=" + YAxis +
                 ", Signature=" + Signature +
                 '}';
     }

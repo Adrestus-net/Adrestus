@@ -2,12 +2,14 @@ package io.Adrestus.core.Resourses;
 
 
 import io.Adrestus.core.Transaction;
+import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.util.GetTime;
 import io.Adrestus.util.SerializationUtil;
 import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.util.*;
 import java.util.concurrent.locks.Lock;
@@ -34,8 +36,10 @@ public class MemoryTransactionPool implements IMemoryPool<Transaction> {
         if (instance != null) {
             throw new IllegalStateException("Already initialized.");
         } else {
+            List<SerializationUtil.Mapping> list = new ArrayList<>();
+            list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
             this.memorypool = new ArrayList<Transaction>();
-            this.wrapper = new SerializationUtil<>(Transaction.class);
+            this.wrapper = new SerializationUtil<>(Transaction.class,list);
             this.hashComparator = new TransactionHashComparator();
             this.transactionReplayComparator = new TransactionReplayComparator();
             this.transactionAddressComparator = new TransactionAddressComparator();

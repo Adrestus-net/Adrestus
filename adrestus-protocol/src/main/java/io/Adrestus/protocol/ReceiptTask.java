@@ -5,6 +5,7 @@ import io.Adrestus.core.Receipt;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedReceiptSemaphore;
 import io.Adrestus.core.TransactionBlock;
+import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.util.SerializationUtil;
 import io.activej.bytebuf.ByteBuf;
 import io.activej.bytebuf.ByteBufPool;
@@ -15,7 +16,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.List;
 
 import static io.activej.eventloop.Eventloop.getCurrentEventloop;
 
@@ -29,8 +33,10 @@ public class ReceiptTask extends AdrestusTask {
     private AsyncTcpSocket socket;
 
     public ReceiptTask() {
+        List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         this.eventloop = Eventloop.create().withCurrentThread();
-        this.recep = new SerializationUtil<Receipt>(Receipt.class);
+        this.recep = new SerializationUtil<Receipt>(Receipt.class,list);
         this.runner = false;
     }
 

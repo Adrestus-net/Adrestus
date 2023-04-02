@@ -3,6 +3,7 @@ package io.Adrestus.protocol;
 import io.Adrestus.config.SocketConfigOptions;
 import io.Adrestus.core.Receipt;
 import io.Adrestus.core.Resourses.MemoryReceiptPool;
+import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.network.IPFinder;
 import io.Adrestus.network.TCPTransactionConsumer;
 import io.Adrestus.network.TransactionChannelHandler;
@@ -10,6 +11,10 @@ import io.Adrestus.util.SerializationUtil;
 import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 
 public class BindServerReceiptTask extends AdrestusTask {
     private static Logger LOG = LoggerFactory.getLogger(BindServerReceiptTask.class);
@@ -19,7 +24,9 @@ public class BindServerReceiptTask extends AdrestusTask {
 
     public BindServerReceiptTask() {
         super();
-        this.recep = new SerializationUtil<Receipt>(Receipt.class);
+        List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
+        this.recep = new SerializationUtil<Receipt>(Receipt.class,list);
         this.callBackReceive();
     }
 

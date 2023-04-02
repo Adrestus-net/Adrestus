@@ -18,6 +18,7 @@ import io.Adrestus.crypto.bls.model.CachedBLSKeyPair;
 import io.Adrestus.crypto.elliptic.ECDSASign;
 import io.Adrestus.crypto.elliptic.ECKeyPair;
 import io.Adrestus.crypto.elliptic.Keys;
+import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.crypto.mnemonic.Mnemonic;
 import io.Adrestus.crypto.mnemonic.Security;
 import io.Adrestus.crypto.mnemonic.WordList;
@@ -38,10 +39,12 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
@@ -54,7 +57,7 @@ public class ConsensusTransactionTimer2Test {
     public static ArrayList<String> addreses_old;
     public static ArrayList<String> addreses;
     private static ArrayList<ECKeyPair> keypair;
-    private static SerializationUtil<Transaction> serenc = new SerializationUtil<Transaction>(Transaction.class);
+    private static SerializationUtil<Transaction> serenc;
     private static ECDSASign ecdsaSign = new ECDSASign();
     private static BLSPrivateKey sk1;
     private static BLSPublicKey vk1;
@@ -75,13 +78,18 @@ public class ConsensusTransactionTimer2Test {
     private static BLSPrivateKey sk6;
     private static BLSPublicKey vk6;
 
-    private static SerializationUtil<Receipt> recep = new SerializationUtil<Receipt>(Receipt.class);
+    private static SerializationUtil<Receipt> recep;
     private static IBlockIndex blockIndex;
     private static AsyncTcpSocket socket;
     private static boolean variable = false;
 
     @BeforeAll
     public static void construct() throws Exception {
+        List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
+        serenc = new SerializationUtil<Transaction>(Transaction.class,list);
+        recep = new SerializationUtil<Receipt>(Receipt.class,list);
+
         IDatabase<String, TransactionBlock> block_database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
         IDatabase<String, byte[]> tree_datasbase = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getPatriciaTreeZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
         IDatabase<String, LevelDBTransactionWrapper<Transaction>> transaction_database = new DatabaseFactory(String.class, Transaction.class, new TypeToken<LevelDBTransactionWrapper<Transaction>>() {

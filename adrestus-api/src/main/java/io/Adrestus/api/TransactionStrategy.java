@@ -5,6 +5,7 @@ import io.Adrestus.config.SocketConfigOptions;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.core.Transaction;
+import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.util.SerializationUtil;
 import io.activej.bytebuf.ByteBuf;
 import io.activej.bytebuf.ByteBufPool;
@@ -20,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.util.*;
 import java.util.concurrent.*;
@@ -40,15 +42,19 @@ public class TransactionStrategy implements IStrategy {
     private static Semaphore[] available;
 
     public TransactionStrategy(Transaction transaction) {
+        List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         this.transaction_list = new ArrayList<>();
         this.transaction = transaction;
         this.executorService = Executors.newFixedThreadPool(AdrestusConfiguration.CORES);
         this.list_ip = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).values().stream().collect(Collectors.toList());
         this.eventloop = Eventloop.create().withCurrentThread();
-        this.transaction_encode = new SerializationUtil<Transaction>(Transaction.class);
+        this.transaction_encode = new SerializationUtil<Transaction>(Transaction.class,list);
     }
 
     public TransactionStrategy(List<Transaction> transaction_list) {
+        List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         this.transaction_list = transaction_list;
         this.executorService = Executors.newFixedThreadPool(AdrestusConfiguration.CORES);
         this.list_ip = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).values().stream().collect(Collectors.toList());
@@ -56,7 +62,7 @@ public class TransactionStrategy implements IStrategy {
         this.available = new Semaphore[list_ip.size()];
         this.Setup();
         this.eventloop = Eventloop.create().withCurrentThread();
-        this.transaction_encode = new SerializationUtil<Transaction>(Transaction.class);
+        this.transaction_encode = new SerializationUtil<Transaction>(Transaction.class,list);
     }
 
 
