@@ -122,7 +122,7 @@ public class TransactionStrategyTest {
             TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(adddress, new PatriciaTreeNode(1000, 0));
         }
         List<SerializationUtil.Mapping> lists = new ArrayList<>();
-        list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
+        lists.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         serenc = new SerializationUtil<Transaction>(Transaction.class,lists);
         for (int i = start; i < end - 1; i++) {
             Transaction transaction = new RegularTransaction();
