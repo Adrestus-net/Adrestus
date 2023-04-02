@@ -7,6 +7,7 @@ import io.Adrestus.crypto.elliptic.ECDSASign;
 import io.Adrestus.crypto.elliptic.ECDSASignatureData;
 import io.Adrestus.crypto.elliptic.ECKeyPair;
 import io.Adrestus.crypto.elliptic.Keys;
+import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.crypto.elliptic.mapper.SignatureDataSerializer;
 import io.Adrestus.crypto.mnemonic.Mnemonic;
 import io.Adrestus.crypto.mnemonic.Security;
@@ -19,6 +20,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.spongycastle.util.encoders.Hex;
 
+import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -31,13 +33,18 @@ public class SignatureSerializationTest {
     static ArrayList<ECKeyPair> keypair = new ArrayList<>();
     static int start = 0;
     static int end = 10000;
-    static BinarySerializer<Transaction> enc = SerializerBuilder.create().with(ECDSASignatureData.class, ctx -> new SignatureDataSerializer()).build(Transaction.class);
+    static BinarySerializer<Transaction> enc = SerializerBuilder
+            .create()
+            .with(ECDSASignatureData.class, ctx -> new SignatureDataSerializer())
+            .with(BigInteger.class,ctx->new BigIntegerSerializer())
+            .build(Transaction.class);
     static SerializationUtil<Transaction> serenc;
     static ECDSASign ecdsaSign = new ECDSASign();
 
     @BeforeAll
     public static void setup() throws Exception {
         List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         list.add(new SerializationUtil.Mapping(ECDSASignatureData.class, ctx -> new SignatureDataSerializer()));
         serenc = new SerializationUtil<Transaction>(Transaction.class, list);
         int version = 0x00;

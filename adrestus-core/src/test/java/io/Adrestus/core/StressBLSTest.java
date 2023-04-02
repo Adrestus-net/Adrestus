@@ -1,10 +1,13 @@
 package io.Adrestus.core;
 
 import io.Adrestus.crypto.bls.model.*;
+import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.util.SerializationUtil;
 import org.apache.tuweni.bytes.Bytes;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -25,7 +28,9 @@ public class StressBLSTest {
 
     @Test
     public void Test() {
-        SerializationUtil<TransactionBlock> ser = new SerializationUtil<TransactionBlock>(TransactionBlock.class);
+        List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
+        SerializationUtil<TransactionBlock> ser = new SerializationUtil<TransactionBlock>(TransactionBlock.class,list);
         sk1 = new BLSPrivateKey(1);
         vk1 = new BLSPublicKey(sk1);
 
