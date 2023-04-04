@@ -192,8 +192,7 @@ public class ECKeyPairTest {
 
     @Test
     public void verifySecp256ECDSAWithAdressSignFromNodeJSTest() throws Exception {
-        String adddress ="ADR-GDQJ-JJTL-4IWX-4CUH-J73M-IRJP-BA44-UFXC-BNGK-HB6B";
-        String OriginalKey="04a359cbf789702dd4d6da661e90c0c1c3bc13bb3a7588b9c5c093cf2c9f65678f3afe11d2fb05dbed6553f63a6bb5d9b66c1a52abb7daade24a31fd870922d253";
+        String adddress ="ADR-GBXZ-Z5UR-3UVR-6XUE-NP4N-VDVA-BE3S-TLOL-GEYS-VLBJ";
         BigInteger x = new BigInteger("73885651435926854515264701221164520142160681037984229233067136520784684869519");
         BigInteger y = new BigInteger("26683047389995651185679566240952828910936171073908714048119596426948530852435");
 
@@ -205,7 +204,7 @@ public class ECKeyPairTest {
         signatureData.setS(new BigInteger("14029798542497621816798343676332730497595770105064178818079147459382128035034").toByteArray());
 
         BigInteger publicKeyValue=ecdsaSign.recoverPublicKeyValue(x,y);
-        boolean verify = ecdsaSign.secp256Verify(HashUtil.sha256(message.getBytes(StandardCharsets.UTF_8)),adddress,signatureData, publicKeyValue, OriginalKey);
+        boolean verify = ecdsaSign.secp256Verify(HashUtil.sha256(message.getBytes(StandardCharsets.UTF_8)),adddress, publicKeyValue, signatureData);
         assertEquals(verify, true);
     }
 }

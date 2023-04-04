@@ -71,14 +71,14 @@ public class ECDSASign implements SignInterface {
                         signatureData.getS()));
     }
 
-    public boolean secp256Verify(byte[] hash, String address, ECDSASignatureData signatureData,BigInteger recovered_PubQ,String OriginalPubKey) {
+    public boolean secp256Verify(byte[] hash, String address,BigInteger recovered_key,ECDSASignatureData signatureData) {
         return verify(
                 hash,
                 address,
-                new ECDSASignatureData(
+                recovered_key,new ECDSASignatureData(
                         (byte) (signatureData.getV() + 27),
                         signatureData.getR(),
-                        signatureData.getS()),recovered_PubQ,OriginalPubKey);
+                        signatureData.getS()));
     }
 
 
@@ -155,15 +155,15 @@ public class ECDSASign implements SignInterface {
         return given_address.equals(adddress);
     }
 
-    public boolean verify(byte[] hash, String given_address, ECDSASignatureData signatureData, BigInteger recovered_pubQ, String OriginalPubKey) {
+    public boolean verify(byte[] hash, String given_address, BigInteger recovered_key,ECDSASignatureData signatureData) {
         ECDSASignature sig =
                 new ECDSASignature(
                         PrimitiveUtil.toBigInt(signatureData.getR()),
                         PrimitiveUtil.toBigInt(signatureData.getS()));
 
         BigInteger pubkey = Sign.recoverFromSignature(signatureData.getV() - 27, sig, hash);
-        String adddress = JavascriptWalletAddress.generate_address((byte) AdrestusConfiguration.version, OriginalPubKey);
-        return given_address.equals(adddress) && pubkey.equals(recovered_pubQ);
+        String adddress = JavascriptWalletAddress.generate_address((byte) AdrestusConfiguration.version, recovered_key.toString());
+        return given_address.equals(adddress) && pubkey.equals(recovered_key);
     }
 
     public static ECDSASignature sign(byte[] transactionHash, BigInteger privateKey) {

@@ -196,7 +196,6 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
     public void save(K key, Object value) {
         w.lock();
         try {
-
             byte[] serializedkey = keyMapper.encode(key);
             byte[] serializedValue = valueMapper.encode(value);
             rocksDB.put(serializedkey, serializedValue);
@@ -219,14 +218,15 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
     public void saveAll(Map<K, V> map) {
         w.lock();
         try {
+            if(!map.isEmpty()) {
+                K[] keys = (K[]) map.keySet().toArray();
+                V[] values = (V[]) map.values().toArray();
 
-            K[] keys = (K[]) map.keySet().toArray();
-            V[] values = (V[]) map.values().toArray();
-
-            for (int i = 0; i < keys.length; i++) {
-                byte[] serializedkey = keyMapper.encode(keys[i]);
-                byte[] serializedValue = valueMapper.encode(values[i]);
-                rocksDB.put(serializedkey, serializedValue);
+                for (int i = 0; i < keys.length; i++) {
+                    byte[] serializedkey = keyMapper.encode(keys[i]);
+                    byte[] serializedValue = valueMapper.encode(values[i]);
+                    rocksDB.put(serializedkey, serializedValue);
+                }
             }
         } catch (NullPointerException exception) {
             LOGGER.error("NullPointer exception occurred during save operation. {}", exception.getMessage());

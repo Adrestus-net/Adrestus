@@ -10,12 +10,12 @@ public interface SignInterface {
 
     boolean secp256Verify(byte[] hash, String publicKey, ECDSASignatureData signatureData);
 
-    boolean secp256Verify(byte[] hash, String address, ECDSASignatureData signatureData,BigInteger recovered_PubQ,String OriginalPubKey);
+    boolean secp256Verify(byte[] hash, String address, BigInteger recovered_key,ECDSASignatureData signatureData);
 
     boolean verify(byte[] hash, BigInteger publicKey, ECDSASignatureData signatureData);
 
     boolean verify(byte[] hash, String given_address, ECDSASignatureData signatureData);
 
-    boolean verify(byte[] hash, String given_address, ECDSASignatureData signatureData, BigInteger recovered_pubQ, String OriginalPubKey);
+    boolean verify(byte[] hash, String given_address, BigInteger recovered_key,ECDSASignatureData signatureData);
     BigInteger recoverPublicKeyValue(BigInteger x,BigInteger y);
 }

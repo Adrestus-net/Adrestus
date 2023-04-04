@@ -246,7 +246,7 @@ public class BootstrapConsensusTest {
                     dhtBootstrapNode.start();
                     dhtBootstrapNode.scheduledFuture();
                     tasks.add(factory.createBindServerKademliaTask(new SecureRandom(key1), new String(passphrase).getBytes(StandardCharsets.UTF_8)));
-                    Thread.sleep(4000);
+                    Thread.sleep(10000);
                 } else if (vk2.equals(entry.getKey())) {
                     CachedBLSKeyPair.getInstance().setPrivateKey(sk2);
                     CachedBLSKeyPair.getInstance().setPublicKey(vk2);

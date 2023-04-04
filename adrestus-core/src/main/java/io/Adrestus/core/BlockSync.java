@@ -72,7 +72,7 @@ public class BlockSync implements IBlockSync {
             List<CommitteeBlock> blocks;
             if (last_block.isPresent()) {
                 blocks = client.getBlocksList(String.valueOf(last_block.get().getHeight()));
-                if (!blocks.isEmpty()) {
+                if (!blocks.isEmpty() && blocks.size()>1) {
                     blocks.stream().skip(1).forEach(val -> toSave.put(String.valueOf(val.getHeight()), val));
                 }
 
@@ -340,6 +340,7 @@ public class BlockSync implements IBlockSync {
 
             var asyncResult = executor.startListProcess(300L);
             var result = executor.endProcess(asyncResult);
+            MemoryTransactionPool.getInstance().delete(transactionList);
         }
 
         //find receipts that is not for this zone and sent them to the correct zone
@@ -353,7 +354,7 @@ public class BlockSync implements IBlockSync {
 
             var asyncResult = executor.startListProcess(300L);
             var result = executor.endProcess(asyncResult);
-            MemoryReceiptPool.getInstance().delete(transactionList);
+            MemoryReceiptPool.getInstance().delete(receiptList);
         }
     }
 

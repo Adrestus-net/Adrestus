@@ -24,6 +24,11 @@ public class ECKeyPair {
         this.publicKey = publicKey;
     }
 
+    public ECKeyPair(BigInteger publicKey) {
+        this.privateKey=null;
+        this.publicKey = publicKey;
+    }
+
     public BigInteger getPrivateKey() {
         return privateKey;
     }

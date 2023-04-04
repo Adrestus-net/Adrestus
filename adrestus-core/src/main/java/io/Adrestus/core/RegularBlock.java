@@ -584,7 +584,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
 
             var asyncResult = executor.startListProcess(300L);
             var result = executor.endProcess(asyncResult);
-            MemoryReceiptPool.getInstance().delete(transactionList);
+            MemoryReceiptPool.getInstance().delete(receiptList);
         }
         CachedReceiptSemaphore.getInstance().getSemaphore().release();
     }

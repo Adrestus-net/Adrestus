@@ -1,10 +1,13 @@
 package io.Adrestus.crypto;
 
 import io.Adrestus.config.AdrestusConfiguration;
+import io.Adrestus.crypto.elliptic.ECDSASign;
 import io.Adrestus.crypto.elliptic.ECKeyPair;
 import io.Adrestus.crypto.elliptic.Keys;
 import org.junit.jupiter.api.Test;
 import org.spongycastle.util.encoders.Hex;
+
+import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
@@ -51,4 +54,27 @@ public class AddressTest {
         String address=JavascriptWalletAddress.generate_address((byte) version,key);
         assertEquals(address,"ADR-GDQJ-JJTL-4IWX-4CUH-J73M-IRJP-BA44-UFXC-BNGK-HB6B");
     }
+
+    @Test
+    public void Javascript_addrees3(){
+        String key="a359cbf789702dd4d6da661e90c0c1c3bc13bb3a7588b9c5c093cf2c9f65678f3afe11d2fb05dbed6553f63a6bb5d9b66c1a52abb7daade24a31fd870922d253";
+        String address=JavascriptWalletAddress.generate_address((byte) version,key);
+        assertEquals(address,"ADR-GBEA-WPCJ-GTUZ-ZWCN-5N4K-EXJR-PPFK-JL2Z-I4QQ-UI3D");
+    }
+
+    @Test
+    public void Javascript_addrees4(){
+        BigInteger x = new BigInteger("73885651435926854515264701221164520142160681037984229233067136520784684869519");
+        BigInteger y = new BigInteger("26683047389995651185679566240952828910936171073908714048119596426948530852435");
+
+        ECDSASign ecdsaSign = new ECDSASign();
+
+        BigInteger publicKeyValue=ecdsaSign.recoverPublicKeyValue(x,y);
+
+        BigInteger key=new BigInteger("8555373944426081830687847710964792997898504290743993476397732812360676876989206845269434932820242747100413174295708316494603962024254570854147060142363219");
+        String address=JavascriptWalletAddress.generate_address((byte) version,key.toString());
+        assertEquals(address,"ADR-GBXZ-Z5UR-3UVR-6XUE-NP4N-VDVA-BE3S-TLOL-GEYS-VLBJ");
+        assertEquals(publicKeyValue.toString(),"8555373944426081830687847710964792997898504290743993476397732812360676876989206845269434932820242747100413174295708316494603962024254570854147060142363219");
+    }
+
 }

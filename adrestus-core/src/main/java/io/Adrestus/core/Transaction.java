@@ -27,8 +27,6 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
     protected double AmountWithTransactionFee;
     protected int Nonce;
 
-
-    protected String SignerPub;
     protected BigInteger XAxis;
     protected BigInteger YAxis;
     protected ECDSASignatureData Signature;
@@ -47,7 +45,6 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
         this.Amount = 0;
         this.AmountWithTransactionFee = 0;
         this.Nonce = 0;
-        this.SignerPub="";
         this.XAxis=new BigInteger("0");
         this.YAxis=new BigInteger("0");
         this.Signature = new ECDSASignatureData();
@@ -66,7 +63,6 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
         this.Amount = 0;
         this.AmountWithTransactionFee = 0;
         this.Nonce = 0;
-        this.SignerPub="";
         this.XAxis=new BigInteger("0");
         this.YAxis=new BigInteger("0");
         this.Signature = new ECDSASignatureData();
@@ -85,7 +81,6 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
         this.Amount = 0;
         this.AmountWithTransactionFee = 0;
         this.Nonce = 0;
-        this.SignerPub="";
         this.XAxis=new BigInteger("0");
         this.YAxis=new BigInteger("0");
         this.Signature = new ECDSASignatureData();
@@ -120,7 +115,6 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
         this.Amount = amount;
         this.AmountWithTransactionFee = amountWithTransactionFee;
         this.Nonce = nonce;
-        this.SignerPub = signerPub;
         this.XAxis = XAxis;
         this.YAxis = YAxis;
         this.Signature = signature;
@@ -244,14 +238,6 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
     }
 
     @Serialize
-    public String getSignerPub() {
-        return  this.SignerPub;
-    }
-
-    public void setSignerPub(String signerPub) {
-        this.SignerPub = signerPub;
-    }
-    @Serialize
     public BigInteger getXAxis() {
         return  this.XAxis;
     }
@@ -284,12 +270,12 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Transaction that = (Transaction) o;
-        return ZoneFrom == that.ZoneFrom && ZoneTo == that.ZoneTo && BlockNumber == that.BlockNumber && Double.compare(that.Amount, Amount) == 0 && Double.compare(that.AmountWithTransactionFee, AmountWithTransactionFee) == 0 && Nonce == that.Nonce && Objects.equal(Hash, that.Hash) && Type == that.Type && Status == that.Status && Objects.equal(timestamp, that.timestamp) && Objects.equal(From, that.From) && Objects.equal(To, that.To) && Objects.equal(SignerPub, that.SignerPub) && Objects.equal(XAxis, that.XAxis) && Objects.equal(YAxis, that.YAxis) && Objects.equal(Signature, that.Signature);
+        return ZoneFrom == that.ZoneFrom && ZoneTo == that.ZoneTo && BlockNumber == that.BlockNumber && Double.compare(that.Amount, Amount) == 0 && Double.compare(that.AmountWithTransactionFee, AmountWithTransactionFee) == 0 && Nonce == that.Nonce && Objects.equal(Hash, that.Hash) && Type == that.Type && Status == that.Status && Objects.equal(timestamp, that.timestamp) && Objects.equal(From, that.From) && Objects.equal(To, that.To)  && Objects.equal(XAxis, that.XAxis) && Objects.equal(YAxis, that.YAxis) && Objects.equal(Signature, that.Signature);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(Hash, Type, Status, ZoneFrom, ZoneTo, timestamp, BlockNumber, From, To, Amount, AmountWithTransactionFee, Nonce, SignerPub, XAxis, YAxis, Signature);
+        return Objects.hashCode(Hash, Type, Status, ZoneFrom, ZoneTo, timestamp, BlockNumber, From, To, Amount, AmountWithTransactionFee, Nonce, XAxis, YAxis, Signature);
     }
 
     public Object clone() throws CloneNotSupportedException {
@@ -311,7 +297,6 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
                 ", Amount=" + Amount +
                 ", AmountWithTransactionFee=" + AmountWithTransactionFee +
                 ", Nonce=" + Nonce +
-                ", SignerPub='" + SignerPub + '\'' +
                 ", XAxis=" + XAxis +
                 ", YAxis=" + YAxis +
                 ", Signature=" + Signature +
