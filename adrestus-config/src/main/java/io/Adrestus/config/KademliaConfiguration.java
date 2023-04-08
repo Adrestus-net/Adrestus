@@ -4,6 +4,8 @@ package io.Adrestus.config;
 import java.math.BigInteger;
 import java.util.concurrent.TimeUnit;
 
+import static io.Adrestus.config.ConsensusConfiguration.EPOCH_TRANSITION;
+
 public class KademliaConfiguration {
     public static final int PORT = 8081;
     // public static final BLSPrivateKey sk1 = new BLSPrivateKey(1);
@@ -13,6 +15,8 @@ public class KademliaConfiguration {
     public static final int BootstrapNodePORT = 8080;
     public static final BigInteger BootstrapNodeID = new BigInteger("15949");
     public static int STORE_DELAY = 4 * 1000;
+
+    public static int KADEMLIA_ROUTING_TABLE_DELAY = (EPOCH_TRANSITION-5) * 2000;
     public static final int KADEMLIA_GET_TIMEOUT = 5;
 
     public static int IDENTIFIER_SIZE = 4;

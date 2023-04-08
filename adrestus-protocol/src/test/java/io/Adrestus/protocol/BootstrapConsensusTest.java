@@ -11,6 +11,7 @@ import io.Adrestus.core.CommitteeBlock;
 import io.Adrestus.core.Resourses.CachedKademliaNodes;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedSecurityHeaders;
+import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.core.TransactionBlock;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.SecurityAuditProofs;
@@ -210,6 +211,8 @@ public class BootstrapConsensusTest {
 
         CachedSecurityHeaders.getInstance().getSecurityHeader().setPRnd(Hex.decode("c1f72aa5bd1e1d53c723b149259b63f759f40d5ab003b547d5c13d45db9a5da8"));
         CachedSecurityHeaders.getInstance().getSecurityHeader().setRnd(vdf.solve(CachedSecurityHeaders.getInstance().getSecurityHeader().getPRnd(), CachedLatestBlocks.getInstance().getCommitteeBlock().getDifficulty()));
+
+        CachedZoneIndex.getInstance().setZoneIndexInternalIP();
     }
 
 
@@ -227,83 +230,80 @@ public class BootstrapConsensusTest {
                 factory.createRepositoryTransactionTask(DatabaseInstance.ZONE_3_TRANSACTION_BLOCK),
                 factory.createRepositoryCommitteeTask()));
 
+
         Socket socket = new Socket();
         socket.connect(new InetSocketAddress("google.com", 80));
         String IP = socket.getLocalAddress().getHostAddress();
         int hit = 0;
-        DHTBootstrapNode dhtBootstrapNode = new DHTBootstrapNode(
-                new NettyConnectionInfo("192.168.1.106", KademliaConfiguration.BootstrapNodePORT),
-                BigInteger.valueOf(0),
-                keyHashGenerator);
-        CachedKademliaNodes.getInstance().setDhtBootstrapNode(dhtBootstrapNode);
+
         for (Map.Entry<BLSPublicKey, String> entry : CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).entrySet()) {
             if (IP.equals(entry.getValue())) {
                 if (vk1.equals(entry.getKey())) {
                     CachedBLSKeyPair.getInstance().setPrivateKey(sk1);
                     CachedBLSKeyPair.getInstance().setPublicKey(vk1);
-                    kad1.setNettyConnectionInfo(new NettyConnectionInfo(IP, KademliaConfiguration.BootstrapNodePORT));
-                    dhtBootstrapNode.setKademliaData(kad1);
-                    dhtBootstrapNode.start();
-                    dhtBootstrapNode.scheduledFuture();
-                    tasks.add(factory.createBindServerKademliaTask(new SecureRandom(key1), new String(passphrase).getBytes(StandardCharsets.UTF_8)));
+                    tasks.add(factory.createBindServerKademliaTask(ecKeyPair1,vk1));
                     Thread.sleep(10000);
                 } else if (vk2.equals(entry.getKey())) {
                     CachedBLSKeyPair.getInstance().setPrivateKey(sk2);
                     CachedBLSKeyPair.getInstance().setPublicKey(vk2);
-                    dhtBootstrapNode.Init();
-                    DHTRegularNode nextnode = new DHTRegularNode(kad2.getNettyConnectionInfo(), BigInteger.valueOf(1), keyHashGenerator);
-                    nextnode.setKademliaData(kad2);
-                    nextnode.start(dhtBootstrapNode);
-                    nextnode.scheduledFuture();
-                    CachedKademliaNodes.getInstance().setDhtRegularNode(nextnode);
-                    tasks.add(factory.createBindServerKademliaTask(new SecureRandom(key2), new String(passphrase).getBytes(StandardCharsets.UTF_8)));
+                    tasks.add(factory.createBindServerKademliaTask(ecKeyPair2,vk2));
                 } else if (vk3.equals(entry.getKey())) {
                     CachedBLSKeyPair.getInstance().setPrivateKey(sk3);
                     CachedBLSKeyPair.getInstance().setPublicKey(vk3);
-                    dhtBootstrapNode.Init();
-                    DHTRegularNode nextnode = new DHTRegularNode(kad3.getNettyConnectionInfo(), BigInteger.valueOf(2), keyHashGenerator);
-                    nextnode.setKademliaData(kad3);
-                    nextnode.start(dhtBootstrapNode);
-                    nextnode.scheduledFuture();
-                    CachedKademliaNodes.getInstance().setDhtRegularNode(nextnode);
-                    tasks.add(factory.createBindServerKademliaTask(new SecureRandom(key3), new String(passphrase).getBytes(StandardCharsets.UTF_8)));
+                    tasks.add(factory.createBindServerKademliaTask(ecKeyPair3,vk3));
                 } else if (vk4.equals(entry.getKey())) {
                     CachedBLSKeyPair.getInstance().setPrivateKey(sk4);
                     CachedBLSKeyPair.getInstance().setPublicKey(vk4);
-                    dhtBootstrapNode.Init();
-                    DHTRegularNode nextnode = new DHTRegularNode(kad4.getNettyConnectionInfo(), BigInteger.valueOf(3), keyHashGenerator);
-                    nextnode.setKademliaData(kad4);
-                    nextnode.start(dhtBootstrapNode);
-                    nextnode.scheduledFuture();
-                    CachedKademliaNodes.getInstance().setDhtRegularNode(nextnode);
-                    tasks.add(factory.createBindServerKademliaTask(new SecureRandom(key4), new String(passphrase).getBytes(StandardCharsets.UTF_8)));
+                    tasks.add(factory.createBindServerKademliaTask(ecKeyPair4,vk4));
                 } else if (vk5.equals(entry.getKey())) {
                     CachedBLSKeyPair.getInstance().setPrivateKey(sk5);
                     CachedBLSKeyPair.getInstance().setPublicKey(vk5);
-                    dhtBootstrapNode.Init();
-                    DHTRegularNode nextnode = new DHTRegularNode(kad5.getNettyConnectionInfo(), BigInteger.valueOf(4), keyHashGenerator);
-                    nextnode.setKademliaData(kad5);
-                    nextnode.start(dhtBootstrapNode);
-                    nextnode.scheduledFuture();
-                    CachedKademliaNodes.getInstance().setDhtRegularNode(nextnode);
-                    tasks.add(factory.createBindServerKademliaTask(new SecureRandom(key5), new String(passphrase).getBytes(StandardCharsets.UTF_8)));
+                    tasks.add(factory.createBindServerKademliaTask(ecKeyPair5,vk5));
 
-            } else if (vk6.equals(entry.getKey())) {
-                CachedBLSKeyPair.getInstance().setPrivateKey(sk6);
-                CachedBLSKeyPair.getInstance().setPublicKey(vk6);
-                dhtBootstrapNode.Init();
-                DHTRegularNode nextnode = new DHTRegularNode(kad6.getNettyConnectionInfo(), BigInteger.valueOf(5), keyHashGenerator);
-                nextnode.setKademliaData(kad6);
-                nextnode.start(dhtBootstrapNode);
-                nextnode.scheduledFuture();
-                CachedKademliaNodes.getInstance().setDhtRegularNode(nextnode);
-                tasks.add(factory.createBindServerKademliaTask(new SecureRandom(key6), new String(passphrase).getBytes(StandardCharsets.UTF_8)));
-            }
+                } else if (vk6.equals(entry.getKey())) {
+                    CachedBLSKeyPair.getInstance().setPrivateKey(sk6);
+                    CachedBLSKeyPair.getInstance().setPublicKey(vk6);
+                    tasks.add(factory.createBindServerKademliaTask(ecKeyPair6,vk6));
+                }
 
                 hit = 1;
                 break;
             }
         }
+            for (Map.Entry<BLSPublicKey, String> entry2 : CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).entrySet()) {
+                if (IP.equals(entry2.getValue())) {
+                    if (vk1.equals(entry2.getKey())) {
+                        CachedBLSKeyPair.getInstance().setPrivateKey(sk1);
+                        CachedBLSKeyPair.getInstance().setPublicKey(vk1);
+                        tasks.add(factory.createBindServerKademliaTask(ecKeyPair1,vk1));
+                        Thread.sleep(10000);
+                    } else if (vk2.equals(entry2.getKey())) {
+                        CachedBLSKeyPair.getInstance().setPrivateKey(sk2);
+                        CachedBLSKeyPair.getInstance().setPublicKey(vk2);
+                        tasks.add(factory.createBindServerKademliaTask(ecKeyPair2,vk2));
+                    } else if (vk3.equals(entry2.getKey())) {
+                        CachedBLSKeyPair.getInstance().setPrivateKey(sk3);
+                        CachedBLSKeyPair.getInstance().setPublicKey(vk3);
+                        tasks.add(factory.createBindServerKademliaTask(ecKeyPair3,vk3));
+                    } else if (vk4.equals(entry2.getKey())) {
+                        CachedBLSKeyPair.getInstance().setPrivateKey(sk4);
+                        CachedBLSKeyPair.getInstance().setPublicKey(vk4);
+                        tasks.add(factory.createBindServerKademliaTask(ecKeyPair4,vk4));
+                    } else if (vk5.equals(entry2.getKey())) {
+                        CachedBLSKeyPair.getInstance().setPrivateKey(sk5);
+                        CachedBLSKeyPair.getInstance().setPublicKey(vk5);
+                        tasks.add(factory.createBindServerKademliaTask(ecKeyPair5,vk5));
+
+                    } else if (vk6.equals(entry2.getKey())) {
+                        CachedBLSKeyPair.getInstance().setPrivateKey(sk6);
+                        CachedBLSKeyPair.getInstance().setPublicKey(vk6);
+                        tasks.add(factory.createBindServerKademliaTask(ecKeyPair6,vk6));
+                    }
+
+                    hit = 1;
+                    break;
+                }
+            }
         if (hit == 0)
             return;
 

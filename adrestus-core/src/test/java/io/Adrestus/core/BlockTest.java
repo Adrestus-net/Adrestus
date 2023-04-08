@@ -743,7 +743,7 @@ public class BlockTest {
     public void radmones_assignment_test() {
         SecureRandom random = new SecureRandom();
         CommitteeBlock committeeBlock = new CommitteeBlock();
-        int finish = 6;
+        int finish = 8;
         for (int i = 0; i < finish; i++) {
             BLSPrivateKey sk = new BLSPrivateKey(i);
             BLSPublicKey vk = new BLSPublicKey(sk);

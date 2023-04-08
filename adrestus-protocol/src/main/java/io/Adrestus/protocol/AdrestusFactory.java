@@ -1,5 +1,7 @@
 package io.Adrestus.protocol;
 
+import io.Adrestus.crypto.bls.model.BLSPublicKey;
+import io.Adrestus.crypto.elliptic.ECKeyPair;
 import io.distributedLedger.DatabaseInstance;
 import io.distributedLedger.PatriciaTreeInstance;
 
@@ -39,6 +41,11 @@ public class AdrestusFactory implements IAdrestusFactory {
     @Override
     public AdrestusTask createBindServerKademliaTask(SecureRandom secureRandom,byte[] passphrase) {
         return new BindServerKademliaTask(secureRandom,passphrase);
+    }
+
+    @Override
+    public AdrestusTask createBindServerKademliaTask(ECKeyPair keypair, BLSPublicKey blsPublicKey) {
+        return new BindServerKademliaTask(keypair,blsPublicKey);
     }
 
     @Override

@@ -256,4 +256,62 @@ public class DHTRegularNode {
         };
         scheduledExecutorService.scheduleAtFixedRate(task, 0, KademliaConfiguration.STORE_DELAY);
     }
+
+    public void scheduledFuture(int delay) {
+        task = new TimerTask() {
+            @Override
+            public void run() {
+                //lookup for orphan keys stored on "this" node
+                // that are down and not
+                //exist anymore so it's ready for cleanup
+                if (!regular_node.getKademliaRepository().getList().isEmpty()) {
+                    regular_node.getKademliaRepository().getList().forEach(id -> {
+                        EventLoopGroup workerGroup = new NioEventLoopGroup();
+                        try {
+                            KademliaData value = regular_node.getKademliaRepository().get(id);
+                            Bootstrap b = new Bootstrap(); // (1)
+                            b.group(workerGroup);
+                            b.channel(NioSocketChannel.class); // (3)
+                            b.option(ChannelOption.SO_KEEPALIVE, true); // (4)
+                            b.handler(new ChannelInitializer<SocketChannel>() {
+                                @Override
+                                public void initChannel(SocketChannel ch) throws Exception {
+                                }
+                            });
+                            ChannelFuture f = b.connect(value.getNettyConnectionInfo().getHost(), value.getNettyConnectionInfo().getPort()).sync(); // (5)
+                            f.channel().close();
+                        } catch (Exception e) {
+                            regular_node.getKademliaRepository().getList().forEach(x -> System.out.print(x));
+                            System.out.println();
+                            regular_node.getKademliaRepository().remove(id);
+                            regular_node.getKademliaRepository().getList().forEach(x -> System.out.print(x));
+                        } finally {
+                            workerGroup.shutdownGracefully();
+                        }
+                    });
+                }
+
+                //lookup for itself in
+                //cases that another node is down
+                LookupAnswer<BigInteger, String, KademliaData> lookupAnswer = null;
+                try {
+                    lookupAnswer = regular_node.lookup(getID().toString()).get(KademliaConfiguration.KADEMLIA_GET_TIMEOUT, TimeUnit.SECONDS);
+                    lookupAnswer.getValue();
+                } catch (Exception ex) {
+                    return;
+                }
+
+                if (lookupAnswer.getValue() == null) {
+                    try {
+                        regular_node.store(getID().toString(), getKademliaData()).get(KademliaConfiguration.KADEMLIA_GET_TIMEOUT, TimeUnit.SECONDS);
+                    } catch (DuplicateStoreRequest duplicateStoreRequest) {
+                        return;
+                    } catch (Exception e) {
+                    }
+                } else {
+                }
+            }
+        };
+        scheduledExecutorService.scheduleAtFixedRate(task, 0, delay);
+    }
 }
