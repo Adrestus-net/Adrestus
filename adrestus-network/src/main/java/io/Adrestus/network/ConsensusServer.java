@@ -120,7 +120,7 @@ public class ConsensusServer {
     public void BlockUntilConnected() {
         this.timer = new Timer(ConsensusConfiguration.CONSENSUS);
         this.task = new ConnectedTaskTimeout();
-        this.timer.scheduleAtFixedRate(task, CONSENSUS_TIMEOUT, CONSENSUS_TIMEOUT);
+        this.timer.scheduleAtFixedRate(task, CONSENSUS_TIMEOUT/2, CONSENSUS_TIMEOUT/2);
         int counter = (int) latch.getCount();
         while (latch.getCount() > 0 && !terminate) {
             String rec = receiveStringData();
@@ -239,10 +239,10 @@ public class ConsensusServer {
             LOG.info("ConnectedTaskTimeout Terminated!!!");
             terminate = true;
             int peers = (int) latch.getCount();
+            setPeers_not_connected(peers);
             while (latch.getCount() > 0) {
                 latch.countDown();
             }
-            setPeers_not_connected(peers);
             cancel();
         }
 
