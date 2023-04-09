@@ -700,10 +700,14 @@ public class SupervisorConsensusPhases {
             Bytes message = Bytes.wrap(block_serialize.encodeNotOptimal(block.getData(), SerializationUtils.serialize(block.getData()).length));
             boolean verify = BLSSignature.fastAggregateVerify(publicKeys, message, aggregatedSignature);
             if (!verify) {
-                LOG.info("Abort consensus phase BLS multi_signature is invalid during prepare phase");
-                block.setStatusType(ConsensusStatusType.ABORT);
-                cleanup();
-                return;
+                Bytes message_prev = Bytes.wrap(block_serialize.encodeNotOptimalPrevious(block.getData(), SerializationUtils.serialize(block.getData()).length));
+                boolean verify_prev = BLSSignature.fastAggregateVerify(publicKeys, message_prev, aggregatedSignature);
+                if (!verify_prev) {
+                    LOG.info("Abort consensus phase BLS multi_signature is invalid during prepare phase");
+                    block.setStatusType(ConsensusStatusType.ABORT);
+                    cleanup();
+                    return;
+                }
             }
 
             if (DEBUG) return;
@@ -772,10 +776,14 @@ public class SupervisorConsensusPhases {
             Bytes message = Bytes.wrap(block_serialize.encodeNotOptimal(block.getData(), SerializationUtils.serialize(block.getData()).length));
             boolean verify = BLSSignature.fastAggregateVerify(publicKeys, message, aggregatedSignature);
             if (!verify) {
-                LOG.info("CommitPhase: Abort consensus phase BLS multi_signature is invalid during commit phase");
-                block.setStatusType(ConsensusStatusType.ABORT);
-                cleanup();
-                return;
+                Bytes message_prev = Bytes.wrap(block_serialize.encodeNotOptimalPrevious(block.getData(), SerializationUtils.serialize(block.getData()).length));
+                boolean verify_prev = BLSSignature.fastAggregateVerify(publicKeys, message_prev, aggregatedSignature);
+                if (!verify_prev) {
+                    LOG.info("CommitPhase: Abort consensus phase BLS multi_signature is invalid during commit phase");
+                    block.setStatusType(ConsensusStatusType.ABORT);
+                    cleanup();
+                    return;
+                }
             }
 
             //commit save to db
