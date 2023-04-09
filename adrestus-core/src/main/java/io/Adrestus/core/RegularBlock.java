@@ -346,6 +346,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
 
         committeeBlock.setCommitteeProposer(Ints.toArray(replica));
         //########################################################################
+
         String hash = HashUtil.sha256_bytetoString(encode.encodeNotOptimal(committeeBlock, SerializationUtils.serialize(committeeBlock).length));
         committeeBlock.setHash(hash);
     }

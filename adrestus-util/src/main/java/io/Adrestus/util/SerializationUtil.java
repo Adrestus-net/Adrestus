@@ -8,6 +8,9 @@ import io.activej.serializer.SerializerBuilder;
 import io.activej.serializer.SerializerDef;
 import io.activej.types.scanner.TypeScannerRegistry;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -71,13 +74,13 @@ public class SerializationUtil<T> {
         ArrayList<Integer> list = new ArrayList<>();
         int sum = 0;
         int count = 0;
-        int mul = 4;
+        int mul = 8;
         list.add(1024);
         while (sum <= AdrestusConfiguration.MAXIMU_BLOCK_SIZE) {
             list.add(list.get(0) * mul);
             sum = list.get(count);
             count++;
-            mul = mul + 4;
+            mul = mul + 8;
         }
         size = list.stream().toArray(Integer[]::new);
     }
@@ -109,6 +112,18 @@ public class SerializationUtil<T> {
         return size[lo];
     }
 
+    private int getBuffSize(int buff_size) {
+        if (size[0] == buff_size)
+            return size[0];
+
+        for (int i = 0; i < size.length; i++) {
+            if (size[i] == buff_size) {
+                return size[i - 1];
+            }
+        }
+        return size[0];
+    }
+
     public Class getType() {
         return type;
     }
@@ -130,6 +145,15 @@ public class SerializationUtil<T> {
         // int buff_size2 = search((int) (ObjectSizer.retainedSize(value)));
         int buff_size = search(length);
         buffer = new byte[buff_size];
+        serializer.encode(buffer, 0, value);
+        return buffer;
+    }
+
+    public synchronized byte[] encodeNotOptimalPrevious(T value, int length) {
+        // int buff_size2 = search((int) (ObjectSizer.retainedSize(value)));
+        int buff_size = search(length);
+        int buff_prevsize  =getBuffSize(buff_size);
+        buffer = new byte[buff_prevsize];
         serializer.encode(buffer, 0, value);
         return buffer;
     }
@@ -202,6 +226,18 @@ public class SerializationUtil<T> {
 
     public BinarySerializer<T> getSerializer() {
         return serializer;
+    }
+
+
+    public static int sizeof(Object obj) throws IOException {
+        ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
+        ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteOutputStream);
+
+        objectOutputStream.writeObject(obj);
+        objectOutputStream.flush();
+        objectOutputStream.close();
+
+        return byteOutputStream.toByteArray().length;
     }
 
     public static final class Mapping {

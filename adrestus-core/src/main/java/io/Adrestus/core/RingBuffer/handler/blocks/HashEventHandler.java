@@ -54,12 +54,17 @@ public class HashEventHandler implements BlockEventHandler<AbstractBlockEvent>, 
                 committeeBlock.setStatustype(StatusType.ABORT);
             }
             CommitteeBlock cloneable = (CommitteeBlock) committeeBlock.clone();
+            int length=SerializationUtils.serialize(cloneable).length;
             cloneable.setHash("");
-            byte[] buffer = wrapper.encodeNotOptimal(cloneable, SerializationUtils.serialize(cloneable).length);
+            byte[] buffer = wrapper.encodeNotOptimal(cloneable, length);
             String result_hash = HashUtil.sha256_bytetoString(buffer);
             if (!result_hash.equals(committeeBlock.getHash())) {
-                LOG.info("Block hash is manipulated");
-                committeeBlock.setStatustype(StatusType.ABORT);
+                byte[] buffer_prev = wrapper.encodeNotOptimalPrevious(cloneable, length);
+                String result_hash_prev = HashUtil.sha256_bytetoString(buffer_prev);
+                if (!result_hash_prev.equals(committeeBlock.getHash())) {
+                    LOG.info("Block hash is manipulated");
+                    committeeBlock.setStatustype(StatusType.ABORT);
+                }
             }
         } catch (NullPointerException ex) {
             LOG.info("Block is empty");
