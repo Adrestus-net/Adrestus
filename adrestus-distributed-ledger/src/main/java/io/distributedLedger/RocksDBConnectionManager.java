@@ -502,6 +502,22 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
         return Optional.empty();
     }
 
+    @Override
+    public Optional<V> seekFirst() {
+        r.lock();
+        try {
+            final RocksIterator iterator = rocksDB.newIterator();
+            iterator.seekToFirst();
+            byte[] serializedValue = iterator.value();
+            return (Optional<V>) Optional.of(valueMapper.decode(serializedValue));
+        } catch (final SerializationException exception) {
+            LOGGER.error("Serialization exception occurred during findByKey operation. {}", exception.getMessage());
+        } finally {
+            r.unlock();
+        }
+        return Optional.empty();
+    }
+
     @SneakyThrows
     @Override
     public int findDBsize() {

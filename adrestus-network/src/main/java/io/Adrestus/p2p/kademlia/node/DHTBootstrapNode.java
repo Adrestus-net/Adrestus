@@ -263,7 +263,7 @@ public class DHTBootstrapNode {
                 }
             }
         };
-        scheduledExecutorService.scheduleAtFixedRate(task, 0, delay);
+        scheduledExecutorService.scheduleAtFixedRate(task, 0, Math.abs(delay));
     }
 
     public BigInteger getID() {

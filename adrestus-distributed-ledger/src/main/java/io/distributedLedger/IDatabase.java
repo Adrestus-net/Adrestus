@@ -55,6 +55,8 @@ public interface IDatabase<K, V> {
 
     Optional<V> seekLast();
 
+    Optional<V> seekFirst();
+
     int findDBsize();
 
     boolean isEmpty();

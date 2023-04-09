@@ -192,7 +192,9 @@ public class RocksDBBlockTest {
 
 
         Optional<TransactionBlock> copy = database.seekLast();
+        Optional<TransactionBlock> first = database.seekFirst();
         assertEquals(transactionBlock6, copy.get());
+        assertEquals(transactionBlock1, first.get());
         database.delete_db();
     }
 
