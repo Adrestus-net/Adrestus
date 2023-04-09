@@ -34,7 +34,7 @@ public class ConsensusState extends ConsensusDataState {
         this.transaction_block_timer = new Timer(ConsensusConfiguration.CONSENSUS);
         this.committee_block_timer = new Timer(ConsensusConfiguration.CONSENSUS);
         this.factory = new DefaultFactory(new TransactionBlock(), new CommitteeBlock());
-        blockSync = new BlockSync();
+        this.blockSync = new BlockSync();
     }
 
     public ConsensusState(CountDownLatch latch) {
@@ -43,6 +43,7 @@ public class ConsensusState extends ConsensusDataState {
         this.committee_block_timer = new Timer(ConsensusConfiguration.CONSENSUS);
         this.latch = latch;
         this.factory = new DefaultFactory(new TransactionBlock(), new CommitteeBlock());
+        this.blockSync = new BlockSync();
     }
 
     public static Logger getLOG() {

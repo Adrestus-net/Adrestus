@@ -124,13 +124,11 @@ public class ConsensusServer {
         int counter = (int) latch.getCount();
         while (latch.getCount() > 0 && !terminate) {
             String rec = receiveStringData();
-            System.out.println(rec);
             if (!rec.equals("")) {
+                System.out.println(rec);
                 connected.send(HEARTBEAT_MESSAGE.getBytes(StandardCharsets.UTF_8));
                 counter--;
                 setPeers_not_connected(counter);
-            }
-            if (!terminate) {
                 latch.countDown();
             }
         }
@@ -180,6 +178,7 @@ public class ConsensusServer {
             byte[] recv = connected.recv();
             return new String(recv, StandardCharsets.UTF_8);
         } catch (NullPointerException e) {
+            //e.printStackTrace();
         } catch (ZMQException e) {
             if (e.getErrorCode() == 156384765) {
             } else {

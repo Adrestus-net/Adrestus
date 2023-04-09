@@ -38,6 +38,7 @@ import io.Adrestus.p2p.kademlia.node.KeyHashGenerator;
 import io.Adrestus.p2p.kademlia.repository.KademliaData;
 import io.Adrestus.p2p.kademlia.util.BoundedHashUtil;
 import io.Adrestus.p2p.kademlia.util.LoggerKademlia;
+import io.Adrestus.util.GetTime;
 import io.distributedLedger.*;
 import org.apache.commons.codec.binary.StringUtils;
 import org.junit.jupiter.api.BeforeAll;
@@ -207,6 +208,14 @@ public class BootstrapConsensusTest {
         CachedLatestBlocks.getInstance().getCommitteeBlock().setGeneration(0);
         CachedLatestBlocks.getInstance().getCommitteeBlock().setHeight(0);
 
+        TransactionBlock prevblock = new TransactionBlock();
+        prevblock.setHeight(1);
+        prevblock.setHash("hash");
+        prevblock.getHeaderData().setTimestamp(GetTime.GetTimeStampInString());
+        prevblock.setTransactionProposer(vk1.toRaw());
+        prevblock.setLeaderPublicKey(vk1);
+        CachedLatestBlocks.getInstance().setTransactionBlock(prevblock);
+
         database.save(CachedLatestBlocks.getInstance().getCommitteeBlock().getHash(), CachedLatestBlocks.getInstance().getCommitteeBlock());
 
         CachedSecurityHeaders.getInstance().getSecurityHeader().setPRnd(Hex.decode("c1f72aa5bd1e1d53c723b149259b63f759f40d5ab003b547d5c13d45db9a5da8"));
@@ -242,7 +251,6 @@ public class BootstrapConsensusTest {
                     CachedBLSKeyPair.getInstance().setPrivateKey(sk1);
                     CachedBLSKeyPair.getInstance().setPublicKey(vk1);
                     tasks.add(factory.createBindServerKademliaTask(ecKeyPair1,vk1));
-                    Thread.sleep(10000);
                 } else if (vk2.equals(entry.getKey())) {
                     CachedBLSKeyPair.getInstance().setPrivateKey(sk2);
                     CachedBLSKeyPair.getInstance().setPublicKey(vk2);
@@ -276,7 +284,6 @@ public class BootstrapConsensusTest {
                         CachedBLSKeyPair.getInstance().setPrivateKey(sk1);
                         CachedBLSKeyPair.getInstance().setPublicKey(vk1);
                         tasks.add(factory.createBindServerKademliaTask(ecKeyPair1,vk1));
-                        Thread.sleep(10000);
                     } else if (vk2.equals(entry2.getKey())) {
                         CachedBLSKeyPair.getInstance().setPrivateKey(sk2);
                         CachedBLSKeyPair.getInstance().setPublicKey(vk2);
@@ -312,7 +319,7 @@ public class BootstrapConsensusTest {
         ExecutorService executor = Executors.newFixedThreadPool(tasks.size());
         tasks.stream().map(Worker::new).forEach(executor::execute);
 
-
+        Thread.sleep(3000);
         CountDownLatch latch = new CountDownLatch(20);
         ConsensusState c = new ConsensusState(latch);
         c.getTransaction_block_timer().scheduleAtFixedRate(new ConsensusState.TransactionBlockConsensusTask(), ConsensusConfiguration.CONSENSUS_TIMER, ConsensusConfiguration.CONSENSUS_TIMER);

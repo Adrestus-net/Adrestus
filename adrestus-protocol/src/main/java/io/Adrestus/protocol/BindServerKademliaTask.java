@@ -48,7 +48,7 @@ public class BindServerKademliaTask extends AdrestusTask {
 
     private static final String MNEMONIC = "user.mnemonic";
     private static final String PASSPHRASE = "user.passphrace";
-    private IBlockIndex blockIndex;
+    private final IBlockIndex blockIndex;
     private final KeyHashGenerator<BigInteger, String> keyHashGenerator;
     private final String ip;
     private final NettyConnectionInfo bootstrapNettyConnectionInfo, nettyConnectionInfo;
@@ -87,6 +87,7 @@ public class BindServerKademliaTask extends AdrestusTask {
 
     public BindServerKademliaTask(SecureRandom secureRandom,byte[] passphrase) {
         this.ip = IPFinder.getLocalIP();
+        this.blockIndex=new BlockIndex();
         this.bootstrapNettyConnectionInfo = new NettyConnectionInfo(KademliaConfiguration.BOOTSTRAP_NODE_IP, KademliaConfiguration.BootstrapNodePORT);
         this.nettyConnectionInfo = new NettyConnectionInfo(this.ip, KademliaConfiguration.PORT);
         this.keyHashGenerator = key -> {
@@ -108,6 +109,7 @@ public class BindServerKademliaTask extends AdrestusTask {
 
     public BindServerKademliaTask(ECKeyPair keypair,BLSPublicKey blsPublicKey) {
         this.ip = IPFinder.getLocalIP();
+        this.blockIndex=new BlockIndex();
         this.bootstrapNettyConnectionInfo = new NettyConnectionInfo(KademliaConfiguration.BOOTSTRAP_NODE_IP, KademliaConfiguration.BootstrapNodePORT);
         this.nettyConnectionInfo = new NettyConnectionInfo(this.ip, KademliaConfiguration.PORT);
         this.keyHashGenerator = key -> {
@@ -194,6 +196,7 @@ public class BindServerKademliaTask extends AdrestusTask {
             dhtRegularNode.scheduledFuture(KademliaConfiguration.KADEMLIA_ROUTING_TABLE_DELAY);
             CachedKademliaNodes.getInstance().setDhtRegularNode(dhtRegularNode);
         }
+        LOG.info("execute");
     }
 
     @SneakyThrows

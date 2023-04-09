@@ -4,6 +4,7 @@ import io.Adrestus.core.AbstractBlock;
 import io.Adrestus.core.CommitteeBlock;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.RingBuffer.event.AbstractBlockEvent;
+import io.Adrestus.core.StatusType;
 import io.Adrestus.core.TransactionBlock;
 import io.Adrestus.util.GetTime;
 import org.slf4j.Logger;
@@ -31,8 +32,11 @@ public class TimeStampEventHandler implements BlockEventHandler<AbstractBlockEve
         try {
             Timestamp current = GetTime.GetTimestampFromString(committeeBlock.getHeaderData().getTimestamp());
             Timestamp cached = GetTime.GetTimestampFromString(CachedLatestBlocks.getInstance().getCommitteeBlock().getHeaderData().getTimestamp());
-            if (!cached.before(current))
+            if (!cached.before(current)) {
                 LOG.info("CommitteeBlock timestamp is not valid");
+                committeeBlock.setStatustype(StatusType.ABORT);
+                return;
+            }
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -44,8 +48,11 @@ public class TimeStampEventHandler implements BlockEventHandler<AbstractBlockEve
             Timestamp current = GetTime.GetTimestampFromString(transactionBlock.getHeaderData().getTimestamp());
             Timestamp cached = GetTime.GetTimestampFromString(CachedLatestBlocks.getInstance().getTransactionBlock().getHeaderData().getTimestamp());
 
-            if (!cached.before(current))
+            if (!cached.before(current)) {
                 LOG.info("TransactionBlock timestamp is not valid");
+                transactionBlock.setStatustype(StatusType.ABORT);
+                return;
+            }
         } catch (ParseException e) {
             e.printStackTrace();
         }
