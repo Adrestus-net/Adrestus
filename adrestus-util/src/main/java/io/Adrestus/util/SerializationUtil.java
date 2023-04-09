@@ -114,14 +114,16 @@ public class SerializationUtil<T> {
 
     private int getBuffSize(int buff_size) {
         if (size[0] == buff_size)
-            return size[0];
+            return size[1];
+        if (size[1] == buff_size)
+            return size[2];
 
-        for (int i = 0; i < size.length; i++) {
+        for (int i = 3; i < size.length; i++) {
             if (size[i] == buff_size) {
                 return size[i - 1];
             }
         }
-        return size[0];
+        return size[1];
     }
 
     public Class getType() {
