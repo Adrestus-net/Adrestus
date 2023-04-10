@@ -411,7 +411,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
         MemoryTransactionPool.getInstance().delete(transactionBlock.getTransactionList());
 
         //Sync committee block from zone0
-        if (CachedZoneIndex.getInstance().getZoneIndex() != 0) {
+      /*  if (CachedZoneIndex.getInstance().getZoneIndex() != 0) {
             List<String> ips = CachedLatestBlocks
                     .getInstance()
                     .getCommitteeBlock()
@@ -449,13 +449,14 @@ public class RegularBlock implements BlockForge, BlockInvent {
                     CachedLatestBlocks.getInstance().setCommitteeBlock(last);
                     CachedZoneIndex.getInstance().setZoneIndexInternalIP();
                     CachedEpochGeneration.getInstance().setEpoch_counter(0);
-                    CachedLeaderIndex.getInstance().setTransactionPositionLeader(CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).size() - 1);
+                    CachedLeaderIndex.getInstance().setTransactionPositionLeader(0);
+                    //CachedLeaderIndex.getInstance().setTransactionPositionLeader(CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).size() - 1);
                 }
                 if (client != null)
                     client.close();
             } catch (IllegalArgumentException e) {
             }
-        }
+        }*/
         CachedReceiptSemaphore.getInstance().getSemaphore().release();
 
     }

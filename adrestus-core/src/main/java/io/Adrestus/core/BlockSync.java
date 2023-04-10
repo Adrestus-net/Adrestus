@@ -232,9 +232,10 @@ public class BlockSync implements IBlockSync {
 
         CachedLatestBlocks.getInstance().setCommitteeBlock(commitee_blocks.get(commitee_blocks.size() - 1));
         CachedLeaderIndex.getInstance().setCommitteePositionLeader(0);
+        CachedEpochGeneration.getInstance().setEpoch_counter(0);
+        CachedZoneIndex.getInstance().setZoneIndexInternalIP();
         IDatabase<String, CommitteeBlock> database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
         database.save(String.valueOf(CachedLatestBlocks.getInstance().getCommitteeBlock().getHeight()), CachedLatestBlocks.getInstance().getCommitteeBlock());
-        CachedZoneIndex.getInstance().setZoneIndexInternalIP();
 
         List<String> new_ips = prevblock.getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).values().stream().collect(Collectors.toList());
         int RPCTransactionZonePort = ZoneDatabaseFactory.getDatabaseRPCPort(CachedZoneIndex.getInstance().getZoneIndex());

@@ -320,7 +320,7 @@ public class BootstrapConsensusTest {
         tasks.stream().map(Worker::new).forEach(executor::execute);
 
         if( CachedBLSKeyPair.getInstance().getPublicKey().equals(vk1))
-            Thread.sleep(10000);
+            Thread.sleep(14000);
 
         CountDownLatch latch = new CountDownLatch(20);
         ConsensusState c = new ConsensusState(latch);
