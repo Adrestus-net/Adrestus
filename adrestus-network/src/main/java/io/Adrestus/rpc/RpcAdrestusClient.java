@@ -151,7 +151,7 @@ public class RpcAdrestusClient<T> {
         try {
             this.client.startFuture().get(TIMEOUT, TimeUnit.MILLISECONDS);
         } catch (Exception e) {
-            LOG.info("Connection could not be established");
+            LOG.info("Connection could not be established"+e.toString());
             throw new IllegalArgumentException("Connection could not be established");
         }
     }

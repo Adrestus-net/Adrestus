@@ -17,6 +17,7 @@ import io.Adrestus.crypto.elliptic.mapper.CustomSerializerTreeMap;
 import io.Adrestus.mapper.MemoryTreePoolSerializer;
 import io.Adrestus.network.AsyncService;
 import io.Adrestus.network.AsyncServiceNetworkData;
+import io.Adrestus.network.CachedEventLoop;
 import io.Adrestus.rpc.RpcAdrestusClient;
 import io.Adrestus.util.SerializationUtil;
 import io.activej.eventloop.Eventloop;
@@ -40,7 +41,6 @@ public class BlockSync implements IBlockSync {
     private static SerializationUtil<CachedNetworkData> serialize_cached;
     private final SerializationUtil patricia_tree_wrapper;
 
-    private final Eventloop eventloop;
 
 
     public BlockSync() {
@@ -57,7 +57,6 @@ public class BlockSync implements IBlockSync {
         this.patricia_tree_wrapper = new SerializationUtil<>(fluentType, list);
         this.transaction_encode = new SerializationUtil<Transaction>(Transaction.class,list2);
         this.receipt_encode = new SerializationUtil<Receipt>(Receipt.class,list2);
-        this.eventloop = Eventloop.create().withCurrentThread();
     }
 
     @Override
@@ -65,7 +64,7 @@ public class BlockSync implements IBlockSync {
     public void WaitPatientlyYourPosition() {
         boolean result = false;
         do {
-            RpcAdrestusClient client = new RpcAdrestusClient(new CommitteeBlock(), new InetSocketAddress(InetAddress.getByName(KademliaConfiguration.BOOTSTRAP_NODE_IP), NetworkConfiguration.RPC_PORT), eventloop);
+            RpcAdrestusClient client = new RpcAdrestusClient(new CommitteeBlock(), new InetSocketAddress(InetAddress.getByName(KademliaConfiguration.BOOTSTRAP_NODE_IP), NetworkConfiguration.RPC_PORT), CachedEventLoop.getInstance().getEventloop());
             IDatabase<String, CommitteeBlock> committee_database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
             Optional<CommitteeBlock> last_block = committee_database.seekLast();
             Map<String, CommitteeBlock> toSave = new HashMap<>();
@@ -109,7 +108,7 @@ public class BlockSync implements IBlockSync {
         RpcAdrestusClient client = null;
         try {
             IDatabase<String, TransactionBlock> block_database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
-            client = new RpcAdrestusClient(new TransactionBlock(), toConnectTransaction, eventloop);
+            client = new RpcAdrestusClient(new TransactionBlock(), toConnectTransaction, CachedEventLoop.getInstance().getEventloop());
             client.connect();
 
             Optional<TransactionBlock> block = block_database.seekLast();
@@ -143,7 +142,7 @@ public class BlockSync implements IBlockSync {
 
         try {
             IDatabase<String, byte[]> tree_database = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getPatriciaTreeZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
-            client = new RpcAdrestusClient(new byte[]{}, toConnectPatricia, eventloop);
+            client = new RpcAdrestusClient(new byte[]{}, toConnectPatricia, CachedEventLoop.getInstance().getEventloop());
             client.connect();
 
             Optional<byte[]> tree = tree_database.seekLast();
@@ -219,7 +218,7 @@ public class BlockSync implements IBlockSync {
         });
         List<CommitteeBlock> commitee_blocks;
         do {
-            RpcAdrestusClient client = new RpcAdrestusClient(new CommitteeBlock(), toConnectCommittee, eventloop);
+            RpcAdrestusClient client = new RpcAdrestusClient(new CommitteeBlock(), toConnectCommittee, CachedEventLoop.getInstance().getEventloop());
             client.connect();
 
             commitee_blocks = client.getBlocksList(String.valueOf(CachedLatestBlocks.getInstance().getCommitteeBlock().getHeight()));
@@ -255,7 +254,7 @@ public class BlockSync implements IBlockSync {
         RpcAdrestusClient client = null;
         try {
             IDatabase<String, TransactionBlock> block_database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
-            client = new RpcAdrestusClient(new TransactionBlock(), toConnectTransaction, eventloop);
+            client = new RpcAdrestusClient(new TransactionBlock(), toConnectTransaction, CachedEventLoop.getInstance().getEventloop());
             client.connect();
 
             Optional<TransactionBlock> block = block_database.seekLast();
@@ -288,7 +287,7 @@ public class BlockSync implements IBlockSync {
 
         try {
             IDatabase<String, byte[]> tree_database = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getPatriciaTreeZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
-            client = new RpcAdrestusClient(new byte[]{}, toConnectPatricia, eventloop);
+            client = new RpcAdrestusClient(new byte[]{}, toConnectPatricia, CachedEventLoop.getInstance().getEventloop());
             client.connect();
 
             Optional<byte[]> tree = tree_database.seekLast();

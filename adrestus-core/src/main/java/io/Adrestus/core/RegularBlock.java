@@ -7,7 +7,6 @@ import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.MerkleNode;
 import io.Adrestus.Trie.MerkleTreeImp;
 import io.Adrestus.config.AdrestusConfiguration;
-import io.Adrestus.config.NetworkConfiguration;
 import io.Adrestus.config.SocketConfigOptions;
 import io.Adrestus.core.Resourses.*;
 import io.Adrestus.core.RingBuffer.publisher.BlockEventPublisher;
@@ -22,13 +21,10 @@ import io.Adrestus.crypto.elliptic.mapper.CustomSerializerTreeMap;
 import io.Adrestus.crypto.elliptic.mapper.StakingData;
 import io.Adrestus.mapper.MemoryTreePoolSerializer;
 import io.Adrestus.network.AsyncService;
+import io.Adrestus.network.CachedEventLoop;
 import io.Adrestus.p2p.kademlia.repository.KademliaData;
 import io.Adrestus.rpc.RpcAdrestusClient;
-import io.Adrestus.util.CustomRandom;
-import io.Adrestus.util.GetTime;
-import io.Adrestus.util.MathOperationUtil;
-import io.Adrestus.util.SerializationUtil;
-import io.activej.eventloop.Eventloop;
+import io.Adrestus.util.*;
 import io.distributedLedger.*;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.SerializationUtils;
@@ -55,9 +51,6 @@ public class RegularBlock implements BlockForge, BlockInvent {
     private final SerializationUtil patricia_tree_wrapper;
     private final IBlockIndex blockIndex;
 
-    private static Eventloop eventloop = Eventloop.create().withCurrentThread();
-
-
     public RegularBlock() {
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
@@ -70,8 +63,8 @@ public class RegularBlock implements BlockForge, BlockInvent {
         list2.add(new SerializationUtil.Mapping(MemoryTreePool.class, ctx -> new MemoryTreePoolSerializer()));
         this.patricia_tree_wrapper = new SerializationUtil<>(fluentType, list2);
         this.encode = new SerializationUtil<AbstractBlock>(AbstractBlock.class, list);
-        this.transaction_encode = new SerializationUtil<Transaction>(Transaction.class,list);
-        this.receipt_encode = new SerializationUtil<Receipt>(Receipt.class,list);
+        this.transaction_encode = new SerializationUtil<Transaction>(Transaction.class, list);
+        this.receipt_encode = new SerializationUtil<Receipt>(Receipt.class, list);
         this.blockIndex = new BlockIndex();
     }
 
@@ -491,20 +484,32 @@ public class RegularBlock implements BlockForge, BlockInvent {
         RpcAdrestusClient client = null;
         try {
             IDatabase<String, TransactionBlock> block_database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
-            client = new RpcAdrestusClient(new TransactionBlock(), toConnectTransaction, eventloop);
+            client = new RpcAdrestusClient(new TransactionBlock(), toConnectTransaction, CachedEventLoop.getInstance().getEventloop());
             client.connect();
 
             Optional<TransactionBlock> block = block_database.seekLast();
             Map<String, TransactionBlock> toSave = new HashMap<>();
             List<TransactionBlock> blocks;
             if (block.isPresent()) {
-                blocks = client.getBlocksList(String.valueOf(block.get().getHeight()));
+                int counterloops = 0;
+                do {
+                    blocks = client.getBlocksList(String.valueOf(block.get().getHeight()));
+                    if (!blocks.isEmpty()) {
+                        counterloops = EpochTransitionFinder.countloops(block.get().getHeight(),blocks.get(blocks.size() - 1).getHeight());
+                    }
+                } while (counterloops != 0);
                 if (!blocks.isEmpty()) {
                     blocks.stream().skip(1).forEach(val -> toSave.put(String.valueOf(val.getHeight()), val));
                 }
 
             } else {
-                blocks = client.getBlocksList("");
+                int counterloops = 0;
+                do {
+                    blocks = client.getBlocksList("");
+                    if (!blocks.isEmpty()) {
+                        counterloops = EpochTransitionFinder.countloops(blocks.get(blocks.size() - 1).getHeight());
+                    }
+                } while (counterloops != 0);
                 if (!blocks.isEmpty()) {
                     blocks.stream().forEach(val -> toSave.put(String.valueOf(val.getHeight()), val));
                 }
@@ -521,7 +526,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
 
         try {
             IDatabase<String, byte[]> tree_database = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getPatriciaTreeZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
-            client = new RpcAdrestusClient(new byte[]{}, toConnectPatricia, eventloop);
+            client = new RpcAdrestusClient(new byte[]{}, toConnectPatricia, CachedEventLoop.getInstance().getEventloop());
             client.connect();
 
             Optional<byte[]> tree = tree_database.seekLast();

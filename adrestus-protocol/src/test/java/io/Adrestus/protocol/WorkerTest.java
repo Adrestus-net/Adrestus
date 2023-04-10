@@ -3,26 +3,36 @@ package io.Adrestus.protocol;
 import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.config.AdrestusConfiguration;
+import io.Adrestus.config.NetworkConfiguration;
+import io.Adrestus.core.CommitteeBlock;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.core.Resourses.MemoryTransactionPool;
+import io.Adrestus.core.TransactionBlock;
 import io.Adrestus.crypto.WalletAddress;
 import io.Adrestus.crypto.elliptic.ECKeyPair;
 import io.Adrestus.crypto.elliptic.Keys;
 import io.Adrestus.crypto.mnemonic.Mnemonic;
 import io.Adrestus.crypto.mnemonic.Security;
 import io.Adrestus.crypto.mnemonic.WordList;
+import io.Adrestus.network.CachedEventLoop;
+import io.Adrestus.network.IPFinder;
+import io.Adrestus.rpc.RpcAdrestusClient;
+import io.activej.eventloop.Eventloop;
 import io.distributedLedger.DatabaseInstance;
 import io.distributedLedger.PatriciaTreeInstance;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class WorkerTest {
-
+    private static Eventloop eventloop = Eventloop.create().withCurrentThread();
     @BeforeAll
     public static void setup() throws Exception {
         int version = 0x00;
@@ -88,7 +98,16 @@ public class WorkerTest {
                 factory.createRepositoryCommitteeTask()));
         ExecutorService executor = Executors.newFixedThreadPool(tasks.size());
         tasks.stream().map(Worker::new).forEach(executor::execute);
-        // All tasks were executed, now shutdown
+
+        Thread.sleep(5000);
+        /*ArrayList<InetSocketAddress> list = new ArrayList<>();
+        InetSocketAddress address1 = new InetSocketAddress(InetAddress.getByName(IPFinder.getLocalIP()), NetworkConfiguration.RPC_PORT);
+        list.add(address1);
+
+        RpcAdrestusClient client = new RpcAdrestusClient(new CommitteeBlock(), list, CachedEventLoop.getInstance().getEventloop());
+        client.connect();
+        RpcAdrestusClient client2 = new RpcAdrestusClient(new TransactionBlock(), list, CachedEventLoop.getInstance().getEventloop());
+        client2.connect();*/
         int size = 0;
         int count = 0;
         while (count < 20) {
