@@ -218,7 +218,7 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
     public void saveAll(Map<K, V> map) {
         w.lock();
         try {
-            if(!map.isEmpty()) {
+            if (!map.isEmpty()) {
                 K[] keys = (K[]) map.keySet().toArray();
                 V[] values = (V[]) map.values().toArray();
 
@@ -496,6 +496,9 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
             return (Optional<V>) Optional.of(valueMapper.decode(serializedValue));
         } catch (final SerializationException exception) {
             LOGGER.error("Serialization exception occurred during findByKey operation. {}", exception.getMessage());
+        } catch (ArrayIndexOutOfBoundsException exception) {
+            r.unlock();
+            return Optional.empty();
         } finally {
             r.unlock();
         }
@@ -512,7 +515,10 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
             return (Optional<V>) Optional.of(valueMapper.decode(serializedValue));
         } catch (final SerializationException exception) {
             LOGGER.error("Serialization exception occurred during findByKey operation. {}", exception.getMessage());
-        } finally {
+        } catch (ArrayIndexOutOfBoundsException exception) {
+            r.unlock();
+            return Optional.empty();
+        }  finally {
             r.unlock();
         }
         return Optional.empty();

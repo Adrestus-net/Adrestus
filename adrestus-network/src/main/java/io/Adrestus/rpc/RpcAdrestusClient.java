@@ -228,6 +228,7 @@ public class RpcAdrestusClient<T> {
     public void close() {
         try {
             client.stopFuture().get(TIMEOUT, TimeUnit.MILLISECONDS);
+            client=null;
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (ExecutionException e) {
@@ -263,7 +264,7 @@ public class RpcAdrestusClient<T> {
             ///LOG.info("Download: ..... " + response.getAbstractBlock().toString());
             return response;
         } catch (Exception e) {
-            LOG.info(e.toString());
+            LOG.info("getBlockListResponse: "+e.toString());
         }
         return new ListBlockResponse(null);
     }
@@ -277,7 +278,7 @@ public class RpcAdrestusClient<T> {
             ///LOG.info("Download: ..... " + response.getAbstractBlock().toString());
             return response;
         } catch (Exception e) {
-            LOG.info(e.toString());
+            LOG.info("getPatriciaTreeListResponse: "+e.toString());
         }
         return new PatriciaTreeResponse(null);
     }
