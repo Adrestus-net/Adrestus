@@ -312,6 +312,6 @@ public class DHTRegularNode {
                 }
             }
         };
-        scheduledExecutorService.scheduleAtFixedRate(task, 0, delay);
+        scheduledExecutorService.scheduleAtFixedRate(task, 0, Math.abs(delay));
     }
 }
