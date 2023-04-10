@@ -319,7 +319,9 @@ public class BootstrapConsensusTest {
         ExecutorService executor = Executors.newFixedThreadPool(tasks.size());
         tasks.stream().map(Worker::new).forEach(executor::execute);
 
-        Thread.sleep(10000);
+        if( CachedBLSKeyPair.getInstance().getPublicKey().equals(vk1))
+            Thread.sleep(10000);
+
         CountDownLatch latch = new CountDownLatch(20);
         ConsensusState c = new ConsensusState(latch);
         c.getTransaction_block_timer().scheduleAtFixedRate(new ConsensusState.TransactionBlockConsensusTask(), ConsensusConfiguration.CONSENSUS_TIMER, ConsensusConfiguration.CONSENSUS_TIMER);
