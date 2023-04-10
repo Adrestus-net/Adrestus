@@ -497,7 +497,6 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
         } catch (final SerializationException exception) {
             LOGGER.error("Serialization exception occurred during findByKey operation. {}", exception.getMessage());
         } catch (ArrayIndexOutOfBoundsException exception) {
-            r.unlock();
             return Optional.empty();
         } finally {
             r.unlock();
@@ -516,7 +515,6 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
         } catch (final SerializationException exception) {
             LOGGER.error("Serialization exception occurred during findByKey operation. {}", exception.getMessage());
         } catch (ArrayIndexOutOfBoundsException exception) {
-            r.unlock();
             return Optional.empty();
         }  finally {
             r.unlock();
