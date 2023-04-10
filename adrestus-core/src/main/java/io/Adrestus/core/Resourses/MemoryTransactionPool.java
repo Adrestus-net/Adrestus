@@ -39,7 +39,7 @@ public class MemoryTransactionPool implements IMemoryPool<Transaction> {
             List<SerializationUtil.Mapping> list = new ArrayList<>();
             list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
             this.memorypool = new ArrayList<Transaction>();
-            this.wrapper = new SerializationUtil<>(Transaction.class,list);
+            this.wrapper = new SerializationUtil<>(Transaction.class, list);
             this.hashComparator = new TransactionHashComparator();
             this.transactionReplayComparator = new TransactionReplayComparator();
             this.transactionAddressComparator = new TransactionAddressComparator();

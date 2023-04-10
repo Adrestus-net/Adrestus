@@ -24,7 +24,7 @@ public class ZoneEventHandler extends TransactionEventHandler {
     public ZoneEventHandler() {
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
-        transaction_encode = new SerializationUtil<Transaction>(Transaction.class,list);
+        transaction_encode = new SerializationUtil<Transaction>(Transaction.class, list);
     }
 
     @Override

@@ -71,11 +71,11 @@ public class ECDSASign implements SignInterface {
                         signatureData.getS()));
     }
 
-    public boolean secp256Verify(byte[] hash, String address,BigInteger recovered_key,ECDSASignatureData signatureData) {
+    public boolean secp256Verify(byte[] hash, String address, BigInteger recovered_key, ECDSASignatureData signatureData) {
         return verify(
                 hash,
                 address,
-                recovered_key,new ECDSASignatureData(
+                recovered_key, new ECDSASignatureData(
                         (byte) (signatureData.getV() + 27),
                         signatureData.getR(),
                         signatureData.getS()));
@@ -155,7 +155,7 @@ public class ECDSASign implements SignInterface {
         return given_address.equals(adddress);
     }
 
-    public boolean verify(byte[] hash, String given_address, BigInteger recovered_key,ECDSASignatureData signatureData) {
+    public boolean verify(byte[] hash, String given_address, BigInteger recovered_key, ECDSASignatureData signatureData) {
         ECDSASignature sig =
                 new ECDSASignature(
                         PrimitiveUtil.toBigInt(signatureData.getR()),

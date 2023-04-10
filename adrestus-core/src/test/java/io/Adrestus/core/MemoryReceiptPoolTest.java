@@ -156,7 +156,7 @@ public class MemoryReceiptPoolTest {
     public void group_by() throws Exception {
         List<SerializationUtil.Mapping> lists = new ArrayList<>();
         lists.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
-        SerializationUtil<Receipt> serenc = new SerializationUtil<Receipt>(Receipt.class,lists);
+        SerializationUtil<Receipt> serenc = new SerializationUtil<Receipt>(Receipt.class, lists);
         MemoryReceiptPool.getInstance().getAll().clear();
         Receipt.ReceiptBlock receiptBlock1 = new Receipt.ReceiptBlock("1", 1, 1, "1");
         Receipt.ReceiptBlock receiptBlock2 = new Receipt.ReceiptBlock("2", 2, 2, "2");

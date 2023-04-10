@@ -24,7 +24,7 @@ public class RingBufferTest {
     public void TransactionTest() throws InterruptedException {
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
-        SerializationUtil<Transaction> serenc = new SerializationUtil<Transaction>(Transaction.class,list);
+        SerializationUtil<Transaction> serenc = new SerializationUtil<Transaction>(Transaction.class, list);
 
         Transaction transaction = new RewardsTransaction("Delegator Address");
         transaction.setStatus(StatusType.PENDING);

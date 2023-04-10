@@ -57,7 +57,7 @@ public class ConsensusTransactionTimer {
         this.timer.scheduleAtFixedRate(task, ConsensusConfiguration.CONSENSUS_TIMER, ConsensusConfiguration.CONSENSUS_TIMER);
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
-        serenc = new SerializationUtil<Transaction>(Transaction.class,list);
+        serenc = new SerializationUtil<Transaction>(Transaction.class, list);
     }
 
 

@@ -84,7 +84,7 @@ public class TransactionStrategyTest {
 
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
-        SerializationUtil<Transaction> serenc = new SerializationUtil<Transaction>(Transaction.class,list);
+        SerializationUtil<Transaction> serenc = new SerializationUtil<Transaction>(Transaction.class, list);
 
         CachedZoneIndex.getInstance().setZoneIndex(0);
         TransactionEventPublisher publisher = new TransactionEventPublisher(4096);
@@ -123,7 +123,7 @@ public class TransactionStrategyTest {
         }
         List<SerializationUtil.Mapping> lists = new ArrayList<>();
         lists.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
-        serenc = new SerializationUtil<Transaction>(Transaction.class,lists);
+        serenc = new SerializationUtil<Transaction>(Transaction.class, lists);
         for (int i = start; i < end - 1; i++) {
             Transaction transaction = new RegularTransaction();
             transaction.setFrom(addreses.get(i));

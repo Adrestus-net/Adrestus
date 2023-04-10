@@ -110,7 +110,7 @@ public class ConsensusTransactionBlockTest {
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
 
-        SerializationUtil<Transaction> serenc = new SerializationUtil<Transaction>(Transaction.class,list);
+        SerializationUtil<Transaction> serenc = new SerializationUtil<Transaction>(Transaction.class, list);
 
         ArrayList<String> addreses = new ArrayList<>();
         ArrayList<ECKeyPair> keypair = new ArrayList<>();

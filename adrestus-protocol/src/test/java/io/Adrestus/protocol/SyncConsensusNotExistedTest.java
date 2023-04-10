@@ -76,7 +76,7 @@ public class SyncConsensusNotExistedTest {
         ecKeyPair2 = Keys.createEcKeyPair(random);
         random.setSeed(key2);
         sk2 = new BLSPrivateKey(random);
-        vk2 = new BLSPublicKey(sk2,new Params(new String(passphrase).getBytes(StandardCharsets.UTF_8)));
+        vk2 = new BLSPublicKey(sk2, new Params(new String(passphrase).getBytes(StandardCharsets.UTF_8)));
         String address2 = WalletAddress.generate_address((byte) version, ecKeyPair2.getPublicKey());
         ECDSASignatureData signatureData2 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address2)), ecKeyPair2);
         kad2 = new KademliaData(new SecurityAuditProofs(address2, vk2, ecKeyPair2.getPublicKey(), signatureData2), new NettyConnectionInfo("192.168.1.113", KademliaConfiguration.PORT));
@@ -88,7 +88,7 @@ public class SyncConsensusNotExistedTest {
         socket.connect(new InetSocketAddress("google.com", 80));
         String IP = socket.getLocalAddress().getHostAddress();
 
-        if(!IP.substring(0,9).equals("192.168.1"))
+        if (!IP.substring(0, 9).equals("192.168.1"))
             return;
 
         keyHashGenerator = key -> {
@@ -115,10 +115,9 @@ public class SyncConsensusNotExistedTest {
         CachedKademliaNodes.getInstance().setDhtRegularNode(nextnode);
 
 
-
         IAdrestusFactory factory = new AdrestusFactory();
         List<AdrestusTask> tasks = new java.util.ArrayList<>(List.of(
-                factory.createBindServerKademliaTask(new SecureRandom(key2),new String(passphrase).getBytes(StandardCharsets.UTF_8)),
+                factory.createBindServerKademliaTask(new SecureRandom(key2), new String(passphrase).getBytes(StandardCharsets.UTF_8)),
                 factory.createBindServerTransactionTask(),
                 factory.createBindServerReceiptTask(),
                 factory.createSendReceiptTask(),
@@ -131,7 +130,7 @@ public class SyncConsensusNotExistedTest {
         tasks.stream().map(Worker::new).forEach(executor::execute);
 
 
-        var blocksync=new BlockSync();
+        var blocksync = new BlockSync();
         blocksync.WaitPatientlyYourPosition();
 
         CountDownLatch latch = new CountDownLatch(20);
@@ -140,6 +139,7 @@ public class SyncConsensusNotExistedTest {
         //c.getCommittee_block_timer().scheduleAtFixedRate(new ConsensusState.CommitteeBlockConsensusTask(), ConsensusConfiguration.CONSENSUS_COMMITTEE_TIMER, ConsensusConfiguration.CONSENSUS_COMMITTEE_TIMER);
         latch.await();
     }
+
     public static void delete_test() {
         IDatabase<String, TransactionBlock> transaction_block1 = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.ZONE_0_TRANSACTION_BLOCK);
         IDatabase<String, TransactionBlock> transaction_block2 = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.ZONE_1_TRANSACTION_BLOCK);

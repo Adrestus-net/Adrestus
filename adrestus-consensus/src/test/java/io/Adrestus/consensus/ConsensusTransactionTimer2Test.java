@@ -87,8 +87,8 @@ public class ConsensusTransactionTimer2Test {
     public static void construct() throws Exception {
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
-        serenc = new SerializationUtil<Transaction>(Transaction.class,list);
-        recep = new SerializationUtil<Receipt>(Receipt.class,list);
+        serenc = new SerializationUtil<Transaction>(Transaction.class, list);
+        recep = new SerializationUtil<Receipt>(Receipt.class, list);
 
         IDatabase<String, TransactionBlock> block_database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
         IDatabase<String, byte[]> tree_datasbase = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getPatriciaTreeZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));

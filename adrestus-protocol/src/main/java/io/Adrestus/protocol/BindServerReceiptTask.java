@@ -26,7 +26,7 @@ public class BindServerReceiptTask extends AdrestusTask {
         super();
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
-        this.recep = new SerializationUtil<Receipt>(Receipt.class,list);
+        this.recep = new SerializationUtil<Receipt>(Receipt.class, list);
         this.callBackReceive();
     }
 

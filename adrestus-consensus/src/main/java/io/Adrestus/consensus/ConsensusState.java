@@ -141,8 +141,8 @@ public class ConsensusState extends ConsensusDataState {
                 boolean finaly = false;
                 while (!result || !finaly) {
                     result = committee_state.onActiveState();
-                    if(result && committee_state.getClass().equals(ConsensusCommitteeBlockState.class)){
-                        finaly=true;
+                    if (result && committee_state.getClass().equals(ConsensusCommitteeBlockState.class)) {
+                        finaly = true;
                     }
                     if (!result) {
                         if (!committee_state.getClass().equals(ChangeViewCommitteeState.class)) {
@@ -164,7 +164,8 @@ public class ConsensusState extends ConsensusDataState {
                             CachedLeaderIndex.getInstance().setCommitteePositionLeader(0);
                             changeStateTo(new ConsensusVRFState());
                             committee_state.onEnterState(blockIndex.getPublicKeyByIndex(0, CachedLeaderIndex.getInstance().getCommitteePositionLeader()));
-                        }*/} else if (committee_state.getClass().equals(ConsensusVRFState.class)) {
+                        }*/
+                        } else if (committee_state.getClass().equals(ConsensusVRFState.class)) {
                             changeStateTo(new ConsensusVDFState());
                             committee_state.onEnterState(blockIndex.getPublicKeyByIndex(0, CachedLeaderIndex.getInstance().getCommitteePositionLeader()));
                         } else if (committee_state.getClass().equals(ConsensusVDFState.class)) {

@@ -36,7 +36,7 @@ public class SignatureSerializationTest {
     static BinarySerializer<Transaction> enc = SerializerBuilder
             .create()
             .with(ECDSASignatureData.class, ctx -> new SignatureDataSerializer())
-            .with(BigInteger.class,ctx->new BigIntegerSerializer())
+            .with(BigInteger.class, ctx -> new BigIntegerSerializer())
             .build(Transaction.class);
     static SerializationUtil<Transaction> serenc;
     static ECDSASign ecdsaSign = new ECDSASign();

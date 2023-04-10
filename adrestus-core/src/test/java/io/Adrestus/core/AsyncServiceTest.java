@@ -60,7 +60,7 @@ public class AsyncServiceTest {
         int version = 0x00;
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
-        transaction_encode = new SerializationUtil<Transaction>(Transaction.class,list);
+        transaction_encode = new SerializationUtil<Transaction>(Transaction.class, list);
         ECDSASign ecdsaSign = new ECDSASign();
         sk1 = new BLSPrivateKey(1);
         vk1 = new BLSPublicKey(sk1);
@@ -87,7 +87,7 @@ public class AsyncServiceTest {
 
         List<SerializationUtil.Mapping> lists = new ArrayList<>();
         lists.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
-        SerializationUtil<Transaction> serenc = new SerializationUtil<Transaction>(Transaction.class,lists);
+        SerializationUtil<Transaction> serenc = new SerializationUtil<Transaction>(Transaction.class, lists);
 
         CachedZoneIndex.getInstance().setZoneIndex(0);
         TransactionEventPublisher publisher = new TransactionEventPublisher(4096);
@@ -127,7 +127,7 @@ public class AsyncServiceTest {
 
         List<SerializationUtil.Mapping> listss = new ArrayList<>();
         listss.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
-        serenc = new SerializationUtil<Transaction>(Transaction.class,listss);
+        serenc = new SerializationUtil<Transaction>(Transaction.class, listss);
         for (int i = start; i < end - 1; i++) {
             Transaction transaction = new RegularTransaction();
             transaction.setFrom(addreses.get(i));

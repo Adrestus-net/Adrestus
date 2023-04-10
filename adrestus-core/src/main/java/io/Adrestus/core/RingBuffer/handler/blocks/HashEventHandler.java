@@ -54,7 +54,7 @@ public class HashEventHandler implements BlockEventHandler<AbstractBlockEvent>, 
                 committeeBlock.setStatustype(StatusType.ABORT);
             }
             CommitteeBlock cloneable = (CommitteeBlock) committeeBlock.clone();
-            int length=SerializationUtils.serialize(cloneable).length;
+            int length = SerializationUtils.serialize(cloneable).length;
             cloneable.setHash("");
             byte[] buffer = wrapper.encodeNotOptimal(cloneable, length);
             String result_hash = HashUtil.sha256_bytetoString(buffer);

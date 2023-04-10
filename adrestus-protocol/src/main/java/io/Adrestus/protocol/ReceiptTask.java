@@ -36,7 +36,7 @@ public class ReceiptTask extends AdrestusTask {
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         this.eventloop = Eventloop.create().withCurrentThread();
-        this.recep = new SerializationUtil<Receipt>(Receipt.class,list);
+        this.recep = new SerializationUtil<Receipt>(Receipt.class, list);
         this.runner = false;
     }
 

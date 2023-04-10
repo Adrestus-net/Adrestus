@@ -202,11 +202,11 @@ public class BLSTest {
         SecureRandom random = SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
         random.setSeed(key1);
         BLSPrivateKey sk1 = new BLSPrivateKey(random);
-        BLSPublicKey vk1 = new BLSPublicKey(sk1,new Params(new String(passphrase).getBytes(UTF_8)));
+        BLSPublicKey vk1 = new BLSPublicKey(sk1, new Params(new String(passphrase).getBytes(UTF_8)));
 
 
-        assertEquals("0416eecd805539a6449c3a38da5293d032cf69dac8d890c3aa20ab77780d66277ad579baf235bf1b80e6b716612a5341260da3dae5af5122cc4bbc7b43c57a153ce90ef6d165ad08aa13efa87d5fd8675e017d7ce14b611e577b44e4cd3ac0af96",vk1.toRaw());
-        assertEquals("0000000000000000000000000000000015efa50455889bca09fbd5853b024c613c766684e1ad5a22d55617d99dce40c0",Hex.toHexString(sk1.toBytes()));
+        assertEquals("0416eecd805539a6449c3a38da5293d032cf69dac8d890c3aa20ab77780d66277ad579baf235bf1b80e6b716612a5341260da3dae5af5122cc4bbc7b43c57a153ce90ef6d165ad08aa13efa87d5fd8675e017d7ce14b611e577b44e4cd3ac0af96", vk1.toRaw());
+        assertEquals("0000000000000000000000000000000015efa50455889bca09fbd5853b024c613c766684e1ad5a22d55617d99dce40c0", Hex.toHexString(sk1.toBytes()));
 
     }
 }

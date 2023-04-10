@@ -640,7 +640,7 @@ public class SupervisorConsensusPhases {
             block.setMessageType(ConsensusMessageType.ANNOUNCE);
             if (DEBUG) return;
 
-            byte[] message = block_serialize.encodeNotOptimal(block.getData(),SerializationUtils.serialize(block.getData()).length);
+            byte[] message = block_serialize.encodeNotOptimal(block.getData(), SerializationUtils.serialize(block.getData()).length);
             Signature sig = BLSSignature.sign(message, CachedBLSKeyPair.getInstance().getPrivateKey());
             block.getChecksumData().setBlsPublicKey(CachedBLSKeyPair.getInstance().getPublicKey());
             block.getChecksumData().setSignature(sig);
@@ -713,7 +713,7 @@ public class SupervisorConsensusPhases {
             if (DEBUG) return;
 
 
-            Signature sig = BLSSignature.sign(block_serialize.encodeNotOptimal(block.getData(),SerializationUtils.serialize(block.getData()).length), CachedBLSKeyPair.getInstance().getPrivateKey());
+            Signature sig = BLSSignature.sign(block_serialize.encodeNotOptimal(block.getData(), SerializationUtils.serialize(block.getData()).length), CachedBLSKeyPair.getInstance().getPrivateKey());
             block.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
 
             this.N_COPY = (this.N - 1) - consensusServer.getPeers_not_connected();

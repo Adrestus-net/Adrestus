@@ -4,9 +4,6 @@ import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.crypto.elliptic.*;
 import org.apache.hc.core5.util.ByteArrayBuffer;
 import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPublicKey;
-import org.bouncycastle.jce.ECNamedCurveTable;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.spongycastle.util.encoders.Hex;
@@ -14,7 +11,6 @@ import org.spongycastle.util.encoders.Hex;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.*;
-import java.security.interfaces.ECPublicKey;
 import java.security.spec.*;
 import java.util.Arrays;
 
@@ -64,7 +60,7 @@ public class ECKeyPairTest {
         ByteArrayBuffer xBytes = new ByteArrayBuffer(33);
         ByteArrayBuffer yBytes = new ByteArrayBuffer(33);
 
-        byte[] zero = {(byte)0x00};
+        byte[] zero = {(byte) 0x00};
         xBytes.append(zero, 0, 1);
         xBytes.append(otherPub, 0, 32);
         yBytes.append(zero, 0, 1);
@@ -88,8 +84,8 @@ public class ECKeyPairTest {
         BCECPublicKey publicKeys = (BCECPublicKey) pubKey;
 
         byte[] publicKeyBytes = publicKeys.getQ().getEncoded(false);
-        BigInteger  publicKeyValue= new BigInteger(1, Arrays.copyOfRange(publicKeyBytes, 1, publicKeyBytes.length));
-        String gfd=Hex.toHexString(publicKeyValue.toByteArray());
+        BigInteger publicKeyValue = new BigInteger(1, Arrays.copyOfRange(publicKeyBytes, 1, publicKeyBytes.length));
+        String gfd = Hex.toHexString(publicKeyValue.toByteArray());
         ECDSASign ecdsaSign = new ECDSASign();
         String message = "dd6d5849a507fc670db1c9ce77fea2166658e1c9b697b33ee9e1d07c03290da3";
         ECDSASignatureData signatureData = new ECDSASignatureData();
@@ -108,7 +104,7 @@ public class ECKeyPairTest {
         ByteArrayBuffer xBytes = new ByteArrayBuffer(33);
         ByteArrayBuffer yBytes = new ByteArrayBuffer(33);
 
-        byte[] zero = {(byte)0x00};
+        byte[] zero = {(byte) 0x00};
         xBytes.append(zero, 0, 1);
         xBytes.append(otherPub, 0, 32);
         yBytes.append(zero, 0, 1);
@@ -132,8 +128,8 @@ public class ECKeyPairTest {
         BCECPublicKey publicKeys = (BCECPublicKey) pubKey;
 
         byte[] publicKeyBytes = publicKeys.getQ().getEncoded(false);
-        BigInteger  publicKeyValue= new BigInteger(1, Arrays.copyOfRange(publicKeyBytes, 1, publicKeyBytes.length));
-        String gfd=Hex.toHexString(publicKeyValue.toByteArray());
+        BigInteger publicKeyValue = new BigInteger(1, Arrays.copyOfRange(publicKeyBytes, 1, publicKeyBytes.length));
+        String gfd = Hex.toHexString(publicKeyValue.toByteArray());
         ECDSASign ecdsaSign = new ECDSASign();
         String message = "e713ba6967eb576b9938386aa5b3e8fa2ed8db9f5f049a5eed98e5e047be547d";
         ECDSASignatureData signatureData = new ECDSASignatureData();
@@ -159,7 +155,7 @@ public class ECKeyPairTest {
         signatureData.setR(new BigInteger("30179190089666276834887403079562508974417649980904472865724382004973443579854").toByteArray());
         signatureData.setS(new BigInteger("14029798542497621816798343676332730497595770105064178818079147459382128035034").toByteArray());
 
-        BigInteger publicKeyValue=ecdsaSign.recoverPublicKeyValue(x,y);
+        BigInteger publicKeyValue = ecdsaSign.recoverPublicKeyValue(x, y);
         boolean verify = ecdsaSign.secp256Verify(HashUtil.sha256(message.getBytes(StandardCharsets.UTF_8)), publicKeyValue, signatureData);
         assertEquals(verify, true);
 
@@ -192,7 +188,7 @@ public class ECKeyPairTest {
 
     @Test
     public void verifySecp256ECDSAWithAdressSignFromNodeJSTest() throws Exception {
-        String adddress ="ADR-GBXZ-Z5UR-3UVR-6XUE-NP4N-VDVA-BE3S-TLOL-GEYS-VLBJ";
+        String adddress = "ADR-GBXZ-Z5UR-3UVR-6XUE-NP4N-VDVA-BE3S-TLOL-GEYS-VLBJ";
         BigInteger x = new BigInteger("73885651435926854515264701221164520142160681037984229233067136520784684869519");
         BigInteger y = new BigInteger("26683047389995651185679566240952828910936171073908714048119596426948530852435");
 
@@ -203,8 +199,8 @@ public class ECKeyPairTest {
         signatureData.setR(new BigInteger("30179190089666276834887403079562508974417649980904472865724382004973443579854").toByteArray());
         signatureData.setS(new BigInteger("14029798542497621816798343676332730497595770105064178818079147459382128035034").toByteArray());
 
-        BigInteger publicKeyValue=ecdsaSign.recoverPublicKeyValue(x,y);
-        boolean verify = ecdsaSign.secp256Verify(HashUtil.sha256(message.getBytes(StandardCharsets.UTF_8)),adddress, publicKeyValue, signatureData);
+        BigInteger publicKeyValue = ecdsaSign.recoverPublicKeyValue(x, y);
+        boolean verify = ecdsaSign.secp256Verify(HashUtil.sha256(message.getBytes(StandardCharsets.UTF_8)), adddress, publicKeyValue, signatureData);
         assertEquals(verify, true);
     }
 }

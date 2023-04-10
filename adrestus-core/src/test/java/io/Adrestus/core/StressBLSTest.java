@@ -30,7 +30,7 @@ public class StressBLSTest {
     public void Test() {
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
-        SerializationUtil<TransactionBlock> ser = new SerializationUtil<TransactionBlock>(TransactionBlock.class,list);
+        SerializationUtil<TransactionBlock> ser = new SerializationUtil<TransactionBlock>(TransactionBlock.class, list);
         sk1 = new BLSPrivateKey(1);
         vk1 = new BLSPublicKey(sk1);
 

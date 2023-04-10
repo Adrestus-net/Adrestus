@@ -45,8 +45,8 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
         this.Amount = 0;
         this.AmountWithTransactionFee = 0;
         this.Nonce = 0;
-        this.XAxis=new BigInteger("0");
-        this.YAxis=new BigInteger("0");
+        this.XAxis = new BigInteger("0");
+        this.YAxis = new BigInteger("0");
         this.Signature = new ECDSASignatureData();
     }
 
@@ -63,8 +63,8 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
         this.Amount = 0;
         this.AmountWithTransactionFee = 0;
         this.Nonce = 0;
-        this.XAxis=new BigInteger("0");
-        this.YAxis=new BigInteger("0");
+        this.XAxis = new BigInteger("0");
+        this.YAxis = new BigInteger("0");
         this.Signature = new ECDSASignatureData();
     }
 
@@ -81,8 +81,8 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
         this.Amount = 0;
         this.AmountWithTransactionFee = 0;
         this.Nonce = 0;
-        this.XAxis=new BigInteger("0");
-        this.YAxis=new BigInteger("0");
+        this.XAxis = new BigInteger("0");
+        this.YAxis = new BigInteger("0");
         this.Signature = new ECDSASignatureData();
     }
 
@@ -122,7 +122,7 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
 
     @Serialize
     public TransactionType getType() {
-        return  this.Type;
+        return this.Type;
     }
 
     public void setType(TransactionType type) {
@@ -131,7 +131,7 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
 
     @Serialize
     public StatusType getStatus() {
-        return  this.Status;
+        return this.Status;
     }
 
     public void setStatus(StatusType status) {
@@ -140,7 +140,7 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
 
     @Serialize
     public int getZoneFrom() {
-        return  this.ZoneFrom;
+        return this.ZoneFrom;
     }
 
     public void setZoneFrom(int zoneFrom) {
@@ -149,7 +149,7 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
 
     @Serialize
     public int getZoneTo() {
-        return  this.ZoneTo;
+        return this.ZoneTo;
     }
 
     public void setZoneTo(int zoneTo) {
@@ -158,7 +158,7 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
 
     @Serialize
     public String getTimestamp() {
-        return  this.timestamp;
+        return this.timestamp;
     }
 
     public void setTimestamp(String timestamp) {
@@ -167,7 +167,7 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
 
     @Serialize
     public int getBlockNumber() {
-        return  this.BlockNumber;
+        return this.BlockNumber;
     }
 
     public void setBlockNumber(int blockNumber) {
@@ -176,7 +176,7 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
 
     @Serialize
     public String getFrom() {
-        return  this.From;
+        return this.From;
     }
 
     public void setFrom(String from) {
@@ -185,7 +185,7 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
 
     @Serialize
     public String getTo() {
-        return  this.To;
+        return this.To;
     }
 
     public void setTo(String to) {
@@ -194,7 +194,7 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
 
     @Serialize
     public double getAmount() {
-        return  this.Amount;
+        return this.Amount;
     }
 
     public void setAmount(double amount) {
@@ -203,7 +203,7 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
 
     @Serialize
     public double getAmountWithTransactionFee() {
-        return  this.AmountWithTransactionFee;
+        return this.AmountWithTransactionFee;
     }
 
     public void setAmountWithTransactionFee(double AmountWithTransactionFee) {
@@ -221,7 +221,7 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
 
     @Serialize
     public ECDSASignatureData getSignature() {
-        return  this.Signature;
+        return this.Signature;
     }
 
     public void setSignature(ECDSASignatureData signature) {
@@ -230,7 +230,7 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
 
     @Serialize
     public String getHash() {
-        return  this.Hash;
+        return this.Hash;
     }
 
     public void setHash(String hash) {
@@ -239,7 +239,7 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
 
     @Serialize
     public BigInteger getXAxis() {
-        return  this.XAxis;
+        return this.XAxis;
     }
 
     public void setXAxis(BigInteger XAxis) {
@@ -270,7 +270,7 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Transaction that = (Transaction) o;
-        return ZoneFrom == that.ZoneFrom && ZoneTo == that.ZoneTo && BlockNumber == that.BlockNumber && Double.compare(that.Amount, Amount) == 0 && Double.compare(that.AmountWithTransactionFee, AmountWithTransactionFee) == 0 && Nonce == that.Nonce && Objects.equal(Hash, that.Hash) && Type == that.Type && Status == that.Status && Objects.equal(timestamp, that.timestamp) && Objects.equal(From, that.From) && Objects.equal(To, that.To)  && Objects.equal(XAxis, that.XAxis) && Objects.equal(YAxis, that.YAxis) && Objects.equal(Signature, that.Signature);
+        return ZoneFrom == that.ZoneFrom && ZoneTo == that.ZoneTo && BlockNumber == that.BlockNumber && Double.compare(that.Amount, Amount) == 0 && Double.compare(that.AmountWithTransactionFee, AmountWithTransactionFee) == 0 && Nonce == that.Nonce && Objects.equal(Hash, that.Hash) && Type == that.Type && Status == that.Status && Objects.equal(timestamp, that.timestamp) && Objects.equal(From, that.From) && Objects.equal(To, that.To) && Objects.equal(XAxis, that.XAxis) && Objects.equal(YAxis, that.YAxis) && Objects.equal(Signature, that.Signature);
     }
 
     @Override

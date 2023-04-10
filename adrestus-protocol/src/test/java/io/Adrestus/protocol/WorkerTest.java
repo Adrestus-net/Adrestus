@@ -3,36 +3,28 @@ package io.Adrestus.protocol;
 import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.config.AdrestusConfiguration;
-import io.Adrestus.config.NetworkConfiguration;
-import io.Adrestus.core.CommitteeBlock;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.core.Resourses.MemoryTransactionPool;
-import io.Adrestus.core.TransactionBlock;
 import io.Adrestus.crypto.WalletAddress;
 import io.Adrestus.crypto.elliptic.ECKeyPair;
 import io.Adrestus.crypto.elliptic.Keys;
 import io.Adrestus.crypto.mnemonic.Mnemonic;
 import io.Adrestus.crypto.mnemonic.Security;
 import io.Adrestus.crypto.mnemonic.WordList;
-import io.Adrestus.network.CachedEventLoop;
-import io.Adrestus.network.IPFinder;
-import io.Adrestus.rpc.RpcAdrestusClient;
 import io.activej.eventloop.Eventloop;
 import io.distributedLedger.DatabaseInstance;
 import io.distributedLedger.PatriciaTreeInstance;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.security.SecureRandom;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class WorkerTest {
     private static Eventloop eventloop = Eventloop.create().withCurrentThread();
+
     @BeforeAll
     public static void setup() throws Exception {
         int version = 0x00;

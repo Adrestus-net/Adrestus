@@ -24,10 +24,10 @@ public class Secp256k1EventHandler extends TransactionEventHandler {
     public void onEvent(TransactionEvent transactionEvent, long l, boolean b) throws Exception {
         Transaction transaction = transactionEvent.getTransaction();
 
-        if(transaction.getXAxis().equals(new BigInteger("0"))||transaction.getYAxis().equals(new BigInteger("0")))
+        if (transaction.getXAxis().equals(new BigInteger("0")) || transaction.getYAxis().equals(new BigInteger("0")))
             return;
 
-        try{
+        try {
             ECPoint point = new ECPoint(transaction.getXAxis(), transaction.getYAxis());
 
             KeyFactory kfBc = KeyFactory.getInstance(AdrestusConfiguration.SIGN_ALGORITHM, AdrestusConfiguration.SIGN_PROVIDER);
@@ -36,7 +36,7 @@ public class Secp256k1EventHandler extends TransactionEventHandler {
             ECParameterSpec ecParamSpec = parameters.getParameterSpec(ECParameterSpec.class);
             PublicKey pubKey = kfBc.generatePublic(new ECPublicKeySpec(point, ecParamSpec));
             BCECPublicKey publicKeys = (BCECPublicKey) pubKey;
-        }catch (Exception e){
+        } catch (Exception e) {
             LOG.info("Transaction abort Secp256k1 curve is not valid with theese X,Y inputs");
             transaction.setStatus(StatusType.ABORT);
         }

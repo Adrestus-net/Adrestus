@@ -2,7 +2,6 @@ package io.Adrestus.crypto;
 
 import org.spongycastle.util.encoders.Hex;
 
-import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
@@ -19,19 +18,19 @@ public class JavascriptWalletAddress {
         // step 2: ripemd160 hash of (1)
         final byte[] ripemd160StepOneHash = HashUtil.ripemd160(sha256PublicKeyHash);
 
-        String re2= Hex.toHexString(ripemd160StepOneHash);
+        String re2 = Hex.toHexString(ripemd160StepOneHash);
         // step 3: add version byte in front of (2)
         final byte[] versionPrefixedRipemd160Hash = PrimitiveUtil.concat(String.valueOf(version).getBytes(StandardCharsets.UTF_8), ripemd160StepOneHash);
 
-        String re= Hex.toHexString(versionPrefixedRipemd160Hash);
+        String re = Hex.toHexString(versionPrefixedRipemd160Hash);
         // step 4: get the checksum of (3)
         final byte[] stepThreeChecksum = generateChecksum(versionPrefixedRipemd160Hash);
 
-        String re23= Hex.toHexString(stepThreeChecksum);
+        String re23 = Hex.toHexString(stepThreeChecksum);
         // step 5: concatenate (3) and (4)
         final byte[] concatStepThreeAndStepSix = PrimitiveUtil.concat(versionPrefixedRipemd160Hash, stepThreeChecksum);
 
-        String re234= Hex.toHexString(concatStepThreeAndStepSix);
+        String re234 = Hex.toHexString(concatStepThreeAndStepSix);
         // step 6: base32 encode (5)
         String encoded = Base32Encoder.getString(concatStepThreeAndStepSix);
         //step7 pretty_print encoded

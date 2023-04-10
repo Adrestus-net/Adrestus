@@ -118,7 +118,8 @@ public class AsyncService<T> {
             this.terminate();
             if (eventloop != null) {
                 eventloop.breakEventloop();
-                eventloop=null;;
+                eventloop = null;
+                ;
             }
             return value;
         };
@@ -174,7 +175,8 @@ public class AsyncService<T> {
             this.terminate();
             if (eventloop != null) {
                 eventloop.breakEventloop();
-                eventloop=null;;
+                eventloop = null;
+                ;
             }
             return value;
         };
@@ -192,10 +194,10 @@ public class AsyncService<T> {
         return Promise.complete();
     }
 
-    private void terminate(){
-        if(listToSend!=null)
+    private void terminate() {
+        if (listToSend != null)
             this.listToSend.clear();
-        if(this.list_ip!=null)
+        if (this.list_ip != null)
             this.list_ip.clear();
     }
 }

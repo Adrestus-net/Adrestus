@@ -39,13 +39,13 @@ public class AdrestusFactory implements IAdrestusFactory {
     }
 
     @Override
-    public AdrestusTask createBindServerKademliaTask(SecureRandom secureRandom,byte[] passphrase) {
-        return new BindServerKademliaTask(secureRandom,passphrase);
+    public AdrestusTask createBindServerKademliaTask(SecureRandom secureRandom, byte[] passphrase) {
+        return new BindServerKademliaTask(secureRandom, passphrase);
     }
 
     @Override
     public AdrestusTask createBindServerKademliaTask(ECKeyPair keypair, BLSPublicKey blsPublicKey) {
-        return new BindServerKademliaTask(keypair,blsPublicKey);
+        return new BindServerKademliaTask(keypair, blsPublicKey);
     }
 
     @Override

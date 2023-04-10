@@ -8,7 +8,6 @@ import io.Adrestus.config.KademliaConfiguration;
 import io.Adrestus.config.NodeSettings;
 import io.Adrestus.consensus.ConsensusState;
 import io.Adrestus.core.CommitteeBlock;
-import io.Adrestus.core.Resourses.CachedKademliaNodes;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedSecurityHeaders;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
@@ -25,15 +24,12 @@ import io.Adrestus.crypto.elliptic.ECKeyPair;
 import io.Adrestus.crypto.elliptic.Keys;
 import io.Adrestus.crypto.elliptic.mapper.StakingData;
 import io.Adrestus.crypto.mnemonic.Mnemonic;
-import io.Adrestus.crypto.mnemonic.MnemonicException;
 import io.Adrestus.crypto.mnemonic.Security;
 import io.Adrestus.crypto.mnemonic.WordList;
 import io.Adrestus.crypto.vdf.engine.VdfEngine;
 import io.Adrestus.crypto.vdf.engine.VdfEnginePietrzak;
 import io.Adrestus.p2p.kademlia.common.NettyConnectionInfo;
 import io.Adrestus.p2p.kademlia.exception.UnsupportedBoundingException;
-import io.Adrestus.p2p.kademlia.node.DHTBootstrapNode;
-import io.Adrestus.p2p.kademlia.node.DHTRegularNode;
 import io.Adrestus.p2p.kademlia.node.KeyHashGenerator;
 import io.Adrestus.p2p.kademlia.repository.KademliaData;
 import io.Adrestus.p2p.kademlia.util.BoundedHashUtil;
@@ -49,10 +45,6 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
 import java.util.List;
 import java.util.Map;
@@ -80,14 +72,15 @@ public class BootstrapConsensusTest {
     private static BLSPrivateKey sk6;
     private static BLSPublicKey vk6;
 
-    private static ECKeyPair ecKeyPair1, ecKeyPair2, ecKeyPair3, ecKeyPair4, ecKeyPair5,ecKeyPair6;
-    private static String address1, address2, address3, address4, address5,address6;
+    private static ECKeyPair ecKeyPair1, ecKeyPair2, ecKeyPair3, ecKeyPair4, ecKeyPair5, ecKeyPair6;
+    private static String address1, address2, address3, address4, address5, address6;
     private static ECDSASign ecdsaSign = new ECDSASign();
     private static VdfEngine vdf;
-    private static KademliaData kad1, kad2, kad3, kad4, kad5,kad6;
+    private static KademliaData kad1, kad2, kad3, kad4, kad5, kad6;
     private static KeyHashGenerator<BigInteger, String> keyHashGenerator;
     private static char[] passphrase;
-    private static byte[] key1, key2, key3,key4,key5,key6;
+    private static byte[] key1, key2, key3, key4, key5, key6;
+
     @BeforeAll
     public static void setup() throws Exception {
         delete_test();
@@ -254,76 +247,75 @@ public class BootstrapConsensusTest {
                 if (vk1.equals(entry.getKey())) {
                     CachedBLSKeyPair.getInstance().setPrivateKey(sk1);
                     CachedBLSKeyPair.getInstance().setPublicKey(vk1);
-                    tasks.add(factory.createBindServerKademliaTask(ecKeyPair1,vk1));
+                    tasks.add(factory.createBindServerKademliaTask(ecKeyPair1, vk1));
                 } else if (vk2.equals(entry.getKey())) {
                     CachedBLSKeyPair.getInstance().setPrivateKey(sk2);
                     CachedBLSKeyPair.getInstance().setPublicKey(vk2);
-                    tasks.add(factory.createBindServerKademliaTask(ecKeyPair2,vk2));
+                    tasks.add(factory.createBindServerKademliaTask(ecKeyPair2, vk2));
                 } else if (vk3.equals(entry.getKey())) {
                     CachedBLSKeyPair.getInstance().setPrivateKey(sk3);
                     CachedBLSKeyPair.getInstance().setPublicKey(vk3);
-                    tasks.add(factory.createBindServerKademliaTask(ecKeyPair3,vk3));
+                    tasks.add(factory.createBindServerKademliaTask(ecKeyPair3, vk3));
                 } else if (vk4.equals(entry.getKey())) {
                     CachedBLSKeyPair.getInstance().setPrivateKey(sk4);
                     CachedBLSKeyPair.getInstance().setPublicKey(vk4);
-                    tasks.add(factory.createBindServerKademliaTask(ecKeyPair4,vk4));
+                    tasks.add(factory.createBindServerKademliaTask(ecKeyPair4, vk4));
                 } else if (vk5.equals(entry.getKey())) {
                     CachedBLSKeyPair.getInstance().setPrivateKey(sk5);
                     CachedBLSKeyPair.getInstance().setPublicKey(vk5);
-                    tasks.add(factory.createBindServerKademliaTask(ecKeyPair5,vk5));
+                    tasks.add(factory.createBindServerKademliaTask(ecKeyPair5, vk5));
 
                 } else if (vk6.equals(entry.getKey())) {
                     CachedBLSKeyPair.getInstance().setPrivateKey(sk6);
                     CachedBLSKeyPair.getInstance().setPublicKey(vk6);
-                    tasks.add(factory.createBindServerKademliaTask(ecKeyPair6,vk6));
+                    tasks.add(factory.createBindServerKademliaTask(ecKeyPair6, vk6));
                 }
 
                 hit = 1;
                 break;
             }
         }
-            for (Map.Entry<BLSPublicKey, String> entry2 : CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).entrySet()) {
-                if (IP.equals(entry2.getValue())) {
-                    if (vk1.equals(entry2.getKey())) {
-                        CachedBLSKeyPair.getInstance().setPrivateKey(sk1);
-                        CachedBLSKeyPair.getInstance().setPublicKey(vk1);
-                        tasks.add(factory.createBindServerKademliaTask(ecKeyPair1,vk1));
-                    } else if (vk2.equals(entry2.getKey())) {
-                        CachedBLSKeyPair.getInstance().setPrivateKey(sk2);
-                        CachedBLSKeyPair.getInstance().setPublicKey(vk2);
-                        tasks.add(factory.createBindServerKademliaTask(ecKeyPair2,vk2));
-                    } else if (vk3.equals(entry2.getKey())) {
-                        CachedBLSKeyPair.getInstance().setPrivateKey(sk3);
-                        CachedBLSKeyPair.getInstance().setPublicKey(vk3);
-                        tasks.add(factory.createBindServerKademliaTask(ecKeyPair3,vk3));
-                    } else if (vk4.equals(entry2.getKey())) {
-                        CachedBLSKeyPair.getInstance().setPrivateKey(sk4);
-                        CachedBLSKeyPair.getInstance().setPublicKey(vk4);
-                        tasks.add(factory.createBindServerKademliaTask(ecKeyPair4,vk4));
-                    } else if (vk5.equals(entry2.getKey())) {
-                        CachedBLSKeyPair.getInstance().setPrivateKey(sk5);
-                        CachedBLSKeyPair.getInstance().setPublicKey(vk5);
-                        tasks.add(factory.createBindServerKademliaTask(ecKeyPair5,vk5));
+        for (Map.Entry<BLSPublicKey, String> entry2 : CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).entrySet()) {
+            if (IP.equals(entry2.getValue())) {
+                if (vk1.equals(entry2.getKey())) {
+                    CachedBLSKeyPair.getInstance().setPrivateKey(sk1);
+                    CachedBLSKeyPair.getInstance().setPublicKey(vk1);
+                    tasks.add(factory.createBindServerKademliaTask(ecKeyPair1, vk1));
+                } else if (vk2.equals(entry2.getKey())) {
+                    CachedBLSKeyPair.getInstance().setPrivateKey(sk2);
+                    CachedBLSKeyPair.getInstance().setPublicKey(vk2);
+                    tasks.add(factory.createBindServerKademliaTask(ecKeyPair2, vk2));
+                } else if (vk3.equals(entry2.getKey())) {
+                    CachedBLSKeyPair.getInstance().setPrivateKey(sk3);
+                    CachedBLSKeyPair.getInstance().setPublicKey(vk3);
+                    tasks.add(factory.createBindServerKademliaTask(ecKeyPair3, vk3));
+                } else if (vk4.equals(entry2.getKey())) {
+                    CachedBLSKeyPair.getInstance().setPrivateKey(sk4);
+                    CachedBLSKeyPair.getInstance().setPublicKey(vk4);
+                    tasks.add(factory.createBindServerKademliaTask(ecKeyPair4, vk4));
+                } else if (vk5.equals(entry2.getKey())) {
+                    CachedBLSKeyPair.getInstance().setPrivateKey(sk5);
+                    CachedBLSKeyPair.getInstance().setPublicKey(vk5);
+                    tasks.add(factory.createBindServerKademliaTask(ecKeyPair5, vk5));
 
-                    } else if (vk6.equals(entry2.getKey())) {
-                        CachedBLSKeyPair.getInstance().setPrivateKey(sk6);
-                        CachedBLSKeyPair.getInstance().setPublicKey(vk6);
-                        tasks.add(factory.createBindServerKademliaTask(ecKeyPair6,vk6));
-                    }
-
-                    hit = 1;
-                    break;
+                } else if (vk6.equals(entry2.getKey())) {
+                    CachedBLSKeyPair.getInstance().setPrivateKey(sk6);
+                    CachedBLSKeyPair.getInstance().setPublicKey(vk6);
+                    tasks.add(factory.createBindServerKademliaTask(ecKeyPair6, vk6));
                 }
+
+                hit = 1;
+                break;
             }
+        }
         if (hit == 0)
             return;
-
 
 
         ExecutorService executor = Executors.newFixedThreadPool(tasks.size());
         tasks.stream().map(Worker::new).forEach(executor::execute);
 
-        if(CachedBLSKeyPair.getInstance().getPublicKey().equals(vk1))
+        if (CachedBLSKeyPair.getInstance().getPublicKey().equals(vk1))
             Thread.sleep(14000);
 
         CountDownLatch latch = new CountDownLatch(20);

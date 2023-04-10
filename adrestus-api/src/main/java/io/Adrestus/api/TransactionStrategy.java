@@ -49,7 +49,7 @@ public class TransactionStrategy implements IStrategy {
         this.executorService = Executors.newFixedThreadPool(AdrestusConfiguration.CORES);
         this.list_ip = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).values().stream().collect(Collectors.toList());
         this.eventloop = Eventloop.create().withCurrentThread();
-        this.transaction_encode = new SerializationUtil<Transaction>(Transaction.class,list);
+        this.transaction_encode = new SerializationUtil<Transaction>(Transaction.class, list);
     }
 
     public TransactionStrategy(List<Transaction> transaction_list) {
@@ -62,7 +62,7 @@ public class TransactionStrategy implements IStrategy {
         this.available = new Semaphore[list_ip.size()];
         this.Setup();
         this.eventloop = Eventloop.create().withCurrentThread();
-        this.transaction_encode = new SerializationUtil<Transaction>(Transaction.class,list);
+        this.transaction_encode = new SerializationUtil<Transaction>(Transaction.class, list);
     }
 
 

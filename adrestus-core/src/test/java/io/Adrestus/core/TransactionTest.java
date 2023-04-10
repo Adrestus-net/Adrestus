@@ -55,7 +55,7 @@ public class TransactionTest {
 
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
-        SerializationUtil<Transaction> ser = new SerializationUtil<Transaction>(Transaction.class,list);
+        SerializationUtil<Transaction> ser = new SerializationUtil<Transaction>(Transaction.class, list);
         Transaction transaction = new RegularTransaction();
         transaction.setAmount(100);
         transaction.setHash("Hash");
@@ -72,7 +72,7 @@ public class TransactionTest {
     public void StakingTransaction_test() {
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
-        SerializationUtil<Transaction> serenc = new SerializationUtil<Transaction>(Transaction.class,list);
+        SerializationUtil<Transaction> serenc = new SerializationUtil<Transaction>(Transaction.class, list);
         Transaction stakingTransaction = new StakingTransaction();
         stakingTransaction.setAmount(100);
         stakingTransaction.setType(TransactionType.STAKING);
@@ -87,7 +87,7 @@ public class TransactionTest {
     public void RewardTransaction_test() {
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
-        SerializationUtil<Transaction> serenc = new SerializationUtil<Transaction>(Transaction.class,list);
+        SerializationUtil<Transaction> serenc = new SerializationUtil<Transaction>(Transaction.class, list);
         RewardsTransaction rewardsTransaction = new RewardsTransaction("Del");
         rewardsTransaction.setAmount(100);
         rewardsTransaction.setType(TransactionType.REWARDS);
@@ -102,7 +102,7 @@ public class TransactionTest {
     public void DelegateTransaction_test() {
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
-        SerializationUtil<Transaction> serenc = new SerializationUtil<Transaction>(Transaction.class,list);
+        SerializationUtil<Transaction> serenc = new SerializationUtil<Transaction>(Transaction.class, list);
         //byte[] buffer = new byte[200];
         // BinarySerializer<DelegateTransaction> serenc = SerializerBuilder.create().build(DelegateTransaction.class);
         Transaction delegateTransaction = new DelegateTransaction();
@@ -148,7 +148,7 @@ public class TransactionTest {
 
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
-        SerializationUtil<Transaction> serenc = new SerializationUtil<Transaction>(Transaction.class,list);
+        SerializationUtil<Transaction> serenc = new SerializationUtil<Transaction>(Transaction.class, list);
 
         ArrayList<String> addreses = new ArrayList<>();
         ArrayList<ECKeyPair> keypair = new ArrayList<>();

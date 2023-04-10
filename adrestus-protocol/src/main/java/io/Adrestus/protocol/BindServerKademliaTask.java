@@ -6,7 +6,6 @@ import io.Adrestus.config.NodeSettings;
 import io.Adrestus.core.BlockIndex;
 import io.Adrestus.core.IBlockIndex;
 import io.Adrestus.core.Resourses.CachedKademliaNodes;
-import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.SecurityAuditProofs;
@@ -65,7 +64,7 @@ public class BindServerKademliaTask extends AdrestusTask {
 
     public BindServerKademliaTask() {
         this.ip = IPFinder.getLocalIP();
-        this.blockIndex=new BlockIndex();
+        this.blockIndex = new BlockIndex();
         this.bootstrapNettyConnectionInfo = new NettyConnectionInfo(KademliaConfiguration.BOOTSTRAP_NODE_IP, KademliaConfiguration.BootstrapNodePORT);
         this.nettyConnectionInfo = new NettyConnectionInfo(this.ip, KademliaConfiguration.PORT);
         this.keyHashGenerator = key -> {
@@ -81,13 +80,13 @@ public class BindServerKademliaTask extends AdrestusTask {
                     BigInteger.valueOf(0),
                     keyHashGenerator);
         else
-            this.dhtRegularNode=new DHTRegularNode(this.nettyConnectionInfo, BigInteger.valueOf(this.blockIndex.getIndexFromIP(CachedZoneIndex.getInstance().getZoneIndex(), ip)), keyHashGenerator);
+            this.dhtRegularNode = new DHTRegularNode(this.nettyConnectionInfo, BigInteger.valueOf(this.blockIndex.getIndexFromIP(CachedZoneIndex.getInstance().getZoneIndex(), ip)), keyHashGenerator);
         this.InitKademliaData();
     }
 
-    public BindServerKademliaTask(SecureRandom secureRandom,byte[] passphrase) {
+    public BindServerKademliaTask(SecureRandom secureRandom, byte[] passphrase) {
         this.ip = IPFinder.getLocalIP();
-        this.blockIndex=new BlockIndex();
+        this.blockIndex = new BlockIndex();
         this.bootstrapNettyConnectionInfo = new NettyConnectionInfo(KademliaConfiguration.BOOTSTRAP_NODE_IP, KademliaConfiguration.BootstrapNodePORT);
         this.nettyConnectionInfo = new NettyConnectionInfo(this.ip, KademliaConfiguration.PORT);
         this.keyHashGenerator = key -> {
@@ -103,13 +102,13 @@ public class BindServerKademliaTask extends AdrestusTask {
                     BigInteger.valueOf(0),
                     keyHashGenerator);
         else
-            this.dhtRegularNode=new DHTRegularNode(this.nettyConnectionInfo, BigInteger.valueOf(this.blockIndex.getIndexFromIP(CachedZoneIndex.getInstance().getZoneIndex(), ip)), keyHashGenerator);
-        this.InitKademliaData(secureRandom,passphrase);
+            this.dhtRegularNode = new DHTRegularNode(this.nettyConnectionInfo, BigInteger.valueOf(this.blockIndex.getIndexFromIP(CachedZoneIndex.getInstance().getZoneIndex(), ip)), keyHashGenerator);
+        this.InitKademliaData(secureRandom, passphrase);
     }
 
-    public BindServerKademliaTask(ECKeyPair keypair,BLSPublicKey blsPublicKey) {
+    public BindServerKademliaTask(ECKeyPair keypair, BLSPublicKey blsPublicKey) {
         this.ip = IPFinder.getLocalIP();
-        this.blockIndex=new BlockIndex();
+        this.blockIndex = new BlockIndex();
         this.bootstrapNettyConnectionInfo = new NettyConnectionInfo(KademliaConfiguration.BOOTSTRAP_NODE_IP, KademliaConfiguration.BootstrapNodePORT);
         this.nettyConnectionInfo = new NettyConnectionInfo(this.ip, KademliaConfiguration.PORT);
         this.keyHashGenerator = key -> {
@@ -125,10 +124,9 @@ public class BindServerKademliaTask extends AdrestusTask {
                     BigInteger.valueOf(0),
                     keyHashGenerator);
         else
-            this.dhtRegularNode=new DHTRegularNode(this.nettyConnectionInfo, BigInteger.valueOf(this.blockIndex.getIndexFromIP(CachedZoneIndex.getInstance().getZoneIndex(), ip)), keyHashGenerator);
-        this.InitKademliaData(keypair,blsPublicKey);
+            this.dhtRegularNode = new DHTRegularNode(this.nettyConnectionInfo, BigInteger.valueOf(this.blockIndex.getIndexFromIP(CachedZoneIndex.getInstance().getZoneIndex(), ip)), keyHashGenerator);
+        this.InitKademliaData(keypair, blsPublicKey);
     }
-
 
 
     @SneakyThrows
@@ -153,7 +151,7 @@ public class BindServerKademliaTask extends AdrestusTask {
     }
 
     @SneakyThrows
-    public void InitKademliaData(SecureRandom secureRandom,byte[] passphrase) {
+    public void InitKademliaData(SecureRandom secureRandom, byte[] passphrase) {
         final ECDSASign ecdsaSign = new ECDSASign();
         final ECKeyPair ecKeyPair = Keys.createEcKeyPair(secureRandom);
         final String address = WalletAddress.generate_address((byte) version, ecKeyPair.getPublicKey());
@@ -169,7 +167,7 @@ public class BindServerKademliaTask extends AdrestusTask {
         CachedBLSKeyPair.getInstance().setPublicKey(vk);
     }
 
-    public void InitKademliaData(ECKeyPair ecKeyPair,BLSPublicKey blsPublicKey){
+    public void InitKademliaData(ECKeyPair ecKeyPair, BLSPublicKey blsPublicKey) {
         final ECDSASign ecdsaSign = new ECDSASign();
         final String address = WalletAddress.generate_address((byte) version, ecKeyPair.getPublicKey());
         final ECDSASignatureData signatureData = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address)), ecKeyPair);
@@ -178,6 +176,7 @@ public class BindServerKademliaTask extends AdrestusTask {
         else
             this.kademliaData = new KademliaData(new SecurityAuditProofs(address, blsPublicKey, ecKeyPair.getPublicKey(), signatureData), nettyConnectionInfo);
     }
+
     @Override
     public void execute() {
         this.dhtBootstrapNode = new DHTBootstrapNode(

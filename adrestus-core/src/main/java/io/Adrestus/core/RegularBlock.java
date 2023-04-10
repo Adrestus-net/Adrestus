@@ -467,6 +467,10 @@ public class RegularBlock implements BlockForge, BlockInvent {
         CachedLeaderIndex.getInstance().setCommitteePositionLeader(0);
         CachedZoneIndex.getInstance().setZoneIndexInternalIP();
 
+        if (prevZone == CachedZoneIndex.getInstance().getZoneIndex()) {
+            CachedReceiptSemaphore.getInstance().getSemaphore().release();
+            return;
+        }
         //sync blocks from zone of previous validators for both transaction and patricia tree blocks
         List<String> ips = prevblock.getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).values().stream().collect(Collectors.toList());
         int RPCTransactionZonePort = ZoneDatabaseFactory.getDatabaseRPCPort(CachedZoneIndex.getInstance().getZoneIndex());
@@ -495,7 +499,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
                 do {
                     blocks = client.getBlocksList(String.valueOf(block.get().getHeight()));
                     if (!blocks.isEmpty()) {
-                        counterloops = EpochTransitionFinder.countloops(block.get().getHeight(),blocks.get(blocks.size() - 1).getHeight());
+                        counterloops = EpochTransitionFinder.countloops(block.get().getHeight(), blocks.get(blocks.size() - 1).getHeight());
                     }
                 } while (counterloops != 0);
                 if (!blocks.isEmpty()) {

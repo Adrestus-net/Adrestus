@@ -151,7 +151,7 @@ public class RpcAdrestusClient<T> {
         try {
             this.client.startFuture().get(TIMEOUT, TimeUnit.MILLISECONDS);
         } catch (Exception e) {
-            LOG.info("Connection could not be established"+e.toString());
+            LOG.info("Connection could not be established" + e.toString());
             throw new IllegalArgumentException("Connection could not be established");
         }
     }
@@ -228,7 +228,7 @@ public class RpcAdrestusClient<T> {
     public void close() {
         try {
             client.stopFuture().get(TIMEOUT, TimeUnit.MILLISECONDS);
-            client=null;
+            client = null;
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (ExecutionException e) {
@@ -264,7 +264,7 @@ public class RpcAdrestusClient<T> {
             ///LOG.info("Download: ..... " + response.getAbstractBlock().toString());
             return response;
         } catch (Exception e) {
-            LOG.info("getBlockListResponse: "+e.toString());
+            LOG.info("getBlockListResponse: " + e.toString());
         }
         return new ListBlockResponse(null);
     }
@@ -278,7 +278,7 @@ public class RpcAdrestusClient<T> {
             ///LOG.info("Download: ..... " + response.getAbstractBlock().toString());
             return response;
         } catch (Exception e) {
-            LOG.info("getPatriciaTreeListResponse: "+e.toString());
+            LOG.info("getPatriciaTreeListResponse: " + e.toString());
         }
         return new PatriciaTreeResponse(null);
     }

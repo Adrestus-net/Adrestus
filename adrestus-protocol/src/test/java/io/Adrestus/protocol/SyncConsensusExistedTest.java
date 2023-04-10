@@ -61,6 +61,7 @@ public class SyncConsensusExistedTest {
 
     private static byte[] key2;
     private static char[] passphrase;
+
     @BeforeAll
     public static void setup() throws MnemonicException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException {
         delete_test();
@@ -83,14 +84,13 @@ public class SyncConsensusExistedTest {
     }
 
 
-
     @Test
     public void test() throws IOException, InterruptedException {
         Socket socket = new Socket();
         socket.connect(new InetSocketAddress("google.com", 80));
         String IP = socket.getLocalAddress().getHostAddress();
 
-        if(!IP.equals("192.168.1.113"))
+        if (!IP.equals("192.168.1.113"))
             return;
 
         keyHashGenerator = key -> {
@@ -117,10 +117,9 @@ public class SyncConsensusExistedTest {
         CachedKademliaNodes.getInstance().setDhtRegularNode(nextnode);
 
 
-
         IAdrestusFactory factory = new AdrestusFactory();
         List<AdrestusTask> tasks = new java.util.ArrayList<>(List.of(
-                factory.createBindServerKademliaTask(new SecureRandom(key2),new String(passphrase).getBytes(StandardCharsets.UTF_8)),
+                factory.createBindServerKademliaTask(new SecureRandom(key2), new String(passphrase).getBytes(StandardCharsets.UTF_8)),
                 factory.createBindServerTransactionTask(),
                 factory.createBindServerReceiptTask(),
                 factory.createSendReceiptTask(),
@@ -133,7 +132,7 @@ public class SyncConsensusExistedTest {
         tasks.stream().map(Worker::new).forEach(executor::execute);
 
 
-        var blocksync=new BlockSync();
+        var blocksync = new BlockSync();
         blocksync.WaitPatientlyYourPosition();
 
         CountDownLatch latch = new CountDownLatch(20);

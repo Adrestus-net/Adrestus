@@ -28,7 +28,7 @@ public class BindServerTransactionTask extends AdrestusTask {
         super();
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
-        this.serenc = new SerializationUtil<Transaction>(Transaction.class,list);
+        this.serenc = new SerializationUtil<Transaction>(Transaction.class, list);
         this.publisher = new TransactionEventPublisher(2048);
         this.callBackReceive();
         this.setup();

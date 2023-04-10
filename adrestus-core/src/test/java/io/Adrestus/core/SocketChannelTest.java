@@ -28,12 +28,13 @@ public class SocketChannelTest {
     private static SerializationUtil<Transaction> trans;
 
     @BeforeAll
-    public static void setup(){
+    public static void setup() {
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
-        trans = new SerializationUtil<Transaction>(Transaction.class,list);
-        recep = new SerializationUtil<Receipt>(Receipt.class,list);
+        trans = new SerializationUtil<Transaction>(Transaction.class, list);
+        recep = new SerializationUtil<Receipt>(Receipt.class, list);
     }
+
     @Test
     public void receipt_test() throws Exception {
         TCPTransactionConsumer<byte[]> print = x -> {

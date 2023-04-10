@@ -82,7 +82,8 @@ public class CachedDataChannelTest {
         try {
             CachedNetworkData networkData = serialize.decode(ex.getResult());
             assertEquals(cachedNetworkData, networkData);
-        }catch (NoSuchElementException e){}
+        } catch (NoSuchElementException e) {
+        }
     }
 
 }

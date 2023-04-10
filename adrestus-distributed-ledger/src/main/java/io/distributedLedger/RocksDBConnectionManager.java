@@ -516,7 +516,7 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
             LOGGER.error("Serialization exception occurred during findByKey operation. {}", exception.getMessage());
         } catch (ArrayIndexOutOfBoundsException exception) {
             return Optional.empty();
-        }  finally {
+        } finally {
             r.unlock();
         }
         return Optional.empty();

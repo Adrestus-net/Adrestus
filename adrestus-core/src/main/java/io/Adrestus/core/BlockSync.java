@@ -20,7 +20,6 @@ import io.Adrestus.network.AsyncServiceNetworkData;
 import io.Adrestus.network.CachedEventLoop;
 import io.Adrestus.rpc.RpcAdrestusClient;
 import io.Adrestus.util.SerializationUtil;
-import io.activej.eventloop.Eventloop;
 import io.distributedLedger.*;
 import lombok.SneakyThrows;
 import org.slf4j.Logger;
@@ -42,7 +41,6 @@ public class BlockSync implements IBlockSync {
     private final SerializationUtil patricia_tree_wrapper;
 
 
-
     public BlockSync() {
         Type fluentType = new TypeToken<MemoryTreePool>() {
         }.getType();
@@ -55,8 +53,8 @@ public class BlockSync implements IBlockSync {
         list2.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
         serialize_cached = new SerializationUtil<CachedNetworkData>(CachedNetworkData.class, list2);
         this.patricia_tree_wrapper = new SerializationUtil<>(fluentType, list);
-        this.transaction_encode = new SerializationUtil<Transaction>(Transaction.class,list2);
-        this.receipt_encode = new SerializationUtil<Receipt>(Receipt.class,list2);
+        this.transaction_encode = new SerializationUtil<Transaction>(Transaction.class, list2);
+        this.receipt_encode = new SerializationUtil<Receipt>(Receipt.class, list2);
     }
 
     @Override
@@ -71,7 +69,7 @@ public class BlockSync implements IBlockSync {
             List<CommitteeBlock> blocks;
             if (last_block.isPresent()) {
                 blocks = client.getBlocksList(String.valueOf(last_block.get().getHeight()));
-                if (!blocks.isEmpty() && blocks.size()>1) {
+                if (!blocks.isEmpty() && blocks.size() > 1) {
                     blocks.stream().skip(1).forEach(val -> toSave.put(String.valueOf(val.getHeight()), val));
                 }
 
@@ -223,8 +221,10 @@ public class BlockSync implements IBlockSync {
 
             commitee_blocks = client.getBlocksList(String.valueOf(CachedLatestBlocks.getInstance().getCommitteeBlock().getHeight()));
 
-            if (client != null)
+            if (client != null) {
                 client.close();
+                client = null;
+            }
 
             Thread.sleep(1000);
         } while (commitee_blocks.size() <= 1);
@@ -279,8 +279,10 @@ public class BlockSync implements IBlockSync {
                 CachedLatestBlocks.getInstance().setTransactionBlock(blocks.get(blocks.size() - 1));
                 CachedLeaderIndex.getInstance().setTransactionPositionLeader(0);
             }
-            if (client != null)
+            if (client != null) {
                 client.close();
+                client = null;
+            }
         } catch (IllegalArgumentException e) {
         }
 
@@ -324,8 +326,10 @@ public class BlockSync implements IBlockSync {
                 TreeFactory.setMemoryTree((MemoryTreePool) patricia_tree_wrapper.decode(treeObjects.get(treeObjects.size() - 1)), CachedZoneIndex.getInstance().getZoneIndex());
             }
 
-            if (client != null)
+            if (client != null) {
                 client.close();
+                client = null;
+            }
         } catch (IllegalArgumentException e) {
         }
 

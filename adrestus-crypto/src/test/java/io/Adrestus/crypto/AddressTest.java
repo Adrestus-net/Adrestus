@@ -34,47 +34,47 @@ public class AddressTest {
 
 
     @Test
-    public void get_addrees(){
+    public void get_addrees() {
         String mnemonic1 = "sample sail jungle learn general promote task puppy own conduct green affair";
         String passphrase = "p4ssphr4se";
-        String address=WalletAddressExport.getAddressFromMnemonic(mnemonic1,passphrase);
+        String address = WalletAddressExport.getAddressFromMnemonic(mnemonic1, passphrase);
         assertEquals("ADR-ABAZ-ZEZO-MKGN-MQKJ-N3IF-P7QT-3MJX-ZFSM-RHOW-DZ7J", address);
     }
 
     @Test
-    public void Javascript_addrees(){
-        String key="04104afaf5a596a835d6d2039059a6a864af698a1611b6667b6bbaa68887af6f362b20bbac2b35be4bdd72bb6c2bd6b9e9820ab6e3ec9288c72471f7a9c4b69a65";
-        String address=JavascriptWalletAddress.generate_address((byte) version,key);
-        assertEquals(address,"ADR-GBQW-FKOL-XRJH-2YZ7-UN5S-SGAG-AJJH-4U2Z-TBLY-OOV2");
+    public void Javascript_addrees() {
+        String key = "04104afaf5a596a835d6d2039059a6a864af698a1611b6667b6bbaa68887af6f362b20bbac2b35be4bdd72bb6c2bd6b9e9820ab6e3ec9288c72471f7a9c4b69a65";
+        String address = JavascriptWalletAddress.generate_address((byte) version, key);
+        assertEquals(address, "ADR-GBQW-FKOL-XRJH-2YZ7-UN5S-SGAG-AJJH-4U2Z-TBLY-OOV2");
     }
 
     @Test
-    public void Javascript_addrees2(){
-        String key="04a359cbf789702dd4d6da661e90c0c1c3bc13bb3a7588b9c5c093cf2c9f65678f3afe11d2fb05dbed6553f63a6bb5d9b66c1a52abb7daade24a31fd870922d253";
-        String address=JavascriptWalletAddress.generate_address((byte) version,key);
-        assertEquals(address,"ADR-GDQJ-JJTL-4IWX-4CUH-J73M-IRJP-BA44-UFXC-BNGK-HB6B");
+    public void Javascript_addrees2() {
+        String key = "04a359cbf789702dd4d6da661e90c0c1c3bc13bb3a7588b9c5c093cf2c9f65678f3afe11d2fb05dbed6553f63a6bb5d9b66c1a52abb7daade24a31fd870922d253";
+        String address = JavascriptWalletAddress.generate_address((byte) version, key);
+        assertEquals(address, "ADR-GDQJ-JJTL-4IWX-4CUH-J73M-IRJP-BA44-UFXC-BNGK-HB6B");
     }
 
     @Test
-    public void Javascript_addrees3(){
-        String key="a359cbf789702dd4d6da661e90c0c1c3bc13bb3a7588b9c5c093cf2c9f65678f3afe11d2fb05dbed6553f63a6bb5d9b66c1a52abb7daade24a31fd870922d253";
-        String address=JavascriptWalletAddress.generate_address((byte) version,key);
-        assertEquals(address,"ADR-GBEA-WPCJ-GTUZ-ZWCN-5N4K-EXJR-PPFK-JL2Z-I4QQ-UI3D");
+    public void Javascript_addrees3() {
+        String key = "a359cbf789702dd4d6da661e90c0c1c3bc13bb3a7588b9c5c093cf2c9f65678f3afe11d2fb05dbed6553f63a6bb5d9b66c1a52abb7daade24a31fd870922d253";
+        String address = JavascriptWalletAddress.generate_address((byte) version, key);
+        assertEquals(address, "ADR-GBEA-WPCJ-GTUZ-ZWCN-5N4K-EXJR-PPFK-JL2Z-I4QQ-UI3D");
     }
 
     @Test
-    public void Javascript_addrees4(){
+    public void Javascript_addrees4() {
         BigInteger x = new BigInteger("73885651435926854515264701221164520142160681037984229233067136520784684869519");
         BigInteger y = new BigInteger("26683047389995651185679566240952828910936171073908714048119596426948530852435");
 
         ECDSASign ecdsaSign = new ECDSASign();
 
-        BigInteger publicKeyValue=ecdsaSign.recoverPublicKeyValue(x,y);
+        BigInteger publicKeyValue = ecdsaSign.recoverPublicKeyValue(x, y);
 
-        BigInteger key=new BigInteger("8555373944426081830687847710964792997898504290743993476397732812360676876989206845269434932820242747100413174295708316494603962024254570854147060142363219");
-        String address=JavascriptWalletAddress.generate_address((byte) version,key.toString());
-        assertEquals(address,"ADR-GBXZ-Z5UR-3UVR-6XUE-NP4N-VDVA-BE3S-TLOL-GEYS-VLBJ");
-        assertEquals(publicKeyValue.toString(),"8555373944426081830687847710964792997898504290743993476397732812360676876989206845269434932820242747100413174295708316494603962024254570854147060142363219");
+        BigInteger key = new BigInteger("8555373944426081830687847710964792997898504290743993476397732812360676876989206845269434932820242747100413174295708316494603962024254570854147060142363219");
+        String address = JavascriptWalletAddress.generate_address((byte) version, key.toString());
+        assertEquals(address, "ADR-GBXZ-Z5UR-3UVR-6XUE-NP4N-VDVA-BE3S-TLOL-GEYS-VLBJ");
+        assertEquals(publicKeyValue.toString(), "8555373944426081830687847710964792997898504290743993476397732812360676876989206845269434932820242747100413174295708316494603962024254570854147060142363219");
     }
 
 }

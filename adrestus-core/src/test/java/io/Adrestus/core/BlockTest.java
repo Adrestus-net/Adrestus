@@ -210,7 +210,7 @@ public class BlockTest {
     public void transaction_block() {
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
-        SerializationUtil<TransactionBlock> encode = new SerializationUtil<TransactionBlock>(TransactionBlock.class,list);
+        SerializationUtil<TransactionBlock> encode = new SerializationUtil<TransactionBlock>(TransactionBlock.class, list);
         //byte[] buffer = new byte[200];
         // BinarySerializer<DelegateTransaction> serenc = SerializerBuilder.create().build(DelegateTransaction.class);
         TransactionBlock block = new TransactionBlock();
@@ -257,7 +257,7 @@ public class BlockTest {
 
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
-        SerializationUtil<Transaction> serenc = new SerializationUtil<Transaction>(Transaction.class,list);
+        SerializationUtil<Transaction> serenc = new SerializationUtil<Transaction>(Transaction.class, list);
 
         ArrayList<String> addreses = new ArrayList<>();
         ArrayList<ECKeyPair> keypair = new ArrayList<>();
