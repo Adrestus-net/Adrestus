@@ -50,7 +50,7 @@ public class CachedEventLoop {
     public void start(){
         RpcServer.create(eventloop)
                 .withMessageTypes(String.class)
-                .withListenAddress(new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 8080)).listen();
+                .withListenAddress(new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 6100)).listen();
         new Thread(eventloop).start();
     }
 

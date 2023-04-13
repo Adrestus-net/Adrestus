@@ -35,7 +35,9 @@ public class BlockIndex implements IBlockIndex {
         int count = 0;
         for (Map.Entry<BLSPublicKey, String> entry : CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(zone).entrySet()) {
             if (entry.getValue().equals(ip)) {
-                return count;
+                StringBuilder stringBuilder=new StringBuilder();
+                stringBuilder.append(zone).append(count);
+                return Integer.valueOf(stringBuilder.toString());
             }
             count++;
         }

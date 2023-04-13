@@ -335,30 +335,34 @@ public class BlockSync implements IBlockSync {
 
         //find transactions that is not for this zone and sent them to the correct zone
         List<Transaction> transactionList = MemoryTransactionPool.getInstance().getListByZone(prevZone);
-        List<byte[]> toSend = new ArrayList<>();
-        transactionList.stream().forEach(transaction -> toSend.add(transaction_encode.encode(transaction, 1024)));
-        List<String> iptoSend = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(prevZone).values().stream().collect(Collectors.toList());
+        if(!transactionList.isEmpty()) {
+            List<byte[]> toSend = new ArrayList<>();
+            transactionList.stream().forEach(transaction -> toSend.add(transaction_encode.encode(transaction, 1024)));
+            List<String> iptoSend = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(prevZone).values().stream().collect(Collectors.toList());
 
-        if (!toSend.isEmpty()) {
-            var executor = new AsyncService<Long>(iptoSend, toSend, SocketConfigOptions.TRANSACTION_PORT);
+            if (!toSend.isEmpty()) {
+                var executor = new AsyncService<Long>(iptoSend, toSend, SocketConfigOptions.TRANSACTION_PORT);
 
-            var asyncResult = executor.startListProcess(300L);
-            var result = executor.endProcess(asyncResult);
-            MemoryTransactionPool.getInstance().delete(transactionList);
+                var asyncResult = executor.startListProcess(300L);
+                var result = executor.endProcess(asyncResult);
+                MemoryTransactionPool.getInstance().delete(transactionList);
+            }
         }
 
         //find receipts that is not for this zone and sent them to the correct zone
         List<Receipt> receiptList = MemoryReceiptPool.getInstance().getListByZone(prevZone);
-        List<byte[]> toSendReceipt = new ArrayList<>();
-        receiptList.stream().forEach(receipt -> toSendReceipt.add(receipt_encode.encode(receipt, 1024)));
-        List<String> ReceiptIPWorkers = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(prevZone).values().stream().collect(Collectors.toList());
+        if(!receiptList.isEmpty()) {
+            List<byte[]> toSendReceipt = new ArrayList<>();
+            receiptList.stream().forEach(receipt -> toSendReceipt.add(receipt_encode.encode(receipt, 1024)));
+            List<String> ReceiptIPWorkers = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(prevZone).values().stream().collect(Collectors.toList());
 
-        if (!toSendReceipt.isEmpty()) {
-            var executor = new AsyncService<Long>(ReceiptIPWorkers, toSendReceipt, SocketConfigOptions.RECEIPT_PORT);
+            if (!toSendReceipt.isEmpty()) {
+                var executor = new AsyncService<Long>(ReceiptIPWorkers, toSendReceipt, SocketConfigOptions.RECEIPT_PORT);
 
-            var asyncResult = executor.startListProcess(300L);
-            var result = executor.endProcess(asyncResult);
-            MemoryReceiptPool.getInstance().delete(receiptList);
+                var asyncResult = executor.startListProcess(300L);
+                var result = executor.endProcess(asyncResult);
+                MemoryReceiptPool.getInstance().delete(receiptList);
+            }
         }
     }
 

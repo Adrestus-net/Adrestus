@@ -38,7 +38,6 @@ public class RPCWorkerTest {
     public void test() throws IOException, InterruptedException {
         DatabaseInstance instance=DatabaseInstance.ZONE_2_TRANSACTION_BLOCK;
         IDatabase<String, TransactionBlock> database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, instance);
-
         IAdrestusFactory factory = new AdrestusFactory();
         List<AdrestusTask> tasks = new java.util.ArrayList<>(List.of(
                 //factory.createBindServerKademliaTask(),
@@ -54,13 +53,12 @@ public class RPCWorkerTest {
 
         //RpcAdrestusServer<AbstractBlock> example = new RpcAdrestusServer<AbstractBlock>(new TransactionBlock(), instance, IPFinder.getLocalIP(), ZoneDatabaseFactory.getDatabaseRPCPort(instance), eventloop);
         //new Thread(example).start();
-
         TransactionBlock transactionBlock = new TransactionBlock();
         transactionBlock.setHeight(1);
         transactionBlock.setHash("1");
         transactionBlock.setLeaderPublicKey(new BLSPublicKey());
 
-        //database.save(transactionBlock.getHash(), transactionBlock);
+       // database.save(transactionBlock.getHash(), transactionBlock);
 
 
         Thread.sleep(500);

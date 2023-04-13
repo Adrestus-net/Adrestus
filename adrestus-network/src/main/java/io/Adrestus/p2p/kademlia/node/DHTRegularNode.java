@@ -281,10 +281,7 @@ public class DHTRegularNode {
                             ChannelFuture f = b.connect(value.getNettyConnectionInfo().getHost(), value.getNettyConnectionInfo().getPort()).sync(); // (5)
                             f.channel().close();
                         } catch (Exception e) {
-                            regular_node.getKademliaRepository().getList().forEach(x -> System.out.print(x));
-                            System.out.println();
                             regular_node.getKademliaRepository().remove(id);
-                            regular_node.getKademliaRepository().getList().forEach(x -> System.out.print(x));
                         } finally {
                             workerGroup.shutdownGracefully();
                         }

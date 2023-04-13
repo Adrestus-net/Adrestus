@@ -16,7 +16,8 @@ public class KademliaConfiguration {
     public static final BigInteger BootstrapNodeID = new BigInteger("15949");
     public static int STORE_DELAY = 4 * 1000;
 
-    public static int KADEMLIA_ROUTING_TABLE_DELAY = (EPOCH_TRANSITION - 5) * 2000;
+    //public static int KADEMLIA_ROUTING_TABLE_DELAY = (EPOCH_TRANSITION - 5) * 2000;
+    public static int KADEMLIA_ROUTING_TABLE_DELAY = 2 * 2000;
     public static final int KADEMLIA_GET_TIMEOUT = 5;
 
     public static int IDENTIFIER_SIZE = 4;
