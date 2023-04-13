@@ -30,7 +30,7 @@ public class RpcAdrestusServer<T> implements Runnable {
     private final SerializerBuilder rpcserialize;
     private final Eventloop eventloop;
     private final T typeParameterClass;
-    private final SerializationUtil valueMapper;
+    private final SerializationUtil<T> valueMapper;
     private final SerializationUtil<T> valueMapper2;
     private InetSocketAddress inetSocketAddress;
     private String host;
@@ -56,7 +56,7 @@ public class RpcAdrestusServer<T> implements Runnable {
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
         list.add(new SerializationUtil.Mapping(MemoryTreePool.class, ctx -> new MemoryTreePoolSerializer()));
-        this.valueMapper = new SerializationUtil(typeParameterClass.getClass(), list, true);
+        this.valueMapper = new SerializationUtil<T>(typeParameterClass.getClass(), list, true);
         this.valueMapper2 = new SerializationUtil<T>(typeParameterClass.getClass(), list, true);
     }
 
@@ -71,7 +71,7 @@ public class RpcAdrestusServer<T> implements Runnable {
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
         list.add(new SerializationUtil.Mapping(MemoryTreePool.class, ctx -> new MemoryTreePoolSerializer()));
-        this.valueMapper = new SerializationUtil(typeParameterClass.getClass(), list, true);
+        this.valueMapper = new SerializationUtil<T>(typeParameterClass.getClass(), list, true);
         this.valueMapper2 = new SerializationUtil<T>(typeParameterClass.getClass(), list, true);
     }
 
@@ -87,7 +87,7 @@ public class RpcAdrestusServer<T> implements Runnable {
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
         list.add(new SerializationUtil.Mapping(MemoryTreePool.class, ctx -> new MemoryTreePoolSerializer()));
-        this.valueMapper = new SerializationUtil(typeParameterClass.getClass(), list, true);
+        this.valueMapper = new SerializationUtil<T>(typeParameterClass.getClass(), list, true);
         this.valueMapper2 = new SerializationUtil<T>(typeParameterClass.getClass(), list, true);
     }
 
@@ -103,7 +103,7 @@ public class RpcAdrestusServer<T> implements Runnable {
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
         list.add(new SerializationUtil.Mapping(MemoryTreePool.class, ctx -> new MemoryTreePoolSerializer()));
-        this.valueMapper = new SerializationUtil(typeParameterClass.getClass(), list, true);
+        this.valueMapper = new SerializationUtil<T>(typeParameterClass.getClass(), list, true);
         this.valueMapper2 = new SerializationUtil<T>(typeParameterClass.getClass(), list, true);
     }
 
@@ -120,7 +120,7 @@ public class RpcAdrestusServer<T> implements Runnable {
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
         list.add(new SerializationUtil.Mapping(MemoryTreePool.class, ctx -> new MemoryTreePoolSerializer()));
-        this.valueMapper = new SerializationUtil(typeParameterClass.getClass(), list, true);
+        this.valueMapper = new SerializationUtil<T>(typeParameterClass.getClass(), list, true);
         this.valueMapper2 = new SerializationUtil<T>(typeParameterClass.getClass(), list, true);
     }
 
@@ -137,7 +137,7 @@ public class RpcAdrestusServer<T> implements Runnable {
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
         list.add(new SerializationUtil.Mapping(MemoryTreePool.class, ctx -> new MemoryTreePoolSerializer()));
-        this.valueMapper = new SerializationUtil(typeParameterClass.getClass(), list, true);
+        this.valueMapper = new SerializationUtil<T>(typeParameterClass.getClass(), list, true);
         this.valueMapper2 = new SerializationUtil<T>(typeParameterClass.getClass(), list, true);
     }
 
@@ -176,12 +176,14 @@ public class RpcAdrestusServer<T> implements Runnable {
     private RpcRequestHandler<BlockRequest, ListBlockResponse> download_blocks(IService<T> service) {
         return request -> {
             List<T> result;
+            ListBlockResponse response;
             try {
                 result = service.download(request.hash);
+                response=new ListBlockResponse(this.valueMapper.encode_list(result));
             } catch (Exception e) {
                 return Promise.ofException(e);
             }
-            return Promise.of(new ListBlockResponse(this.valueMapper.encode_list(result)));
+            return Promise.of(response);
         };
     }
 
@@ -204,13 +206,14 @@ public class RpcAdrestusServer<T> implements Runnable {
             List<T> result;
             try {
                 result = service.migrateBlock(request.getHash());
+                if (result.isEmpty())
+                    return Promise.of(new BlockResponse(null));
+                else
+                    return Promise.of(new BlockResponse(this.valueMapper2.encode_list(result)));
             } catch (Exception e) {
                 return Promise.ofException(e);
             }
-            if (result.isEmpty())
-                return Promise.of(new BlockResponse(null));
-            else
-                return Promise.of(new BlockResponse(this.valueMapper2.encode_list(result)));
+
         };
     }
 

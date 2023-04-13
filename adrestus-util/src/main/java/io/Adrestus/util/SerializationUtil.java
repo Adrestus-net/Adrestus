@@ -163,9 +163,13 @@ public class SerializationUtil<T> {
     public byte[] encode_list(List<T> value) {
         int buff_size = search((int) (ObjectSizeCalculator.getObjectSize(value)));
         buffer = new byte[buff_size];
+        if(list_serializer==null){
+            int g=4;
+        }
         list_serializer.encode(buffer, 0, value);
         return buffer;
     }
+
 
     public synchronized byte[] encode(T value, int size) {
         buffer = new byte[size];

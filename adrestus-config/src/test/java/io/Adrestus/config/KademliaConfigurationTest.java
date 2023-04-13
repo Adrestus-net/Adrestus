@@ -15,7 +15,7 @@ public class KademliaConfigurationTest {
         assertEquals("04082909431bc6c2adc38d791d132828e1ee3a034bc60b2d37944005b1175b1e9b4c7783eeb1b53b330bce60e18ae85a33145db8cae9d7df6297bec8b0ac5f355f87bed6e55b40962a9ecfa69464aeb36c8265ebb3385214cb5a5961598cb7b365", KademliaConfiguration.BLSPublicKeyHex);
         assertEquals("127.0.0.1", KademliaConfiguration.LOCAL_NODE_IP);
         assertEquals(8080, KademliaConfiguration.BootstrapNodePORT);
-        assertEquals(new BigInteger("15949"), KademliaConfiguration.BootstrapNodeID);
+        assertEquals(new BigInteger("000"), KademliaConfiguration.BootstrapNodeID);
         assertEquals(4 * 1000, KademliaConfiguration.STORE_DELAY);
         assertEquals(5, KademliaConfiguration.KADEMLIA_GET_TIMEOUT);
 

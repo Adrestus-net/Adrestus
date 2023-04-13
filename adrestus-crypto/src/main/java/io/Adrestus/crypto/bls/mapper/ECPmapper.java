@@ -4,14 +4,33 @@ import io.Adrestus.crypto.bls.BLS381.BIG;
 import io.Adrestus.crypto.bls.BLS381.ECP;
 import io.activej.codegen.expression.Expression;
 import io.activej.codegen.expression.Variable;
-import io.activej.serializer.AbstractSerializerDef;
-import io.activej.serializer.CompatibilityLevel;
-import io.activej.serializer.SerializerDef;
+import io.activej.serializer.*;
 
 import static io.activej.codegen.expression.Expressions.*;
 import static io.activej.serializer.impl.SerializerExpressions.*;
 
-public class ECPmapper extends AbstractSerializerDef {
+public class ECPmapper extends SimpleSerializerDef<ECP>{
+    @Override
+    protected BinarySerializer<ECP> createSerializer(int version, CompatibilityLevel compatibilityLevel) {
+        return new BinarySerializer<ECP>() {
+            @Override
+            public void encode(BinaryOutput out, ECP item) {
+                byte[] bytes = new byte[BIG.MODBYTES + 1];
+                item.toBytes(bytes, true);
+                out.write(bytes);
+            }
+
+            @Override
+            public ECP decode(BinaryInput in) throws CorruptedDataException {
+                byte[] bytes = new byte[BIG.MODBYTES + 1];
+                in.read(bytes);
+                return ECP.fromBytes(bytes);
+            }
+        };
+    }
+}
+
+/*public class ECPmapper extends AbstractSerializerDef {
     private static final int ARRAY_LEN = 2 * (BIG.MODBYTES + 1);
     private static final Expression ARRAY_EXPRESSION = value(new byte[ARRAY_LEN]);
     private static final Expression BOOLEAN_EXPRESSION = value(false);
@@ -42,4 +61,4 @@ public class ECPmapper extends AbstractSerializerDef {
         return let(arrayNew(byte[].class, readVarInt(in)), array ->
                 sequence(readBytes(in, array), staticCall(ECP.class, "fromBytes", array)));
     }
-}
+}*/

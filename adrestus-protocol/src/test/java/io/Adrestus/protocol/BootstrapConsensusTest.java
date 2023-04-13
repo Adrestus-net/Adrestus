@@ -91,6 +91,7 @@ public class BootstrapConsensusTest {
         LoggerKademlia.setLevelOFF();
         int port = 1080;
         KademliaConfiguration.IDENTIFIER_SIZE = 3;
+        ConsensusConfiguration.EPOCH_TRANSITION=1;
         NodeSettings.getInstance();
         keyHashGenerator = key -> {
             try {
