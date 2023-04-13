@@ -232,10 +232,7 @@ public class DHTBootstrapNode {
                             ChannelFuture f = b.connect(value.getNettyConnectionInfo().getHost(), value.getNettyConnectionInfo().getPort()).sync(); // (5)
                             f.channel().close();
                         } catch (Exception e) {
-                            bootStrapNode.getKademliaRepository().getList().forEach(x -> System.out.print(x));
-                            System.out.println();
                             bootStrapNode.getKademliaRepository().remove(id);
-                            bootStrapNode.getKademliaRepository().getList().forEach(x -> System.out.print(x));
                         } finally {
                             workerGroup.shutdownGracefully();
                         }

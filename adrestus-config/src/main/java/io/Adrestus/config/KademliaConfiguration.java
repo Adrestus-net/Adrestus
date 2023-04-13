@@ -13,11 +13,11 @@ public class KademliaConfiguration {
     public static final String LOCAL_NODE_IP = "127.0.0.1";
     public static final String BOOTSTRAP_NODE_IP = "192.168.1.106";
     public static final int BootstrapNodePORT = 8080;
-    public static final BigInteger BootstrapNodeID = new BigInteger("15949");
+    public static final BigInteger BootstrapNodeID = new BigInteger("000");
     public static int STORE_DELAY = 4 * 1000;
 
-    //public static int KADEMLIA_ROUTING_TABLE_DELAY = (EPOCH_TRANSITION - 5) * 2000;
-    public static int KADEMLIA_ROUTING_TABLE_DELAY = 2 * 2000;
+    public static int KADEMLIA_ROUTING_TABLE_DELAY = (EPOCH_TRANSITION - 5) * 2000;
+    //public static int KADEMLIA_ROUTING_TABLE_DELAY = 1 * 2000;
     public static final int KADEMLIA_GET_TIMEOUT = 5;
 
     public static int IDENTIFIER_SIZE = 4;

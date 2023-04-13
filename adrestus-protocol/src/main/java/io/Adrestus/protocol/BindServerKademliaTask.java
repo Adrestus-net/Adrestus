@@ -74,13 +74,12 @@ public class BindServerKademliaTask extends AdrestusTask {
                 throw new IllegalArgumentException("Key hash generator not valid");
             }
         };
-        if (ip.equals(KademliaConfiguration.BOOTSTRAP_NODE_IP))
-            this.dhtBootstrapNode = new DHTBootstrapNode(
+        this.dhtBootstrapNode = new DHTBootstrapNode(
                     this.bootstrapNettyConnectionInfo,
-                    BigInteger.valueOf(0),
+                    KademliaConfiguration.BootstrapNodeID,
                     keyHashGenerator);
-        else
-            this.dhtRegularNode = new DHTRegularNode(this.nettyConnectionInfo, BigInteger.valueOf(this.blockIndex.getIndexFromIP(CachedZoneIndex.getInstance().getZoneIndex(), ip)), keyHashGenerator);
+
+        this.dhtRegularNode = new DHTRegularNode(this.nettyConnectionInfo, BigInteger.valueOf(this.blockIndex.getIndexFromIP(CachedZoneIndex.getInstance().getZoneIndex(), ip)), keyHashGenerator);
         this.InitKademliaData();
     }
 
@@ -96,12 +95,10 @@ public class BindServerKademliaTask extends AdrestusTask {
                 throw new IllegalArgumentException("Key hash generator not valid");
             }
         };
-        if (ip.equals(KademliaConfiguration.BOOTSTRAP_NODE_IP))
-            this.dhtBootstrapNode = new DHTBootstrapNode(
+        this.dhtBootstrapNode = new DHTBootstrapNode(
                     this.bootstrapNettyConnectionInfo,
-                    BigInteger.valueOf(0),
+                    KademliaConfiguration.BootstrapNodeID,
                     keyHashGenerator);
-        else
             this.dhtRegularNode = new DHTRegularNode(this.nettyConnectionInfo, BigInteger.valueOf(this.blockIndex.getIndexFromIP(CachedZoneIndex.getInstance().getZoneIndex(), ip)), keyHashGenerator);
         this.InitKademliaData(secureRandom, passphrase);
     }
@@ -118,13 +115,11 @@ public class BindServerKademliaTask extends AdrestusTask {
                 throw new IllegalArgumentException("Key hash generator not valid");
             }
         };
-        if (ip.equals(KademliaConfiguration.BOOTSTRAP_NODE_IP))
-            this.dhtBootstrapNode = new DHTBootstrapNode(
+        this.dhtBootstrapNode = new DHTBootstrapNode(
                     this.bootstrapNettyConnectionInfo,
-                    BigInteger.valueOf(0),
+                    KademliaConfiguration.BootstrapNodeID,
                     keyHashGenerator);
-        else
-            this.dhtRegularNode = new DHTRegularNode(this.nettyConnectionInfo, BigInteger.valueOf(this.blockIndex.getIndexFromIP(CachedZoneIndex.getInstance().getZoneIndex(), ip)), keyHashGenerator);
+        this.dhtRegularNode = new DHTRegularNode(this.nettyConnectionInfo, BigInteger.valueOf(this.blockIndex.getIndexFromIP(CachedZoneIndex.getInstance().getZoneIndex(), ip)), keyHashGenerator);
         this.InitKademliaData(keypair, blsPublicKey);
     }
 
@@ -179,10 +174,6 @@ public class BindServerKademliaTask extends AdrestusTask {
 
     @Override
     public void execute() {
-        this.dhtBootstrapNode = new DHTBootstrapNode(
-                bootstrapNettyConnectionInfo,
-                MathOperationUtil.nextRandomBigInteger(),
-                keyHashGenerator);
         if (this.ip.equals(KademliaConfiguration.BOOTSTRAP_NODE_IP)) {
             dhtBootstrapNode.setKademliaData(kademliaData);
             dhtBootstrapNode.start();

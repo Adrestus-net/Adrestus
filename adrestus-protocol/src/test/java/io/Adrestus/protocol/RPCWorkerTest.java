@@ -74,6 +74,15 @@ public class RPCWorkerTest {
 
         List<AbstractBlock>blocks = client.getBlocksList("1");
         assertEquals(1,blocks.size());
+
+        client.close();
+        client=null;
+
+        RpcAdrestusClient client2 = new RpcAdrestusClient(new TransactionBlock(), list, CachedEventLoop.getInstance().getEventloop());
+        client2.connect();
+
+        List<AbstractBlock>blocks2 = client2.getBlocksList("1");
+        assertEquals(1,blocks2.size());
        // database.delete_db();
     }
 }

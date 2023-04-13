@@ -159,8 +159,7 @@ public class RpcAdrestusClient<T> {
         try {
             this.client.startFuture().get(TIMEOUT, TimeUnit.MILLISECONDS);
         } catch (Exception e) {
-            LOG.info("Connection could not be established" + e.toString());
-            throw new IllegalArgumentException("Connection could not be established");
+            throw new IllegalArgumentException("Connection could not be established "+e.toString());
         }
     }
 
@@ -238,11 +237,8 @@ public class RpcAdrestusClient<T> {
             client.stopFuture().get(TIMEOUT, TimeUnit.MILLISECONDS);
             client = null;
         } catch (InterruptedException e) {
-            e.printStackTrace();
         } catch (ExecutionException e) {
-            e.printStackTrace();
         } catch (TimeoutException e) {
-            e.printStackTrace();
         }
     }
 
@@ -263,16 +259,18 @@ public class RpcAdrestusClient<T> {
         return Optional.empty();
     }
 
+    //IF DOWNLOAD NOT PRINT PROBABLY EXCEPTION CAUGHT ADD LOG.INFO
     private ListBlockResponse getBlockListResponse(RpcClient rpcClient, String hash) {
         try {
             ListBlockResponse response = rpcClient.getEventloop().submit(
                             () -> rpcClient
                                     .<BlockRequest, ListBlockResponse>sendRequest(new BlockRequest(hash), TIMEOUT))
                     .get(TIMEOUT, TimeUnit.MILLISECONDS);
-            ///LOG.info("Download: ..... " + response.getAbstractBlock().toString());
+            LOG.info("Download: ..... " + response.toString());
             return response;
-        } catch (Exception e) {
-            LOG.info("getBlockListResponse: " + e.toString());
+        } catch (ExecutionException e) {
+        } catch (InterruptedException e) {
+        } catch (TimeoutException e) {
         }
         return new ListBlockResponse(null);
     }
@@ -283,10 +281,11 @@ public class RpcAdrestusClient<T> {
                             () -> rpcClient
                                     .<PatriciaTreeRequest, PatriciaTreeResponse>sendRequest(new PatriciaTreeRequest(hash), TIMEOUT))
                     .get(TIMEOUT, TimeUnit.MILLISECONDS);
-            ///LOG.info("Download: ..... " + response.getAbstractBlock().toString());
+            LOG.info("Download: ..... " + response.toString());
             return response;
-        } catch (Exception e) {
-            LOG.info("getPatriciaTreeListResponse: " + e.toString());
+        } catch (ExecutionException e) {
+        } catch (InterruptedException e) {
+        } catch (TimeoutException e) {
         }
         return new PatriciaTreeResponse(null);
     }

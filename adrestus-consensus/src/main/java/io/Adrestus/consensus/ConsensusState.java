@@ -233,6 +233,9 @@ public class ConsensusState extends ConsensusDataState {
                         committee_block_timer.scheduleAtFixedRate(new CommitteeBlockConsensusTask(committee_state), ConsensusConfiguration.CONSENSUS_COMMITTEE_TIMER, ConsensusConfiguration.CONSENSUS_COMMITTEE_TIMER);
                     } else {
                         blockSync.SyncState();
+                        state.onEnterState(blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedLeaderIndex.getInstance().getTransactionPositionLeader()));
+                        transaction_block_timer = new Timer(ConsensusConfiguration.CONSENSUS);
+                        transaction_block_timer.scheduleAtFixedRate(new TransactionBlockConsensusTask(state), ConsensusConfiguration.CHANGE_VIEW_TIMER, ConsensusConfiguration.CHANGE_VIEW_TIMER);
                     }
                 } else {
                     boolean result = state.onActiveState();
