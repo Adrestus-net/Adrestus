@@ -216,6 +216,8 @@ public class BootstrapConsensusTest {
         CachedSecurityHeaders.getInstance().getSecurityHeader().setRnd(vdf.solve(CachedSecurityHeaders.getInstance().getSecurityHeader().getPRnd(), CachedLatestBlocks.getInstance().getCommitteeBlock().getDifficulty()));
 
         CachedZoneIndex.getInstance().setZoneIndexInternalIP();
+        IDatabase<String, TransactionBlock> block_database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
+        block_database.save(String.valueOf(CachedLatestBlocks.getInstance().getTransactionBlock().getHeight()),CachedLatestBlocks.getInstance().getTransactionBlock());
     }
 
 
@@ -236,7 +238,6 @@ public class BootstrapConsensusTest {
                 factory.createRepositoryPatriciaTreeTask(PatriciaTreeInstance.PATRICIA_TREE_INSTANCE_2),
                 factory.createRepositoryPatriciaTreeTask(PatriciaTreeInstance.PATRICIA_TREE_INSTANCE_3),
                 factory.createRepositoryCommitteeTask()));
-        CachedEventLoop.getInstance().start();
 
         Socket socket = new Socket();
         socket.connect(new InetSocketAddress("google.com", 80));
@@ -315,6 +316,8 @@ public class BootstrapConsensusTest {
 
         ExecutorService executor = Executors.newFixedThreadPool(tasks.size());
         tasks.stream().map(Worker::new).forEach(executor::execute);
+
+        CachedEventLoop.getInstance().start();
 
         if (CachedBLSKeyPair.getInstance().getPublicKey().equals(vk1))
             Thread.sleep(14000);

@@ -36,12 +36,12 @@ public class RPCWorkerTest {
     private static Eventloop eventloop = Eventloop.create().withCurrentThread();
     @Test
     public void test() throws IOException, InterruptedException {
-        DatabaseInstance instance=DatabaseInstance.ZONE_2_TRANSACTION_BLOCK;
+        DatabaseInstance instance=DatabaseInstance.ZONE_0_TRANSACTION_BLOCK;
         IDatabase<String, TransactionBlock> database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, instance);
         IAdrestusFactory factory = new AdrestusFactory();
         List<AdrestusTask> tasks = new java.util.ArrayList<>(List.of(
                 //factory.createBindServerKademliaTask(),
-                factory.createRepositoryTransactionTask(DatabaseInstance.ZONE_2_TRANSACTION_BLOCK)));
+                factory.createRepositoryTransactionTask(DatabaseInstance.ZONE_0_TRANSACTION_BLOCK)));
         ExecutorService executor = Executors.newFixedThreadPool(tasks.size());
         tasks.stream().map(Worker::new).forEach(executor::execute);
 
@@ -58,10 +58,9 @@ public class RPCWorkerTest {
         transactionBlock.setHash("1");
         transactionBlock.setLeaderPublicKey(new BLSPublicKey());
 
-       // database.save(transactionBlock.getHash(), transactionBlock);
+        database.save(transactionBlock.getHash(), transactionBlock);
 
 
-        Thread.sleep(500);
         Optional<TransactionBlock> empty = database.findByKey("1");
         ArrayList<InetSocketAddress> list = new ArrayList<>();
         InetSocketAddress address1 = new InetSocketAddress(InetAddress.getByName(IPFinder.getLocalIP()), ZoneDatabaseFactory.getDatabaseRPCPort(instance));
@@ -83,6 +82,6 @@ public class RPCWorkerTest {
 
         List<AbstractBlock>blocks2 = client2.getBlocksList("1");
         assertEquals(1,blocks2.size());
-       // database.delete_db();
+        database.delete_db();
     }
 }
