@@ -17,10 +17,6 @@ public class CachedEventLoop {
             throw new IllegalStateException("Already initialized.");
         }
         eventloop = Eventloop.create().withCurrentThread();
-        RpcServer.create(eventloop)
-                .withMessageTypes(String.class)
-                .withListenAddress(new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 8084)).listen();
-        new Thread(eventloop).start();
     }
 
     /**
@@ -28,7 +24,7 @@ public class CachedEventLoop {
      *
      * @return an instance of the class.
      */
-    public static CachedEventLoop getInstance() {
+    public static synchronized CachedEventLoop getInstance() {
         var result = instance;
         if (result == null) {
             synchronized (CachedEventLoop.class) {
@@ -42,12 +38,20 @@ public class CachedEventLoop {
     }
 
 
-    public Eventloop getEventloop() {
+    public synchronized Eventloop getEventloop() {
         return eventloop;
     }
 
     public void setEventloop(Eventloop eventloop) {
         CachedEventLoop.eventloop = eventloop;
+    }
+
+    @SneakyThrows
+    public void start(){
+        RpcServer.create(eventloop)
+                .withMessageTypes(String.class)
+                .withListenAddress(new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 8080)).listen();
+        new Thread(eventloop).start();
     }
 
 }

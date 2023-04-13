@@ -3,6 +3,7 @@ package io.Adrestus.rpc;
 import io.distributedLedger.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -35,6 +36,7 @@ public class Service<T> implements IService<T> {
             map = database.seekFromStart();
         else
             map = database.findBetweenRange(hash);
+
         List<T> result = new ArrayList<T>(map.values());
         return result;
     }

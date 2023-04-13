@@ -28,6 +28,7 @@ import io.Adrestus.crypto.mnemonic.Security;
 import io.Adrestus.crypto.mnemonic.WordList;
 import io.Adrestus.crypto.vdf.engine.VdfEngine;
 import io.Adrestus.crypto.vdf.engine.VdfEnginePietrzak;
+import io.Adrestus.network.CachedEventLoop;
 import io.Adrestus.p2p.kademlia.common.NettyConnectionInfo;
 import io.Adrestus.p2p.kademlia.exception.UnsupportedBoundingException;
 import io.Adrestus.p2p.kademlia.node.KeyHashGenerator;
@@ -235,7 +236,7 @@ public class BootstrapConsensusTest {
                 factory.createRepositoryPatriciaTreeTask(PatriciaTreeInstance.PATRICIA_TREE_INSTANCE_2),
                 factory.createRepositoryPatriciaTreeTask(PatriciaTreeInstance.PATRICIA_TREE_INSTANCE_3),
                 factory.createRepositoryCommitteeTask()));
-
+        CachedEventLoop.getInstance().start();
 
         Socket socket = new Socket();
         socket.connect(new InetSocketAddress("google.com", 80));

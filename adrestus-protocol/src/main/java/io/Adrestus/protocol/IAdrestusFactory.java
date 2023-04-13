@@ -2,6 +2,7 @@ package io.Adrestus.protocol;
 
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.Adrestus.crypto.elliptic.ECKeyPair;
+import io.activej.eventloop.Eventloop;
 import io.distributedLedger.DatabaseInstance;
 import io.distributedLedger.PatriciaTreeInstance;
 
@@ -16,7 +17,6 @@ public interface IAdrestusFactory {
     AdrestusTask createSendReceiptTask();
 
     AdrestusTask createRepositoryTransactionTask(DatabaseInstance databaseInstance);
-
     AdrestusTask createRepositoryCommitteeTask();
 
     AdrestusTask createRepositoryPatriciaTreeTask(PatriciaTreeInstance patriciaTreeInstance);

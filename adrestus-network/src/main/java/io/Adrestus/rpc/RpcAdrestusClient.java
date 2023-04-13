@@ -22,6 +22,7 @@ import org.spongycastle.util.encoders.Hex;
 
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
+import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -134,18 +135,25 @@ public class RpcAdrestusClient<T> {
             client = RpcClient.create(eventloop)
                     .withSerializerBuilder(this.rpc_serialize)
                     .withMessageTypes(BlockRequest.class, ListBlockResponse.class, BlockRequest2.class, BlockResponse.class, PatriciaTreeRequest.class, PatriciaTreeResponse.class)
-                    .withStrategy(RpcStrategyRoundRobin.create(rpcStrategyList));
+                    .withStrategy(RpcStrategyRoundRobin.create(rpcStrategyList))
+                    .withKeepAlive(Duration.ofMillis(TIMEOUT))
+                    .withConnectTimeout(Duration.ofMillis(TIMEOUT));
         } else {
             if (inetSocketAddress != null) {
                 client = RpcClient.create(eventloop)
                         .withSerializerBuilder(this.rpc_serialize)
                         .withMessageTypes(BlockRequest.class, ListBlockResponse.class, BlockRequest2.class, BlockResponse.class, PatriciaTreeRequest.class, PatriciaTreeResponse.class)
-                        .withStrategy(server(inetSocketAddress));
+                        .withKeepAlive(Duration.ofMillis(TIMEOUT))
+                        .withStrategy(server(inetSocketAddress))
+                        .withConnectTimeout(Duration.ofMillis(TIMEOUT));
             } else {
                 client = RpcClient.create(eventloop)
                         .withSerializerBuilder(this.rpc_serialize)
                         .withMessageTypes(BlockRequest.class, ListBlockResponse.class, BlockRequest2.class, BlockResponse.class, PatriciaTreeRequest.class, PatriciaTreeResponse.class)
-                        .withStrategy(server(new InetSocketAddress(host, port)));
+                        .withStrategy(server(new InetSocketAddress(host, port)))
+                        .withKeepAlive(Duration.ofMillis(TIMEOUT))
+                        .withConnectTimeout(Duration.ofMillis(TIMEOUT));
+
             }
         }
         try {

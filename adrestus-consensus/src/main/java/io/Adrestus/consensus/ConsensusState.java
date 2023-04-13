@@ -245,6 +245,7 @@ public class ConsensusState extends ConsensusDataState {
                             changeStateTo(new ConsensusTransactionBlockState());
                             state.onEnterState(null);
                         }
+                        CachedEpochGeneration.getInstance().setEpoch_counter(CachedEpochGeneration.getInstance().getEpoch_counter() + 1);
                         transaction_block_timer = new Timer(ConsensusConfiguration.CONSENSUS);
                         transaction_block_timer.scheduleAtFixedRate(new TransactionBlockConsensusTask(state), ConsensusConfiguration.CONSENSUS_TIMER, ConsensusConfiguration.CONSENSUS_TIMER);
                     } else {
@@ -263,7 +264,6 @@ public class ConsensusState extends ConsensusDataState {
                 }
             } finally {
                 w.unlock();
-                CachedEpochGeneration.getInstance().setEpoch_counter(CachedEpochGeneration.getInstance().getEpoch_counter() + 1);
             }
         }
 

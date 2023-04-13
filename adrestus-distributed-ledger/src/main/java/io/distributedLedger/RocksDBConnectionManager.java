@@ -434,8 +434,11 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
                 hashmap.put(keyMapper.decode(serializedKey), valueMapper.decode(serializedValue));
                 iterator.next();
             } while (iterator.isValid());
-        } catch (final SerializationException exception) {
-            LOGGER.error("Serialization exception occurred during findByKey operation. {}", exception.getMessage());
+        } catch (NullPointerException exception){
+            LOGGER.error("NullPointerException exception occurred during findBetweenRange operation. {}", exception.getMessage());
+        }
+        catch (final SerializationException exception) {
+            LOGGER.error("Serialization exception occurred during findBetweenRange operation. {}", exception.getMessage());
         } finally {
             r.unlock();
         }
@@ -497,6 +500,7 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
         } catch (final SerializationException exception) {
             LOGGER.error("Serialization exception occurred during findByKey operation. {}", exception.getMessage());
         } catch (ArrayIndexOutOfBoundsException exception) {
+            LOGGER.error("ArrayIndexOutOfBoundsException exception occurred during seekLast operation. {}", exception.getMessage());
             return Optional.empty();
         } finally {
             r.unlock();
@@ -515,6 +519,7 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
         } catch (final SerializationException exception) {
             LOGGER.error("Serialization exception occurred during findByKey operation. {}", exception.getMessage());
         } catch (ArrayIndexOutOfBoundsException exception) {
+            LOGGER.error("ArrayIndexOutOfBoundsException exception occurred during seekFirst operation. {}", exception.getMessage());
             return Optional.empty();
         } finally {
             r.unlock();
