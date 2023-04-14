@@ -2,15 +2,28 @@ package io.Adrestus.crypto.bls.mapper;
 
 import io.Adrestus.crypto.bls.BLS381.BIG;
 import io.Adrestus.crypto.bls.BLS381.ECP2;
-import io.activej.codegen.expression.Expression;
-import io.activej.codegen.expression.Variable;
-import io.activej.serializer.AbstractSerializerDef;
-import io.activej.serializer.CompatibilityLevel;
+import io.activej.serializer.*;
 
-import static io.activej.codegen.expression.Expressions.*;
-import static io.activej.serializer.impl.SerializerExpressions.*;
+public class ECP2mapper extends SimpleSerializerDef<ECP2> {
+    protected BinarySerializer<ECP2> createSerializer(int version, CompatibilityLevel compatibilityLevel) {
+        return new BinarySerializer<ECP2>() {
+            @Override
+            public void encode(BinaryOutput out, ECP2 item) {
+                byte[] bytes = new byte[BIG.MODBYTES + 1];
+                item.toBytes(bytes);
+                out.write(bytes);
+            }
 
-public class ECP2mapper extends AbstractSerializerDef {
+            @Override
+            public ECP2 decode(BinaryInput in) throws CorruptedDataException {
+                byte[] bytes = new byte[BIG.MODBYTES + 1];
+                in.read(bytes);
+                return ECP2.fromBytes(bytes);
+            }
+        };
+    }
+}
+/*public class ECP2mapper extends AbstractSerializerDef {
     private static final int ARRAY_LEN = 4 * (BIG.MODBYTES + 1);
     private static final Expression ARRAY_EXPRESSION = value(new byte[ARRAY_LEN]);
 
@@ -40,4 +53,4 @@ public class ECP2mapper extends AbstractSerializerDef {
         return let(arrayNew(byte[].class, readVarInt(in)), array ->
                 sequence(readBytes(in, array), staticCall(ECP2.class, "fromBytes", array)));
     }
-}
+}*/

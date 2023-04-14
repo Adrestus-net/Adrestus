@@ -2,14 +2,9 @@ package io.Adrestus.crypto.bls.mapper;
 
 import io.Adrestus.crypto.bls.BLS381.BIG;
 import io.Adrestus.crypto.bls.BLS381.ECP;
-import io.activej.codegen.expression.Expression;
-import io.activej.codegen.expression.Variable;
 import io.activej.serializer.*;
 
-import static io.activej.codegen.expression.Expressions.*;
-import static io.activej.serializer.impl.SerializerExpressions.*;
-
-public class ECPmapper extends SimpleSerializerDef<ECP>{
+public class ECPmapper extends SimpleSerializerDef<ECP> {
     @Override
     protected BinarySerializer<ECP> createSerializer(int version, CompatibilityLevel compatibilityLevel) {
         return new BinarySerializer<ECP>() {

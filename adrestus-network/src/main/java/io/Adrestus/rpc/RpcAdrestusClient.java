@@ -269,8 +269,11 @@ public class RpcAdrestusClient<T> {
             LOG.info("Download: ..... " + response.toString());
             return response;
         } catch (ExecutionException e) {
+            e.printStackTrace();
         } catch (InterruptedException e) {
+            e.printStackTrace();
         } catch (TimeoutException e) {
+            e.printStackTrace();
         }
         return new ListBlockResponse(null);
     }
