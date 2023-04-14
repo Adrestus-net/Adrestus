@@ -5,19 +5,21 @@ import io.Adrestus.crypto.bls.BLS381.ECP;
 import io.activej.serializer.*;
 
 public class ECPmapper extends SimpleSerializerDef<ECP> {
+    private static final int ARRAY_LEN = 2 * (BIG.MODBYTES + 1);
+    private static final boolean BOOLEAN_EXPRESSION = false;
     @Override
     protected BinarySerializer<ECP> createSerializer(int version, CompatibilityLevel compatibilityLevel) {
         return new BinarySerializer<ECP>() {
             @Override
             public void encode(BinaryOutput out, ECP item) {
-                byte[] bytes = new byte[BIG.MODBYTES + 1];
-                item.toBytes(bytes, true);
+                byte[] bytes = new byte[ARRAY_LEN];
+                item.toBytes(bytes, BOOLEAN_EXPRESSION);
                 out.write(bytes);
             }
 
             @Override
             public ECP decode(BinaryInput in) throws CorruptedDataException {
-                byte[] bytes = new byte[BIG.MODBYTES + 1];
+                byte[] bytes = new byte[ARRAY_LEN];
                 in.read(bytes);
                 return ECP.fromBytes(bytes);
             }

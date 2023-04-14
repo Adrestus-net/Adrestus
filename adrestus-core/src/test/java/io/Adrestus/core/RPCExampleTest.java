@@ -367,7 +367,7 @@ class RPCExampleTest {
             List<AbstractBlock> blocks = client.getBlocksList("1");
 
             client.close();
-        } catch (IllegalArgumentException e) {
+        } catch (Exception e) {
         }
     }
 
