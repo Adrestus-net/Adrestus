@@ -266,7 +266,7 @@ public class RpcAdrestusClient<T> {
                             () -> rpcClient
                                     .<BlockRequest, ListBlockResponse>sendRequest(new BlockRequest(hash), TIMEOUT))
                     .get(TIMEOUT, TimeUnit.MILLISECONDS);
-            LOG.info("Download: ..... " + response.toString());
+            LOG.info("Download: ..... " + response.hashCode());
             return response;
         } catch (ExecutionException e) {
            LOG.error(e.toString());
@@ -284,7 +284,7 @@ public class RpcAdrestusClient<T> {
                             () -> rpcClient
                                     .<PatriciaTreeRequest, PatriciaTreeResponse>sendRequest(new PatriciaTreeRequest(hash), TIMEOUT))
                     .get(TIMEOUT, TimeUnit.MILLISECONDS);
-            LOG.info("Download: ..... " + response.toString());
+            LOG.info("Download: ..... " + response.hashCode());
             return response;
         } catch (ExecutionException e) {
         } catch (InterruptedException e) {
