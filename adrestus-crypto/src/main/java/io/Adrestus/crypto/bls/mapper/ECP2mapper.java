@@ -5,18 +5,19 @@ import io.Adrestus.crypto.bls.BLS381.ECP2;
 import io.activej.serializer.*;
 
 public class ECP2mapper extends SimpleSerializerDef<ECP2> {
+    private static final int ARRAY_LEN = 4 * (BIG.MODBYTES + 1);
     protected BinarySerializer<ECP2> createSerializer(int version, CompatibilityLevel compatibilityLevel) {
         return new BinarySerializer<ECP2>() {
             @Override
             public void encode(BinaryOutput out, ECP2 item) {
-                byte[] bytes = new byte[BIG.MODBYTES + 1];
+                byte[] bytes = new byte[ARRAY_LEN];
                 item.toBytes(bytes);
                 out.write(bytes);
             }
 
             @Override
             public ECP2 decode(BinaryInput in) throws CorruptedDataException {
-                byte[] bytes = new byte[BIG.MODBYTES + 1];
+                byte[] bytes = new byte[ARRAY_LEN];
                 in.read(bytes);
                 return ECP2.fromBytes(bytes);
             }
