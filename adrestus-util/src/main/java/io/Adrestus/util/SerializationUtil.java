@@ -161,13 +161,15 @@ public class SerializationUtil<T> {
     }
 
     public byte[] encode_list(List<T> value) {
-        int buff_size = search((int) (ObjectSizeCalculator.getObjectSize(value)));
-        buffer = new byte[buff_size];
-        if(list_serializer==null){
-            int g=4;
+        try {
+            int buff_size = search((int) (ObjectSizeCalculator.getObjectSize(value)));
+            buffer = new byte[buff_size];
+            list_serializer.encode(buffer, 0, value);
+            return buffer;
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        list_serializer.encode(buffer, 0, value);
-        return buffer;
+        throw new RuntimeException("Error at serialization");
     }
 
 
