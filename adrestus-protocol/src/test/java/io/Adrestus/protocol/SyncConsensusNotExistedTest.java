@@ -110,6 +110,7 @@ public class SyncConsensusNotExistedTest {
 
         IAdrestusFactory factory = new AdrestusFactory();
         List<AdrestusTask> tasks = new java.util.ArrayList<>(List.of(
+                factory.createBindServerCachedTask(),
                 factory.createBindServerKademliaTask(new SecureRandom(key2), new String(passphrase).getBytes(StandardCharsets.UTF_8)),
                 factory.createBindServerTransactionTask(),
                 factory.createBindServerReceiptTask(),

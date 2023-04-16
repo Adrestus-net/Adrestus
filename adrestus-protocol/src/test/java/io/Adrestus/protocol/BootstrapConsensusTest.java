@@ -227,6 +227,7 @@ public class BootstrapConsensusTest {
         IAdrestusFactory factory = new AdrestusFactory();
         List<AdrestusTask> tasks = new java.util.ArrayList<>(List.of(
                 //factory.createBindServerKademliaTask(),
+                factory.createBindServerCachedTask(),
                 factory.createBindServerTransactionTask(),
                 factory.createBindServerReceiptTask(),
                 factory.createSendReceiptTask(),
