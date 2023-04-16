@@ -14,6 +14,7 @@ public class ConsensusConfiguration {
     public static final int CHANGE_VIEW_COLLECTOR_TIMEOUT = 8 * 1000;
     public static final int CHANGE_VIEW_CONNECTED_TIMEOUT = 8 * 1000;
     public static final int CONSENSUS_TEST_TIMEOUT = 2 * 1000;
+    public static final int CONSENSUS_WAIT_TIMEOUT = 2 * 1000;
     public static int EPOCH_TRANSITION = 15;
     public static final String CONSENSUS = "CONSENSUS";
     public static final String CHANGE_VIEW = "CHANGE_VIEW";

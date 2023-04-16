@@ -24,6 +24,7 @@ import io.Adrestus.crypto.mnemonic.Mnemonic;
 import io.Adrestus.crypto.mnemonic.MnemonicException;
 import io.Adrestus.crypto.mnemonic.Security;
 import io.Adrestus.crypto.mnemonic.WordList;
+import io.Adrestus.network.CachedEventLoop;
 import io.Adrestus.p2p.kademlia.common.NettyConnectionInfo;
 import io.Adrestus.p2p.kademlia.exception.UnsupportedBoundingException;
 import io.Adrestus.p2p.kademlia.node.DHTBootstrapNode;
@@ -65,6 +66,16 @@ public class SyncConsensusNotExistedTest {
     @BeforeAll
     public static void setup() throws MnemonicException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException {
         delete_test();
+        KademliaConfiguration.IDENTIFIER_SIZE = 3;
+        ConsensusConfiguration.EPOCH_TRANSITION=1;
+        NodeSettings.getInstance();
+        keyHashGenerator = key -> {
+            try {
+                return new BoundedHashUtil(NodeSettings.getInstance().getIdentifierSize()).hash(key.hashCode(), BigInteger.class);
+            } catch (UnsupportedBoundingException e) {
+                throw new IllegalArgumentException("Key hash generator not valid");
+            }
+        };
         int version = 0x00;
         Mnemonic mnem = new Mnemonic(Security.NORMAL, WordList.ENGLISH);
         char[] mnemonic_sequence = mnem.create();
@@ -91,28 +102,10 @@ public class SyncConsensusNotExistedTest {
         if (!IP.substring(0, 9).equals("192.168.1"))
             return;
 
-        keyHashGenerator = key -> {
-            try {
-                return new BoundedHashUtil(NodeSettings.getInstance().getIdentifierSize()).hash(key.hashCode(), BigInteger.class);
-            } catch (UnsupportedBoundingException e) {
-                throw new IllegalArgumentException("Key hash generator not valid");
-            }
-        };
-
-        DHTBootstrapNode dhtBootstrapNode = new DHTBootstrapNode(
-                new NettyConnectionInfo("192.168.1.106", KademliaConfiguration.BootstrapNodePORT),
-                BigInteger.valueOf(0),
-                keyHashGenerator);
-        CachedKademliaNodes.getInstance().setDhtBootstrapNode(dhtBootstrapNode);
 
         CachedBLSKeyPair.getInstance().setPrivateKey(sk2);
         CachedBLSKeyPair.getInstance().setPublicKey(vk2);
-        dhtBootstrapNode.Init();
-        DHTRegularNode nextnode = new DHTRegularNode(kad2.getNettyConnectionInfo(), BigInteger.valueOf(1), keyHashGenerator);
-        nextnode.setKademliaData(kad2);
-        nextnode.start(dhtBootstrapNode);
-        nextnode.scheduledFuture();
-        CachedKademliaNodes.getInstance().setDhtRegularNode(nextnode);
+
 
 
         IAdrestusFactory factory = new AdrestusFactory();
@@ -128,7 +121,7 @@ public class SyncConsensusNotExistedTest {
                 factory.createRepositoryCommitteeTask()));
         ExecutorService executor = Executors.newFixedThreadPool(tasks.size());
         tasks.stream().map(Worker::new).forEach(executor::execute);
-
+        CachedEventLoop.getInstance().start();
 
         var blocksync = new BlockSync();
         blocksync.WaitPatientlyYourPosition();

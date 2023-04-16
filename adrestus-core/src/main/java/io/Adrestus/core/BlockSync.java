@@ -85,7 +85,7 @@ public class BlockSync implements IBlockSync {
             CachedZoneIndex.getInstance().setZoneIndexInternalIP();
             result = CachedZoneIndex.getInstance().isNodeExistOnBlockInternal();
             if (!result)
-                Thread.sleep((ConsensusConfiguration.EPOCH_TRANSITION - 2) * ConsensusConfiguration.CONSENSUS_TIMER);
+                Thread.sleep(ConsensusConfiguration.CONSENSUS_WAIT_TIMEOUT);
         } while (!result);
 
         List<String> new_ips = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).values().stream().collect(Collectors.toList());
@@ -181,7 +181,7 @@ public class BlockSync implements IBlockSync {
         } catch (IllegalArgumentException e) {
         }
 
-        //send request to receive cached Data used for consenus
+        //send request to receive cached Data used for consensus
         boolean bError = false;
         do {
             try {
