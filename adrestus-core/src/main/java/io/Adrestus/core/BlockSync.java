@@ -62,23 +62,35 @@ public class BlockSync implements IBlockSync {
     public void WaitPatientlyYourPosition() {
         boolean result = false;
         do {
-            RpcAdrestusClient client = new RpcAdrestusClient(new CommitteeBlock(), new InetSocketAddress(InetAddress.getByName(KademliaConfiguration.BOOTSTRAP_NODE_IP), NetworkConfiguration.RPC_PORT), CachedEventLoop.getInstance().getEventloop());
             IDatabase<String, CommitteeBlock> committee_database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
             Optional<CommitteeBlock> last_block = committee_database.seekLast();
             Map<String, CommitteeBlock> toSave = new HashMap<>();
-            List<CommitteeBlock> blocks;
-            if (last_block.isPresent()) {
-                blocks = client.getBlocksList(String.valueOf(last_block.get().getHeight()));
-                if (!blocks.isEmpty() && blocks.size() > 1) {
-                    blocks.stream().skip(1).forEach(val -> toSave.put(String.valueOf(val.getHeight()), val));
-                }
+            List<CommitteeBlock> blocks = null;
+            do {
+                RpcAdrestusClient client = new RpcAdrestusClient(new CommitteeBlock(), new InetSocketAddress(InetAddress.getByName(KademliaConfiguration.BOOTSTRAP_NODE_IP), NetworkConfiguration.RPC_PORT), CachedEventLoop.getInstance().getEventloop());
+                try {
+                    if (last_block.isPresent()) {
+                        blocks = client.getBlocksList(String.valueOf(last_block.get().getHeight()));
+                        if (!blocks.isEmpty() && blocks.size() > 1) {
+                            blocks.stream().skip(1).forEach(val -> toSave.put(String.valueOf(val.getHeight()), val));
+                        }
 
-            } else {
-                blocks = client.getBlocksList("");
-                if (!blocks.isEmpty()) {
-                    blocks.stream().forEach(val -> toSave.put(String.valueOf(val.getHeight()), val));
+                    } else {
+                        blocks = client.getBlocksList("");
+                        if (!blocks.isEmpty()) {
+                            blocks.stream().forEach(val -> toSave.put(String.valueOf(val.getHeight()), val));
+                        }
+                    }
+                } catch (NullPointerException e) {
+                    Thread.sleep(ConsensusConfiguration.CONSENSUS_WAIT_TIMEOUT);
+                } finally {
+                    if (client != null){
+                        client.close();
+                        client=null;
+                    }
+
                 }
-            }
+            } while (blocks == null);
             committee_database.saveAll(toSave);
             CachedLatestBlocks.getInstance().setCommitteeBlock(blocks.get(blocks.size() - 1));
             CachedLeaderIndex.getInstance().setCommitteePositionLeader(0);
@@ -335,7 +347,7 @@ public class BlockSync implements IBlockSync {
 
         //find transactions that is not for this zone and sent them to the correct zone
         List<Transaction> transactionList = MemoryTransactionPool.getInstance().getListByZone(prevZone);
-        if(!transactionList.isEmpty()) {
+        if (!transactionList.isEmpty()) {
             List<byte[]> toSend = new ArrayList<>();
             transactionList.stream().forEach(transaction -> toSend.add(transaction_encode.encode(transaction, 1024)));
             List<String> iptoSend = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(prevZone).values().stream().collect(Collectors.toList());
@@ -351,7 +363,7 @@ public class BlockSync implements IBlockSync {
 
         //find receipts that is not for this zone and sent them to the correct zone
         List<Receipt> receiptList = MemoryReceiptPool.getInstance().getListByZone(prevZone);
-        if(!receiptList.isEmpty()) {
+        if (!receiptList.isEmpty()) {
             List<byte[]> toSendReceipt = new ArrayList<>();
             receiptList.stream().forEach(receipt -> toSendReceipt.add(receipt_encode.encode(receipt, 1024)));
             List<String> ReceiptIPWorkers = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(prevZone).values().stream().collect(Collectors.toList());

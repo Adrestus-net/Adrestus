@@ -8,6 +8,7 @@ import io.Adrestus.config.KademliaConfiguration;
 import io.Adrestus.config.NodeSettings;
 import io.Adrestus.consensus.ConsensusState;
 import io.Adrestus.core.CommitteeBlock;
+import io.Adrestus.core.Resourses.CachedKademliaNodes;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedSecurityHeaders;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
@@ -52,6 +53,7 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 public class BootstrapConsensusTest {
 
@@ -323,6 +325,7 @@ public class BootstrapConsensusTest {
 
         if (CachedBLSKeyPair.getInstance().getPublicKey().equals(vk1))
             Thread.sleep(14000);
+
 
         CountDownLatch latch = new CountDownLatch(20);
         ConsensusState c = new ConsensusState(latch);

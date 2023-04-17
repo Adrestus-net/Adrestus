@@ -1,5 +1,7 @@
 package io.Adrestus.protocol;
 
+import io.Adrestus.TreeFactory;
+import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.config.ConsensusConfiguration;
 import io.Adrestus.config.KademliaConfiguration;
@@ -64,7 +66,7 @@ public class SyncConsensusNotExistedTest {
     private static char[] passphrase;
 
     @BeforeAll
-    public static void setup() throws MnemonicException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException {
+    public static void setup() throws Exception {
         delete_test();
         KademliaConfiguration.IDENTIFIER_SIZE = 3;
         ConsensusConfiguration.EPOCH_TRANSITION=1;
@@ -91,6 +93,8 @@ public class SyncConsensusNotExistedTest {
         String address2 = WalletAddress.generate_address((byte) version, ecKeyPair2.getPublicKey());
         ECDSASignatureData signatureData2 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address2)), ecKeyPair2);
         kad2 = new KademliaData(new SecurityAuditProofs(address2, vk2, ecKeyPair2.getPublicKey(), signatureData2), new NettyConnectionInfo("192.168.1.113", KademliaConfiguration.PORT));
+
+        TreeFactory.getMemoryTree(0).store(address2, new PatriciaTreeNode(3000, 0));
     }
 
     @Test
@@ -110,7 +114,7 @@ public class SyncConsensusNotExistedTest {
 
         IAdrestusFactory factory = new AdrestusFactory();
         List<AdrestusTask> tasks = new java.util.ArrayList<>(List.of(
-                factory.createBindServerKademliaTask(new SecureRandom(key2), new String(passphrase).getBytes(StandardCharsets.UTF_8)),
+                factory.createBindServerKademliaTask(ecKeyPair2,vk2),
                 factory.createBindServerCachedTask(),
                 factory.createBindServerTransactionTask(),
                 factory.createBindServerReceiptTask(),

@@ -234,8 +234,10 @@ public class RpcAdrestusClient<T> {
 
     public void close() {
         try {
-            client.stopFuture().get(TIMEOUT, TimeUnit.MILLISECONDS);
-            client = null;
+            if(client!=null) {
+                client.stopFuture().get(TIMEOUT, TimeUnit.MILLISECONDS);
+                client = null;
+            }
         } catch (InterruptedException e) {
         } catch (ExecutionException e) {
         } catch (TimeoutException e) {

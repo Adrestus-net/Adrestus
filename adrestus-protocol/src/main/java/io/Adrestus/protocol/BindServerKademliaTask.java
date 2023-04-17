@@ -39,6 +39,7 @@ import org.slf4j.LoggerFactory;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
+import java.util.UUID;
 
 public class BindServerKademliaTask extends AdrestusTask {
 
@@ -119,7 +120,7 @@ public class BindServerKademliaTask extends AdrestusTask {
                     this.bootstrapNettyConnectionInfo,
                     KademliaConfiguration.BootstrapNodeID,
                     keyHashGenerator);
-        this.dhtRegularNode = new DHTRegularNode(this.nettyConnectionInfo, BigInteger.valueOf(this.blockIndex.getIndexFromIP(CachedZoneIndex.getInstance().getZoneIndex(), ip)), keyHashGenerator);
+        this.dhtRegularNode = new DHTRegularNode(this.nettyConnectionInfo, new BigInteger(String.format("%040d", new BigInteger(UUID.randomUUID().toString().replace("-", ""), 16))), keyHashGenerator);
         this.InitKademliaData(keypair, blsPublicKey);
     }
 
