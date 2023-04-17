@@ -11,6 +11,7 @@ import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.core.RingBuffer.handler.transactions.SignatureEventHandler;
 import io.Adrestus.core.RingBuffer.publisher.BlockEventPublisher;
 import io.Adrestus.core.RingBuffer.publisher.TransactionEventPublisher;
+import io.Adrestus.core.Util.BlockSizeCalculator;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.SecurityAuditProofs;
 import io.Adrestus.crypto.WalletAddress;
@@ -41,7 +42,6 @@ import io.Adrestus.util.SerializationUtil;
 import io.distributedLedger.*;
 import lombok.SneakyThrows;
 import org.apache.commons.codec.binary.StringUtils;
-import org.apache.commons.lang3.SerializationUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.spongycastle.util.encoders.Hex;
@@ -91,6 +91,8 @@ public class BlockTest {
     private static BLSPrivateKey sk9;
     private static BLSPublicKey vk9;
 
+    private static BlockSizeCalculator sizeCalculator;
+
     public static void delete_test() {
         IDatabase<String, TransactionBlock> transaction_block1 = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.ZONE_0_TRANSACTION_BLOCK);
         IDatabase<String, TransactionBlock> transaction_block2 = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.ZONE_1_TRANSACTION_BLOCK);
@@ -124,6 +126,7 @@ public class BlockTest {
     @BeforeAll
     public static void setup() {
         delete_test();
+        sizeCalculator = new BlockSizeCalculator();
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
         list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
@@ -601,7 +604,8 @@ public class BlockTest {
 
 
         Thread.sleep(100);
-        String hash = HashUtil.sha256_bytetoString(serenc.encodeNotOptimal(committeeBlock, SerializationUtils.serialize(committeeBlock).length));
+        sizeCalculator.setCommitteeBlock(committeeBlock);
+        String hash = HashUtil.sha256_bytetoString(serenc.encode(committeeBlock, sizeCalculator.CommitteeBlockSizeCalculator()));
         committeeBlock.setHash(hash);
 
 

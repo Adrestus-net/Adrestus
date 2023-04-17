@@ -434,10 +434,9 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
                 hashmap.put(keyMapper.decode(serializedKey), valueMapper.decode(serializedValue));
                 iterator.next();
             } while (iterator.isValid());
-        } catch (NullPointerException exception){
+        } catch (NullPointerException exception) {
             LOGGER.error("NullPointerException exception occurred during findBetweenRange operation. {}", exception.getMessage());
-        }
-        catch (final SerializationException exception) {
+        } catch (final SerializationException exception) {
             LOGGER.error("Serialization exception occurred during findBetweenRange operation. {}", exception.getMessage());
         } finally {
             r.unlock();

@@ -8,6 +8,7 @@ import io.Adrestus.core.Resourses.CachedLeaderIndex;
 import io.Adrestus.core.Resourses.CachedSecurityHeaders;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.core.RingBuffer.publisher.BlockEventPublisher;
+import io.Adrestus.core.Util.BlockSizeCalculator;
 import io.Adrestus.crypto.bls.BLS381.ECP;
 import io.Adrestus.crypto.bls.BLS381.ECP2;
 import io.Adrestus.crypto.bls.BLSSignatureData;
@@ -28,7 +29,6 @@ import io.Adrestus.network.ConsensusClient;
 import io.Adrestus.util.ByteUtil;
 import io.Adrestus.util.SerializationUtil;
 import lombok.SneakyThrows;
-import org.apache.commons.lang3.SerializationUtils;
 import org.apache.tuweni.bytes.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1134,6 +1134,8 @@ public class ValidatorConsensusPhases {
         private final SerializationUtil<ConsensusMessage> consensus_serialize;
         private final DefaultFactory factory;
 
+        private final BlockSizeCalculator sizeCalculator;
+
         public VerifyCommitteeBlock(boolean DEBUG) {
             this.DEBUG = DEBUG;
             this.factory = new DefaultFactory();
@@ -1144,6 +1146,7 @@ public class ValidatorConsensusPhases {
             list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
             this.block_serialize = new SerializationUtil<AbstractBlock>(AbstractBlock.class, list);
             this.consensus_serialize = new SerializationUtil<ConsensusMessage>(fluentType, list);
+            this.sizeCalculator = new BlockSizeCalculator();
         }
 
         @Override
@@ -1184,17 +1187,14 @@ public class ValidatorConsensusPhases {
                             block.setStatusType(ConsensusStatusType.ABORT);
                             return;
                         } else {
-                            byte[] message = block_serialize.encodeNotOptimal(block.getData(), SerializationUtils.serialize(block.getData()).length);
+                            this.sizeCalculator.setCommitteeBlock(block.getData());
+                            byte[] message = block_serialize.encode(block.getData(), this.sizeCalculator.CommitteeBlockSizeCalculator());
                             boolean verify = BLSSignature.verify(block.getChecksumData().getSignature(), message, block.getChecksumData().getBlsPublicKey());
                             if (!verify) {
-                                byte[] message_prev = block_serialize.encodeNotOptimalPrevious(block.getData(), SerializationUtils.serialize(block.getData()).length);
-                                boolean verify_prev = BLSSignature.verify(block.getChecksumData().getSignature(), message_prev, block.getChecksumData().getBlsPublicKey());
-                                if (!verify_prev) {
-                                    cleanup();
-                                    LOG.info("AnnouncePhase: Abort consensus phase BLS leader signature is invalid during announce phase");
-                                    block.setStatusType(ConsensusStatusType.ABORT);
-                                    return;
-                                }
+                                cleanup();
+                                LOG.info("AnnouncePhase: Abort consensus phase BLS leader signature is invalid during announce phase");
+                                block.setStatusType(ConsensusStatusType.ABORT);
+                                return;
                             }
                         }
                     }
@@ -1252,7 +1252,8 @@ public class ValidatorConsensusPhases {
                 return;
             }
             block.setStatusType(ConsensusStatusType.SUCCESS);
-            Signature sig = BLSSignature.sign(block_serialize.encodeNotOptimal(block.getData(), SerializationUtils.serialize(block.getData()).length), CachedBLSKeyPair.getInstance().getPrivateKey());
+            this.sizeCalculator.setCommitteeBlock(block.getData());
+            Signature sig = BLSSignature.sign(block_serialize.encode(block.getData(), this.sizeCalculator.CommitteeBlockSizeCalculator()), CachedBLSKeyPair.getInstance().getPrivateKey());
             block.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
 
             if (DEBUG)
@@ -1283,17 +1284,14 @@ public class ValidatorConsensusPhases {
                             block.setStatusType(ConsensusStatusType.ABORT);
                             return;
                         } else {
-                            byte[] message = block_serialize.encodeNotOptimal(block.getData(), SerializationUtils.serialize(block.getData()).length);
+                            this.sizeCalculator.setCommitteeBlock(block.getData());
+                            byte[] message = block_serialize.encode(block.getData(), this.sizeCalculator.CommitteeBlockSizeCalculator());
                             boolean verify = BLSSignature.verify(block.getChecksumData().getSignature(), message, block.getChecksumData().getBlsPublicKey());
                             if (!verify) {
-                                byte[] message_prev = block_serialize.encodeNotOptimalPrevious(block.getData(), SerializationUtils.serialize(block.getData()).length);
-                                boolean verify_prev = BLSSignature.verify(block.getChecksumData().getSignature(), message_prev, block.getChecksumData().getBlsPublicKey());
-                                if (!verify_prev) {
-                                    LOG.info("PreparePhase: Abort consensus phase BLS leader signature is invalid during prepare phase");
-                                    cleanup();
-                                    block.setStatusType(ConsensusStatusType.ABORT);
-                                    return;
-                                }
+                                LOG.info("PreparePhase: Abort consensus phase BLS leader signature is invalid during prepare phase");
+                                cleanup();
+                                block.setStatusType(ConsensusStatusType.ABORT);
+                                return;
                             }
                         }
                     }
@@ -1326,7 +1324,8 @@ public class ValidatorConsensusPhases {
 
 
             Signature aggregatedSignature = BLSSignature.aggregate(signature);
-            Bytes toVerify = Bytes.wrap(block_serialize.encodeNotOptimal(block.getData(), SerializationUtils.serialize(block.getData()).length));
+            this.sizeCalculator.setCommitteeBlock(block.getData());
+            Bytes toVerify = Bytes.wrap(block_serialize.encode(block.getData(), this.sizeCalculator.CommitteeBlockSizeCalculator()));
             boolean verify = BLSSignature.fastAggregateVerify(publicKeys, toVerify, aggregatedSignature);
             if (!verify) {
                 cleanup();
@@ -1339,8 +1338,8 @@ public class ValidatorConsensusPhases {
             block.setStatusType(ConsensusStatusType.SUCCESS);
 
 
-            byte[] message = block_serialize.encode(block.getData());
-            Signature sig = BLSSignature.sign(block_serialize.encodeNotOptimal(block.getData(), SerializationUtils.serialize(block.getData()).length), CachedBLSKeyPair.getInstance().getPrivateKey());
+            this.sizeCalculator.setCommitteeBlock(block.getData());
+            Signature sig = BLSSignature.sign(block_serialize.encode(block.getData(), this.sizeCalculator.CommitteeBlockSizeCalculator()), CachedBLSKeyPair.getInstance().getPrivateKey());
             block.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
 
             if (DEBUG)
@@ -1371,17 +1370,14 @@ public class ValidatorConsensusPhases {
                             block.setStatusType(ConsensusStatusType.ABORT);
                             return;
                         } else {
-                            byte[] message = block_serialize.encodeNotOptimal(block.getData(), SerializationUtils.serialize(block.getData()).length);
+                            this.sizeCalculator.setCommitteeBlock(block.getData());
+                            byte[] message = block_serialize.encode(block.getData(), this.sizeCalculator.CommitteeBlockSizeCalculator());
                             boolean verify = BLSSignature.verify(block.getChecksumData().getSignature(), message, block.getChecksumData().getBlsPublicKey());
                             if (!verify) {
-                                byte[] message_prev = block_serialize.encodeNotOptimalPrevious(block.getData(), SerializationUtils.serialize(block.getData()).length);
-                                boolean verify_prev = BLSSignature.verify(block.getChecksumData().getSignature(), message_prev, block.getChecksumData().getBlsPublicKey());
-                                if (!verify_prev) {
-                                    LOG.info("CommitPhase: Abort consensus phase BLS leader signature is invalid during commit phase");
-                                    cleanup();
-                                    block.setStatusType(ConsensusStatusType.ABORT);
-                                    return;
-                                }
+                                LOG.info("CommitPhase: Abort consensus phase BLS leader signature is invalid during commit phase");
+                                cleanup();
+                                block.setStatusType(ConsensusStatusType.ABORT);
+                                return;
                             }
                         }
                     }
@@ -1415,7 +1411,8 @@ public class ValidatorConsensusPhases {
 
 
             Signature aggregatedSignature = BLSSignature.aggregate(signature);
-            byte[] message = block_serialize.encodeNotOptimal(block.getData(), SerializationUtils.serialize(block.getData()).length);
+            this.sizeCalculator.setCommitteeBlock(block.getData());
+            byte[] message = block_serialize.encode(block.getData(), this.sizeCalculator.CommitteeBlockSizeCalculator());
             Bytes toVerify = Bytes.wrap(message);
             boolean verify = BLSSignature.fastAggregateVerify(publicKeys, toVerify, aggregatedSignature);
             if (!verify) {

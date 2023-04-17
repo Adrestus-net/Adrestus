@@ -6,6 +6,7 @@ import io.Adrestus.core.*;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedLeaderIndex;
 import io.Adrestus.core.Resourses.CachedSecurityHeaders;
+import io.Adrestus.core.Util.BlockSizeCalculator;
 import io.Adrestus.crypto.bls.BLS381.ECP;
 import io.Adrestus.crypto.bls.BLS381.ECP2;
 import io.Adrestus.crypto.bls.mapper.ECP2mapper;
@@ -25,7 +26,6 @@ import io.Adrestus.network.ConsensusServer;
 import io.Adrestus.util.ByteUtil;
 import io.Adrestus.util.SerializationUtil;
 import lombok.SneakyThrows;
-import org.apache.commons.lang3.SerializationUtils;
 import org.apache.tuweni.bytes.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -597,6 +597,7 @@ public class SupervisorConsensusPhases {
         private final SerializationUtil<ConsensusMessage> consensus_serialize;
         private final DefaultFactory factory;
         private final IBlockIndex blockIndex;
+        private final BlockSizeCalculator sizeCalculator;
 
         public ProposeCommitteeBlock(boolean DEBUG) {
             this.blockIndex = new BlockIndex();
@@ -609,6 +610,7 @@ public class SupervisorConsensusPhases {
             list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
             this.block_serialize = new SerializationUtil<AbstractBlock>(AbstractBlock.class, list);
             this.consensus_serialize = new SerializationUtil<ConsensusMessage>(fluentType, list);
+            this.sizeCalculator = new BlockSizeCalculator();
         }
 
         @Override
@@ -640,7 +642,8 @@ public class SupervisorConsensusPhases {
             block.setMessageType(ConsensusMessageType.ANNOUNCE);
             if (DEBUG) return;
 
-            byte[] message = block_serialize.encodeNotOptimal(block.getData(), SerializationUtils.serialize(block.getData()).length);
+            this.sizeCalculator.setCommitteeBlock(block.getData());
+            byte[] message = block_serialize.encode(block.getData(), this.sizeCalculator.CommitteeBlockSizeCalculator());
             Signature sig = BLSSignature.sign(message, CachedBLSKeyPair.getInstance().getPrivateKey());
             block.getChecksumData().setBlsPublicKey(CachedBLSKeyPair.getInstance().getPublicKey());
             block.getChecksumData().setSignature(sig);
@@ -697,23 +700,21 @@ public class SupervisorConsensusPhases {
 
             Signature aggregatedSignature = BLSSignature.aggregate(signature);
 
-            Bytes message = Bytes.wrap(block_serialize.encodeNotOptimal(block.getData(), SerializationUtils.serialize(block.getData()).length));
+            this.sizeCalculator.setCommitteeBlock(block.getData());
+            Bytes message = Bytes.wrap(block_serialize.encode(block.getData(), this.sizeCalculator.CommitteeBlockSizeCalculator()));
             boolean verify = BLSSignature.fastAggregateVerify(publicKeys, message, aggregatedSignature);
             if (!verify) {
-                Bytes message_prev = Bytes.wrap(block_serialize.encodeNotOptimalPrevious(block.getData(), SerializationUtils.serialize(block.getData()).length));
-                boolean verify_prev = BLSSignature.fastAggregateVerify(publicKeys, message_prev, aggregatedSignature);
-                if (!verify_prev) {
-                    LOG.info("Abort consensus phase BLS multi_signature is invalid during prepare phase");
-                    block.setStatusType(ConsensusStatusType.ABORT);
-                    cleanup();
-                    return;
-                }
+                LOG.info("Abort consensus phase BLS multi_signature is invalid during prepare phase");
+                block.setStatusType(ConsensusStatusType.ABORT);
+                cleanup();
+                return;
             }
 
             if (DEBUG) return;
 
 
-            Signature sig = BLSSignature.sign(block_serialize.encodeNotOptimal(block.getData(), SerializationUtils.serialize(block.getData()).length), CachedBLSKeyPair.getInstance().getPrivateKey());
+            this.sizeCalculator.setCommitteeBlock(block.getData());
+            Signature sig = BLSSignature.sign(block_serialize.encode(block.getData(), this.sizeCalculator.CommitteeBlockSizeCalculator()), CachedBLSKeyPair.getInstance().getPrivateKey());
             block.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
 
             this.N_COPY = (this.N - 1) - consensusServer.getPeers_not_connected();
@@ -773,24 +774,22 @@ public class SupervisorConsensusPhases {
 
 
             Signature aggregatedSignature = BLSSignature.aggregate(signature);
-            Bytes message = Bytes.wrap(block_serialize.encodeNotOptimal(block.getData(), SerializationUtils.serialize(block.getData()).length));
+            this.sizeCalculator.setCommitteeBlock(block.getData());
+            Bytes message = Bytes.wrap(block_serialize.encode(block.getData(), this.sizeCalculator.CommitteeBlockSizeCalculator()));
             boolean verify = BLSSignature.fastAggregateVerify(publicKeys, message, aggregatedSignature);
             if (!verify) {
-                Bytes message_prev = Bytes.wrap(block_serialize.encodeNotOptimalPrevious(block.getData(), SerializationUtils.serialize(block.getData()).length));
-                boolean verify_prev = BLSSignature.fastAggregateVerify(publicKeys, message_prev, aggregatedSignature);
-                if (!verify_prev) {
-                    LOG.info("CommitPhase: Abort consensus phase BLS multi_signature is invalid during commit phase");
-                    block.setStatusType(ConsensusStatusType.ABORT);
-                    cleanup();
-                    return;
-                }
+                LOG.info("CommitPhase: Abort consensus phase BLS multi_signature is invalid during commit phase");
+                block.setStatusType(ConsensusStatusType.ABORT);
+                cleanup();
+                return;
             }
 
             //commit save to db
 
             if (DEBUG) return;
 
-            Signature sig = BLSSignature.sign(block_serialize.encodeNotOptimal(block.getData(), SerializationUtils.serialize(block.getData()).length), CachedBLSKeyPair.getInstance().getPrivateKey());
+            this.sizeCalculator.setCommitteeBlock(block.getData());
+            Signature sig = BLSSignature.sign(block_serialize.encode(block.getData(), this.sizeCalculator.CommitteeBlockSizeCalculator()), CachedBLSKeyPair.getInstance().getPrivateKey());
             block.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
 
             this.N_COPY = (this.N - 1) - consensusServer.getPeers_not_connected();

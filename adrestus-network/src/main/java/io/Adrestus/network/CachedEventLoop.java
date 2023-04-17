@@ -47,7 +47,7 @@ public class CachedEventLoop {
     }
 
     @SneakyThrows
-    public void start(){
+    public void start() {
         RpcServer.create(eventloop)
                 .withMessageTypes(String.class)
                 .withListenAddress(new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 6100)).listen();

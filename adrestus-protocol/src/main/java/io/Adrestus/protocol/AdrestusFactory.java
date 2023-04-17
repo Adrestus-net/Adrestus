@@ -2,10 +2,8 @@ package io.Adrestus.protocol;
 
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.Adrestus.crypto.elliptic.ECKeyPair;
-import io.activej.eventloop.Eventloop;
 import io.distributedLedger.DatabaseInstance;
 import io.distributedLedger.PatriciaTreeInstance;
-import io.netty.channel.EventLoop;
 
 import java.security.SecureRandom;
 

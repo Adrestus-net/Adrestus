@@ -151,15 +151,6 @@ public class SerializationUtil<T> {
         return buffer;
     }
 
-    public synchronized byte[] encodeNotOptimalPrevious(T value, int length) {
-        // int buff_size2 = search((int) (ObjectSizer.retainedSize(value)));
-        int buff_size = search(length);
-        int buff_prevsize = getBuffSize(buff_size);
-        buffer = new byte[buff_prevsize];
-        serializer.encode(buffer, 0, value);
-        return buffer;
-    }
-
     public byte[] encode_list(List<T> value) {
         try {
             int buff_size = search((int) (ObjectSizeCalculator.getObjectSize(value)));

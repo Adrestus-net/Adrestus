@@ -7,6 +7,7 @@ import io.activej.serializer.*;
 public class ECPmapper extends SimpleSerializerDef<ECP> {
     private static final int ARRAY_LEN = 2 * (BIG.MODBYTES + 1);
     private static final boolean BOOLEAN_EXPRESSION = false;
+
     @Override
     protected BinarySerializer<ECP> createSerializer(int version, CompatibilityLevel compatibilityLevel) {
         return new BinarySerializer<ECP>() {

@@ -8,7 +8,6 @@ import io.Adrestus.config.KademliaConfiguration;
 import io.Adrestus.config.NodeSettings;
 import io.Adrestus.consensus.ConsensusState;
 import io.Adrestus.core.CommitteeBlock;
-import io.Adrestus.core.Resourses.CachedKademliaNodes;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedSecurityHeaders;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
@@ -53,7 +52,6 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
 
 public class BootstrapConsensusTest {
 
@@ -75,14 +73,14 @@ public class BootstrapConsensusTest {
     private static BLSPrivateKey sk6;
     private static BLSPublicKey vk6;
 
-    private static ECKeyPair ecKeyPair1, ecKeyPair2, ecKeyPair3, ecKeyPair4, ecKeyPair5, ecKeyPair6,ecKeyPair7;
-    private static String address1, address2, address3, address4, address5, address6,address7;
+    private static ECKeyPair ecKeyPair1, ecKeyPair2, ecKeyPair3, ecKeyPair4, ecKeyPair5, ecKeyPair6, ecKeyPair7;
+    private static String address1, address2, address3, address4, address5, address6, address7;
     private static ECDSASign ecdsaSign = new ECDSASign();
     private static VdfEngine vdf;
     private static KademliaData kad1, kad2, kad3, kad4, kad5, kad6;
     private static KeyHashGenerator<BigInteger, String> keyHashGenerator;
     private static char[] passphrase;
-    private static byte[] key1, key2, key3, key4, key5, key6,key7;
+    private static byte[] key1, key2, key3, key4, key5, key6, key7;
 
     @BeforeAll
     public static void setup() throws Exception {
@@ -93,7 +91,7 @@ public class BootstrapConsensusTest {
         LoggerKademlia.setLevelOFF();
         int port = 1080;
         KademliaConfiguration.IDENTIFIER_SIZE = 3;
-        ConsensusConfiguration.EPOCH_TRANSITION=1;
+        ConsensusConfiguration.EPOCH_TRANSITION = 1;
         NodeSettings.getInstance();
         keyHashGenerator = key -> {
             try {
@@ -228,7 +226,7 @@ public class BootstrapConsensusTest {
 
         CachedZoneIndex.getInstance().setZoneIndexInternalIP();
         IDatabase<String, TransactionBlock> block_database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
-        block_database.save(String.valueOf(CachedLatestBlocks.getInstance().getTransactionBlock().getHeight()),CachedLatestBlocks.getInstance().getTransactionBlock());
+        block_database.save(String.valueOf(CachedLatestBlocks.getInstance().getTransactionBlock().getHeight()), CachedLatestBlocks.getInstance().getTransactionBlock());
     }
 
 

@@ -5,6 +5,7 @@ import io.Adrestus.core.CommitteeBlock;
 import io.Adrestus.core.RingBuffer.event.AbstractBlockEvent;
 import io.Adrestus.core.StatusType;
 import io.Adrestus.core.TransactionBlock;
+import io.Adrestus.core.Util.BlockSizeCalculator;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.bls.BLS381.ECP;
 import io.Adrestus.crypto.bls.BLS381.ECP2;
@@ -13,7 +14,6 @@ import io.Adrestus.crypto.bls.mapper.ECPmapper;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.crypto.elliptic.mapper.CustomSerializerTreeMap;
 import io.Adrestus.util.SerializationUtil;
-import org.apache.commons.lang3.SerializationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,6 +27,8 @@ public class HashEventHandler implements BlockEventHandler<AbstractBlockEvent>, 
     private static Logger LOG = LoggerFactory.getLogger(HashEventHandler.class);
     private final SerializationUtil<AbstractBlock> wrapper;
 
+    private final BlockSizeCalculator sizeCalculator;
+
     public HashEventHandler() {
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
@@ -34,6 +36,7 @@ public class HashEventHandler implements BlockEventHandler<AbstractBlockEvent>, 
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
         wrapper = new SerializationUtil<AbstractBlock>(AbstractBlock.class, list);
+        this.sizeCalculator = new BlockSizeCalculator();
     }
 
     @Override
@@ -54,17 +57,13 @@ public class HashEventHandler implements BlockEventHandler<AbstractBlockEvent>, 
                 committeeBlock.setStatustype(StatusType.ABORT);
             }
             CommitteeBlock cloneable = (CommitteeBlock) committeeBlock.clone();
-            int length = SerializationUtils.serialize(cloneable).length;
             cloneable.setHash("");
-            byte[] buffer = wrapper.encodeNotOptimal(cloneable, length);
+            this.sizeCalculator.setCommitteeBlock(cloneable);
+            byte[] buffer = wrapper.encode(cloneable, this.sizeCalculator.CommitteeBlockSizeCalculator());
             String result_hash = HashUtil.sha256_bytetoString(buffer);
             if (!result_hash.equals(committeeBlock.getHash())) {
-                byte[] buffer_prev = wrapper.encodeNotOptimalPrevious(cloneable, length);
-                String result_hash_prev = HashUtil.sha256_bytetoString(buffer_prev);
-                if (!result_hash_prev.equals(committeeBlock.getHash())) {
-                    LOG.info("Block hash is manipulated");
-                    committeeBlock.setStatustype(StatusType.ABORT);
-                }
+                LOG.info("Block hash is manipulated");
+                committeeBlock.setStatustype(StatusType.ABORT);
             }
         } catch (NullPointerException ex) {
             LOG.info("Block is empty");

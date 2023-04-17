@@ -10,6 +10,7 @@ import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.config.SocketConfigOptions;
 import io.Adrestus.core.Resourses.*;
 import io.Adrestus.core.RingBuffer.publisher.BlockEventPublisher;
+import io.Adrestus.core.Util.BlockSizeCalculator;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.bls.BLS381.ECP;
 import io.Adrestus.crypto.bls.BLS381.ECP2;
@@ -51,6 +52,8 @@ public class RegularBlock implements BlockForge, BlockInvent {
     private final SerializationUtil patricia_tree_wrapper;
     private final IBlockIndex blockIndex;
 
+    private final BlockSizeCalculator blockSizeCalculator;
+
     public RegularBlock() {
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
@@ -66,6 +69,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
         this.transaction_encode = new SerializationUtil<Transaction>(Transaction.class, list);
         this.receipt_encode = new SerializationUtil<Receipt>(Receipt.class, list);
         this.blockIndex = new BlockIndex();
+        this.blockSizeCalculator = new BlockSizeCalculator();
     }
 
     @Override
@@ -340,7 +344,8 @@ public class RegularBlock implements BlockForge, BlockInvent {
         committeeBlock.setCommitteeProposer(Ints.toArray(replica));
         //########################################################################
 
-        String hash = HashUtil.sha256_bytetoString(encode.encodeNotOptimal(committeeBlock, SerializationUtils.serialize(committeeBlock).length));
+        this.blockSizeCalculator.setCommitteeBlock(committeeBlock);
+        String hash = HashUtil.sha256_bytetoString(encode.encode(committeeBlock, this.blockSizeCalculator.CommitteeBlockSizeCalculator()));
         committeeBlock.setHash(hash);
     }
 

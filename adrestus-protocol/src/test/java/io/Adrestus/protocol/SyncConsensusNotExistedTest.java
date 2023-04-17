@@ -9,7 +9,6 @@ import io.Adrestus.config.NodeSettings;
 import io.Adrestus.consensus.ConsensusState;
 import io.Adrestus.core.BlockSync;
 import io.Adrestus.core.CommitteeBlock;
-import io.Adrestus.core.Resourses.CachedKademliaNodes;
 import io.Adrestus.core.TransactionBlock;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.SecurityAuditProofs;
@@ -23,14 +22,12 @@ import io.Adrestus.crypto.elliptic.ECDSASignatureData;
 import io.Adrestus.crypto.elliptic.ECKeyPair;
 import io.Adrestus.crypto.elliptic.Keys;
 import io.Adrestus.crypto.mnemonic.Mnemonic;
-import io.Adrestus.crypto.mnemonic.MnemonicException;
 import io.Adrestus.crypto.mnemonic.Security;
 import io.Adrestus.crypto.mnemonic.WordList;
 import io.Adrestus.network.CachedEventLoop;
+import io.Adrestus.network.IPFinder;
 import io.Adrestus.p2p.kademlia.common.NettyConnectionInfo;
 import io.Adrestus.p2p.kademlia.exception.UnsupportedBoundingException;
-import io.Adrestus.p2p.kademlia.node.DHTBootstrapNode;
-import io.Adrestus.p2p.kademlia.node.DHTRegularNode;
 import io.Adrestus.p2p.kademlia.node.KeyHashGenerator;
 import io.Adrestus.p2p.kademlia.repository.KademliaData;
 import io.Adrestus.p2p.kademlia.util.BoundedHashUtil;
@@ -44,9 +41,6 @@ import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -69,7 +63,7 @@ public class SyncConsensusNotExistedTest {
     public static void setup() throws Exception {
         delete_test();
         KademliaConfiguration.IDENTIFIER_SIZE = 3;
-        ConsensusConfiguration.EPOCH_TRANSITION=1;
+        ConsensusConfiguration.EPOCH_TRANSITION = 1;
         NodeSettings.getInstance();
         keyHashGenerator = key -> {
             try {
@@ -91,9 +85,11 @@ public class SyncConsensusNotExistedTest {
         vk2 = new BLSPublicKey(sk2, new Params(new String(passphrase).getBytes(StandardCharsets.UTF_8)));
         String address2 = WalletAddress.generate_address((byte) version, ecKeyPair2.getPublicKey());
         ECDSASignatureData signatureData2 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address2)), ecKeyPair2);
-        kad2 = new KademliaData(new SecurityAuditProofs(address2, vk2, ecKeyPair2.getPublicKey(), signatureData2), new NettyConnectionInfo("192.168.1.113", KademliaConfiguration.PORT));
 
         TreeFactory.getMemoryTree(0).store(address2, new PatriciaTreeNode(3000, 0));
+
+        kad2 = new KademliaData(new SecurityAuditProofs(address2, vk2, ecKeyPair2.getPublicKey(), signatureData2), new NettyConnectionInfo(IPFinder.getLocalIP(), KademliaConfiguration.PORT));
+
     }
 
     @Test
@@ -110,10 +106,9 @@ public class SyncConsensusNotExistedTest {
         CachedBLSKeyPair.getInstance().setPublicKey(vk2);
 
 
-
         IAdrestusFactory factory = new AdrestusFactory();
         List<AdrestusTask> tasks = new java.util.ArrayList<>(List.of(
-                factory.createBindServerKademliaTask(ecKeyPair2,vk2),
+                factory.createBindServerKademliaTask(ecKeyPair2, vk2),
                 factory.createBindServerCachedTask(),
                 factory.createBindServerTransactionTask(),
                 factory.createBindServerReceiptTask(),

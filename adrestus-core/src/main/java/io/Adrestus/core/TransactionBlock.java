@@ -6,7 +6,6 @@ import io.Adrestus.core.RingBuffer.handler.blocks.DisruptorBlockVisitor;
 import io.Adrestus.crypto.bls.BLSSignatureData;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.activej.serializer.annotations.Serialize;
-import io.activej.serializer.annotations.SerializeNullable;
 
 import java.io.Serializable;
 import java.util.ArrayList;

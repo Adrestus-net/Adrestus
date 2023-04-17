@@ -159,7 +159,7 @@ public class RpcAdrestusClient<T> {
         try {
             this.client.startFuture().get(TIMEOUT, TimeUnit.MILLISECONDS);
         } catch (Exception e) {
-            throw new IllegalArgumentException("Connection could not be established "+e.toString());
+            throw new IllegalArgumentException("Connection could not be established " + e.toString());
         }
     }
 
@@ -234,7 +234,7 @@ public class RpcAdrestusClient<T> {
 
     public void close() {
         try {
-            if(client!=null) {
+            if (client != null) {
                 client.stopFuture().get(TIMEOUT, TimeUnit.MILLISECONDS);
                 client = null;
             }
@@ -271,7 +271,7 @@ public class RpcAdrestusClient<T> {
             LOG.info("Download: ..... " + response.hashCode());
             return response;
         } catch (ExecutionException e) {
-           LOG.error(e.toString());
+            LOG.error(e.toString());
         } catch (InterruptedException e) {
             LOG.error(e.toString());
         } catch (TimeoutException e) {

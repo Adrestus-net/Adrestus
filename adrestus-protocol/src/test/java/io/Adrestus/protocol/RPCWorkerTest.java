@@ -1,29 +1,19 @@
 package io.Adrestus.protocol;
 
-import ch.qos.logback.core.joran.conditional.ThenAction;
-import io.Adrestus.config.NetworkConfiguration;
 import io.Adrestus.core.AbstractBlock;
 import io.Adrestus.core.CommitteeBlock;
-import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.core.TransactionBlock;
-import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.Adrestus.network.CachedEventLoop;
 import io.Adrestus.network.IPFinder;
 import io.Adrestus.rpc.RpcAdrestusClient;
-import io.Adrestus.rpc.RpcAdrestusServer;
-import io.Adrestus.util.EpochTransitionFinder;
-import io.activej.eventloop.Eventloop;
-import io.activej.rpc.server.RpcServer;
 import io.distributedLedger.*;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import javax.swing.plaf.TableHeaderUI;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -36,12 +26,13 @@ public class RPCWorkerTest {
 
 
     @BeforeAll
-    public static void setup(){
+    public static void setup() {
         delete_test();
     }
+
     @Test
     public void test() throws IOException, InterruptedException {
-        DatabaseInstance instance=DatabaseInstance.ZONE_0_TRANSACTION_BLOCK;
+        DatabaseInstance instance = DatabaseInstance.ZONE_0_TRANSACTION_BLOCK;
         IDatabase<String, TransactionBlock> database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, instance);
         IAdrestusFactory factory = new AdrestusFactory();
         List<AdrestusTask> tasks = new java.util.ArrayList<>(List.of(
@@ -88,7 +79,7 @@ public class RPCWorkerTest {
 
             List<AbstractBlock> blocks2 = client2.getBlocksList("1");
             assertEquals(1, blocks2.size());
-        }catch (Exception e){
+        } catch (Exception e) {
 
         }
         database.delete_db();

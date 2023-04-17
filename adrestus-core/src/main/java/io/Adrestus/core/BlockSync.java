@@ -85,9 +85,9 @@ public class BlockSync implements IBlockSync {
                 } catch (NullPointerException e) {
                     Thread.sleep(ConsensusConfiguration.CONSENSUS_WAIT_TIMEOUT);
                 } finally {
-                    if (client != null){
+                    if (client != null) {
                         client.close();
-                        client=null;
+                        client = null;
                     }
 
                 }

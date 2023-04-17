@@ -30,7 +30,6 @@ import io.Adrestus.p2p.kademlia.node.KeyHashGenerator;
 import io.Adrestus.p2p.kademlia.repository.KademliaData;
 import io.Adrestus.p2p.kademlia.util.BoundedHashUtil;
 import io.Adrestus.p2p.kademlia.util.LoggerKademlia;
-import io.Adrestus.util.MathOperationUtil;
 import lombok.SneakyThrows;
 import org.apache.commons.codec.binary.StringUtils;
 import org.slf4j.Logger;
@@ -76,9 +75,9 @@ public class BindServerKademliaTask extends AdrestusTask {
             }
         };
         this.dhtBootstrapNode = new DHTBootstrapNode(
-                    this.bootstrapNettyConnectionInfo,
-                    KademliaConfiguration.BootstrapNodeID,
-                    keyHashGenerator);
+                this.bootstrapNettyConnectionInfo,
+                KademliaConfiguration.BootstrapNodeID,
+                keyHashGenerator);
 
         this.dhtRegularNode = new DHTRegularNode(this.nettyConnectionInfo, BigInteger.valueOf(this.blockIndex.getIndexFromIP(CachedZoneIndex.getInstance().getZoneIndex(), ip)), keyHashGenerator);
         this.InitKademliaData();
@@ -97,10 +96,10 @@ public class BindServerKademliaTask extends AdrestusTask {
             }
         };
         this.dhtBootstrapNode = new DHTBootstrapNode(
-                    this.bootstrapNettyConnectionInfo,
-                    KademliaConfiguration.BootstrapNodeID,
-                    keyHashGenerator);
-            this.dhtRegularNode = new DHTRegularNode(this.nettyConnectionInfo, BigInteger.valueOf(this.blockIndex.getIndexFromIP(CachedZoneIndex.getInstance().getZoneIndex(), ip)), keyHashGenerator);
+                this.bootstrapNettyConnectionInfo,
+                KademliaConfiguration.BootstrapNodeID,
+                keyHashGenerator);
+        this.dhtRegularNode = new DHTRegularNode(this.nettyConnectionInfo, BigInteger.valueOf(this.blockIndex.getIndexFromIP(CachedZoneIndex.getInstance().getZoneIndex(), ip)), keyHashGenerator);
         this.InitKademliaData(secureRandom, passphrase);
     }
 
@@ -117,9 +116,9 @@ public class BindServerKademliaTask extends AdrestusTask {
             }
         };
         this.dhtBootstrapNode = new DHTBootstrapNode(
-                    this.bootstrapNettyConnectionInfo,
-                    KademliaConfiguration.BootstrapNodeID,
-                    keyHashGenerator);
+                this.bootstrapNettyConnectionInfo,
+                KademliaConfiguration.BootstrapNodeID,
+                keyHashGenerator);
         this.dhtRegularNode = new DHTRegularNode(this.nettyConnectionInfo, new BigInteger(String.format("%040d", new BigInteger(UUID.randomUUID().toString().replace("-", ""), 16))), keyHashGenerator);
         this.InitKademliaData(keypair, blsPublicKey);
     }

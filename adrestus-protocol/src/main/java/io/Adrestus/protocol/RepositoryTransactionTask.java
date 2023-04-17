@@ -8,7 +8,6 @@ import io.Adrestus.rpc.RpcAdrestusServer;
 import io.activej.eventloop.Eventloop;
 import io.distributedLedger.DatabaseInstance;
 import io.distributedLedger.ZoneDatabaseFactory;
-import io.netty.channel.EventLoop;
 import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +23,7 @@ public class RepositoryTransactionTask extends AdrestusTask {
 
     private final DatabaseInstance databaseInstance;
     private Eventloop eventLoop;
+
     public RepositoryTransactionTask(DatabaseInstance databaseInstance) {
         this.transactionBlock = new TransactionBlock();
         this.databaseInstance = databaseInstance;

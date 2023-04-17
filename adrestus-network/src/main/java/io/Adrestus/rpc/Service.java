@@ -3,7 +3,6 @@ package io.Adrestus.rpc;
 import io.distributedLedger.*;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -11,6 +10,7 @@ public class Service<T> implements IService<T> {
     private final IDatabase<String, T> database;
     private final Class<T> typeParameterClass;
     private DatabaseInstance instance;
+
     public Service(Class<T> typeParameterClass) {
         this.typeParameterClass = typeParameterClass;
         DatabaseFactory factory = new DatabaseFactory(String.class, typeParameterClass);
@@ -18,7 +18,7 @@ public class Service<T> implements IService<T> {
     }
 
     public Service(Class<T> typeParameterClass, DatabaseInstance instance) {
-        this.instance=instance;
+        this.instance = instance;
         this.typeParameterClass = typeParameterClass;
         DatabaseFactory factory = new DatabaseFactory(String.class, typeParameterClass);
         this.database = factory.getDatabase(DatabaseType.ROCKS_DB, instance);

@@ -6,6 +6,7 @@ import io.activej.serializer.*;
 
 public class ECP2mapper extends SimpleSerializerDef<ECP2> {
     private static final int ARRAY_LEN = 4 * (BIG.MODBYTES + 1);
+
     protected BinarySerializer<ECP2> createSerializer(int version, CompatibilityLevel compatibilityLevel) {
         return new BinarySerializer<ECP2>() {
             @Override

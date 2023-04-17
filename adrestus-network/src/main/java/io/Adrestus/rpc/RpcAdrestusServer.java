@@ -179,7 +179,7 @@ public class RpcAdrestusServer<T> implements Runnable {
             ListBlockResponse response;
             try {
                 result = service.download(request.hash);
-                response=new ListBlockResponse(this.valueMapper.encode_list(result));
+                response = new ListBlockResponse(this.valueMapper.encode_list(result));
             } catch (Exception e) {
                 return Promise.ofException(e);
             }
