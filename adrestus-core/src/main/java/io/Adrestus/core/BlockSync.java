@@ -68,6 +68,7 @@ public class BlockSync implements IBlockSync {
             List<CommitteeBlock> blocks = null;
             do {
                 RpcAdrestusClient client = new RpcAdrestusClient(new CommitteeBlock(), new InetSocketAddress(InetAddress.getByName(KademliaConfiguration.BOOTSTRAP_NODE_IP), NetworkConfiguration.RPC_PORT), CachedEventLoop.getInstance().getEventloop());
+                client.connect();
                 try {
                     if (last_block.isPresent()) {
                         blocks = client.getBlocksList(String.valueOf(last_block.get().getHeight()));
