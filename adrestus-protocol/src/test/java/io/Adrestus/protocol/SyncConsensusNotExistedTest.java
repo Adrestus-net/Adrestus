@@ -79,15 +79,14 @@ public class SyncConsensusNotExistedTest {
             }
         };
         int version = 0x00;
-        char[] mnemonic1 = "fluid abstract raise duty scare year add danger include smart senior ensure".toCharArray();
+        char[] mnemonic7 = "fluid abstract raise duty scare year add danger include smart senior ensure".toCharArray();
         passphrase = "p4ssphr4se".toCharArray();
 
         Mnemonic mnem = new Mnemonic(Security.NORMAL, WordList.ENGLISH);
-        byte[] key1 = mnem.createSeed(mnemonic1, passphrase);
+        byte[] key1 = mnem.createSeed(mnemonic7, passphrase);
         SecureRandom random = SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
-
-        ecKeyPair2 = Keys.createEcKeyPair(random);
         random.setSeed(key1);
+        ecKeyPair2 = Keys.createEcKeyPair(random);
         sk2 = new BLSPrivateKey(random);
         vk2 = new BLSPublicKey(sk2, new Params(new String(passphrase).getBytes(StandardCharsets.UTF_8)));
         String address2 = WalletAddress.generate_address((byte) version, ecKeyPair2.getPublicKey());
