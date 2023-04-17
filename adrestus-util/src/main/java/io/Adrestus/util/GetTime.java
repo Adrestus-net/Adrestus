@@ -11,7 +11,7 @@ import java.util.TimeZone;
 public class GetTime {
     private static final String FORMAT_STRING = "yyyy-MM-dd HH:mm:ss.SSS";
     private static final int ONE_MINUTE = 1 * 60 * 1000;
-
+    private static final int TRANSACTION_BLOCK_DELAY=800;
     private static long ExtractUTCTimestamp() {
         try {
             return TimeStamp.getCurrentTime().getTime();
@@ -35,6 +35,12 @@ public class GetTime {
     public static Timestamp GetTimeStampWithDelay() {
         Timestamp timestamp = new Timestamp(ExtractUTCTimestamp() + ONE_MINUTE);
         return timestamp;
+    }
+
+    public static Timestamp GetTimeStampWithDelay(Timestamp timestamp) {
+        Long milliseconds = timestamp.getTime()+TRANSACTION_BLOCK_DELAY;
+        Timestamp updatedTimestamp = new Timestamp(milliseconds);
+        return updatedTimestamp;
     }
 
     public static Timestamp GetTimestampFromString(String parseDate) throws ParseException {
