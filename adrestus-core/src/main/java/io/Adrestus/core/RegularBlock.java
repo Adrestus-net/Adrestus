@@ -187,7 +187,8 @@ public class RegularBlock implements BlockForge, BlockInvent {
         //######################Patricia_Tree#############################################
 
         try {
-            byte[] tohash = encode.encode(transactionBlock);
+            this.blockSizeCalculator.setTransactionBlock(transactionBlock);
+            byte[] tohash = encode.encode(transactionBlock,this.blockSizeCalculator.TransactionBlockSizeCalculator());
             transactionBlock.setHash(HashUtil.sha256_bytetoString(tohash));
             publisher.start();
             publisher.publish(transactionBlock);
