@@ -221,6 +221,19 @@ public class RegularBlock implements BlockForge, BlockInvent {
                         .getStakingMap()
                         .put(new StakingData(i, TreeFactory.getMemoryTree(0).getByaddress(kademliaData.get(i).getAddressData().getAddress()).get().getStaking_amount()), kademliaData.get(i));
             }
+        } else if (CachedKademliaNodes.getInstance().getDhtRegularNode()!=null) {
+            List<KademliaData> kademliaData = CachedKademliaNodes
+                    .getInstance()
+                    .getDhtRegularNode()
+                    .getActiveNodes()
+                    .stream()
+                    .collect(Collectors.toList());
+
+            for (int i = 0; i < kademliaData.size(); i++) {
+                committeeBlock
+                        .getStakingMap()
+                        .put(new StakingData(i, TreeFactory.getMemoryTree(0).getByaddress(kademliaData.get(i).getAddressData().getAddress()).get().getStaking_amount()), kademliaData.get(i));
+            }
         } else {
             committeeBlock.setStakingMap(CachedLatestBlocks.getInstance().getCommitteeBlock().getStakingMap());
         }

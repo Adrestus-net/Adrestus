@@ -1,8 +1,11 @@
 package io.Adrestus.p2p.kademlia.node;
 
+import io.Adrestus.TreeFactory;
 import io.Adrestus.config.KademliaConfiguration;
 import io.Adrestus.config.NodeSettings;
+import io.Adrestus.config.StakingConfiguration;
 import io.Adrestus.crypto.HashUtil;
+import io.Adrestus.crypto.elliptic.ECDSASign;
 import io.Adrestus.p2p.kademlia.NettyKademliaDHTNode;
 import io.Adrestus.p2p.kademlia.builder.NettyKademliaDHTNodeBuilder;
 import io.Adrestus.p2p.kademlia.common.NettyConnectionInfo;
@@ -26,6 +29,7 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import org.apache.commons.codec.binary.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +37,7 @@ import java.math.BigInteger;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public class DHTBootstrapNode {
     private static Logger LOG = LoggerFactory.getLogger(DHTBootstrapNode.class);
@@ -42,7 +47,7 @@ public class DHTBootstrapNode {
     private final KeyHashGenerator<BigInteger, String> keyHashGenerator;
     private final KademliaRepository repository;
     private final Timer scheduledExecutorService;
-
+    private final ECDSASign ecdsaSign;
 
     private BigInteger ID;
     private MessageHandler<BigInteger, NettyConnectionInfo> handler;
@@ -63,6 +68,7 @@ public class DHTBootstrapNode {
             }
         };
         this.repository = new KademliaRepositoryImp();
+        this.ecdsaSign = new ECDSASign();
         //   this.InitHandler();
     }
 
@@ -79,6 +85,7 @@ public class DHTBootstrapNode {
             }
         };
         this.repository = new KademliaRepositoryImp();
+        this.ecdsaSign = new ECDSASign();
         // this.InitHandler();
     }
 
@@ -89,6 +96,7 @@ public class DHTBootstrapNode {
         this.nettyConnectionInfo = nettyConnectionInfo;
         this.keyHashGenerator = keyHashGenerator;
         this.repository = new KademliaRepositoryImp();
+        this.ecdsaSign = new ECDSASign();
         //  this.InitHandler();
     }
 
@@ -135,12 +143,27 @@ public class DHTBootstrapNode {
         this.bootStrapNode.getRoutingTable().getBuckets().forEach(bucket -> {
             bucket.getNodeIds().forEach(node -> {
                 try {
-                    // System.out.println(node);
-                    active_nodes.add(bootStrapNode.lookup(node.toString()).get().getValue());
+                    KademliaData value = bootStrapNode.lookup(node.toString()).get(KademliaConfiguration.KADEMLIA_GET_TIMEOUT, TimeUnit.SECONDS).getValue();
+                    boolean verify = ecdsaSign.secp256Verify(HashUtil.sha256(StringUtils.getBytesUtf8(value.getAddressData().getAddress())), value.getAddressData().getAddress(), value.getAddressData().getECDSASignature());
+                    if (!verify) {
+                        LOG.info("Kademlia Data are not valid abort");
+                    } else {
+
+                        if (TreeFactory.getMemoryTree(0).getByaddress(value.getAddressData().getAddress()).get().getAmount() < StakingConfiguration.MINIMUM_STAKING) {
+                            LOG.info("Amount of this address not meet minimum requirements");
+                        } else {
+                            active_nodes.add(value);
+                        }
+                    }
+
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 } catch (ExecutionException e) {
                     e.printStackTrace();
+                } catch (TimeoutException e) {
+                    e.printStackTrace();
+                } catch (Exception e) {
+                    LOG.info("This address not found invalid");
                 }
             });
         });
