@@ -1,5 +1,7 @@
 package io.Adrestus.protocol;
 
+import io.Adrestus.TreeFactory;
+import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.config.ConsensusConfiguration;
 import io.Adrestus.config.KademliaConfiguration;
@@ -23,6 +25,7 @@ import io.Adrestus.crypto.mnemonic.Mnemonic;
 import io.Adrestus.crypto.mnemonic.MnemonicException;
 import io.Adrestus.crypto.mnemonic.Security;
 import io.Adrestus.crypto.mnemonic.WordList;
+import io.Adrestus.network.CachedEventLoop;
 import io.Adrestus.p2p.kademlia.common.NettyConnectionInfo;
 import io.Adrestus.p2p.kademlia.exception.UnsupportedBoundingException;
 import io.Adrestus.p2p.kademlia.node.DHTBootstrapNode;
@@ -63,24 +66,26 @@ public class SyncConsensusExistedTest {
     private static char[] passphrase;
 
     @BeforeAll
-    public static void setup() throws MnemonicException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException {
+    public static void setup() throws Exception {
         delete_test();
         int version = 0x00;
-        sk2 = new BLSPrivateKey(2);
+        sk2 = new BLSPrivateKey(8);
         vk2 = new BLSPublicKey(sk2);
-        char[] mnemonic2 = "photo monitor cushion indicate civil witness orchard estate online favorite sustain extend".toCharArray();
+        char[] mnemonic2 = "ensure fluid abstract raise duty scare year add danger include smart senior".toCharArray();
 
         passphrase = "p4ssphr4se".toCharArray();
 
         Mnemonic mnem = new Mnemonic(Security.NORMAL, WordList.ENGLISH);
         key2 = mnem.createSeed(mnemonic2, passphrase);
         SecureRandom random = SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
-
-        ecKeyPair2 = Keys.createEcKeyPair(random);
         random.setSeed(key2);
+        ecKeyPair2 = Keys.createEcKeyPair(random);
+
         String address2 = WalletAddress.generate_address((byte) version, ecKeyPair2.getPublicKey());
+        TreeFactory.getMemoryTree(0).store(address2, new PatriciaTreeNode(3000, 0));
+        Thread.sleep(2000);
         ECDSASignatureData signatureData2 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address2)), ecKeyPair2);
-        kad2 = new KademliaData(new SecurityAuditProofs(address2, vk2, ecKeyPair2.getPublicKey(), signatureData2), new NettyConnectionInfo("192.168.1.113", KademliaConfiguration.PORT));
+        kad2 = new KademliaData(new SecurityAuditProofs(address2, vk2, ecKeyPair2.getPublicKey(), signatureData2), new NettyConnectionInfo("192.168.1.117", KademliaConfiguration.PORT));
     }
 
 
@@ -90,7 +95,7 @@ public class SyncConsensusExistedTest {
         socket.connect(new InetSocketAddress("google.com", 80));
         String IP = socket.getLocalAddress().getHostAddress();
 
-        if (!IP.equals("192.168.1.113"))
+        if (!IP.equals("192.168.1.117"))
             return;
 
         keyHashGenerator = key -> {
@@ -101,25 +106,14 @@ public class SyncConsensusExistedTest {
             }
         };
 
-        DHTBootstrapNode dhtBootstrapNode = new DHTBootstrapNode(
-                new NettyConnectionInfo("192.168.1.106", KademliaConfiguration.BootstrapNodePORT),
-                BigInteger.valueOf(0),
-                keyHashGenerator);
-        CachedKademliaNodes.getInstance().setDhtBootstrapNode(dhtBootstrapNode);
-
         CachedBLSKeyPair.getInstance().setPrivateKey(sk2);
         CachedBLSKeyPair.getInstance().setPublicKey(vk2);
-        dhtBootstrapNode.Init();
-        DHTRegularNode nextnode = new DHTRegularNode(kad2.getNettyConnectionInfo(), BigInteger.valueOf(1), keyHashGenerator);
-        nextnode.setKademliaData(kad2);
-        nextnode.start(dhtBootstrapNode);
-        nextnode.scheduledFuture();
-        CachedKademliaNodes.getInstance().setDhtRegularNode(nextnode);
 
 
         IAdrestusFactory factory = new AdrestusFactory();
         List<AdrestusTask> tasks = new java.util.ArrayList<>(List.of(
-                factory.createBindServerKademliaTask(new SecureRandom(key2), new String(passphrase).getBytes(StandardCharsets.UTF_8)),
+                factory.createBindServerKademliaTask(ecKeyPair2, vk2),
+                factory.createBindServerCachedTask(),
                 factory.createBindServerTransactionTask(),
                 factory.createBindServerReceiptTask(),
                 factory.createSendReceiptTask(),
@@ -130,7 +124,7 @@ public class SyncConsensusExistedTest {
                 factory.createRepositoryCommitteeTask()));
         ExecutorService executor = Executors.newFixedThreadPool(tasks.size());
         tasks.stream().map(Worker::new).forEach(executor::execute);
-
+        CachedEventLoop.getInstance().start();
 
         var blocksync = new BlockSync();
         blocksync.WaitPatientlyYourPosition();

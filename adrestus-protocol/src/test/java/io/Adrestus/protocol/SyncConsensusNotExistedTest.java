@@ -82,12 +82,12 @@ public class SyncConsensusNotExistedTest {
         random.setSeed(key1);
         ecKeyPair2 = Keys.createEcKeyPair(random);
         sk2 = new BLSPrivateKey(random);
-        vk2 = new BLSPublicKey(sk2, new Params(new String(passphrase).getBytes(StandardCharsets.UTF_8)));
+        vk2 = new BLSPublicKey(sk2);
         String address2 = WalletAddress.generate_address((byte) version, ecKeyPair2.getPublicKey());
         ECDSASignatureData signatureData2 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address2)), ecKeyPair2);
 
         TreeFactory.getMemoryTree(0).store(address2, new PatriciaTreeNode(3000, 0));
-
+        Thread.sleep(2000);
         kad2 = new KademliaData(new SecurityAuditProofs(address2, vk2, ecKeyPair2.getPublicKey(), signatureData2), new NettyConnectionInfo(IPFinder.getLocalIP(), KademliaConfiguration.PORT));
 
     }
