@@ -33,6 +33,7 @@ import io.Adrestus.p2p.kademlia.node.DHTRegularNode;
 import io.Adrestus.p2p.kademlia.node.KeyHashGenerator;
 import io.Adrestus.p2p.kademlia.repository.KademliaData;
 import io.Adrestus.p2p.kademlia.util.BoundedHashUtil;
+import io.Adrestus.p2p.kademlia.util.LoggerKademlia;
 import io.distributedLedger.*;
 import org.apache.commons.codec.binary.StringUtils;
 import org.junit.jupiter.api.BeforeAll;
@@ -69,6 +70,18 @@ public class SyncConsensusExistedTest {
     public static void setup() throws Exception {
         delete_test();
         int version = 0x00;
+        LoggerKademlia.setLevelOFF();
+        int port = 1080;
+        KademliaConfiguration.IDENTIFIER_SIZE = 3;
+        ConsensusConfiguration.EPOCH_TRANSITION = 1;
+        NodeSettings.getInstance();
+        keyHashGenerator = key -> {
+            try {
+                return new BoundedHashUtil(NodeSettings.getInstance().getIdentifierSize()).hash(key.hashCode(), BigInteger.class);
+            } catch (UnsupportedBoundingException e) {
+                throw new IllegalArgumentException("Key hash generator not valid");
+            }
+        };
         sk2 = new BLSPrivateKey(8);
         vk2 = new BLSPublicKey(sk2);
         char[] mnemonic2 = "ensure fluid abstract raise duty scare year add danger include smart senior".toCharArray();
@@ -97,14 +110,6 @@ public class SyncConsensusExistedTest {
 
         if (!IP.equals("192.168.1.117"))
             return;
-
-        keyHashGenerator = key -> {
-            try {
-                return new BoundedHashUtil(NodeSettings.getInstance().getIdentifierSize()).hash(key.hashCode(), BigInteger.class);
-            } catch (UnsupportedBoundingException e) {
-                throw new IllegalArgumentException("Key hash generator not valid");
-            }
-        };
 
         CachedBLSKeyPair.getInstance().setPrivateKey(sk2);
         CachedBLSKeyPair.getInstance().setPublicKey(vk2);
