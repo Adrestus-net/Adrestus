@@ -4,10 +4,7 @@ import io.Adrestus.config.ConsensusConfiguration;
 import io.Adrestus.consensus.ChangeView.ChangeViewCommitteeState;
 import io.Adrestus.consensus.ChangeView.ChangeViewTransactionState;
 import io.Adrestus.core.*;
-import io.Adrestus.core.Resourses.CachedEpochGeneration;
-import io.Adrestus.core.Resourses.CachedLatestBlocks;
-import io.Adrestus.core.Resourses.CachedLeaderIndex;
-import io.Adrestus.core.Resourses.CachedZoneIndex;
+import io.Adrestus.core.Resourses.*;
 import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -105,6 +102,7 @@ public class ConsensusState extends ConsensusDataState {
             committee_state = new ConsensusVRFState();
             committee_state.onEnterState(blockIndex.getPublicKeyByIndex(0, 0));
             CachedLeaderIndex.getInstance().setCommitteePositionLeader(0);
+            CachedConsensusState.getInstance().setCommitteeState(committee_state);
         }
 
         public CommitteeBlockConsensusTask(AbstractState state) {
@@ -117,6 +115,7 @@ public class ConsensusState extends ConsensusDataState {
                 committee_state = state;
                 previous_state = state;
             }
+            CachedConsensusState.getInstance().setCommitteeState(committee_state);
         }
 
         private void changeStateTo(AbstractState newState) {
@@ -204,10 +203,12 @@ public class ConsensusState extends ConsensusDataState {
         public TransactionBlockConsensusTask() {
             this.state = new ConsensusTransactionBlockState();
             this.state.onEnterState(null);
+            CachedConsensusState.getInstance().setTransactionState(state);
         }
 
         public TransactionBlockConsensusTask(AbstractState state) {
             this.state = state;
+            CachedConsensusState.getInstance().setTransactionState(state);
         }
 
         private void changeStateTo(AbstractState newState) {
@@ -249,12 +250,14 @@ public class ConsensusState extends ConsensusDataState {
                             changeStateTo(new ConsensusTransactionBlockState());
                             state.onEnterState(null);
                         }
+                        CachedCheckPoint.getInstance().setCheckPointCounter(0);
                         CachedEpochGeneration.getInstance().setEpoch_counter(CachedEpochGeneration.getInstance().getEpoch_counter() + 1);
                         transaction_block_timer = new Timer(ConsensusConfiguration.CONSENSUS);
                         transaction_block_timer.scheduleAtFixedRate(new TransactionBlockConsensusTask(state), ConsensusConfiguration.CONSENSUS_TIMER, ConsensusConfiguration.CONSENSUS_TIMER);
                     } else {
                         changeStateTo(new ChangeViewTransactionState());
                         LOG.info("State changed to ChangeViewTransactionState");
+                        CachedCheckPoint.getInstance().setCheckPointCounter(CachedCheckPoint.getInstance().getCheckPointCounter()+1);
                         if (CachedLeaderIndex.getInstance().getTransactionPositionLeader() == 0) {
                             CachedLeaderIndex.getInstance().setTransactionPositionLeader(CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).size() - 1);
                             state.onEnterState(blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedLeaderIndex.getInstance().getTransactionPositionLeader()));

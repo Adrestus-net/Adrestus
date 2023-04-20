@@ -211,8 +211,9 @@ public class DHTRegularNode {
                     e.printStackTrace();
                 } catch (TimeoutException e) {
                     e.printStackTrace();
+                } catch (NullPointerException e){
                 } catch (Exception e) {
-                    LOG.info("This address not found invalid");
+                    LOG.error(e.toString());
                 }
             });
         });

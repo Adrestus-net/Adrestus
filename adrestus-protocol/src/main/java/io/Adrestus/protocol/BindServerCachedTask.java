@@ -1,6 +1,7 @@
 package io.Adrestus.protocol;
 
 import io.Adrestus.config.SocketConfigOptions;
+import io.Adrestus.consensus.CachedConsensusState;
 import io.Adrestus.core.Resourses.*;
 import io.Adrestus.crypto.bls.BLS381.ECP;
 import io.Adrestus.crypto.bls.BLS381.ECP2;
@@ -82,6 +83,7 @@ public class BindServerCachedTask extends AdrestusTask {
 
     private static @NotNull Promise<ByteBuf> loadData() {
         final CachedNetworkData cachedNetworkData = new CachedNetworkData(
+                CachedConsensusState.getInstance().isValid(),
                 CachedEpochGeneration.getInstance().getEpoch_counter(),
                 CachedLatestBlocks.getInstance().getCommitteeBlock(),
                 CachedLatestBlocks.getInstance().getTransactionBlock(),

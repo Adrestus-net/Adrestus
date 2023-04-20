@@ -1,6 +1,7 @@
 package io.Adrestus.p2p.kademlia.repository;
 
 import io.Adrestus.TreeFactory;
+import io.Adrestus.config.StakingConfiguration;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.elliptic.ECDSASign;
 import org.apache.commons.codec.binary.StringUtils;
@@ -13,7 +14,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class KademliaRepositoryImp implements KademliaRepository<String, KademliaData> {
-    private static int MINUM_AMOUNT = 1000;
     private static Logger LOG = LoggerFactory.getLogger(KademliaRepositoryImp.class);
     private final Map<String, KademliaData> stored_map;
     private final ECDSASign ecdsaSign;
@@ -31,7 +31,7 @@ public class KademliaRepositoryImp implements KademliaRepository<String, Kademli
             return;
         }
         try {
-            if (TreeFactory.getMemoryTree(0).getByaddress(value.getAddressData().getAddress()).get().getAmount() < MINUM_AMOUNT) {
+            if (TreeFactory.getMemoryTree(0).getByaddress(value.getAddressData().getAddress()).get().getAmount() < StakingConfiguration.MINIMUM_STAKING) {
                 LOG.info("Amount of this address not meet minimum requirements");
                 return;
             }

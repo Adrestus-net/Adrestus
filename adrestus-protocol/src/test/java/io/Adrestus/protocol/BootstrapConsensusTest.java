@@ -202,7 +202,7 @@ public class BootstrapConsensusTest {
         committeeBlock.getStakingMap().put(new StakingData(3, 151.0), kad3);
         committeeBlock.getStakingMap().put(new StakingData(4, 16.0), kad4);
         committeeBlock.getStakingMap().put(new StakingData(5, 271.0), kad5);
-        committeeBlock.getStakingMap().put(new StakingData(6, 281.0), kad5);
+        committeeBlock.getStakingMap().put(new StakingData(6, 281.0), kad6);
 
         CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
 

@@ -127,7 +127,7 @@ public class BlockSync implements IBlockSync {
             List<TransactionBlock> blocks;
             if (block.isPresent()) {
                 blocks = client.getBlocksList(String.valueOf(block.get().getHeight()));
-                if (!blocks.isEmpty()) {
+                if (!blocks.isEmpty() && blocks.size() > 1) {
                     blocks.stream().skip(1).forEach(val -> toSave.put(String.valueOf(val.getHeight()), val));
                 }
 
@@ -165,7 +165,7 @@ public class BlockSync implements IBlockSync {
             }
             Map<String, byte[]> toSave = new HashMap<>();
             if (tree.isPresent()) {
-                if (!treeObjects.isEmpty()) {
+                if (!treeObjects.isEmpty()&& treeObjects.size() > 1) {
                     treeObjects.stream().skip(1).forEach(val -> {
                         try {
                             toSave.put(((MemoryTreePool) patricia_tree_wrapper.decode(val)).getRootHash(), val);

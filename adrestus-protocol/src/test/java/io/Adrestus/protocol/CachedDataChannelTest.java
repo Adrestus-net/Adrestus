@@ -1,5 +1,6 @@
 package io.Adrestus.protocol;
 
+import io.Adrestus.consensus.CachedConsensusState;
 import io.Adrestus.core.CommitteeBlock;
 import io.Adrestus.core.Resourses.*;
 import io.Adrestus.core.TransactionBlock;
@@ -57,6 +58,7 @@ public class CachedDataChannelTest {
         CachedSecurityHeaders.getInstance().setSecurityHeader(new SecurityHeader("1".getBytes(StandardCharsets.UTF_8), "2".getBytes(StandardCharsets.UTF_8)));
         CachedZoneIndex.getInstance().setZoneIndex(1);
         final CachedNetworkData cachedNetworkData = new CachedNetworkData(
+                CachedConsensusState.getInstance().isValid(),
                 CachedEpochGeneration.getInstance().getEpoch_counter(),
                 CachedLatestBlocks.getInstance().getCommitteeBlock(),
                 CachedLatestBlocks.getInstance().getTransactionBlock(),

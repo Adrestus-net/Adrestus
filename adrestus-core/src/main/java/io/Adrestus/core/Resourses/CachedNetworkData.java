@@ -1,13 +1,14 @@
 package io.Adrestus.core.Resourses;
 
+import com.google.common.base.Objects;
 import io.Adrestus.core.CommitteeBlock;
 import io.Adrestus.core.TransactionBlock;
 import io.Adrestus.crypto.SecurityHeader;
 import io.activej.serializer.annotations.Serialize;
 
-import java.util.Objects;
-
 public class CachedNetworkData {
+
+    private boolean consensus_state;
     private int epoch_counter;
     private CommitteeBlock committeeBlock;
     private TransactionBlock transactionBlock;
@@ -18,6 +19,17 @@ public class CachedNetworkData {
 
     private int ZoneIndex;
 
+
+    public CachedNetworkData(boolean consensus_state, int epoch_counter, CommitteeBlock committeeBlock, TransactionBlock transactionBlock, int committeePositionLeader, int transactionPositionLeader, SecurityHeader securityHeader, int zoneIndex) {
+        this.consensus_state = consensus_state;
+        this.epoch_counter = epoch_counter;
+        this.committeeBlock = committeeBlock;
+        this.transactionBlock = transactionBlock;
+        CommitteePositionLeader = committeePositionLeader;
+        TransactionPositionLeader = transactionPositionLeader;
+        this.securityHeader = securityHeader;
+        ZoneIndex = zoneIndex;
+    }
 
     public CachedNetworkData(int epoch_counter, CommitteeBlock committeeBlock, TransactionBlock transactionBlock, int committeePositionLeader, int transactionPositionLeader, SecurityHeader securityHeader, int zoneIndex) {
         this.epoch_counter = epoch_counter;
@@ -31,6 +43,7 @@ public class CachedNetworkData {
 
 
     public CachedNetworkData() {
+        this.consensus_state=false;
         this.epoch_counter = 0;
         this.committeeBlock = new CommitteeBlock();
         this.transactionBlock = new TransactionBlock();
@@ -103,6 +116,14 @@ public class CachedNetworkData {
         TransactionPositionLeader = transactionPositionLeader;
     }
 
+    @Serialize
+    public boolean isConsensus_state() {
+        return consensus_state;
+    }
+
+    public void setConsensus_state(boolean consensus_state) {
+        this.consensus_state = consensus_state;
+    }
     public void SetCacheData() {
         CachedEpochGeneration.getInstance().setEpoch_counter(this.epoch_counter);
         CachedLatestBlocks.getInstance().setCommitteeBlock(this.committeeBlock);
@@ -113,26 +134,25 @@ public class CachedNetworkData {
         CachedLeaderIndex.getInstance().setTransactionPositionLeader(this.TransactionPositionLeader);
     }
 
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         CachedNetworkData that = (CachedNetworkData) o;
-        boolean val = Objects.equals(committeeBlock, that.committeeBlock);
-        boolean val2 = Objects.equals(transactionBlock, that.transactionBlock);
-        boolean val3 = Objects.equals(securityHeader, that.securityHeader);
-        return epoch_counter == that.epoch_counter && CommitteePositionLeader == that.CommitteePositionLeader && TransactionPositionLeader == that.TransactionPositionLeader && ZoneIndex == that.ZoneIndex && Objects.equals(committeeBlock, that.committeeBlock) && Objects.equals(transactionBlock, that.transactionBlock) && Objects.equals(securityHeader, that.securityHeader);
+        return consensus_state == that.consensus_state && epoch_counter == that.epoch_counter && CommitteePositionLeader == that.CommitteePositionLeader && TransactionPositionLeader == that.TransactionPositionLeader && ZoneIndex == that.ZoneIndex && Objects.equal(committeeBlock, that.committeeBlock) && Objects.equal(transactionBlock, that.transactionBlock) && Objects.equal(securityHeader, that.securityHeader);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(epoch_counter, committeeBlock, transactionBlock, CommitteePositionLeader, TransactionPositionLeader, securityHeader, ZoneIndex);
+        return Objects.hashCode(consensus_state, epoch_counter, committeeBlock, transactionBlock, CommitteePositionLeader, TransactionPositionLeader, securityHeader, ZoneIndex);
     }
 
     @Override
     public String toString() {
         return "CachedNetworkData{" +
-                "epoch_counter=" + epoch_counter +
+                "consensus_state=" + consensus_state +
+                ", epoch_counter=" + epoch_counter +
                 ", committeeBlock=" + committeeBlock +
                 ", transactionBlock=" + transactionBlock +
                 ", CommitteePositionLeader=" + CommitteePositionLeader +
