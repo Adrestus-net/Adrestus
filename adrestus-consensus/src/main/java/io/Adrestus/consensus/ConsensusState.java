@@ -258,6 +258,10 @@ public class ConsensusState extends ConsensusDataState {
                         changeStateTo(new ChangeViewTransactionState());
                         LOG.info("State changed to ChangeViewTransactionState");
                         CachedCheckPoint.getInstance().setCheckPointCounter(CachedCheckPoint.getInstance().getCheckPointCounter()+1);
+                        if(CachedCheckPoint.getInstance().getCheckPointCounter()==ConsensusConfiguration.CHANGE_VIEW_STATE_TRANSITION){
+                            LOG.info("CHANGE_VIEW_STATE_TRANSITION)");
+                            blockSync.checkIfNeedsSync();
+                        }
                         if (CachedLeaderIndex.getInstance().getTransactionPositionLeader() == 0) {
                             CachedLeaderIndex.getInstance().setTransactionPositionLeader(CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).size() - 1);
                             state.onEnterState(blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedLeaderIndex.getInstance().getTransactionPositionLeader()));

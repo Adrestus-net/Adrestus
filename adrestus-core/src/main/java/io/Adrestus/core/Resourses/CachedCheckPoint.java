@@ -13,6 +13,7 @@ public class CachedCheckPoint {
         if (instance != null) {
             throw new IllegalStateException("Already initialized.");
         }
+        this.setCheckPointCounter(0);
     }
 
     public static CachedCheckPoint getInstance() {

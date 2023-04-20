@@ -373,6 +373,9 @@ public class RegularBlock implements BlockForge, BlockInvent {
         IDatabase<String, LevelDBTransactionWrapper<Transaction>> transaction_database = new DatabaseFactory(String.class, Transaction.class, new TypeToken<LevelDBTransactionWrapper<Transaction>>() {
         }.getType()).getDatabase(DatabaseType.LEVEL_DB);
 
+        transactionBlock.setStatustype(StatusType.SUCCES);
+        transactionBlock.getTransactionList().forEach(val->val.setStatus(StatusType.SUCCES));
+
         block_database.save(String.valueOf(transactionBlock.getHeight()), transactionBlock);
 
 
@@ -481,6 +484,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
         CommitteeBlock prevblock = (CommitteeBlock) CachedLatestBlocks.getInstance().getCommitteeBlock().clone();
         int prevZone = Integer.valueOf(CachedZoneIndex.getInstance().getZoneIndex());
         IDatabase<String, CommitteeBlock> database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
+        committeeBlock.setStatustype(StatusType.SUCCES);
         database.save(String.valueOf(committeeBlock.getHeight()), committeeBlock);
         CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
         CachedLeaderIndex.getInstance().setCommitteePositionLeader(0);

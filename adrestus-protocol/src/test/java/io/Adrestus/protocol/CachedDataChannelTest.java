@@ -70,10 +70,11 @@ public class CachedDataChannelTest {
 
         Thread.sleep(4000);
 
+        //check this a bug when connection is open and no progress code is stuck no terminate
 
         //eventloop.run();*/
         ArrayList<String> ips = new ArrayList<>();
-        ips.add(new String("192.168.1.106"));
+        ips.add(new String("192.168.1.116"));
         ips.add(new String("192.168.1.113"));
 
         var ex = new AsyncServiceNetworkData<Long>(ips);

@@ -6,4 +6,6 @@ public interface IBlockSync {
     void WaitPatientlyYourPosition();
 
     void SyncState();
+
+    void checkIfNeedsSync();
 }

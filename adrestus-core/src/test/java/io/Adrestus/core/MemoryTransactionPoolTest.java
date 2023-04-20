@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -58,7 +59,7 @@ public class MemoryTransactionPoolTest {
     @Test
     // @Order(4)
     public void delete_mempool() throws Exception {
-
+        MemoryTransactionPool.getInstance().clear();
         ArrayList<Transaction> list = new ArrayList<Transaction>();
         Transaction transaction1 = new RegularTransaction();
         transaction1.setAmount(100);
@@ -83,10 +84,14 @@ public class MemoryTransactionPoolTest {
         MemoryTransactionPool.getInstance().add(transaction3);
         MemoryTransactionPool.getInstance().add(transaction4);
 
+        transaction3.setStatus(StatusType.SUCCES);
+        transaction4.setStatus(StatusType.SUCCES);
         list.add(transaction3);
         list.add(transaction4);
 
         MemoryTransactionPool.getInstance().delete(list);
+        List<Transaction> l=MemoryTransactionPool.getInstance().getAll();
+        assertEquals(2, MemoryTransactionPool.getInstance().getSize());
         //MemoryPool.getInstance().printAll();
     }
 
