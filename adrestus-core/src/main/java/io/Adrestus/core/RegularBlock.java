@@ -92,6 +92,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
 
         MerkleTreeImp tree = new MerkleTreeImp();
         ArrayList<MerkleNode> merkleNodeArrayList = new ArrayList<>();
+        final ArrayList<Transaction> todelete=new ArrayList<>();
         transactionBlock.getHeaderData().setPreviousHash(CachedLatestBlocks.getInstance().getTransactionBlock().getHash());
         transactionBlock.getHeaderData().setVersion(AdrestusConfiguration.version);
         transactionBlock.getHeaderData().setTimestamp(GetTime.GetTimeStampInString());
@@ -102,9 +103,22 @@ public class RegularBlock implements BlockForge, BlockInvent {
         transactionBlock.setZone(CachedZoneIndex.getInstance().getZoneIndex());
         transactionBlock.setLeaderPublicKey(CachedBLSKeyPair.getInstance().getPublicKey());
         transactionBlock.setTransactionList(MemoryTransactionPool.getInstance().getAll());
-        transactionBlock.getTransactionList().stream().forEach(x -> {
-            merkleNodeArrayList.add(new MerkleNode(x.getHash()));
+        transactionBlock.getTransactionList().stream().forEach(transaction -> {
+            if(transaction.getZoneFrom()!=CachedZoneIndex.getInstance().getZoneIndex()){
+                List<String> ips = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(transaction.getZoneFrom()).values().stream().collect(Collectors.toList());
+                var executor = new AsyncService<Long>(ips, transaction_encode.encode(transaction, 1024), SocketConfigOptions.TRANSACTION_PORT);
+
+                var asyncResult1 = executor.startProcess(300L);
+                final var result1 = executor.endProcess(asyncResult1);
+                todelete.add(transaction);
+                executor=null;
+            }
+            else {
+                merkleNodeArrayList.add(new MerkleNode(transaction.getHash()));
+            }
         });
+        MemoryTransactionPool.getInstance().delete(todelete);
+        todelete.clear();
         tree.my_generate2(merkleNodeArrayList);
         transactionBlock.setMerkleRoot(tree.getRootHash());
 
@@ -204,7 +218,6 @@ public class RegularBlock implements BlockForge, BlockInvent {
     @Override
     public void forgeCommitteBlock(CommitteeBlock committeeBlock) {
         CachedReceiptSemaphore.getInstance().getSemaphore().acquire();
-
 
         IDatabase<String, CommitteeBlock> database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
 

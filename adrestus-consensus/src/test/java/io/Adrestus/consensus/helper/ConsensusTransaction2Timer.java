@@ -18,6 +18,7 @@ import io.Adrestus.crypto.bls.model.CachedBLSKeyPair;
 import io.Adrestus.crypto.elliptic.ECDSASign;
 import io.Adrestus.crypto.elliptic.ECDSASignatureData;
 import io.Adrestus.crypto.elliptic.ECKeyPair;
+import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.util.GetTime;
 import io.Adrestus.util.SerializationUtil;
 import lombok.SneakyThrows;
@@ -25,10 +26,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
 
-import java.util.ArrayList;
-import java.util.Random;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.math.BigInteger;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 
 public class ConsensusTransaction2Timer {
@@ -56,6 +55,9 @@ public class ConsensusTransaction2Timer {
         this.task = new ConsensusTask();
         this.latch = latch;
         this.timer.scheduleAtFixedRate(task, ConsensusConfiguration.CONSENSUS_TIMER, ConsensusConfiguration.CONSENSUS_TIMER);
+        List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
+        this.serenc = new SerializationUtil<Transaction>(Transaction.class, list);
     }
 
 
@@ -136,7 +138,7 @@ public class ConsensusTransaction2Timer {
             transaction.setAmount(i + 10);
             transaction.setAmountWithTransactionFee(transaction.getAmount() * (10.0 / 100.0));
             transaction.setNonce(nonce);
-            byte byf[] = serenc.encode(transaction);
+            byte byf[] = serenc.encode(transaction,1024);
             transaction.setHash(HashUtil.sha256_bytetoString(byf));
 
             ECDSASignatureData signatureData = ecdsaSign.secp256SignMessage(Hex.decode(transaction.getHash()), keypair.get(i));
@@ -182,7 +184,7 @@ public class ConsensusTransaction2Timer {
             transaction.setAmount(i + 10);
             transaction.setAmountWithTransactionFee(transaction.getAmount() * (10.0 / 100.0));
             transaction.setNonce(nonce);
-            byte byf[] = serenc.encode(transaction);
+            byte byf[] = serenc.encode(transaction,1024);
             transaction.setHash(HashUtil.sha256_bytetoString(byf));
 
             ECDSASignatureData signatureData = ecdsaSign.secp256SignMessage(Hex.decode(transaction.getHash()), keypair.get(i));

@@ -33,7 +33,6 @@ public class ZoneEventHandler extends TransactionEventHandler {
             Transaction transaction = transactionEvent.getTransaction();
             if (transaction.getZoneFrom() != CachedZoneIndex.getInstance().getZoneIndex()) {
                 LOG.info("Transaction abort: Transaction is not in the valid zone send async");
-                transaction.setStatus(StatusType.ABORT);
 
 
                 //make sure give enough time for block sync
@@ -44,6 +43,7 @@ public class ZoneEventHandler extends TransactionEventHandler {
 
                 var asyncResult1 = executor.startProcess(300L);
                 final var result1 = executor.endProcess(asyncResult1);
+                transaction.setStatus(StatusType.ABORT);
             }
         } catch (NullPointerException ex) {
             LOG.info("Transaction is empty");
