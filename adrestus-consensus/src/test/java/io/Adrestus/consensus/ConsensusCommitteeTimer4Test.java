@@ -198,7 +198,6 @@ public class ConsensusCommitteeTimer4Test {
                 new NettyConnectionInfo("192.168.1.106", KademliaConfiguration.BootstrapNodePORT),
                 BigInteger.valueOf(0),
                 keyHashGenerator);
-        CachedKademliaNodes.getInstance().setDhtBootstrapNode(dhtBootstrapNode);
         for (Map.Entry<BLSPublicKey, String> entry : CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).entrySet()) {
             if (IP.equals(entry.getValue())) {
                 if (vk1.equals(entry.getKey())) {
@@ -208,6 +207,7 @@ public class ConsensusCommitteeTimer4Test {
                     dhtBootstrapNode.setKademliaData(kad1);
                     dhtBootstrapNode.start();
                     dhtBootstrapNode.scheduledFuture();
+                    CachedKademliaNodes.getInstance().setDhtBootstrapNode(dhtBootstrapNode);
                     Thread.sleep(4000);
                 } else if (vk2.equals(entry.getKey())) {
                     CachedBLSKeyPair.getInstance().setPrivateKey(sk2);
