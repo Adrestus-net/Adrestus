@@ -24,7 +24,7 @@ public class OutBoundEventHandler implements BlockEventHandler<AbstractBlockEven
     @Override
     public void onEvent(AbstractBlockEvent blockEvent, long l, boolean b) throws Exception {
         TransactionBlock transactionBlock = (TransactionBlock) blockEvent.getBlock();
-        final Map<Integer, Map<Receipt.ReceiptBlock, List<Receipt>>> outer_receipts = transactionBlock.getOutbound().getMap_receipts();
+        final LinkedHashMap<Integer, LinkedHashMap<Receipt.ReceiptBlock, List<Receipt>>> outer_receipts = transactionBlock.getOutbound().getMap_receipts();
         if (transactionBlock.getOutbound().getMap_receipts().isEmpty())
             return;
 

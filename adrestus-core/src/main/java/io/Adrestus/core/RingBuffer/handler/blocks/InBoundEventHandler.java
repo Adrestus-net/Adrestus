@@ -28,7 +28,7 @@ public class InBoundEventHandler implements BlockEventHandler<AbstractBlockEvent
 
     private TransactionBlock transactionBlock;
     private CommitteeBlock committeeBlock;
-    private Map<Integer, Map<Receipt.ReceiptBlock, List<Receipt>>> inner_receipts;
+    private LinkedHashMap<Integer, LinkedHashMap<Receipt.ReceiptBlock, List<Receipt>>> inner_receipts;
     private AtomicInteger atomicInteger;
     private CountDownLatch latch;
 

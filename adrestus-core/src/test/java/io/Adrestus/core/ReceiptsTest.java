@@ -188,11 +188,12 @@ public class ReceiptsTest {
 
 
         Receipt.ReceiptBlock receiptBlock1 = new Receipt.ReceiptBlock("1", 1, 1, "1");
+        Receipt.ReceiptBlock receiptBlock1a = new Receipt.ReceiptBlock("1a", 5, 6, "1a");
         Receipt.ReceiptBlock receiptBlock2 = new Receipt.ReceiptBlock("2", 2, 2, "2");
         Receipt.ReceiptBlock receiptBlock3 = new Receipt.ReceiptBlock("3", 3, 3, "3");
         //its wrong each block must be unique for each zone need changes
         Receipt receipt1 = new Receipt(0, 1, receiptBlock1, new RegularTransaction("a"));
-        Receipt receipt2 = new Receipt(0, 1, receiptBlock1, new RegularTransaction("b"));
+        Receipt receipt2 = new Receipt(0, 1, receiptBlock1a, new RegularTransaction("b"));
         Receipt receipt3 = new Receipt(2, 1, receiptBlock2, new RegularTransaction("c"));
         Receipt receipt4 = new Receipt(2, 1, receiptBlock2, new RegularTransaction("d"));
         Receipt receipt5 = new Receipt(3, 1, receiptBlock3, new RegularTransaction("f"));
@@ -211,9 +212,14 @@ public class ReceiptsTest {
         OutBoundRelay outBoundRelay = new OutBoundRelay(map);
         transactionBlock.setOutbound(outBoundRelay);
 
-        byte[] buffer = serenc.encode(transactionBlock);
-        TransactionBlock clone = (TransactionBlock) serenc.decode(buffer);
-        assertEquals(transactionBlock, clone);
+        for(int i=0;i<1000;i++) {
+            byte[] buffer = serenc.encode(transactionBlock);
+            TransactionBlock clone = (TransactionBlock) serenc.decode(buffer);
+            Map.Entry<Receipt.ReceiptBlock, List<Receipt>> entry = clone.getOutbound().getMap_receipts().get(0).entrySet().iterator().next();
+            assertEquals(entry.getKey().getBlock_hash(), "1");
+            assertEquals(transactionBlock, clone);
+        }
+
     }
 
     @Test

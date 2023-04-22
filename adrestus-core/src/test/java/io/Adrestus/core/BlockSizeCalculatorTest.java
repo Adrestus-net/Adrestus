@@ -30,7 +30,7 @@ public class BlockSizeCalculatorTest {
         b.getSignatureData().put(new BLSPublicKey(), new BLSSignatureData());
         b.setZone(0);
         b.getTransactionList().add(new RegularTransaction("1"));
-        Map<Receipt.ReceiptBlock, List<Receipt>> map = new LinkedHashMap<>();
+        LinkedHashMap<Receipt.ReceiptBlock, List<Receipt>> map = new LinkedHashMap<>();
         ArrayList<Receipt> list = new ArrayList<>();
         list.add(new Receipt());
         list.add(new Receipt());
@@ -64,8 +64,8 @@ public class BlockSizeCalculatorTest {
         b.getSignatureData().put(new BLSPublicKey(), new BLSSignatureData());
         b.setZone(0);
         b.getTransactionList().add(new RegularTransaction("1"));
-        Map<Receipt.ReceiptBlock, List<Receipt>> map = new LinkedHashMap<>();
-        Map<Receipt.ReceiptBlock, List<Receipt>> out_map = new LinkedHashMap<>();
+        LinkedHashMap<Receipt.ReceiptBlock, List<Receipt>> map = new LinkedHashMap<>();
+        LinkedHashMap<Receipt.ReceiptBlock, List<Receipt>> out_map = new LinkedHashMap<>();
         ArrayList<Receipt> list = new ArrayList<>();
         list.add(new Receipt());
         list.add(new Receipt());
@@ -123,8 +123,8 @@ public class BlockSizeCalculatorTest {
         b.getSignatureData().put(new BLSPublicKey(), new BLSSignatureData());
         b.setZone(0);
         b.getTransactionList().add(new RegularTransaction("1"));
-        Map<Receipt.ReceiptBlock, List<Receipt>> map1 = new LinkedHashMap<>();
-        Map<Receipt.ReceiptBlock, List<Receipt>> map2 = new LinkedHashMap<>();
+        LinkedHashMap<Receipt.ReceiptBlock, List<Receipt>> map1 = new LinkedHashMap<>();
+        LinkedHashMap<Receipt.ReceiptBlock, List<Receipt>> map2 = new LinkedHashMap<>();
 
         ArrayList<Receipt> list = new ArrayList<>();
         list.add(new Receipt());
