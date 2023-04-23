@@ -208,7 +208,7 @@ public class ConsensusCommitteeTimer4Test {
                     dhtBootstrapNode.start();
                     dhtBootstrapNode.scheduledFuture();
                     CachedKademliaNodes.getInstance().setDhtBootstrapNode(dhtBootstrapNode);
-                    Thread.sleep(4000);
+                    Thread.sleep(8000);
                 } else if (vk2.equals(entry.getKey())) {
                     CachedBLSKeyPair.getInstance().setPrivateKey(sk2);
                     CachedBLSKeyPair.getInstance().setPublicKey(vk2);

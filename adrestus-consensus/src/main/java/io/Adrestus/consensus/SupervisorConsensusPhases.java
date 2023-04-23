@@ -95,8 +95,7 @@ public class SupervisorConsensusPhases {
             byte[] solution = vdf.solve(CachedSecurityHeaders.getInstance().getSecurityHeader().getPRnd(), CachedLatestBlocks.getInstance().getCommitteeBlock().getDifficulty());
             data.getData().setVDFSolution(solution);
 
-            if (DEBUG)
-                return;
+            if (DEBUG) return;
 
             byte[] message = data_serialize.encode(data.getData());
             Signature sig = BLSSignature.sign(message, CachedBLSKeyPair.getInstance().getPrivateKey());
@@ -110,15 +109,14 @@ public class SupervisorConsensusPhases {
 
         @Override
         public void PreparePhase(ConsensusMessage<VDFMessage> data) {
-            if (data.getStatusType().equals(ConsensusStatusType.ABORT))
-                return;
+            if (data.getStatusType().equals(ConsensusStatusType.ABORT)) return;
 
 
             if (!DEBUG) {
                 int i = N_COPY;
                 while (i > 0) {
-                    byte[] receive = consensusServer.receiveData();
                     try {
+                        byte[] receive = consensusServer.receiveData();
                         if (receive == null) {
                             LOG.info("PreparePhase: Null message from validators");
                             i--;
@@ -139,7 +137,7 @@ public class SupervisorConsensusPhases {
                         cleanup();
                         LOG.info("PreparePhase: Receiving out of bounds response from organizer");
                     } catch (NullPointerException e) {
-                        cleanup();
+                        LOG.info("PreparePhase: Receiving null pointer Exception");
                     }
 
                 }
@@ -186,15 +184,14 @@ public class SupervisorConsensusPhases {
         @SneakyThrows
         @Override
         public void CommitPhase(ConsensusMessage<VDFMessage> data) {
-            if (data.getStatusType().equals(ConsensusStatusType.ABORT))
-                return;
+            if (data.getStatusType().equals(ConsensusStatusType.ABORT)) return;
 
             if (!DEBUG) {
                 int i = N_COPY;
                 data.getSignatures().clear();
                 while (i > 0) {
-                    byte[] receive = consensusServer.receiveData();
                     try {
+                        byte[] receive = consensusServer.receiveData();
                         if (receive == null) {
                             LOG.info("CommitPhase: Not Receiving from Validators");
                             i--;
@@ -210,10 +207,13 @@ public class SupervisorConsensusPhases {
                             }
                         }
                     } catch (IllegalArgumentException e) {
+                        cleanup();
                         LOG.info("CommitPhase: Problem at message deserialization");
                     } catch (ArrayIndexOutOfBoundsException e) {
+                        cleanup();
                         LOG.info("CommitPhase: Receiving out of bounds response from organizer");
                     } catch (NullPointerException e) {
+                        cleanup();
                         LOG.info("CommitPhase: Receiving null response from organizer");
                     }
                 }
@@ -268,8 +268,8 @@ public class SupervisorConsensusPhases {
                 }
             }*/
             LOG.info("VDF is finalized with Success");
-            Thread.sleep(100);
             cleanup();
+            Thread.sleep(100);
         }
     }
 
@@ -407,8 +407,7 @@ public class SupervisorConsensusPhases {
 
         @Override
         public void AnnouncePhase(ConsensusMessage<VRFMessage> data) {
-            if (data.getStatusType().equals(ConsensusStatusType.ABORT))
-                return;
+            if (data.getStatusType().equals(ConsensusStatusType.ABORT)) return;
 
             data.setMessageType(ConsensusMessageType.ANNOUNCE);
 
@@ -425,8 +424,7 @@ public class SupervisorConsensusPhases {
 
         @Override
         public void PreparePhase(ConsensusMessage<VRFMessage> data) {
-            if (data.getStatusType().equals(ConsensusStatusType.ABORT))
-                return;
+            if (data.getStatusType().equals(ConsensusStatusType.ABORT)) return;
 
             if (!DEBUG) {
                 int i = N_COPY;
@@ -499,8 +497,7 @@ public class SupervisorConsensusPhases {
         @SneakyThrows
         @Override
         public void CommitPhase(ConsensusMessage<VRFMessage> data) {
-            if (data.getStatusType().equals(ConsensusStatusType.ABORT))
-                return;
+            if (data.getStatusType().equals(ConsensusStatusType.ABORT)) return;
 
             if (!DEBUG) {
                 int i = N_COPY;
@@ -582,8 +579,8 @@ public class SupervisorConsensusPhases {
             }*/
 
             LOG.info("VRF is finalized with Success");
-            Thread.sleep(100);
             cleanup();
+            Thread.sleep(100);
         }
 
 
@@ -817,8 +814,7 @@ public class SupervisorConsensusPhases {
     }
 
     protected void cleanup() {
-        if (consensusServer != null)
-            consensusServer.close();
+        if (consensusServer != null) consensusServer.close();
         consensusServer = null;
     }
 }
