@@ -268,8 +268,8 @@ public class SupervisorConsensusPhases {
                 }
             }*/
             LOG.info("VDF is finalized with Success");
+            //Thread.sleep(100);
             cleanup();
-            Thread.sleep(100);
         }
     }
 
@@ -579,8 +579,8 @@ public class SupervisorConsensusPhases {
             }*/
 
             LOG.info("VRF is finalized with Success");
-            cleanup();
             Thread.sleep(100);
+            cleanup();
         }
 
 
