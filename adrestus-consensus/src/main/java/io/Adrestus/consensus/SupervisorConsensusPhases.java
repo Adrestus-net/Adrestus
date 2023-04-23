@@ -268,7 +268,7 @@ public class SupervisorConsensusPhases {
                 }
             }*/
             LOG.info("VDF is finalized with Success");
-            //Thread.sleep(100);
+            Thread.sleep(100);
             cleanup();
         }
     }
