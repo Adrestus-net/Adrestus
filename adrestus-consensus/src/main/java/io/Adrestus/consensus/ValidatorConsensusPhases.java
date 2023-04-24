@@ -1365,6 +1365,7 @@ public class ValidatorConsensusPhases {
             consensusClient.pushMessage(toSend);
         }
 
+        @SneakyThrows
         @Override
         public void CommitPhase(ConsensusMessage<CommitteeBlock> block) {
             if (block.getStatusType().equals(ConsensusStatusType.ABORT))
@@ -1446,6 +1447,7 @@ public class ValidatorConsensusPhases {
             // consensusClient.send_heartbeat(HEARTBEAT_MESSAGE);
             LOG.info("Committee is finalized with Success");
             cleanup();
+            Thread.sleep(100);
         }
 
         private void cleanup() {

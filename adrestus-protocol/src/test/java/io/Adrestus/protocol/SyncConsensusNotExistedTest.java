@@ -63,7 +63,7 @@ public class SyncConsensusNotExistedTest {
     public static void setup() throws Exception {
         delete_test();
         KademliaConfiguration.IDENTIFIER_SIZE = 3;
-        ConsensusConfiguration.EPOCH_TRANSITION = 1;
+        ConsensusConfiguration.EPOCH_TRANSITION = 3;
         NodeSettings.getInstance();
         keyHashGenerator = key -> {
             try {
