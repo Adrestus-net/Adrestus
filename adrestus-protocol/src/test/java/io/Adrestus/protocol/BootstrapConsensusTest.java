@@ -331,7 +331,7 @@ public class BootstrapConsensusTest {
 
         if (CachedBLSKeyPair.getInstance().getPublicKey().equals(vk1))
             System.out.println("Start and wait");
-            Thread.sleep(14000);
+            Thread.sleep(17000);
 
 
         CountDownLatch latch = new CountDownLatch(20);
