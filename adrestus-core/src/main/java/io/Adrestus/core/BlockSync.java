@@ -18,6 +18,7 @@ import io.Adrestus.mapper.MemoryTreePoolSerializer;
 import io.Adrestus.network.AsyncService;
 import io.Adrestus.network.AsyncServiceNetworkData;
 import io.Adrestus.network.CachedEventLoop;
+import io.Adrestus.network.IPFinder;
 import io.Adrestus.rpc.RpcAdrestusClient;
 import io.Adrestus.util.SerializationUtil;
 import io.distributedLedger.*;
@@ -102,6 +103,7 @@ public class BlockSync implements IBlockSync {
         } while (!result);
 
         List<String> new_ips = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).values().stream().collect(Collectors.toList());
+        new_ips.remove(IPFinder.getLocalIP());
         int RPCTransactionZonePort = ZoneDatabaseFactory.getDatabaseRPCPort(CachedZoneIndex.getInstance().getZoneIndex());
         int RPCPatriciaTreeZonePort = ZoneDatabaseFactory.getDatabasePatriciaRPCPort(ZoneDatabaseFactory.getPatriciaTreeZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
         ArrayList<InetSocketAddress> toConnectTransaction = new ArrayList<>();
@@ -250,6 +252,7 @@ public class BlockSync implements IBlockSync {
         database.save(String.valueOf(CachedLatestBlocks.getInstance().getCommitteeBlock().getHeight()), CachedLatestBlocks.getInstance().getCommitteeBlock());
 
         List<String> new_ips = prevblock.getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).values().stream().collect(Collectors.toList());
+        new_ips.remove(IPFinder.getLocalIP());
         int RPCTransactionZonePort = ZoneDatabaseFactory.getDatabaseRPCPort(CachedZoneIndex.getInstance().getZoneIndex());
         int RPCPatriciaTreeZonePort = ZoneDatabaseFactory.getDatabasePatriciaRPCPort(ZoneDatabaseFactory.getPatriciaTreeZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
         ArrayList<InetSocketAddress> toConnectTransaction = new ArrayList<>();
@@ -382,7 +385,7 @@ public class BlockSync implements IBlockSync {
     @SneakyThrows
     public void checkIfNeedsSync() {
         List<String> new_ips = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).values().stream().collect(Collectors.toList());
-
+        new_ips.remove(IPFinder.getLocalIP());
         boolean bError = false;
         do {
             try {
