@@ -69,7 +69,7 @@ public class BindServerKademliaTask extends AdrestusTask {
         this.nettyConnectionInfo = new NettyConnectionInfo(this.ip, KademliaConfiguration.PORT);
         this.keyHashGenerator = key -> {
             try {
-                return new BoundedHashUtil(NodeSettings.getInstance().getIdentifierSize()).hash(new BigInteger(HashUtil.convertIPtoHex(key, 4)), BigInteger.class);
+                return new BoundedHashUtil(NodeSettings.getInstance().getIdentifierSize()).hash(new BigInteger(HashUtil.convertIPtoHex(key, 16)), BigInteger.class);
             } catch (UnsupportedBoundingException e) {
                 throw new IllegalArgumentException("Key hash generator not valid");
             }
@@ -90,7 +90,7 @@ public class BindServerKademliaTask extends AdrestusTask {
         this.nettyConnectionInfo = new NettyConnectionInfo(this.ip, KademliaConfiguration.PORT);
         this.keyHashGenerator = key -> {
             try {
-                return new BoundedHashUtil(NodeSettings.getInstance().getIdentifierSize()).hash(new BigInteger(HashUtil.convertIPtoHex(key, 4)), BigInteger.class);
+                return new BoundedHashUtil(NodeSettings.getInstance().getIdentifierSize()).hash(new BigInteger(HashUtil.convertIPtoHex(key, 16)), BigInteger.class);
             } catch (UnsupportedBoundingException e) {
                 throw new IllegalArgumentException("Key hash generator not valid");
             }
@@ -110,7 +110,7 @@ public class BindServerKademliaTask extends AdrestusTask {
         this.nettyConnectionInfo = new NettyConnectionInfo(this.ip, KademliaConfiguration.PORT);
         this.keyHashGenerator = key -> {
             try {
-                return new BoundedHashUtil(NodeSettings.getInstance().getIdentifierSize()).hash(new BigInteger(HashUtil.convertIPtoHex(key, 4)), BigInteger.class);
+                return new BoundedHashUtil(NodeSettings.getInstance().getIdentifierSize()).hash(new BigInteger(HashUtil.convertIPtoHex(key, 16)), BigInteger.class);
             } catch (UnsupportedBoundingException e) {
                 throw new IllegalArgumentException("Key hash generator not valid");
             }
