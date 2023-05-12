@@ -79,7 +79,7 @@ public class BindServerKademliaTask extends AdrestusTask {
                 KademliaConfiguration.BootstrapNodeID,
                 keyHashGenerator);
 
-        this.dhtRegularNode = new DHTRegularNode(this.nettyConnectionInfo, BigInteger.valueOf(this.blockIndex.getIndexFromIP(CachedZoneIndex.getInstance().getZoneIndex(), ip)), keyHashGenerator);
+        this.dhtRegularNode = new DHTRegularNode(this.nettyConnectionInfo, new BigInteger(HashUtil.convertIPtoHex(IPFinder.getLocalIP(),4)), keyHashGenerator);
         this.InitKademliaData();
     }
 
@@ -99,7 +99,7 @@ public class BindServerKademliaTask extends AdrestusTask {
                 this.bootstrapNettyConnectionInfo,
                 KademliaConfiguration.BootstrapNodeID,
                 keyHashGenerator);
-        this.dhtRegularNode = new DHTRegularNode(this.nettyConnectionInfo, BigInteger.valueOf(this.blockIndex.getIndexFromIP(CachedZoneIndex.getInstance().getZoneIndex(), ip)), keyHashGenerator);
+        this.dhtRegularNode = new DHTRegularNode(this.nettyConnectionInfo, new BigInteger(HashUtil.convertIPtoHex(IPFinder.getLocalIP(),4)), keyHashGenerator);
         this.InitKademliaData(secureRandom, passphrase);
     }
 
@@ -119,7 +119,7 @@ public class BindServerKademliaTask extends AdrestusTask {
                 this.bootstrapNettyConnectionInfo,
                 KademliaConfiguration.BootstrapNodeID,
                 keyHashGenerator);
-        this.dhtRegularNode = new DHTRegularNode(this.nettyConnectionInfo, new BigInteger(String.format("%040d", new BigInteger(UUID.randomUUID().toString().replace("-", ""), 16))), keyHashGenerator);
+        this.dhtRegularNode = new DHTRegularNode(this.nettyConnectionInfo, new BigInteger(HashUtil.convertIPtoHex(IPFinder.getLocalIP(),4)), keyHashGenerator);
         this.InitKademliaData(keypair, blsPublicKey);
     }
 

@@ -330,6 +330,7 @@ public class BootstrapConsensusTest {
         CachedEventLoop.getInstance().start();
 
         if (CachedBLSKeyPair.getInstance().getPublicKey().equals(vk1))
+            System.out.println("Start and wait");
             Thread.sleep(14000);
 
 
