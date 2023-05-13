@@ -502,6 +502,10 @@ public class RegularBlock implements BlockForge, BlockInvent {
         CachedZoneIndex.getInstance().setZoneIndexInternalIP();
 
         if (prevZone == CachedZoneIndex.getInstance().getZoneIndex()) {
+            CachedLeaderIndex.getInstance().setTransactionPositionLeader(0);
+            committeeBlock.setStatustype(StatusType.SUCCES);
+            database.save(String.valueOf(committeeBlock.getHeight()), committeeBlock);
+            CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
             CachedReceiptSemaphore.getInstance().getSemaphore().release();
             return;
         }
