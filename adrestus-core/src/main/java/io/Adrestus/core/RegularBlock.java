@@ -497,9 +497,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
         CommitteeBlock prevblock = (CommitteeBlock) CachedLatestBlocks.getInstance().getCommitteeBlock().clone();
         int prevZone = Integer.valueOf(CachedZoneIndex.getInstance().getZoneIndex());
         IDatabase<String, CommitteeBlock> database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
-        committeeBlock.setStatustype(StatusType.SUCCES);
-        database.save(String.valueOf(committeeBlock.getHeight()), committeeBlock);
-        CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
+
         CachedLeaderIndex.getInstance().setCommitteePositionLeader(0);
         CachedZoneIndex.getInstance().setZoneIndexInternalIP();
 
@@ -610,7 +608,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
         List<Transaction> transactionList = MemoryTransactionPool.getInstance().getListByZone(prevZone);
         List<byte[]> toSendTransaction = new ArrayList<>();
         transactionList.stream().forEach(transaction -> toSendTransaction.add(transaction_encode.encode(transaction, 1024)));
-        List<String> TransactionIPWorkers = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(prevZone).values().stream().collect(Collectors.toList());
+        List<String> TransactionIPWorkers = committeeBlock.getStructureMap().get(prevZone).values().stream().collect(Collectors.toList());
 
         if (!toSendTransaction.isEmpty()) {
             var executor = new AsyncService<Long>(TransactionIPWorkers, toSendTransaction, SocketConfigOptions.TRANSACTION_PORT);
@@ -624,7 +622,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
         List<Receipt> receiptList = MemoryReceiptPool.getInstance().getListByZone(prevZone);
         List<byte[]> toSendReceipt = new ArrayList<>();
         receiptList.stream().forEach(receipt -> toSendReceipt.add(receipt_encode.encode(receipt, 1024)));
-        List<String> ReceiptIPWorkers = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(prevZone).values().stream().collect(Collectors.toList());
+        List<String> ReceiptIPWorkers = committeeBlock.getStructureMap().get(prevZone).values().stream().collect(Collectors.toList());
 
         if (!toSendReceipt.isEmpty()) {
             var executor = new AsyncService<Long>(ReceiptIPWorkers, toSendReceipt, SocketConfigOptions.RECEIPT_PORT);
@@ -633,6 +631,11 @@ public class RegularBlock implements BlockForge, BlockInvent {
             var result = executor.endProcess(asyncResult);
             MemoryReceiptPool.getInstance().delete(receiptList);
         }
+
+        committeeBlock.setStatustype(StatusType.SUCCES);
+        database.save(String.valueOf(committeeBlock.getHeight()), committeeBlock);
+        CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
+
         CachedReceiptSemaphore.getInstance().getSemaphore().release();
     }
 

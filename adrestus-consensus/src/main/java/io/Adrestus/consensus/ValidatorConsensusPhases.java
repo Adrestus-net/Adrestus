@@ -122,7 +122,7 @@ public class ValidatorConsensusPhases {
                         }
                     }
 
-                } catch (IllegalArgumentException e) {
+                } catch (IllegalArgumentException | StringIndexOutOfBoundsException e) {
                     cleanup();
                     LOG.info("AnnouncePhase: Problem at message deserialization Abort");
                     data.setStatusType(ConsensusStatusType.ABORT);
@@ -196,14 +196,14 @@ public class ValidatorConsensusPhases {
                                     return;
                                 }
                             }
-                        } catch (IllegalArgumentException e) {
+                        } catch (IllegalArgumentException | StringIndexOutOfBoundsException e) {
                             cleanup();
                             LOG.info("PreparePhase: Problem at message deserialization Abort");
                             data.setStatusType(ConsensusStatusType.ABORT);
                             return;
                         }
                     }
-                } catch (IllegalArgumentException e) {
+                } catch (IllegalArgumentException | StringIndexOutOfBoundsException e) {
                     cleanup();
                     LOG.info("PreparePhase: Problem at message deserialization Abort");
                     data.setStatusType(ConsensusStatusType.ABORT);
@@ -285,13 +285,13 @@ public class ValidatorConsensusPhases {
                                 if (!verify)
                                     throw new IllegalArgumentException("CommitPhase: Abort consensus phase BLS leader signature is invalid during commit phase");
                             }
-                        } catch (IllegalArgumentException e) {
+                        } catch (IllegalArgumentException | StringIndexOutOfBoundsException e) {
                             LOG.info("CommitPhase: Problem at message deserialization Abort");
                             data.setStatusType(ConsensusStatusType.ABORT);
                             return;
                         }
                     }
-                } catch (IllegalArgumentException e) {
+                } catch (IllegalArgumentException | StringIndexOutOfBoundsException e) {
                     cleanup();
                     LOG.info("CommitPhase: Problem at message deserialization Abort");
                     data.setStatusType(ConsensusStatusType.ABORT);
@@ -405,7 +405,7 @@ public class ValidatorConsensusPhases {
 
                         message = serialize.decode(receive);
                     }
-                } catch (IllegalArgumentException e) {
+                } catch (IllegalArgumentException | StringIndexOutOfBoundsException e) {
                     cleanup();
                     LOG.info("Initialize: Problem at message deserialization Abort");
                     message.setType(VRFMessage.vrfMessageType.ABORT);
@@ -486,14 +486,14 @@ public class ValidatorConsensusPhases {
                                     return;
                                 }
                             }
-                        } catch (IllegalArgumentException e) {
+                        } catch (IllegalArgumentException | StringIndexOutOfBoundsException e) {
                             cleanup();
                             LOG.info("AnnouncePhase: Problem at message deserialization Abort");
                             data.setStatusType(ConsensusStatusType.ABORT);
                             return;
                         }
                     }
-                } catch (IllegalArgumentException e) {
+                } catch (IllegalArgumentException | StringIndexOutOfBoundsException e) {
                     cleanup();
                     LOG.info("AnnouncePhase: Problem at message deserialization Abort");
                     data.setStatusType(ConsensusStatusType.ABORT);
@@ -607,7 +607,7 @@ public class ValidatorConsensusPhases {
                             return;
                         }
                     }
-                } catch (IllegalArgumentException e) {
+                } catch (IllegalArgumentException | StringIndexOutOfBoundsException e) {
                     cleanup();
                     LOG.info("PreparePhase: Problem at message deserialization Abort");
                     data.setStatusType(ConsensusStatusType.ABORT);
@@ -700,7 +700,7 @@ public class ValidatorConsensusPhases {
                             return;
                         }
                     }
-                } catch (IllegalArgumentException e) {
+                } catch (IllegalArgumentException | StringIndexOutOfBoundsException e) {
                     cleanup();
                     LOG.info("CommitPhase: Problem at message deserialization Abort");
                     data.setStatusType(ConsensusStatusType.ABORT);
@@ -848,7 +848,7 @@ public class ValidatorConsensusPhases {
                             }
                         }
                     }
-                } catch (IllegalArgumentException e) {
+                } catch (IllegalArgumentException | StringIndexOutOfBoundsException e) {
                     cleanup();
                     LOG.info("AnnouncePhase: Problem at message deserialization Abort");
                     data.setStatusType(ConsensusStatusType.ABORT);
@@ -956,7 +956,7 @@ public class ValidatorConsensusPhases {
                         }
 
                     }
-                } catch (IllegalArgumentException e) {
+                } catch (IllegalArgumentException | StringIndexOutOfBoundsException e) {
                     cleanup();
                     LOG.info("PreparePhase: Problem at message deserialization Abort");
                     data.setStatusType(ConsensusStatusType.ABORT);
@@ -1058,7 +1058,7 @@ public class ValidatorConsensusPhases {
                             }
                         }
                     }
-                } catch (IllegalArgumentException e) {
+                } catch (IllegalArgumentException | StringIndexOutOfBoundsException e) {
                     cleanup();
                     LOG.info("CommitPhase: Problem at message deserialization Abort");
                     data.setStatusType(ConsensusStatusType.ABORT);
@@ -1214,7 +1214,7 @@ public class ValidatorConsensusPhases {
                             }
                         }
                     }
-                } catch (IllegalArgumentException e) {
+                } catch (IllegalArgumentException | StringIndexOutOfBoundsException e) {
                     cleanup();
                     LOG.info("AnnouncePhase: Problem at message deserialization Abort");
                     block.setStatusType(ConsensusStatusType.ABORT);
@@ -1311,7 +1311,7 @@ public class ValidatorConsensusPhases {
                             }
                         }
                     }
-                } catch (IllegalArgumentException e) {
+                } catch (IllegalArgumentException | StringIndexOutOfBoundsException e) {
                     cleanup();
                     LOG.info("PreparePhase: Problem at message deserialization Abort");
                     block.setStatusType(ConsensusStatusType.ABORT);
@@ -1398,7 +1398,7 @@ public class ValidatorConsensusPhases {
                             }
                         }
                     }
-                } catch (IllegalArgumentException e) {
+                } catch (IllegalArgumentException | StringIndexOutOfBoundsException e) {
                     cleanup();
                     LOG.info("CommitPhase: Problem at message deserialization Abort");
                     block.setStatusType(ConsensusStatusType.ABORT);

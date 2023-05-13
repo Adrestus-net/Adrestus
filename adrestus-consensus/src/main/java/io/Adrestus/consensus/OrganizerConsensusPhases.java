@@ -144,14 +144,14 @@ public class OrganizerConsensusPhases {
                             //data.setData(received.getData());
                             if (!CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).containsKey(received.getChecksumData().getBlsPublicKey())) {
                                 LOG.info("PreparePhase: Validator does not exist on consensus... Ignore");
-                                i--;
+                               // i--;
                             } else {
                                 data.getSignatures().add(received.getChecksumData());
                                 N_COPY--;
                                 i--;
                             }
                         }
-                    } catch (IllegalArgumentException e) {
+                    } catch (IllegalArgumentException | StringIndexOutOfBoundsException e) {
                         LOG.info("PreparePhase: Problem at message deserialization");
                     } catch (ArrayIndexOutOfBoundsException e) {
                         LOG.info("PreparePhase: Receiving out of bounds response from organizer");
@@ -243,14 +243,14 @@ public class OrganizerConsensusPhases {
                                             .getZoneIndex())
                                     .containsKey(received.getChecksumData().getBlsPublicKey())) {
                                 LOG.info("CommitPhase: Validator does not exist on consensus... Ignore");
-                                i--;
+                                //i--;
                             } else {
                                 data.getSignatures().add(received.getChecksumData());
                                 N_COPY--;
                                 i--;
                             }
                         }
-                    } catch (IllegalArgumentException e) {
+                    } catch (IllegalArgumentException | StringIndexOutOfBoundsException e) {
                         LOG.info("CommitPhase: Problem at message deserialization");
                     } catch (ArrayIndexOutOfBoundsException e) {
                         LOG.info("CommitPhase: Receiving out of bounds response from organizer");
