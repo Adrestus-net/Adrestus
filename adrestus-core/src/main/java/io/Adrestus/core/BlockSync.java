@@ -210,6 +210,7 @@ public class BlockSync implements IBlockSync {
                 networkData.SetCacheData();
             } catch (NoSuchElementException ex) {
                 LOG.info("NoSuchElementException: " + ex.toString());
+                Thread.sleep(ConsensusConfiguration.CONSENSUS_WAIT_TIMEOUT);
                 bError = true;
             }
         } while (bError);
@@ -229,9 +230,53 @@ public class BlockSync implements IBlockSync {
                 throw new RuntimeException(e);
             }
         });
-        List<CommitteeBlock> commitee_blocks;
+
+        RpcAdrestusClient client1 = new RpcAdrestusClient(new CommitteeBlock(), toConnectCommittee, CachedEventLoop.getInstance().getEventloop());
+        client1.connect();
+
+        List<CommitteeBlock> commitee_blocks = client1.getBlocksList(String.valueOf(CachedLatestBlocks.getInstance().getCommitteeBlock().getHeight()));
+
+        if (client1 != null) {
+            client1.close();
+            client1 = null;
+        }
+
+        if (commitee_blocks.size() <= 1)
+            return;
+
+
+        CachedLatestBlocks.getInstance().setCommitteeBlock(commitee_blocks.get(commitee_blocks.size() - 1));
+        CachedLeaderIndex.getInstance().setCommitteePositionLeader(0);
+        CachedEpochGeneration.getInstance().setEpoch_counter(0);
+        boolean isNodeExist = CachedZoneIndex.getInstance().isNodeExistOnBlockInternal();
+        IDatabase<String, CommitteeBlock> database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
+        database.save(String.valueOf(CachedLatestBlocks.getInstance().getCommitteeBlock().getHeight()), CachedLatestBlocks.getInstance().getCommitteeBlock());
+
+        if (!isNodeExist) {
+            LOG.info("Node not existed on Committee block WaitPatientlyYourPosition");
+            this.WaitPatientlyYourPosition();
+        }
+        CachedZoneIndex.getInstance().setZoneIndexInternalIP();
+
+        List<String> new_ips = prevblock.getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).values().stream().collect(Collectors.toList());
+        new_ips.remove(IPFinder.getLocalIP());
+        int RPCTransactionZonePort = ZoneDatabaseFactory.getDatabaseRPCPort(CachedZoneIndex.getInstance().getZoneIndex());
+        int RPCPatriciaTreeZonePort = ZoneDatabaseFactory.getDatabasePatriciaRPCPort(ZoneDatabaseFactory.getPatriciaTreeZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
+        ArrayList<InetSocketAddress> toConnectTransaction = new ArrayList<>();
+        ArrayList<InetSocketAddress> toConnectPatricia = new ArrayList<>();
+        ArrayList<InetSocketAddress> toConnectZoneCommittee = new ArrayList<>();
+        new_ips.stream().forEach(ip -> {
+            try {
+                toConnectTransaction.add(new InetSocketAddress(InetAddress.getByName(ip), RPCTransactionZonePort));
+                toConnectPatricia.add(new InetSocketAddress(InetAddress.getByName(ip), RPCPatriciaTreeZonePort));
+                toConnectZoneCommittee.add(new InetSocketAddress(InetAddress.getByName(ip), NetworkConfiguration.RPC_PORT));
+            } catch (UnknownHostException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
         do {
-            RpcAdrestusClient client = new RpcAdrestusClient(new CommitteeBlock(), toConnectCommittee, CachedEventLoop.getInstance().getEventloop());
+            RpcAdrestusClient client = new RpcAdrestusClient(new CommitteeBlock(), toConnectZoneCommittee, CachedEventLoop.getInstance().getEventloop());
             client.connect();
 
             commitee_blocks = client.getBlocksList(String.valueOf(CachedLatestBlocks.getInstance().getCommitteeBlock().getHeight()));
@@ -242,32 +287,10 @@ public class BlockSync implements IBlockSync {
             }
 
             Thread.sleep(1000);
-        } while (commitee_blocks.size() <= 1);
-
-        CachedLatestBlocks.getInstance().setCommitteeBlock(commitee_blocks.get(commitee_blocks.size() - 1));
-        CachedLeaderIndex.getInstance().setCommitteePositionLeader(0);
-        CachedEpochGeneration.getInstance().setEpoch_counter(0);
-        CachedZoneIndex.getInstance().setZoneIndexInternalIP();
-        IDatabase<String, CommitteeBlock> database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
-        database.save(String.valueOf(CachedLatestBlocks.getInstance().getCommitteeBlock().getHeight()), CachedLatestBlocks.getInstance().getCommitteeBlock());
-
-        List<String> new_ips = prevblock.getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).values().stream().collect(Collectors.toList());
-        new_ips.remove(IPFinder.getLocalIP());
-        int RPCTransactionZonePort = ZoneDatabaseFactory.getDatabaseRPCPort(CachedZoneIndex.getInstance().getZoneIndex());
-        int RPCPatriciaTreeZonePort = ZoneDatabaseFactory.getDatabasePatriciaRPCPort(ZoneDatabaseFactory.getPatriciaTreeZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
-        ArrayList<InetSocketAddress> toConnectTransaction = new ArrayList<>();
-        ArrayList<InetSocketAddress> toConnectPatricia = new ArrayList<>();
-        new_ips.stream().forEach(ip -> {
-            try {
-                toConnectTransaction.add(new InetSocketAddress(InetAddress.getByName(ip), RPCTransactionZonePort));
-                toConnectPatricia.add(new InetSocketAddress(InetAddress.getByName(ip), RPCPatriciaTreeZonePort));
-            } catch (UnknownHostException e) {
-                throw new RuntimeException(e);
-            }
-        });
-
+        } while (!CachedLatestBlocks.getInstance().getCommitteeBlock().getHash().equals(commitee_blocks.get(commitee_blocks.size()-1).getHash()));
 
         RpcAdrestusClient client = null;
+        List<String> patriciaRootList = null;
         try {
             IDatabase<String, TransactionBlock> block_database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
             client = new RpcAdrestusClient(new TransactionBlock(), toConnectTransaction, CachedEventLoop.getInstance().getEventloop());
@@ -279,12 +302,16 @@ public class BlockSync implements IBlockSync {
             if (block.isPresent()) {
                 blocks = client.getBlocksList(String.valueOf(block.get().getHeight()));
                 if (!blocks.isEmpty() && blocks.size() > 1) {
+                    patriciaRootList=blocks.stream().filter(val->val.getGeneration()>CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration()).map(TransactionBlock::getHash).collect(Collectors.toList());
+                    blocks.removeIf(x -> x.getGeneration()>CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration());
                     blocks.stream().skip(1).forEach(val -> toSave.put(String.valueOf(val.getHeight()), val));
                 }
 
             } else {
                 blocks = client.getBlocksList("");
                 if (!blocks.isEmpty()) {
+                    patriciaRootList=blocks.stream().filter(val->val.getGeneration()>CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration()).map(TransactionBlock::getHash).collect(Collectors.toList());
+                    blocks.removeIf(x -> x.getGeneration()>CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration());
                     blocks.stream().forEach(val -> toSave.put(String.valueOf(val.getHeight()), val));
                 }
             }
@@ -337,9 +364,14 @@ public class BlockSync implements IBlockSync {
                     });
                 }
             }
-            tree_database.saveAll(toSave);
+            List<String> finalPatriciaRootList = patriciaRootList;
+            Map<String, byte[]> toCollect = toSave.entrySet().stream()
+                    .filter(x -> !finalPatriciaRootList.contains(x.getKey()))
+                    .collect(Collectors.toMap(x -> x.getKey(), x -> x.getValue()));
+            tree_database.saveAll(toCollect);
+            byte[] current_tree=toCollect.get(CachedLatestBlocks.getInstance().getTransactionBlock().getPatriciaMerkleRoot());
             if (!treeObjects.isEmpty()) {
-                TreeFactory.setMemoryTree((MemoryTreePool) patricia_tree_wrapper.decode(treeObjects.get(treeObjects.size() - 1)), CachedZoneIndex.getInstance().getZoneIndex());
+                TreeFactory.setMemoryTree((MemoryTreePool) patricia_tree_wrapper.decode(current_tree), CachedZoneIndex.getInstance().getZoneIndex());
             }
 
             if (client != null) {
@@ -381,6 +413,7 @@ public class BlockSync implements IBlockSync {
             }
         }
     }
+
     @Override
     @SneakyThrows
     public void checkIfNeedsSync() {
@@ -399,13 +432,13 @@ public class BlockSync implements IBlockSync {
                 if (!networkData.getCommitteeBlock().equals(CachedLatestBlocks.getInstance().getCommitteeBlock())) {
                     this.WaitPatientlyYourPosition();
                     return;
-                }
-                else {
-                    if(networkData.isConsensus_state())
+                } else {
+                    if (networkData.isConsensus_state())
                         networkData.SetCacheData();
                 }
             } catch (NoSuchElementException ex) {
                 LOG.error("NoSuchElementException: " + ex.toString());
+                Thread.sleep(ConsensusConfiguration.CONSENSUS_WAIT_TIMEOUT);
                 bError = true;
             }
         } while (bError);

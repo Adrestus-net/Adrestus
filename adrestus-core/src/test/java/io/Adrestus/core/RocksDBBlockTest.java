@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 import java.lang.reflect.Type;
 import java.math.BigInteger;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -242,6 +243,13 @@ public class RocksDBBlockTest {
         assertEquals(transactionBlock4, result.get(3));
         assertEquals(transactionBlock5, result.get(4));
         assertEquals(transactionBlock6, result.get(5));
+        List<String> stdCodeList = result.stream()
+                .filter(val->val.getHeight()>3)
+                .map(TransactionBlock::getHash)
+                .collect(Collectors.toList());
+        List<TransactionBlock> result2=result.stream()
+                        .filter(val->!stdCodeList.contains(val.getHash()))
+                        .collect(Collectors.toList());
         database.delete_db();
     }
 
