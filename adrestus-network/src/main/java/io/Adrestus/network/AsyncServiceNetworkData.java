@@ -19,6 +19,7 @@ import org.spongycastle.util.encoders.Hex;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
@@ -32,15 +33,16 @@ import static io.activej.promise.Promises.loop;
 public class AsyncServiceNetworkData<T> {
     private static Logger LOG = LoggerFactory.getLogger(AsyncServiceNetworkData.class);
 
-    private static final int TIMER_DELAY_TIMEOUT = 15000;
+    private static final int TIMER_DELAY_TIMEOUT = 3000;
     private static final ByteBufsDecoder<ByteBuf> DECODER = ByteBufsDecoder.ofVarIntSizePrefixedBytes();
-    private final List<String> list_ip;
+    private List<String> list_ip;
 
-    private final List<byte[]> data_bytes;
+    private List<byte[]> data_bytes;
     private final ThreadAsyncExecutor executor;
 
     private static CountDownLatch[] local_termination;
 
+    private Eventloop eventloop;
     public AsyncServiceNetworkData(List<String> list_ip) {
         this.executor = new ThreadAsyncExecutor();
         this.list_ip = list_ip;
@@ -55,8 +57,8 @@ public class AsyncServiceNetworkData<T> {
         }
     }
 
+    @SneakyThrows
     public List<AsyncResult<T>> startProcess(T value) {
-
         List<AsyncResult<T>> list = new ArrayList<>();
         for (int i = 0; i < list_ip.size(); i++) {
             AsyncResult<T> result = executor.startProcess(AsyncCall(value, list_ip.get(i), i));
@@ -81,8 +83,10 @@ public class AsyncServiceNetworkData<T> {
 
     private <T> Callable<T> AsyncCall(T value, String ip, int pos) {
         return () -> {
+            Timer receivetimer = new Timer();
             Eventloop eventloop = Eventloop.create().withCurrentThread();
-            eventloop.connect(new InetSocketAddress(ip, SocketConfigOptions.CACHED_DATA_PORT), (socketChannel, e) -> {
+            Eventloop finalEventloop=eventloop;
+            eventloop.connect(new InetSocketAddress(ip,SocketConfigOptions.CACHED_DATA_PORT), (socketChannel, e) -> {
                 if (e == null) {
                     try {
                         AsyncTcpSocket socket = AsyncTcpSocketNio.wrapChannel(getCurrentEventloop(), socketChannel, null);
@@ -103,6 +107,16 @@ public class AsyncServiceNetworkData<T> {
                         ex.printStackTrace();
                         LOG.info("Exception caught" + ex.toString());
                     }
+
+                    receivetimer.schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            finalEventloop.breakEventloop();
+                            while (local_termination[pos].getCount() > 0) {
+                                local_termination[pos].countDown();
+                            }
+                        }
+                    }, TIMER_DELAY_TIMEOUT);
 
                 } else {
                     while (local_termination[pos].getCount() > 0) {
@@ -125,13 +139,14 @@ public class AsyncServiceNetworkData<T> {
                 local_termination[i].await();
             }
             local_termination[pos].await();
+            receivetimer.cancel();
+            receivetimer.purge();
             timer.cancel();
             timer.purge();
             this.terminate();
             if (eventloop != null) {
                 eventloop.breakEventloop();
                 eventloop = null;
-                ;
             }
             return value;
         };

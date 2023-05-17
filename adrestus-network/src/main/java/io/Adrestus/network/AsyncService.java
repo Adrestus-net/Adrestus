@@ -176,7 +176,6 @@ public class AsyncService<T> {
             if (eventloop != null) {
                 eventloop.breakEventloop();
                 eventloop = null;
-                ;
             }
             return value;
         };

@@ -15,6 +15,7 @@ import io.Adrestus.network.AsyncServiceNetworkData;
 import io.Adrestus.util.SerializationUtil;
 import io.activej.bytebuf.ByteBuf;
 import io.activej.csp.binary.ByteBufsDecoder;
+import io.activej.eventloop.Eventloop;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -32,7 +33,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class CachedDataChannelTest {
     private static SerializationUtil<CachedNetworkData> serialize;
     private static final ByteBufsDecoder<ByteBuf> DECODER = ByteBufsDecoder.ofVarIntSizePrefixedBytes();
-
     @BeforeAll
     public static void setup() {
         List<SerializationUtil.Mapping> list = new ArrayList<>();
@@ -73,19 +73,21 @@ public class CachedDataChannelTest {
         //check this a bug when connection is open and no progress code is stuck no terminate
 
         //eventloop.run();*/
-        ArrayList<String> ips = new ArrayList<>();
-        ips.add(new String("192.168.1.116"));
-        ips.add(new String("192.168.1.113"));
+        for(int i=0;i<2;i++) {
+            ArrayList<String>ips = new ArrayList<>();
+            ips.add(new String("192.168.1.116"));
+            ips.add(new String("192.168.1.113"));
 
-        var ex = new AsyncServiceNetworkData<Long>(ips);
-
-        var asyncResult = ex.startProcess(300L);
-        var result = ex.endProcess(asyncResult);
-
-        try {
-            CachedNetworkData networkData = serialize.decode(ex.getResult());
-            assertEquals(cachedNetworkData, networkData);
-        } catch (NoSuchElementException e) {
+            var ex = new AsyncServiceNetworkData<Long>(ips);
+            var asyncResult = ex.startProcess(1L);
+            var result = ex.endProcess(asyncResult);
+            try {
+                CachedNetworkData networkData = serialize.decode(ex.getResult());
+                assertEquals(cachedNetworkData, networkData);
+                System.out.println(i);
+            } catch (NoSuchElementException e) {
+                System.out.println(e.toString());
+            }
         }
     }
 

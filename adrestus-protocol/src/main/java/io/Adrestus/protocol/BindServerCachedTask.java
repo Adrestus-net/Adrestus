@@ -71,8 +71,7 @@ public class BindServerCachedTask extends AdrestusTask {
                                     .whenComplete(socket::close);
                         })
                 .withListenAddress(ADDRESS)
-                .withSocketSettings(settings)
-                .withAcceptOnce();
+                .withSocketSettings(settings);
         server.listen();
         (new Thread() {
             public void run() {
