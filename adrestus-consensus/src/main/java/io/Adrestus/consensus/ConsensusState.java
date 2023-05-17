@@ -178,7 +178,7 @@ public class ConsensusState extends ConsensusDataState {
                             clear();
                             CachedEpochGeneration.getInstance().setEpoch_counter(0);
                             transaction_block_timer = new Timer(ConsensusConfiguration.CONSENSUS);
-                            transaction_block_timer.scheduleAtFixedRate(new TransactionBlockConsensusTask(), ConsensusConfiguration.CHANGE_VIEW_TIMER, ConsensusConfiguration.CHANGE_VIEW_TIMER);
+                            transaction_block_timer.scheduleAtFixedRate(new TransactionBlockConsensusTask(), ConsensusConfiguration.CONSENSUS_TIMER, ConsensusConfiguration.CONSENSUS_TIMER);
                         }
                     }
                 }
@@ -231,11 +231,15 @@ public class ConsensusState extends ConsensusDataState {
             try {
                 if (CachedZoneIndex.getInstance().getZoneIndex() == 0) {
                     if (CachedEpochGeneration.getInstance().getEpoch_counter() >= ConsensusConfiguration.EPOCH_TRANSITION) {
+                        clear();
                         committee_block_timer = new Timer(ConsensusConfiguration.CONSENSUS);
                         committee_block_timer.scheduleAtFixedRate(new CommitteeBlockConsensusTask(committee_state), ConsensusConfiguration.CONSENSUS_COMMITTEE_TIMER, ConsensusConfiguration.CONSENSUS_COMMITTEE_TIMER);
+                        return;
                     }
                 }
-                blockSync.SyncState();
+                else {
+                    blockSync.SyncState();
+                }
                 state.onEnterState(blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedLeaderIndex.getInstance().getTransactionPositionLeader()));
                 boolean result = state.onActiveState();
                 if (result) {
