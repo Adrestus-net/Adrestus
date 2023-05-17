@@ -73,7 +73,8 @@ public class SyncConsensusNotExistedTest {
             }
         };
         int version = 0x00;
-        char[] mnemonic7 = "fluid abstract raise duty scare year add danger include smart senior ensure".toCharArray();
+        //char[] mnemonic7 = "danger fluid abstract raise duty scare year add include smart senior ensure".toCharArray();
+        char[] mnemonic7 = "danger fluid abstract raise duty scare year add include smart senior ensure".toCharArray();
         passphrase = "p4ssphr4se".toCharArray();
 
         Mnemonic mnem = new Mnemonic(Security.NORMAL, WordList.ENGLISH);

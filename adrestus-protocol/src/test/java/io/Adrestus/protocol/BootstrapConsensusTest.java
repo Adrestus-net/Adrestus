@@ -73,14 +73,14 @@ public class BootstrapConsensusTest {
     private static BLSPrivateKey sk6;
     private static BLSPublicKey vk6;
 
-    private static ECKeyPair ecKeyPair1, ecKeyPair2, ecKeyPair3, ecKeyPair4, ecKeyPair5, ecKeyPair6, ecKeyPair7;
-    private static String address1, address2, address3, address4, address5, address6, address7;
+    private static ECKeyPair ecKeyPair1, ecKeyPair2, ecKeyPair3, ecKeyPair4, ecKeyPair5, ecKeyPair6, ecKeyPair7,ecKeyPair8;
+    private static String address1, address2, address3, address4, address5, address6, address7,address8;
     private static ECDSASign ecdsaSign = new ECDSASign();
     private static VdfEngine vdf;
     private static KademliaData kad1, kad2, kad3, kad4, kad5, kad6;
     private static KeyHashGenerator<BigInteger, String> keyHashGenerator;
     private static char[] passphrase;
-    private static byte[] key1, key2, key3, key4, key5, key6, key7;
+    private static byte[] key1, key2, key3, key4, key5, key6, key7,key8;
 
     @BeforeAll
     public static void setup() throws Exception {
@@ -129,6 +129,7 @@ public class BootstrapConsensusTest {
         char[] mnemonic5 = "struggle travel ketchup tomato satoshi caught fog process grace pupil item ahead ".toCharArray();
         char[] mnemonic6 = "abstract raise duty scare year add fluid danger include smart senior ensure".toCharArray();
         char[] mnemonic7 = "fluid abstract raise duty scare year add danger include smart senior ensure".toCharArray();
+        char[] mnemonic8 = "danger fluid abstract raise duty scare year add include smart senior ensure".toCharArray();
         passphrase = "p4ssphr4se".toCharArray();
 
         Mnemonic mnem = new Mnemonic(Security.NORMAL, WordList.ENGLISH);
@@ -139,9 +140,11 @@ public class BootstrapConsensusTest {
         key5 = mnem.createSeed(mnemonic5, passphrase);
         key6 = mnem.createSeed(mnemonic6, passphrase);
         key7 = mnem.createSeed(mnemonic7, passphrase);
+        key8 = mnem.createSeed(mnemonic8, passphrase);
 
         SecureRandom random = SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
         SecureRandom random2 = SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
+        SecureRandom random3 = SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
         random.setSeed(key1);
         ecKeyPair1 = Keys.createEcKeyPair(random);
         random.setSeed(key2);
@@ -156,6 +159,8 @@ public class BootstrapConsensusTest {
         ecKeyPair6 = Keys.createEcKeyPair(random);
         random2.setSeed(key7);
         ecKeyPair7 = Keys.createEcKeyPair(random2);
+        random3.setSeed(key8);
+        ecKeyPair8 = Keys.createEcKeyPair(random3);
 
         address1 = WalletAddress.generate_address((byte) version, ecKeyPair1.getPublicKey());
         address2 = WalletAddress.generate_address((byte) version, ecKeyPair2.getPublicKey());
@@ -164,6 +169,7 @@ public class BootstrapConsensusTest {
         address5 = WalletAddress.generate_address((byte) version, ecKeyPair5.getPublicKey());
         address6 = WalletAddress.generate_address((byte) version, ecKeyPair6.getPublicKey());
         address7 = WalletAddress.generate_address((byte) version, ecKeyPair7.getPublicKey());
+        address8 = WalletAddress.generate_address((byte) version, ecKeyPair8.getPublicKey());
 
         ECDSASignatureData signatureData1 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address1)), ecKeyPair1);
         ECDSASignatureData signatureData2 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address2)), ecKeyPair2);
@@ -180,6 +186,7 @@ public class BootstrapConsensusTest {
         TreeFactory.getMemoryTree(0).store(address5, new PatriciaTreeNode(3000, 0));
         TreeFactory.getMemoryTree(0).store(address6, new PatriciaTreeNode(3000, 0));
         TreeFactory.getMemoryTree(0).store(address7, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(0).store(address8, new PatriciaTreeNode(3000, 0));
 
         kad1 = new KademliaData(new SecurityAuditProofs(address1, vk1, ecKeyPair1.getPublicKey(), signatureData1), new NettyConnectionInfo("192.168.1.106", KademliaConfiguration.PORT));
         kad2 = new KademliaData(new SecurityAuditProofs(address2, vk2, ecKeyPair2.getPublicKey(), signatureData2), new NettyConnectionInfo("192.168.1.113", KademliaConfiguration.PORT));
