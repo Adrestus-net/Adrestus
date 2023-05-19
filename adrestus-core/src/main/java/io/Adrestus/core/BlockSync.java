@@ -287,7 +287,7 @@ public class BlockSync implements IBlockSync {
             }
 
             Thread.sleep(1000);
-        } while (!CachedLatestBlocks.getInstance().getCommitteeBlock().getHash().equals(commitee_blocks.get(commitee_blocks.size()-1).getHash()));
+        } while (!CachedLatestBlocks.getInstance().getCommitteeBlock().getHash().equals(commitee_blocks.get(commitee_blocks.size() - 1).getHash()));
 
         RpcAdrestusClient client = null;
         List<String> patriciaRootList = null;
@@ -302,16 +302,16 @@ public class BlockSync implements IBlockSync {
             if (block.isPresent()) {
                 blocks = client.getBlocksList(String.valueOf(block.get().getHeight()));
                 if (!blocks.isEmpty() && blocks.size() > 1) {
-                    patriciaRootList=new ArrayList<>(blocks.stream().filter(val->val.getGeneration()>CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration()).map(TransactionBlock::getHash).collect(Collectors.toList()));
-                    blocks.removeIf(x -> x.getGeneration()>CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration());
+                    patriciaRootList = new ArrayList<>(blocks.stream().filter(val -> val.getGeneration() > CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration()).map(TransactionBlock::getHash).collect(Collectors.toList()));
+                    blocks.removeIf(x -> x.getGeneration() > CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration());
                     blocks.stream().skip(1).forEach(val -> toSave.put(String.valueOf(val.getHeight()), val));
                 }
 
             } else {
                 blocks = client.getBlocksList("");
                 if (!blocks.isEmpty()) {
-                    patriciaRootList=new ArrayList<>(blocks.stream().filter(val->val.getGeneration()>CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration()).map(TransactionBlock::getHash).collect(Collectors.toList()));
-                    blocks.removeIf(x -> x.getGeneration()>CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration());
+                    patriciaRootList = new ArrayList<>(blocks.stream().filter(val -> val.getGeneration() > CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration()).map(TransactionBlock::getHash).collect(Collectors.toList()));
+                    blocks.removeIf(x -> x.getGeneration() > CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration());
                     blocks.stream().forEach(val -> toSave.put(String.valueOf(val.getHeight()), val));
                 }
             }
@@ -369,9 +369,11 @@ public class BlockSync implements IBlockSync {
                     .filter(x -> !finalPatriciaRootList.contains(x.getKey()))
                     .collect(Collectors.toMap(x -> x.getKey(), x -> x.getValue()));
             tree_database.saveAll(toCollect);
-            byte[] current_tree=toCollect.get(CachedLatestBlocks.getInstance().getTransactionBlock().getPatriciaMerkleRoot());
-            if (!treeObjects.isEmpty()) {
+            byte[] current_tree = toCollect.get(CachedLatestBlocks.getInstance().getTransactionBlock().getPatriciaMerkleRoot());
+            if (!toCollect.isEmpty()) {
                 TreeFactory.setMemoryTree((MemoryTreePool) patricia_tree_wrapper.decode(current_tree), CachedZoneIndex.getInstance().getZoneIndex());
+            } else if (!treeObjects.isEmpty()) {
+                TreeFactory.setMemoryTree((MemoryTreePool) patricia_tree_wrapper.decode(treeObjects.get(treeObjects.size() - 1)), CachedZoneIndex.getInstance().getZoneIndex());
             }
 
             if (client != null) {
