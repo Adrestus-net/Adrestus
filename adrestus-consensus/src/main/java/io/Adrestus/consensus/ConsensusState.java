@@ -17,9 +17,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class ConsensusState extends ConsensusDataState {
     private static Logger LOG = LoggerFactory.getLogger(ConsensusState.class);
-    private static final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
-    private static final Lock r = rwl.readLock();
-    private static final Lock w = rwl.writeLock();
     private final DefaultFactory factory;
     private static IBlockSync blockSync;
     private static Timer transaction_block_timer;
@@ -49,18 +46,6 @@ public class ConsensusState extends ConsensusDataState {
 
     public static void setLOG(Logger LOG) {
         ConsensusState.LOG = LOG;
-    }
-
-    public ReentrantReadWriteLock getRwl() {
-        return rwl;
-    }
-
-    public Lock getR() {
-        return r;
-    }
-
-    public Lock getW() {
-        return w;
     }
 
 
@@ -133,7 +118,6 @@ public class ConsensusState extends ConsensusDataState {
         @SneakyThrows
         @Override
         public void run() {
-            w.lock();
             clear();
             try {
                 boolean result = false;
@@ -184,7 +168,6 @@ public class ConsensusState extends ConsensusDataState {
                 }
             } finally {
                 latch.countDown();
-                w.unlock();
             }
         }
 
@@ -226,9 +209,7 @@ public class ConsensusState extends ConsensusDataState {
         @SneakyThrows
         @Override
         public void run() {
-            w.lock();
             clear();
-            try {
                 if (CachedZoneIndex.getInstance().getZoneIndex() == 0) {
                     if (CachedEpochGeneration.getInstance().getEpoch_counter() >= ConsensusConfiguration.EPOCH_TRANSITION) {
                         clear();
@@ -273,9 +254,6 @@ public class ConsensusState extends ConsensusDataState {
                     transaction_block_timer = new Timer(ConsensusConfiguration.CONSENSUS);
                     transaction_block_timer.scheduleAtFixedRate(new TransactionBlockConsensusTask(state), ConsensusConfiguration.CHANGE_VIEW_TIMER, ConsensusConfiguration.CHANGE_VIEW_TIMER);
                 }
-            } finally {
-                w.unlock();
-            }
         }
 
         @Override

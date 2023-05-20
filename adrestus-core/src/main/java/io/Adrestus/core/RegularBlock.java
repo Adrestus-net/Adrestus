@@ -42,6 +42,11 @@ import java.security.SecureRandom;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static java.util.Comparator.comparing;
+import static java.util.Comparator.comparingInt;
+import static java.util.stream.Collectors.collectingAndThen;
+import static java.util.stream.Collectors.toCollection;
+
 
 public class RegularBlock implements BlockForge, BlockInvent {
     private static Logger LOG = LoggerFactory.getLogger(RegularBlock.class);
@@ -227,7 +232,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
                     .getDhtBootstrapNode()
                     .getActiveNodes()
                     .stream()
-                    .collect(Collectors.toList());
+                    .collect(collectingAndThen(toCollection(() -> new TreeSet<>(comparing(e->e.getAddressData().getAddress()))), ArrayList::new));
 
             for (int i = 0; i < kademliaData.size(); i++) {
                 committeeBlock
@@ -240,7 +245,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
                     .getDhtRegularNode()
                     .getActiveNodes()
                     .stream()
-                    .collect(Collectors.toList());
+                    .collect(collectingAndThen(toCollection(() -> new TreeSet<>(comparing(e->e.getAddressData().getAddress()))), ArrayList::new));
 
             for (int i = 0; i < kademliaData.size(); i++) {
                 committeeBlock
