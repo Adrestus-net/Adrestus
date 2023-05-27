@@ -32,7 +32,7 @@ import static io.activej.promise.Promises.loop;
 
 public class TransactionStrategy implements IStrategy {
     private static Logger LOG = LoggerFactory.getLogger(TransactionStrategy.class);
-    private final List<String> list_ip;
+    private List<String> list_ip;
     private final ExecutorService executorService;
     private final Eventloop eventloop;
     private static SerializationUtil<Transaction> transaction_encode;
@@ -60,13 +60,12 @@ public class TransactionStrategy implements IStrategy {
         this.list_ip = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).values().stream().collect(Collectors.toList());
         this.local_termination = new CountDownLatch[list_ip.size()];
         this.available = new Semaphore[list_ip.size()];
-        this.Setup();
         this.eventloop = Eventloop.create().withCurrentThread();
         this.transaction_encode = new SerializationUtil<Transaction>(Transaction.class, list);
     }
 
 
-    private void Setup() {
+    private void Setup(List<Transaction> transaction_list) {
         for (int i = 0; i < local_termination.length; i++) {
             local_termination[i] = new CountDownLatch(transaction_list.size());
             available[i] = new Semaphore(1, true);
@@ -75,22 +74,43 @@ public class TransactionStrategy implements IStrategy {
 
     @Override
     public void execute() {
-        for (int i = 0; i < list_ip.size(); i++) {
-            int finalI = i;
-            executorService.submit(() -> {
-                Eventloop eventloop = Eventloop.create().withCurrentThread();
-                if (!transaction_list.isEmpty()) {
-                    MultipleAsync(list_ip.get(finalI), eventloop, finalI);
-                } else
+        if (!transaction_list.isEmpty()) {
+            Map<Integer, List<Transaction>> transcationGrouped = transaction_list.stream().collect(Collectors.groupingBy(w -> w.getZoneFrom()));
+            for (Map.Entry<Integer, List<Transaction>> entry : transcationGrouped.entrySet()) {
+                list_ip = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(entry.getKey()).values().stream().collect(Collectors.toList());
+                this.Setup(entry.getValue());
+                for (int i = 0; i < list_ip.size(); i++) {
+                    int finalI = i;
+                    executorService.submit(() -> {
+                        Eventloop eventloop = Eventloop.create().withCurrentThread();
+                        MultipleAsync(list_ip.get(finalI), eventloop, finalI,entry.getValue());
+                        eventloop.run();
+
+                    });
+                }
+                this.awaitTerminationAfterShutdown();
+                this.terminate();
+            }
+        }
+        else {
+            list_ip = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(transaction.getZoneFrom()).values().stream().collect(Collectors.toList());
+            for (int i = 0; i < list_ip.size(); i++) {
+                int finalI = i;
+                executorService.submit(() -> {
+                    Eventloop eventloop = Eventloop.create().withCurrentThread();
                     SingleAsync(list_ip.get(finalI), eventloop);
-                eventloop.run();
+                    eventloop.run();
 
-            });
-
+                });
+            }
+            this.awaitTerminationAfterShutdown();
+            this.terminate();
         }
 
-        this.awaitTerminationAfterShutdown();
-        this.terminate();
+        if (this.transaction_list != null) {
+            this.transaction_list.clear();
+            this.transaction_list = null;
+        }
     }
 
     private void SingleAsync(String ip, Eventloop eventloop) {
@@ -113,7 +133,7 @@ public class TransactionStrategy implements IStrategy {
         });
     }
 
-    private void MultipleAsync(String ip, Eventloop eventloop, int pos) {
+    private void MultipleAsync(String ip, Eventloop eventloop, int pos,List<Transaction> transaction_list) {
         eventloop.connect(new InetSocketAddress(ip, SocketConfigOptions.TRANSACTION_PORT), (socketChannel, e) -> {
             if (e == null) {
                 try {
@@ -121,8 +141,8 @@ public class TransactionStrategy implements IStrategy {
                     AsyncTcpSocket socket = AsyncTcpSocketNio.wrapChannel(getCurrentEventloop(), socketChannel, null);
                     BinaryChannelSupplier bufsSupplier = BinaryChannelSupplier.of(ChannelSupplier.ofSocket(socket));
                     loop(0,
-                            i -> i < this.transaction_list.size(),
-                            i -> loadData(this.transaction_list.get(i))
+                            i -> i < transaction_list.size(),
+                            i -> loadData(transaction_list.get(i))
                                     .then(socket::write)
                                     .then(bufsSupplier::needMoreData)
                                     .then(() -> decrease(pos))
@@ -164,10 +184,6 @@ public class TransactionStrategy implements IStrategy {
 
 
     private void terminate() {
-        if (this.transaction_list != null) {
-            this.transaction_list.clear();
-            this.transaction_list = null;
-        }
         this.transaction = null;
         this.list_ip.clear();
 

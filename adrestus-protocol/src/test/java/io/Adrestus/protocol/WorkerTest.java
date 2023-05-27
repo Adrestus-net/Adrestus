@@ -11,6 +11,7 @@ import io.Adrestus.crypto.elliptic.Keys;
 import io.Adrestus.crypto.mnemonic.Mnemonic;
 import io.Adrestus.crypto.mnemonic.Security;
 import io.Adrestus.crypto.mnemonic.WordList;
+import io.Adrestus.network.CachedEventLoop;
 import io.activej.eventloop.Eventloop;
 import io.distributedLedger.DatabaseInstance;
 import io.distributedLedger.PatriciaTreeInstance;
@@ -23,7 +24,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class WorkerTest {
-    private static Eventloop eventloop = Eventloop.create().withCurrentThread();
+
 
     @BeforeAll
     public static void setup() throws Exception {
@@ -42,8 +43,10 @@ public class WorkerTest {
         }
     }
 
+    //IT'S IMPORTANT to have cachedEventLoop started to play
     @Test
     public void test() throws InterruptedException {
+        CachedEventLoop.getInstance().start();
         IAdrestusFactory factory = new AdrestusFactory();
         List<AdrestusTask> tasks = new java.util.ArrayList<>(List.of(
                 //factory.createBindServerKademliaTask(),
@@ -67,7 +70,6 @@ public class WorkerTest {
         while (!executor.isTerminated()) {
             Thread.yield();
         }
-
     }
 
     @Test

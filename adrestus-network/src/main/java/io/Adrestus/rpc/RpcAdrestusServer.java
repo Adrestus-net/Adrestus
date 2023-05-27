@@ -24,6 +24,7 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
+import java.util.concurrent.ExecutionException;
 
 public class RpcAdrestusServer<T> implements Runnable {
 
@@ -218,6 +219,14 @@ public class RpcAdrestusServer<T> implements Runnable {
     }
 
     public void close() {
+       rpcServer.closeFuture().cancel(true);
+        try {
+            rpcServer.closeFuture().get();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
+        }
         rpcServer.close();
         rpcServer.stopMonitoring();
         rpcServer = null;

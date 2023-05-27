@@ -12,6 +12,7 @@ import io.Adrestus.crypto.bls.mapper.ECPmapper;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.crypto.elliptic.mapper.CustomSerializerTreeMap;
 import io.Adrestus.mapper.MemoryTreePoolSerializer;
+import io.Adrestus.network.CachedEventLoop;
 import io.Adrestus.rpc.RpcAdrestusClient;
 import io.Adrestus.rpc.RpcAdrestusServer;
 import io.Adrestus.util.GetTime;
@@ -48,7 +49,7 @@ class RPCExampleTest {
     private static final int TIMEOUT = 1500;
     private static RpcServer serverOne, serverTwo, serverThree;
     private static Thread thread;
-    private static Eventloop eventloop = Eventloop.create().withCurrentThread();
+    private static Eventloop eventloop = CachedEventLoop.getInstance().getEventloop();
     private static InetSocketAddress address1, address2, address3;
     private static SerializationUtil<AbstractBlock> encode;
 
@@ -171,7 +172,7 @@ class RPCExampleTest {
             Thread.sleep(200);
 
 
-            Eventloop eventloop = Eventloop.getCurrentEventloop();
+
             RpcAdrestusServer<AbstractBlock> example = new RpcAdrestusServer<AbstractBlock>(new CommitteeBlock(), DatabaseInstance.COMMITTEE_BLOCK, "localhost", 8082, eventloop);
             new Thread(example).start();
             RpcAdrestusClient<AbstractBlock> client = new RpcAdrestusClient<AbstractBlock>(new CommitteeBlock(), "localhost", 8082, eventloop);
@@ -208,7 +209,7 @@ class RPCExampleTest {
 
             database.save(transactionBlock.getHash(), transactionBlock);
 
-            Eventloop eventloop = Eventloop.getCurrentEventloop();
+
             RpcAdrestusServer<AbstractBlock> example = new RpcAdrestusServer<AbstractBlock>(new TransactionBlock(), DatabaseInstance.ZONE_1_TRANSACTION_BLOCK, "localhost", 8085, eventloop);
             new Thread(example).start();
             RpcAdrestusClient<AbstractBlock> client = new RpcAdrestusClient<AbstractBlock>(new TransactionBlock(), "localhost", 8085, eventloop);
@@ -253,7 +254,7 @@ class RPCExampleTest {
 
 
             ArrayList<InetSocketAddress> list = new ArrayList<>();
-            InetSocketAddress address1 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 6070);
+            InetSocketAddress address1 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 3070);
             InetSocketAddress address2 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 6071);
             InetSocketAddress address3 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 6072);
             list.add(address1);
