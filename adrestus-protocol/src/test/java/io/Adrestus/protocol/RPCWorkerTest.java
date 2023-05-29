@@ -30,6 +30,10 @@ public class RPCWorkerTest {
         delete_test();
     }
 
+
+
+
+    //MAKE SURE CAHCEHCD EVENTLOOP START HERE OR ON WORKER TEST
     @Test
     public void test() throws IOException, InterruptedException {
         DatabaseInstance instance = DatabaseInstance.ZONE_0_TRANSACTION_BLOCK;
@@ -41,7 +45,7 @@ public class RPCWorkerTest {
         ExecutorService executor = Executors.newFixedThreadPool(tasks.size());
         tasks.stream().map(Worker::new).forEach(executor::execute);
 
-        CachedEventLoop.getInstance().start();
+        //CachedEventLoop.getInstance().start();
        /* RpcServer.create(eventloop)
                 .withMessageTypes(String.class)
                 .withListenAddress(new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 8083)).listen();
