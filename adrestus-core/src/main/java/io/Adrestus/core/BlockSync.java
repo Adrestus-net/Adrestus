@@ -446,4 +446,33 @@ public class BlockSync implements IBlockSync {
         } while (bError);
     }
 
+    @Override
+    public void syncCommitBlock() {
+        List<String> ips = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).values().stream().collect(Collectors.toList());
+        ArrayList<InetSocketAddress> toConnectCommittee = new ArrayList<>();
+        ips.stream().forEach(ip -> {
+            try {
+                toConnectCommittee.add(new InetSocketAddress(InetAddress.getByName(ip), NetworkConfiguration.RPC_PORT));
+            } catch (UnknownHostException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+        RpcAdrestusClient client1 = new RpcAdrestusClient(new CommitteeBlock(), toConnectCommittee, CachedEventLoop.getInstance().getEventloop());
+        client1.connect();
+
+        List<CommitteeBlock> commitee_blocks = client1.getBlocksList(String.valueOf(CachedLatestBlocks.getInstance().getCommitteeBlock().getHeight()));
+
+        if (client1 != null) {
+            client1.close();
+            client1 = null;
+        }
+
+        if (commitee_blocks.size() <= 1)
+            return;
+
+
+        CachedLatestBlocks.getInstance().setCommitteeBlock(commitee_blocks.get(commitee_blocks.size() - 1));
+    }
+
 }

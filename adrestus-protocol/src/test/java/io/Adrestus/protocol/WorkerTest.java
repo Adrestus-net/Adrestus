@@ -110,5 +110,15 @@ public class WorkerTest {
             count++;
         }
 
+        Thread.sleep(2000);
+        tasks.forEach(val -> {
+            val.close();
+        });
+        tasks.clear();
+        executor.shutdown();
+        while (!executor.isTerminated()) {
+            Thread.yield();
+        }
+
     }
 }

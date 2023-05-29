@@ -8,4 +8,6 @@ public interface IBlockSync {
     void SyncState();
 
     void checkIfNeedsSync();
+
+    void syncCommitBlock();
 }
