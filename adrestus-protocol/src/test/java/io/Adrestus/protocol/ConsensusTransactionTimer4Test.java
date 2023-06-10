@@ -1,10 +1,11 @@
-package io.Adrestus.consensus;
+package io.Adrestus.protocol;
 
 import com.google.common.reflect.TypeToken;
 import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.config.ConsensusConfiguration;
+import io.Adrestus.consensus.ConsensusState;
 import io.Adrestus.core.*;
 import io.Adrestus.core.Resourses.CachedEpochGeneration;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
@@ -20,6 +21,7 @@ import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.crypto.mnemonic.Mnemonic;
 import io.Adrestus.crypto.mnemonic.Security;
 import io.Adrestus.crypto.mnemonic.WordList;
+import io.Adrestus.network.CachedEventLoop;
 import io.Adrestus.util.GetTime;
 import io.Adrestus.util.SerializationUtil;
 import io.distributedLedger.*;
@@ -35,6 +37,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class ConsensusTransactionTimer4Test {
 
@@ -143,6 +147,19 @@ public class ConsensusTransactionTimer4Test {
 
     @Test
     public void consensus_timer_test() throws Exception {
+        IAdrestusFactory factory = new AdrestusFactory();
+        List<AdrestusTask> tasks = new java.util.ArrayList<>(List.of(
+                //factory.createBindServerKademliaTask(),
+                factory.createBindServerCachedTask(),
+                factory.createBindServerTransactionTask(),
+                factory.createRepositoryTransactionTask(DatabaseInstance.ZONE_0_TRANSACTION_BLOCK),
+                factory.createRepositoryTransactionTask(DatabaseInstance.ZONE_1_TRANSACTION_BLOCK),
+                factory.createRepositoryTransactionTask(DatabaseInstance.ZONE_2_TRANSACTION_BLOCK),
+                factory.createRepositoryTransactionTask(DatabaseInstance.ZONE_3_TRANSACTION_BLOCK),
+                factory.createRepositoryPatriciaTreeTask(PatriciaTreeInstance.PATRICIA_TREE_INSTANCE_0),
+                factory.createRepositoryPatriciaTreeTask(PatriciaTreeInstance.PATRICIA_TREE_INSTANCE_1),
+                factory.createRepositoryPatriciaTreeTask(PatriciaTreeInstance.PATRICIA_TREE_INSTANCE_2),
+                factory.createRepositoryPatriciaTreeTask(PatriciaTreeInstance.PATRICIA_TREE_INSTANCE_3)));
         Socket socket = new Socket();
         socket.connect(new InetSocketAddress("google.com", 80));
         String IP = socket.getLocalAddress().getHostAddress();
@@ -176,6 +193,12 @@ public class ConsensusTransactionTimer4Test {
         if (hit == 0) {
             return;
         }
+
+        ExecutorService executor = Executors.newFixedThreadPool(tasks.size());
+        tasks.stream().map(Worker::new).forEach(executor::execute);
+
+        CachedEventLoop.getInstance().start();
+
 
         CountDownLatch latch = new CountDownLatch(10);
         ConsensusState c = new ConsensusState(latch,true);
