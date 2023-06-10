@@ -34,6 +34,7 @@ public class AsyncServiceNetworkData<T> {
     private static Logger LOG = LoggerFactory.getLogger(AsyncServiceNetworkData.class);
 
     private static final int TIMER_DELAY_TIMEOUT = 3000;
+    private static final int EVENTLOOP_TIMER_DELAY_TIMEOUT = 1000;
     private static final ByteBufsDecoder<ByteBuf> DECODER = ByteBufsDecoder.ofVarIntSizePrefixedBytes();
     private List<String> list_ip;
 
@@ -42,7 +43,6 @@ public class AsyncServiceNetworkData<T> {
 
     private static CountDownLatch[] local_termination;
 
-    private Eventloop eventloop;
     public AsyncServiceNetworkData(List<String> list_ip) {
         this.executor = new ThreadAsyncExecutor();
         this.list_ip = list_ip;
@@ -86,7 +86,7 @@ public class AsyncServiceNetworkData<T> {
             Timer receivetimer = new Timer();
             Eventloop eventloop = Eventloop.create().withCurrentThread();
             Eventloop finalEventloop=eventloop;
-            eventloop.connect(new InetSocketAddress(ip,SocketConfigOptions.CACHED_DATA_PORT), (socketChannel, e) -> {
+            eventloop.connect(new InetSocketAddress(ip,SocketConfigOptions.CACHED_DATA_PORT),EVENTLOOP_TIMER_DELAY_TIMEOUT, (socketChannel, e) -> {
                 if (e == null) {
                     try {
                         AsyncTcpSocket socket = AsyncTcpSocketNio.wrapChannel(getCurrentEventloop(), socketChannel, null);

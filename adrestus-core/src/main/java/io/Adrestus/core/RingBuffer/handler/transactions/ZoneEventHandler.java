@@ -3,6 +3,7 @@ package io.Adrestus.core.RingBuffer.handler.transactions;
 import io.Adrestus.config.SocketConfigOptions;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
+import io.Adrestus.core.Resourses.MemoryTransactionPool;
 import io.Adrestus.core.RingBuffer.event.TransactionEvent;
 import io.Adrestus.core.StatusType;
 import io.Adrestus.core.Transaction;
@@ -44,6 +45,7 @@ public class ZoneEventHandler extends TransactionEventHandler {
                 var asyncResult1 = executor.startProcess(300L);
                 final var result1 = executor.endProcess(asyncResult1);
                 transaction.setStatus(StatusType.ABORT);
+                MemoryTransactionPool.getInstance().delete(transaction);
             }
         } catch (NullPointerException ex) {
             LOG.info("Transaction is empty");

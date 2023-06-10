@@ -173,7 +173,7 @@ public class AsyncServiceTest {
         MemoryTransactionPool.getInstance().getAll().stream().skip(1).forEach(transaction -> transaction_list.add(transaction_encode.encode((Transaction) transaction, 1024)));
         var executor = new AsyncService<Long>(ips, transaction_list, SocketConfigOptions.TRANSACTION_PORT);
 
-        var asyncResult1 = executor.startListProcess(300L);
+        var asyncResult1 = executor.startListProcess(1L);
         final var result1 = executor.endProcess(asyncResult1);
     }
 

@@ -29,7 +29,7 @@ import static io.activej.promise.Promises.loop;
 public class AsyncService<T> {
     private static Logger LOG = LoggerFactory.getLogger(AsyncService.class);
 
-    private static final int TIMER_DELAY_TIMEOUT = 15000;
+    private static final int TIMER_DELAY_TIMEOUT = 500;
     private final ThreadAsyncExecutor executor;
     private final List<String> list_ip;
     private final int port;
@@ -99,7 +99,7 @@ public class AsyncService<T> {
     private <T> Callable<T> AsyncCall(T value, String ip) {
         return () -> {
             Eventloop eventloop = Eventloop.create().withCurrentThread();
-            eventloop.connect(new InetSocketAddress(ip, port), (socketChannel, e) -> {
+            eventloop.connect(new InetSocketAddress(ip, port),TIMER_DELAY_TIMEOUT, (socketChannel, e) -> {
                 if (e == null) {
                     try {
                         AsyncTcpSocket socket = AsyncTcpSocketNio.wrapChannel(getCurrentEventloop(), socketChannel, null);
@@ -128,7 +128,7 @@ public class AsyncService<T> {
     private <T> Callable<T> AsyncListCall(T value, String ip, int pos) {
         return () -> {
             Eventloop eventloop = Eventloop.create().withCurrentThread();
-            eventloop.connect(new InetSocketAddress(ip, this.port), (socketChannel, e) -> {
+            eventloop.connect(new InetSocketAddress(ip, this.port),TIMER_DELAY_TIMEOUT, (socketChannel, e) -> {
                 if (e == null) {
                     try {
                         AsyncTcpSocket socket = AsyncTcpSocketNio.wrapChannel(getCurrentEventloop(), socketChannel, null);
