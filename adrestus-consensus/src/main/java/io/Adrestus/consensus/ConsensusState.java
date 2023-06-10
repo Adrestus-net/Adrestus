@@ -24,6 +24,7 @@ public class ConsensusState extends ConsensusDataState {
     private static CountDownLatch latch;
     private static IBlockIndex blockIndex;
 
+    private static boolean debug;
     public ConsensusState() {
         this.transaction_block_timer = new Timer(ConsensusConfiguration.CONSENSUS);
         this.committee_block_timer = new Timer(ConsensusConfiguration.CONSENSUS);
@@ -32,6 +33,16 @@ public class ConsensusState extends ConsensusDataState {
     }
 
     public ConsensusState(CountDownLatch latch) {
+        this.blockIndex = new BlockIndex();
+        this.transaction_block_timer = new Timer(ConsensusConfiguration.CONSENSUS);
+        this.committee_block_timer = new Timer(ConsensusConfiguration.CONSENSUS);
+        this.latch = latch;
+        this.factory = new DefaultFactory(new TransactionBlock(), new CommitteeBlock());
+        this.blockSync = new BlockSync();
+    }
+
+    public ConsensusState(CountDownLatch latch,boolean debug) {
+        this.debug=debug;
         this.blockIndex = new BlockIndex();
         this.transaction_block_timer = new Timer(ConsensusConfiguration.CONSENSUS);
         this.committee_block_timer = new Timer(ConsensusConfiguration.CONSENSUS);
@@ -219,7 +230,9 @@ public class ConsensusState extends ConsensusDataState {
                     }
                 }
                 else {
-                    blockSync.SyncState();
+                    if(!debug) {
+                        blockSync.SyncState();
+                    }
                 }
                 state.onEnterState(blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedLeaderIndex.getInstance().getTransactionPositionLeader()));
                 boolean result = state.onActiveState();
