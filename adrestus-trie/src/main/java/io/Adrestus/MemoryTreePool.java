@@ -88,6 +88,7 @@ public class MemoryTreePool implements IMemoryTreePool, Cloneable {
     }
 
     //be aware that print functionality is  different
+    @SneakyThrows
     @Override
     public void withdraw(String address, double amount, IMemoryTreePool instance) {
         w.lock();
@@ -98,7 +99,7 @@ public class MemoryTreePool implements IMemoryTreePool, Cloneable {
                 PatriciaTreeNode next = new PatriciaTreeNode(amount, 0, 0);
                 patriciaTreeImp.put(key, next);
             } else {
-                PatriciaTreeNode patriciaTreeNode = prev.get();
+                PatriciaTreeNode patriciaTreeNode =(PatriciaTreeNode) prev.get().clone();
                 Double new_cash = prev.get().getAmount() - amount;
                 //System.out.println("Widraw "+address+ " "+prev.get().getAmount()+" - "+patriciaTreeNode.getAmount()+" = "+amount);
                 patriciaTreeNode.setAmount(new_cash);

@@ -40,7 +40,9 @@ public class RepositoryTransactionTask extends AdrestusTask {
 
     public void close() {
         this.executorService.shutdownNow();
-        this.rpcAdrestusServer.close();
-        this.rpcAdrestusServer = null;
+        if(this.rpcAdrestusServer!=null) {
+            this.rpcAdrestusServer.close();
+            this.rpcAdrestusServer = null;
+        }
     }
 }

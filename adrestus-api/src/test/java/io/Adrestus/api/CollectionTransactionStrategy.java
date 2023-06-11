@@ -128,6 +128,7 @@ public class CollectionTransactionStrategy {
             CachedLatestBlocks.getInstance().setTransactionBlock(prevblock);
             CachedEpochGeneration.getInstance().setEpoch_counter(0);
             CachedLeaderIndex.getInstance().setTransactionPositionLeader(0);
+            CachedZoneIndex.getInstance().setZoneIndex(1);
         } catch (NoSuchElementException e) {
             System.out.println(e.toString());
         }
@@ -136,9 +137,8 @@ public class CollectionTransactionStrategy {
 
     @Test
     public void execute() throws Exception {
-
-        ArrayList<Transaction> list=new ArrayList<>();
         for (int j = 1; j <= TestingConfiguration.NONCE; j++) {
+            ArrayList<Transaction> list=new ArrayList<>();
             for (int i = TestingConfiguration.START; i < TestingConfiguration.END - 1; i++) {
                 Transaction transaction = new RegularTransaction();
                 transaction.setFrom(addreses.get(i));
