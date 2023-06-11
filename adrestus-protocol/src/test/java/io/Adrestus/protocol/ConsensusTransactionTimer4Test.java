@@ -83,7 +83,7 @@ public class ConsensusTransactionTimer4Test {
 
         CachedZoneIndex.getInstance().setZoneIndex(1);
         int start = 0;
-        int end = 100;
+        int end = 2000;
         for (int i = start; i < end; i++) {
             Mnemonic mnem = new Mnemonic(Security.NORMAL, WordList.ENGLISH);
             char[] mnemonic_sequence = "sample sail jungle learn general promote task puppy own conduct green affair ".toCharArray();

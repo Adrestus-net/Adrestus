@@ -33,7 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-public class TransactionStrategyTest2 {
+public class SingleTransactionStrategyTest2 {
 
 
     private static final int version = 0x00;
@@ -66,6 +66,7 @@ public class TransactionStrategyTest2 {
     @BeforeAll
     public static void setup() throws Exception {
 
+        TestingConfiguration.END=30;
 
         for (int i = TestingConfiguration.START; i < TestingConfiguration.END; i++) {
             Mnemonic mnem = new Mnemonic(Security.NORMAL, WordList.ENGLISH);
