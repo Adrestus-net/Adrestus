@@ -1,6 +1,7 @@
 package io.Adrestus.protocol;
 
 import io.Adrestus.config.SocketConfigOptions;
+import io.Adrestus.core.Resourses.MemoryTransactionPool;
 import io.Adrestus.core.RingBuffer.handler.transactions.SignatureEventHandler;
 import io.Adrestus.core.RingBuffer.publisher.TransactionEventPublisher;
 import io.Adrestus.core.Transaction;
@@ -50,6 +51,7 @@ public class BindServerTransactionTask extends AdrestusTask {
                 .withSameOriginEventHandler()
                 .withZoneEventHandler()
                 .withDuplicateEventHandler()
+                .withBroadcastTransactionHandler()
                 .mergeEventsAndPassThen(new SignatureEventHandler(SignatureEventHandler.SignatureBehaviorType.SIMPLE_TRANSACTIONS));
         publisher.start();
     }
@@ -59,7 +61,9 @@ public class BindServerTransactionTask extends AdrestusTask {
             try {
                 Transaction transaction = serenc.decode(x);
                 // System.out.println(transaction.toString());
-                publisher.publish(transaction);
+                if (!MemoryTransactionPool.getInstance().checkAdressExists(transaction)) {
+                    publisher.publish(transaction);
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }

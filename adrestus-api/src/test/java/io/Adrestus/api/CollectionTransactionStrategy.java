@@ -112,6 +112,7 @@ public class CollectionTransactionStrategy {
         prevblock.getHeaderData().setTimestamp(GetTime.GetTimeStampInString());
         CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
 
+        CachedZoneIndex.getInstance().setZoneIndex(1);
         CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).put(vk1, "192.168.1.106");
         CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).put(vk3, "192.168.1.116");
         CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).put(vk4, "192.168.1.110");

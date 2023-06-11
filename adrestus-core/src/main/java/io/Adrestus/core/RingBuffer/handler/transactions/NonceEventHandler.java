@@ -3,13 +3,17 @@ package io.Adrestus.core.RingBuffer.handler.transactions;
 import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
+import io.Adrestus.core.Resourses.MemoryTransactionPool;
 import io.Adrestus.core.RingBuffer.event.TransactionEvent;
 import io.Adrestus.core.StatusType;
 import io.Adrestus.core.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class NonceEventHandler extends TransactionEventHandler {
     private static Logger LOG = LoggerFactory.getLogger(NonceEventHandler.class);
@@ -33,6 +37,9 @@ public class NonceEventHandler extends TransactionEventHandler {
         }
 
         if (patriciaTreeNode.getNonce() + 1 != transaction.getNonce()) {
+            /*List<Transaction> list= MemoryTransactionPool.getInstance().getAll();
+            Transaction finalTransaction = transaction;
+            List<Transaction> gf=list.stream().filter(tr->tr.getFrom().equals(finalTransaction.getFrom())).collect(Collectors.toList());*/
             LOG.info("Transaction nonce is not valid");
             transaction.setStatus(StatusType.ABORT);
         }
