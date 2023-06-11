@@ -19,7 +19,7 @@
         <java.version>11</java.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
-        <jeromq.version>0.5.3-SNAPSHOT</jeromq.version>
+        <jeromq.version>0.5.3</jeromq.version>
         <config.version>1.0-SNAPSHOT</config.version>
         <activej.version>5.4.3</activej.version>
         <netty.version>4.1.77.Final</netty.version>
