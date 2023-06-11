@@ -122,6 +122,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
                 merkleNodeArrayList.add(new MerkleNode(transaction.getHash()));
             }
         });
+        transactionBlock.getTransactionList().removeAll(todelete);
         MemoryTransactionPool.getInstance().delete(todelete);
         todelete.clear();
         tree.my_generate2(merkleNodeArrayList);

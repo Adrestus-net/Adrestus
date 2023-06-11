@@ -163,7 +163,7 @@ public class TransactionStrategyTest2 {
                 count++;
                 if (count == 2) {
                     count = 0;
-                    Thread.sleep(4000);
+                    Thread.sleep(300);
                 }
             }
 

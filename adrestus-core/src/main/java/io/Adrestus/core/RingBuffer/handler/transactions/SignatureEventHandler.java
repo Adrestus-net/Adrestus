@@ -88,11 +88,11 @@ public class SignatureEventHandler extends TransactionEventHandler {
                 return;
             }
             if (type.equals(SignatureBehaviorType.BLOCK_TRANSACTIONS)) {
-                LOG.info("Transaction signature is  valid: " + transaction.getHash());
+                //LOG.info("Transaction signature is  valid: " + transaction.getHash());
                 latch.countDown();
                 return;
             }
-            LOG.info("Transaction signature is  valid: " + transaction.getHash());
+           // LOG.info("Transaction signature is  valid: " + transaction.getHash());
             MemoryTransactionPool.getInstance().add(transaction);
         }
     }
