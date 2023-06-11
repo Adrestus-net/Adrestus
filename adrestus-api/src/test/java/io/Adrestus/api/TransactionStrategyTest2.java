@@ -39,12 +39,12 @@ public class TransactionStrategyTest2 {
     private static final int start = 0;
     private static final int end = 100;
     private static final int version = 0x00;
-    private ArrayList<String> addreses = new ArrayList<>();
-    private ArrayList<ECKeyPair> keypair = new ArrayList<>();
+    private static ArrayList<String> addreses = new ArrayList<>();
+    private static ArrayList<ECKeyPair> keypair = new ArrayList<>();
 
     private ECDSASign ecdsaSign = new ECDSASign();
 
-    private SerializationUtil<Transaction> serenc;
+    private static SerializationUtil<Transaction> serenc;
 
     private static BLSPrivateKey sk1;
     private static BLSPublicKey vk1;
@@ -66,7 +66,7 @@ public class TransactionStrategyTest2 {
     private static BLSPublicKey vk6;
 
     @BeforeAll
-    public void setup() throws Exception {
+    public static void setup() throws Exception {
 
 
         for (int i = start; i < end; i++) {
@@ -141,7 +141,7 @@ public class TransactionStrategyTest2 {
     @Test
     public void execute() throws Exception {
 
-        for (int j = 0; j < nonce; j++) {
+        for (int j = 1; j < nonce; j++) {
             int count = 0;
             for (int i = start; i < end - 1; i++) {
                 Transaction transaction = new RegularTransaction();

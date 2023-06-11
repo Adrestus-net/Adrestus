@@ -95,6 +95,7 @@ public class ReceiptsTest {
                 .withTransactionFeeEventHandler()
                 .withTimestampEventHandler()
                 .withSameOriginEventHandler()
+                .withDuplicateEventHandler()
                 .mergeEventsAndPassThen(new SignatureEventHandler(SignatureEventHandler.SignatureBehaviorType.SIMPLE_TRANSACTIONS));
         publisher.start();
 

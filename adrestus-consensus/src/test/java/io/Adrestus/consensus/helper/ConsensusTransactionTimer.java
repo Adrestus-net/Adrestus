@@ -105,6 +105,7 @@ public class ConsensusTransactionTimer {
                 .withTimestampEventHandler()
                 .withSameOriginEventHandler()
                 .withZoneEventHandler()
+                .withDuplicateEventHandler()
                 .mergeEventsAndPassThen(new SignatureEventHandler(SignatureEventHandler.SignatureBehaviorType.SIMPLE_TRANSACTIONS));
         publisher.start();
 

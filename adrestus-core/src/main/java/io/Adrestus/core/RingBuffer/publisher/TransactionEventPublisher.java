@@ -115,6 +115,10 @@ public class TransactionEventPublisher implements Publisher<Transaction> {
         }
     }
 
+    public TransactionEventPublisher withDuplicateEventHandler(){
+        group.add(new DuplicateEventHandler());
+        return this;
+    }
     public TransactionEventPublisher withAddressSizeEventHandler() {
         group.add(new AddressSizeEventHandler());
         return this;

@@ -96,6 +96,7 @@ public class ConsensusTransactionBlockTest {
                 .withSameOriginEventHandler()
                 .withZoneEventHandler()
                 .withZoneEventHandler()
+                .withDuplicateEventHandler()
                 .mergeEventsAndPassThen(new SignatureEventHandler(SignatureEventHandler.SignatureBehaviorType.SIMPLE_TRANSACTIONS));
         publisher.start();
 

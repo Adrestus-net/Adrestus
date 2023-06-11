@@ -247,6 +247,7 @@ public class BlockTest {
                 .withSameOriginEventHandler()
                 .withZoneEventHandler()
                 .withSecp256k1EventHandler()
+                .withDuplicateEventHandler()
                 .mergeEventsAndPassThen(new SignatureEventHandler(SignatureEventHandler.SignatureBehaviorType.SIMPLE_TRANSACTIONS));
         publisher.start();
 

@@ -123,6 +123,7 @@ public class ConsensusTransaction2Timer {
                 .withTimestampEventHandler()
                 .withSameOriginEventHandler()
                 .withZoneEventHandler()
+                .withDuplicateEventHandler()
                 .mergeEventsAndPassThen(new SignatureEventHandler(SignatureEventHandler.SignatureBehaviorType.SIMPLE_TRANSACTIONS));
         publisher.start();
 
@@ -169,6 +170,7 @@ public class ConsensusTransaction2Timer {
                 .withTimestampEventHandler()
                 .withSameOriginEventHandler()
                 .withZoneEventHandler()
+                .withDuplicateEventHandler()
                 .mergeEventsAndPassThen(new SignatureEventHandler(SignatureEventHandler.SignatureBehaviorType.SIMPLE_TRANSACTIONS));
         publisher.start();
 
