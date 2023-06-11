@@ -107,7 +107,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
         transactionBlock.setViewID(CachedLatestBlocks.getInstance().getTransactionBlock().getViewID() + 1);
         transactionBlock.setZone(CachedZoneIndex.getInstance().getZoneIndex());
         transactionBlock.setLeaderPublicKey(CachedBLSKeyPair.getInstance().getPublicKey());
-        transactionBlock.setTransactionList(MemoryTransactionPool.getInstance().getAll());
+        transactionBlock.setTransactionList(new ArrayList<>(MemoryTransactionPool.getInstance().getAll()));
         transactionBlock.getTransactionList().stream().forEach(transaction -> {
             if(transaction.getZoneFrom()!=CachedZoneIndex.getInstance().getZoneIndex()){
                 List<String> ips = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(transaction.getZoneFrom()).values().stream().collect(Collectors.toList());

@@ -3,6 +3,7 @@ package io.Adrestus.core.RingBuffer.handler.blocks;
 import io.Adrestus.Trie.MerkleNode;
 import io.Adrestus.Trie.MerkleTreeImp;
 import io.Adrestus.core.RingBuffer.event.AbstractBlockEvent;
+import io.Adrestus.core.StatusType;
 import io.Adrestus.core.TransactionBlock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,22 +24,23 @@ public class TransactionsMerkleeEventHandler implements BlockEventHandler<Abstra
     @Override
     public void onEvent(AbstractBlockEvent blockEvent, long l, boolean b) throws Exception {
         try {
-            TransactionBlock block = (TransactionBlock) blockEvent.getBlock();
-            if (block.getTransactionList().isEmpty()) {
+            TransactionBlock transactionBlock = (TransactionBlock) blockEvent.getBlock();
+            if (transactionBlock.getTransactionList().isEmpty()) {
                 LOG.info("Empty Transaction List");
                 return;
             }
 
 
-            block.getTransactionList().stream().forEach(x -> {
+            transactionBlock.getTransactionList().stream().forEach(x -> {
                 list.add(new MerkleNode(x.getHash()));
             });
 
             tree.my_generate2(list);
 
 
-            if (!tree.getRootHash().equals(block.getMerkleRoot())) {
+            if (!tree.getRootHash().equals(transactionBlock.getMerkleRoot())) {
                 LOG.info("Transaction Merklee root is not valid");
+                transactionBlock.setStatustype(StatusType.ABORT);
                 return;
             }
 
