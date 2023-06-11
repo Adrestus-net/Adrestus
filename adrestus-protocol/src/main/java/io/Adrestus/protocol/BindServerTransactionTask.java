@@ -51,7 +51,6 @@ public class BindServerTransactionTask extends AdrestusTask {
                 .withSameOriginEventHandler()
                 .withZoneEventHandler()
                 .withDuplicateEventHandler()
-                .withBroadcastTransactionHandler()
                 .mergeEventsAndPassThen(new SignatureEventHandler(SignatureEventHandler.SignatureBehaviorType.SIMPLE_TRANSACTIONS));
         publisher.start();
     }
@@ -60,8 +59,8 @@ public class BindServerTransactionTask extends AdrestusTask {
         this.receive = x -> {
             try {
                 Transaction transaction = serenc.decode(x);
-                // System.out.println(transaction.toString());
-                if (!MemoryTransactionPool.getInstance().checkAdressExists(transaction)) {
+
+                if(!MemoryTransactionPool.getInstance().checkAdressExists(transaction)) {
                     publisher.publish(transaction);
                 }
             } catch (Exception e) {
