@@ -3,6 +3,7 @@ package io.Adrestus.api;
 import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.config.AdrestusConfiguration;
+import io.Adrestus.config.TestingConfiguration;
 import io.Adrestus.core.*;
 import io.Adrestus.core.Resourses.CachedEpochGeneration;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
@@ -35,9 +36,6 @@ import java.util.NoSuchElementException;
 public class TransactionStrategyTest2 {
 
 
-    private static final int nonce = 5;
-    private static final int start = 0;
-    private static final int end = 100;
     private static final int version = 0x00;
     private static ArrayList<String> addreses = new ArrayList<>();
     private static ArrayList<ECKeyPair> keypair = new ArrayList<>();
@@ -69,7 +67,7 @@ public class TransactionStrategyTest2 {
     public static void setup() throws Exception {
 
 
-        for (int i = start; i < end; i++) {
+        for (int i = TestingConfiguration.START; i < TestingConfiguration.END; i++) {
             Mnemonic mnem = new Mnemonic(Security.NORMAL, WordList.ENGLISH);
             char[] mnemonic_sequence = "sample sail jungle learn general promote task puppy own conduct green affair ".toCharArray();
             char[] passphrase = ("p4ssphr4se" + String.valueOf(i)).toCharArray();
@@ -141,9 +139,9 @@ public class TransactionStrategyTest2 {
     @Test
     public void execute() throws Exception {
 
-        for (int j = 1; j < nonce; j++) {
+        for (int j = 1; j <= TestingConfiguration.NONCE; j++) {
             int count = 0;
-            for (int i = start; i < end - 1; i++) {
+            for (int i = TestingConfiguration.START; i < TestingConfiguration.END - 1; i++) {
                 Transaction transaction = new RegularTransaction();
                 transaction.setFrom(addreses.get(i));
                 transaction.setTo(addreses.get(i + 1));

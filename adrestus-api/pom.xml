@@ -44,6 +44,11 @@
             <artifactId>adrestus-network</artifactId>
             <version>${network.version}</version>
         </dependency>
+        <dependency>
+            <groupId>io.Adrestus.v1</groupId>
+            <artifactId>adrestus-config</artifactId>
+            <version>${crypto.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <pluginManagement><!-- lock down plugins versions to avoid using Maven defaults (may be moved to parent pom) -->

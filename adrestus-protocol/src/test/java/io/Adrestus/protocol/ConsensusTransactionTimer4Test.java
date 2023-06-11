@@ -5,6 +5,7 @@ import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.config.ConsensusConfiguration;
+import io.Adrestus.config.TestingConfiguration;
 import io.Adrestus.consensus.ConsensusState;
 import io.Adrestus.core.*;
 import io.Adrestus.core.Resourses.CachedEpochGeneration;
@@ -39,6 +40,8 @@ import java.util.NoSuchElementException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ConsensusTransactionTimer4Test {
 
@@ -205,6 +208,14 @@ public class ConsensusTransactionTimer4Test {
         c.getTransaction_block_timer().scheduleAtFixedRate(new ConsensusState.TransactionBlockConsensusTask(), ConsensusConfiguration.CONSENSUS_TIMER, ConsensusConfiguration.CONSENSUS_TIMER);
         //c.getCommittee_block_timer().scheduleAtFixedRate(new ConsensusState.CommitteeBlockConsensusTask(), ConsensusConfiguration.CONSENSUS_COMMITTEE_TIMER, ConsensusConfiguration.CONSENSUS_COMMITTEE_TIMER);
         latch.await();
+        IDatabase<String, TransactionBlock> block_database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
+        Map<String,TransactionBlock>map_returned=block_database.findBetweenRange("1");
 
+        int count=0;
+        for (Map.Entry<String,TransactionBlock> entry : map_returned.entrySet()){
+            count+=entry.getValue().getTransactionList().size();
+        }
+
+        assertEquals(TestingConfiguration.NONCE*(TestingConfiguration.END-1),count);
     }
 }
