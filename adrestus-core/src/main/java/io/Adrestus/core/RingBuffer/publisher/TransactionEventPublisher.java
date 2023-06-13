@@ -211,7 +211,7 @@ public class TransactionEventPublisher implements Publisher<Transaction> {
         TransactionEventHandler[] events = new TransactionEventHandler[group.size()];
         group.toArray(events);
         signatureEventHandler.setExecutorService(executor);
-        disruptor.handleEventsWith(args).then(events).then(signatureEventHandler);
+        disruptor.handleEventsWith(args[0]).then(args[1]).then(events).then(signatureEventHandler);
         return this;
     }
 
