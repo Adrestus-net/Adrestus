@@ -12,7 +12,6 @@ import io.Adrestus.crypto.mnemonic.Mnemonic;
 import io.Adrestus.crypto.mnemonic.Security;
 import io.Adrestus.crypto.mnemonic.WordList;
 import io.Adrestus.network.CachedEventLoop;
-import io.activej.eventloop.Eventloop;
 import io.distributedLedger.DatabaseInstance;
 import io.distributedLedger.PatriciaTreeInstance;
 import org.junit.jupiter.api.BeforeAll;

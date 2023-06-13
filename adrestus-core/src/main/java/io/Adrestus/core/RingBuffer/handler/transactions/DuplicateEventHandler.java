@@ -22,6 +22,10 @@ public class DuplicateEventHandler extends TransactionEventHandler {
     public void onEvent(TransactionEvent transactionEvent, long l, boolean b) throws Exception {
         try {
             Transaction transaction = transactionEvent.getTransaction();
+
+            if (transaction.getStatus().equals(StatusType.BUFFERED))
+                return;
+
             IDatabase<String, LevelDBTransactionWrapper<Transaction>> transaction_database = new DatabaseFactory(String.class, Transaction.class, new TypeToken<LevelDBTransactionWrapper<Transaction>>() {
             }.getType()).getDatabase(DatabaseType.LEVEL_DB);
             ArrayList<Transaction> tosearch;

@@ -213,7 +213,7 @@ public class ReceiptsTest {
         OutBoundRelay outBoundRelay = new OutBoundRelay(map);
         transactionBlock.setOutbound(outBoundRelay);
 
-        for(int i=0;i<1000;i++) {
+        for (int i = 0; i < 1000; i++) {
             byte[] buffer = serenc.encode(transactionBlock);
             TransactionBlock clone = (TransactionBlock) serenc.decode(buffer);
             Map.Entry<Receipt.ReceiptBlock, List<Receipt>> entry = clone.getOutbound().getMap_receipts().get(0).entrySet().iterator().next();

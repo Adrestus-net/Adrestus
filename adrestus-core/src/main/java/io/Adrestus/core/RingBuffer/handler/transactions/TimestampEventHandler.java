@@ -31,6 +31,11 @@ public class TimestampEventHandler extends TransactionEventHandler {
     public void onEvent(TransactionEvent transactionEvent, long l, boolean b) throws Exception {
         try {
             Transaction transaction = transactionEvent.getTransaction();
+
+            if (transaction.getStatus().equals(StatusType.BUFFERED))
+                return;
+
+
             Optional<LevelDBTransactionWrapper<Transaction>> wrapper = database.findByKey(transaction.getFrom());
 
             if (!wrapper.isPresent())

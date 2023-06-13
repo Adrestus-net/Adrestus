@@ -15,6 +15,10 @@ public class TransactionFeeEventHandler extends TransactionEventHandler {
     public void onEvent(TransactionEvent transactionEvent, long l, boolean b) throws Exception {
         try {
             Transaction transaction = transactionEvent.getTransaction();
+
+            if (transaction.getStatus().equals(StatusType.BUFFERED))
+                return;
+
             if (transaction.getAmountWithTransactionFee() != ((FEES / PERCENT) * transaction.getAmount())) {
                 LOG.info("Transaction fee calculator is incorrect");
                 transaction.setStatus(StatusType.ABORT);

@@ -211,7 +211,7 @@ public class DHTRegularNode {
                     e.printStackTrace();
                 } catch (TimeoutException e) {
                     e.printStackTrace();
-                } catch (NullPointerException e){
+                } catch (NullPointerException e) {
                 } catch (Exception e) {
                     LOG.error(e.toString());
                 }

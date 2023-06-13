@@ -2,7 +2,6 @@ package io.Adrestus.p2p.kademlia;
 
 import io.Adrestus.config.KademliaConfiguration;
 import io.Adrestus.config.NodeSettings;
-import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.p2p.kademlia.builder.NettyKademliaDHTNodeBuilder;
 import io.Adrestus.p2p.kademlia.common.NettyConnectionInfo;
 import io.Adrestus.p2p.kademlia.exception.DuplicateStoreRequest;
@@ -21,8 +20,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -44,7 +41,7 @@ public class GetActiveNodes {
         //use this only for debug not for tests because nodesjoiningtest
         //produces error and need size of 4
         KademliaConfiguration.IDENTIFIER_SIZE = 7;
-        KademliaConfiguration.BUCKET_SIZE=300;
+        KademliaConfiguration.BUCKET_SIZE = 300;
         NodeSettings.getInstance();
         KeyHashGenerator<BigInteger, String> keyHashGenerator = key -> {
             try {
@@ -67,17 +64,16 @@ public class GetActiveNodes {
         for (int i = 0; i < size; i++) {
             String ipString = "192.168.1." + String.valueOf(i);
             BigInteger id1 = new BigInteger(convertIPtoHex(ipString, 24));
-            NettyKademliaDHTNode<String, String> nextnode=null;
-            if(i==0){
-             nextnode = new NettyKademliaDHTNodeBuilder<>(
+            NettyKademliaDHTNode<String, String> nextnode = null;
+            if (i == 0) {
+                nextnode = new NettyKademliaDHTNodeBuilder<>(
                         id1,
                         new NettyConnectionInfo("127.0.0.1", port - 1),
                         new SampleRepository(),
                         keyHashGenerator
                 ).withNodeSettings(NodeSettings.getInstance()).build();
-            }
-            else {
-               nextnode = new NettyKademliaDHTNodeBuilder<>(
+            } else {
+                nextnode = new NettyKademliaDHTNodeBuilder<>(
                         id1,
                         new NettyConnectionInfo("127.0.0.1", port + (int) i),
                         new SampleRepository(),
@@ -89,7 +85,7 @@ public class GetActiveNodes {
             list.add(nextnode);
         }
         Thread.sleep(8000);
-        List<String>vals=getActiveNode(bootsrtap);
+        List<String> vals = getActiveNode(bootsrtap);
         assertEquals(size, vals.size());
         List duplicates =
                 vals.stream().collect(Collectors.groupingBy(Function.identity()))

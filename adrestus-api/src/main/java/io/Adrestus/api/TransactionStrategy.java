@@ -32,6 +32,8 @@ import static io.activej.promise.Promises.loop;
 
 public class TransactionStrategy implements IStrategy {
     private static Logger LOG = LoggerFactory.getLogger(TransactionStrategy.class);
+
+    private static final int TIMER_DELAY_TIMEOUT = 4000;
     private List<String> list_ip;
     private final ExecutorService executorService;
     private final Eventloop eventloop;
@@ -83,7 +85,7 @@ public class TransactionStrategy implements IStrategy {
                     int finalI = i;
                     executorService.submit(() -> {
                         Eventloop eventloop = Eventloop.create().withCurrentThread();
-                        MultipleAsync(list_ip.get(finalI), eventloop, finalI,entry.getValue());
+                        MultipleAsync(list_ip.get(finalI), eventloop, finalI, entry.getValue());
                         eventloop.run();
 
                     });
@@ -91,8 +93,7 @@ public class TransactionStrategy implements IStrategy {
                 this.awaitTerminationAfterShutdown();
                 this.terminate();
             }
-        }
-        else {
+        } else {
             list_ip = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(transaction.getZoneFrom()).values().stream().collect(Collectors.toList());
             for (int i = 0; i < list_ip.size(); i++) {
                 int finalI = i;
@@ -114,7 +115,7 @@ public class TransactionStrategy implements IStrategy {
     }
 
     private void SingleAsync(String ip, Eventloop eventloop) {
-        eventloop.connect(new InetSocketAddress(ip, SocketConfigOptions.TRANSACTION_PORT), (socketChannel, e) -> {
+        eventloop.connect(new InetSocketAddress(ip, SocketConfigOptions.TRANSACTION_PORT), TIMER_DELAY_TIMEOUT, (socketChannel, e) -> {
             if (e == null) {
                 try {
                     AsyncTcpSocket socket = AsyncTcpSocketNio.wrapChannel(getCurrentEventloop(), socketChannel, null);
@@ -133,8 +134,8 @@ public class TransactionStrategy implements IStrategy {
         });
     }
 
-    private void MultipleAsync(String ip, Eventloop eventloop, int pos,List<Transaction> transaction_list) {
-        eventloop.connect(new InetSocketAddress(ip, SocketConfigOptions.TRANSACTION_PORT), (socketChannel, e) -> {
+    private void MultipleAsync(String ip, Eventloop eventloop, int pos, List<Transaction> transaction_list) {
+        eventloop.connect(new InetSocketAddress(ip, SocketConfigOptions.TRANSACTION_PORT), TIMER_DELAY_TIMEOUT, (socketChannel, e) -> {
             if (e == null) {
                 try {
                     available[pos].acquire();

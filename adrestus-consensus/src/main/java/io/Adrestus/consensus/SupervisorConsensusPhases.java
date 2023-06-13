@@ -124,7 +124,7 @@ public class SupervisorConsensusPhases {
                             ConsensusMessage<VDFMessage> received = consensus_serialize.decode(receive);
                             if (!CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).containsKey(received.getChecksumData().getBlsPublicKey())) {
                                 LOG.info("PreparePhase: Validator does not exist on consensus... Ignore");
-                               // i--;
+                                // i--;
                             } else {
                                 data.getSignatures().add(received.getChecksumData());
                                 N_COPY--;
@@ -199,7 +199,7 @@ public class SupervisorConsensusPhases {
                             ConsensusMessage<TransactionBlock> received = consensus_serialize.decode(receive);
                             if (!CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).containsKey(received.getChecksumData().getBlsPublicKey())) {
                                 LOG.info("CommitPhase: Validator does not exist on consensus... Ignore");
-                               // i--;
+                                // i--;
                             } else {
                                 data.getSignatures().add(received.getChecksumData());
                                 N_COPY--;
@@ -666,7 +666,7 @@ public class SupervisorConsensusPhases {
                             ConsensusMessage<CommitteeBlock> received = consensus_serialize.decode(receive);
                             if (!CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).containsKey(received.getChecksumData().getBlsPublicKey())) {
                                 LOG.info("PreparePhase: Validator does not exist on consensus... Ignore");
-                               // i--;
+                                // i--;
                             } else {
                                 block.getSignatures().add(received.getChecksumData());
                                 N_COPY--;

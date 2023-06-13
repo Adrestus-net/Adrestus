@@ -6,7 +6,6 @@ import io.Adrestus.config.NodeSettings;
 import io.Adrestus.core.BlockIndex;
 import io.Adrestus.core.IBlockIndex;
 import io.Adrestus.core.Resourses.CachedKademliaNodes;
-import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.SecurityAuditProofs;
 import io.Adrestus.crypto.WalletAddress;
@@ -38,7 +37,6 @@ import org.slf4j.LoggerFactory;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
-import java.util.UUID;
 
 public class BindServerKademliaTask extends AdrestusTask {
 
@@ -79,7 +77,7 @@ public class BindServerKademliaTask extends AdrestusTask {
                 KademliaConfiguration.BootstrapNodeID,
                 keyHashGenerator);
 
-        this.dhtRegularNode = new DHTRegularNode(this.nettyConnectionInfo, new BigInteger(HashUtil.convertIPtoHex(IPFinder.getLocalIP(),24)), keyHashGenerator);
+        this.dhtRegularNode = new DHTRegularNode(this.nettyConnectionInfo, new BigInteger(HashUtil.convertIPtoHex(IPFinder.getLocalIP(), 24)), keyHashGenerator);
         this.InitKademliaData();
     }
 
@@ -99,7 +97,7 @@ public class BindServerKademliaTask extends AdrestusTask {
                 this.bootstrapNettyConnectionInfo,
                 KademliaConfiguration.BootstrapNodeID,
                 keyHashGenerator);
-        this.dhtRegularNode = new DHTRegularNode(this.nettyConnectionInfo, new BigInteger(HashUtil.convertIPtoHex(IPFinder.getLocalIP(),24)), keyHashGenerator);
+        this.dhtRegularNode = new DHTRegularNode(this.nettyConnectionInfo, new BigInteger(HashUtil.convertIPtoHex(IPFinder.getLocalIP(), 24)), keyHashGenerator);
         this.InitKademliaData(secureRandom, passphrase);
     }
 
@@ -119,7 +117,7 @@ public class BindServerKademliaTask extends AdrestusTask {
                 this.bootstrapNettyConnectionInfo,
                 KademliaConfiguration.BootstrapNodeID,
                 keyHashGenerator);
-        this.dhtRegularNode = new DHTRegularNode(this.nettyConnectionInfo, new BigInteger(HashUtil.convertIPtoHex(IPFinder.getLocalIP(),24)), keyHashGenerator);
+        this.dhtRegularNode = new DHTRegularNode(this.nettyConnectionInfo, new BigInteger(HashUtil.convertIPtoHex(IPFinder.getLocalIP(), 24)), keyHashGenerator);
         this.InitKademliaData(keypair, blsPublicKey);
     }
 

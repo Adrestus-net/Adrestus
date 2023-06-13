@@ -82,15 +82,16 @@ public class BootstrapWithSyncExistedTest {
     private static BLSPrivateKey sk8;
     private static BLSPublicKey vk8;
 
-    private static ECKeyPair ecKeyPair1, ecKeyPair2, ecKeyPair3, ecKeyPair4, ecKeyPair5, ecKeyPair6, ecKeyPair7,ecKeyPair8;
-    private static String address1, address2, address3, address4, address5, address6, address7,address8;
+    private static ECKeyPair ecKeyPair1, ecKeyPair2, ecKeyPair3, ecKeyPair4, ecKeyPair5, ecKeyPair6, ecKeyPair7, ecKeyPair8;
+    private static String address1, address2, address3, address4, address5, address6, address7, address8;
     private static ECDSASign ecdsaSign = new ECDSASign();
     private static VdfEngine vdf;
-    private static KademliaData kad1, kad2, kad3, kad4, kad5, kad6,kad8;
+    private static KademliaData kad1, kad2, kad3, kad4, kad5, kad6, kad8;
     private static KeyHashGenerator<BigInteger, String> keyHashGenerator;
     private static char[] passphrase;
-    private static byte[] key1, key2, key3, key4, key5, key6, key7,key8;
+    private static byte[] key1, key2, key3, key4, key5, key6, key7, key8;
     private static SerializationUtil patricia_tree_wrapper;
+
     @BeforeAll
     public static void setup() throws Exception {
         delete_test();

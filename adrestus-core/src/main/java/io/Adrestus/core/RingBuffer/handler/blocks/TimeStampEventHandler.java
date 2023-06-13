@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Timestamp;
-import java.text.ParseException;
 
 
 public class TimeStampEventHandler implements BlockEventHandler<AbstractBlockEvent>, DisruptorBlockVisitor {
@@ -37,7 +36,7 @@ public class TimeStampEventHandler implements BlockEventHandler<AbstractBlockEve
                 committeeBlock.setStatustype(StatusType.ABORT);
                 return;
             }
-        } catch (ParseException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -49,13 +48,13 @@ public class TimeStampEventHandler implements BlockEventHandler<AbstractBlockEve
             Timestamp cached = GetTime.GetTimestampFromString(CachedLatestBlocks.getInstance().getTransactionBlock().getHeaderData().getTimestamp());
 
             if (!cached.before(current)) {
-                if(!cached.before(GetTime.GetTimeStampWithDelay(current))) {
+                if (!cached.before(GetTime.GetTimeStampWithDelay(current))) {
                     LOG.info("TransactionBlock timestamp is not valid");
                     transactionBlock.setStatustype(StatusType.ABORT);
                     return;
                 }
             }
-        } catch (ParseException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

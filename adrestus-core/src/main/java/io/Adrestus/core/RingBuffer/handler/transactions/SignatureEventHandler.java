@@ -1,5 +1,6 @@
 package io.Adrestus.core.RingBuffer.handler.transactions;
 
+import io.Adrestus.core.Resourses.CacheTemporalTransactionPool;
 import io.Adrestus.core.Resourses.MemoryTransactionPool;
 import io.Adrestus.core.RingBuffer.event.TransactionEvent;
 import io.Adrestus.core.StatusType;
@@ -53,6 +54,10 @@ public class SignatureEventHandler extends TransactionEventHandler {
     @Override
     public void onEvent(TransactionEvent transactionEvent, long l, boolean b) throws Exception {
         Transaction transaction = transactionEvent.getTransaction();
+
+        if (transaction.getStatus().equals(StatusType.BUFFERED))
+            return;
+
         if (transaction.getStatus().equals(StatusType.ABORT)) {
             LOG.info("Transaction Marked with status ABORT");
             if (type.equals(SignatureBehaviorType.BLOCK_TRANSACTIONS))
@@ -92,8 +97,12 @@ public class SignatureEventHandler extends TransactionEventHandler {
                 latch.countDown();
                 return;
             }
-           // LOG.info("Transaction signature is  valid: " + transaction.getHash());
-            MemoryTransactionPool.getInstance().add(transaction);
+            // LOG.info("Transaction signature is  valid: " + transaction.getHash());
+            if (MemoryTransactionPool.getInstance().checkAdressExists(transaction)) {
+                CacheTemporalTransactionPool.getInstance().add(transaction);
+            } else {
+                MemoryTransactionPool.getInstance().add(transaction);
+            }
         }
     }
 

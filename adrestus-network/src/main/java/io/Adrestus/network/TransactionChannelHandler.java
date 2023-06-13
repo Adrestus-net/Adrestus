@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.time.Duration;
-import java.util.concurrent.ExecutionException;
 
 import static io.activej.promise.Promises.repeat;
 

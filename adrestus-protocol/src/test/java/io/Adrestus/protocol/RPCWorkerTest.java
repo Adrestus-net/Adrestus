@@ -31,8 +31,6 @@ public class RPCWorkerTest {
     }
 
 
-
-
     //MAKE SURE CAHCEHCD EVENTLOOP START HERE OR ON WORKER TEST
     @Test
     public void test() throws IOException, InterruptedException {

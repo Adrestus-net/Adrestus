@@ -14,6 +14,10 @@ public class DelegateEventHandler extends TransactionEventHandler {
     public void onEvent(TransactionEvent transactionEvent, long l, boolean b) throws Exception {
         try {
             Transaction transaction = transactionEvent.getTransaction();
+
+            if (transaction.getStatus().equals(StatusType.BUFFERED))
+                return;
+
             if (transaction instanceof DelegateTransaction) {
                 DelegateTransaction delegateTransaction = (DelegateTransaction) transaction;
                 if (delegateTransaction.getDelegatorAddress().length() != 53 || delegateTransaction.getValidatorAddress().length() != 53) {

@@ -1,5 +1,6 @@
 package io.Adrestus.core.RingBuffer.handler.transactions;
 
+import io.Adrestus.core.Resourses.CacheTemporalTransactionPool;
 import io.Adrestus.core.Resourses.MemoryTransactionPool;
 import io.Adrestus.core.RingBuffer.event.TransactionEvent;
 import io.Adrestus.core.StatusType;
@@ -15,8 +16,8 @@ public class SameOriginEventHandler extends TransactionEventHandler {
         try {
             Transaction transaction = transactionEvent.getTransaction();
             if (MemoryTransactionPool.getInstance().checkAdressExists(transaction)) {
-                LOG.info("Transaction abort Address already submit a pending transaction in MemoryPool");
-                transaction.setStatus(StatusType.ABORT);
+                CacheTemporalTransactionPool.getInstance().add(transaction);
+                transaction.setStatus(StatusType.BUFFERED);
             }
         } catch (NullPointerException ex) {
             LOG.info("Transaction is empty");

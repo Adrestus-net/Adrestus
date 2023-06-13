@@ -786,7 +786,7 @@ public class ValidatorConsensusPhases {
             this.block_serialize = new SerializationUtil<AbstractBlock>(AbstractBlock.class, list);
             this.consensus_serialize = new SerializationUtil<ConsensusMessage>(fluentType, list);
             this.signatureDataMap = new HashMap<BLSPublicKey, BLSSignatureData>();
-            this.sizeCalculator=new BlockSizeCalculator();
+            this.sizeCalculator = new BlockSizeCalculator();
         }
 
         @Override
@@ -838,7 +838,7 @@ public class ValidatorConsensusPhases {
                             return;
                         } else {
                             this.sizeCalculator.setTransactionBlock(data.getData());
-                            byte[] message = block_serialize.encode(data.getData(),this.sizeCalculator.TransactionBlockSizeCalculator());
+                            byte[] message = block_serialize.encode(data.getData(), this.sizeCalculator.TransactionBlockSizeCalculator());
                             boolean verify = BLSSignature.verify(data.getChecksumData().getSignature(), message, data.getChecksumData().getBlsPublicKey());
                             if (!verify) {
                                 cleanup();
@@ -911,7 +911,7 @@ public class ValidatorConsensusPhases {
                     original_copy.getZone()));
 
             this.sizeCalculator.setTransactionBlock(data.getData());
-            Signature sig = BLSSignature.sign(block_serialize.encode(data.getData(),this.sizeCalculator.TransactionBlockSizeCalculator()), CachedBLSKeyPair.getInstance().getPrivateKey());
+            Signature sig = BLSSignature.sign(block_serialize.encode(data.getData(), this.sizeCalculator.TransactionBlockSizeCalculator()), CachedBLSKeyPair.getInstance().getPrivateKey());
             data.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
 
             if (DEBUG)
@@ -945,7 +945,7 @@ public class ValidatorConsensusPhases {
                             return;
                         } else {
                             this.sizeCalculator.setTransactionBlock(data.getData());
-                            byte[] message = block_serialize.encode(data.getData(),this.sizeCalculator.TransactionBlockSizeCalculator());
+                            byte[] message = block_serialize.encode(data.getData(), this.sizeCalculator.TransactionBlockSizeCalculator());
                             boolean verify = BLSSignature.verify(data.getChecksumData().getSignature(), message, data.getChecksumData().getBlsPublicKey());
                             if (!verify) {
                                 cleanup();
@@ -988,7 +988,7 @@ public class ValidatorConsensusPhases {
             Signature aggregatedSignature = BLSSignature.aggregate(signature);
 
             this.sizeCalculator.setTransactionBlock(data.getData());
-            Bytes toVerify = Bytes.wrap(block_serialize.encode(data.getData(),this.sizeCalculator.TransactionBlockSizeCalculator()));
+            Bytes toVerify = Bytes.wrap(block_serialize.encode(data.getData(), this.sizeCalculator.TransactionBlockSizeCalculator()));
             boolean verify = BLSSignature.fastAggregateVerify(publicKeys, toVerify, aggregatedSignature);
             if (!verify) {
                 cleanup();
@@ -1013,7 +1013,7 @@ public class ValidatorConsensusPhases {
 
 
             this.sizeCalculator.setTransactionBlock(data.getData());
-            byte[] message = block_serialize.encode(data.getData(),this.sizeCalculator.TransactionBlockSizeCalculator());
+            byte[] message = block_serialize.encode(data.getData(), this.sizeCalculator.TransactionBlockSizeCalculator());
             Signature sig = BLSSignature.sign(message, CachedBLSKeyPair.getInstance().getPrivateKey());
             data.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
 
@@ -1048,7 +1048,7 @@ public class ValidatorConsensusPhases {
                             return;
                         } else {
                             this.sizeCalculator.setTransactionBlock(data.getData());
-                            byte[] message = block_serialize.encode(data.getData(),this.sizeCalculator.TransactionBlockSizeCalculator());
+                            byte[] message = block_serialize.encode(data.getData(), this.sizeCalculator.TransactionBlockSizeCalculator());
                             boolean verify = BLSSignature.verify(data.getChecksumData().getSignature(), message, data.getChecksumData().getBlsPublicKey());
                             if (!verify) {
                                 cleanup();
@@ -1090,7 +1090,7 @@ public class ValidatorConsensusPhases {
             Signature aggregatedSignature = BLSSignature.aggregate(signature);
 
             this.sizeCalculator.setTransactionBlock(data.getData());
-            byte[] message = block_serialize.encode(data.getData(),this.sizeCalculator.TransactionBlockSizeCalculator());
+            byte[] message = block_serialize.encode(data.getData(), this.sizeCalculator.TransactionBlockSizeCalculator());
             Bytes toVerify = Bytes.wrap(message);
             boolean verify = BLSSignature.fastAggregateVerify(publicKeys, toVerify, aggregatedSignature);
             if (!verify) {

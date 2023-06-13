@@ -162,8 +162,8 @@ public class DHTBootstrapNode {
                     e.printStackTrace();
                 } catch (TimeoutException e) {
                     e.printStackTrace();
-                } catch (NullPointerException e){
-                } catch(Exception e) {
+                } catch (NullPointerException e) {
+                } catch (Exception e) {
                     LOG.info("This address not found invalid");
                 }
             });

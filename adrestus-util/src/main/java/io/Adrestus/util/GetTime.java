@@ -1,9 +1,9 @@
 package io.Adrestus.util;
 
+import lombok.SneakyThrows;
 import org.apache.commons.net.ntp.TimeStamp;
 
 import java.sql.Timestamp;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
@@ -11,7 +11,8 @@ import java.util.TimeZone;
 public class GetTime {
     private static final String FORMAT_STRING = "yyyy-MM-dd HH:mm:ss.SSS";
     private static final int ONE_MINUTE = 1 * 60 * 1000;
-    private static final int TRANSACTION_BLOCK_DELAY=1000;
+    private static final int TRANSACTION_BLOCK_DELAY = 1000;
+
     private static long ExtractUTCTimestamp() {
         try {
             return TimeStamp.getCurrentTime().getTime();
@@ -38,12 +39,13 @@ public class GetTime {
     }
 
     public static Timestamp GetTimeStampWithDelay(Timestamp timestamp) {
-        Long milliseconds = timestamp.getTime()+TRANSACTION_BLOCK_DELAY;
+        Long milliseconds = timestamp.getTime() + TRANSACTION_BLOCK_DELAY;
         Timestamp updatedTimestamp = new Timestamp(milliseconds);
         return updatedTimestamp;
     }
 
-    public static Timestamp GetTimestampFromString(String parseDate) throws ParseException {
+    @SneakyThrows
+    public static Timestamp GetTimestampFromString(String parseDate) {
         SimpleDateFormat sdf = new SimpleDateFormat(FORMAT_STRING);
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
         Date parsedDate = sdf.parse(parseDate);

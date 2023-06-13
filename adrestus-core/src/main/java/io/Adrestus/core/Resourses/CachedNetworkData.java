@@ -43,7 +43,7 @@ public class CachedNetworkData {
 
 
     public CachedNetworkData() {
-        this.consensus_state=false;
+        this.consensus_state = false;
         this.epoch_counter = 0;
         this.committeeBlock = new CommitteeBlock();
         this.transactionBlock = new TransactionBlock();
@@ -124,6 +124,7 @@ public class CachedNetworkData {
     public void setConsensus_state(boolean consensus_state) {
         this.consensus_state = consensus_state;
     }
+
     public void SetCacheData() {
         CachedEpochGeneration.getInstance().setEpoch_counter(this.epoch_counter);
         CachedLatestBlocks.getInstance().setCommitteeBlock(this.committeeBlock);

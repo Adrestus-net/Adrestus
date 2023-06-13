@@ -219,7 +219,7 @@ public class RpcAdrestusServer<T> implements Runnable {
     }
 
     public void close() {
-       rpcServer.closeFuture().cancel(true);
+        rpcServer.closeFuture().cancel(true);
         try {
             rpcServer.closeFuture().get();
         } catch (InterruptedException e) {

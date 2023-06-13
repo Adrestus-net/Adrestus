@@ -14,6 +14,10 @@ public class DoubleSpendEventHandler extends TransactionEventHandler {
     public void onEvent(TransactionEvent transactionEvent, long l, boolean b) throws Exception {
         try {
             Transaction transaction = transactionEvent.getTransaction();
+
+            if (transaction.getStatus().equals(StatusType.BUFFERED))
+                return;
+
             if (MemoryTransactionPool.getInstance().checkHashExists(transaction)) {
                 LOG.info("Transaction abort Hash already exist in MemoryPool");
                 transaction.setStatus(StatusType.ABORT);

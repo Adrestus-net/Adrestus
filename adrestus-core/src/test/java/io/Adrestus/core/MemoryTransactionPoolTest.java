@@ -19,6 +19,7 @@ public class MemoryTransactionPoolTest {
     @Test
     //@Order(1)
     public void chek_duplicate() throws Exception {
+        MemoryTransactionPool.getInstance().getAll().clear();
         Transaction transaction = new RegularTransaction();
         transaction.setAmount(100);
         transaction.setHash("Hash");
@@ -33,6 +34,7 @@ public class MemoryTransactionPoolTest {
     @Test
     //@Order(2)
     public void add_mempool() throws Exception {
+        MemoryTransactionPool.getInstance().getAll().clear();
         Transaction transaction = new RegularTransaction();
         transaction.setAmount(101);
         transaction.setHash("Hash1");
@@ -90,7 +92,7 @@ public class MemoryTransactionPoolTest {
         list.add(transaction4);
 
         MemoryTransactionPool.getInstance().delete(list);
-        List<Transaction> l=MemoryTransactionPool.getInstance().getAll();
+        List<Transaction> l = MemoryTransactionPool.getInstance().getAll();
         assertEquals(2, MemoryTransactionPool.getInstance().getSize());
         //MemoryPool.getInstance().printAll();
     }
@@ -99,6 +101,7 @@ public class MemoryTransactionPoolTest {
     @Test
     // @Order(3)
     public void mempool_get_by_hash() throws Exception {
+        MemoryTransactionPool.getInstance().getAll().clear();
         Transaction transaction1 = new RegularTransaction();
         transaction1.setAmount(100);
         transaction1.setHash("Hash4");
@@ -131,8 +134,48 @@ public class MemoryTransactionPoolTest {
 
         MemoryTransactionPool.getInstance().add(transaction1);
         MemoryTransactionPool.getInstance().add(transaction2);
-        MemoryTransactionPool.getInstance().printAll();
-        assertEquals(true, MemoryTransactionPool.getInstance().checkTimestamp(transaction2));
+        boolean val = MemoryTransactionPool.getInstance().checkTimestamp(transaction2);
+        assertEquals(true, val);
+    }
 
+    @Test
+    //  @Order(5)
+    public void mempool_address_check() throws Exception {
+        MemoryTransactionPool.getInstance().clear();
+        Transaction transaction1 = new RegularTransaction();
+        transaction1.setHash("Hash5");
+        transaction1.setFrom("ZAddress1");
+        transaction1.setZoneFrom(1);
+        transaction1.setTimestamp(GetTime.GetTimeStampInString());
+
+        Thread.sleep(1000);
+        Transaction transaction2 = new RegularTransaction();
+        transaction2.setHash("Hash6");
+        transaction2.setFrom("DAddress1");
+        transaction2.setZoneFrom(1);
+        transaction2.setTimestamp(GetTime.GetTimeStampInString());
+
+        Thread.sleep(1000);
+        Transaction transaction3 = new RegularTransaction();
+        transaction3.setHash("Hash7");
+        transaction3.setFrom("CAddress1");
+        transaction3.setZoneFrom(1);
+        transaction3.setTimestamp(GetTime.GetTimeStampInString());
+
+        Thread.sleep(1000);
+        Transaction transaction4 = new RegularTransaction();
+        transaction4.setHash("Hash4");
+        transaction4.setFrom("EAddress1");
+        transaction4.setZoneFrom(1);
+        transaction4.setTimestamp(GetTime.GetTimeStampInString());
+
+        MemoryTransactionPool.getInstance().add(transaction1);
+        MemoryTransactionPool.getInstance().add(transaction2);
+        MemoryTransactionPool.getInstance().add(transaction3);
+        MemoryTransactionPool.getInstance().add(transaction4);
+
+        boolean val = MemoryTransactionPool.getInstance().checkAdressExists(transaction2);
+
+        assertEquals(true, val);
     }
 }

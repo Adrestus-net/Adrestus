@@ -116,10 +116,11 @@ public class TransactionEventPublisher implements Publisher<Transaction> {
     }
 
 
-    public TransactionEventPublisher withDuplicateEventHandler(){
+    public TransactionEventPublisher withDuplicateEventHandler() {
         group.add(new DuplicateEventHandler());
         return this;
     }
+
     public TransactionEventPublisher withAddressSizeEventHandler() {
         group.add(new AddressSizeEventHandler());
         return this;
@@ -203,6 +204,14 @@ public class TransactionEventPublisher implements Publisher<Transaction> {
         group.toArray(events);
         signatureEventHandler.setExecutorService(executor);
         disruptor.handleEventsWith(events).then(signatureEventHandler);
+        return this;
+    }
+
+    public TransactionEventPublisher AddmergeEventsAndPassThen(SameOriginEventHandler sameOriginEventHandler, SignatureEventHandler signatureEventHandler) {
+        TransactionEventHandler[] events = new TransactionEventHandler[group.size()];
+        group.toArray(events);
+        signatureEventHandler.setExecutorService(executor);
+        disruptor.handleEventsWith(sameOriginEventHandler).then(events).then(signatureEventHandler);
         return this;
     }
 

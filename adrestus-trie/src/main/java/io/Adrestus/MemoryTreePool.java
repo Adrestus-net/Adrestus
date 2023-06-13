@@ -99,7 +99,7 @@ public class MemoryTreePool implements IMemoryTreePool, Cloneable {
                 PatriciaTreeNode next = new PatriciaTreeNode(amount, 0, 0);
                 patriciaTreeImp.put(key, next);
             } else {
-                PatriciaTreeNode patriciaTreeNode =(PatriciaTreeNode) prev.get().clone();
+                PatriciaTreeNode patriciaTreeNode = (PatriciaTreeNode) prev.get().clone();
                 Double new_cash = prev.get().getAmount() - amount;
                 //System.out.println("Widraw "+address+ " "+prev.get().getAmount()+" - "+patriciaTreeNode.getAmount()+" = "+amount);
                 patriciaTreeNode.setAmount(new_cash);

@@ -27,6 +27,7 @@
         <lombok.version>1.18.24</lombok.version>
         <disruptor.version>3.4.4</disruptor.version>
         <trove4j.version>3.0.3</trove4j.version>
+        <cafeine.version>3.1.6</cafeine.version>
     </properties>
     <repositories>
         <repository>
@@ -74,6 +75,11 @@
             <groupId>com.lmax</groupId>
             <artifactId>disruptor</artifactId>
             <version>${disruptor.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.ben-manes.caffeine</groupId>
+            <artifactId>caffeine</artifactId>
+            <version>${cafeine.version}</version>
         </dependency>
     </dependencies>
     <build>

@@ -43,7 +43,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.Comparator.comparing;
-import static java.util.Comparator.comparingInt;
 import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toCollection;
 
@@ -97,7 +96,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
 
         MerkleTreeImp tree = new MerkleTreeImp();
         ArrayList<MerkleNode> merkleNodeArrayList = new ArrayList<>();
-        final ArrayList<Transaction> todelete=new ArrayList<>();
+        final ArrayList<Transaction> todelete = new ArrayList<>();
         transactionBlock.getHeaderData().setPreviousHash(CachedLatestBlocks.getInstance().getTransactionBlock().getHash());
         transactionBlock.getHeaderData().setVersion(AdrestusConfiguration.version);
         transactionBlock.getHeaderData().setTimestamp(GetTime.GetTimeStampInString());
@@ -109,16 +108,15 @@ public class RegularBlock implements BlockForge, BlockInvent {
         transactionBlock.setLeaderPublicKey(CachedBLSKeyPair.getInstance().getPublicKey());
         transactionBlock.setTransactionList(new ArrayList<>(MemoryTransactionPool.getInstance().getAll()));
         transactionBlock.getTransactionList().stream().forEach(transaction -> {
-            if(transaction.getZoneFrom()!=CachedZoneIndex.getInstance().getZoneIndex()){
+            if (transaction.getZoneFrom() != CachedZoneIndex.getInstance().getZoneIndex()) {
                 List<String> ips = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(transaction.getZoneFrom()).values().stream().collect(Collectors.toList());
                 var executor = new AsyncService<Long>(ips, transaction_encode.encode(transaction, 1024), SocketConfigOptions.TRANSACTION_PORT);
 
                 var asyncResult1 = executor.startProcess(300L);
                 final var result1 = executor.endProcess(asyncResult1);
                 todelete.add(transaction);
-                executor=null;
-            }
-            else {
+                executor = null;
+            } else {
                 merkleNodeArrayList.add(new MerkleNode(transaction.getHash()));
             }
         });
@@ -208,7 +206,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
 
         try {
             this.blockSizeCalculator.setTransactionBlock(transactionBlock);
-            byte[] tohash = encode.encode(transactionBlock,this.blockSizeCalculator.TransactionBlockSizeCalculator());
+            byte[] tohash = encode.encode(transactionBlock, this.blockSizeCalculator.TransactionBlockSizeCalculator());
             transactionBlock.setHash(HashUtil.sha256_bytetoString(tohash));
             publisher.start();
             publisher.publish(transactionBlock);
@@ -233,20 +231,20 @@ public class RegularBlock implements BlockForge, BlockInvent {
                     .getDhtBootstrapNode()
                     .getActiveNodes()
                     .stream()
-                    .collect(collectingAndThen(toCollection(() -> new TreeSet<>(comparing(e->e.getAddressData().getAddress()))), ArrayList::new));
+                    .collect(collectingAndThen(toCollection(() -> new TreeSet<>(comparing(e -> e.getAddressData().getAddress()))), ArrayList::new));
 
             for (int i = 0; i < kademliaData.size(); i++) {
                 committeeBlock
                         .getStakingMap()
                         .put(new StakingData(i, TreeFactory.getMemoryTree(0).getByaddress(kademliaData.get(i).getAddressData().getAddress()).get().getStaking_amount()), kademliaData.get(i));
             }
-        } else if (CachedKademliaNodes.getInstance().getDhtRegularNode()!=null) {
+        } else if (CachedKademliaNodes.getInstance().getDhtRegularNode() != null) {
             List<KademliaData> kademliaData = CachedKademliaNodes
                     .getInstance()
                     .getDhtRegularNode()
                     .getActiveNodes()
                     .stream()
-                    .collect(collectingAndThen(toCollection(() -> new TreeSet<>(comparing(e->e.getAddressData().getAddress()))), ArrayList::new));
+                    .collect(collectingAndThen(toCollection(() -> new TreeSet<>(comparing(e -> e.getAddressData().getAddress()))), ArrayList::new));
 
             for (int i = 0; i < kademliaData.size(); i++) {
                 committeeBlock
@@ -393,7 +391,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
         }.getType()).getDatabase(DatabaseType.LEVEL_DB);
 
         transactionBlock.setStatustype(StatusType.SUCCES);
-        transactionBlock.getTransactionList().forEach(val->val.setStatus(StatusType.SUCCES));
+        transactionBlock.getTransactionList().forEach(val -> val.setStatus(StatusType.SUCCES));
 
         block_database.save(String.valueOf(transactionBlock.getHeight()), transactionBlock);
 

@@ -68,7 +68,7 @@ public class OrganizerConsensusPhases {
             this.block_serialize = new SerializationUtil<AbstractBlock>(AbstractBlock.class, list);
             this.consensus_serialize = new SerializationUtil<ConsensusMessage>(fluentType, list);
             this.signatureDataMap = new HashMap<BLSPublicKey, BLSSignatureData>();
-            this.sizeCalculator=new BlockSizeCalculator();
+            this.sizeCalculator = new BlockSizeCalculator();
         }
 
         @Override
@@ -116,7 +116,7 @@ public class OrganizerConsensusPhases {
                 return;
 
             this.sizeCalculator.setTransactionBlock(data.getData());
-            byte[] message = block_serialize.encode(data.getData(),this.sizeCalculator.TransactionBlockSizeCalculator());
+            byte[] message = block_serialize.encode(data.getData(), this.sizeCalculator.TransactionBlockSizeCalculator());
             Signature sig = BLSSignature.sign(message, CachedBLSKeyPair.getInstance().getPrivateKey());
             data.getChecksumData().setBlsPublicKey(CachedBLSKeyPair.getInstance().getPublicKey());
             data.getChecksumData().setSignature(sig);
@@ -144,7 +144,7 @@ public class OrganizerConsensusPhases {
                             //data.setData(received.getData());
                             if (!CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).containsKey(received.getChecksumData().getBlsPublicKey())) {
                                 LOG.info("PreparePhase: Validator does not exist on consensus... Ignore");
-                               // i--;
+                                // i--;
                             } else {
                                 data.getSignatures().add(received.getChecksumData());
                                 N_COPY--;
@@ -184,7 +184,7 @@ public class OrganizerConsensusPhases {
             Signature aggregatedSignature = BLSSignature.aggregate(signature);
 
             this.sizeCalculator.setTransactionBlock(data.getData());
-            Bytes message = Bytes.wrap(block_serialize.encode(data.getData(),this.sizeCalculator.TransactionBlockSizeCalculator()));
+            Bytes message = Bytes.wrap(block_serialize.encode(data.getData(), this.sizeCalculator.TransactionBlockSizeCalculator()));
             boolean verify = BLSSignature.fastAggregateVerify(publicKeys, message, aggregatedSignature);
             if (!verify) {
                 LOG.info("Abort consensus phase BLS multi_signature is invalid during prepare phase");
@@ -208,7 +208,7 @@ public class OrganizerConsensusPhases {
             //##############################################################
 
             this.sizeCalculator.setTransactionBlock(data.getData());
-            Signature sig = BLSSignature.sign(block_serialize.encode(data.getData(),this.sizeCalculator.TransactionBlockSizeCalculator()), CachedBLSKeyPair.getInstance().getPrivateKey());
+            Signature sig = BLSSignature.sign(block_serialize.encode(data.getData(), this.sizeCalculator.TransactionBlockSizeCalculator()), CachedBLSKeyPair.getInstance().getPrivateKey());
             data.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
 
             this.N_COPY = (this.N - 1) - consensusServer.getPeers_not_connected();
@@ -275,7 +275,7 @@ public class OrganizerConsensusPhases {
 
             Signature aggregatedSignature = BLSSignature.aggregate(signature);
             this.sizeCalculator.setTransactionBlock(data.getData());
-            Bytes message = Bytes.wrap(block_serialize.encode(data.getData(),this.sizeCalculator.TransactionBlockSizeCalculator()));
+            Bytes message = Bytes.wrap(block_serialize.encode(data.getData(), this.sizeCalculator.TransactionBlockSizeCalculator()));
             boolean verify = BLSSignature.fastAggregateVerify(publicKeys, message, aggregatedSignature);
             if (!verify) {
                 LOG.info("CommitPhase: Abort consensus phase BLS multi_signature is invalid during commit phase");
@@ -300,7 +300,7 @@ public class OrganizerConsensusPhases {
             //##############################################################
 
             this.sizeCalculator.setTransactionBlock(data.getData());
-            Signature sig = BLSSignature.sign(block_serialize.encode(data.getData(),this.sizeCalculator.TransactionBlockSizeCalculator()), CachedBLSKeyPair.getInstance().getPrivateKey());
+            Signature sig = BLSSignature.sign(block_serialize.encode(data.getData(), this.sizeCalculator.TransactionBlockSizeCalculator()), CachedBLSKeyPair.getInstance().getPrivateKey());
             data.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
 
             this.N_COPY = (this.N - 1) - consensusServer.getPeers_not_connected();

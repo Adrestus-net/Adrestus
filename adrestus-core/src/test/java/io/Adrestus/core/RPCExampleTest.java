@@ -172,7 +172,6 @@ class RPCExampleTest {
             Thread.sleep(200);
 
 
-
             RpcAdrestusServer<AbstractBlock> example = new RpcAdrestusServer<AbstractBlock>(new CommitteeBlock(), DatabaseInstance.COMMITTEE_BLOCK, "localhost", 8082, eventloop);
             new Thread(example).start();
             RpcAdrestusClient<AbstractBlock> client = new RpcAdrestusClient<AbstractBlock>(new CommitteeBlock(), "localhost", 8082, eventloop);

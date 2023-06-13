@@ -1,9 +1,8 @@
 package io.Adrestus.protocol;
 
 import io.Adrestus.config.SocketConfigOptions;
-import io.Adrestus.core.Resourses.MemoryTransactionPool;
-import io.Adrestus.core.RingBuffer.handler.transactions.SignatureEventHandler;
-import io.Adrestus.core.RingBuffer.publisher.TransactionEventPublisher;
+import io.Adrestus.core.Resourses.CacheTemporalTransactionPool;
+import io.Adrestus.core.Resourses.MemoryRingBuffer;
 import io.Adrestus.core.Transaction;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.network.IPFinder;
@@ -21,7 +20,6 @@ import java.util.List;
 public class BindServerTransactionTask extends AdrestusTask {
     private static Logger LOG = LoggerFactory.getLogger(BindServerTransactionTask.class);
     private SerializationUtil<Transaction> serenc;
-    private final TransactionEventPublisher publisher;
     private TCPTransactionConsumer<byte[]> receive;
     private TransactionChannelHandler transactionChannelHandler;
 
@@ -30,39 +28,17 @@ public class BindServerTransactionTask extends AdrestusTask {
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         this.serenc = new SerializationUtil<Transaction>(Transaction.class, list);
-        this.publisher = new TransactionEventPublisher(2048);
         this.callBackReceive();
-        this.setup();
+        MemoryRingBuffer.getInstance().setup();
+        CacheTemporalTransactionPool.getInstance().setup(true);
     }
 
-    public void setup() {
-        publisher
-                .withAddressSizeEventHandler()
-                .withAmountEventHandler()
-                .withDelegateEventHandler()
-                .withDoubleSpendEventHandler()
-                .withHashEventHandler()
-                .withNonceEventHandler()
-                .withReplayEventHandler()
-                .withRewardEventHandler()
-                .withStakingEventHandler()
-                .withTransactionFeeEventHandler()
-                .withTimestampEventHandler()
-                .withSameOriginEventHandler()
-                .withZoneEventHandler()
-                .withDuplicateEventHandler()
-                .mergeEventsAndPassThen(new SignatureEventHandler(SignatureEventHandler.SignatureBehaviorType.SIMPLE_TRANSACTIONS));
-        publisher.start();
-    }
 
     public void callBackReceive() {
         this.receive = x -> {
             try {
-                Transaction transaction = serenc.decode(x);
-
-                if(!MemoryTransactionPool.getInstance().checkAdressExists(transaction)) {
-                    publisher.publish(transaction);
-                }
+                Transaction transaction = (Transaction) serenc.decode(x).clone();
+                MemoryRingBuffer.getInstance().publish(transaction);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -84,9 +60,8 @@ public class BindServerTransactionTask extends AdrestusTask {
             transactionChannelHandler.close();
             transactionChannelHandler = null;
         }
-        if (publisher != null) {
-            publisher.getJobSyncUntilRemainingCapacityZero();
-            publisher.close();
+        if (MemoryRingBuffer.getInstance() != null) {
+            MemoryRingBuffer.getInstance().close();
         }
 
     }

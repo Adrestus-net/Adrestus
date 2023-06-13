@@ -32,6 +32,10 @@ public class ZoneEventHandler extends TransactionEventHandler {
     public void onEvent(TransactionEvent transactionEvent, long l, boolean b) throws Exception {
         try {
             Transaction transaction = transactionEvent.getTransaction();
+
+            if (transaction.getStatus().equals(StatusType.BUFFERED))
+                return;
+
             if (transaction.getZoneFrom() != CachedZoneIndex.getInstance().getZoneIndex()) {
                 LOG.info("Transaction abort: Transaction is not in the valid zone send async");
 

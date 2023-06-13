@@ -12,8 +12,6 @@ import org.slf4j.LoggerFactory;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class ConsensusState extends ConsensusDataState {
     private static Logger LOG = LoggerFactory.getLogger(ConsensusState.class);
@@ -25,6 +23,7 @@ public class ConsensusState extends ConsensusDataState {
     private static IBlockIndex blockIndex;
 
     private static boolean debug;
+
     public ConsensusState() {
         this.transaction_block_timer = new Timer(ConsensusConfiguration.CONSENSUS);
         this.committee_block_timer = new Timer(ConsensusConfiguration.CONSENSUS);
@@ -41,8 +40,8 @@ public class ConsensusState extends ConsensusDataState {
         this.blockSync = new BlockSync();
     }
 
-    public ConsensusState(CountDownLatch latch,boolean debug) {
-        this.debug=debug;
+    public ConsensusState(CountDownLatch latch, boolean debug) {
+        this.debug = debug;
         this.blockIndex = new BlockIndex();
         this.transaction_block_timer = new Timer(ConsensusConfiguration.CONSENSUS);
         this.committee_block_timer = new Timer(ConsensusConfiguration.CONSENSUS);
@@ -221,52 +220,51 @@ public class ConsensusState extends ConsensusDataState {
         @Override
         public void run() {
             clear();
-                if (CachedZoneIndex.getInstance().getZoneIndex() == 0) {
-                    if (CachedEpochGeneration.getInstance().getEpoch_counter() >= ConsensusConfiguration.EPOCH_TRANSITION) {
-                        clear();
-                        committee_block_timer = new Timer(ConsensusConfiguration.CONSENSUS);
-                        committee_block_timer.scheduleAtFixedRate(new CommitteeBlockConsensusTask(committee_state), ConsensusConfiguration.CONSENSUS_COMMITTEE_TIMER, ConsensusConfiguration.CONSENSUS_COMMITTEE_TIMER);
-                        return;
-                    }
+            if (CachedZoneIndex.getInstance().getZoneIndex() == 0) {
+                if (CachedEpochGeneration.getInstance().getEpoch_counter() >= ConsensusConfiguration.EPOCH_TRANSITION) {
+                    clear();
+                    committee_block_timer = new Timer(ConsensusConfiguration.CONSENSUS);
+                    committee_block_timer.scheduleAtFixedRate(new CommitteeBlockConsensusTask(committee_state), ConsensusConfiguration.CONSENSUS_COMMITTEE_TIMER, ConsensusConfiguration.CONSENSUS_COMMITTEE_TIMER);
+                    return;
                 }
-                else {
-                    if(!debug) {
-                        blockSync.SyncState();
-                    }
+            } else {
+                if (!debug) {
+                    blockSync.SyncState();
                 }
-                state.onEnterState(blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedLeaderIndex.getInstance().getTransactionPositionLeader()));
-                boolean result = state.onActiveState();
-                if (result) {
-                    latch.countDown();
-                    if (state.getClass().equals(ConsensusTransactionBlockState.class)) {
-                        state.onEnterState(null);
-                    } else {
-                        LOG.info("State changed to  ConsensusTransactionBlockState");
-                        changeStateTo(new ConsensusTransactionBlockState());
-                        state.onEnterState(null);
-                    }
-                    CachedCheckPoint.getInstance().setCheckPointCounter(0);
-                    CachedEpochGeneration.getInstance().setEpoch_counter(CachedEpochGeneration.getInstance().getEpoch_counter() + 1);
-                    transaction_block_timer = new Timer(ConsensusConfiguration.CONSENSUS);
-                    transaction_block_timer.scheduleAtFixedRate(new TransactionBlockConsensusTask(state), ConsensusConfiguration.CONSENSUS_TIMER, ConsensusConfiguration.CONSENSUS_TIMER);
+            }
+            state.onEnterState(blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedLeaderIndex.getInstance().getTransactionPositionLeader()));
+            boolean result = state.onActiveState();
+            if (result) {
+                latch.countDown();
+                if (state.getClass().equals(ConsensusTransactionBlockState.class)) {
+                    state.onEnterState(null);
                 } else {
-                    changeStateTo(new ChangeViewTransactionState());
-                    LOG.info("State changed to ChangeViewTransactionState");
-                    CachedCheckPoint.getInstance().setCheckPointCounter(CachedCheckPoint.getInstance().getCheckPointCounter() + 1);
-                    if (CachedCheckPoint.getInstance().getCheckPointCounter() == ConsensusConfiguration.CHANGE_VIEW_STATE_TRANSITION) {
-                        LOG.info("CHANGE_VIEW_STATE_TRANSITION)");
-                        blockSync.checkIfNeedsSync();
-                    }
-                    if (CachedLeaderIndex.getInstance().getTransactionPositionLeader() == 0) {
-                        CachedLeaderIndex.getInstance().setTransactionPositionLeader(CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).size() - 1);
-                        state.onEnterState(blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedLeaderIndex.getInstance().getTransactionPositionLeader()));
-                    } else {
-                        CachedLeaderIndex.getInstance().setTransactionPositionLeader(CachedLeaderIndex.getInstance().getTransactionPositionLeader() - 1);
-                        state.onEnterState(blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedLeaderIndex.getInstance().getTransactionPositionLeader()));
-                    }
-                    transaction_block_timer = new Timer(ConsensusConfiguration.CONSENSUS);
-                    transaction_block_timer.scheduleAtFixedRate(new TransactionBlockConsensusTask(state), ConsensusConfiguration.CHANGE_VIEW_TIMER, ConsensusConfiguration.CHANGE_VIEW_TIMER);
+                    LOG.info("State changed to  ConsensusTransactionBlockState");
+                    changeStateTo(new ConsensusTransactionBlockState());
+                    state.onEnterState(null);
                 }
+                CachedCheckPoint.getInstance().setCheckPointCounter(0);
+                CachedEpochGeneration.getInstance().setEpoch_counter(CachedEpochGeneration.getInstance().getEpoch_counter() + 1);
+                transaction_block_timer = new Timer(ConsensusConfiguration.CONSENSUS);
+                transaction_block_timer.scheduleAtFixedRate(new TransactionBlockConsensusTask(state), ConsensusConfiguration.CONSENSUS_TIMER, ConsensusConfiguration.CONSENSUS_TIMER);
+            } else {
+                changeStateTo(new ChangeViewTransactionState());
+                LOG.info("State changed to ChangeViewTransactionState");
+                CachedCheckPoint.getInstance().setCheckPointCounter(CachedCheckPoint.getInstance().getCheckPointCounter() + 1);
+                if (CachedCheckPoint.getInstance().getCheckPointCounter() == ConsensusConfiguration.CHANGE_VIEW_STATE_TRANSITION) {
+                    LOG.info("CHANGE_VIEW_STATE_TRANSITION)");
+                    blockSync.checkIfNeedsSync();
+                }
+                if (CachedLeaderIndex.getInstance().getTransactionPositionLeader() == 0) {
+                    CachedLeaderIndex.getInstance().setTransactionPositionLeader(CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).size() - 1);
+                    state.onEnterState(blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedLeaderIndex.getInstance().getTransactionPositionLeader()));
+                } else {
+                    CachedLeaderIndex.getInstance().setTransactionPositionLeader(CachedLeaderIndex.getInstance().getTransactionPositionLeader() - 1);
+                    state.onEnterState(blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedLeaderIndex.getInstance().getTransactionPositionLeader()));
+                }
+                transaction_block_timer = new Timer(ConsensusConfiguration.CONSENSUS);
+                transaction_block_timer.scheduleAtFixedRate(new TransactionBlockConsensusTask(state), ConsensusConfiguration.CHANGE_VIEW_TIMER, ConsensusConfiguration.CHANGE_VIEW_TIMER);
+            }
         }
 
         @Override

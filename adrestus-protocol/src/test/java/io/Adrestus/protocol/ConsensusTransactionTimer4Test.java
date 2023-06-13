@@ -45,7 +45,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ConsensusTransactionTimer4Test {
 
-    private static  int version = 0x00;
+    private static int version = 0x00;
     private static SerializationUtil<Transaction> serenc;
     private static BLSPrivateKey sk1;
     private static BLSPublicKey vk1;
@@ -134,8 +134,6 @@ public class ConsensusTransactionTimer4Test {
         //CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).put(vk6, "192.168.1.115");
 
 
-
-
         try {
             prevblock.setTransactionProposer(CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).keySet().stream().findFirst().get().toRaw());
             prevblock.setLeaderPublicKey(CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).keySet().stream().findFirst().get());
@@ -204,18 +202,18 @@ public class ConsensusTransactionTimer4Test {
 
 
         CountDownLatch latch = new CountDownLatch(10);
-        ConsensusState c = new ConsensusState(latch,true);
+        ConsensusState c = new ConsensusState(latch, true);
         c.getTransaction_block_timer().scheduleAtFixedRate(new ConsensusState.TransactionBlockConsensusTask(), ConsensusConfiguration.CONSENSUS_TIMER, ConsensusConfiguration.CONSENSUS_TIMER);
         //c.getCommittee_block_timer().scheduleAtFixedRate(new ConsensusState.CommitteeBlockConsensusTask(), ConsensusConfiguration.CONSENSUS_COMMITTEE_TIMER, ConsensusConfiguration.CONSENSUS_COMMITTEE_TIMER);
         latch.await();
         IDatabase<String, TransactionBlock> block_database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
-        Map<String,TransactionBlock>map_returned=block_database.findBetweenRange("1");
+        Map<String, TransactionBlock> map_returned = block_database.findBetweenRange("1");
 
-        int count=0;
-        for (Map.Entry<String,TransactionBlock> entry : map_returned.entrySet()){
-            count+=entry.getValue().getTransactionList().size();
+        int count = 0;
+        for (Map.Entry<String, TransactionBlock> entry : map_returned.entrySet()) {
+            count += entry.getValue().getTransactionList().size();
         }
 
-        assertEquals(TestingConfiguration.NONCE*(TestingConfiguration.END-1),count);
+        assertEquals(TestingConfiguration.NONCE * (TestingConfiguration.END - 1), count);
     }
 }

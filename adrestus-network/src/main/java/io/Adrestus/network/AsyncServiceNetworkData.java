@@ -19,7 +19,6 @@ import org.spongycastle.util.encoders.Hex;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
-import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
@@ -85,8 +84,8 @@ public class AsyncServiceNetworkData<T> {
         return () -> {
             Timer receivetimer = new Timer();
             Eventloop eventloop = Eventloop.create().withCurrentThread();
-            Eventloop finalEventloop=eventloop;
-            eventloop.connect(new InetSocketAddress(ip,SocketConfigOptions.CACHED_DATA_PORT),EVENTLOOP_TIMER_DELAY_TIMEOUT, (socketChannel, e) -> {
+            Eventloop finalEventloop = eventloop;
+            eventloop.connect(new InetSocketAddress(ip, SocketConfigOptions.CACHED_DATA_PORT), EVENTLOOP_TIMER_DELAY_TIMEOUT, (socketChannel, e) -> {
                 if (e == null) {
                     try {
                         AsyncTcpSocket socket = AsyncTcpSocketNio.wrapChannel(getCurrentEventloop(), socketChannel, null);

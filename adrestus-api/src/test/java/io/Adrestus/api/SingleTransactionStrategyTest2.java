@@ -66,7 +66,7 @@ public class SingleTransactionStrategyTest2 {
     @BeforeAll
     public static void setup() throws Exception {
 
-        TestingConfiguration.END=30;
+        TestingConfiguration.END = 30;
 
         for (int i = TestingConfiguration.START; i < TestingConfiguration.END; i++) {
             Mnemonic mnem = new Mnemonic(Security.NORMAL, WordList.ENGLISH);

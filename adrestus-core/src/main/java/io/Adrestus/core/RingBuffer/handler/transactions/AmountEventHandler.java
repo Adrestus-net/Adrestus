@@ -21,6 +21,10 @@ public class AmountEventHandler extends TransactionEventHandler {
         PatriciaTreeNode patriciaTreeNode = null;
         try {
             transaction = transactionEvent.getTransaction();
+
+            if (transaction.getStatus().equals(StatusType.BUFFERED))
+                return;
+
             patriciaTreeNode = TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(transaction.getFrom()).get();
 
         } catch (NoSuchElementException ex) {

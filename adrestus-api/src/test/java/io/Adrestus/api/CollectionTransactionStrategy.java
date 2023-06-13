@@ -5,7 +5,10 @@ import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.config.TestingConfiguration;
 import io.Adrestus.core.*;
-import io.Adrestus.core.Resourses.*;
+import io.Adrestus.core.Resourses.CachedEpochGeneration;
+import io.Adrestus.core.Resourses.CachedLatestBlocks;
+import io.Adrestus.core.Resourses.CachedLeaderIndex;
+import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.WalletAddress;
 import io.Adrestus.crypto.bls.model.BLSPrivateKey;
@@ -62,8 +65,8 @@ public class CollectionTransactionStrategy {
     @BeforeAll
     public static void setup() throws Exception {
 
-        TestingConfiguration.END=1003;
-        TestingConfiguration.NONCE=5;
+        TestingConfiguration.END = 1003;
+        TestingConfiguration.NONCE = 5;
 
         for (int i = TestingConfiguration.START; i < TestingConfiguration.END; i++) {
             Mnemonic mnem = new Mnemonic(Security.NORMAL, WordList.ENGLISH);
@@ -139,7 +142,7 @@ public class CollectionTransactionStrategy {
     @Test
     public void execute() throws Exception {
         for (int j = 1; j <= TestingConfiguration.NONCE; j++) {
-            ArrayList<Transaction> list=new ArrayList<>();
+            ArrayList<Transaction> list = new ArrayList<>();
             for (int i = TestingConfiguration.START; i < TestingConfiguration.END - 1; i++) {
                 Transaction transaction = new RegularTransaction();
                 transaction.setFrom(addreses.get(i));
@@ -158,7 +161,7 @@ public class CollectionTransactionStrategy {
                 ECDSASignatureData signatureData = ecdsaSign.secp256SignMessage(Hex.decode(transaction.getHash()), keypair.get(i));
                 transaction.setSignature(signatureData);
                 list.add(transaction);
-                if(i==TestingConfiguration.END-2){
+                if (i == TestingConfiguration.END - 2) {
                     Strategy transactionStrategy = new Strategy(new TransactionStrategy(list));
                     transactionStrategy.SendTransactionSync();
                 }

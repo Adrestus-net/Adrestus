@@ -13,6 +13,10 @@ public class AddressSizeEventHandler extends TransactionEventHandler {
     public void onEvent(TransactionEvent transactionEvent, long l, boolean b) throws Exception {
         try {
             Transaction transaction = transactionEvent.getTransaction();
+
+            if (transaction.getStatus().equals(StatusType.BUFFERED))
+                return;
+
             if (transaction.getFrom().length() != 53 || transaction.getTo().length() != 53) {
                 LOG.info("Transaction addresses is invalid please check again");
                 transaction.setStatus(StatusType.ABORT);

@@ -4,6 +4,7 @@ public enum StatusType {
     SUCCES("SUCCES"),
     FAILED("FAILED"),
     PENDING("PENDING"),
+    BUFFERED("BUFFERED"),
     ABORT("ABORT");
     private final String title;
 

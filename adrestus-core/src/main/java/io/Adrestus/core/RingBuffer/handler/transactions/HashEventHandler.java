@@ -29,6 +29,10 @@ public class HashEventHandler extends TransactionEventHandler {
         try {
             //wrapper = new SerializationUtil<Transaction>(Transaction.class);
             Transaction transaction = transactionEvent.getTransaction();
+
+            if (transaction.getStatus().equals(StatusType.BUFFERED))
+                return;
+
             Transaction cloneable = (Transaction) transaction.clone();
 
             if (transaction.getHash().length() != 64) {

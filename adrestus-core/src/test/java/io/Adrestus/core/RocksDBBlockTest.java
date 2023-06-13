@@ -244,12 +244,12 @@ public class RocksDBBlockTest {
         assertEquals(transactionBlock5, result.get(4));
         assertEquals(transactionBlock6, result.get(5));
         List<String> stdCodeList = result.stream()
-                .filter(val->val.getHeight()>3)
+                .filter(val -> val.getHeight() > 3)
                 .map(TransactionBlock::getHash)
                 .collect(Collectors.toList());
-        List<TransactionBlock> result2=result.stream()
-                        .filter(val->!stdCodeList.contains(val.getHash()))
-                        .collect(Collectors.toList());
+        List<TransactionBlock> result2 = result.stream()
+                .filter(val -> !stdCodeList.contains(val.getHash()))
+                .collect(Collectors.toList());
         database.delete_db();
     }
 
@@ -334,9 +334,9 @@ public class RocksDBBlockTest {
 
         database.saveAll(map);
 
-        Map<String,TransactionBlock>map_returned=database.findBetweenRange("hash1");
+        Map<String, TransactionBlock> map_returned = database.findBetweenRange("hash1");
         Optional<String> firstKey = map_returned.keySet().stream().findFirst();
-        assertEquals("hash1",firstKey.get());
+        assertEquals("hash1", firstKey.get());
         database.delete_db();
     }
 

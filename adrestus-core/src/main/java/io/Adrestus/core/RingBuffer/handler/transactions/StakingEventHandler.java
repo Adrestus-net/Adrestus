@@ -14,6 +14,10 @@ public class StakingEventHandler extends TransactionEventHandler {
     public void onEvent(TransactionEvent transactionEvent, long l, boolean b) throws Exception {
         try {
             Transaction transaction = transactionEvent.getTransaction();
+
+            if (transaction.getStatus().equals(StatusType.BUFFERED))
+                return;
+
             if (transaction instanceof StakingTransaction) {
                 StakingTransaction stakingTransaction = (StakingTransaction) transaction;
                 if (stakingTransaction.getValidatorAddress().length() != 53) {

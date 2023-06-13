@@ -84,7 +84,7 @@ public class HashEventHandler implements BlockEventHandler<AbstractBlockEvent>, 
             TransactionBlock cloneable = (TransactionBlock) transactionBlock.clone();
             cloneable.setHash("");
             this.sizeCalculator.setTransactionBlock(cloneable);
-            byte[] buffer = wrapper.encode(cloneable,this.sizeCalculator.TransactionBlockSizeCalculator());
+            byte[] buffer = wrapper.encode(cloneable, this.sizeCalculator.TransactionBlockSizeCalculator());
             String result_hash = HashUtil.sha256_bytetoString(buffer);
             if (!result_hash.equals(transactionBlock.getHash())) {
                 LOG.info("Block hash is manipulated");

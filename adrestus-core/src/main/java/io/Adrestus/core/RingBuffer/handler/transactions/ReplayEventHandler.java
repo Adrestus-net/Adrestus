@@ -14,6 +14,11 @@ public class ReplayEventHandler extends TransactionEventHandler {
     public void onEvent(TransactionEvent transactionEvent, long l, boolean b) throws Exception {
         try {
             Transaction transaction = transactionEvent.getTransaction();
+
+            if (transaction.getStatus().equals(StatusType.BUFFERED))
+                return;
+
+
             if (MemoryTransactionPool.getInstance().checkTimestamp(transaction)) {
                 LOG.info("Transaction abort Transaction with older timestamp exists for this source address");
                 transaction.setStatus(StatusType.ABORT);

@@ -1,7 +1,6 @@
 package io.Adrestus.core.RingBuffer.handler.blocks;
 
 import io.Adrestus.core.*;
-import io.Adrestus.core.Resourses.CachedKademliaNodes;
 import io.Adrestus.core.RingBuffer.event.AbstractBlockEvent;
 import io.Adrestus.crypto.elliptic.mapper.StakingData;
 import io.Adrestus.p2p.kademlia.repository.KademliaData;
@@ -54,7 +53,7 @@ public class DuplicateEventHandler implements BlockEventHandler<AbstractBlockEve
                 .getStakingMap()
                 .values()
                 .stream()
-                .collect(collectingAndThen(toCollection(() -> new TreeSet<>(comparing(e->e.getAddressData().getAddress()))), ArrayList::new));
+                .collect(collectingAndThen(toCollection(() -> new TreeSet<>(comparing(e -> e.getAddressData().getAddress()))), ArrayList::new));
 
         if (!duplicates.isEmpty() || !duplicate_address.isEmpty()) {
             LOG.info("Committee Block contains duplicate stakes of users");
@@ -62,7 +61,7 @@ public class DuplicateEventHandler implements BlockEventHandler<AbstractBlockEve
             return;
         }
 
-        if(duplicate_kademliaData.size()!=committeeBlock.getStakingMap().values().size()){
+        if (duplicate_kademliaData.size() != committeeBlock.getStakingMap().values().size()) {
             LOG.info("Committee Block contains duplicate address of users");
             committeeBlock.setStatustype(StatusType.ABORT);
             return;
