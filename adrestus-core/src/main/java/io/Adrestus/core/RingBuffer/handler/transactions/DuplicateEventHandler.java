@@ -23,9 +23,6 @@ public class DuplicateEventHandler extends TransactionEventHandler {
         try {
             Transaction transaction = transactionEvent.getTransaction();
 
-            if (transaction.getStatus().equals(StatusType.BUFFERED))
-                return;
-
             IDatabase<String, LevelDBTransactionWrapper<Transaction>> transaction_database = new DatabaseFactory(String.class, Transaction.class, new TypeToken<LevelDBTransactionWrapper<Transaction>>() {
             }.getType()).getDatabase(DatabaseType.LEVEL_DB);
             ArrayList<Transaction> tosearch;
@@ -37,8 +34,9 @@ public class DuplicateEventHandler extends TransactionEventHandler {
             Optional<Transaction> transaction_hint = tosearch.stream().filter(tr -> tr.getHash().equals(transaction.getHash())).findFirst();
 
             if (transaction_hint.isPresent()) {
-                transaction.setStatus(StatusType.BUFFERED);
+                transaction.setStatus(StatusType.ABORT);
             }
+
         } catch (NullPointerException ex) {
             LOG.info("Transaction is empty");
         }

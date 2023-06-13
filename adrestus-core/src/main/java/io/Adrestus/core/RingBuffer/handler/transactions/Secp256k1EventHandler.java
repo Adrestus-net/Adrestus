@@ -24,7 +24,7 @@ public class Secp256k1EventHandler extends TransactionEventHandler {
     public void onEvent(TransactionEvent transactionEvent, long l, boolean b) throws Exception {
         Transaction transaction = transactionEvent.getTransaction();
 
-        if (transaction.getStatus().equals(StatusType.BUFFERED))
+        if (transaction.getStatus().equals(StatusType.BUFFERED)|| transaction.getStatus().equals(StatusType.ABORT))
             return;
 
         if (transaction.getXAxis().equals(new BigInteger("0")) || transaction.getYAxis().equals(new BigInteger("0")))

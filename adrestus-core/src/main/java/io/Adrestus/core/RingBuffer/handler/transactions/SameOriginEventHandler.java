@@ -19,25 +19,22 @@ public class SameOriginEventHandler extends TransactionEventHandler {
         try {
             Transaction transaction = transactionEvent.getTransaction();
 
-            if (transaction.getStatus().equals(StatusType.BUFFERED))
+            if (transaction.getStatus().equals(StatusType.BUFFERED)|| transaction.getStatus().equals(StatusType.ABORT))
                 return;
 
             if (MemoryTransactionPool.getInstance().checkAdressExists(transaction)) {
-                CacheTemporalTransactionPool.getInstance().add(transaction);
                 transaction.setStatus(StatusType.BUFFERED);
+                CacheTemporalTransactionPool.getInstance().add(transaction);
+                return;
             }
             PatriciaTreeNode patriciaTreeNode = TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(transaction.getFrom()).get();
 
             if (transaction.getNonce() == patriciaTreeNode.getNonce() + 1)
                 return;
-            else if(transaction.getNonce() == patriciaTreeNode.getNonce()) {
-                transaction.setStatus(StatusType.BUFFERED);
-                return;
-            }
 
-            CacheTemporalTransactionPool.getInstance().add(transaction);
             transaction.setStatus(StatusType.BUFFERED);
-            return;
+            CacheTemporalTransactionPool.getInstance().add(transaction);
+
         } catch (NullPointerException ex) {
             LOG.info("Transaction is empty");
         }

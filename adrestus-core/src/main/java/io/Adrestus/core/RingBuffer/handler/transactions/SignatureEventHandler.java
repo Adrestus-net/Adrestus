@@ -55,15 +55,13 @@ public class SignatureEventHandler extends TransactionEventHandler {
     public void onEvent(TransactionEvent transactionEvent, long l, boolean b) throws Exception {
         Transaction transaction = transactionEvent.getTransaction();
 
-        if (transaction.getStatus().equals(StatusType.BUFFERED))
-            return;
-
-        if (transaction.getStatus().equals(StatusType.ABORT)) {
+        if (transaction.getStatus().equals(StatusType.BUFFERED)|| transaction.getStatus().equals(StatusType.ABORT)) {
             LOG.info("Transaction Marked with status ABORT");
             if (type.equals(SignatureBehaviorType.BLOCK_TRANSACTIONS))
                 latch.countDown();
             return;
         }
+
         FinalizeTask task = new FinalizeTask((Transaction) transaction.clone());
         executorService.submit(task);
     }

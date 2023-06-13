@@ -4,6 +4,7 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.PatriciaTreeNode;
+import io.Adrestus.core.StatusType;
 import io.Adrestus.core.Transaction;
 import lombok.SneakyThrows;
 
@@ -48,17 +49,19 @@ public class CacheTemporalTransactionPool implements ICacheTemporalTransactionPo
                 for (ConcurrentHashMap.Entry<String, List<Transaction>> entry : loadingCache.asMap().entrySet()) {
                     Optional<Transaction> trx = get(entry.getKey());
                     if (trx.isPresent()) {
-                        if (!MemoryTransactionPool.getInstance().checkAdressExists(trx.get())) {
+                        Transaction transaction=trx.get();
+                        if (!MemoryTransactionPool.getInstance().checkAdressExists(transaction)) {
                             if (debug) {
                                 PatriciaTreeNode patriciaTreeNode = TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(trx.get().getFrom()).get();
 
-                                if ( trx.get().getNonce() == patriciaTreeNode.getNonce() + 1) {
-                                    MemoryRingBuffer.getInstance().publish(trx.get());
-                                    remove(entry.getKey(), trx.get());
+                                if (transaction.getNonce() == patriciaTreeNode.getNonce() + 1) {
+                                    transaction.setStatus(StatusType.PENDING);
+                                    MemoryRingBuffer.getInstance().publish(transaction);
+                                    remove(entry.getKey(), transaction);
                                 }
                             }
                             else {
-                                remove(entry.getKey(), trx.get());
+                                remove(entry.getKey(), transaction);
                             }
                         }
                         entry.getKey();

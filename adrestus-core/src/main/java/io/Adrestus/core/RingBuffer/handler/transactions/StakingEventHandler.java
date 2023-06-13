@@ -15,7 +15,7 @@ public class StakingEventHandler extends TransactionEventHandler {
         try {
             Transaction transaction = transactionEvent.getTransaction();
 
-            if (transaction.getStatus().equals(StatusType.BUFFERED))
+            if (transaction.getStatus().equals(StatusType.BUFFERED)|| transaction.getStatus().equals(StatusType.ABORT))
                 return;
 
             if (transaction instanceof StakingTransaction) {

@@ -8,10 +8,7 @@ import io.Adrestus.config.ConsensusConfiguration;
 import io.Adrestus.config.TestingConfiguration;
 import io.Adrestus.consensus.ConsensusState;
 import io.Adrestus.core.*;
-import io.Adrestus.core.Resourses.CachedEpochGeneration;
-import io.Adrestus.core.Resourses.CachedLatestBlocks;
-import io.Adrestus.core.Resourses.CachedLeaderIndex;
-import io.Adrestus.core.Resourses.CachedZoneIndex;
+import io.Adrestus.core.Resourses.*;
 import io.Adrestus.crypto.WalletAddress;
 import io.Adrestus.crypto.bls.model.BLSPrivateKey;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
@@ -40,6 +37,7 @@ import java.util.NoSuchElementException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -214,6 +212,20 @@ public class ConsensusTransactionTimer4Test {
             count += entry.getValue().getTransactionList().size();
         }
 
+        String address="ADR-ACPY-HRDJ-SSL3-7X2N-OT3Y-7VRW-PFRZ-S46W-M5AF-JO4O";
+        Map<String,List<Transaction>> map= CacheTemporalTransactionPool.getInstance().getAsMap();
+        List<Transaction> list= MemoryTransactionPool.getInstance().getAll();
+        List<Transaction> gf=list.stream().filter(tr->tr.getFrom().equals(address)).collect(Collectors.toList());
+        List<Transaction>tra=map.get(address);
+        IDatabase<String, LevelDBTransactionWrapper<Transaction>> transaction_database = new DatabaseFactory(String.class, Transaction.class, new TypeToken<LevelDBTransactionWrapper<Transaction>>() {
+        }.getType()).getDatabase(DatabaseType.LEVEL_DB);
+        LevelDBTransactionWrapper<Transaction> tosearch;
+        try {
+            tosearch = transaction_database.findByKey(address).get();
+        } catch (NoSuchElementException e) {
+            return;
+        }
         assertEquals(TestingConfiguration.NONCE * (TestingConfiguration.END - 1), count);
+
     }
 }

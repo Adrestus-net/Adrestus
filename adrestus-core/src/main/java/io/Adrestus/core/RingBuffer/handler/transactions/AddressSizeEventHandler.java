@@ -14,7 +14,7 @@ public class AddressSizeEventHandler extends TransactionEventHandler {
         try {
             Transaction transaction = transactionEvent.getTransaction();
 
-            if (transaction.getStatus().equals(StatusType.BUFFERED))
+            if (transaction.getStatus().equals(StatusType.BUFFERED)|| transaction.getStatus().equals(StatusType.ABORT))
                 return;
 
             if (transaction.getFrom().length() != 53 || transaction.getTo().length() != 53) {
