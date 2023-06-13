@@ -52,7 +52,7 @@ public class CacheTemporalTransactionPool implements ICacheTemporalTransactionPo
                             if (debug) {
                                 PatriciaTreeNode patriciaTreeNode = TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(trx.get().getFrom()).get();
 
-                                if (patriciaTreeNode.getNonce() == trx.get().getNonce() + 1) {
+                                if ( trx.get().getNonce() == patriciaTreeNode.getNonce() + 1) {
                                     MemoryRingBuffer.getInstance().publish(trx.get());
                                     remove(entry.getKey(), trx.get());
                                 }

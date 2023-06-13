@@ -24,7 +24,7 @@ public class SameOriginEventHandler extends TransactionEventHandler {
             }
             PatriciaTreeNode patriciaTreeNode = TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(transaction.getFrom()).get();
 
-            if (patriciaTreeNode.getNonce() == transaction.getNonce() + 1)
+            if (transaction.getNonce() == patriciaTreeNode.getNonce() + 1)
                 return;
 
             CacheTemporalTransactionPool.getInstance().add(transaction);
