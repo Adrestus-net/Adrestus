@@ -36,13 +36,10 @@ public class BindServerTransactionTask extends AdrestusTask {
 
 
     public void callBackReceive() {
-        AtomicInteger count= new AtomicInteger();
         this.receive = x -> {
             try {
                 Transaction transaction = (Transaction) serenc.decode(x).clone();
                 MemoryRingBuffer.getInstance().publish(transaction);
-                count.getAndIncrement();
-                System.out.println(count.get());
                // MemoryTransactionPool.getInstance().add(transaction);
             } catch (Exception e) {
                 e.printStackTrace();
