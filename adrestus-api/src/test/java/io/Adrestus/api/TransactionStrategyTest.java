@@ -55,10 +55,21 @@ public class TransactionStrategyTest {
 
     private static ECKeyPair ecKeyPair1, ecKeyPair2;
 
+    private static int NONCE = 5;
+    private static int start = 0;
+    private static int end = 105;
+    private static ArrayList<String> addreses = new ArrayList<>();
+    private static ArrayList<ECKeyPair> keypair = new ArrayList<>();
+
+    private static ECDSASign ecdsaSign = new ECDSASign();
+    private static SerializationUtil<Transaction> serenc;
     @BeforeAll
     public static void setup() throws Exception {
+        List<SerializationUtil.Mapping> lists = new ArrayList<>();
+        lists.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
+        serenc = new SerializationUtil<Transaction>(Transaction.class, lists);
         int version = 0x00;
-        ECDSASign ecdsaSign = new ECDSASign();
+
         sk1 = new BLSPrivateKey(1);
         vk1 = new BLSPublicKey(sk1);
 
@@ -84,7 +95,7 @@ public class TransactionStrategyTest {
 
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
-        SerializationUtil<Transaction> serenc = new SerializationUtil<Transaction>(Transaction.class, list);
+
 
         CachedZoneIndex.getInstance().setZoneIndex(0);
         TransactionEventPublisher publisher = new TransactionEventPublisher(4096);
@@ -105,10 +116,7 @@ public class TransactionStrategyTest {
                 .withDuplicateEventHandler()
                 .mergeEventsAndPassThen(new SignatureEventHandler(SignatureEventHandler.SignatureBehaviorType.SIMPLE_TRANSACTIONS));
         publisher.start();
-        ArrayList<String> addreses = new ArrayList<>();
-        ArrayList<ECKeyPair> keypair = new ArrayList<>();
-        int start = 0;
-        int end = 100;
+
         for (int i = start; i < end; i++) {
             Mnemonic mnem = new Mnemonic(Security.NORMAL, WordList.ENGLISH);
             char[] mnemonic_sequence = "sample sail jungle learn general promote task puppy own conduct green affair ".toCharArray();
@@ -122,9 +130,6 @@ public class TransactionStrategyTest {
             keypair.add(ecKeyPair);
             TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(adddress, new PatriciaTreeNode(1000, 0));
         }
-        List<SerializationUtil.Mapping> lists = new ArrayList<>();
-        lists.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
-        serenc = new SerializationUtil<Transaction>(Transaction.class, lists);
         for (int i = start; i < end - 1; i++) {
             Transaction transaction = new RegularTransaction();
             transaction.setFrom(addreses.get(i));
@@ -167,6 +172,43 @@ public class TransactionStrategyTest {
         Strategy transactionStrategy = new Strategy(new TransactionStrategy(list));
         System.out.println(MemoryTransactionPool.getInstance().getAll().size());
         transactionStrategy.SendTransactionSync();
+    }
+
+
+
+    //In order to run this test with sucess change line 42 at BindServerTransactionTask
+    @Test
+    public void transaction_list2() throws Exception {
+        int count=0;
+        for (int j = 1; j <= NONCE; j++) {
+            ArrayList<Transaction> list = new ArrayList<>();
+            for (int i = start; i < end - 1; i++) {
+                Transaction transaction = new RegularTransaction();
+                transaction.setFrom(addreses.get(i));
+                transaction.setTo(addreses.get(i + 1));
+                transaction.setStatus(StatusType.PENDING);
+                transaction.setTimestamp(GetTime.GetTimeStampInString());
+                transaction.setZoneFrom(0);
+                transaction.setZoneTo(0);
+                transaction.setAmount(100);
+                transaction.setAmountWithTransactionFee(transaction.getAmount() * (10.0 / 100.0));
+                transaction.setNonce(1);
+
+                byte byf[] = serenc.encode(transaction, 1024);
+                transaction.setHash(HashUtil.sha256_bytetoString(byf));
+
+                count++;
+                ECDSASignatureData signatureData = ecdsaSign.secp256SignMessage(Hex.decode(transaction.getHash()), keypair.get(i));
+                transaction.setSignature(signatureData);
+                list.add(transaction);
+                if (i == end - 2) {
+                    Strategy transactionStrategy = new Strategy(new TransactionStrategy(list));
+                    transactionStrategy.SendTransactionSync();
+                }
+            }
+            Thread.sleep(500);
+        }
+        System.out.println(count);
     }
 
     @Test

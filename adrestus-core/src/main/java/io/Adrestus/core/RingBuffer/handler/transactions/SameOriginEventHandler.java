@@ -1,6 +1,9 @@
 package io.Adrestus.core.RingBuffer.handler.transactions;
 
+import io.Adrestus.TreeFactory;
+import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.core.Resourses.CacheTemporalTransactionPool;
+import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.core.Resourses.MemoryTransactionPool;
 import io.Adrestus.core.RingBuffer.event.TransactionEvent;
 import io.Adrestus.core.StatusType;
@@ -19,6 +22,14 @@ public class SameOriginEventHandler extends TransactionEventHandler {
                 CacheTemporalTransactionPool.getInstance().add(transaction);
                 transaction.setStatus(StatusType.BUFFERED);
             }
+            PatriciaTreeNode patriciaTreeNode = TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(transaction.getFrom()).get();
+
+            if (patriciaTreeNode.getNonce() == transaction.getNonce() + 1)
+                return;
+
+            CacheTemporalTransactionPool.getInstance().add(transaction);
+            transaction.setStatus(StatusType.BUFFERED);
+            return;
         } catch (NullPointerException ex) {
             LOG.info("Transaction is empty");
         }

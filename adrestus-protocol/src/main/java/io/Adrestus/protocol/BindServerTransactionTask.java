@@ -3,6 +3,7 @@ package io.Adrestus.protocol;
 import io.Adrestus.config.SocketConfigOptions;
 import io.Adrestus.core.Resourses.CacheTemporalTransactionPool;
 import io.Adrestus.core.Resourses.MemoryRingBuffer;
+import io.Adrestus.core.Resourses.MemoryTransactionPool;
 import io.Adrestus.core.Transaction;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.network.IPFinder;
@@ -39,6 +40,7 @@ public class BindServerTransactionTask extends AdrestusTask {
             try {
                 Transaction transaction = (Transaction) serenc.decode(x).clone();
                 MemoryRingBuffer.getInstance().publish(transaction);
+                //MemoryTransactionPool.getInstance().add(transaction);
             } catch (Exception e) {
                 e.printStackTrace();
             }

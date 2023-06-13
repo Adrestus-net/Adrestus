@@ -81,6 +81,7 @@ public class CacheTemporalTransactionPoolTest {
 
     //change the cache configuration EXPIRATION_MINUTES and scheduleAtFixedRate
     @SneakyThrows
+    //This works only if you change cache configuration EXPIRATION_MINUTES
     //@Test
     public void TimerInvalidate() throws InterruptedException {
         CacheTemporalTransactionPool.getInstance().clear();

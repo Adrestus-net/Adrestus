@@ -2,6 +2,8 @@ package io.Adrestus.core.Resourses;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import io.Adrestus.TreeFactory;
+import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.core.Transaction;
 import lombok.SneakyThrows;
 
@@ -9,10 +11,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 public class CacheTemporalTransactionPool implements ICacheTemporalTransactionPool {
     private static final int MAXIMUM_SIZE = 10000;
@@ -51,13 +50,18 @@ public class CacheTemporalTransactionPool implements ICacheTemporalTransactionPo
                     if (trx.isPresent()) {
                         if (!MemoryTransactionPool.getInstance().checkAdressExists(trx.get())) {
                             if (debug) {
-                                MemoryRingBuffer.getInstance().publish(trx.get());
-                            }
-                            remove(entry.getKey(), trx.get());
-                        } else {
-                            entry.getKey();
-                        }
+                                PatriciaTreeNode patriciaTreeNode = TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(trx.get().getFrom()).get();
 
+                                if (patriciaTreeNode.getNonce() == trx.get().getNonce() + 1) {
+                                    MemoryRingBuffer.getInstance().publish(trx.get());
+                                    remove(entry.getKey(), trx.get());
+                                }
+                            }
+                            else {
+                                remove(entry.getKey(), trx.get());
+                            }
+                        }
+                        entry.getKey();
                     }
                 }
             }
@@ -83,6 +87,10 @@ public class CacheTemporalTransactionPool implements ICacheTemporalTransactionPo
         ArrayList<Transaction> current = (ArrayList<Transaction>) loadingCache.getIfPresent(transaction.getFrom());
         if (current == null)
             current = new ArrayList<>();
+
+        if(current.stream().anyMatch(transaction::equals))
+            return;
+
         current.add(transaction);
         loadingCache.put(transaction.getFrom(), current);
     }
@@ -128,5 +136,8 @@ public class CacheTemporalTransactionPool implements ICacheTemporalTransactionPo
         return loadingCache.estimatedSize();
     }
 
+    public ConcurrentMap<String,List<Transaction>> getAsMap(){
+        return loadingCache.asMap();
+    }
 }
 
