@@ -1,5 +1,6 @@
 package io.Adrestus.core.Resourses;
 
+import io.Adrestus.core.RingBuffer.handler.transactions.DuplicateEventHandler;
 import io.Adrestus.core.RingBuffer.handler.transactions.SameOriginEventHandler;
 import io.Adrestus.core.RingBuffer.handler.transactions.SignatureEventHandler;
 import io.Adrestus.core.RingBuffer.publisher.TransactionEventPublisher;
@@ -44,8 +45,7 @@ public class MemoryRingBuffer {
                 .withTransactionFeeEventHandler()
                 .withTimestampEventHandler()
                 .withZoneEventHandler()
-                .withDuplicateEventHandler()
-                .AddmergeEventsAndPassThen(new SameOriginEventHandler(), new SignatureEventHandler(SignatureEventHandler.SignatureBehaviorType.SIMPLE_TRANSACTIONS));
+                .AddMergeEventsAndPassThen(new SignatureEventHandler(SignatureEventHandler.SignatureBehaviorType.SIMPLE_TRANSACTIONS),new DuplicateEventHandler(),new SameOriginEventHandler());
         publisher.start();
     }
 

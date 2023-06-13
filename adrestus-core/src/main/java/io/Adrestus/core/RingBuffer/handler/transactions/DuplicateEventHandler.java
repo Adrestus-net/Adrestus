@@ -37,8 +37,7 @@ public class DuplicateEventHandler extends TransactionEventHandler {
             Optional<Transaction> transaction_hint = tosearch.stream().filter(tr -> tr.getHash().equals(transaction.getHash())).findFirst();
 
             if (transaction_hint.isPresent()) {
-                LOG.info("Transaction Already Exists on Database Abort");
-                transaction.setStatus(StatusType.ABORT);
+                transaction.setStatus(StatusType.BUFFERED);
             }
         } catch (NullPointerException ex) {
             LOG.info("Transaction is empty");

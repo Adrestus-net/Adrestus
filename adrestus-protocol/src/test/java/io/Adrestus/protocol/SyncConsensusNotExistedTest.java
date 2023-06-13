@@ -71,6 +71,9 @@ public class SyncConsensusNotExistedTest {
             }
         };
         int version = 0x00;
+
+        // MAKE SURE YOU CHANGE THIS MANUALLY WHEN YOUR RUN THIS TESTS
+
         //char[] mnemonic7 = "fluid abstract raise duty scare year add danger include smart senior ensure".toCharArray();
         char[] mnemonic7 = "danger fluid abstract raise duty scare year add include smart senior ensure".toCharArray();
         passphrase = "p4ssphr4se".toCharArray();
