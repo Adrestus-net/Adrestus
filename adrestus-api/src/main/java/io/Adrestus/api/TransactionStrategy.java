@@ -33,7 +33,8 @@ import static io.activej.promise.Promises.loop;
 public class TransactionStrategy implements IStrategy {
     private static Logger LOG = LoggerFactory.getLogger(TransactionStrategy.class);
 
-    private static final int TIMER_DELAY_TIMEOUT = 4000;
+    private static final int CONNECT_TIMER_DELAY_TIMEOUT = 4000;
+    private static final int EXECUTION_TIMER_DELAY_TIMEOUT = 15000;
     private List<String> list_ip;
     private final ExecutorService executorService;
     private final Eventloop eventloop;
@@ -115,7 +116,7 @@ public class TransactionStrategy implements IStrategy {
     }
 
     private void SingleAsync(String ip, Eventloop eventloop) {
-        eventloop.connect(new InetSocketAddress(ip, SocketConfigOptions.TRANSACTION_PORT), TIMER_DELAY_TIMEOUT, (socketChannel, e) -> {
+        eventloop.connect(new InetSocketAddress(ip, SocketConfigOptions.TRANSACTION_PORT), CONNECT_TIMER_DELAY_TIMEOUT, (socketChannel, e) -> {
             if (e == null) {
                 try {
                     AsyncTcpSocket socket = AsyncTcpSocketNio.wrapChannel(getCurrentEventloop(), socketChannel, null);
@@ -135,7 +136,7 @@ public class TransactionStrategy implements IStrategy {
     }
 
     private void MultipleAsync(String ip, Eventloop eventloop, int pos, List<Transaction> transaction_list) {
-        eventloop.connect(new InetSocketAddress(ip, SocketConfigOptions.TRANSACTION_PORT), TIMER_DELAY_TIMEOUT, (socketChannel, e) -> {
+        eventloop.connect(new InetSocketAddress(ip, SocketConfigOptions.TRANSACTION_PORT), CONNECT_TIMER_DELAY_TIMEOUT, (socketChannel, e) -> {
             if (e == null) {
                 try {
                     available[pos].acquire();
@@ -218,7 +219,7 @@ public class TransactionStrategy implements IStrategy {
                         }
                     }
                 }
-            }, 4000);
+            }, EXECUTION_TIMER_DELAY_TIMEOUT);
             for (int i = 0; i < local_termination.length; i++) {
                 local_termination[i].await();
             }

@@ -3,7 +3,6 @@ package io.Adrestus.protocol;
 import io.Adrestus.config.SocketConfigOptions;
 import io.Adrestus.core.Resourses.CacheTemporalTransactionPool;
 import io.Adrestus.core.Resourses.MemoryRingBuffer;
-import io.Adrestus.core.Resourses.MemoryTransactionPool;
 import io.Adrestus.core.Transaction;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.network.IPFinder;
@@ -17,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class BindServerTransactionTask extends AdrestusTask {
     private static Logger LOG = LoggerFactory.getLogger(BindServerTransactionTask.class);
@@ -36,11 +36,14 @@ public class BindServerTransactionTask extends AdrestusTask {
 
 
     public void callBackReceive() {
+        AtomicInteger count= new AtomicInteger();
         this.receive = x -> {
             try {
                 Transaction transaction = (Transaction) serenc.decode(x).clone();
                 MemoryRingBuffer.getInstance().publish(transaction);
-                //MemoryTransactionPool.getInstance().add(transaction);
+                count.getAndIncrement();
+                System.out.println(count.get());
+               // MemoryTransactionPool.getInstance().add(transaction);
             } catch (Exception e) {
                 e.printStackTrace();
             }

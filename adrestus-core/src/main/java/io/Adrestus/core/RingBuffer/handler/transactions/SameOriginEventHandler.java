@@ -30,6 +30,10 @@ public class SameOriginEventHandler extends TransactionEventHandler {
 
             if (transaction.getNonce() == patriciaTreeNode.getNonce() + 1)
                 return;
+            else if(transaction.getNonce() == patriciaTreeNode.getNonce()) {
+                transaction.setStatus(StatusType.BUFFERED);
+                return;
+            }
 
             CacheTemporalTransactionPool.getInstance().add(transaction);
             transaction.setStatus(StatusType.BUFFERED);

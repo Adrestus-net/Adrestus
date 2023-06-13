@@ -141,6 +141,7 @@ public class CollectionTransactionStrategy {
 
     @Test
     public void execute() throws Exception {
+        int count=0;
         for (int j = 1; j <= TestingConfiguration.NONCE; j++) {
             ArrayList<Transaction> list = new ArrayList<>();
             for (int i = TestingConfiguration.START; i < TestingConfiguration.END - 1; i++) {
@@ -165,8 +166,11 @@ public class CollectionTransactionStrategy {
                     Strategy transactionStrategy = new Strategy(new TransactionStrategy(list));
                     transactionStrategy.SendTransactionSync();
                 }
+                count++;
             }
             Thread.sleep(3000);
         }
+
+        System.out.println("Total messages: "+count);
     }
 }
