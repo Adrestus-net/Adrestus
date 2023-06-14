@@ -5,6 +5,7 @@ import io.Adrestus.core.Receipt;
 import io.Adrestus.core.Resourses.MemoryReceiptPool;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.network.IPFinder;
+import io.Adrestus.network.ReceiptChannelHandler;
 import io.Adrestus.network.TCPTransactionConsumer;
 import io.Adrestus.network.TransactionChannelHandler;
 import io.Adrestus.util.SerializationUtil;
@@ -20,7 +21,7 @@ public class BindServerReceiptTask extends AdrestusTask {
     private static Logger LOG = LoggerFactory.getLogger(BindServerReceiptTask.class);
     private final SerializationUtil<Receipt> recep;
     private TCPTransactionConsumer<byte[]> receive;
-    private TransactionChannelHandler transactionChannelHandler;
+    private ReceiptChannelHandler receiptChannelHandler;
 
     public BindServerReceiptTask() {
         super();
@@ -42,17 +43,17 @@ public class BindServerReceiptTask extends AdrestusTask {
     @SneakyThrows
     @Override
     public void execute() {
-        transactionChannelHandler = new TransactionChannelHandler<byte[]>(IPFinder.getLocal_address(), SocketConfigOptions.RECEIPT_PORT);
-        transactionChannelHandler.BindServerAndReceive(receive);
+        receiptChannelHandler = new ReceiptChannelHandler<byte[]>(IPFinder.getLocal_address(), SocketConfigOptions.RECEIPT_PORT);
+        receiptChannelHandler.BindServerAndReceive(receive);
         LOG.info("Receipt: TransactionChannelHandler " + IPFinder.getLocal_address());
     }
 
     @SneakyThrows
     @Override
     public void close() {
-        if (transactionChannelHandler != null) {
-            transactionChannelHandler.close();
-            transactionChannelHandler = null;
+        if (receiptChannelHandler != null) {
+            receiptChannelHandler.close();
+            receiptChannelHandler = null;
         }
     }
 }

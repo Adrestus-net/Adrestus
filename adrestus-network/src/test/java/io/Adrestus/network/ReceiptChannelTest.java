@@ -22,7 +22,7 @@ import static io.activej.eventloop.Eventloop.getCurrentEventloop;
 import static io.activej.promise.Promises.loop;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-public class TransactionChannelTest {
+public class ReceiptChannelTest {
     Eventloop eventloop = Eventloop.create().withCurrentThread();
     private static final ByteBufsDecoder<byte[]> DECODER = ByteBufsDecoder.ofNullTerminatedBytes().andThen(buf -> buf.asArray());
     private static final String REQUEST_MSG = "03e4c11dd892a055a201a22e915aa2e762676b8d2c9524289b2ee3b9d6a592b1";
@@ -38,7 +38,7 @@ public class TransactionChannelTest {
             System.out.println("Callback" + new String(x));
         };
 
-        TransactionChannelHandler transactionChannelHandler = new TransactionChannelHandler<byte[]>("localhost");
+        ReceiptChannelHandler transactionChannelHandler = new ReceiptChannelHandler<byte[]>("localhost");
         transactionChannelHandler.BindServerAndReceive(print);
 
         Thread.sleep(2000);
@@ -56,7 +56,7 @@ public class TransactionChannelTest {
                 latch = new CountDownLatch(ITERATIONS);
                 BinaryChannelSupplier bufsSupplier = BinaryChannelSupplier.of(ChannelSupplier.ofSocket(socket));
                 loop(0,
-                        i -> i < ITERATIONS,
+                        i -> i <= ITERATIONS,
                         i -> loadData(i).then(bytes -> socket.write(bytes)).then(() -> bufsSupplier.needMoreData())
                                 .map($2 -> i + 1))
                         .whenComplete(socket::close);
@@ -69,7 +69,6 @@ public class TransactionChannelTest {
         });
         System.out.println("send");
         eventloop.run();
-        Thread.sleep(5000);
         transactionChannelHandler.close();
         transactionChannelHandler = null;
 
@@ -82,7 +81,7 @@ public class TransactionChannelTest {
             System.out.println("Callback 2: " + new String(x));
         };
 
-        TransactionChannelHandler transactionChannelHandler = new TransactionChannelHandler<byte[]>("localhost", SocketConfigOptions.TRANSACTION_PORT + 1);
+        ReceiptChannelHandler transactionChannelHandler = new ReceiptChannelHandler<byte[]>("localhost", SocketConfigOptions.TRANSACTION_PORT + 1);
         transactionChannelHandler.BindServerAndReceive(print);
 
         Thread.sleep(2000);

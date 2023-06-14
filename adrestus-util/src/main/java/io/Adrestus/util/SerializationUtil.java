@@ -174,7 +174,6 @@ public class SerializationUtil<T> {
         int buff_size = search(size);
         buffer = new byte[buff_size];
         serializer.encode(buffer, 0, value);
-        byte[] test = trim(buffer);
         return buffer;
     }
 

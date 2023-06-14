@@ -3,10 +3,11 @@ package io.distributedLedger;
 import io.activej.serializer.annotations.Serialize;
 import lombok.SneakyThrows;
 
+import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.*;
 
-public class LevelDBTransactionWrapper<T> {
+public class LevelDBTransactionWrapper<T> implements Serializable {
     private final LevelDBTransactionWrapper.TransactionHashComparator fromhashComparator;
     private final LevelDBTransactionWrapper.TransactionHashComparator tohashComparator;
     private ArrayList<T> from;
@@ -118,7 +119,20 @@ public class LevelDBTransactionWrapper<T> {
                 '}';
     }
 
-    private final class TransactionHashComparator implements Comparator<T> {
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        LevelDBTransactionWrapper<?> that = (LevelDBTransactionWrapper<?>) o;
+        return  Objects.equals(from, that.from) && Objects.equals(to, that.to);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(fromhashComparator, tohashComparator, from, to);
+    }
+
+    private final class TransactionHashComparator implements Comparator<T>,Serializable {
         @SneakyThrows
         @Override
         public int compare(T o1, T o2) {

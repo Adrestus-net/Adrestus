@@ -35,7 +35,7 @@ public class LevelDBConnectionManager<K, V> implements IDatabase<K, V> {
 
     private final SerializationUtil valueMapper;
     private final SerializationUtil keyMapper;
-    private final Class<V> keyClass;
+    private final Class<K> keyClass;
     private final ReentrantReadWriteLock rwl;
     private final Lock r;
     private final Lock w;
@@ -46,7 +46,7 @@ public class LevelDBConnectionManager<K, V> implements IDatabase<K, V> {
     private Options options;
     private DB level_db;
 
-    private LevelDBConnectionManager(Class<V> keyClass, Class<V> valueClass) {
+    private LevelDBConnectionManager(Class<K> keyClass, Class<V> valueClass) {
         this.rwl = new ReentrantReadWriteLock();
         this.r = rwl.readLock();
         this.w = rwl.writeLock();
@@ -59,7 +59,7 @@ public class LevelDBConnectionManager<K, V> implements IDatabase<K, V> {
         load_connection();
     }
 
-    public LevelDBConnectionManager(Class<V> keyClass, Type fluentType) {
+    public LevelDBConnectionManager(Class<K> keyClass, Type fluentType) {
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         this.rwl = new ReentrantReadWriteLock();
@@ -348,7 +348,10 @@ public class LevelDBConnectionManager<K, V> implements IDatabase<K, V> {
             }
         } catch (final SerializationException exception) {
             LOGGER.error("Serialization exception occurred during findByKey operation. {}", exception.getMessage());
-        } finally {
+        } catch (Exception e){
+            LOGGER.error(e.getMessage());
+        }
+        finally {
             r.unlock();
         }
         return (Map<K, V>) hashmap;

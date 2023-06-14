@@ -199,7 +199,7 @@ public class ConsensusTransactionTimer4Test {
         CachedEventLoop.getInstance().start();
 
 
-        CountDownLatch latch = new CountDownLatch(10);
+        CountDownLatch latch = new CountDownLatch(15);
         ConsensusState c = new ConsensusState(latch, true);
         c.getTransaction_block_timer().scheduleAtFixedRate(new ConsensusState.TransactionBlockConsensusTask(), ConsensusConfiguration.CONSENSUS_TIMER, ConsensusConfiguration.CONSENSUS_TIMER);
         //c.getCommittee_block_timer().scheduleAtFixedRate(new ConsensusState.CommitteeBlockConsensusTask(), ConsensusConfiguration.CONSENSUS_COMMITTEE_TIMER, ConsensusConfiguration.CONSENSUS_COMMITTEE_TIMER);

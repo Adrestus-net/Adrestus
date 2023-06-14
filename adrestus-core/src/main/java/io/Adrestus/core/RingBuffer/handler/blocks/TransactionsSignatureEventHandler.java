@@ -61,6 +61,7 @@ public class TransactionsSignatureEventHandler implements BlockEventHandler<Abst
             if (marked.isPresent())
                 block.setStatustype(StatusType.ABORT);
 
+            publisher.getJobSyncUntilRemainingCapacityZero();
             publisher.close();
 
         } catch (NullPointerException ex) {

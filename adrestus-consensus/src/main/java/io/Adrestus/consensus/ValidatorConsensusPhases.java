@@ -893,6 +893,7 @@ public class ValidatorConsensusPhases {
             publisher.start();
             publisher.publish(data.getData());
             publisher.getJobSyncUntilRemainingCapacityZero();
+            publisher.close();
 
             if (data.getData().getStatustype().equals(StatusType.ABORT)) {
                 cleanup();
@@ -1261,6 +1262,7 @@ public class ValidatorConsensusPhases {
             publisher.start();
             publisher.publish(block.getData());
             publisher.getJobSyncUntilRemainingCapacityZero();
+            publisher.close();
 
             if (block.getData().getStatustype().equals(StatusType.ABORT)) {
                 cleanup();

@@ -15,11 +15,14 @@ import io.activej.rpc.client.sender.RpcStrategy;
 import io.activej.rpc.client.sender.RpcStrategyList;
 import io.activej.rpc.client.sender.RpcStrategyRoundRobin;
 import io.activej.serializer.SerializerBuilder;
+import io.distributedLedger.LevelDBTransactionWrapper;
 import lombok.SneakyThrows;
+import org.apache.commons.lang3.SerializationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
 
+import java.lang.reflect.Type;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.time.Duration;
@@ -37,14 +40,15 @@ public class RpcAdrestusClient<T> {
 
     private static final int TIMEOUT = 4000;
 
-    private final SerializationUtil<ListBlockResponse> serializationUtil;
-    private final SerializationUtil<PatriciaTreeResponse> serializationUtil2;
+    private  SerializationUtil<ListBlockResponse> serializationUtil;
+    private  SerializationUtil<PatriciaTreeResponse> serializationUtil2;
     private final SerializerBuilder rpc_serialize;
     private final Eventloop eventloop;
-    private final T typeParameterClass;
-    private final SerializationUtil valueMapper;
-    private final SerializationUtil valueMapper2;
+    private  T typeParameterClass;
+    private  SerializationUtil valueMapper;
+    private  SerializationUtil valueMapper2;
 
+    private  SerializationUtil transactionvalueMapper;
     private List<InetSocketAddress> inetSocketAddresses;
     private InetSocketAddress inetSocketAddress;
     private String host;
@@ -126,6 +130,30 @@ public class RpcAdrestusClient<T> {
         this.valueMapper = new SerializationUtil(typeParameterClass.getClass(), list, true);
     }
 
+    public RpcAdrestusClient(Type fluentType,  List<InetSocketAddress> inetSocketAddresses, Eventloop eventloop) {
+        this.rpc_serialize = SerializerBuilder.create();
+        this.inetSocketAddresses = inetSocketAddresses;
+        this.eventloop = eventloop;
+        List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
+        list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
+        list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
+        list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
+        list.add(new SerializationUtil.Mapping(MemoryTreePool.class, ctx -> new MemoryTreePoolSerializer()));
+        this.transactionvalueMapper = new SerializationUtil(fluentType, list);
+    }
+    public RpcAdrestusClient(Type fluentType, InetSocketAddress inetSocketAddress, Eventloop eventloop) {
+        this.rpc_serialize = SerializerBuilder.create();
+        this.inetSocketAddress = inetSocketAddress;
+        this.eventloop = eventloop;
+        List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
+        list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
+        list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
+        list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
+        list.add(new SerializationUtil.Mapping(MemoryTreePool.class, ctx -> new MemoryTreePoolSerializer()));
+        this.transactionvalueMapper = new SerializationUtil(fluentType, list);
+    }
 
     public void connect() {
         if (inetSocketAddresses != null) {
@@ -134,7 +162,7 @@ public class RpcAdrestusClient<T> {
             RpcStrategyList rpcStrategyList = RpcStrategyList.ofStrategies(strategies);
             client = RpcClient.create(eventloop)
                     .withSerializerBuilder(this.rpc_serialize)
-                    .withMessageTypes(BlockRequest.class, ListBlockResponse.class, BlockRequest2.class, BlockResponse.class, PatriciaTreeRequest.class, PatriciaTreeResponse.class)
+                    .withMessageTypes(TransactionRequest.class, TransactionResponse.class,BlockRequest.class, ListBlockResponse.class, BlockRequest2.class, BlockResponse.class, PatriciaTreeRequest.class, PatriciaTreeResponse.class)
                     .withStrategy(RpcStrategyRoundRobin.create(rpcStrategyList))
                     .withKeepAlive(Duration.ofMillis(TIMEOUT))
                     .withConnectTimeout(Duration.ofMillis(TIMEOUT));
@@ -142,14 +170,14 @@ public class RpcAdrestusClient<T> {
             if (inetSocketAddress != null) {
                 client = RpcClient.create(eventloop)
                         .withSerializerBuilder(this.rpc_serialize)
-                        .withMessageTypes(BlockRequest.class, ListBlockResponse.class, BlockRequest2.class, BlockResponse.class, PatriciaTreeRequest.class, PatriciaTreeResponse.class)
+                        .withMessageTypes(TransactionRequest.class, TransactionResponse.class,BlockRequest.class, ListBlockResponse.class, BlockRequest2.class, BlockResponse.class, PatriciaTreeRequest.class, PatriciaTreeResponse.class)
                         .withKeepAlive(Duration.ofMillis(TIMEOUT))
                         .withStrategy(server(inetSocketAddress))
                         .withConnectTimeout(Duration.ofMillis(TIMEOUT));
             } else {
                 client = RpcClient.create(eventloop)
                         .withSerializerBuilder(this.rpc_serialize)
-                        .withMessageTypes(BlockRequest.class, ListBlockResponse.class, BlockRequest2.class, BlockResponse.class, PatriciaTreeRequest.class, PatriciaTreeResponse.class)
+                        .withMessageTypes(TransactionRequest.class, TransactionResponse.class,BlockRequest.class, ListBlockResponse.class, BlockRequest2.class, BlockResponse.class, PatriciaTreeRequest.class, PatriciaTreeResponse.class)
                         .withStrategy(server(new InetSocketAddress(host, port)))
                         .withKeepAlive(Duration.ofMillis(TIMEOUT))
                         .withConnectTimeout(Duration.ofMillis(TIMEOUT));
@@ -163,6 +191,54 @@ public class RpcAdrestusClient<T> {
         }
     }
 
+    public Map<String, LevelDBTransactionWrapper<T>> getTransactionDatabase(String hash) {
+        if(inetSocketAddresses!=null){
+            ArrayList<TransactionResponse> responses = new ArrayList<TransactionResponse>();
+            ArrayList<String> toCompare = new ArrayList<String>();
+            inetSocketAddresses.forEach(val -> {
+                TransactionResponse response = getTransactionDatabase(this.client, hash).get();
+                if (response.getByte_data() != null)
+                    responses.add(response);
+            });
+            responses.removeIf(Objects::isNull);
+            responses.forEach(val -> toCompare.add(Hex.toHexString(val.getByte_data())));
+            toCompare.removeIf(Objects::isNull);
+            if (toCompare.isEmpty()) {
+                LOG.info("Download blocks failed empty response");
+                return new HashMap<String, LevelDBTransactionWrapper<T>>();
+            }
+
+            Map<String, Long> collect = toCompare.stream().collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+            byte[] map_data = Hex.decode(collect.keySet().stream().findFirst().get());
+            Map<String, LevelDBTransactionWrapper<T>> toSend = SerializationUtils.deserialize(map_data);
+            collect.clear();
+            responses.clear();
+            toCompare.clear();
+            return toSend;
+        }
+        else {
+            TransactionResponse response = getTransactionDatabase(this.client, hash).get();
+            return (Map<String, LevelDBTransactionWrapper<T>>) (SerializationUtils.deserialize(response.getByte_data()));
+        }
+    }
+
+    @SneakyThrows
+    private Optional<TransactionResponse> getTransactionDatabase(RpcClient rpcClient, String hash) {
+        try {
+            TransactionResponse response = rpcClient.getEventloop().submit(
+                            () -> rpcClient
+                                    .<TransactionRequest, TransactionResponse>sendRequest(new TransactionRequest(hash)))
+                    .get(TIMEOUT, TimeUnit.MILLISECONDS);
+            if (response.getByte_data() == null)
+                return Optional.empty();
+
+            return Optional.of(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            LOG.info(e.toString());
+        }
+        return Optional.empty();
+    }
 
     @SneakyThrows
     public List<T> getBlock(List<String> hash) {
@@ -195,6 +271,8 @@ public class RpcAdrestusClient<T> {
             byte[] list_data = this.serializationUtil.decode(Hex.decode(collect.keySet().stream().findFirst().get())).getByte_data();
             List<T> toSend = this.valueMapper.decode_list(list_data);
             collect.clear();
+            responses.clear();
+            toCompare.clear();
             return toSend;
         } else {
             byte[] data = getBlockListResponse(this.client, hash).getByte_data();
@@ -225,6 +303,8 @@ public class RpcAdrestusClient<T> {
             byte[] list_data = this.serializationUtil2.decode(Hex.decode(collect.keySet().stream().findFirst().get())).getByte_data();
             List<T> toSend = this.valueMapper.decode_list(list_data);
             collect.clear();
+            responses.clear();
+            toCompare.clear();
             return toSend;
         } else {
             byte[] data = getPatriciaTreeListResponse(this.client, hash).getByte_data();

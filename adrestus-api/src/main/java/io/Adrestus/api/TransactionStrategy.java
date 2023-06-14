@@ -152,7 +152,8 @@ public class TransactionStrategy implements IStrategy {
                             .whenComplete(socket::close)
                             .whenComplete(() -> release(pos))
                             .whenException(ex -> {
-                                throw new RuntimeException(ex);
+                                //enable this when problem occurred
+                                //throw new RuntimeException(ex);
                             });
                 } catch (IOException ex) {
                     ex.printStackTrace();
