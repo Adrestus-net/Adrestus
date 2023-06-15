@@ -528,7 +528,9 @@ class RPCExampleTest {
         }catch (Exception e){
             System.out.println("Exception caught: " + e.toString());
         }
-        database.delete_db();
+        finally {
+            database.delete_db();
+        }
     }
 
     @Test
@@ -605,8 +607,9 @@ class RPCExampleTest {
         }catch (Exception e){
             System.out.println("Exception caught: " + e.toString());
         }
-
-        database.delete_db();
+        finally {
+            database.delete_db();
+        }
     }
     //@Test
     public void test3() throws Exception {
