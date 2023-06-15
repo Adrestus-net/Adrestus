@@ -99,9 +99,10 @@ public class SyncConsensusNotExistedTest {
         Socket socket = new Socket();
         socket.connect(new InetSocketAddress("google.com", 80));
         String IP = socket.getLocalAddress().getHostAddress();
-
-        if (!IP.substring(0, 9).equals("192.168.1"))
+        int hit = 0;
+        if(!IP.substring(0,3).equals("192")){
             return;
+        }
 
 
         CachedBLSKeyPair.getInstance().setPrivateKey(sk2);
