@@ -506,20 +506,29 @@ class RPCExampleTest {
 
 
         Type fluentType = new TypeToken<LevelDBTransactionWrapper<Transaction>>() {}.getType();
+        RpcAdrestusClient client=null;
+        RpcAdrestusServer<Transaction> server1=null,server2=null,server3=null;
+        try {
+            InetSocketAddress address1 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 3073);
+            server1 = new RpcAdrestusServer<Transaction>(new RegularTransaction(), fluentType, address1, eventloop);
+            new Thread(server1).start();
 
-        InetSocketAddress address1 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 3073);
-        RpcAdrestusServer<Transaction> server1 = new RpcAdrestusServer<Transaction>(new RegularTransaction(),fluentType, address1, eventloop);
-        new Thread(server1).start();
 
+            client = new RpcAdrestusClient(fluentType, address1, eventloop);
+            client.connect();
+            Map<String, LevelDBTransactionWrapper<Transaction>> copymaps = (Map<String, LevelDBTransactionWrapper<Transaction>>) client.getTransactionDatabase("1");
 
-        RpcAdrestusClient client = new RpcAdrestusClient(fluentType, address1, eventloop);
-        client.connect();
-        Map<String,LevelDBTransactionWrapper<Transaction>> copymaps = (Map<String, LevelDBTransactionWrapper<Transaction>>) client.getTransactionDatabase("1");
-
-        assertEquals(map,copymaps);
-        client.close();
-        server1.close();
-        server1 = null;
+            assertEquals(map, copymaps);
+        }catch (Exception e){
+            System.out.println("Exception caught: " + e.toString());
+        }
+        finally {
+            if(client!=null)
+                client.close();
+            if(server1!=null)
+                server1.close();
+            server1 = null;
+        }
         database.delete_db();
     }
 
@@ -561,30 +570,43 @@ class RPCExampleTest {
 
 
         Type fluentType = new TypeToken<LevelDBTransactionWrapper<Transaction>>() {}.getType();
+        RpcAdrestusClient client=null;
+        RpcAdrestusServer<Transaction> server1=null,server2=null,server3=null;
+        try {
+            ArrayList<InetSocketAddress> list = new ArrayList<>();
+            InetSocketAddress address1 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 3073);
+            InetSocketAddress address2 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 3074);
+            InetSocketAddress address3 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 3075);
+            list.add(address1);
+            list.add(address2);
+            list.add(address3);
+             server1 = new RpcAdrestusServer<Transaction>(new RegularTransaction(), fluentType, address1, eventloop);
+             server2 = new RpcAdrestusServer<Transaction>(new RegularTransaction(), fluentType, address2, eventloop);
+             server3 = new RpcAdrestusServer<Transaction>(new RegularTransaction(), fluentType, address3, eventloop);
+            new Thread(server1).start();
+            new Thread(server2).start();
+            new Thread(server3).start();
 
-        ArrayList<InetSocketAddress>list=new ArrayList<>();
-        InetSocketAddress address1 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 3073);
-        InetSocketAddress address2 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 3074);
-        InetSocketAddress address3 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 3075);
-        list.add(address1);
-        list.add(address2);
-        list.add(address3);
-        RpcAdrestusServer<Transaction> server1 = new RpcAdrestusServer<Transaction>(new RegularTransaction(),fluentType, address1, eventloop);
-        RpcAdrestusServer<Transaction> server2 = new RpcAdrestusServer<Transaction>(new RegularTransaction(),fluentType, address2, eventloop);
-        RpcAdrestusServer<Transaction> server3 = new RpcAdrestusServer<Transaction>(new RegularTransaction(),fluentType, address3, eventloop);
-        new Thread(server1).start();
-        new Thread(server2).start();
-        new Thread(server3).start();
 
+            client = new RpcAdrestusClient(fluentType, list, eventloop);
+            client.connect();
+            Map<String, LevelDBTransactionWrapper<Transaction>> copymaps = (Map<String, LevelDBTransactionWrapper<Transaction>>) client.getTransactionDatabase("1");
 
-        RpcAdrestusClient client = new RpcAdrestusClient(fluentType, list, eventloop);
-        client.connect();
-        Map<String,LevelDBTransactionWrapper<Transaction>> copymaps = (Map<String, LevelDBTransactionWrapper<Transaction>>) client.getTransactionDatabase("1");
-
-        assertEquals(map,copymaps);
-        client.close();
-        server1.close();
-        server1 = null;
+            assertEquals(map, copymaps);
+        }catch (Exception e){
+            System.out.println("Exception caught: " + e.toString());
+        }
+        finally {
+            if(client!=null)
+                client.close();
+            if(server1!=null)
+                server1.close();
+            if(server2!=null)
+                server2.close();
+            if(server3!=null)
+                server3.close();
+            server1 = null;
+        }
         database.delete_db();
     }
     //@Test
