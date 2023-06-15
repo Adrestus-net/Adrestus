@@ -8,9 +8,7 @@ import io.Adrestus.config.KademliaConfiguration;
 import io.Adrestus.config.NodeSettings;
 import io.Adrestus.consensus.ConsensusState;
 import io.Adrestus.core.CommitteeBlock;
-import io.Adrestus.core.Resourses.CachedLatestBlocks;
-import io.Adrestus.core.Resourses.CachedSecurityHeaders;
-import io.Adrestus.core.Resourses.CachedZoneIndex;
+import io.Adrestus.core.Resourses.*;
 import io.Adrestus.core.TransactionBlock;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.SecurityAuditProofs;
@@ -85,6 +83,8 @@ public class BootstrapConsensusTest {
     @BeforeAll
     public static void setup() throws Exception {
         delete_test();
+        MemoryRingBuffer.getInstance();
+        MemoryTransactionPool.getInstance();
         IDatabase<String, CommitteeBlock> database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
 
         int version = 0x00;

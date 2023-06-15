@@ -67,6 +67,8 @@ public class ConsensusTransactionTimer4Test {
 
     @BeforeAll
     public static void construct() throws Exception {
+        MemoryRingBuffer.getInstance();
+        MemoryTransactionPool.getInstance();
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         serenc = new SerializationUtil<Transaction>(Transaction.class, list);
