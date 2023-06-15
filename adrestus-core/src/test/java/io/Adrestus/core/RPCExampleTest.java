@@ -526,7 +526,7 @@ class RPCExampleTest {
                 server1.close();
             server1 = null;
         }catch (Exception e){
-            System.out.println("Exception caught: " + e.toString());
+            System.out.println("Database 1 Exception caught: " + e.toString());
         }
         finally {
             database.delete_db();
@@ -575,9 +575,9 @@ class RPCExampleTest {
         RpcAdrestusServer<Transaction> server1=null,server2=null,server3=null;
         try {
             ArrayList<InetSocketAddress> list = new ArrayList<>();
-            InetSocketAddress address1 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 3073);
-            InetSocketAddress address2 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 3074);
-            InetSocketAddress address3 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 3075);
+            InetSocketAddress address1 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 3074);
+            InetSocketAddress address2 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 3075);
+            InetSocketAddress address3 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 3076);
             list.add(address1);
             list.add(address2);
             list.add(address3);
@@ -605,7 +605,7 @@ class RPCExampleTest {
                 server3.close();
             server1 = null;
         }catch (Exception e){
-            System.out.println("Exception caught: " + e.toString());
+            System.out.println("Database2 Exception caught: " + e.toString());
         }
         finally {
             database.delete_db();
