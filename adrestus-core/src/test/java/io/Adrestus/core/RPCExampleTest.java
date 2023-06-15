@@ -509,7 +509,7 @@ class RPCExampleTest {
         RpcAdrestusClient client=null;
         RpcAdrestusServer<Transaction> server1=null,server2=null,server3=null;
         try {
-            InetSocketAddress address1 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 3073);
+            InetSocketAddress address1 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 3077);
             server1 = new RpcAdrestusServer<Transaction>(new RegularTransaction(), fluentType, address1, eventloop);
             new Thread(server1).start();
 
