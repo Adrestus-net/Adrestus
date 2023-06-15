@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -81,8 +82,17 @@ public class RPCWorkerTest {
 
             List<AbstractBlock> blocks2 = client2.getBlocksList("1");
             assertEquals(1, blocks2.size());
-        } catch (Exception e) {
 
+            Thread.sleep(2000);
+            tasks.forEach(val -> {
+                val.close();
+            });
+            tasks.clear();
+            executor.shutdown();
+            Thread.sleep(2000);
+
+        } catch (Exception e) {
+            System.out.println("RPCWorkerTest exception: "+e.toString());
         }
         database.delete_db();
     }
