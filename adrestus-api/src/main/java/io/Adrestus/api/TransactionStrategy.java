@@ -102,6 +102,8 @@ public class TransactionStrategy implements IStrategy {
             }
         } else {
             list_ip = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(transaction.getZoneFrom()).values().stream().collect(Collectors.toList());
+            this.messageListener.setSize(list_ip.size());
+            this.messageListener.onStart();
             for (int i = 0; i < list_ip.size(); i++) {
                 int finalI = i;
                 executorService.submit(() -> {

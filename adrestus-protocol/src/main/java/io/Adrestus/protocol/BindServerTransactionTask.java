@@ -45,8 +45,8 @@ public class BindServerTransactionTask extends AdrestusTask {
                     MSG = APIConfiguration.MSG_FAILED;
                 } else
                     MSG = APIConfiguration.MSG_SUCCESS;
-                //MemoryRingBuffer.getInstance().publish(transaction);
-                MemoryTransactionPool.getInstance().add(transaction);
+                MemoryRingBuffer.getInstance().publish(transaction);
+                //MemoryTransactionPool.getInstance().add(transaction);
             } catch (Exception e) {
                 e.printStackTrace();
             }
