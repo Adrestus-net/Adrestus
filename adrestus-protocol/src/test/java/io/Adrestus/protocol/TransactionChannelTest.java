@@ -68,6 +68,7 @@ public class TransactionChannelTest {
             Transaction transaction = decode.decode(x);
             counter++;
             System.out.println("Counter" + counter + "Server Message:" + transaction);
+            return "";
         };
         (new Thread() {
             public void run() {

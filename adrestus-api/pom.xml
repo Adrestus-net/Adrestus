@@ -22,6 +22,7 @@
         <core.version>1.0-SNAPSHOT</core.version>
         <consenus.version>1.0-SNAPSHOT</consenus.version>
         <network.version>1.0-SNAPSHOT</network.version>
+        <rx.java>3.0.4</rx.java>
     </properties>
     <dependencies>
         <dependency>
@@ -48,6 +49,11 @@
             <groupId>io.Adrestus.v1</groupId>
             <artifactId>adrestus-config</artifactId>
             <version>${crypto.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.reactivex.rxjava3</groupId>
+            <artifactId>rxjava</artifactId>
+            <version>${rx.java}</version>
         </dependency>
     </dependencies>
     <build>

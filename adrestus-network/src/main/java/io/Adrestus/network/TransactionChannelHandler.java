@@ -2,6 +2,8 @@ package io.Adrestus.network;
 
 import io.Adrestus.config.SocketConfigOptions;
 import io.activej.bytebuf.ByteBuf;
+import io.activej.bytebuf.ByteBufPool;
+import io.activej.bytebuf.ByteBufStrings;
 import io.activej.bytebuf.ByteBufs;
 import io.activej.common.exception.MalformedDataException;
 import io.activej.csp.ChannelConsumer;
@@ -16,12 +18,16 @@ import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.time.Duration;
+import java.util.concurrent.atomic.AtomicReference;
 
+import static io.activej.bytebuf.ByteBufStrings.*;
 import static io.activej.promise.Promises.repeat;
 
 public class TransactionChannelHandler<T> {
     private static Logger LOG = LoggerFactory.getLogger(TransactionChannelHandler.class);
     private static final ByteBufsDecoder<ByteBuf> DECODER = ByteBufsDecoder.ofVarIntSizePrefixedBytes();
+
+    private static final byte[] CRLF = {CR, LF};
     private String IP;
     private final InetSocketAddress ADDRESS;
     private final Eventloop eventloop;
@@ -49,12 +55,13 @@ public class TransactionChannelHandler<T> {
         server = SimpleServer.create(socket ->
                 {
                     BinaryChannelSupplier bufsSupplier = BinaryChannelSupplier.of(ChannelSupplier.ofSocket(socket));
+                    AtomicReference<String> msg=new AtomicReference<>();
                     repeat(() ->
                             bufsSupplier
                                     .decodeStream(DECODER)
                                     .peek(buf -> {
                                         try {
-                                            callback.accept((T) buf.getArray());
+                                            msg.set(callback.accept((T) buf.getArray()));
                                         } catch (NullPointerException e) {
                                             LOG.info("Null Transaction: " + e.toString());
                                             // e.printStackTrace();
@@ -62,6 +69,10 @@ public class TransactionChannelHandler<T> {
                                             //LOG.info("General Exception: " + e.toString());
                                             e.printStackTrace();
                                         }
+                                    })
+                                    .map(buf -> {
+                                        ByteBuf serverBuf = ByteBufStrings.wrapUtf8(msg.get());
+                                        return ByteBufPool.append(serverBuf, CRLF);
                                     })
                                     .streamTo(ChannelConsumer.ofSocket(socket))
                                     .map($ -> true)

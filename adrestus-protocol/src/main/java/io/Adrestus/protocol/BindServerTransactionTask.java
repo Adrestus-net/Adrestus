@@ -1,5 +1,6 @@
 package io.Adrestus.protocol;
 
+import io.Adrestus.config.APIConfiguration;
 import io.Adrestus.config.SocketConfigOptions;
 import io.Adrestus.core.Resourses.CacheTemporalTransactionPool;
 import io.Adrestus.core.Resourses.MemoryRingBuffer;
@@ -37,13 +38,19 @@ public class BindServerTransactionTask extends AdrestusTask {
 
     public void callBackReceive() {
         this.receive = x -> {
+            String MSG = "";
             try {
                 Transaction transaction = (Transaction) serenc.decode(x).clone();
-                MemoryRingBuffer.getInstance().publish(transaction);
-               // MemoryTransactionPool.getInstance().add(transaction);
+                if (MemoryTransactionPool.getInstance().checkAdressExists(transaction)) {
+                    MSG = APIConfiguration.MSG_FAILED;
+                } else
+                    MSG = APIConfiguration.MSG_SUCCESS;
+                //MemoryRingBuffer.getInstance().publish(transaction);
+                MemoryTransactionPool.getInstance().add(transaction);
             } catch (Exception e) {
                 e.printStackTrace();
             }
+            return MSG;
         };
     }
 

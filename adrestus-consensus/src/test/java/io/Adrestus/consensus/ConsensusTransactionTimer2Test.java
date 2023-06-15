@@ -262,6 +262,7 @@ public class ConsensusTransactionTimer2Test {
             if (receipt.getReceiptBlock() != null && !receipt.getReceiptBlock().getBlock_hash().equals(""))
                 MemoryReceiptPool.getInstance().add(receipt);
             //  System.out.println(MemoryReceiptPool.getInstance().getAll().size());
+            return "";
         };
 
         TransactionChannelHandler transactionChannelHandler = new TransactionChannelHandler<byte[]>(IPFinder.getLocal_address());

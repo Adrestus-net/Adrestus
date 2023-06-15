@@ -213,7 +213,8 @@ public class TransactionStrategyTest {
 
     @Test
     public void single_transaction() throws Exception {
-        Strategy transactionStrategy = new Strategy(new TransactionStrategy((Transaction) MemoryTransactionPool.getInstance().getAll().get(0)));
+        MessageListener messageListener=new MessageListener();
+        Strategy transactionStrategy = new Strategy(new TransactionStrategy((Transaction) MemoryTransactionPool.getInstance().getAll().get(0),messageListener));
         // Strategy transactionStrategy1 = new Strategy(new TransactionStrategy((Transaction) MemoryTransactionPool.getInstance().getAll().get(0)));
         System.out.println(MemoryTransactionPool.getInstance().getAll().size());
         transactionStrategy.SendTransactionSync();

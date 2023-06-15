@@ -159,7 +159,8 @@ public class SingleTransactionStrategyTest2 {
 
                 ECDSASignatureData signatureData = ecdsaSign.secp256SignMessage(Hex.decode(transaction.getHash()), keypair.get(i));
                 transaction.setSignature(signatureData);
-                Strategy transactionStrategy = new Strategy(new TransactionStrategy(transaction));
+                MessageListener messageListener=new MessageListener();
+                Strategy transactionStrategy = new Strategy(new TransactionStrategy(transaction,messageListener));
                 transactionStrategy.SendTransactionSync();
                 count++;
                 if (count == 2) {

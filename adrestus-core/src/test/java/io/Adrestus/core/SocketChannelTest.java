@@ -39,6 +39,7 @@ public class SocketChannelTest {
     public void receipt_test() throws Exception {
         TCPTransactionConsumer<byte[]> print = x -> {
             System.out.println("Callback" + recep.decode(x).toString());
+            return "";
         };
 
         TransactionChannelHandler transactionChannelHandler = new TransactionChannelHandler<byte[]>("localhost", SocketConfigOptions.TRANSACTION_PORT);
@@ -76,6 +77,7 @@ public class SocketChannelTest {
     public void receipt_test2() throws Exception {
         TCPTransactionConsumer<byte[]> print = x -> {
             System.out.println("Callback" + recep.decode(x).toString());
+            return "";
         };
 
         TransactionChannelHandler transactionChannelHandler = new TransactionChannelHandler<byte[]>("localhost", SocketConfigOptions.TRANSACTION_PORT + 1);
@@ -121,6 +123,7 @@ public class SocketChannelTest {
     public void Transaction_test() throws Exception {
         TCPTransactionConsumer<byte[]> print = x -> {
             System.out.println("Callback" + trans.decode(x).toString());
+            return "";
         };
 
         TransactionChannelHandler transactionChannelHandler = new TransactionChannelHandler<byte[]>("localhost", SocketConfigOptions.TRANSACTION_PORT + 2);

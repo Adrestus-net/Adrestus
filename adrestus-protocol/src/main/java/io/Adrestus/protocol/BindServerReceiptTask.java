@@ -37,6 +37,8 @@ public class BindServerReceiptTask extends AdrestusTask {
             Receipt receipt = recep.decode(x);
             if (receipt.getReceiptBlock() != null && !receipt.getReceiptBlock().getBlock_hash().equals(""))
                 MemoryReceiptPool.getInstance().add(receipt);
+
+            return "";
         };
     }
 

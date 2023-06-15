@@ -36,6 +36,7 @@ public class ReceiptChannelTest {
 
         TCPTransactionConsumer<byte[]> print = x -> {
             System.out.println("Callback" + new String(x));
+            return "";
         };
 
         ReceiptChannelHandler transactionChannelHandler = new ReceiptChannelHandler<byte[]>("localhost");
@@ -79,6 +80,7 @@ public class ReceiptChannelTest {
 
         TCPTransactionConsumer<byte[]> print = x -> {
             System.out.println("Callback 2: " + new String(x));
+            return "";
         };
 
         ReceiptChannelHandler transactionChannelHandler = new ReceiptChannelHandler<byte[]>("localhost", SocketConfigOptions.TRANSACTION_PORT + 1);

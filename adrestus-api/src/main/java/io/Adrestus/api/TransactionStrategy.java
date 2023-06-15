@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
 
 import static io.activej.eventloop.Eventloop.getCurrentEventloop;
 import static io.activej.promise.Promises.loop;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class TransactionStrategy implements IStrategy {
     private static Logger LOG = LoggerFactory.getLogger(TransactionStrategy.class);
@@ -44,9 +45,12 @@ public class TransactionStrategy implements IStrategy {
     private static CountDownLatch[] local_termination;
     private static Semaphore[] available;
 
-    public TransactionStrategy(Transaction transaction) {
+    private MessageListener messageListener;
+
+    public TransactionStrategy(Transaction transaction, MessageListener messageListener) {
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
+        this.messageListener = messageListener;
         this.transaction_list = new ArrayList<>();
         this.transaction = transaction;
         this.executorService = Executors.newFixedThreadPool(AdrestusConfiguration.CORES);
@@ -82,6 +86,8 @@ public class TransactionStrategy implements IStrategy {
             for (Map.Entry<Integer, List<Transaction>> entry : transcationGrouped.entrySet()) {
                 list_ip = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(entry.getKey()).values().stream().collect(Collectors.toList());
                 this.Setup(entry.getValue());
+                this.messageListener.setSize(list_ip.size());
+                this.messageListener.onStart();
                 for (int i = 0; i < list_ip.size(); i++) {
                     int finalI = i;
                     executorService.submit(() -> {
@@ -126,7 +132,7 @@ public class TransactionStrategy implements IStrategy {
                     sizeBuf.writeVarInt(data.length);
                     ByteBuf appendedBuf = ByteBufPool.append(sizeBuf, ByteBuf.wrapForReading(data));
                     socket.write(appendedBuf);
-                    socket.close();
+                    socket.read().whenResult(buf -> this.messageListener.onNext(buf.getString(UTF_8))).whenComplete(socket::close);
                     socket = null;
                 } catch (IOException ioException) {
                     throw new RuntimeException(ioException);
@@ -200,6 +206,10 @@ public class TransactionStrategy implements IStrategy {
         if (local_termination != null) {
             Arrays.fill(local_termination, null);
             local_termination = null;
+        }
+
+        if (this.messageListener != null) {
+            this.messageListener = null;
         }
         transaction = null;
         transaction_encode = null;

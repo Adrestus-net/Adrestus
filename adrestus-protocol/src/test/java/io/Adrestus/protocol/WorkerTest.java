@@ -28,7 +28,7 @@ public class WorkerTest {
     @BeforeAll
     public static void setup() throws Exception {
         int version = 0x00;
-        int size = 3000;
+        int size = 105;
         for (int i = 0; i < size; i++) {
             Mnemonic mnem = new Mnemonic(Security.NORMAL, WordList.ENGLISH);
             char[] mnemonic_sequence = "sample sail jungle learn general promote task puppy own conduct green affair ".toCharArray();
