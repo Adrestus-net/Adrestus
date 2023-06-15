@@ -30,9 +30,9 @@ public class BindServerTransactionTask extends AdrestusTask {
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         this.serenc = new SerializationUtil<Transaction>(Transaction.class, list);
-        this.callBackReceive();
         MemoryRingBuffer.getInstance().setup();
         CacheTemporalTransactionPool.getInstance().setup(true);
+        this.callBackReceive();
     }
 
 
