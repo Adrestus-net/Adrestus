@@ -239,6 +239,14 @@ public class BootstrapConsensusTest {
 
     @Test
     public void test() throws IOException, InterruptedException {
+        Socket socket = new Socket();
+        socket.connect(new InetSocketAddress("google.com", 80));
+        String IP = socket.getLocalAddress().getHostAddress();
+        int hit = 0;
+        if(!IP.substring(0,3).equals("192")){
+            return;
+        }
+
         IAdrestusFactory factory = new AdrestusFactory();
         List<AdrestusTask> tasks = new java.util.ArrayList<>(List.of(
                 //factory.createBindServerKademliaTask(),
@@ -256,10 +264,6 @@ public class BootstrapConsensusTest {
                 factory.createRepositoryPatriciaTreeTask(PatriciaTreeInstance.PATRICIA_TREE_INSTANCE_3),
                 factory.createRepositoryCommitteeTask()));
 
-        Socket socket = new Socket();
-        socket.connect(new InetSocketAddress("google.com", 80));
-        String IP = socket.getLocalAddress().getHostAddress();
-        int hit = 0;
 
         for (Map.Entry<BLSPublicKey, String> entry : CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).entrySet()) {
             if (IP.equals(entry.getValue())) {

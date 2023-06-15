@@ -148,6 +148,15 @@ public class ConsensusTransactionTimer4Test {
 
     @Test
     public void consensus_timer_test() throws Exception {
+
+        Socket socket = new Socket();
+        socket.connect(new InetSocketAddress("google.com", 80));
+        String IP = socket.getLocalAddress().getHostAddress();
+        int hit = 0;
+        if(!IP.substring(0,3).equals("192")){
+            return;
+        }
+
         IAdrestusFactory factory = new AdrestusFactory();
         List<AdrestusTask> tasks = new java.util.ArrayList<>(List.of(
                 //factory.createBindServerKademliaTask(),
@@ -161,10 +170,6 @@ public class ConsensusTransactionTimer4Test {
                 factory.createRepositoryPatriciaTreeTask(PatriciaTreeInstance.PATRICIA_TREE_INSTANCE_1),
                 factory.createRepositoryPatriciaTreeTask(PatriciaTreeInstance.PATRICIA_TREE_INSTANCE_2),
                 factory.createRepositoryPatriciaTreeTask(PatriciaTreeInstance.PATRICIA_TREE_INSTANCE_3)));
-        Socket socket = new Socket();
-        socket.connect(new InetSocketAddress("google.com", 80));
-        String IP = socket.getLocalAddress().getHostAddress();
-        int hit = 0;
         int activezones = blockIndex.getZone(IP);
         for (Map.Entry<BLSPublicKey, String> entry : CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(activezones).entrySet()) {
             if (IP.equals(entry.getValue())) {
