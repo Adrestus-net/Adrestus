@@ -519,15 +519,14 @@ class RPCExampleTest {
             Map<String, LevelDBTransactionWrapper<Transaction>> copymaps = (Map<String, LevelDBTransactionWrapper<Transaction>>) client.getTransactionDatabase("1");
 
             assertEquals(map, copymaps);
-        }catch (Exception e){
-            System.out.println("Exception caught: " + e.toString());
-        }
-        finally {
+
             if(client!=null)
                 client.close();
             if(server1!=null)
                 server1.close();
             server1 = null;
+        }catch (Exception e){
+            System.out.println("Exception caught: " + e.toString());
         }
         database.delete_db();
     }
@@ -593,10 +592,7 @@ class RPCExampleTest {
             Map<String, LevelDBTransactionWrapper<Transaction>> copymaps = (Map<String, LevelDBTransactionWrapper<Transaction>>) client.getTransactionDatabase("1");
 
             assertEquals(map, copymaps);
-        }catch (Exception e){
-            System.out.println("Exception caught: " + e.toString());
-        }
-        finally {
+
             if(client!=null)
                 client.close();
             if(server1!=null)
@@ -606,7 +602,10 @@ class RPCExampleTest {
             if(server3!=null)
                 server3.close();
             server1 = null;
+        }catch (Exception e){
+            System.out.println("Exception caught: " + e.toString());
         }
+
         database.delete_db();
     }
     //@Test

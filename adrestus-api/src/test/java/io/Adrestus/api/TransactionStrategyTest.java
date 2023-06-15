@@ -55,7 +55,7 @@ public class TransactionStrategyTest {
 
     private static ECKeyPair ecKeyPair1, ecKeyPair2;
 
-    private static int NONCE = 5;
+    private static int NONCE = 1;
     private static int start = 0;
     private static int end = 105;
     private static ArrayList<String> addreses = new ArrayList<>();

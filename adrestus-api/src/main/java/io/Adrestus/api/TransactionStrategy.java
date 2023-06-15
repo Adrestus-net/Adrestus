@@ -45,7 +45,7 @@ public class TransactionStrategy implements IStrategy {
     private static CountDownLatch[] local_termination;
     private static Semaphore[] available;
 
-    private MessageListener messageListener;
+    private final MessageListener messageListener;
 
     public TransactionStrategy(Transaction transaction, MessageListener messageListener) {
         List<SerializationUtil.Mapping> list = new ArrayList<>();
@@ -62,6 +62,7 @@ public class TransactionStrategy implements IStrategy {
     public TransactionStrategy(List<Transaction> transaction_list) {
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
+        this.messageListener = new MessageListener();
         this.transaction_list = transaction_list;
         this.executorService = Executors.newFixedThreadPool(AdrestusConfiguration.CORES);
         this.list_ip = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).values().stream().collect(Collectors.toList());
@@ -210,9 +211,6 @@ public class TransactionStrategy implements IStrategy {
             local_termination = null;
         }
 
-        if (this.messageListener != null) {
-            this.messageListener = null;
-        }
         transaction = null;
         transaction_encode = null;
     }
