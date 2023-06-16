@@ -13,14 +13,17 @@ import io.activej.csp.binary.ByteBufsDecoder;
 import io.activej.eventloop.Eventloop;
 import io.activej.eventloop.net.SocketSettings;
 import io.activej.net.SimpleServer;
+import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.time.Duration;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static io.activej.bytebuf.ByteBufStrings.*;
+import static io.activej.bytebuf.ByteBufStrings.CR;
+import static io.activej.bytebuf.ByteBufStrings.LF;
 import static io.activej.promise.Promises.repeat;
 
 public class TransactionChannelHandler<T> {
@@ -55,7 +58,7 @@ public class TransactionChannelHandler<T> {
         server = SimpleServer.create(socket ->
                 {
                     BinaryChannelSupplier bufsSupplier = BinaryChannelSupplier.of(ChannelSupplier.ofSocket(socket));
-                    AtomicReference<String> msg=new AtomicReference<>();
+                    AtomicReference<String> msg = new AtomicReference<>();
                     repeat(() ->
                             bufsSupplier
                                     .decodeStream(DECODER)
@@ -100,10 +103,11 @@ public class TransactionChannelHandler<T> {
         }
     }
 
+    @SneakyThrows
     public void close() {
-        this.eventloop.breakEventloop();
-        this.server.close();
+        this.server.closeFuture().get(5, TimeUnit.SECONDS);
         this.server = null;
+        this.eventloop.breakEventloop();
     }
 
 }

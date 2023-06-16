@@ -66,7 +66,7 @@ public class CollectionTransactionStrategy {
     public static void setup() throws Exception {
 
         TestingConfiguration.END = 1003;
-        TestingConfiguration.NONCE = 5;
+        TestingConfiguration.NONCE = 3;
 
         for (int i = TestingConfiguration.START; i < TestingConfiguration.END; i++) {
             Mnemonic mnem = new Mnemonic(Security.NORMAL, WordList.ENGLISH);
@@ -141,7 +141,7 @@ public class CollectionTransactionStrategy {
 
     @Test
     public void execute() throws Exception {
-        int count=0;
+        int count = 0;
         for (int j = 1; j <= TestingConfiguration.NONCE; j++) {
             ArrayList<Transaction> list = new ArrayList<>();
             for (int i = TestingConfiguration.START; i < TestingConfiguration.END - 1; i++) {
@@ -171,6 +171,6 @@ public class CollectionTransactionStrategy {
             Thread.sleep(3000);
         }
 
-        System.out.println("Total messages: "+count);
+        System.out.println("Total messages: " + count);
     }
 }

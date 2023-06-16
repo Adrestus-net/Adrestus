@@ -11,11 +11,13 @@ import io.activej.csp.binary.ByteBufsDecoder;
 import io.activej.eventloop.Eventloop;
 import io.activej.eventloop.net.SocketSettings;
 import io.activej.net.SimpleServer;
+import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.time.Duration;
+import java.util.concurrent.TimeUnit;
 
 import static io.activej.promise.Promises.repeat;
 
@@ -90,9 +92,10 @@ public class ReceiptChannelHandler<T> {
         }
     }
 
+    @SneakyThrows
     public void close() {
-        this.eventloop.breakEventloop();
-        this.server.close();
+        this.server.closeFuture().get(5, TimeUnit.SECONDS);
         this.server = null;
+        this.eventloop.breakEventloop();
     }
 }

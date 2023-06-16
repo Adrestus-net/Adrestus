@@ -1,26 +1,15 @@
 package io.Adrestus.core.RingBuffer.handler.transactions;
 
-import com.google.common.reflect.TypeToken;
 import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.PatriciaTreeNode;
-import io.Adrestus.core.Resourses.CacheTemporalTransactionPool;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
-import io.Adrestus.core.Resourses.MemoryTransactionPool;
 import io.Adrestus.core.RingBuffer.event.TransactionEvent;
 import io.Adrestus.core.StatusType;
 import io.Adrestus.core.Transaction;
-import io.distributedLedger.DatabaseFactory;
-import io.distributedLedger.DatabaseType;
-import io.distributedLedger.IDatabase;
-import io.distributedLedger.LevelDBTransactionWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.stream.Collectors;
 
 public class NonceEventHandler extends TransactionEventHandler {
     private static Logger LOG = LoggerFactory.getLogger(NonceEventHandler.class);
@@ -32,7 +21,7 @@ public class NonceEventHandler extends TransactionEventHandler {
         try {
             transaction = transactionEvent.getTransaction();
 
-            if (transaction.getStatus().equals(StatusType.BUFFERED)|| transaction.getStatus().equals(StatusType.ABORT))
+            if (transaction.getStatus().equals(StatusType.BUFFERED) || transaction.getStatus().equals(StatusType.ABORT))
                 return;
 
             patriciaTreeNode = TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(transaction.getFrom()).get();

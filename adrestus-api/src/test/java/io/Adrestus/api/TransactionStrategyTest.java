@@ -63,6 +63,7 @@ public class TransactionStrategyTest {
 
     private static ECDSASign ecdsaSign = new ECDSASign();
     private static SerializationUtil<Transaction> serenc;
+
     @BeforeAll
     public static void setup() throws Exception {
         List<SerializationUtil.Mapping> lists = new ArrayList<>();
@@ -175,11 +176,10 @@ public class TransactionStrategyTest {
     }
 
 
-
     //In order to run this test with sucess change line 42 at BindServerTransactionTask
     @Test
     public void transaction_list2() throws Exception {
-        int count=0;
+        int count = 0;
         for (int j = 1; j <= NONCE; j++) {
             ArrayList<Transaction> list = new ArrayList<>();
             for (int i = start; i < end - 1; i++) {
@@ -213,8 +213,8 @@ public class TransactionStrategyTest {
 
     @Test
     public void single_transaction() throws Exception {
-        MessageListener messageListener=new MessageListener();
-        Strategy transactionStrategy = new Strategy(new TransactionStrategy((Transaction) MemoryTransactionPool.getInstance().getAll().get(0),messageListener));
+        MessageListener messageListener = new MessageListener();
+        Strategy transactionStrategy = new Strategy(new TransactionStrategy((Transaction) MemoryTransactionPool.getInstance().getAll().get(0), messageListener));
         // Strategy transactionStrategy1 = new Strategy(new TransactionStrategy((Transaction) MemoryTransactionPool.getInstance().getAll().get(0)));
         System.out.println(MemoryTransactionPool.getInstance().getAll().size());
         transactionStrategy.SendTransactionSync();

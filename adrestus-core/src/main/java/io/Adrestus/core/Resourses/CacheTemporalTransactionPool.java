@@ -49,7 +49,7 @@ public class CacheTemporalTransactionPool implements ICacheTemporalTransactionPo
                 for (ConcurrentHashMap.Entry<String, List<Transaction>> entry : loadingCache.asMap().entrySet()) {
                     Optional<Transaction> trx = get(entry.getKey());
                     if (trx.isPresent()) {
-                        Transaction transaction=trx.get();
+                        Transaction transaction = trx.get();
                         if (!MemoryTransactionPool.getInstance().checkAdressExists(transaction)) {
                             if (debug) {
                                 PatriciaTreeNode patriciaTreeNode = TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(trx.get().getFrom()).get();
@@ -59,8 +59,7 @@ public class CacheTemporalTransactionPool implements ICacheTemporalTransactionPo
                                     MemoryRingBuffer.getInstance().publish(transaction);
                                     remove(entry.getKey(), transaction);
                                 }
-                            }
-                            else {
+                            } else {
                                 remove(entry.getKey(), transaction);
                             }
                         }
@@ -91,7 +90,7 @@ public class CacheTemporalTransactionPool implements ICacheTemporalTransactionPo
         if (current == null)
             current = new ArrayList<>();
 
-        if(current.stream().anyMatch(transaction::equals))
+        if (current.stream().anyMatch(transaction::equals))
             return;
 
         current.add(transaction);
@@ -139,7 +138,7 @@ public class CacheTemporalTransactionPool implements ICacheTemporalTransactionPo
         return loadingCache.estimatedSize();
     }
 
-    public ConcurrentMap<String,List<Transaction>> getAsMap(){
+    public ConcurrentMap<String, List<Transaction>> getAsMap() {
         return loadingCache.asMap();
     }
 }

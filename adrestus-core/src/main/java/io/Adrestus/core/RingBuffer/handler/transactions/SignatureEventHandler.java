@@ -55,7 +55,7 @@ public class SignatureEventHandler extends TransactionEventHandler {
     public void onEvent(TransactionEvent transactionEvent, long l, boolean b) throws Exception {
         Transaction transaction = transactionEvent.getTransaction();
 
-        if (transaction.getStatus().equals(StatusType.BUFFERED)){
+        if (transaction.getStatus().equals(StatusType.BUFFERED)) {
             return;
         }
         if (transaction.getStatus().equals(StatusType.ABORT)) {

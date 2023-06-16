@@ -14,7 +14,6 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -44,6 +43,7 @@ public class RPCWorkerTest {
         ExecutorService executor = Executors.newFixedThreadPool(tasks.size());
         tasks.stream().map(Worker::new).forEach(executor::execute);
 
+        //WHEN run single make sure it started
         //CachedEventLoop.getInstance().start();
        /* RpcServer.create(eventloop)
                 .withMessageTypes(String.class)
@@ -92,7 +92,7 @@ public class RPCWorkerTest {
             Thread.sleep(2000);
 
         } catch (Exception e) {
-            System.out.println("RPCWorkerTest exception: "+e.toString());
+            System.out.println("RPCWorkerTest exception: " + e.toString());
         }
         database.delete_db();
     }

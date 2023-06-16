@@ -12,28 +12,29 @@ public class MessageListener extends DefaultSubscriber<String> {
     private ArrayList<String> consume_list;
     private int size;
 
-    public MessageListener() {}
+    public MessageListener() {
+    }
 
     @Override
     protected void onStart() {
         request(size);
-        consume_list=new ArrayList<>(size);
+        consume_list = new ArrayList<>(size);
     }
 
     @Override
     public void onNext(String msg) {
-        LOG.info("consuming {}"+msg);
+        LOG.info("consuming {}" + msg);
         this.consume_list.add(msg);
     }
 
     @Override
     public void onError(Throwable throwable) {
-        LOG.error("error received"+throwable);
+        LOG.error("error received" + throwable);
     }
 
     @Override
     public void onComplete() {
-        if(this.consume_list.stream().anyMatch(val->val.equals(APIConfiguration.MSG_FAILED)))
+        if (this.consume_list.stream().anyMatch(val -> val.equals(APIConfiguration.MSG_FAILED)))
             LOG.info("consumer finished");//UpDateUI
     }
 

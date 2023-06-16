@@ -124,7 +124,7 @@ public class LevelDBTransactionWrapper<T> implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         LevelDBTransactionWrapper<?> that = (LevelDBTransactionWrapper<?>) o;
-        return  Objects.equals(from, that.from) && Objects.equals(to, that.to);
+        return Objects.equals(from, that.from) && Objects.equals(to, that.to);
     }
 
     @Override
@@ -132,7 +132,7 @@ public class LevelDBTransactionWrapper<T> implements Serializable {
         return Objects.hash(fromhashComparator, tohashComparator, from, to);
     }
 
-    private final class TransactionHashComparator implements Comparator<T>,Serializable {
+    private final class TransactionHashComparator implements Comparator<T>, Serializable {
         @SneakyThrows
         @Override
         public int compare(T o1, T o2) {

@@ -4,7 +4,6 @@ import io.Adrestus.core.Transaction;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 public interface ICacheTemporalTransactionPool {
@@ -16,7 +15,7 @@ public interface ICacheTemporalTransactionPool {
 
     void remove(String key, Transaction transaction);
 
-    ConcurrentMap<String,List<Transaction>> getAsMap();
+    ConcurrentMap<String, List<Transaction>> getAsMap();
 
     void clear();
 

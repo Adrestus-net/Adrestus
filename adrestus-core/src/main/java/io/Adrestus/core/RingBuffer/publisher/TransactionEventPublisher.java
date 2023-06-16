@@ -207,7 +207,7 @@ public class TransactionEventPublisher implements Publisher<Transaction> {
         return this;
     }
 
-    public TransactionEventPublisher AddMergeEventsAndPassThen(SignatureEventHandler signatureEventHandler,TransactionEventHandler... args) {
+    public TransactionEventPublisher AddMergeEventsAndPassThen(SignatureEventHandler signatureEventHandler, TransactionEventHandler... args) {
         TransactionEventHandler[] events = new TransactionEventHandler[group.size()];
         group.toArray(events);
         signatureEventHandler.setExecutorService(executor);

@@ -7,8 +7,8 @@ public class MessageListenerTest {
 
 
     @Test
-    public void test(){
-        MessageListener messageListener=new MessageListener();
+    public void test() {
+        MessageListener messageListener = new MessageListener();
         messageListener.setSize(3);
 
 

@@ -1,6 +1,5 @@
 package io.Adrestus.rpc;
 
-import com.google.common.base.Objects;
 import io.activej.serializer.annotations.Deserialize;
 import io.activej.serializer.annotations.Serialize;
 

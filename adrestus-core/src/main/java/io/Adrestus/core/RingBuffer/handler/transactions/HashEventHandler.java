@@ -30,7 +30,7 @@ public class HashEventHandler extends TransactionEventHandler {
             //wrapper = new SerializationUtil<Transaction>(Transaction.class);
             Transaction transaction = transactionEvent.getTransaction();
 
-            if (transaction.getStatus().equals(StatusType.BUFFERED)|| transaction.getStatus().equals(StatusType.ABORT))
+            if (transaction.getStatus().equals(StatusType.BUFFERED) || transaction.getStatus().equals(StatusType.ABORT))
                 return;
 
             Transaction cloneable = (Transaction) transaction.clone();

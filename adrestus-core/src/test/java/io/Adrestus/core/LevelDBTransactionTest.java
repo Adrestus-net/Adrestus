@@ -1,7 +1,6 @@
 package io.Adrestus.core;
 
 import com.google.common.reflect.TypeToken;
-import io.Adrestus.MemoryTreePool;
 import io.Adrestus.core.RingBuffer.publisher.TransactionEventPublisher;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.util.GetTime;
@@ -151,23 +150,23 @@ public class LevelDBTransactionTest {
         database.save("1", transaction3);
         //   database.save("1",transaction2);
         Optional<LevelDBTransactionWrapper<Transaction>> wrapper2 = database.findByKey("1");
-        Map<String,LevelDBTransactionWrapper<Transaction>>map=database.seekFromStart();
-        int buffsize=0;
-        for (Map.Entry<String,LevelDBTransactionWrapper<Transaction>> entry : map.entrySet()){
-            buffsize+=entry.getValue().getFrom().size()+entry.getValue().getTo().size();
+        Map<String, LevelDBTransactionWrapper<Transaction>> map = database.seekFromStart();
+        int buffsize = 0;
+        for (Map.Entry<String, LevelDBTransactionWrapper<Transaction>> entry : map.entrySet()) {
+            buffsize += entry.getValue().getFrom().size() + entry.getValue().getTo().size();
         }
-        buffsize=buffsize*1024;
+        buffsize = buffsize * 1024;
 
-        Type fluentType = new TypeToken<Map<String,LevelDBTransactionWrapper<Transaction>>>() {
+        Type fluentType = new TypeToken<Map<String, LevelDBTransactionWrapper<Transaction>>>() {
         }.getType();
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         SerializationUtil valueMapper = new SerializationUtil<>(fluentType, list);
 
-        byte[] buffer = valueMapper.encode_special(map,buffsize);
-        Map<String,LevelDBTransactionWrapper<Transaction>> copy = (Map<String, LevelDBTransactionWrapper<Transaction>>) valueMapper.decode(buffer);
+        byte[] buffer = valueMapper.encode_special(map, buffsize);
+        Map<String, LevelDBTransactionWrapper<Transaction>> copy = (Map<String, LevelDBTransactionWrapper<Transaction>>) valueMapper.decode(buffer);
 
-        assertEquals(map,copy);
+        assertEquals(map, copy);
 
         database.delete_db();
     }

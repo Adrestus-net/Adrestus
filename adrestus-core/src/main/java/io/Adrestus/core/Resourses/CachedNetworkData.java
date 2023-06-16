@@ -25,10 +25,10 @@ public class CachedNetworkData {
         this.epoch_counter = epoch_counter;
         this.committeeBlock = committeeBlock;
         this.transactionBlock = transactionBlock;
-        CommitteePositionLeader = committeePositionLeader;
-        TransactionPositionLeader = transactionPositionLeader;
+        this.CommitteePositionLeader = committeePositionLeader;
+        this.TransactionPositionLeader = transactionPositionLeader;
         this.securityHeader = securityHeader;
-        ZoneIndex = zoneIndex;
+        this.ZoneIndex = zoneIndex;
     }
 
     public CachedNetworkData(int epoch_counter, CommitteeBlock committeeBlock, TransactionBlock transactionBlock, int committeePositionLeader, int transactionPositionLeader, SecurityHeader securityHeader, int zoneIndex) {
@@ -87,6 +87,10 @@ public class CachedNetworkData {
 
     public void setSecurityHeader(SecurityHeader securityHeader) {
         this.securityHeader = securityHeader;
+    }
+
+    public void setSecurityHeader() {
+        CachedSecurityHeaders.getInstance().setSecurityHeader(this.securityHeader);
     }
 
     @Serialize

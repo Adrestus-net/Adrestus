@@ -243,7 +243,7 @@ public class BootstrapConsensusTest {
         socket.connect(new InetSocketAddress("google.com", 80));
         String IP = socket.getLocalAddress().getHostAddress();
         int hit = 0;
-        if(!IP.substring(0,3).equals("192")){
+        if (!IP.substring(0, 3).equals("192")) {
             return;
         }
 

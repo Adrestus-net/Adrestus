@@ -39,8 +39,8 @@ public class RpcAdrestusServer<T> implements Runnable {
 
     private final SerializationUtil<T> transactionvalueMapper;
 
-    private  SerializationUtil<T> valueMapper;
-    private  SerializationUtil<T> valueMapper2;
+    private SerializationUtil<T> valueMapper;
+    private SerializationUtil<T> valueMapper2;
     private InetSocketAddress inetSocketAddress;
     private String host;
     private int port;
@@ -189,7 +189,7 @@ public class RpcAdrestusServer<T> implements Runnable {
         }
         if (inetSocketAddress != null) {
             rpcServer = RpcServer.create(eventloop)
-                    .withMessageTypes(TransactionRequest.class,TransactionResponse.class,BlockRequest.class, ListBlockResponse.class, BlockRequest2.class, BlockResponse.class, PatriciaTreeRequest.class, PatriciaTreeResponse.class)
+                    .withMessageTypes(TransactionRequest.class, TransactionResponse.class, BlockRequest.class, ListBlockResponse.class, BlockRequest2.class, BlockResponse.class, PatriciaTreeRequest.class, PatriciaTreeResponse.class)
                     .withSerializerBuilder(this.rpcserialize)
                     .withHandler(BlockRequest.class, download_blocks(service))
                     .withHandler(BlockRequest2.class, migrate_block(service))
@@ -198,7 +198,7 @@ public class RpcAdrestusServer<T> implements Runnable {
                     .withListenAddress(inetSocketAddress);
         } else {
             rpcServer = RpcServer.create(eventloop)
-                    .withMessageTypes(TransactionRequest.class,TransactionResponse.class,BlockRequest.class, ListBlockResponse.class, BlockRequest2.class, BlockResponse.class, PatriciaTreeRequest.class, PatriciaTreeResponse.class)
+                    .withMessageTypes(TransactionRequest.class, TransactionResponse.class, BlockRequest.class, ListBlockResponse.class, BlockRequest2.class, BlockResponse.class, PatriciaTreeRequest.class, PatriciaTreeResponse.class)
                     .withSerializerBuilder(this.rpcserialize)
                     .withHandler(BlockRequest.class, download_blocks(service))
                     .withHandler(BlockRequest2.class, migrate_block(service))

@@ -7,7 +7,6 @@ import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.network.IPFinder;
 import io.Adrestus.network.ReceiptChannelHandler;
 import io.Adrestus.network.TCPTransactionConsumer;
-import io.Adrestus.network.TransactionChannelHandler;
 import io.Adrestus.util.SerializationUtil;
 import lombok.SneakyThrows;
 import org.slf4j.Logger;

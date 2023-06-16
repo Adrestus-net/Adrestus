@@ -200,6 +200,8 @@ public class BlockSync implements IBlockSync {
         boolean bError = false;
         do {
             try {
+                //make sure you are wait for validators of different zone than 0 to sync first
+                Thread.sleep(2000);
 
                 var ex = new AsyncServiceNetworkData<Long>(new_ips);
 
@@ -207,7 +209,9 @@ public class BlockSync implements IBlockSync {
                 var cached_result = ex.endProcess(asyncResult);
 
                 CachedNetworkData networkData = serialize_cached.decode(ex.getResult());
-                networkData.SetCacheData();
+
+                //only on this function
+                networkData.setSecurityHeader();
             } catch (NoSuchElementException ex) {
                 LOG.info("NoSuchElementException: " + ex.toString());
                 Thread.sleep(ConsensusConfiguration.CONSENSUS_WAIT_TIMEOUT);

@@ -348,10 +348,9 @@ public class LevelDBConnectionManager<K, V> implements IDatabase<K, V> {
             }
         } catch (final SerializationException exception) {
             LOGGER.error("Serialization exception occurred during findByKey operation. {}", exception.getMessage());
-        } catch (Exception e){
+        } catch (Exception e) {
             LOGGER.error(e.getMessage());
-        }
-        finally {
+        } finally {
             r.unlock();
         }
         return (Map<K, V>) hashmap;

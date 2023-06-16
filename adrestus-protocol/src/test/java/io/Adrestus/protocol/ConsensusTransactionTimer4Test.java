@@ -153,7 +153,7 @@ public class ConsensusTransactionTimer4Test {
         socket.connect(new InetSocketAddress("google.com", 80));
         String IP = socket.getLocalAddress().getHostAddress();
         int hit = 0;
-        if(!IP.substring(0,3).equals("192")){
+        if (!IP.substring(0, 3).equals("192")) {
             return;
         }
 
@@ -219,11 +219,11 @@ public class ConsensusTransactionTimer4Test {
             count += entry.getValue().getTransactionList().size();
         }
 
-        String address="ADR-ACPY-HRDJ-SSL3-7X2N-OT3Y-7VRW-PFRZ-S46W-M5AF-JO4O";
-        Map<String,List<Transaction>> map= CacheTemporalTransactionPool.getInstance().getAsMap();
-        List<Transaction> list= MemoryTransactionPool.getInstance().getAll();
-        List<Transaction> gf=list.stream().filter(tr->tr.getFrom().equals(address)).collect(Collectors.toList());
-        List<Transaction>tra=map.get(address);
+        String address = "ADR-ACPY-HRDJ-SSL3-7X2N-OT3Y-7VRW-PFRZ-S46W-M5AF-JO4O";
+        Map<String, List<Transaction>> map = CacheTemporalTransactionPool.getInstance().getAsMap();
+        List<Transaction> list = MemoryTransactionPool.getInstance().getAll();
+        List<Transaction> gf = list.stream().filter(tr -> tr.getFrom().equals(address)).collect(Collectors.toList());
+        List<Transaction> tra = map.get(address);
         IDatabase<String, LevelDBTransactionWrapper<Transaction>> transaction_database = new DatabaseFactory(String.class, Transaction.class, new TypeToken<LevelDBTransactionWrapper<Transaction>>() {
         }.getType()).getDatabase(DatabaseType.LEVEL_DB);
         LevelDBTransactionWrapper<Transaction> tosearch;

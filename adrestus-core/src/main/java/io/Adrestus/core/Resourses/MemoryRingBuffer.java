@@ -45,7 +45,7 @@ public class MemoryRingBuffer {
                 .withTransactionFeeEventHandler()
                 .withTimestampEventHandler()
                 .withZoneEventHandler()
-                .AddMergeEventsAndPassThen(new SignatureEventHandler(SignatureEventHandler.SignatureBehaviorType.SIMPLE_TRANSACTIONS),new DuplicateEventHandler(),new SameOriginEventHandler());
+                .AddMergeEventsAndPassThen(new SignatureEventHandler(SignatureEventHandler.SignatureBehaviorType.SIMPLE_TRANSACTIONS), new DuplicateEventHandler(), new SameOriginEventHandler());
         publisher.start();
     }
 

@@ -36,7 +36,10 @@ import java.lang.reflect.Type;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 
 import static io.activej.rpc.client.sender.RpcStrategies.server;
@@ -502,12 +505,13 @@ class RPCExampleTest {
         database.save("1", transaction2);
         database.save("1", transaction3);
         //   database.save("1",transaction2);
-        Map<String,LevelDBTransactionWrapper<Transaction>> map=database.seekFromStart();
+        Map<String, LevelDBTransactionWrapper<Transaction>> map = database.seekFromStart();
 
 
-        Type fluentType = new TypeToken<LevelDBTransactionWrapper<Transaction>>() {}.getType();
-        RpcAdrestusClient client=null;
-        RpcAdrestusServer<Transaction> server1=null,server2=null,server3=null;
+        Type fluentType = new TypeToken<LevelDBTransactionWrapper<Transaction>>() {
+        }.getType();
+        RpcAdrestusClient client = null;
+        RpcAdrestusServer<Transaction> server1 = null, server2 = null, server3 = null;
         try {
             InetSocketAddress address1 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 3077);
             server1 = new RpcAdrestusServer<Transaction>(new RegularTransaction(), fluentType, address1, eventloop);
@@ -520,15 +524,14 @@ class RPCExampleTest {
 
             assertEquals(map, copymaps);
 
-            if(client!=null)
+            if (client != null)
                 client.close();
-            if(server1!=null)
+            if (server1 != null)
                 server1.close();
             server1 = null;
-        }catch (Exception e){
+        } catch (Exception e) {
             System.out.println("Database 1 Exception caught: " + e.toString());
-        }
-        finally {
+        } finally {
             database.delete_db();
         }
     }
@@ -567,12 +570,13 @@ class RPCExampleTest {
         database.save("1", transaction2);
         database.save("1", transaction3);
         //   database.save("1",transaction2);
-        Map<String,LevelDBTransactionWrapper<Transaction>> map=database.seekFromStart();
+        Map<String, LevelDBTransactionWrapper<Transaction>> map = database.seekFromStart();
 
 
-        Type fluentType = new TypeToken<LevelDBTransactionWrapper<Transaction>>() {}.getType();
-        RpcAdrestusClient client=null;
-        RpcAdrestusServer<Transaction> server1=null,server2=null,server3=null;
+        Type fluentType = new TypeToken<LevelDBTransactionWrapper<Transaction>>() {
+        }.getType();
+        RpcAdrestusClient client = null;
+        RpcAdrestusServer<Transaction> server1 = null, server2 = null, server3 = null;
         try {
             ArrayList<InetSocketAddress> list = new ArrayList<>();
             InetSocketAddress address1 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 3074);
@@ -581,9 +585,9 @@ class RPCExampleTest {
             list.add(address1);
             list.add(address2);
             list.add(address3);
-             server1 = new RpcAdrestusServer<Transaction>(new RegularTransaction(), fluentType, address1, eventloop);
-             server2 = new RpcAdrestusServer<Transaction>(new RegularTransaction(), fluentType, address2, eventloop);
-             server3 = new RpcAdrestusServer<Transaction>(new RegularTransaction(), fluentType, address3, eventloop);
+            server1 = new RpcAdrestusServer<Transaction>(new RegularTransaction(), fluentType, address1, eventloop);
+            server2 = new RpcAdrestusServer<Transaction>(new RegularTransaction(), fluentType, address2, eventloop);
+            server3 = new RpcAdrestusServer<Transaction>(new RegularTransaction(), fluentType, address3, eventloop);
             new Thread(server1).start();
             new Thread(server2).start();
             new Thread(server3).start();
@@ -595,22 +599,22 @@ class RPCExampleTest {
 
             assertEquals(map, copymaps);
 
-            if(client!=null)
+            if (client != null)
                 client.close();
-            if(server1!=null)
+            if (server1 != null)
                 server1.close();
-            if(server2!=null)
+            if (server2 != null)
                 server2.close();
-            if(server3!=null)
+            if (server3 != null)
                 server3.close();
             server1 = null;
-        }catch (Exception e){
+        } catch (Exception e) {
             System.out.println("Database2 Exception caught: " + e.toString());
-        }
-        finally {
+        } finally {
             database.delete_db();
         }
     }
+
     //@Test
     public void test3() throws Exception {
         Eventloop eventloop = Eventloop.create();
