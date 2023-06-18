@@ -23,7 +23,7 @@ public interface IAdrestusFactory {
 
     AdrestusTask createBindServerKademliaTask();
 
-    AdrestusTask createBindServerKademliaTask(SecureRandom secureRandom, byte[] passphrase);
+    AdrestusTask createBindServerKademliaTask(String mnemonic, String passphrase);
 
     AdrestusTask createBindServerKademliaTask(ECKeyPair keypair, BLSPublicKey blsPublicKey);
 

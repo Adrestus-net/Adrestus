@@ -57,3 +57,4 @@
         </pluginManagement>
     </build>
 </project>
+<!--mvn clean install -DskipTests-->

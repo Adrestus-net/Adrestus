@@ -116,9 +116,20 @@ public class SimpleServer {
     }
 
     public void close() {
-        this.publisher.close();
-        this.collector.close();
-        this.ctx.close();
+        if (this.publisher != null)
+            this.publisher.close();
+        if (this.collector != null)
+            this.collector.close();
+        if (this.ctx != null) {
+            try {
+                this.ctx.destroySocket(this.publisher);
+                this.ctx.destroySocket(this.collector);
+                Thread.sleep(100);
+                this.ctx.destroy();
+            } catch (AssertionError e) {
+            } catch (InterruptedException e) {
+            }
+        }
     }
 
     protected final class ReceiveTaskTimeout extends TimerTask {

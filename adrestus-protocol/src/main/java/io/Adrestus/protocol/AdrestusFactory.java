@@ -39,8 +39,8 @@ public class AdrestusFactory implements IAdrestusFactory {
     }
 
     @Override
-    public AdrestusTask createBindServerKademliaTask(SecureRandom secureRandom, byte[] passphrase) {
-        return new BindServerKademliaTask(secureRandom, passphrase);
+    public AdrestusTask createBindServerKademliaTask(String mnemonic, String passphrase) {
+        return new BindServerKademliaTask(mnemonic, passphrase);
     }
 
     @Override

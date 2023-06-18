@@ -72,10 +72,18 @@ public class SimpleClient {
     }
 
     public void close() {
-        if (!ctx.isEmpty()) {
+        try {
+            this.subscriber.setLinger(0);
+            this.push.setLinger(0);
             this.subscriber.close();
             this.push.close();
-            this.ctx.close();
+            this.ctx.destroySocket(this.subscriber);
+            this.ctx.destroySocket(this.push);
+            this.ctx.destroy();
+            Thread.sleep(100);
+        } catch (AssertionError e) {
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
     }
 

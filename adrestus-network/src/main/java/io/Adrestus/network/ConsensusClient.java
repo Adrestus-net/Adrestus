@@ -8,6 +8,8 @@ import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
 import org.zeromq.ZMQException;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.Semaphore;
 
@@ -27,9 +29,10 @@ public class ConsensusClient {
     private final ZMQ.Socket push;
     private final ZMQ.Socket connected;
     private final LinkedBlockingDeque<byte[]> message_deque;
-
+    private final ExecutorService executorService;
 
     public ConsensusClient(String IP) {
+        this.executorService = Executors.newSingleThreadExecutor();
         this.ctx = new ZContext();
         this.message_deque = new LinkedBlockingDeque<>();
         this.IP = IP;
@@ -42,7 +45,6 @@ public class ConsensusClient {
         this.connected.setSendTimeOut(CONSENSUS_CONNECTED_SEND_TIMEOUT);
 
         this.subscriber.setReceiveBufferSize(10000);
-        this.subscriber.setLinger(-1);
         this.subscriber.setHWM(10000);
         this.subscriber.setRcvHWM(1);
         this.subscriber.setConflate(true);
@@ -94,35 +96,33 @@ public class ConsensusClient {
     }
 
     public void receive_handler() {
-        (new Thread() {
-            @SneakyThrows
-            public void run() {
-                byte[] data = {1};
-                while (MESSAGES > 0 && MAX_MESSAGES > 0) {
-                    //available.acquire();
-                    //         System.out.println("acquire");
-                    try {
-                        data = subscriber.recv();
-                    } catch (ZMQException e) {
-                        if (e.getErrorCode() != 156384765) {
-                            LOG.info("ZMQ EXCEPTION caught");
-                        }
-                    } catch (NullPointerException exception) {
-                        LOG.info("NullPointerException caught " + exception.toString());
+        Runnable runnableTask = () -> {
+            byte[] data = {1};
+            while (MESSAGES > 0 && MAX_MESSAGES > 0) {
+                //available.acquire();
+                //         System.out.println("acquire");
+                try {
+                    data = subscriber.recv();
+                } catch (ZMQException e) {
+                    if (e.getErrorCode() != 156384765) {
+                        LOG.info("ZMQ EXCEPTION caught");
                     }
-                    if (data != null) {
-                        message_deque.add(data);
-                        MESSAGES--;
-                    } else {
-                        message_deque.add(new byte[0]);
-                        break;
-                    }
-                    // System.out.println("receive" + MESSAGES);
-                    MAX_MESSAGES--;
-                    // available.release();
+                } catch (NullPointerException exception) {
+                    LOG.info("NullPointerException caught " + exception.toString());
                 }
+                if (data != null) {
+                    message_deque.add(data);
+                    MESSAGES--;
+                } else {
+                    message_deque.add(new byte[0]);
+                    break;
+                }
+                // System.out.println("receive" + MESSAGES);
+                MAX_MESSAGES--;
+                // available.release();
             }
-        }).start();
+        };
+        this.executorService.execute(runnableTask);
     }
 
     public String rec_heartbeat() {
@@ -138,9 +138,25 @@ public class ConsensusClient {
     }
 
     public void close() {
-        this.subscriber.close();
-        this.push.close();
-        this.ctx.close();
+        try {
+            this.executorService.shutdownNow().clear();
+            Thread.sleep(400);
+            this.subscriber.setLinger(0);
+            this.push.setLinger(0);
+            this.connected.setLinger(0);
+            this.subscriber.close();
+            this.push.close();
+            this.connected.close();
+            this.ctx.destroySocket(this.subscriber);
+            this.ctx.destroySocket(this.push);
+            this.ctx.destroySocket(this.connected);
+            this.ctx.destroy();
+            Thread.sleep(100);
+        } catch (AssertionError e) {
+            int g = 3;
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

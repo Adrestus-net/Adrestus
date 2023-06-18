@@ -227,8 +227,17 @@ public class ConsensusServer {
             this.collector.close();
         if (this.connected != null)
             this.connected.close();
-        if (this.ctx != null)
-            this.ctx.close();
+        if (this.ctx != null) {
+            try {
+                this.ctx.destroySocket(this.publisher);
+                this.ctx.destroySocket(this.collector);
+                this.ctx.destroySocket(this.connected);
+                Thread.sleep(500);
+                this.ctx.destroy();
+            } catch (AssertionError e) {
+            } catch (InterruptedException e) {
+            }
+        }
     }
 
     protected final class ConnectedTaskTimeout extends TimerTask {

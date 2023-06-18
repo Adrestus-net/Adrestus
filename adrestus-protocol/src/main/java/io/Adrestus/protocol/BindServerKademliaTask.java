@@ -81,7 +81,7 @@ public class BindServerKademliaTask extends AdrestusTask {
         this.InitKademliaData();
     }
 
-    public BindServerKademliaTask(SecureRandom secureRandom, byte[] passphrase) {
+    public BindServerKademliaTask(String mnemonic, String passphrase) {
         this.ip = IPFinder.getLocalIP();
         this.blockIndex = new BlockIndex();
         this.bootstrapNettyConnectionInfo = new NettyConnectionInfo(KademliaConfiguration.BOOTSTRAP_NODE_IP, KademliaConfiguration.BootstrapNodePORT);
@@ -98,7 +98,7 @@ public class BindServerKademliaTask extends AdrestusTask {
                 KademliaConfiguration.BootstrapNodeID,
                 keyHashGenerator);
         this.dhtRegularNode = new DHTRegularNode(this.nettyConnectionInfo, new BigInteger(HashUtil.convertIPtoHex(IPFinder.getLocalIP(), 24)), keyHashGenerator);
-        this.InitKademliaData(secureRandom, passphrase);
+        this.InitKademliaData(mnemonic, passphrase);
     }
 
     public BindServerKademliaTask(ECKeyPair keypair, BLSPublicKey blsPublicKey) {
@@ -144,13 +144,17 @@ public class BindServerKademliaTask extends AdrestusTask {
     }
 
     @SneakyThrows
-    public void InitKademliaData(SecureRandom secureRandom, byte[] passphrase) {
+    public void InitKademliaData(String mnemonic, String passphrase) {
         final ECDSASign ecdsaSign = new ECDSASign();
+        final Mnemonic mnem = new Mnemonic(Security.NORMAL, WordList.ENGLISH);
+        final SecureRandom secureRandom = SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
+        final byte[] key = mnem.createSeed(mnemonic.toCharArray(), passphrase.toCharArray());
+        secureRandom.setSeed(key);
         final ECKeyPair ecKeyPair = Keys.createEcKeyPair(secureRandom);
         final String address = WalletAddress.generate_address((byte) version, ecKeyPair.getPublicKey());
         final ECDSASignatureData signatureData = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address)), ecKeyPair);
         final BLSPrivateKey sk = new BLSPrivateKey(secureRandom);
-        final BLSPublicKey vk = new BLSPublicKey(sk, new Params(passphrase));
+        final BLSPublicKey vk = new BLSPublicKey(sk, new Params(passphrase.getBytes(StandardCharsets.UTF_8)));
         if (ip.equals(KademliaConfiguration.BOOTSTRAP_NODE_IP))
             this.kademliaData = new KademliaData(new SecurityAuditProofs(address, vk, ecKeyPair.getPublicKey(), signatureData), bootstrapNettyConnectionInfo);
         else
