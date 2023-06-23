@@ -60,7 +60,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>io.Adrestus.protocol.Example.App</mainClass>
+                            <mainClass>io.Adrestus.protocol.Example.SyncConsensusNotExistedMain</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
@@ -85,7 +85,7 @@
                     <archive>
                         <index>true</index>
                         <manifest>
-                            <mainClass>io.Adrestus.protocol.Example.App</mainClass>
+                            <mainClass>io.Adrestus.protocol.Example.SyncConsensusNotExistedMain</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
@@ -105,7 +105,7 @@
                             <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
                             <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                 <manifestEntries>
-                                    <Main-Class>io.Adrestus.protocol.Example.App</Main-Class>
+                                    <Main-Class>io.Adrestus.protocol.Example.SyncConsensusNotExistedMain</Main-Class>
                                 </manifestEntries>
                             </transformer>
                         </transformers>
@@ -113,7 +113,11 @@
                             <filter>
                                 <artifact>*:*</artifact>
                                 <excludes>
-                                    <exclude>asm:*</exclude> <!-- Exclude current ASM version -->
+                                    <exclude>asm:*</exclude>
+                                    <exclude>META-INF/*.MF</exclude>
+                                    <exclude>META-INF/*.SF</exclude>
+                                    <exclude>META-INF/*.DSA</exclude>
+                                    <exclude>META-INF/*.RSA</exclude><!-- Exclude current ASM version -->
                                 </excludes>
                             </filter>
                         </filters>
@@ -122,7 +126,7 @@
                                 <pattern>io.Adrestus.protocol</pattern> <!-- Relocate to new ASM version -->
                                 <shadedPattern>io.Adrestus.protocol</shadedPattern>
                                 <includes>
-                                    <mainClass>io.Adrestus.protocol.Example.App</mainClass>
+                                    <mainClass>io.Adrestus.protocol.Example.SyncConsensusNotExistedMain</mainClass>
                                 </includes>
                             </relocation>
                         </relocations>
