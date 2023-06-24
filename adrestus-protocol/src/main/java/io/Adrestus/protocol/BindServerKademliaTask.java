@@ -154,7 +154,8 @@ public class BindServerKademliaTask extends AdrestusTask {
         final String address = WalletAddress.generate_address((byte) version, ecKeyPair.getPublicKey());
         final ECDSASignatureData signatureData = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address)), ecKeyPair);
         final BLSPrivateKey sk = new BLSPrivateKey(secureRandom);
-        final BLSPublicKey vk = new BLSPublicKey(sk, new Params(passphrase.getBytes(StandardCharsets.UTF_8)));
+        final BLSPublicKey vk = new BLSPublicKey(sk);
+        //final BLSPublicKey vk = new BLSPublicKey(sk, new Params(passphrase.getBytes(StandardCharsets.UTF_8)));
         if (ip.equals(KademliaConfiguration.BOOTSTRAP_NODE_IP))
             this.kademliaData = new KademliaData(new SecurityAuditProofs(address, vk, ecKeyPair.getPublicKey(), signatureData), bootstrapNettyConnectionInfo);
         else

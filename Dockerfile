@@ -1,28 +1,39 @@
-#
-# Oracle Java 8 Dockerfile
-#
-# https://github.com/dockerfile/java
-# https://github.com/dockerfile/java/tree/master/oracle-java8
-#
+FROM ubuntu:latest
+WORKDIR /app
+RUN apt-get update \
+ && apt-get install -y sudo
 
-# Pull base image.
-FROM dockerfile/ubuntu
+RUN adduser --disabled-password --gecos '' docker
+RUN adduser docker sudo
+RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+RUN sudo apt-get update
+#################################################################################
+FROM maven:3.8.6-openjdk-11 as maven_build
+WORKDIR /app
+#copy pom
+#RUN cd ./module2 && mvn clean install && cd ..
+COPY ./ .
+RUN ls
+#COPY /module3/pom.xml .
+#resolve maven
+RUN mvn clean install -Dmaven.test.skip -Dmaven.main.skip -Dspring-boot.repackage.skip
+#RUN cd module3 && mvn clean package shade:shade-Dmaven.test.skip -Dmaven.main.skip -Dspring-boot.repackage.skip
+#copy source
+COPY adrestus-protocol/src /adrestus-protocol/src
+# build the app (no dependency download here)
+RUN mvn clean package -Dmaven.test.skip
+#COPY target/original-docker2-1.0-SNAPSHOT.jar .
 
-# Install Java.
-RUN \
-  echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | debconf-set-selections && \
-  add-apt-repository -y ppa:webupd8team/java && \
-  apt-get update && \
-  apt-get install -y oracle-java8-installer && \
-  rm -rf /var/lib/apt/lists/* && \
-  rm -rf /var/cache/oracle-jdk8-installer
+########JRE run stage########
+FROM openjdk:11.0-jre
+WORKDIR /app
 
+#copy built app layer by layer
+ARG DOCKER_TARGET=/app/adrestus-protocol/target/
+COPY --from=maven_build ${DOCKER_TARGET}  /app/
+#COPY --from=maven_build ${DOCKER_PACKAGING_DIR}/META-INF /app/META-INF
 
-# Define working directory.
-WORKDIR /data
-
-# Define commonly used JAVA_HOME variable
-ENV JAVA_HOME /usr/lib/jvm/java-8-oracle
-
-# Define default command.
-CMD ["bash"]
+RUN ls
+RUN cd /app && ls
+#ENTRYPOINT java -jar ${JAR_NAME}
+ENTRYPOINT ["java", "-jar", "adrestus-protocol-1.0-SNAPSHOT-jar-with-dependencies.jar"]

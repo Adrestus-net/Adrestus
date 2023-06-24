@@ -1,0 +1,58 @@
+services:
+  service1:
+    build: .
+    image: adrestus_protocol
+    ports:
+      - 5005:5005
+    command:
+      - "abstract fluid danger raise duty scare year add include smart senior ensure"
+      - "p4ssphr4se"
+    environment:
+      JAVA_TOOL_OPTIONS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
+    networks:
+      network:
+        ipv4_address: 192.168.1.119
+  service2:
+    build: .
+    image: adrestus_protocol
+    command:
+      - "raise fluid abstract danger duty scare year add include smart senior ensure"
+      - "p4ssphr4se"
+    environment:
+      JAVA_TOOL_OPTIONS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
+    networks:
+      network:
+        ipv4_address: 192.168.1.120
+  service3:
+    build: .
+    image: adrestus_protocol
+    command:
+      - "duty fluid abstract raise danger scare year add include smart senior ensure"
+      - "p4ssphr4se"
+    environment:
+      JAVA_TOOL_OPTIONS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
+    networks:
+      network:
+        ipv4_address: 192.168.1.121
+  service4:
+    build: .
+    image: adrestus_protocol
+    command:
+      - "scare fluid abstract raise duty danger year add include smart senior ensure"
+      - "p4ssphr4se"
+    environment:
+      JAVA_TOOL_OPTIONS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
+    networks:
+      network:
+        ipv4_address: 192.168.1.122
+networks:
+  network:
+    driver: macvlan
+    driver_opts:
+      macvlan_mode: bridge
+      parent: enp3s0
+    ipam:
+      config:
+        - subnet: "192.168.1.0/24"
+          ip_range: "192.168.1.71/32"
+          gateway: "192.168.1.1"

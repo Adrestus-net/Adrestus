@@ -31,6 +31,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
+import java.util.concurrent.TimeUnit;
 
 import static io.activej.promise.Promises.repeat;
 
@@ -98,9 +99,11 @@ public class BindServerCachedTask extends AdrestusTask {
         return Promise.of(appendedBuf);
     }
 
+    @SneakyThrows
     public void close() {
         this.eventloop.breakEventloop();
-        this.server.close();
+        this.server.closeFuture().cancel(true);
+        this.server.closeFuture().get(5, TimeUnit.SECONDS);
         this.server = null;
     }
 }

@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 public class RpcAdrestusServer<T> implements Runnable {
 
@@ -268,10 +269,11 @@ public class RpcAdrestusServer<T> implements Runnable {
         };
     }
 
+    @SneakyThrows
     public void close() {
         rpcServer.closeFuture().cancel(true);
         try {
-            rpcServer.closeFuture().get();
+            rpcServer.closeFuture().get(5, TimeUnit.SECONDS);;
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         } catch (ExecutionException e) {
