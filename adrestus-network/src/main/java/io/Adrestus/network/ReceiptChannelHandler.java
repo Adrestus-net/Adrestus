@@ -94,9 +94,8 @@ public class ReceiptChannelHandler<T> {
 
     @SneakyThrows
     public void close() {
-        this.server.close();
-        this.server.closeFuture().cancel(true);
         this.server.closeFuture().get(10, TimeUnit.SECONDS);
+        this.server.close();
         this.server = null;
         this.eventloop.breakEventloop();
     }
