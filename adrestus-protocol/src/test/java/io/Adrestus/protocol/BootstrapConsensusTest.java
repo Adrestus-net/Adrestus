@@ -7,9 +7,8 @@ import io.Adrestus.config.ConsensusConfiguration;
 import io.Adrestus.config.KademliaConfiguration;
 import io.Adrestus.config.NodeSettings;
 import io.Adrestus.consensus.ConsensusState;
-import io.Adrestus.core.CommitteeBlock;
+import io.Adrestus.core.*;
 import io.Adrestus.core.Resourses.*;
-import io.Adrestus.core.TransactionBlock;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.SecurityAuditProofs;
 import io.Adrestus.crypto.WalletAddress;
@@ -264,6 +263,10 @@ public class BootstrapConsensusTest {
         CachedZoneIndex.getInstance().setZoneIndexInternalIP();
         IDatabase<String, TransactionBlock> block_database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
         block_database.save(String.valueOf(CachedLatestBlocks.getInstance().getTransactionBlock().getHeight()), CachedLatestBlocks.getInstance().getTransactionBlock());
+
+        DefaultFactory factory = new DefaultFactory(new TransactionBlock(), new CommitteeBlock());
+        var genesis = (Genesis) factory.getBlock(BlockType.GENESIS);
+        genesis.forgeTransactionBlock(new TransactionBlock());
     }
 
 
