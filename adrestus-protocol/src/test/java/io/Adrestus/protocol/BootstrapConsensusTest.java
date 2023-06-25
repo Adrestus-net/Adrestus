@@ -1,5 +1,7 @@
 package io.Adrestus.protocol;
 
+import com.google.common.reflect.TypeToken;
+import io.Adrestus.MemoryTreePool;
 import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.config.AdrestusConfiguration;
@@ -25,6 +27,7 @@ import io.Adrestus.crypto.mnemonic.Security;
 import io.Adrestus.crypto.mnemonic.WordList;
 import io.Adrestus.crypto.vdf.engine.VdfEngine;
 import io.Adrestus.crypto.vdf.engine.VdfEnginePietrzak;
+import io.Adrestus.mapper.MemoryTreePoolSerializer;
 import io.Adrestus.network.CachedEventLoop;
 import io.Adrestus.p2p.kademlia.common.NettyConnectionInfo;
 import io.Adrestus.p2p.kademlia.exception.UnsupportedBoundingException;
@@ -33,6 +36,7 @@ import io.Adrestus.p2p.kademlia.repository.KademliaData;
 import io.Adrestus.p2p.kademlia.util.BoundedHashUtil;
 import io.Adrestus.p2p.kademlia.util.LoggerKademlia;
 import io.Adrestus.util.GetTime;
+import io.Adrestus.util.SerializationUtil;
 import io.distributedLedger.*;
 import org.apache.commons.codec.binary.StringUtils;
 import org.junit.jupiter.api.BeforeAll;
@@ -40,10 +44,12 @@ import org.junit.jupiter.api.Test;
 import org.spongycastle.util.encoders.Hex;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -85,6 +91,12 @@ public class BootstrapConsensusTest {
         MemoryRingBuffer.getInstance();
         MemoryTransactionPool.getInstance();
         IDatabase<String, CommitteeBlock> database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
+
+        Type fluentType = new TypeToken<MemoryTreePool>() {
+        }.getType();
+        List<SerializationUtil.Mapping> list2 = new ArrayList<>();
+        list2.add(new SerializationUtil.Mapping(MemoryTreePool.class, ctx -> new MemoryTreePoolSerializer()));
+        SerializationUtil patricia_tree_wrapper = new SerializationUtil<>(fluentType, list2);
 
         int version = 0x00;
         LoggerKademlia.setLevelOFF();
@@ -217,6 +229,47 @@ public class BootstrapConsensusTest {
         TreeFactory.getMemoryTree(0).store(address11, new PatriciaTreeNode(3000, 0));
         TreeFactory.getMemoryTree(0).store(address12, new PatriciaTreeNode(3000, 0));
 
+        TreeFactory.getMemoryTree(1).store(address1, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(1).store(address2, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(1).store(address3, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(1).store(address4, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(1).store(address5, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(1).store(address6, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(1).store(address7, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(1).store(address8, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(1).store(address9, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(1).store(address10, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(1).store(address11, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(1).store(address12, new PatriciaTreeNode(3000, 0));
+
+
+        TreeFactory.getMemoryTree(2).store(address1, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(2).store(address2, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(2).store(address3, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(2).store(address4, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(2).store(address5, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(2).store(address6, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(2).store(address7, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(2).store(address8, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(2).store(address9, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(2).store(address10, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(2).store(address11, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(2).store(address12, new PatriciaTreeNode(3000, 0));
+
+
+        TreeFactory.getMemoryTree(3).store(address1, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(3).store(address2, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(3).store(address3, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(3).store(address4, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(3).store(address5, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(3).store(address6, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(3).store(address7, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(3).store(address8, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(3).store(address9, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(3).store(address10, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(3).store(address11, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(3).store(address12, new PatriciaTreeNode(3000, 0));
+
         kad1 = new KademliaData(new SecurityAuditProofs(address1, vk1, ecKeyPair1.getPublicKey(), signatureData1), new NettyConnectionInfo("192.168.1.106", KademliaConfiguration.PORT));
         kad2 = new KademliaData(new SecurityAuditProofs(address2, vk2, ecKeyPair2.getPublicKey(), signatureData2), new NettyConnectionInfo("192.168.1.113", KademliaConfiguration.PORT));
         kad3 = new KademliaData(new SecurityAuditProofs(address3, vk3, ecKeyPair3.getPublicKey(), signatureData3), new NettyConnectionInfo("192.168.1.116", KademliaConfiguration.PORT));
@@ -264,9 +317,30 @@ public class BootstrapConsensusTest {
         IDatabase<String, TransactionBlock> block_database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
         block_database.save(String.valueOf(CachedLatestBlocks.getInstance().getTransactionBlock().getHeight()), CachedLatestBlocks.getInstance().getTransactionBlock());
 
-        DefaultFactory factory = new DefaultFactory(new TransactionBlock(), new CommitteeBlock());
-        var genesis = (Genesis) factory.getBlock(BlockType.GENESIS);
-        genesis.forgeTransactionBlock(new TransactionBlock());
+        TransactionBlock TransactionBlockZone2 = new TransactionBlock();
+        TransactionBlockZone2.setHeight(1);
+        TransactionBlockZone2.setHash("TransactionBlockZone0");
+        TransactionBlockZone2.getHeaderData().setTimestamp(GetTime.GetTimeStampInString());
+        Thread.sleep(200);
+        TransactionBlock TransactionBlockZone3 = new TransactionBlock();
+        TransactionBlockZone3.setHeight(1);
+        TransactionBlockZone3.setHash("TransactionBlockZone0");
+        TransactionBlockZone3.getHeaderData().setTimestamp(GetTime.GetTimeStampInString());
+
+        IDatabase<String, TransactionBlock> Zone2TransactionDatabase = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(2));
+        IDatabase<String, TransactionBlock> Zone3TransactionDatabase = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(3));
+        Zone2TransactionDatabase.save("1", TransactionBlockZone2);
+        Zone3TransactionDatabase.save("1", TransactionBlockZone3);
+
+        IDatabase<String, byte[]> patricia_tree0 = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, PatriciaTreeInstance.PATRICIA_TREE_INSTANCE_0);
+        IDatabase<String, byte[]> patricia_tree1 = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, PatriciaTreeInstance.PATRICIA_TREE_INSTANCE_1);
+        IDatabase<String, byte[]> patricia_tree2 = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, PatriciaTreeInstance.PATRICIA_TREE_INSTANCE_2);
+        IDatabase<String, byte[]> patricia_tree3 = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, PatriciaTreeInstance.PATRICIA_TREE_INSTANCE_3);
+
+        patricia_tree0.save(TreeFactory.getMemoryTree(0).getRootHash(),patricia_tree_wrapper.encode(TreeFactory.getMemoryTree(0)));
+        patricia_tree1.save(TreeFactory.getMemoryTree(1).getRootHash(),patricia_tree_wrapper.encode(TreeFactory.getMemoryTree(1)));
+        patricia_tree2.save(TreeFactory.getMemoryTree(2).getRootHash(),patricia_tree_wrapper.encode(TreeFactory.getMemoryTree(2)));
+        patricia_tree3.save(TreeFactory.getMemoryTree(3).getRootHash(),patricia_tree_wrapper.encode(TreeFactory.getMemoryTree(3)));
     }
 
 
