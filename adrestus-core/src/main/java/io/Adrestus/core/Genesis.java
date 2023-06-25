@@ -25,11 +25,6 @@ public class Genesis implements BlockForge {
     @SneakyThrows
     @Override
     public void forgeTransactionBlock(TransactionBlock transactionBlock) {
-        TransactionBlock TransactionBlockZone1 = new TransactionBlock();
-        TransactionBlockZone1.setHeight(1);
-        TransactionBlockZone1.setHash("TransactionBlockZone0");
-        TransactionBlockZone1.getHeaderData().setTimestamp(GetTime.GetTimeStampInString());
-        Thread.sleep(200);
         TransactionBlock TransactionBlockZone2 = new TransactionBlock();
         TransactionBlockZone2.setHeight(1);
         TransactionBlockZone2.setHash("TransactionBlockZone0");
@@ -40,7 +35,6 @@ public class Genesis implements BlockForge {
         TransactionBlockZone3.setHash("TransactionBlockZone0");
         TransactionBlockZone3.getHeaderData().setTimestamp(GetTime.GetTimeStampInString());
 
-        this.Zone1TransactionDatabase.save("1", TransactionBlockZone1);
         this.Zone2TransactionDatabase.save("1", TransactionBlockZone2);
         this.Zone3TransactionDatabase.save("1", TransactionBlockZone3);
     }
