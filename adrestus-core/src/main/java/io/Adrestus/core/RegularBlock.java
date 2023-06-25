@@ -502,14 +502,16 @@ public class RegularBlock implements BlockForge, BlockInvent {
         int prevZone = Integer.valueOf(CachedZoneIndex.getInstance().getZoneIndex());
         IDatabase<String, CommitteeBlock> database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
 
+
+        CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
         CachedLeaderIndex.getInstance().setCommitteePositionLeader(0);
+        CachedLeaderIndex.getInstance().setTransactionPositionLeader(0);
         CachedZoneIndex.getInstance().setZoneIndexInternalIP();
 
         if (prevZone == CachedZoneIndex.getInstance().getZoneIndex()) {
             CachedLeaderIndex.getInstance().setTransactionPositionLeader(0);
             committeeBlock.setStatustype(StatusType.SUCCES);
             database.save(String.valueOf(committeeBlock.getHeight()), committeeBlock);
-            CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
             CachedReceiptSemaphore.getInstance().getSemaphore().release();
             return;
         }
@@ -642,7 +644,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
 
         committeeBlock.setStatustype(StatusType.SUCCES);
         database.save(String.valueOf(committeeBlock.getHeight()), committeeBlock);
-        CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
+
 
         CachedReceiptSemaphore.getInstance().getSemaphore().release();
     }

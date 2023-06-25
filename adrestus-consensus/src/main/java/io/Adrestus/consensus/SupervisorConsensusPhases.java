@@ -6,6 +6,7 @@ import io.Adrestus.core.*;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedLeaderIndex;
 import io.Adrestus.core.Resourses.CachedSecurityHeaders;
+import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.core.Util.BlockSizeCalculator;
 import io.Adrestus.crypto.bls.BLS381.ECP;
 import io.Adrestus.crypto.bls.BLS381.ECP2;
