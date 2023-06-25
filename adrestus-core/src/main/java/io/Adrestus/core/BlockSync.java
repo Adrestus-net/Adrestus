@@ -251,6 +251,7 @@ public class BlockSync implements IBlockSync {
 
         CachedLatestBlocks.getInstance().setCommitteeBlock(commitee_blocks.get(commitee_blocks.size() - 1));
         CachedLeaderIndex.getInstance().setCommitteePositionLeader(0);
+        CachedLeaderIndex.getInstance().setTransactionPositionLeader(0);
         CachedEpochGeneration.getInstance().setEpoch_counter(0);
         boolean isNodeExist = CachedZoneIndex.getInstance().isNodeExistOnBlockInternal();
         IDatabase<String, CommitteeBlock> database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
@@ -324,7 +325,6 @@ public class BlockSync implements IBlockSync {
 
             if (!blocks.isEmpty()) {
                 CachedLatestBlocks.getInstance().setTransactionBlock(blocks.get(blocks.size() - 1));
-                CachedLeaderIndex.getInstance().setTransactionPositionLeader(0);
             }
             if (client != null) {
                 client.close();

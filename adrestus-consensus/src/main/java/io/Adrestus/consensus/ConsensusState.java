@@ -167,6 +167,7 @@ public class ConsensusState extends ConsensusDataState {
                         } else if (committee_state.getClass().equals(ConsensusCommitteeBlockState.class)) {
                             CachedLeaderIndex.getInstance().setCommitteePositionLeader(0);
                             CachedLeaderIndex.getInstance().setTransactionPositionLeader(0);
+                            CachedZoneIndex.getInstance().setZoneIndexInternalIP();
                             changeStateTo(new ConsensusVRFState());
                             committee_state.onEnterState(blockIndex.getPublicKeyByIndex(0, CachedLeaderIndex.getInstance().getCommitteePositionLeader()));
                             clear();
