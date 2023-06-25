@@ -7,6 +7,7 @@ import io.Adrestus.core.StatusType;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.Adrestus.crypto.elliptic.mapper.StakingData;
 import io.Adrestus.p2p.kademlia.repository.KademliaData;
+import io.Adrestus.util.MathOperationUtil;
 import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,12 +50,21 @@ public class RandomizedEventHandler implements BlockEventHandler<AbstractBlockEv
         List<Map.Entry<StakingData, KademliaData>> entryList = committeeBlock.getStakingMap().entrySet().stream().collect(Collectors.toList());
         int MAX_ZONE_SIZE = committeeBlock.getStakingMap().size() / 4;
 
+        int j=0;
         if (MAX_ZONE_SIZE >= 2) {
-            int j = 0;
+            int addition = committeeBlock.getStakingMap().size() - MathOperationUtil.closestNumber(committeeBlock.getStakingMap().size(), 4);
             while (zone_count < 4) {
-                int index_count = 0;
-                if (committeeBlock.getStakingMap().size() % 4 != 0 && zone_count == 0) {
-                    while (index_count < committeeBlock.getStakingMap().size() - 3) {
+                if (zone_count == 0 && addition != 0) {
+                    while (j < MAX_ZONE_SIZE + addition) {
+                        committeeBlock
+                                .getStructureMap()
+                                .get(zone_count)
+                                .put(entryList.get(order.get(j)).getValue().getAddressData().getValidatorBlSPublicKey(), entryList.get(order.get(j)).getValue().getNettyConnectionInfo().getHost());
+                        j++;
+                    }
+                } else {
+                    int index_count = 0;
+                    while (index_count < MAX_ZONE_SIZE) {
                         committeeBlock
                                 .getStructureMap()
                                 .get(zone_count)
@@ -62,16 +72,6 @@ public class RandomizedEventHandler implements BlockEventHandler<AbstractBlockEv
                         index_count++;
                         j++;
                     }
-                    zone_count++;
-                }
-                index_count = 0;
-                while (index_count < MAX_ZONE_SIZE) {
-                    committeeBlock
-                            .getStructureMap()
-                            .get(zone_count)
-                            .put(entryList.get(order.get(j)).getValue().getAddressData().getValidatorBlSPublicKey(), entryList.get(order.get(j)).getValue().getNettyConnectionInfo().getHost());
-                    index_count++;
-                    j++;
                 }
                 zone_count++;
             }

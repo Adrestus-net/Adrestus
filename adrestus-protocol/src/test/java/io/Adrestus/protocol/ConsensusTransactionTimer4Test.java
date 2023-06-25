@@ -65,6 +65,10 @@ public class ConsensusTransactionTimer4Test {
     private static BLSPublicKey vk6;
     private static IBlockIndex blockIndex;
 
+
+
+
+    //YOU NEED TO RUN COLLECTION STRATEGY FROM API
     @BeforeAll
     public static void construct() throws Exception {
         MemoryRingBuffer.getInstance();
