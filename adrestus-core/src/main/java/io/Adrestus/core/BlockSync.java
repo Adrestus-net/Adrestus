@@ -96,6 +96,7 @@ public class BlockSync implements IBlockSync {
             committee_database.saveAll(toSave);
             CachedLatestBlocks.getInstance().setCommitteeBlock(blocks.get(blocks.size() - 1));
             CachedLeaderIndex.getInstance().setCommitteePositionLeader(0);
+            CachedEpochGeneration.getInstance().setEpoch_counter(0);
             CachedZoneIndex.getInstance().setZoneIndexInternalIP();
             result = CachedZoneIndex.getInstance().isNodeExistOnBlockInternal();
             if (!result)

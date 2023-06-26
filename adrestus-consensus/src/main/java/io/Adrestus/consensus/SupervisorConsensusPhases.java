@@ -810,6 +810,7 @@ public class SupervisorConsensusPhases {
             regural_block.InventCommitteBlock(block.getData());
             cleanup();
             LOG.info("Committee is finalized with Success");
+            Thread.sleep(700);
         }
 
 
