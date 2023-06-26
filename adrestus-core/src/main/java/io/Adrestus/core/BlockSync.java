@@ -62,11 +62,11 @@ public class BlockSync implements IBlockSync {
     @SneakyThrows
     public void WaitPatientlyYourPosition() {
         boolean result = false;
+        List<CommitteeBlock> blocks = null;
         do {
             IDatabase<String, CommitteeBlock> committee_database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
             Optional<CommitteeBlock> last_block = committee_database.seekLast();
             Map<String, CommitteeBlock> toSave = new HashMap<>();
-            List<CommitteeBlock> blocks = null;
             do {
                 RpcAdrestusClient client = new RpcAdrestusClient(new CommitteeBlock(), new InetSocketAddress(InetAddress.getByName(KademliaConfiguration.BOOTSTRAP_NODE_IP), NetworkConfiguration.RPC_PORT), CachedEventLoop.getInstance().getEventloop());
                 client.connect();
@@ -103,8 +103,9 @@ public class BlockSync implements IBlockSync {
                 Thread.sleep(ConsensusConfiguration.CONSENSUS_WAIT_TIMEOUT);
         } while (!result);
 
-        List<String> new_ips = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).values().stream().collect(Collectors.toList());
-        if (new_ips.isEmpty()) {
+        CommitteeBlock prev_block = blocks.get(blocks.size() - 2);
+        List<String> old_ips = prev_block.getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).values().stream().collect(Collectors.toList());
+        if (old_ips.isEmpty()) {
             IDatabase<String, TransactionBlock> block_database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
             IDatabase<String, byte[]> tree_database = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getPatriciaTreeZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
 
@@ -114,12 +115,12 @@ public class BlockSync implements IBlockSync {
             CachedLatestBlocks.getInstance().setTransactionBlock(block.get());
             TreeFactory.setMemoryTree((MemoryTreePool) patricia_tree_wrapper.decode(tree.get()), CachedZoneIndex.getInstance().getZoneIndex());
         } else {
-            new_ips.remove(IPFinder.getLocalIP());
+            old_ips.remove(IPFinder.getLocalIP());
             int RPCTransactionZonePort = ZoneDatabaseFactory.getDatabaseRPCPort(CachedZoneIndex.getInstance().getZoneIndex());
             int RPCPatriciaTreeZonePort = ZoneDatabaseFactory.getDatabasePatriciaRPCPort(ZoneDatabaseFactory.getPatriciaTreeZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
             ArrayList<InetSocketAddress> toConnectTransaction = new ArrayList<>();
             ArrayList<InetSocketAddress> toConnectPatricia = new ArrayList<>();
-            new_ips.stream().forEach(ip -> {
+            old_ips.stream().forEach(ip -> {
                 try {
                     toConnectTransaction.add(new InetSocketAddress(InetAddress.getByName(ip), RPCTransactionZonePort));
                     toConnectPatricia.add(new InetSocketAddress(InetAddress.getByName(ip), RPCPatriciaTreeZonePort));
@@ -137,24 +138,24 @@ public class BlockSync implements IBlockSync {
 
                 Optional<TransactionBlock> block = block_database.seekLast();
                 Map<String, TransactionBlock> toSave = new HashMap<>();
-                List<TransactionBlock> blocks;
+                List<TransactionBlock> transactionBlocks;
                 if (block.isPresent()) {
-                    blocks = client.getBlocksList(String.valueOf(block.get().getHeight()));
-                    if (!blocks.isEmpty() && blocks.size() > 1) {
-                        blocks.stream().skip(1).forEach(val -> toSave.put(String.valueOf(val.getHeight()), val));
+                    transactionBlocks = client.getBlocksList(String.valueOf(block.get().getHeight()));
+                    if (!transactionBlocks.isEmpty() && transactionBlocks.size() > 1) {
+                        transactionBlocks.stream().skip(1).forEach(val -> toSave.put(String.valueOf(val.getHeight()), val));
                     }
 
                 } else {
-                    blocks = client.getBlocksList("");
-                    if (!blocks.isEmpty()) {
-                        blocks.stream().forEach(val -> toSave.put(String.valueOf(val.getHeight()), val));
+                    transactionBlocks = client.getBlocksList("");
+                    if (!transactionBlocks.isEmpty()) {
+                        transactionBlocks.stream().forEach(val -> toSave.put(String.valueOf(val.getHeight()), val));
                     }
                 }
 
                 block_database.saveAll(toSave);
 
-                if (!blocks.isEmpty()) {
-                    CachedLatestBlocks.getInstance().setTransactionBlock(blocks.get(blocks.size() - 1));
+                if (!transactionBlocks.isEmpty()) {
+                    CachedLatestBlocks.getInstance().setTransactionBlock(transactionBlocks.get(transactionBlocks.size() - 1));
                     CachedLeaderIndex.getInstance().setTransactionPositionLeader(0);
                 }
 
@@ -213,7 +214,7 @@ public class BlockSync implements IBlockSync {
                     //make sure you are wait for validators of different zone than 0 to sync first
                     Thread.sleep(800);
 
-                    var ex = new AsyncServiceNetworkData<Long>(new_ips);
+                    var ex = new AsyncServiceNetworkData<Long>(old_ips);
 
                     var asyncResult = ex.startProcess(300L);
                     var cached_result = ex.endProcess(asyncResult);
