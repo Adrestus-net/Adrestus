@@ -124,7 +124,7 @@ public class ConsensusServer {
         int counter = (int) latch.getCount();
         while (latch.getCount() > 0 && !terminate) {
             String rec = receiveStringData();
-            if (!rec.equals("")) {
+            if (rec.equals("1")) {
                 System.out.println(rec);
                 connected.send(HEARTBEAT_MESSAGE.getBytes(StandardCharsets.UTF_8));
                 counter--;
