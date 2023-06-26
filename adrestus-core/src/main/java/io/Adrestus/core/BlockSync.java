@@ -264,129 +264,140 @@ public class BlockSync implements IBlockSync {
         CachedZoneIndex.getInstance().setZoneIndexInternalIP();
 
         List<String> new_ips = prevblock.getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).values().stream().collect(Collectors.toList());
-        new_ips.remove(IPFinder.getLocalIP());
-        int RPCTransactionZonePort = ZoneDatabaseFactory.getDatabaseRPCPort(CachedZoneIndex.getInstance().getZoneIndex());
-        int RPCPatriciaTreeZonePort = ZoneDatabaseFactory.getDatabasePatriciaRPCPort(ZoneDatabaseFactory.getPatriciaTreeZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
-        ArrayList<InetSocketAddress> toConnectTransaction = new ArrayList<>();
-        ArrayList<InetSocketAddress> toConnectPatricia = new ArrayList<>();
-        ArrayList<InetSocketAddress> toConnectZoneCommittee = new ArrayList<>();
-        new_ips.stream().forEach(ip -> {
-            try {
-                toConnectTransaction.add(new InetSocketAddress(InetAddress.getByName(ip), RPCTransactionZonePort));
-                toConnectPatricia.add(new InetSocketAddress(InetAddress.getByName(ip), RPCPatriciaTreeZonePort));
-                toConnectZoneCommittee.add(new InetSocketAddress(InetAddress.getByName(ip), NetworkConfiguration.RPC_PORT));
-            } catch (UnknownHostException e) {
-                throw new RuntimeException(e);
-            }
-        });
-
-        do {
-            RpcAdrestusClient client = new RpcAdrestusClient(new CommitteeBlock(), toConnectZoneCommittee, CachedEventLoop.getInstance().getEventloop());
-            client.connect();
-
-            commitee_blocks = client.getBlocksList(String.valueOf(CachedLatestBlocks.getInstance().getCommitteeBlock().getHeight()));
-
-            if (client != null) {
-                client.close();
-                client = null;
-            }
-
-            Thread.sleep(1000);
-        } while (!CachedLatestBlocks.getInstance().getCommitteeBlock().getHash().equals(commitee_blocks.get(commitee_blocks.size() - 1).getHash()));
-
-        RpcAdrestusClient client = null;
-        List<String> patriciaRootList = null;
-        try {
+        if(new_ips.isEmpty()){
             IDatabase<String, TransactionBlock> block_database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
-            client = new RpcAdrestusClient(new TransactionBlock(), toConnectTransaction, CachedEventLoop.getInstance().getEventloop());
-            client.connect();
+            IDatabase<String, byte[]> tree_database = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getPatriciaTreeZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
 
             Optional<TransactionBlock> block = block_database.seekLast();
-            Map<String, TransactionBlock> toSave = new HashMap<>();
-            List<TransactionBlock> blocks;
-            if (block.isPresent()) {
-                blocks = client.getBlocksList(String.valueOf(block.get().getHeight()));
-                if (!blocks.isEmpty() && blocks.size() > 1) {
-                    patriciaRootList = new ArrayList<>(blocks.stream().filter(val -> val.getGeneration() > CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration()).map(TransactionBlock::getHash).collect(Collectors.toList()));
-                    blocks.removeIf(x -> x.getGeneration() > CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration());
-                    blocks.stream().skip(1).forEach(val -> toSave.put(String.valueOf(val.getHeight()), val));
+            Optional<byte[]>tree=tree_database.seekLast();
+
+            CachedLatestBlocks.getInstance().setTransactionBlock(block.get());
+            TreeFactory.setMemoryTree((MemoryTreePool) patricia_tree_wrapper.decode(tree.get()), CachedZoneIndex.getInstance().getZoneIndex());
+        }
+        else {
+            new_ips.remove(IPFinder.getLocalIP());
+            int RPCTransactionZonePort = ZoneDatabaseFactory.getDatabaseRPCPort(CachedZoneIndex.getInstance().getZoneIndex());
+            int RPCPatriciaTreeZonePort = ZoneDatabaseFactory.getDatabasePatriciaRPCPort(ZoneDatabaseFactory.getPatriciaTreeZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
+            ArrayList<InetSocketAddress> toConnectTransaction = new ArrayList<>();
+            ArrayList<InetSocketAddress> toConnectPatricia = new ArrayList<>();
+            ArrayList<InetSocketAddress> toConnectZoneCommittee = new ArrayList<>();
+            new_ips.stream().forEach(ip -> {
+                try {
+                    toConnectTransaction.add(new InetSocketAddress(InetAddress.getByName(ip), RPCTransactionZonePort));
+                    toConnectPatricia.add(new InetSocketAddress(InetAddress.getByName(ip), RPCPatriciaTreeZonePort));
+                    toConnectZoneCommittee.add(new InetSocketAddress(InetAddress.getByName(ip), NetworkConfiguration.RPC_PORT));
+                } catch (UnknownHostException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+
+            do {
+                RpcAdrestusClient client = new RpcAdrestusClient(new CommitteeBlock(), toConnectZoneCommittee, CachedEventLoop.getInstance().getEventloop());
+                client.connect();
+
+                commitee_blocks = client.getBlocksList(String.valueOf(CachedLatestBlocks.getInstance().getCommitteeBlock().getHeight()));
+
+                if (client != null) {
+                    client.close();
+                    client = null;
                 }
 
-            } else {
-                blocks = client.getBlocksList("");
+                Thread.sleep(1000);
+            } while (!CachedLatestBlocks.getInstance().getCommitteeBlock().getHash().equals(commitee_blocks.get(commitee_blocks.size() - 1).getHash()));
+
+            RpcAdrestusClient client = null;
+            List<String> patriciaRootList = null;
+            try {
+                IDatabase<String, TransactionBlock> block_database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
+                client = new RpcAdrestusClient(new TransactionBlock(), toConnectTransaction, CachedEventLoop.getInstance().getEventloop());
+                client.connect();
+
+                Optional<TransactionBlock> block = block_database.seekLast();
+                Map<String, TransactionBlock> toSave = new HashMap<>();
+                List<TransactionBlock> blocks;
+                if (block.isPresent()) {
+                    blocks = client.getBlocksList(String.valueOf(block.get().getHeight()));
+                    if (!blocks.isEmpty() && blocks.size() > 1) {
+                        patriciaRootList = new ArrayList<>(blocks.stream().filter(val -> val.getGeneration() > CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration()).map(TransactionBlock::getHash).collect(Collectors.toList()));
+                        blocks.removeIf(x -> x.getGeneration() > CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration());
+                        blocks.stream().skip(1).forEach(val -> toSave.put(String.valueOf(val.getHeight()), val));
+                    }
+
+                } else {
+                    blocks = client.getBlocksList("");
+                    if (!blocks.isEmpty()) {
+                        patriciaRootList = new ArrayList<>(blocks.stream().filter(val -> val.getGeneration() > CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration()).map(TransactionBlock::getHash).collect(Collectors.toList()));
+                        blocks.removeIf(x -> x.getGeneration() > CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration());
+                        blocks.stream().forEach(val -> toSave.put(String.valueOf(val.getHeight()), val));
+                    }
+                }
+
+                block_database.saveAll(toSave);
+
                 if (!blocks.isEmpty()) {
-                    patriciaRootList = new ArrayList<>(blocks.stream().filter(val -> val.getGeneration() > CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration()).map(TransactionBlock::getHash).collect(Collectors.toList()));
-                    blocks.removeIf(x -> x.getGeneration() > CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration());
-                    blocks.stream().forEach(val -> toSave.put(String.valueOf(val.getHeight()), val));
+                    CachedLatestBlocks.getInstance().setTransactionBlock(blocks.get(blocks.size() - 1));
                 }
+                if (client != null) {
+                    client.close();
+                    client = null;
+                }
+            } catch (IllegalArgumentException e) {
             }
 
-            block_database.saveAll(toSave);
 
-            if (!blocks.isEmpty()) {
-                CachedLatestBlocks.getInstance().setTransactionBlock(blocks.get(blocks.size() - 1));
+            try {
+                IDatabase<String, byte[]> tree_database = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getPatriciaTreeZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
+                client = new RpcAdrestusClient(new byte[]{}, toConnectPatricia, CachedEventLoop.getInstance().getEventloop());
+                client.connect();
+
+                Optional<byte[]> tree = tree_database.seekLast();
+                List<byte[]> treeObjects;
+                if (tree.isPresent()) {
+                    treeObjects = client.getPatriciaTreeList(((MemoryTreePool) patricia_tree_wrapper.decode(tree.get())).getRootHash());
+                } else {
+                    treeObjects = client.getPatriciaTreeList("");
+                }
+                Map<String, byte[]> toSave = new HashMap<>();
+                if (tree.isPresent()) {
+                    if (!treeObjects.isEmpty() && treeObjects.size() > 1) {
+                        treeObjects.stream().skip(1).forEach(val -> {
+                            try {
+                                toSave.put(((MemoryTreePool) patricia_tree_wrapper.decode(val)).getRootHash(), val);
+                            } catch (Exception e) {
+                                throw new RuntimeException(e);
+                            }
+                        });
+                    }
+                } else {
+                    if (!treeObjects.isEmpty()) {
+                        treeObjects.stream().forEach(val -> {
+                            try {
+                                toSave.put(((MemoryTreePool) patricia_tree_wrapper.decode(val)).getRootHash(), val);
+                            } catch (Exception e) {
+                                throw new RuntimeException(e);
+                            }
+                        });
+                    }
+                }
+                List<String> finalPatriciaRootList = patriciaRootList;
+                Map<String, byte[]> toCollect = toSave.entrySet().stream()
+                        .filter(x -> !finalPatriciaRootList.contains(x.getKey()))
+                        .collect(Collectors.toMap(x -> x.getKey(), x -> x.getValue()));
+                tree_database.saveAll(toCollect);
+                byte[] current_tree = toCollect.get(CachedLatestBlocks.getInstance().getTransactionBlock().getPatriciaMerkleRoot());
+                if (!toCollect.isEmpty()) {
+                    TreeFactory.setMemoryTree((MemoryTreePool) patricia_tree_wrapper.decode(current_tree), CachedZoneIndex.getInstance().getZoneIndex());
+                } else if (!treeObjects.isEmpty()) {
+                    TreeFactory.setMemoryTree((MemoryTreePool) patricia_tree_wrapper.decode(treeObjects.get(treeObjects.size() - 1)), CachedZoneIndex.getInstance().getZoneIndex());
+                }
+
+                if (client != null) {
+                    client.close();
+                    client = null;
+                }
+            } catch (IllegalArgumentException e) {
             }
-            if (client != null) {
-                client.close();
-                client = null;
-            }
-        } catch (IllegalArgumentException e) {
         }
-
-
-        try {
-            IDatabase<String, byte[]> tree_database = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getPatriciaTreeZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
-            client = new RpcAdrestusClient(new byte[]{}, toConnectPatricia, CachedEventLoop.getInstance().getEventloop());
-            client.connect();
-
-            Optional<byte[]> tree = tree_database.seekLast();
-            List<byte[]> treeObjects;
-            if (tree.isPresent()) {
-                treeObjects = client.getPatriciaTreeList(((MemoryTreePool) patricia_tree_wrapper.decode(tree.get())).getRootHash());
-            } else {
-                treeObjects = client.getPatriciaTreeList("");
-            }
-            Map<String, byte[]> toSave = new HashMap<>();
-            if (tree.isPresent()) {
-                if (!treeObjects.isEmpty() && treeObjects.size() > 1) {
-                    treeObjects.stream().skip(1).forEach(val -> {
-                        try {
-                            toSave.put(((MemoryTreePool) patricia_tree_wrapper.decode(val)).getRootHash(), val);
-                        } catch (Exception e) {
-                            throw new RuntimeException(e);
-                        }
-                    });
-                }
-            } else {
-                if (!treeObjects.isEmpty()) {
-                    treeObjects.stream().forEach(val -> {
-                        try {
-                            toSave.put(((MemoryTreePool) patricia_tree_wrapper.decode(val)).getRootHash(), val);
-                        } catch (Exception e) {
-                            throw new RuntimeException(e);
-                        }
-                    });
-                }
-            }
-            List<String> finalPatriciaRootList = patriciaRootList;
-            Map<String, byte[]> toCollect = toSave.entrySet().stream()
-                    .filter(x -> !finalPatriciaRootList.contains(x.getKey()))
-                    .collect(Collectors.toMap(x -> x.getKey(), x -> x.getValue()));
-            tree_database.saveAll(toCollect);
-            byte[] current_tree = toCollect.get(CachedLatestBlocks.getInstance().getTransactionBlock().getPatriciaMerkleRoot());
-            if (!toCollect.isEmpty()) {
-                TreeFactory.setMemoryTree((MemoryTreePool) patricia_tree_wrapper.decode(current_tree), CachedZoneIndex.getInstance().getZoneIndex());
-            } else if (!treeObjects.isEmpty()) {
-                TreeFactory.setMemoryTree((MemoryTreePool) patricia_tree_wrapper.decode(treeObjects.get(treeObjects.size() - 1)), CachedZoneIndex.getInstance().getZoneIndex());
-            }
-
-            if (client != null) {
-                client.close();
-                client = null;
-            }
-        } catch (IllegalArgumentException e) {
-        }
-
         //find transactions that is not for this zone and sent them to the correct zone
         List<Transaction> transactionList = MemoryTransactionPool.getInstance().getListByZone(prevZone);
         if (!transactionList.isEmpty()) {
