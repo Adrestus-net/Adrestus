@@ -1131,7 +1131,7 @@ public class ValidatorConsensusPhases {
             // consensusClient.send_heartbeat(HEARTBEAT_MESSAGE);
             LOG.info("Block is finalized with Success");
             cleanup();
-            // Thread.sleep(500);
+            Thread.sleep(100);
         }
 
         private void cleanup() {

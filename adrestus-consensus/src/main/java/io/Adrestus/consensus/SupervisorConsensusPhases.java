@@ -806,10 +806,9 @@ public class SupervisorConsensusPhases {
                 }
             }*/
 
-            Thread.sleep(200);
-            cleanup();
             BlockInvent regural_block = (BlockInvent) factory.getBlock(BlockType.REGULAR);
             regural_block.InventCommitteBlock(block.getData());
+            cleanup();
             LOG.info("Committee is finalized with Success");
         }
 
