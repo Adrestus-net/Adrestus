@@ -549,25 +549,27 @@ public class RegularBlock implements BlockForge, BlockInvent {
                 Map<String, TransactionBlock> toSave = new HashMap<>();
                 List<TransactionBlock> blocks;
                 if (block.isPresent()) {
-                    int counterloops = 0;
+                    /*int counterloops = 0;
                     do {
                         blocks = client.getBlocksList(String.valueOf(block.get().getHeight()));
                         if (!blocks.isEmpty()) {
                             counterloops = EpochTransitionFinder.countloops(block.get().getHeight(), blocks.get(blocks.size() - 1).getHeight());
                         }
-                    } while (counterloops != 0);
+                    } while (counterloops != 0);*/
+                    blocks = client.getBlocksList(String.valueOf(block.get().getHeight()));
                     if (!blocks.isEmpty()) {
                         blocks.stream().skip(1).forEach(val -> toSave.put(String.valueOf(val.getHeight()), val));
                     }
 
                 } else {
-                    int counterloops = 0;
+                    /*int counterloops = 0;
                     do {
                         blocks = client.getBlocksList("");
                         if (!blocks.isEmpty()) {
                             counterloops = EpochTransitionFinder.countloops(blocks.get(blocks.size() - 1).getHeight());
                         }
-                    } while (counterloops != 0);
+                    } while (counterloops != 0);*/
+                    blocks = client.getBlocksList("");
                     if (!blocks.isEmpty()) {
                         blocks.stream().forEach(val -> toSave.put(String.valueOf(val.getHeight()), val));
                     }

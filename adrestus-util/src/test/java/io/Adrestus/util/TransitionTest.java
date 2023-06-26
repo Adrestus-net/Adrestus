@@ -12,7 +12,7 @@ public class TransitionTest {
         ConsensusConfiguration.EPOCH_TRANSITION = 7;
 
 
-        assertEquals(3, EpochTransitionFinder.countloops(18));
+        assertEquals(4, EpochTransitionFinder.countloops(17));
 
         assertEquals(4, EpochTransitionFinder.countloops(14, 3));
     }
