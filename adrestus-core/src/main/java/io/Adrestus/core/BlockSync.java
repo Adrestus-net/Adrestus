@@ -264,17 +264,16 @@ public class BlockSync implements IBlockSync {
         CachedZoneIndex.getInstance().setZoneIndexInternalIP();
 
         List<String> new_ips = prevblock.getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).values().stream().collect(Collectors.toList());
-        if(new_ips.isEmpty()){
+        if (new_ips.isEmpty()) {
             IDatabase<String, TransactionBlock> block_database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
             IDatabase<String, byte[]> tree_database = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getPatriciaTreeZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
 
             Optional<TransactionBlock> block = block_database.seekLast();
-            Optional<byte[]>tree=tree_database.seekLast();
+            Optional<byte[]> tree = tree_database.seekLast();
 
             CachedLatestBlocks.getInstance().setTransactionBlock(block.get());
             TreeFactory.setMemoryTree((MemoryTreePool) patricia_tree_wrapper.decode(tree.get()), CachedZoneIndex.getInstance().getZoneIndex());
-        }
-        else {
+        } else {
             new_ips.remove(IPFinder.getLocalIP());
             int RPCTransactionZonePort = ZoneDatabaseFactory.getDatabaseRPCPort(CachedZoneIndex.getInstance().getZoneIndex());
             int RPCPatriciaTreeZonePort = ZoneDatabaseFactory.getDatabasePatriciaRPCPort(ZoneDatabaseFactory.getPatriciaTreeZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
@@ -292,6 +291,7 @@ public class BlockSync implements IBlockSync {
             });
 
             do {
+                Thread.sleep(500);
                 RpcAdrestusClient client = new RpcAdrestusClient(new CommitteeBlock(), toConnectZoneCommittee, CachedEventLoop.getInstance().getEventloop());
                 client.connect();
 
@@ -301,9 +301,11 @@ public class BlockSync implements IBlockSync {
                     client.close();
                     client = null;
                 }
-
-                Thread.sleep(1000);
-            } while (!CachedLatestBlocks.getInstance().getCommitteeBlock().getHash().equals(commitee_blocks.get(commitee_blocks.size() - 1).getHash()));
+                if (!commitee_blocks.isEmpty()) {
+                    if (CachedLatestBlocks.getInstance().getCommitteeBlock().getHash().equals(commitee_blocks.get(commitee_blocks.size() - 1).getHash()))
+                        break;
+                }
+            } while (commitee_blocks.isEmpty());
 
             RpcAdrestusClient client = null;
             List<String> patriciaRootList = null;
