@@ -1,5 +1,7 @@
 package io.Adrestus.protocol;
 
+import com.google.common.reflect.TypeToken;
+import io.Adrestus.MemoryTreePool;
 import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.config.AdrestusConfiguration;
@@ -23,6 +25,7 @@ import io.Adrestus.crypto.elliptic.Keys;
 import io.Adrestus.crypto.mnemonic.Mnemonic;
 import io.Adrestus.crypto.mnemonic.Security;
 import io.Adrestus.crypto.mnemonic.WordList;
+import io.Adrestus.mapper.MemoryTreePoolSerializer;
 import io.Adrestus.network.CachedEventLoop;
 import io.Adrestus.network.IPFinder;
 import io.Adrestus.p2p.kademlia.common.NettyConnectionInfo;
@@ -30,16 +33,20 @@ import io.Adrestus.p2p.kademlia.exception.UnsupportedBoundingException;
 import io.Adrestus.p2p.kademlia.node.KeyHashGenerator;
 import io.Adrestus.p2p.kademlia.repository.KademliaData;
 import io.Adrestus.p2p.kademlia.util.BoundedHashUtil;
+import io.Adrestus.util.GetTime;
+import io.Adrestus.util.SerializationUtil;
 import io.distributedLedger.*;
 import org.apache.commons.codec.binary.StringUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -48,19 +55,20 @@ import java.util.concurrent.Executors;
 public class SyncConsensusNotExistedTest {
 
     private static ECDSASign ecdsaSign = new ECDSASign();
-    private static BLSPrivateKey sk2;
-    private static BLSPublicKey vk2;
-    private static ECKeyPair ecKeyPair2;
-    private static KademliaData kad2;
+    private static BLSPrivateKey sk7;
+    private static BLSPublicKey vk7;
+    private static KademliaData kad7;
     private static KeyHashGenerator<BigInteger, String> keyHashGenerator;
 
-    private static byte[] key2;
+    private static ECKeyPair ecKeyPair1, ecKeyPair2, ecKeyPair3, ecKeyPair4, ecKeyPair5, ecKeyPair6, ecKeyPair7, ecKeyPair8,ecKeyPair9,ecKeyPair10,ecKeyPair11,ecKeyPair12;
+    private static String address1, address2, address3, address4, address5, address6, address7, address8,address9,address10,address11,address12;
     private static char[] passphrase;
+    private static byte[] key1, key2, key3, key4, key5, key6, key7, key8,key9,key10,key11,key12;
 
     @BeforeAll
     public static void setup() throws Exception {
         delete_test();
-        KademliaConfiguration.IDENTIFIER_SIZE = 3;
+        KademliaConfiguration.IDENTIFIER_SIZE = 4;
         ConsensusConfiguration.EPOCH_TRANSITION = 3;
         NodeSettings.getInstance();
         keyHashGenerator = key -> {
@@ -72,25 +80,180 @@ public class SyncConsensusNotExistedTest {
         };
         int version = 0x00;
 
+        Type fluentType = new TypeToken<MemoryTreePool>() {
+        }.getType();
+        List<SerializationUtil.Mapping> list2 = new ArrayList<>();
+        list2.add(new SerializationUtil.Mapping(MemoryTreePool.class, ctx -> new MemoryTreePoolSerializer()));
+        SerializationUtil patricia_tree_wrapper = new SerializationUtil<>(fluentType, list2);
+
         // MAKE SURE YOU CHANGE THIS MANUALLY WHEN YOUR RUN THIS TESTS
 
+        char[] mnemonic1 = "sample sail jungle learn general promote task puppy own conduct green affair ".toCharArray();
+        char[] mnemonic2 = "photo monitor cushion indicate civil witness orchard estate online favorite sustain extend".toCharArray();
+        char[] mnemonic3 = "initial car bulb nature animal honey learn awful grit arrow phrase entire ".toCharArray();
+        char[] mnemonic4 = "enrich pulse twin version inject horror village aunt brief magnet blush else ".toCharArray();
+        char[] mnemonic5 = "struggle travel ketchup tomato satoshi caught fog process grace pupil item ahead ".toCharArray();
+        char[] mnemonic6 = "abstract raise duty scare year add fluid danger include smart senior ensure".toCharArray();
         //char[] mnemonic7 = "fluid abstract raise duty scare year add danger include smart senior ensure".toCharArray();
         char[] mnemonic7 = "danger fluid abstract raise duty scare year add include smart senior ensure".toCharArray();
+        char[] mnemonic8 = "danger fluid abstract raise duty scare year add include smart senior ensure".toCharArray();
+        char[] mnemonic9 = "abstract fluid danger raise duty scare year add include smart senior ensure".toCharArray();
+        char[] mnemonic10 = "raise fluid abstract danger duty scare year add include smart senior ensure".toCharArray();
+        char[] mnemonic11 = "duty fluid abstract raise danger scare year add include smart senior ensure".toCharArray();
+        char[] mnemonic12 = "scare fluid abstract raise duty danger year add include smart senior ensure".toCharArray();
         passphrase = "p4ssphr4se".toCharArray();
 
         Mnemonic mnem = new Mnemonic(Security.NORMAL, WordList.ENGLISH);
-        byte[] key1 = mnem.createSeed(mnemonic7, passphrase);
-        SecureRandom random = SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
-        random.setSeed(key1);
-        ecKeyPair2 = Keys.createEcKeyPair(random);
-        sk2 = new BLSPrivateKey(random);
-        vk2 = new BLSPublicKey(sk2);
-        String address2 = WalletAddress.generate_address((byte) version, ecKeyPair2.getPublicKey());
-        ECDSASignatureData signatureData2 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address2)), ecKeyPair2);
 
+        key1 = mnem.createSeed(mnemonic1, passphrase);
+        key2 = mnem.createSeed(mnemonic2, passphrase);
+        key3 = mnem.createSeed(mnemonic3, passphrase);
+        key4 = mnem.createSeed(mnemonic4, passphrase);
+        key5 = mnem.createSeed(mnemonic5, passphrase);
+        key6 = mnem.createSeed(mnemonic6, passphrase);
+        key7 = mnem.createSeed(mnemonic7, passphrase);
+        key8 = mnem.createSeed(mnemonic8, passphrase);
+        key9 = mnem.createSeed(mnemonic9, passphrase);
+        key10 = mnem.createSeed(mnemonic10, passphrase);
+        key11 = mnem.createSeed(mnemonic11, passphrase);
+        key12 = mnem.createSeed(mnemonic12, passphrase);
+
+        SecureRandom random = SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
+        SecureRandom random2 = SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
+        SecureRandom random3 = SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
+        random.setSeed(key1);
+        ecKeyPair1 = Keys.createEcKeyPair(random);
+        random.setSeed(key2);
+        ecKeyPair2 = Keys.createEcKeyPair(random);
+        random.setSeed(key3);
+        ecKeyPair3 = Keys.createEcKeyPair(random);
+        random.setSeed(key4);
+        ecKeyPair4 = Keys.createEcKeyPair(random);
+        random.setSeed(key5);
+        ecKeyPair5 = Keys.createEcKeyPair(random);
+        random.setSeed(key6);
+        ecKeyPair6 = Keys.createEcKeyPair(random);
+        random2.setSeed(key7);
+        ecKeyPair7 = Keys.createEcKeyPair(random2);
+        random3.setSeed(key8);
+        ecKeyPair8 = Keys.createEcKeyPair(random3);
+        random = SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
+        random.setSeed(key9);
+        ecKeyPair9 = Keys.createEcKeyPair(random);
+        random = SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
+        random.setSeed(key10);
+        ecKeyPair10 = Keys.createEcKeyPair(random);
+        random = SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
+        random.setSeed(key11);
+        ecKeyPair11 = Keys.createEcKeyPair(random);
+        random = SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
+        random.setSeed(key12);
+        ecKeyPair12 = Keys.createEcKeyPair(random);
+
+
+
+        address1 = WalletAddress.generate_address((byte) version, ecKeyPair1.getPublicKey());
+        address2 = WalletAddress.generate_address((byte) version, ecKeyPair2.getPublicKey());
+        address3 = WalletAddress.generate_address((byte) version, ecKeyPair3.getPublicKey());
+        address4 = WalletAddress.generate_address((byte) version, ecKeyPair4.getPublicKey());
+        address5 = WalletAddress.generate_address((byte) version, ecKeyPair5.getPublicKey());
+        address6 = WalletAddress.generate_address((byte) version, ecKeyPair6.getPublicKey());
+        address7 = WalletAddress.generate_address((byte) version, ecKeyPair7.getPublicKey());
+        address8 = WalletAddress.generate_address((byte) version, ecKeyPair8.getPublicKey());
+        address9 = WalletAddress.generate_address((byte) version, ecKeyPair9.getPublicKey());
+        address10 = WalletAddress.generate_address((byte) version, ecKeyPair10.getPublicKey());
+        address11 = WalletAddress.generate_address((byte) version, ecKeyPair11.getPublicKey());
+        address12 = WalletAddress.generate_address((byte) version, ecKeyPair12.getPublicKey());
+
+        ECDSASignatureData signatureData1 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address1)), ecKeyPair1);
+        ECDSASignatureData signatureData2 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address2)), ecKeyPair2);
+        ECDSASignatureData signatureData3 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address3)), ecKeyPair3);
+        ECDSASignatureData signatureData4 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address4)), ecKeyPair4);
+        ECDSASignatureData signatureData5 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address5)), ecKeyPair5);
+        ECDSASignatureData signatureData6 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address6)), ecKeyPair6);
+        ECDSASignatureData signatureData7 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address7)), ecKeyPair7);
+
+        TreeFactory.getMemoryTree(0).store(address1, new PatriciaTreeNode(3000, 0));
         TreeFactory.getMemoryTree(0).store(address2, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(0).store(address3, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(0).store(address4, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(0).store(address5, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(0).store(address6, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(0).store(address7, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(0).store(address8, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(0).store(address9, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(0).store(address10, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(0).store(address11, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(0).store(address12, new PatriciaTreeNode(3000, 0));
+
+        TreeFactory.getMemoryTree(1).store(address1, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(1).store(address2, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(1).store(address3, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(1).store(address4, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(1).store(address5, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(1).store(address6, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(1).store(address7, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(1).store(address8, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(1).store(address9, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(1).store(address10, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(1).store(address11, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(1).store(address12, new PatriciaTreeNode(3000, 0));
+
+
+        TreeFactory.getMemoryTree(2).store(address1, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(2).store(address2, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(2).store(address3, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(2).store(address4, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(2).store(address5, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(2).store(address6, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(2).store(address7, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(2).store(address8, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(2).store(address9, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(2).store(address10, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(2).store(address11, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(2).store(address12, new PatriciaTreeNode(3000, 0));
+
+
+        TreeFactory.getMemoryTree(3).store(address1, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(3).store(address2, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(3).store(address3, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(3).store(address4, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(3).store(address5, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(3).store(address6, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(3).store(address7, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(3).store(address8, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(3).store(address9, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(3).store(address10, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(3).store(address11, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(3).store(address12, new PatriciaTreeNode(3000, 0));
+
+        TransactionBlock TransactionBlockZone2 = new TransactionBlock();
+        TransactionBlockZone2.setHeight(1);
+        TransactionBlockZone2.setHash("TransactionBlockZone0");
+        TransactionBlockZone2.getHeaderData().setTimestamp(GetTime.GetTimeStampInString());
+        Thread.sleep(200);
+        TransactionBlock TransactionBlockZone3 = new TransactionBlock();
+        TransactionBlockZone3.setHeight(1);
+        TransactionBlockZone3.setHash("TransactionBlockZone0");
+        TransactionBlockZone3.getHeaderData().setTimestamp(GetTime.GetTimeStampInString());
+
+        IDatabase<String, TransactionBlock> Zone2TransactionDatabase = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(2));
+        IDatabase<String, TransactionBlock> Zone3TransactionDatabase = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(3));
+        Zone2TransactionDatabase.save("1", TransactionBlockZone2);
+        Zone3TransactionDatabase.save("1", TransactionBlockZone3);
+
+        IDatabase<String, byte[]> patricia_tree2 = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, PatriciaTreeInstance.PATRICIA_TREE_INSTANCE_2);
+        IDatabase<String, byte[]> patricia_tree3 = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, PatriciaTreeInstance.PATRICIA_TREE_INSTANCE_3);
+
+
+        patricia_tree2.save(TreeFactory.getMemoryTree(2).getRootHash(),patricia_tree_wrapper.encode(TreeFactory.getMemoryTree(2)));
+        patricia_tree3.save(TreeFactory.getMemoryTree(3).getRootHash(),patricia_tree_wrapper.encode(TreeFactory.getMemoryTree(3)));
+
+
+        sk7 = new BLSPrivateKey(random);
+        vk7 = new BLSPublicKey(sk7);
         Thread.sleep(2000);
-        kad2 = new KademliaData(new SecurityAuditProofs(address2, vk2, ecKeyPair2.getPublicKey(), signatureData2), new NettyConnectionInfo(IPFinder.getLocalIP(), KademliaConfiguration.PORT));
+        kad7 = new KademliaData(new SecurityAuditProofs(address7, vk7, ecKeyPair7.getPublicKey(), signatureData7), new NettyConnectionInfo(IPFinder.getLocalIP(), KademliaConfiguration.PORT));
 
     }
 
@@ -105,13 +268,13 @@ public class SyncConsensusNotExistedTest {
         }
 
 
-        CachedBLSKeyPair.getInstance().setPrivateKey(sk2);
-        CachedBLSKeyPair.getInstance().setPublicKey(vk2);
+        CachedBLSKeyPair.getInstance().setPrivateKey(sk7);
+        CachedBLSKeyPair.getInstance().setPublicKey(vk7);
 
 
         IAdrestusFactory factory = new AdrestusFactory();
         List<AdrestusTask> tasks = new java.util.ArrayList<>(List.of(
-                factory.createBindServerKademliaTask(ecKeyPair2, vk2),
+                factory.createBindServerKademliaTask(ecKeyPair7, vk7),
                 factory.createBindServerCachedTask(),
                 factory.createBindServerTransactionTask(),
                 factory.createBindServerReceiptTask(),
