@@ -307,7 +307,7 @@ public class BlockSync implements IBlockSync {
                 }
             });
 
-            do {
+          /*  do {
                 Thread.sleep(500);
                 RpcAdrestusClient client = new RpcAdrestusClient(new CommitteeBlock(), toConnectZoneCommittee, CachedEventLoop.getInstance().getEventloop());
                 client.connect();
@@ -322,7 +322,7 @@ public class BlockSync implements IBlockSync {
                     if (CachedLatestBlocks.getInstance().getCommitteeBlock().getHash().equals(commitee_blocks.get(commitee_blocks.size() - 1).getHash()))
                         break;
                 }
-            } while (commitee_blocks.isEmpty());
+            } while (commitee_blocks.isEmpty());*/
 
             RpcAdrestusClient client = null;
             List<String> patriciaRootList = null;

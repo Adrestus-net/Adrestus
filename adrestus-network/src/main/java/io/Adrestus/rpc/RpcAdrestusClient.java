@@ -263,7 +263,7 @@ public class RpcAdrestusClient<T> {
             toCompare.removeIf(Objects::isNull);
             if (toCompare.isEmpty()) {
                 LOG.info("Download blocks failed empty response");
-                return new ArrayList<T>();
+                throw new IllegalArgumentException("Download blocks failed empty response");
             }
 
             Map<String, Long> collect = toCompare.stream()
@@ -294,8 +294,8 @@ public class RpcAdrestusClient<T> {
             responses.forEach(val -> toCompare.add(Hex.toHexString(this.serializationUtil2.encode(val))));
             toCompare.removeIf(Objects::isNull);
             if (toCompare.isEmpty()) {
-                LOG.info("Download blocks failed empty response");
-                return new ArrayList<T>();
+                LOG.info("Download PatriciaTree failed empty response");
+                throw new IllegalArgumentException("Download PatriciaTree failed empty response");
             }
 
             Map<String, Long> collect = toCompare.stream()
@@ -336,6 +336,7 @@ public class RpcAdrestusClient<T> {
 
             return Optional.of(response);
         } catch (Exception e) {
+            e.printStackTrace();
             LOG.info(e.toString());
         }
         return Optional.empty();
@@ -351,10 +352,13 @@ public class RpcAdrestusClient<T> {
             LOG.info("Download: ..... " + response.hashCode());
             return response;
         } catch (ExecutionException e) {
+            e.printStackTrace();
             LOG.error(e.toString());
         } catch (InterruptedException e) {
+            e.printStackTrace();
             LOG.error(e.toString());
         } catch (TimeoutException e) {
+            e.printStackTrace();
             LOG.error(e.toString());
         }
         return new ListBlockResponse(null);
@@ -369,8 +373,11 @@ public class RpcAdrestusClient<T> {
             LOG.info("Download: ..... " + response.hashCode());
             return response;
         } catch (ExecutionException e) {
+            e.printStackTrace();
         } catch (InterruptedException e) {
+            e.printStackTrace();
         } catch (TimeoutException e) {
+            e.printStackTrace();
         }
         return new PatriciaTreeResponse(null);
     }
