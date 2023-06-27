@@ -45,6 +45,18 @@ services:
     networks:
       network:
         ipv4_address: 192.168.1.122
+
+  service5:
+    build: .
+    image: adrestus_protocol
+    command:
+      - "danger fluid abstract raise duty scare year add include smart senior ensure"
+      - "p4ssphr4se"
+    environment:
+      JAVA_TOOL_OPTIONS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
+    networks:
+      network:
+        ipv4_address: 192.168.1.122
 networks:
   network:
     driver: macvlan

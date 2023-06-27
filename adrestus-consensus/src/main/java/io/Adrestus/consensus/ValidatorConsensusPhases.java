@@ -1449,6 +1449,7 @@ public class ValidatorConsensusPhases {
             LOG.info("Committee is finalized with Success");
             cleanup();
             Thread.sleep(700);
+            //Make sure you give enough time for nodes to sync that not existed or existed
         }
 
         private void cleanup() {
