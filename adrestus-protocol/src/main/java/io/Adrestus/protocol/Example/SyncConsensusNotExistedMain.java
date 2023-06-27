@@ -27,7 +27,7 @@ public class SyncConsensusNotExistedMain {
 
     private static void setup(){
         delete_test();
-        KademliaConfiguration.IDENTIFIER_SIZE = 3;
+        KademliaConfiguration.IDENTIFIER_SIZE = 4;
         ConsensusConfiguration.EPOCH_TRANSITION = 3;
         NodeSettings.getInstance();
     }

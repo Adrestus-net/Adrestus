@@ -56,7 +56,7 @@ services:
       JAVA_TOOL_OPTIONS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
     networks:
       network:
-        ipv4_address: 192.168.1.122
+        ipv4_address: 192.168.1.123
 networks:
   network:
     driver: macvlan
