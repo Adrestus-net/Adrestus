@@ -97,6 +97,7 @@ public class ConsensusState extends ConsensusDataState {
             committee_state = new ConsensusVRFState();
             committee_state.onEnterState(blockIndex.getPublicKeyByIndex(0, 0));
             CachedLeaderIndex.getInstance().setCommitteePositionLeader(0);
+            previous_state = committee_state;
             CachedConsensusState.getInstance().setCommitteeState(committee_state);
         }
 
@@ -223,7 +224,7 @@ public class ConsensusState extends ConsensusDataState {
                 if (CachedZoneIndex.getInstance().getZoneIndex() == 0) {
                     clear();
                     committee_block_timer = new Timer(ConsensusConfiguration.CONSENSUS);
-                    committee_block_timer.scheduleAtFixedRate(new CommitteeBlockConsensusTask(committee_state), ConsensusConfiguration.CONSENSUS_COMMITTEE_TIMER, ConsensusConfiguration.CONSENSUS_COMMITTEE_TIMER);
+                    committee_block_timer.scheduleAtFixedRate(new CommitteeBlockConsensusTask(), ConsensusConfiguration.CONSENSUS_COMMITTEE_TIMER, ConsensusConfiguration.CONSENSUS_COMMITTEE_TIMER);
                     return;
                 }
                 else {
