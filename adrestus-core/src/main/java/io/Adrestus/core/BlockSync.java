@@ -199,7 +199,8 @@ public class BlockSync implements IBlockSync {
                         });
                     }
                 }
-                tree_database.saveAll(toSave);
+                if(!toSave.isEmpty())
+                    tree_database.saveAll(toSave);
                 if (!treeObjects.isEmpty()) {
                     TreeFactory.setMemoryTree((MemoryTreePool) patricia_tree_wrapper.decode(treeObjects.get(treeObjects.size() - 1)), CachedZoneIndex.getInstance().getZoneIndex());
                 }
