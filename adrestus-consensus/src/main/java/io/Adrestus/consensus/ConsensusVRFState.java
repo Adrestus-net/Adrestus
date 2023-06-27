@@ -11,7 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ConsensusVRFState extends AbstractState {
-    private static Logger LOG = LoggerFactory.getLogger(ConsensusVDFState.class);
+    private static Logger LOG = LoggerFactory.getLogger(ConsensusVRFState.class);
 
     private IBlockIndex blockIndex;
     private int target;

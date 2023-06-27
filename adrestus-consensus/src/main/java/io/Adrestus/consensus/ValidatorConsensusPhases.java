@@ -390,6 +390,7 @@ public class ValidatorConsensusPhases {
                     consensusClient.send_heartbeat(HEARTBEAT_MESSAGE);
                     String heartbeat = consensusClient.rec_heartbeat();
                     if (heartbeat == null) {
+                        CommitteeBlock c=CachedLatestBlocks.getInstance().getCommitteeBlock();
                         cleanup();
                         LOG.info("Initialize: heartbeat message is null");
                         message.setType(VRFMessage.vrfMessageType.ABORT);
