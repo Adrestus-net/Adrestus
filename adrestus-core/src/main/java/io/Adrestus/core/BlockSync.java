@@ -83,6 +83,9 @@ public class BlockSync implements IBlockSync {
                             blocks.stream().forEach(val -> toSave.put(String.valueOf(val.getHeight()), val));
                         }
                     }
+
+                    if(blocks==null|| blocks.isEmpty())
+                        Thread.sleep(ConsensusConfiguration.CONSENSUS_WAIT_TIMEOUT);
                 } catch (NullPointerException e) {
                     Thread.sleep(ConsensusConfiguration.CONSENSUS_WAIT_TIMEOUT);
                 } finally {
@@ -92,7 +95,7 @@ public class BlockSync implements IBlockSync {
                     }
 
                 }
-            } while (blocks == null);
+            } while (blocks == null|| blocks.isEmpty());
             committee_database.saveAll(toSave);
             CachedLatestBlocks.getInstance().setCommitteeBlock(blocks.get(blocks.size() - 1));
             CachedLeaderIndex.getInstance().setCommitteePositionLeader(0);
@@ -239,6 +242,7 @@ public class BlockSync implements IBlockSync {
         CommitteeBlock prevblock = (CommitteeBlock) CachedLatestBlocks.getInstance().getCommitteeBlock().clone();
         int prevZone = Integer.valueOf(CachedZoneIndex.getInstance().getZoneIndex());
         List<String> ips = prevblock.getStructureMap().get(0).values().stream().collect(Collectors.toList());
+        ips.remove(IPFinder.getLocalIP());
         ArrayList<InetSocketAddress> toConnectCommittee = new ArrayList<>();
         ips.stream().forEach(ip -> {
             try {
