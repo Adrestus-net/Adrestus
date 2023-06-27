@@ -84,7 +84,7 @@ public class BlockSync implements IBlockSync {
                         }
                     }
 
-                    if(blocks==null|| blocks.isEmpty())
+                    if (blocks == null || blocks.isEmpty())
                         Thread.sleep(ConsensusConfiguration.CONSENSUS_WAIT_TIMEOUT);
                 } catch (NullPointerException e) {
                     Thread.sleep(ConsensusConfiguration.CONSENSUS_WAIT_TIMEOUT);
@@ -95,7 +95,7 @@ public class BlockSync implements IBlockSync {
                     }
 
                 }
-            } while (blocks == null|| blocks.isEmpty());
+            } while (blocks == null || blocks.isEmpty());
             committee_database.saveAll(toSave);
             CachedLatestBlocks.getInstance().setCommitteeBlock(blocks.get(blocks.size() - 1));
             CachedLeaderIndex.getInstance().setCommitteePositionLeader(0);
@@ -202,7 +202,7 @@ public class BlockSync implements IBlockSync {
                         });
                     }
                 }
-                if(!toSave.isEmpty())
+                if (!toSave.isEmpty())
                     tree_database.saveAll(toSave);
                 if (!treeObjects.isEmpty()) {
                     TreeFactory.setMemoryTree((MemoryTreePool) patricia_tree_wrapper.decode(treeObjects.get(treeObjects.size() - 1)), CachedZoneIndex.getInstance().getZoneIndex());
@@ -251,20 +251,22 @@ public class BlockSync implements IBlockSync {
                 throw new RuntimeException(e);
             }
         });
+        List<CommitteeBlock> commitee_blocks = null;
+        do {
+            Thread.sleep(500);
+            RpcAdrestusClient client1 = new RpcAdrestusClient(new CommitteeBlock(), toConnectCommittee, CachedEventLoop.getInstance().getEventloop());
+            client1.connect();
 
-        RpcAdrestusClient client1 = new RpcAdrestusClient(new CommitteeBlock(), toConnectCommittee, CachedEventLoop.getInstance().getEventloop());
-        client1.connect();
+            commitee_blocks = client1.getBlocksList(String.valueOf(CachedLatestBlocks.getInstance().getCommitteeBlock().getHeight()));
 
-        List<CommitteeBlock> commitee_blocks = client1.getBlocksList(String.valueOf(CachedLatestBlocks.getInstance().getCommitteeBlock().getHeight()));
+            if (client1 != null) {
+                client1.close();
+                client1 = null;
+            }
 
-        if (client1 != null) {
-            client1.close();
-            client1 = null;
-        }
-
-        if (commitee_blocks.size() <= 1)
-            return;
-
+            if (commitee_blocks.size() <= 1)
+                return;
+        } while (commitee_blocks.size() <= 1 || commitee_blocks.isEmpty());
 
         CachedLatestBlocks.getInstance().setCommitteeBlock(commitee_blocks.get(commitee_blocks.size() - 1));
         CachedLeaderIndex.getInstance().setCommitteePositionLeader(0);

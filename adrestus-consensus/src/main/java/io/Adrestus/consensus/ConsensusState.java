@@ -218,16 +218,17 @@ public class ConsensusState extends ConsensusDataState {
         @Override
         public void run() {
             clear();
-            if (CachedZoneIndex.getInstance().getZoneIndex() == 0) {
-                if (CachedEpochGeneration.getInstance().getEpoch_counter() >= ConsensusConfiguration.EPOCH_TRANSITION) {
+            if (CachedEpochGeneration.getInstance().getEpoch_counter() >= ConsensusConfiguration.EPOCH_TRANSITION)  {
+                if (CachedZoneIndex.getInstance().getZoneIndex() == 0) {
                     clear();
                     committee_block_timer = new Timer(ConsensusConfiguration.CONSENSUS);
                     committee_block_timer.scheduleAtFixedRate(new CommitteeBlockConsensusTask(committee_state), ConsensusConfiguration.CONSENSUS_COMMITTEE_TIMER, ConsensusConfiguration.CONSENSUS_COMMITTEE_TIMER);
                     return;
                 }
-            } else {
-                if (!debug) {
-                    blockSync.SyncState();
+                else {
+                    if (!debug) {
+                        blockSync.SyncState();
+                    }
                 }
             }
             state.onEnterState(blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedLeaderIndex.getInstance().getTransactionPositionLeader()));
