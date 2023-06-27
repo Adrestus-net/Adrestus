@@ -22,6 +22,11 @@ public interface IMemoryTreePool extends Serializable {
 
     String getRootHash() throws Exception;
 
+
+    void setHeight(String height) throws Exception;
+    String getHeight() throws Exception;
+
+
     MerklePatriciaTrie<Bytes, PatriciaTreeNode> getTrie();
 
     void setTrie(MerklePatriciaTrie<Bytes, PatriciaTreeNode> patriciaTrie);

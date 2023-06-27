@@ -22,6 +22,8 @@ public class MemoryTreePool implements IMemoryTreePool, Cloneable {
     private Lock r = rwl.readLock();
     private Lock w = rwl.writeLock();
 
+    private String height;
+
     public MemoryTreePool() {
         this.valueSerializer = value -> (value != null) ? Bytes.wrap(SerializationUtils.serialize(value)) : null;
         //this.valueSerializer=null;
@@ -144,6 +146,16 @@ public class MemoryTreePool implements IMemoryTreePool, Cloneable {
     @Override
     public String getRootHash() throws Exception {
         return patriciaTreeImp.getRootHash().toHexString();
+    }
+
+    @Override
+    public void setHeight(String height) throws Exception {
+        this.height=height;
+    }
+
+    @Override
+    public String getHeight() throws Exception {
+        return this.height;
     }
 
     @Override

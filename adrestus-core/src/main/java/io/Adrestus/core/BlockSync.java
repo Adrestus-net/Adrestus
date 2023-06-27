@@ -176,7 +176,7 @@ public class BlockSync implements IBlockSync {
                 Optional<byte[]> tree = tree_database.seekLast();
                 List<byte[]> treeObjects;
                 if (tree.isPresent()) {
-                    treeObjects = client.getPatriciaTreeList(((MemoryTreePool) patricia_tree_wrapper.decode(tree.get())).getRootHash());
+                    treeObjects = client.getPatriciaTreeList(((MemoryTreePool) patricia_tree_wrapper.decode(tree.get())).getHeight());
                 } else {
                     treeObjects = client.getPatriciaTreeList("");
                 }
@@ -185,7 +185,7 @@ public class BlockSync implements IBlockSync {
                     if (!treeObjects.isEmpty() && treeObjects.size() > 1) {
                         treeObjects.stream().skip(1).forEach(val -> {
                             try {
-                                toSave.put(((MemoryTreePool) patricia_tree_wrapper.decode(val)).getRootHash(), val);
+                                toSave.put(((MemoryTreePool) patricia_tree_wrapper.decode(val)).getHeight(), val);
                             } catch (Exception e) {
                                 throw new RuntimeException(e);
                             }
@@ -195,7 +195,7 @@ public class BlockSync implements IBlockSync {
                     if (!treeObjects.isEmpty()) {
                         treeObjects.stream().forEach(val -> {
                             try {
-                                toSave.put(((MemoryTreePool) patricia_tree_wrapper.decode(val)).getRootHash(), val);
+                                toSave.put(((MemoryTreePool) patricia_tree_wrapper.decode(val)).getHeight(), val);
                             } catch (Exception e) {
                                 throw new RuntimeException(e);
                             }
@@ -372,7 +372,7 @@ public class BlockSync implements IBlockSync {
                 Optional<byte[]> tree = tree_database.seekLast();
                 List<byte[]> treeObjects;
                 if (tree.isPresent()) {
-                    treeObjects = client.getPatriciaTreeList(((MemoryTreePool) patricia_tree_wrapper.decode(tree.get())).getRootHash());
+                    treeObjects = client.getPatriciaTreeList(((MemoryTreePool) patricia_tree_wrapper.decode(tree.get())).getHeight());
                 } else {
                     treeObjects = client.getPatriciaTreeList("");
                 }
@@ -381,7 +381,7 @@ public class BlockSync implements IBlockSync {
                     if (!treeObjects.isEmpty() && treeObjects.size() > 1) {
                         treeObjects.stream().skip(1).forEach(val -> {
                             try {
-                                toSave.put(((MemoryTreePool) patricia_tree_wrapper.decode(val)).getRootHash(), val);
+                                toSave.put(((MemoryTreePool) patricia_tree_wrapper.decode(val)).getHeight(), val);
                             } catch (Exception e) {
                                 throw new RuntimeException(e);
                             }
@@ -391,7 +391,7 @@ public class BlockSync implements IBlockSync {
                     if (!treeObjects.isEmpty()) {
                         treeObjects.stream().forEach(val -> {
                             try {
-                                toSave.put(((MemoryTreePool) patricia_tree_wrapper.decode(val)).getRootHash(), val);
+                                toSave.put(((MemoryTreePool) patricia_tree_wrapper.decode(val)).getHeight(), val);
                             } catch (Exception e) {
                                 throw new RuntimeException(e);
                             }

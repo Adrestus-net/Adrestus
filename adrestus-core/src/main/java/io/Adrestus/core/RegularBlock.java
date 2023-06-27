@@ -438,7 +438,8 @@ public class RegularBlock implements BlockForge, BlockInvent {
 
                     });
 
-        tree_database.save(transactionBlock.getPatriciaMerkleRoot(), patricia_tree_wrapper.encode_special(TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()), SerializationUtils.serialize(TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex())).length));
+        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).setHeight(String.valueOf(transactionBlock.getHeight()));
+        tree_database.save(String.valueOf(transactionBlock.getHeight()), patricia_tree_wrapper.encode_special(TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()), SerializationUtils.serialize(TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex())).length));
         CachedLatestBlocks.getInstance().setTransactionBlock(transactionBlock);
         MemoryTransactionPool.getInstance().delete(transactionBlock.getTransactionList());
 
@@ -592,7 +593,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
                 Optional<byte[]> tree = tree_database.seekLast();
                 List<byte[]> treeObjects;
                 if (tree.isPresent()) {
-                    treeObjects = client.getPatriciaTreeList(((MemoryTreePool) patricia_tree_wrapper.decode(tree.get())).getRootHash());
+                    treeObjects = client.getPatriciaTreeList(((MemoryTreePool) patricia_tree_wrapper.decode(tree.get())).getHeight());
                 } else {
                     treeObjects = client.getPatriciaTreeList("");
                 }
@@ -601,7 +602,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
                     if (!treeObjects.isEmpty()) {
                         treeObjects.stream().skip(1).forEach(val -> {
                             try {
-                                toSave.put(((MemoryTreePool) patricia_tree_wrapper.decode(val)).getRootHash(), val);
+                                toSave.put(((MemoryTreePool) patricia_tree_wrapper.decode(val)).getHeight(), val);
                             } catch (Exception e) {
                                 throw new RuntimeException(e);
                             }
@@ -611,7 +612,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
                     if (!treeObjects.isEmpty()) {
                         treeObjects.stream().forEach(val -> {
                             try {
-                                toSave.put(((MemoryTreePool) patricia_tree_wrapper.decode(val)).getRootHash(), val);
+                                toSave.put(((MemoryTreePool) patricia_tree_wrapper.decode(val)).getHeight(), val);
                             } catch (Exception e) {
                                 throw new RuntimeException(e);
                             }

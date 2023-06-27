@@ -217,15 +217,17 @@ public class SyncConsensusNotExistedMain {
         Zone2TransactionDatabase.save("1", TransactionBlockZone2);
         Zone3TransactionDatabase.save("1", TransactionBlockZone3);
 
-        IDatabase<String, byte[]> patricia_tree0 = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, PatriciaTreeInstance.PATRICIA_TREE_INSTANCE_0);
-        IDatabase<String, byte[]> patricia_tree1 = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, PatriciaTreeInstance.PATRICIA_TREE_INSTANCE_1);
+       // IDatabase<String, byte[]> patricia_tree0 = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, PatriciaTreeInstance.PATRICIA_TREE_INSTANCE_0);
+       // IDatabase<String, byte[]> patricia_tree1 = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, PatriciaTreeInstance.PATRICIA_TREE_INSTANCE_1);
         IDatabase<String, byte[]> patricia_tree2 = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, PatriciaTreeInstance.PATRICIA_TREE_INSTANCE_2);
         IDatabase<String, byte[]> patricia_tree3 = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, PatriciaTreeInstance.PATRICIA_TREE_INSTANCE_3);
 
-        patricia_tree0.save(TreeFactory.getMemoryTree(0).getRootHash(),patricia_tree_wrapper.encode(TreeFactory.getMemoryTree(0)));
-        patricia_tree1.save(TreeFactory.getMemoryTree(1).getRootHash(),patricia_tree_wrapper.encode(TreeFactory.getMemoryTree(1)));
-        patricia_tree2.save(TreeFactory.getMemoryTree(2).getRootHash(),patricia_tree_wrapper.encode(TreeFactory.getMemoryTree(2)));
-        patricia_tree3.save(TreeFactory.getMemoryTree(3).getRootHash(),patricia_tree_wrapper.encode(TreeFactory.getMemoryTree(3)));
+        TreeFactory.getMemoryTree(2).setHeight("1");
+        TreeFactory.getMemoryTree(3).setHeight("1");
+       // patricia_tree0.save(TreeFactory.getMemoryTree(0).getRootHash(),patricia_tree_wrapper.encode(TreeFactory.getMemoryTree(0)));
+       // patricia_tree1.save(TreeFactory.getMemoryTree(1).getRootHash(),patricia_tree_wrapper.encode(TreeFactory.getMemoryTree(1)));
+        patricia_tree2.save(TreeFactory.getMemoryTree(2).getHeight(),patricia_tree_wrapper.encode(TreeFactory.getMemoryTree(2)));
+        patricia_tree3.save(TreeFactory.getMemoryTree(3).getHeight(),patricia_tree_wrapper.encode(TreeFactory.getMemoryTree(3)));
     }
     public static void main(String[] args) throws InterruptedException {
         setup();

@@ -246,8 +246,10 @@ public class SyncConsensusNotExistedTest {
         IDatabase<String, byte[]> patricia_tree3 = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, PatriciaTreeInstance.PATRICIA_TREE_INSTANCE_3);
 
 
-        patricia_tree2.save(TreeFactory.getMemoryTree(2).getRootHash(),patricia_tree_wrapper.encode(TreeFactory.getMemoryTree(2)));
-        patricia_tree3.save(TreeFactory.getMemoryTree(3).getRootHash(),patricia_tree_wrapper.encode(TreeFactory.getMemoryTree(3)));
+        TreeFactory.getMemoryTree(2).setHeight("1");
+        TreeFactory.getMemoryTree(3).setHeight("1");
+        patricia_tree2.save(TreeFactory.getMemoryTree(2).getHeight(),patricia_tree_wrapper.encode(TreeFactory.getMemoryTree(2)));
+        patricia_tree3.save(TreeFactory.getMemoryTree(3).getHeight(),patricia_tree_wrapper.encode(TreeFactory.getMemoryTree(3)));
 
 
         sk7 = new BLSPrivateKey(random);
