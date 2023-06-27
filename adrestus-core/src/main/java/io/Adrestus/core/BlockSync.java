@@ -253,6 +253,7 @@ public class BlockSync implements IBlockSync {
         });
         List<CommitteeBlock> commitee_blocks = null;
         do {
+            LOG.info("Waiting Beacon Chain to Sync First.....");
             Thread.sleep(500);
             RpcAdrestusClient client1 = new RpcAdrestusClient(new CommitteeBlock(), toConnectCommittee, CachedEventLoop.getInstance().getEventloop());
             client1.connect();
@@ -264,8 +265,6 @@ public class BlockSync implements IBlockSync {
                 client1 = null;
             }
 
-            if (commitee_blocks.size() <= 1)
-                return;
         } while (commitee_blocks.size() <= 1 || commitee_blocks.isEmpty());
 
         CachedLatestBlocks.getInstance().setCommitteeBlock(commitee_blocks.get(commitee_blocks.size() - 1));
