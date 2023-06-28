@@ -68,6 +68,7 @@ public class CachedDataChannelTest {
                 CachedZoneIndex.getInstance().getZoneIndex());
 
 
+        //when run single test make sure in 116 ip give enough time
         Thread.sleep(4000);
 
         //check this a bug when connection is open and no progress code is stuck no terminate

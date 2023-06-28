@@ -177,6 +177,7 @@ public class TransactionStrategyTest {
 
 
     //In order to run this test with sucess change line 42 at BindServerTransactionTask
+    //Worker Test runs on 106
     @Test
     public void transaction_list2() throws Exception {
         int count = 0;

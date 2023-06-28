@@ -34,7 +34,7 @@ public class DuplicateEventHandler extends TransactionEventHandler {
             Optional<Transaction> transaction_hint = tosearch.stream().filter(tr -> tr.getHash().equals(transaction.getHash())).findFirst();
 
             if (transaction_hint.isPresent()) {
-                transaction.setStatus(StatusType.ABORT);
+                transaction.setStatus(StatusType.BUFFERED);
             }
 
         } catch (NullPointerException ex) {

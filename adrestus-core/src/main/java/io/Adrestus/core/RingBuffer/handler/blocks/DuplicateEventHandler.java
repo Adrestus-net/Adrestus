@@ -4,6 +4,7 @@ import io.Adrestus.core.*;
 import io.Adrestus.core.RingBuffer.event.AbstractBlockEvent;
 import io.Adrestus.crypto.elliptic.mapper.StakingData;
 import io.Adrestus.p2p.kademlia.repository.KademliaData;
+import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,10 +70,12 @@ public class DuplicateEventHandler implements BlockEventHandler<AbstractBlockEve
 
     }
 
+    @SneakyThrows
     @Override
     public void visit(TransactionBlock transactionBlock) {
+        TransactionBlock transactionBlockcloned= (TransactionBlock) transactionBlock.clone();
         List<Transaction> duplicates =
-                transactionBlock
+                transactionBlockcloned
                         .getTransactionList()
                         .stream()
                         .collect(Collectors.groupingBy(Function.identity()))

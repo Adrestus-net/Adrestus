@@ -62,6 +62,8 @@ public class CollectionTransactionStrategy {
     private static BLSPrivateKey sk6;
     private static BLSPublicKey vk6;
 
+
+    //RUN THIS with consensustransaction Timer 4 support on adrestus protocol
     @BeforeAll
     public static void setup() throws Exception {
 
@@ -139,6 +141,8 @@ public class CollectionTransactionStrategy {
     }
 
 
+
+    //RUN THIS with consensustransaction Timer 4 support on adrestus protocol
     @Test
     public void execute() throws Exception {
         int count = 0;
