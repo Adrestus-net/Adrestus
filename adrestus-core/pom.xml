@@ -28,7 +28,7 @@
         <disruptor.version>3.4.4</disruptor.version>
         <trove4j.version>3.0.3</trove4j.version>
         <cafeine.version>3.1.6</cafeine.version>
-        <jakson.version>2.15.2</jakson.version>
+        <jakson.version>2.15.0</jakson.version>
     </properties>
     <repositories>
         <repository>
