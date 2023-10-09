@@ -36,12 +36,12 @@ public class JsonSerializationTest {
         Transaction transaction=new RegularTransaction("hash1",TransactionType.REGULAR,StatusType.PENDING,0,0,"","","",0,0,0,signatureData);
         String jsonDataString = mapper.writeValueAsString(transaction);
 
-        assertEquals("{\"transactiontype\":\"RegularTransaction\",\"type\":\"REGULAR\",\"status\":\"PENDING\",\"timestamp\":\"\",\"hash\":\"hash1\",\"nonce\":0,\"blockNumber\":0,\"from\":\"\",\"to\":\"\",\"zoneFrom\":0,\"zoneTo\":0,\"amount\":0.0,\"amountWithTransactionFee\":0.0,\"xaxis\":null,\"yaxis\":null,\"signature\":{\"v\":0,\"r\":\"\",\"s\":\"\",\"pub\":\"\"}}",jsonDataString);
+        assertEquals("{\"transactiontype\":\"RegularTransaction\",\"type\":\"REGULAR\",\"status\":\"PENDING\",\"timestamp\":\"\",\"hash\":\"hash1\",\"nonce\":0,\"blockNumber\":0,\"from\":\"\",\"to\":\"\",\"zoneFrom\":0,\"zoneTo\":0,\"amount\":0.0,\"amountWithTransactionFee\":0.0,\"xaxis\":null,\"yaxis\":null,\"signature\":{\"v\":0,\"r\":\"QrjQ9wiWv/wkFXTZN20gdKU/cmjH1Dv1o8snhZH5f84=\",\"s\":\"HwSVpnel8+Wg/o8u9Q99fQmSvmeLNDFEG/zDhQ+mRNo=\",\"pub\":\"\"}}",jsonDataString);
     }
     @Test
     public void JsonStringToObj() throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
-        String json="{\"transactiontype\":\"RegularTransaction\",\"type\":\"REGULAR\",\"status\":\"PENDING\",\"timestamp\":\"\",\"hash\":\"1\",\"nonce\":0,\"blockNumber\":0,\"from\":\"\",\"to\":\"\",\"zoneFrom\":0,\"zoneTo\":1,\"amount\":100,\"amountWithTransactionFee\":0,\"xaxis\":\"35731204215685837694879844872296111590895060163245219298330705673826162753728\",\"yaxis\":\"49582035535449768160886819563477393966724456482342997495118101870440116576649\",\"signature\":{\"v\":0,\"r\":\"47189390069456831666508435650501705407903156502375960340226480869561131339449\",\"s\":\"22705834723971466586800775033200199851248069686934755506009206490125005914447\",\"pub\":\"\"}}";
+        String json="{\"transactiontype\":\"RegularTransaction\",\"type\":\"REGULAR\",\"status\":\"PENDING\",\"timestamp\":\"2023-10-06 18:27:34.018\",\"hash\":\"89960884d2cf0493ff0d36734b4e34360cbcd11097db1e42950d5d86f8e92dcd\",\"nonce\":1,\"blockNumber\":0,\"from\":\"ADR-GBIV-HG2J-27P5-BNVN-MLN6-DL5V-M3YZ-PKEJ-CFFG-FK4L\",\"to\":\"ADR-GB5Y-BF5F-JUS3-5HHG-WWQR-MCM3-LIP6-EMWY-UVAK-PXYV\",\"zoneFrom\":\"0\",\"zoneTo\":\"0\",\"amount\":10.35,\"amountWithTransactionFee\":1.035,\"xaxis\":\"28271553942235212214291489831570675874253463439955561634951606308928980622038\",\"yaxis\":\"104551439082988170774010735643455187826071264757440552210034585859594047412998\",\"signature\":{\"v\":0,\"r\":\"yh1UBatW3VBm9jlAfFDZSedlZ/I9RlfC5ekGTKAngX0=\",\"s\":\"8qe7gts3npeR9nBLZcPjVxbcE8dDEkVA7J9ajf65g/k=\",\"pub\":\"\"}}";
         Transaction transaction = mapper.readValue(json, Transaction.class);
         int g=3;
     }
