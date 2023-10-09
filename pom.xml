@@ -48,6 +48,7 @@
         <lombok.version>1.18.24</lombok.version>
         <serializer.version>5.4.3</serializer.version>
         <commons_net.version>3.9.0</commons_net.version>
+        <jakson.version>2.15.2</jakson.version>
     </properties>
     <repositories>
         <repository>
@@ -93,6 +94,11 @@
         </snapshotRepository>
     </distributionManagement>
     <dependencies>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jakson.version}</version>
+        </dependency>
         <dependency>
             <groupId>commons-net</groupId>
             <artifactId>commons-net</artifactId>

@@ -28,7 +28,6 @@
         <disruptor.version>3.4.4</disruptor.version>
         <trove4j.version>3.0.3</trove4j.version>
         <cafeine.version>3.1.6</cafeine.version>
-        <jakson.version>2.15.0</jakson.version>
     </properties>
     <repositories>
         <repository>
@@ -66,16 +65,6 @@
             <groupId>io.Adrestus.v1</groupId>
             <artifactId>adrestus-crypto</artifactId>
             <version>${crypto.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>${jakson.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-core</artifactId>
-            <version>${jakson.version}</version>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
