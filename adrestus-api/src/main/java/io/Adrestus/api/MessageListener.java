@@ -39,6 +39,14 @@ public class MessageListener extends DefaultSubscriber<String> {
     }
 
 
+    public ArrayList<String> getConsume_list() {
+        return consume_list;
+    }
+
+    public void setConsume_list(ArrayList<String> consume_list) {
+        this.consume_list = consume_list;
+    }
+
     public int getSize() {
         return size;
     }

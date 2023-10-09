@@ -6,13 +6,22 @@
     <version>1.0-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
-  <groupId>io</groupId>
-  <artifactId>adrestus-protocol</artifactId>
-  <name>adrestus-protocol</name>
-  <version>1.0-SNAPSHOT</version>
-  <url>http://maven.apache.org</url>
+  <artifactId>adrestus-core</artifactId>
+  <name>adrestus-core</name>
+  <version>1.1-SNAPSHOT</version>
+  <url>http://www.example.com</url>
   <build>
     <plugins>
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>2.22.2</version>
+        <configuration>
+          <forkCount>1</forkCount>
+          <threadCount>1</threadCount>
+          <reuseForks>false</reuseForks>
+          <runOrder>alphabetical</runOrder>
+        </configuration>
+      </plugin>
       <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
         <executions>
@@ -25,11 +34,6 @@
           </execution>
         </executions>
         <configuration>
-          <archive>
-            <manifest>
-              <mainClass>io.Adrestus.protocol.Example.SyncConsensusNotExistedMain</mainClass>
-            </manifest>
-          </archive>
           <descriptorRefs>
             <descriptorRef>jar-with-dependencies</descriptorRef>
           </descriptorRefs>
@@ -38,14 +42,6 @@
       <plugin>
         <artifactId>maven-jar-plugin</artifactId>
         <version>2.4</version>
-        <configuration>
-          <archive>
-            <index>true</index>
-            <manifest>
-              <mainClass>io.Adrestus.protocol.Example.SyncConsensusNotExistedMain</mainClass>
-            </manifest>
-          </archive>
-        </configuration>
       </plugin>
       <plugin>
         <artifactId>maven-shade-plugin</artifactId>
@@ -59,11 +55,7 @@
             <configuration>
               <transformers>
                 <transformer />
-                <transformer>
-                  <manifestEntries>
-                    <Main-Class>io.Adrestus.protocol.Example.SyncConsensusNotExistedMain</Main-Class>
-                  </manifestEntries>
-                </transformer>
+                <transformer />
               </transformers>
               <filters>
                 <filter>
@@ -79,11 +71,8 @@
               </filters>
               <relocations>
                 <relocation>
-                  <pattern>io.Adrestus.protocol</pattern>
-                  <shadedPattern>io.Adrestus.protocol</shadedPattern>
-                  <includes>
-                    <mainClass>io.Adrestus.protocol.Example.SyncConsensusNotExistedMain</mainClass>
-                  </includes>
+                  <pattern>io.Adrestus.core</pattern>
+                  <shadedPattern>io.Adrestus.core</shadedPattern>
                 </relocation>
               </relocations>
             </configuration>
@@ -99,13 +88,17 @@
       </plugin>
     </plugins>
   </build>
+  <repositories>
+    <repository>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <id>central</id>
+      <name>Default Repository</name>
+      <url>https://repo1.maven.org/maven2</url>
+    </repository>
+  </repositories>
   <dependencies>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>3.8.1</version>
-      <scope>test</scope>
-    </dependency>
     <dependency>
       <groupId>org.awaitility</groupId>
       <artifactId>awaitility</artifactId>
@@ -118,20 +111,21 @@
         </exclusion>
       </exclusions>
     </dependency>
-    <dependency>
-      <groupId>org.projectlombok</groupId>
-      <artifactId>lombok</artifactId>
-      <version>1.18.24</version>
-      <scope>provided</scope>
-    </dependency>
   </dependencies>
   <properties>
-    <maven.compiler.source>1.8</maven.compiler.source>
     <network.version>1.0-SNAPSHOT</network.version>
-    <crypto.version>1.0-SNAPSHOT</crypto.version>
-    <consenus.version>1.0-SNAPSHOT</consenus.version>
-    <maven.compiler.target>1.8</maven.compiler.target>
-    <core.version>1.1-SNAPSHOT</core.version>
+    <trove4j.version>3.0.3</trove4j.version>
+    <jakson.version>2.15.2</jakson.version>
+    <util.version>1.0-SNAPSHOT</util.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <disruptor.version>3.4.4</disruptor.version>
+    <ledger.version>1.0-SNAPSHOT</ledger.version>
+    <trie.version>1.0-SNAPSHOT</trie.version>
+    <java.version>11</java.version>
+    <maven.compiler.source>${java.version}</maven.compiler.source>
+    <crypto.version>1.0-SNAPSHOT</crypto.version>
+    <lombok.version>1.18.24</lombok.version>
+    <maven.compiler.target>${java.version}</maven.compiler.target>
+    <cafeine.version>3.1.6</cafeine.version>
   </properties>
 </project>

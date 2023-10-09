@@ -39,8 +39,8 @@ public class TransactionStrategy implements IStrategy {
     private List<String> list_ip;
     private final ExecutorService executorService;
     private final Eventloop eventloop;
-    private static SerializationUtil<Transaction> transaction_encode;
-    private Transaction transaction;
+    private final SerializationUtil<Transaction> transaction_encode;
+    private final Transaction transaction;
     private List<Transaction> transaction_list;
     private static CountDownLatch[] local_termination;
     private static Semaphore[] available;
@@ -70,6 +70,7 @@ public class TransactionStrategy implements IStrategy {
         this.available = new Semaphore[list_ip.size()];
         this.eventloop = Eventloop.create().withCurrentThread();
         this.transaction_encode = new SerializationUtil<Transaction>(Transaction.class, list);
+        this.transaction = null;
     }
 
 
@@ -177,6 +178,9 @@ public class TransactionStrategy implements IStrategy {
     }
 
     private static @NotNull Promise<ByteBuf> loadData(Transaction transaction) {
+        List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
+        SerializationUtil<Transaction> transaction_encode = new SerializationUtil<Transaction>(Transaction.class, list);
         byte transaction_hash[] = transaction_encode.encode(transaction, 1024);
         ByteBuf sizeBuf = ByteBufPool.allocate(2); // enough to serialize size 1024
         sizeBuf.writeVarInt(transaction_hash.length);
@@ -196,7 +200,6 @@ public class TransactionStrategy implements IStrategy {
 
 
     private void terminate() {
-        this.transaction = null;
         this.list_ip.clear();
 
         if (eventloop != null) {
@@ -210,9 +213,6 @@ public class TransactionStrategy implements IStrategy {
             Arrays.fill(local_termination, null);
             local_termination = null;
         }
-
-        transaction = null;
-        transaction_encode = null;
     }
 
     @SneakyThrows

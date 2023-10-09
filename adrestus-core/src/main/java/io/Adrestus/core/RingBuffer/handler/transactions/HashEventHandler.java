@@ -1,5 +1,6 @@
 package io.Adrestus.core.RingBuffer.handler.transactions;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.Adrestus.core.RingBuffer.event.TransactionEvent;
 import io.Adrestus.core.StatusType;
 import io.Adrestus.core.Transaction;
@@ -17,11 +18,13 @@ import java.util.List;
 public class HashEventHandler extends TransactionEventHandler {
     private static Logger LOG = LoggerFactory.getLogger(HashEventHandler.class);
     private SerializationUtil<Transaction> wrapper;
+    private ObjectMapper mapper;
 
     public HashEventHandler() {
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         wrapper = new SerializationUtil<Transaction>(Transaction.class, list);
+        mapper = new ObjectMapper();
     }
 
     @Override
@@ -43,14 +46,25 @@ public class HashEventHandler extends TransactionEventHandler {
             cloneable.setHash("");
             cloneable.setSignature(new ECDSASignatureData());
 
-            byte[] toHash = wrapper.encode(cloneable, 1024);
-            String result_hash = HashUtil.sha256_bytetoString(toHash);
+            if (transaction.getXAxis().toString().equals("0") && transaction.getYAxis().toString().equals("0")) {
 
-            if (!result_hash.equals(transaction.getHash())) {
-                LOG.info("Transaction hashes does not match");
-                transaction.setStatus(StatusType.ABORT);
+                byte[] toHash = wrapper.encode(cloneable, 1024);
+                String result_hash = HashUtil.sha256_bytetoString(toHash);
+
+                if (!result_hash.equals(transaction.getHash())) {
+                    LOG.info("Transaction hashes does not match");
+                    transaction.setStatus(StatusType.ABORT);
+                }
+            } else {
+                String jsonDataString = mapper.writeValueAsString(cloneable);
+                String result_hash = HashUtil.sha256(jsonDataString);
+
+                if (!result_hash.equals(transaction.getHash())) {
+                    LOG.info("Transaction hashes does not match");
+                    transaction.setStatus(StatusType.ABORT);
+                }
+
             }
-
 
         } catch (NullPointerException ex) {
             LOG.info("Transaction is empty");

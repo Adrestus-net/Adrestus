@@ -26,6 +26,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 public class RocksDBBlockTest {
 
@@ -44,6 +45,25 @@ public class RocksDBBlockTest {
         TransactionBlock copy = (TransactionBlock) database.findByKey(hash).get();
         assertEquals(prevblock, copy);
         System.out.println(copy.toString());
+        database.delete_db();
+    }
+
+    @Test
+    public void add_erase3() {
+        IDatabase<String, AbstractBlock> database = new DatabaseFactory(String.class, AbstractBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.ZONE_1_TRANSACTION_BLOCK);
+        String hash = "Hash";
+        TransactionBlock prevblock = new TransactionBlock();
+        CommitteeBlock committeeBlock = new CommitteeBlock();
+        committeeBlock.setGeneration(1);
+        committeeBlock.setViewID(1);
+        prevblock.setHeight(1);
+        prevblock.setHash(hash);
+        database.save(hash, prevblock);
+        TransactionBlock copy = (TransactionBlock) database.findByKey(hash).get();
+        assertEquals(prevblock, copy);
+        assertEquals(1, database.findDBsize());
+        database.erase_db();
+        assertEquals(0, database.findDBsize());
         database.delete_db();
     }
 

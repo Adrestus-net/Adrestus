@@ -130,7 +130,11 @@ public class LevelDBConnectionManager<K, V> implements IDatabase<K, V> {
                         wrapper.addFrom(value);
                     }
                 } else {
-                    if (obj.isEmpty()) {
+                    if(obj==null){
+                        wrapper = new LevelDBTransactionWrapper();
+                        wrapper.addTo(value);
+                    }
+                   else if (obj.isEmpty()) {
                         wrapper = new LevelDBTransactionWrapper();
                         wrapper.addTo(value);
                     } else {
@@ -306,6 +310,28 @@ public class LevelDBConnectionManager<K, V> implements IDatabase<K, V> {
         dbFile.delete();
         dbFile.getParentFile().delete();
         return dbFile.delete();
+    }
+
+    @Override
+    public boolean erase_db() {
+        w.lock();
+        try {
+            final DBIterator iterator = level_db.iterator();
+
+            for (iterator.seekToFirst(); iterator.hasNext(); iterator.next()) {
+                level_db.delete(iterator.peekNext().getKey());
+            }
+
+           return true;
+        } catch (NullPointerException exception) {
+            LOGGER.error("Exception occurred during delete_db operation. {}", exception.getMessage());
+        } catch (final Exception exception) {
+            LOGGER.error("Exception occurred during deleteAll operation. {}", exception.getMessage());
+            throw new DeleteAllFailedException(exception.getMessage(), exception);
+        } finally {
+            w.unlock();
+            return true;
+        }
     }
 
 

@@ -397,6 +397,34 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
         return true;
     }
 
+    @Override
+    public boolean erase_db() {
+        w.lock();
+        try {
+            final RocksIterator iterator = rocksDB.newIterator();
+
+            iterator.seekToFirst();
+            final byte[] firstKey = getKey(iterator);
+
+            iterator.seekToLast();
+            final byte[] lastKey = getKey(iterator);
+
+
+            if (firstKey != null || lastKey != null) {
+                rocksDB.deleteRange(firstKey, lastKey);
+                rocksDB.delete(lastKey);
+            }
+
+        } catch (NullPointerException exception) {
+            LOGGER.error("RocksDBException occurred during delete_db operation. {}", exception.getMessage());
+        } catch (final RocksDBException exception) {
+            LOGGER.error("RocksDBException occurred during deleteAll operation. {}", exception.getMessage());
+        } finally {
+            w.unlock();
+            return true;
+        }
+    }
+
     @SneakyThrows
     @Override
     public void closeNoDelete() {

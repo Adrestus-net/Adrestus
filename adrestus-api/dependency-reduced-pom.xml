@@ -6,11 +6,11 @@
     <version>1.0-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
-  <groupId>io</groupId>
-  <artifactId>adrestus-protocol</artifactId>
-  <name>adrestus-protocol</name>
+  <groupId>io.Adrestus.v1</groupId>
+  <artifactId>adrestus-api</artifactId>
+  <name>adrestus-api</name>
   <version>1.0-SNAPSHOT</version>
-  <url>http://maven.apache.org</url>
+  <url>http://www.example.com</url>
   <build>
     <plugins>
       <plugin>
@@ -25,11 +25,6 @@
           </execution>
         </executions>
         <configuration>
-          <archive>
-            <manifest>
-              <mainClass>io.Adrestus.protocol.Example.SyncConsensusNotExistedMain</mainClass>
-            </manifest>
-          </archive>
           <descriptorRefs>
             <descriptorRef>jar-with-dependencies</descriptorRef>
           </descriptorRefs>
@@ -38,14 +33,6 @@
       <plugin>
         <artifactId>maven-jar-plugin</artifactId>
         <version>2.4</version>
-        <configuration>
-          <archive>
-            <index>true</index>
-            <manifest>
-              <mainClass>io.Adrestus.protocol.Example.SyncConsensusNotExistedMain</mainClass>
-            </manifest>
-          </archive>
-        </configuration>
       </plugin>
       <plugin>
         <artifactId>maven-shade-plugin</artifactId>
@@ -59,11 +46,7 @@
             <configuration>
               <transformers>
                 <transformer />
-                <transformer>
-                  <manifestEntries>
-                    <Main-Class>io.Adrestus.protocol.Example.SyncConsensusNotExistedMain</Main-Class>
-                  </manifestEntries>
-                </transformer>
+                <transformer />
               </transformers>
               <filters>
                 <filter>
@@ -79,11 +62,8 @@
               </filters>
               <relocations>
                 <relocation>
-                  <pattern>io.Adrestus.protocol</pattern>
-                  <shadedPattern>io.Adrestus.protocol</shadedPattern>
-                  <includes>
-                    <mainClass>io.Adrestus.protocol.Example.SyncConsensusNotExistedMain</mainClass>
-                  </includes>
+                  <pattern>io.Adrestus.api</pattern>
+                  <shadedPattern>io.Adrestus.api</shadedPattern>
                 </relocation>
               </relocations>
             </configuration>
@@ -100,12 +80,6 @@
     </plugins>
   </build>
   <dependencies>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>3.8.1</version>
-      <scope>test</scope>
-    </dependency>
     <dependency>
       <groupId>org.awaitility</groupId>
       <artifactId>awaitility</artifactId>
@@ -130,6 +104,7 @@
     <network.version>1.0-SNAPSHOT</network.version>
     <crypto.version>1.0-SNAPSHOT</crypto.version>
     <consenus.version>1.0-SNAPSHOT</consenus.version>
+    <rx.java>3.0.4</rx.java>
     <maven.compiler.target>1.8</maven.compiler.target>
     <core.version>1.1-SNAPSHOT</core.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

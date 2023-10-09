@@ -1,5 +1,8 @@
 package io.Adrestus.core;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.base.Objects;
 import io.Adrestus.crypto.elliptic.ECDSASignatureData;
 import io.activej.serializer.annotations.Serialize;
@@ -11,6 +14,9 @@ import java.util.Comparator;
 
 
 @SerializeClass(subclasses = {RegularTransaction.class, RewardsTransaction.class, StakingTransaction.class, DelegateTransaction.class})
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "transactiontype")
+@JsonSubTypes({@JsonSubTypes.Type(value = RegularTransaction.class, name = "RegularTransaction"), @JsonSubTypes.Type(value = RewardsTransaction.class, name = "RewardsTransaction"),@JsonSubTypes.Type(value = StakingTransaction.class, name = "StakingTransaction"),@JsonSubTypes.Type(value = DelegateTransaction.class, name = "DelegateTransaction")})
+@JsonPropertyOrder({ "transactiontype", "type","status","timestamp", "hash","nonce","blockNumber", "from","to","zoneFrom","zoneTo","blockNumber","amount","amountWithTransactionFee","xaxis", "yaxis","signature"})
 public abstract class Transaction implements Cloneable, Comparable<Transaction>, Comparator<Transaction>, Serializable {
 
 
@@ -102,7 +108,22 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
         this.Signature = signature;
     }
 
-    public Transaction(String hash, TransactionType type, StatusType status, int zoneFrom, int zoneTo, String timestamp, int blockNumber, String from, String to, double amount, double amountWithTransactionFee, int nonce, String signerPub, BigInteger XAxis, BigInteger YAxis, ECDSASignatureData signature) {
+    public Transaction(String hash, TransactionType type, StatusType status, int zoneFrom, int zoneTo, String timestamp, String from, String to, double amount, double AmountWithTransactionFee, int nonce, ECDSASignatureData signature) {
+        this.Hash = hash;
+        this.Type = type;
+        this.Status = status;
+        this.ZoneFrom = zoneFrom;
+        this.ZoneTo = zoneTo;
+        this.timestamp = timestamp;
+        this.From = from;
+        this.To = to;
+        this.Amount = amount;
+        this.AmountWithTransactionFee = AmountWithTransactionFee;
+        this.Nonce = nonce;
+        this.Signature = signature;
+    }
+
+    public Transaction(String hash, TransactionType type, StatusType status, int zoneFrom, int zoneTo, String timestamp, int blockNumber, String from, String to, double amount, double amountWithTransactionFee, int nonce, BigInteger XAxis, BigInteger YAxis, ECDSASignatureData signature) {
         this.Hash = hash;
         this.Type = type;
         this.Status = status;

@@ -6,13 +6,31 @@
     <version>1.0-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
-  <groupId>io</groupId>
-  <artifactId>adrestus-protocol</artifactId>
-  <name>adrestus-protocol</name>
+  <artifactId>adrestus-config</artifactId>
+  <name>adrestus-config</name>
   <version>1.0-SNAPSHOT</version>
   <url>http://maven.apache.org</url>
   <build>
     <plugins>
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>2.22.2</version>
+        <configuration>
+          <forkCount>1</forkCount>
+          <threadCount>1</threadCount>
+          <reuseForks>false</reuseForks>
+          <runOrder>alphabetical</runOrder>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>2.4</version>
+        <configuration>
+          <archive>
+            <index>true</index>
+          </archive>
+        </configuration>
+      </plugin>
       <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
         <executions>
@@ -25,11 +43,6 @@
           </execution>
         </executions>
         <configuration>
-          <archive>
-            <manifest>
-              <mainClass>io.Adrestus.protocol.Example.SyncConsensusNotExistedMain</mainClass>
-            </manifest>
-          </archive>
           <descriptorRefs>
             <descriptorRef>jar-with-dependencies</descriptorRef>
           </descriptorRefs>
@@ -38,14 +51,6 @@
       <plugin>
         <artifactId>maven-jar-plugin</artifactId>
         <version>2.4</version>
-        <configuration>
-          <archive>
-            <index>true</index>
-            <manifest>
-              <mainClass>io.Adrestus.protocol.Example.SyncConsensusNotExistedMain</mainClass>
-            </manifest>
-          </archive>
-        </configuration>
       </plugin>
       <plugin>
         <artifactId>maven-shade-plugin</artifactId>
@@ -59,11 +64,7 @@
             <configuration>
               <transformers>
                 <transformer />
-                <transformer>
-                  <manifestEntries>
-                    <Main-Class>io.Adrestus.protocol.Example.SyncConsensusNotExistedMain</Main-Class>
-                  </manifestEntries>
-                </transformer>
+                <transformer />
               </transformers>
               <filters>
                 <filter>
@@ -79,11 +80,8 @@
               </filters>
               <relocations>
                 <relocation>
-                  <pattern>io.Adrestus.protocol</pattern>
-                  <shadedPattern>io.Adrestus.protocol</shadedPattern>
-                  <includes>
-                    <mainClass>io.Adrestus.protocol.Example.SyncConsensusNotExistedMain</mainClass>
-                  </includes>
+                  <pattern>io.Adrestus.config</pattern>
+                  <shadedPattern>io.Adrestus.config</shadedPattern>
                 </relocation>
               </relocations>
             </configuration>
@@ -100,12 +98,6 @@
     </plugins>
   </build>
   <dependencies>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>3.8.1</version>
-      <scope>test</scope>
-    </dependency>
     <dependency>
       <groupId>org.awaitility</groupId>
       <artifactId>awaitility</artifactId>
@@ -126,12 +118,7 @@
     </dependency>
   </dependencies>
   <properties>
-    <maven.compiler.source>1.8</maven.compiler.source>
-    <network.version>1.0-SNAPSHOT</network.version>
     <crypto.version>1.0-SNAPSHOT</crypto.version>
-    <consenus.version>1.0-SNAPSHOT</consenus.version>
-    <maven.compiler.target>1.8</maven.compiler.target>
-    <core.version>1.1-SNAPSHOT</core.version>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <appdirs.version>1.2.1</appdirs.version>
   </properties>
 </project>

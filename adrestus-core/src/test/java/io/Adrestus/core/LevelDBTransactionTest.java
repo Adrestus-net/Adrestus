@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 public class LevelDBTransactionTest {
 
@@ -59,6 +60,41 @@ public class LevelDBTransactionTest {
         assertEquals(2, wrapper2.get().getTo().size());
         assertEquals(transaction3, wrapper2.get().getTo().get(1));
         assertEquals(transaction2, wrapper2.get().getTo().get(0));
+        database.delete_db();
+    }
+    @Test
+    public void TransactionAddEraseTest() {
+        IDatabase<String, LevelDBTransactionWrapper<Transaction>> database = new DatabaseFactory(String.class, Transaction.class, new TypeToken<LevelDBTransactionWrapper<Transaction>>() {
+        }.getType()).getDatabase(DatabaseType.LEVEL_DB);
+        Transaction transaction = new RegularTransaction();
+        transaction.setAmount(100);
+        transaction.setHash("Hash");
+        transaction.setFrom("1");
+        transaction.setTo("2");
+
+        Transaction transaction2 = new RegularTransaction();
+        transaction2.setAmount(200);
+        transaction2.setHash("Hash12");
+        transaction2.setFrom("3");
+        transaction2.setTo("1");
+
+        Transaction transaction3 = new RegularTransaction();
+        transaction3.setAmount(200);
+        transaction3.setHash("Hash3");
+        transaction3.setFrom("4");
+        transaction3.setTo("1");
+
+        database.save("1", transaction);
+        Optional<LevelDBTransactionWrapper<Transaction>> wrapper = database.findByKey("1");
+        System.out.println(wrapper.get().toString());
+        database.save("1", transaction);
+        database.save("1", transaction2);
+        database.save("1", transaction2);
+        database.save("1", transaction3);
+        //   database.save("1",transaction2);
+        assertNotEquals(0, database.findDBsize());
+        database.erase_db();
+        assertEquals(0, database.findDBsize());
         database.delete_db();
     }
 

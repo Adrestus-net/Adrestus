@@ -6,13 +6,31 @@
     <version>1.0-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
-  <groupId>io</groupId>
-  <artifactId>adrestus-protocol</artifactId>
-  <name>adrestus-protocol</name>
+  <artifactId>adrestus-util</artifactId>
+  <name>adrestus-util</name>
   <version>1.0-SNAPSHOT</version>
-  <url>http://maven.apache.org</url>
+  <url>http://www.example.com</url>
   <build>
     <plugins>
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>2.22.2</version>
+        <configuration>
+          <forkCount>1</forkCount>
+          <threadCount>1</threadCount>
+          <reuseForks>false</reuseForks>
+          <runOrder>alphabetical</runOrder>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>2.4</version>
+        <configuration>
+          <archive>
+            <index>true</index>
+          </archive>
+        </configuration>
+      </plugin>
       <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
         <executions>
@@ -25,11 +43,6 @@
           </execution>
         </executions>
         <configuration>
-          <archive>
-            <manifest>
-              <mainClass>io.Adrestus.protocol.Example.SyncConsensusNotExistedMain</mainClass>
-            </manifest>
-          </archive>
           <descriptorRefs>
             <descriptorRef>jar-with-dependencies</descriptorRef>
           </descriptorRefs>
@@ -38,14 +51,6 @@
       <plugin>
         <artifactId>maven-jar-plugin</artifactId>
         <version>2.4</version>
-        <configuration>
-          <archive>
-            <index>true</index>
-            <manifest>
-              <mainClass>io.Adrestus.protocol.Example.SyncConsensusNotExistedMain</mainClass>
-            </manifest>
-          </archive>
-        </configuration>
       </plugin>
       <plugin>
         <artifactId>maven-shade-plugin</artifactId>
@@ -59,11 +64,7 @@
             <configuration>
               <transformers>
                 <transformer />
-                <transformer>
-                  <manifestEntries>
-                    <Main-Class>io.Adrestus.protocol.Example.SyncConsensusNotExistedMain</Main-Class>
-                  </manifestEntries>
-                </transformer>
+                <transformer />
               </transformers>
               <filters>
                 <filter>
@@ -79,11 +80,8 @@
               </filters>
               <relocations>
                 <relocation>
-                  <pattern>io.Adrestus.protocol</pattern>
-                  <shadedPattern>io.Adrestus.protocol</shadedPattern>
-                  <includes>
-                    <mainClass>io.Adrestus.protocol.Example.SyncConsensusNotExistedMain</mainClass>
-                  </includes>
+                  <pattern>io.Adrestus.util</pattern>
+                  <shadedPattern>io.Adrestus.util</shadedPattern>
                 </relocation>
               </relocations>
             </configuration>
@@ -101,9 +99,53 @@
   </build>
   <dependencies>
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>3.8.1</version>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-engine</artifactId>
+      <version>5.9.2</version>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>junit-platform-engine</artifactId>
+          <groupId>org.junit.platform</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-api</artifactId>
+      <version>5.9.2</version>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>opentest4j</artifactId>
+          <groupId>org.opentest4j</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <version>4.11.0</version>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>byte-buddy</artifactId>
+          <groupId>net.bytebuddy</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>byte-buddy-agent</artifactId>
+          <groupId>net.bytebuddy</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>objenesis</artifactId>
+          <groupId>org.objenesis</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-params</artifactId>
+      <version>5.9.2</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -126,12 +168,14 @@
     </dependency>
   </dependencies>
   <properties>
-    <maven.compiler.source>1.8</maven.compiler.source>
-    <network.version>1.0-SNAPSHOT</network.version>
+    <jupiter.version>5.9.2</jupiter.version>
+    <jol.version>0.16</jol.version>
+    <identity.version>0.4.3</identity.version>
+    <maven.compiler.source>1.7</maven.compiler.source>
+    <vertx.core>4.3.7</vertx.core>
     <crypto.version>1.0-SNAPSHOT</crypto.version>
-    <consenus.version>1.0-SNAPSHOT</consenus.version>
-    <maven.compiler.target>1.8</maven.compiler.target>
-    <core.version>1.1-SNAPSHOT</core.version>
+    <mockito.version>4.11.0</mockito.version>
+    <maven.compiler.target>1.7</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 </project>

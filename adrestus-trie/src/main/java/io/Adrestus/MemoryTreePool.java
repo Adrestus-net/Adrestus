@@ -145,12 +145,17 @@ public class MemoryTreePool implements IMemoryTreePool, Cloneable {
 
     @Override
     public String getRootHash() throws Exception {
-        return patriciaTreeImp.getRootHash().toHexString();
+        r.lock();
+        try {
+            return patriciaTreeImp.getRootHash().toHexString();
+        } finally {
+            r.unlock();
+        }
     }
 
     @Override
     public void setHeight(String height) throws Exception {
-        this.height=height;
+        this.height = height;
     }
 
     @Override
@@ -165,12 +170,22 @@ public class MemoryTreePool implements IMemoryTreePool, Cloneable {
 
     @Override
     public void setTrie(MerklePatriciaTrie<Bytes, PatriciaTreeNode> patriciaTreeImp) {
-        this.patriciaTreeImp = patriciaTreeImp;
+        w.lock();
+        try {
+            this.patriciaTreeImp = patriciaTreeImp;
+        } finally {
+            w.unlock();
+        }
     }
 
 
     public void setPatriciaTreeImp(MerklePatriciaTrie<Bytes, PatriciaTreeNode> patriciaTreeImp) {
-        this.patriciaTreeImp = patriciaTreeImp;
+        w.lock();
+        try {
+            this.patriciaTreeImp = patriciaTreeImp;
+        } finally {
+            w.unlock();
+        }
     }
 
     @Override

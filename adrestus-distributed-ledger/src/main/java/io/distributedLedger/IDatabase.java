@@ -47,6 +47,8 @@ public interface IDatabase<K, V> {
 
     boolean delete_db();
 
+    boolean erase_db();
+
     Map<K, V> findBetweenRange(K key);
 
     Map<K, V> seekBetweenRange(int start, int finish);

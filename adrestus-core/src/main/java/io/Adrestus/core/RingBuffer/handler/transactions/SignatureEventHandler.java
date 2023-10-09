@@ -5,12 +5,15 @@ import io.Adrestus.core.Resourses.MemoryTransactionPool;
 import io.Adrestus.core.RingBuffer.event.TransactionEvent;
 import io.Adrestus.core.StatusType;
 import io.Adrestus.core.Transaction;
+import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.elliptic.ECDSASign;
 import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
 
+import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
@@ -85,13 +88,28 @@ public class SignatureEventHandler extends TransactionEventHandler {
         @SneakyThrows
         @Override
         public void run() {
-            if (!ecdsaSign.secp256Verify(Hex.decode(transaction.getHash()), transaction.getFrom(), transaction.getSignature())) {
-                LOG.info("Transaction signature is not valid ABORT");
-                if (type.equals(SignatureBehaviorType.BLOCK_TRANSACTIONS))
-                    latch.countDown();
-                transaction.setStatus(StatusType.ABORT);
-                MemoryTransactionPool.getInstance().delete(transaction);
-                return;
+            if (!transaction.getXAxis().toString().equals("0") && !transaction.getYAxis().toString().equals("0")) {
+                ECDSASign ecdsaSign = new ECDSASign();
+                BigInteger publicKeyValue = ecdsaSign.recoverPublicKeyValue(transaction.getXAxis(), transaction.getYAxis());
+                boolean verify = ecdsaSign.secp256Verify(HashUtil.sha256(transaction.getHash().getBytes(StandardCharsets.UTF_8)), transaction.getFrom(), publicKeyValue, transaction.getSignature());
+                if(!verify){
+                    LOG.info("Transaction Wallet signature is not valid ABORT");
+                    if (type.equals(SignatureBehaviorType.BLOCK_TRANSACTIONS))
+                        latch.countDown();
+                    transaction.setStatus(StatusType.ABORT);
+                    MemoryTransactionPool.getInstance().delete(transaction);
+                    return;
+                }
+            }
+            else {
+                if (!ecdsaSign.secp256Verify(Hex.decode(transaction.getHash()), transaction.getFrom(), transaction.getSignature())) {
+                    LOG.info("Transaction signature is not valid ABORT");
+                    if (type.equals(SignatureBehaviorType.BLOCK_TRANSACTIONS))
+                        latch.countDown();
+                    transaction.setStatus(StatusType.ABORT);
+                    MemoryTransactionPool.getInstance().delete(transaction);
+                    return;
+                }
             }
             if (type.equals(SignatureBehaviorType.BLOCK_TRANSACTIONS)) {
                 //LOG.info("Transaction signature is  valid: " + transaction.getHash());
