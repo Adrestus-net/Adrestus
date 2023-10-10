@@ -115,7 +115,6 @@
   <properties>
     <network.version>1.0-SNAPSHOT</network.version>
     <trove4j.version>3.0.3</trove4j.version>
-    <jakson.version>2.15.2</jakson.version>
     <util.version>1.0-SNAPSHOT</util.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <disruptor.version>3.4.4</disruptor.version>

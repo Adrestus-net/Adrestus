@@ -373,6 +373,14 @@ class RPCExampleTest {
     @Test
     public void myGmultiple_download_one_server() throws Exception {
         try {
+            IDatabase<String, CommitteeBlock> database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
+            CommitteeBlock firstblock = new CommitteeBlock();
+            firstblock.setDifficulty(112);
+            firstblock.getHeaderData().setTimestamp(GetTime.GetTimeStampInString());
+            database.save("1", firstblock);
+            Thread.sleep(200);
+
+
             ArrayList<InetSocketAddress> list = new ArrayList<>();
             InetSocketAddress address1 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 4070);
             InetSocketAddress address2 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 4071);
