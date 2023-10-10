@@ -27,7 +27,7 @@ public class RPCWorkerTest {
 
     @BeforeAll
     public static void setup() {
-        delete_test();
+        //delete_test();
     }
 
 
@@ -39,10 +39,11 @@ public class RPCWorkerTest {
         IAdrestusFactory factory = new AdrestusFactory();
         List<AdrestusTask> tasks = new java.util.ArrayList<>(List.of(
                 //factory.createBindServerKademliaTask(),
-                factory.createRepositoryTransactionTask(DatabaseInstance.ZONE_0_TRANSACTION_BLOCK)));
+                factory.createRepositoryTransactionTask(instance)));
         ExecutorService executor = Executors.newFixedThreadPool(tasks.size());
         tasks.stream().map(Worker::new).forEach(executor::execute);
 
+        Thread.sleep(3000);
         //WHEN run single make sure it started
         //CachedEventLoop.getInstance().start();
        /* RpcServer.create(eventloop)
@@ -68,7 +69,7 @@ public class RPCWorkerTest {
 
         try {
 
-            RpcAdrestusClient client = new RpcAdrestusClient(new TransactionBlock(), list, CachedEventLoop.getInstance().getEventloop());
+            RpcAdrestusClient client = new RpcAdrestusClient(new TransactionBlock(), address1, CachedEventLoop.getInstance().getEventloop());
             client.connect();
 
             List<AbstractBlock> blocks = client.getBlocksList("1");
@@ -77,7 +78,7 @@ public class RPCWorkerTest {
             client.close();
             client = null;
 
-            RpcAdrestusClient client2 = new RpcAdrestusClient(new TransactionBlock(), list, CachedEventLoop.getInstance().getEventloop());
+            RpcAdrestusClient client2 = new RpcAdrestusClient(new TransactionBlock(), address1, CachedEventLoop.getInstance().getEventloop());
             client2.connect();
 
             List<AbstractBlock> blocks2 = client2.getBlocksList("1");
