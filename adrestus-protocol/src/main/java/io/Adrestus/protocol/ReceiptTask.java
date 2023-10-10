@@ -82,7 +82,7 @@ public class ReceiptTask extends AdrestusTask {
                 CachedReceiptSemaphore.getInstance().getSemaphore().release();
                 Thread.sleep(500);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                System.out.println(e.toString());
             }
         }
     }

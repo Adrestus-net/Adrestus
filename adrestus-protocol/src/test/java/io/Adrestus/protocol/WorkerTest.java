@@ -64,10 +64,12 @@ public class WorkerTest {
         // All tasks were executed, now shutdown
         Thread.sleep(2000);
         tasks.forEach(val -> {
-            val.close();
+            if(val!=null)
+                val.close();
         });
         tasks.clear();
         executor.shutdown();
+        executor.shutdownNow();
         while (!executor.isTerminated()) {
             Thread.yield();
         }
@@ -113,10 +115,12 @@ public class WorkerTest {
 
         Thread.sleep(2000);
         tasks.forEach(val -> {
-            val.close();
+            if(val!=null)
+                val.close();
         });
         tasks.clear();
         executor.shutdown();
+        executor.shutdownNow();
         while (!executor.isTerminated()) {
             Thread.yield();
         }
