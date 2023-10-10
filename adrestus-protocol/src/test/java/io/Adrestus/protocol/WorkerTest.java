@@ -64,8 +64,10 @@ public class WorkerTest {
         // All tasks were executed, now shutdown
         Thread.sleep(2000);
         tasks.forEach(val -> {
-            if(val!=null)
-                val.close();
+            try {
+                if (val != null)
+                    val.close();
+            }catch (NullPointerException e){}
         });
         tasks.clear();
         executor.shutdown();
@@ -112,11 +114,12 @@ public class WorkerTest {
             System.out.println(MemoryTransactionPool.getInstance().getSize());
             count++;
         }
-
         Thread.sleep(2000);
         tasks.forEach(val -> {
-            if(val!=null)
-                val.close();
+            try {
+                if (val != null)
+                    val.close();
+            }catch (NullPointerException e){}
         });
         tasks.clear();
         executor.shutdown();

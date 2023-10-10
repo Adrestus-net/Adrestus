@@ -106,8 +106,10 @@ public class TransactionChannelHandler<T> {
     @SneakyThrows
     public void close() {
         this.server.closeFuture().get(10, TimeUnit.SECONDS);
-        this.server.close();
-        this.server = null;
+        if(server!=null) {
+            this.server.close();
+            this.server = null;
+        }
         this.eventloop.breakEventloop();
     }
 
