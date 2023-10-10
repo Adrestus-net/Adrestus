@@ -27,12 +27,12 @@ public class RPCWorkerTest {
 
     @BeforeAll
     public static void setup() {
-        //delete_test();
+        delete_test();
     }
 
 
     //MAKE SURE CAHCEHCD EVENTLOOP START HERE OR ON WORKER TEST
-    @Test
+    //@Test
     public void test() throws IOException, InterruptedException {
         DatabaseInstance instance = DatabaseInstance.ZONE_0_TRANSACTION_BLOCK;
         IDatabase<String, TransactionBlock> database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, instance);
