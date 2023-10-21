@@ -231,6 +231,38 @@ class RPCExampleTest {
             System.out.println("Exception caught: " + e.toString());
         }
     }
+    @Test
+    public void myCadownload2() throws Exception {
+        try {
+            IDatabase<String, TransactionBlock> database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.ZONE_1_TRANSACTION_BLOCK);
+            IDatabase<String, TransactionBlock> database2 = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.ZONE_2_TRANSACTION_BLOCK);
+            TransactionBlock transactionBlock = new TransactionBlock();
+            TransactionBlock transactionBlock2 = new TransactionBlock();
+            String hash = HashUtil.sha256_bytetoString(encode.encode(transactionBlock));
+            transactionBlock.setHash(hash);
+            transactionBlock2.setHash("1");
+            database.save(transactionBlock.getHash(), transactionBlock);
+            database2.save(transactionBlock2.getHash(), transactionBlock2);
+
+            RpcAdrestusServer<AbstractBlock> example = new RpcAdrestusServer<AbstractBlock>(new TransactionBlock(), DatabaseInstance.ZONE_2_TRANSACTION_BLOCK, "localhost", 8095, eventloop);
+            new Thread(example).start();
+            RpcAdrestusClient<AbstractBlock> client = new RpcAdrestusClient<AbstractBlock>(new TransactionBlock(), "localhost", 8095, eventloop);
+            client.connect();
+            List<AbstractBlock> blocks = client.getBlocksList("1");
+            if (blocks.isEmpty()) {
+                System.out.println("error");
+            }
+            assertEquals(transactionBlock2, blocks.get(0));
+
+
+            client.close();
+            example.close();
+            example = null;
+            database.delete_db();
+        } catch (Exception e) {
+            System.out.println("Exception caught: " + e.toString());
+        }
+    }
 
     @Test
     @Order(3)

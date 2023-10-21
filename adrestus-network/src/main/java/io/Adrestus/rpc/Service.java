@@ -42,6 +42,7 @@ public class Service<T> implements IService<T> {
 
     @Override
     public List<T> download(String hash) throws Exception {
+        ZoneDatabaseFactory.getZoneInstance(0);
         Map<String, T> map;
         if (hash.equals(""))
             map = database.seekFromStart();

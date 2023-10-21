@@ -359,6 +359,48 @@ public class RocksDBBlockTest {
         assertEquals("hash1", firstKey.get());
         database.delete_db();
     }
+    @Test
+    public void find_between_range2() {
+        IDatabase<String, TransactionBlock> database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.ZONE_1_TRANSACTION_BLOCK);
+        String hash = "Hash";
+        TransactionBlock transactionBlock1 = new TransactionBlock();
+        transactionBlock1.setHeight(1);
+        transactionBlock1.setHash("hash1");
+
+        TransactionBlock transactionBlock2 = new TransactionBlock();
+        transactionBlock2.setHeight(2);
+        transactionBlock2.setHash("hash2");
+
+        TransactionBlock transactionBlock3 = new TransactionBlock();
+        transactionBlock3.setHeight(3);
+        transactionBlock3.setHash("hash3");
+
+        TransactionBlock transactionBlock4 = new TransactionBlock();
+        transactionBlock4.setHeight(4);
+        transactionBlock4.setHash("hash4");
+
+        TransactionBlock transactionBlock5 = new TransactionBlock();
+        transactionBlock5.setHeight(5);
+        transactionBlock5.setHash("hash5");
+
+        TransactionBlock transactionBlock6 = new TransactionBlock();
+        transactionBlock6.setHeight(6);
+        transactionBlock6.setHash("hash6");
+
+        Map<String, TransactionBlock> map = new HashMap<>();
+        map.put("hash1", transactionBlock1);
+        map.put("hash2", transactionBlock2);
+        map.put("hash3", transactionBlock3);
+        map.put("hash4", transactionBlock4);
+        map.put("hash5", transactionBlock5);
+        map.put("hash6", transactionBlock6);
+
+        database.saveAll(map);
+
+        Map<String, TransactionBlock> map_returned = database.findBetweenRange("hash145");
+        assertEquals(0, map_returned.size());
+        database.delete_db();
+    }
 
     @Test
     public void save_all_tree() throws Exception {

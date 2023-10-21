@@ -66,6 +66,22 @@ public class LevelDBConnectionTest {
 
         database.delete_db();
     }
+    @Test
+    public void myBfind_between_range2() {
+        IDatabase<String, String> database = new DatabaseFactory(String.class, String.class).getDatabase(DatabaseType.LEVEL_DB);
+        Map<String, String> map = new HashMap<>();
+        map.put("key1", "value1");
+        map.put("key2", "value2");
+        map.put("key3", "value3");
+        map.put("key4", "value4");
+
+        database.saveAll(map);
+        assertEquals(4, database.findDBsize());
+        Map<String, String> res = database.findBetweenRange("key234");
+        assertEquals(0, res.entrySet().size());
+
+        database.delete_db();
+    }
 
     @Test
     public void myAdelete() {
