@@ -204,11 +204,13 @@ class RPCExampleTest {
         try {
             IDatabase<String, TransactionBlock> database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.ZONE_1_TRANSACTION_BLOCK);
             TransactionBlock transactionBlock = new TransactionBlock();
+            TransactionBlock transactionBlock2 = new TransactionBlock();
             String hash = HashUtil.sha256_bytetoString(encode.encode(transactionBlock));
             transactionBlock.setHash(hash);
+            transactionBlock2.setHash("2");
 
             database.save(transactionBlock.getHash(), transactionBlock);
-
+            database.save(transactionBlock2.getHash(), transactionBlock2);
 
             RpcAdrestusServer<AbstractBlock> example = new RpcAdrestusServer<AbstractBlock>(new TransactionBlock(), DatabaseInstance.ZONE_1_TRANSACTION_BLOCK, "localhost", 8085, eventloop);
             new Thread(example).start();
@@ -216,12 +218,13 @@ class RPCExampleTest {
             client.connect();
             ArrayList<String> list = new ArrayList<>();
             list.add(transactionBlock.getHash());
+            list.add("2");
             List<AbstractBlock> blocks = client.getBlock(list);
             if (blocks.isEmpty()) {
                 System.out.println("error");
             }
             assertEquals(transactionBlock, blocks.get(0));
-
+            assertEquals(transactionBlock2, blocks.get(1));
 
             client.close();
             example.close();

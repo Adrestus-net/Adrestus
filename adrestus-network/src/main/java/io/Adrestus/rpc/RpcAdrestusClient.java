@@ -38,7 +38,7 @@ import static io.activej.rpc.client.sender.RpcStrategies.server;
 public class RpcAdrestusClient<T> {
     private static Logger LOG = LoggerFactory.getLogger(RpcAdrestusClient.class);
 
-    private static final int TIMEOUT = 4000;
+    private int TIMEOUT = 4000;
 
     private SerializationUtil<ListBlockResponse> serializationUtil;
     private SerializationUtil<PatriciaTreeResponse> serializationUtil2;
@@ -83,6 +83,24 @@ public class RpcAdrestusClient<T> {
         this.host = host;
         this.port = port;
         this.eventloop = eventloop;
+        List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
+        list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
+        list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
+        list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
+        list.add(new SerializationUtil.Mapping(MemoryTreePool.class, ctx -> new MemoryTreePoolSerializer()));
+        this.serializationUtil2 = new SerializationUtil<PatriciaTreeResponse>(PatriciaTreeResponse.class, list);
+        this.serializationUtil = new SerializationUtil<ListBlockResponse>(ListBlockResponse.class, list);
+        this.valueMapper = new SerializationUtil(typeParameterClass.getClass(), list, true);
+        this.valueMapper2 = new SerializationUtil(typeParameterClass.getClass(), list, true);
+    }
+    public RpcAdrestusClient(T typeParameterClass, String host, int port,int timeout, Eventloop eventloop) {
+        this.rpc_serialize = SerializerBuilder.create();
+        this.typeParameterClass = typeParameterClass;
+        this.host = host;
+        this.port = port;
+        this.eventloop = eventloop;
+        this.TIMEOUT=timeout;
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
         list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));

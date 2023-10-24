@@ -72,7 +72,7 @@ public class InBoundEventHandler implements BlockEventHandler<AbstractBlockEvent
                 Map<Receipt.ReceiptBlock, List<Receipt>> zone_1 = inner_receipts.get(keyset.toArray()[0]);
                 ServiceSubmit(zone_1);
             } catch (Exception e) {
-                // e.printStackTrace();
+                e.printStackTrace();
             } finally {
                 latch.countDown();
             }
@@ -120,52 +120,71 @@ public class InBoundEventHandler implements BlockEventHandler<AbstractBlockEvent
 
         //find validator position in structure map
         Integer my_pos = blockIndex.getPublicKeyIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedBLSKeyPair.getInstance().getPublicKey());
-        // get first zone index from inner receipts and search in foor loop in which zone index of structure map belongs
-        Integer receiptZoneIndex = inner_receipts.keySet().stream().findFirst().get();
-        String IP = "";
-        for (Integer BlockZoneIndex : committeeBlock.getStructureMap().keySet()) {
-            if (BlockZoneIndex == receiptZoneIndex) {
+        boolean bError = false;
+        Integer receiptZoneIndex=0;
+        List<TransactionBlock> current=null;
+        do {
+            try {
+                // get first zone index from inner receipts and search in foor loop in which zone index of structure map belongs
+                receiptZoneIndex = inner_receipts.keySet().stream().findFirst().get();
+                String IP = "";
+                for (Integer BlockZoneIndex : committeeBlock.getStructureMap().keySet()) {
+                    if (BlockZoneIndex == receiptZoneIndex) {
 
-                //Fill in the list with auto increment positions of Linkdhasamp ip where zone index belong
-                List<Integer> searchable_list = IntStream
-                        .range(0, 0 + committeeBlock.getStructureMap().get(BlockZoneIndex).size())
-                        .boxed().collect(Collectors.toList());
+                        //Fill in the list with auto increment positions of Linkdhasamp ip where zone index belong
+                        List<Integer> searchable_list = IntStream
+                                .range(0, 0 + committeeBlock.getStructureMap().get(BlockZoneIndex).size())
+                                .boxed().collect(Collectors.toList());
 
-                // Find the closest value of ip in order to get this ip from linkdnHashmap
-                //and look for value
-                int target = searchable_list.stream()
-                        .min(Comparator.comparingInt(i -> Math.abs(i - my_pos)))
-                        .orElseThrow(() -> new NoSuchElementException("No value present"));
-                IP = blockIndex.getIpValue(BlockZoneIndex, blockIndex.getPublicKeyByIndex(BlockZoneIndex, target));
-                break;
+                        // Find the closest value of ip in order to get this ip from linkdnHashmap
+                        //and look for value
+                        Integer finalMy_pos = my_pos;
+                        int target = searchable_list.stream()
+                                .min(Comparator.comparingInt(i -> Math.abs(i - finalMy_pos)))
+                                .orElseThrow(() -> new NoSuchElementException("No value present"));
+                        IP = blockIndex.getIpValue(BlockZoneIndex, blockIndex.getPublicKeyByIndex(BlockZoneIndex, target));
+                        break;
+                    }
+                }
+                if (IP.equals("")) {
+                    LOG.info("Cross zone Verification failed not valid IP");
+                    transactionBlock.setStatustype(StatusType.ABORT);
+                    return;
+                }
+                ArrayList<String> to_search = new ArrayList<>();
+                for (Receipt.ReceiptBlock receiptBlock : zone.keySet()) {
+                    to_search.add(String.valueOf(receiptBlock.getHeight()));
+                }
+                RpcAdrestusClient<TransactionBlock> client = new RpcAdrestusClient<TransactionBlock>(new TransactionBlock(), IP, ZoneDatabaseFactory.getDatabaseRPCPort(blockIndex.getZone(IP)),400, CachedEventLoop.getInstance().getEventloop());
+                client.connect();
+
+                current = client.getBlock(to_search);
+                bError = false;
+            } catch (IllegalArgumentException e) {
+                bError=true;
+                if(my_pos==committeeBlock.getStructureMap().get(receiptZoneIndex).size()-1){
+                    my_pos=0;
+                }
+                else {
+                    my_pos=my_pos+1;
+                }
             }
-        }
-        if (IP.equals("")) {
-            LOG.info("Cross zone Verification failed not valid IP");
-            transactionBlock.setStatustype(StatusType.ABORT);
-            return;
-        }
-        ArrayList<String> to_search = new ArrayList<>();
-        for (Receipt.ReceiptBlock receiptBlock : zone.keySet()) {
-            to_search.add(String.valueOf(receiptBlock.getHeight()));
-        }
-        RpcAdrestusClient<TransactionBlock> client = new RpcAdrestusClient<TransactionBlock>(new TransactionBlock(), IP, ZoneDatabaseFactory.getDatabaseRPCPort(blockIndex.getZone(IP)), CachedEventLoop.getInstance().getEventloop());
-        client.connect();
-        List<TransactionBlock> current = client.getBlock(to_search);
+        } while (bError);
         int position = -1;
         for (Map.Entry<Receipt.ReceiptBlock, List<Receipt>> entry : zone.entrySet()) {
             position++;
             int finalPosition = position;
+            List<TransactionBlock> finalCurrent = current;
             entry.getValue().stream().forEach(receipt -> {
-                int index = Collections.binarySearch(current.get(finalPosition).getTransactionList(), receipt.getTransaction());
+                int index = Collections.binarySearch(finalCurrent.get(finalPosition).getTransactionList(), receipt.getTransaction());
                 if (index < 0) {
                     LOG.info("Cannot find transaction in Transaction Block");
                     transactionBlock.setStatustype(StatusType.ABORT);
                     return;
                 }
-                Transaction transaction = current.get(finalPosition).getTransactionList().get(index);
-                boolean check = PreConditionsChecks(receipt, entry.getKey(), current.get(finalPosition), transaction, index);
-                boolean cross_check = CrossZoneConditionsChecks(current.get(finalPosition), entry.getKey());
+                Transaction transaction = finalCurrent.get(finalPosition).getTransactionList().get(index);
+                boolean check = PreConditionsChecks(receipt, entry.getKey(), finalCurrent.get(finalPosition), transaction, index);
+                boolean cross_check = CrossZoneConditionsChecks(finalCurrent.get(finalPosition), entry.getKey());
                 if (!check || !cross_check)
                     atomicInteger.decrementAndGet();
             });

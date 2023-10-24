@@ -58,6 +58,14 @@ public class ReceiptsTest {
     private static TransactionBlock transactionBlock;
     private static BLSPrivateKey sk2;
     private static BLSPublicKey vk2;
+    private static BLSPrivateKey sk4;
+    private static BLSPublicKey vk4;
+
+    private static BLSPrivateKey sk5;
+    private static BLSPublicKey vk5;
+
+    private static BLSPrivateKey sk6;
+    private static BLSPublicKey vk6;
     private static SerializationUtil<AbstractBlock> serenc;
     private static ArrayList<MerkleNode> merkleNodeArrayList;
     private static MerkleTreeImp tree;
@@ -71,8 +79,17 @@ public class ReceiptsTest {
         sk2 = new BLSPrivateKey(2);
         vk2 = new BLSPublicKey(sk2);
 
-        sk3 = new BLSPrivateKey(2);
+        sk3 = new BLSPrivateKey(3);
         vk3 = new BLSPublicKey(sk3);
+
+        sk4 = new BLSPrivateKey(4);
+        vk4 = new BLSPublicKey(sk4);
+
+        sk5 = new BLSPrivateKey(5);
+        vk5 = new BLSPublicKey(sk5);
+
+        sk6= new BLSPrivateKey(6);
+        vk6 = new BLSPublicKey(sk6);
 
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
@@ -158,10 +175,12 @@ public class ReceiptsTest {
 
         CommitteeBlock committeeBlock = new CommitteeBlock();
         committeeBlock.getHeaderData().setTimestamp("2022-11-18 15:01:29.304");
-        committeeBlock.getStructureMap().get(0).put(vk1, "192.168.1.106");
-        committeeBlock.getStructureMap().get(0).put(vk3, "192.168.1.112");
+        committeeBlock.getStructureMap().get(0).put(vk1, IPFinder.getLocal_address());
+        committeeBlock.getStructureMap().get(0).put(vk2, "192.168.1.112");
         committeeBlock.getStructureMap().get(0).put(vk3, "192.168.1.114");
-        committeeBlock.getStructureMap().get(1).put(vk2, "192.168.1.116");
+        committeeBlock.getStructureMap().get(1).put(vk4, "192.168.1.116");
+        committeeBlock.getStructureMap().get(1).put(vk5, "192.168.1.117");
+        committeeBlock.getStructureMap().get(1).put(vk6, "192.168.1.118");
         CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
         CachedZoneIndex.getInstance().setZoneIndexInternalIP();
         tree = new MerkleTreeImp();
@@ -280,8 +299,8 @@ public class ReceiptsTest {
 
         BlockEventPublisher publisher = new BlockEventPublisher(1024);
         CachedZoneIndex.getInstance().setZoneIndex(1);
-        CachedBLSKeyPair.getInstance().setPublicKey(vk1);
-        CachedBLSKeyPair.getInstance().setPrivateKey(sk1);
+        CachedBLSKeyPair.getInstance().setPublicKey(vk5);
+        CachedBLSKeyPair.getInstance().setPrivateKey(sk5);
         String OriginalRootHash = transactionBlock.getMerkleRoot();
         Receipt.ReceiptBlock receiptBlock = new Receipt.ReceiptBlock(transactionBlock.getHash(), transactionBlock.getHeight(), transactionBlock.getGeneration(), transactionBlock.getMerkleRoot());
 
