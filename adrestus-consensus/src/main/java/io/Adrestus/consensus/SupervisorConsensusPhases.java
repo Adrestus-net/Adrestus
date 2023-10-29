@@ -83,6 +83,8 @@ public class SupervisorConsensusPhases {
                     this.leader_bls = this.blockIndex.getPublicKeyByIndex(0, current);
                     this.consensusServer = new ConsensusServer(this.blockIndex.getIpValue(0, this.leader_bls), latch);
                     this.N_COPY = (this.N - 1) - consensusServer.getPeers_not_connected();
+                    this.consensusServer.setMAX_MESSAGES(this.N_COPY*2);
+                    this.consensusServer.receive_handler();
                 } catch (Exception e) {
                     cleanup();
                     throw new IllegalArgumentException("Exception caught " + e.toString());
@@ -307,6 +309,8 @@ public class SupervisorConsensusPhases {
                     this.leader_bls = this.blockIndex.getPublicKeyByIndex(0, current);
                     this.consensusServer = new ConsensusServer(this.blockIndex.getIpValue(0, this.leader_bls), latch);
                     this.N_COPY = (this.N - 1) - consensusServer.getPeers_not_connected();
+                    this.consensusServer.setMAX_MESSAGES(this.N_COPY*3);
+                    this.consensusServer.receive_handler();
                 }
             } catch (Exception e) {
                 cleanup();
@@ -622,6 +626,8 @@ public class SupervisorConsensusPhases {
                     this.leader_bls = this.blockIndex.getPublicKeyByIndex(0, current);
                     this.consensusServer = new ConsensusServer(this.blockIndex.getIpValue(0, this.leader_bls), latch);
                     this.N_COPY = (this.N - 1) - consensusServer.getPeers_not_connected();
+                    this.consensusServer.setMAX_MESSAGES(this.N_COPY*2);
+                    this.consensusServer.receive_handler();
                 }
             } catch (Exception e) {
                 cleanup();

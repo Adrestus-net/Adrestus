@@ -114,8 +114,12 @@ public class ConsensusClient {
                 if (data != null) {
                     message_deque.add(data);
                     MESSAGES--;
-                    MAX_MESSAGES--;
+                } else {
+                    message_deque.add(new byte[0]);
+                    break;
                 }
+                // System.out.println("receive" + MESSAGES);
+                MAX_MESSAGES--;
                 // System.out.println("receive" + MESSAGES);
                 // available.release();
             }

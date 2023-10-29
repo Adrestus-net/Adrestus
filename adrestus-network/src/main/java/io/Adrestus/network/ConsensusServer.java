@@ -1,6 +1,7 @@
 package io.Adrestus.network;
 
 import io.Adrestus.config.ConsensusConfiguration;
+import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zeromq.SocketType;
@@ -12,6 +13,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingDeque;
 
 import static io.Adrestus.config.ConsensusConfiguration.*;
 
@@ -32,8 +36,13 @@ public class ConsensusServer {
     private CountDownLatch latch;
     private int peers_not_connected;
 
+    private int MAX_MESSAGES;
+    private final ExecutorService executorService;
 
+    private final LinkedBlockingDeque<byte[]> message_deque;
     public ConsensusServer(String IP, CountDownLatch latch) {
+        this.executorService = Executors.newSingleThreadExecutor();
+        this.message_deque = new LinkedBlockingDeque<>();
         this.peers_not_connected = 0;
         this.terminate = false;
         this.IP = IP;
@@ -63,6 +72,8 @@ public class ConsensusServer {
     }
 
     public ConsensusServer(String IP, CountDownLatch latch, int collector_timeout, int connected_timeout) {
+        this.executorService = Executors.newSingleThreadExecutor();
+        this.message_deque = new LinkedBlockingDeque<>();
         this.peers_not_connected = 0;
         this.terminate = false;
         this.IP = IP;
@@ -91,6 +102,24 @@ public class ConsensusServer {
     }
 
     public ConsensusServer(String IP) {
+        this.executorService = Executors.newSingleThreadExecutor();
+        this.message_deque = new LinkedBlockingDeque<>();
+        this.IP = IP;
+        this.ctx = new ZContext();
+        this.publisher = ctx.createSocket(SocketType.PUB);
+        this.publisher.setHeartbeatIvl(2);
+        this.collector = ctx.createSocket(SocketType.PULL);
+
+
+        this.publisher.bind("tcp://" + IP + ":" + PUBLISHER_PORT);
+        this.collector.bind("tcp://" + IP + ":" + COLLECTOR_PORT);
+        this.collector.setReceiveTimeOut(CONSENSUS_TIMEOUT);
+        this.publisher.setSendTimeOut(CONSENSUS_TIMEOUT);
+    }
+    public ConsensusServer(String IP,int MAX_MESSAGES) {
+        this.MAX_MESSAGES=MAX_MESSAGES;
+        this.executorService = Executors.newSingleThreadExecutor();
+        this.message_deque = new LinkedBlockingDeque<>();
         this.IP = IP;
         this.ctx = new ZContext();
         this.publisher = ctx.createSocket(SocketType.PUB);
@@ -106,6 +135,9 @@ public class ConsensusServer {
 
     public ConsensusServer() {
         //this.IP = IPFinder.getExternalIP();
+        this.MAX_MESSAGES = 2;
+        this.executorService = Executors.newSingleThreadExecutor();
+        this.message_deque = new LinkedBlockingDeque<>();
         this.IP = IPFinder.getLocalIP();
         this.ctx = new ZContext();
         this.publisher = ctx.createSocket(SocketType.PUB);
@@ -158,20 +190,44 @@ public class ConsensusServer {
         }
     }
 
+    @SneakyThrows
     public byte[] receiveData() {
-        byte[] data = null;
-        try {
-            data = collector.recv(0);
-        } catch (NullPointerException e) {
-        } catch (ZMQException e) {
-            if (e.getErrorCode() == 156384765) {
-            } else {
-                LOG.info("ZMQException" + e.toString());
-            }
+        while (message_deque.isEmpty()) {
+            Thread.sleep(50);
         }
-        return data;
+        // System.out.println("take");
+        return message_deque.pollFirst();
     }
 
+    public void receive_handler() {
+        Runnable runnableTask = () -> {
+            byte[] data = {1};
+            while (MAX_MESSAGES > 0) {
+                //available.acquire();
+                //         System.out.println("acquire");
+                try {
+                    data = collector.recv(0);
+                } catch (ZMQException e) {
+                    if (e.getErrorCode() != 156384765) {
+                        LOG.info("ZMQ EXCEPTION caught");
+                    }
+                } catch (NullPointerException exception) {
+                    LOG.info("NullPointerException caught " + exception.toString());
+                }
+                if (data != null) {
+                    message_deque.add(data);
+                    MAX_MESSAGES--;
+                } else {
+                    message_deque.add(new byte[0]);
+                    MAX_MESSAGES--;
+                }
+                // System.out.println("receive" + MESSAGES);
+                // System.out.println("receive" + MESSAGES);
+                // available.release();
+            }
+        };
+        this.executorService.execute(runnableTask);
+    }
     public String receiveStringData() {
         String data = "";
         try {
@@ -216,11 +272,20 @@ public class ConsensusServer {
         return peers_not_connected;
     }
 
+    public int getMAX_MESSAGES() {
+        return MAX_MESSAGES;
+    }
+
+    public void setMAX_MESSAGES(int MAX_MESSAGES) {
+        this.MAX_MESSAGES = MAX_MESSAGES;
+    }
+
     public void setPeers_not_connected(int peers_not_connected) {
         this.peers_not_connected = peers_not_connected;
     }
 
     public void close() {
+        this.executorService.shutdownNow().clear();
         if (this.publisher != null)
             this.publisher.close();
         if (this.collector != null)
