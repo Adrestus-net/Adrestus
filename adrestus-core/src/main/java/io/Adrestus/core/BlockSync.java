@@ -136,6 +136,8 @@ public class BlockSync implements IBlockSync {
             RpcAdrestusClient client = null;
             try {
                 IDatabase<String, TransactionBlock> block_database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
+                IDatabase<String, LevelDBTransactionWrapper<Transaction>> transaction_database = new DatabaseFactory(String.class, Transaction.class, new TypeToken<LevelDBTransactionWrapper<Transaction>>() {
+                }.getType()).getDatabase(DatabaseType.LEVEL_DB);
                 client = new RpcAdrestusClient(new TransactionBlock(), toConnectTransaction, CachedEventLoop.getInstance().getEventloop());
                 client.connect();
 
@@ -145,13 +147,25 @@ public class BlockSync implements IBlockSync {
                 if (block.isPresent()) {
                     transactionBlocks = client.getBlocksList(String.valueOf(block.get().getHeight()));
                     if (!transactionBlocks.isEmpty() && transactionBlocks.size() > 1) {
-                        transactionBlocks.stream().skip(1).forEach(val -> toSave.put(String.valueOf(val.getHeight()), val));
+                        transactionBlocks.stream().skip(1).forEach(val -> {
+                            toSave.put(String.valueOf(val.getHeight()), val);
+                            val.getTransactionList().stream().forEach(trx -> {
+                                transaction_database.save(trx.getFrom(), trx);
+                                transaction_database.save(trx.getTo(), trx);
+                            });
+                        });
                     }
 
                 } else {
                     transactionBlocks = client.getBlocksList("");
                     if (!transactionBlocks.isEmpty()) {
-                        transactionBlocks.stream().forEach(val -> toSave.put(String.valueOf(val.getHeight()), val));
+                        transactionBlocks.stream().forEach(val -> {
+                            toSave.put(String.valueOf(val.getHeight()), val);
+                            val.getTransactionList().stream().forEach(trx -> {
+                                transaction_database.save(trx.getFrom(), trx);
+                                transaction_database.save(trx.getTo(), trx);
+                            });
+                        });
                     }
                 }
 
@@ -329,6 +343,8 @@ public class BlockSync implements IBlockSync {
             List<String> patriciaRootList = null;
             try {
                 IDatabase<String, TransactionBlock> block_database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
+                IDatabase<String, LevelDBTransactionWrapper<Transaction>> transaction_database = new DatabaseFactory(String.class, Transaction.class, new TypeToken<LevelDBTransactionWrapper<Transaction>>() {
+                }.getType()).getDatabase(DatabaseType.LEVEL_DB);
                 client = new RpcAdrestusClient(new TransactionBlock(), toConnectTransaction, CachedEventLoop.getInstance().getEventloop());
                 client.connect();
 
@@ -340,7 +356,13 @@ public class BlockSync implements IBlockSync {
                     if (!blocks.isEmpty() && blocks.size() > 1) {
                         patriciaRootList = new ArrayList<>(blocks.stream().filter(val -> val.getGeneration() > CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration()).map(TransactionBlock::getHash).collect(Collectors.toList()));
                         blocks.removeIf(x -> x.getGeneration() > CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration());
-                        blocks.stream().skip(1).forEach(val -> toSave.put(String.valueOf(val.getHeight()), val));
+                        blocks.stream().skip(1).forEach(val -> {
+                            toSave.put(String.valueOf(val.getHeight()), val);
+                            val.getTransactionList().stream().forEach(trx -> {
+                                transaction_database.save(trx.getFrom(), trx);
+                                transaction_database.save(trx.getTo(), trx);
+                            });
+                        });
                     }
 
                 } else {
@@ -348,7 +370,13 @@ public class BlockSync implements IBlockSync {
                     if (!blocks.isEmpty()) {
                         patriciaRootList = new ArrayList<>(blocks.stream().filter(val -> val.getGeneration() > CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration()).map(TransactionBlock::getHash).collect(Collectors.toList()));
                         blocks.removeIf(x -> x.getGeneration() > CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration());
-                        blocks.stream().forEach(val -> toSave.put(String.valueOf(val.getHeight()), val));
+                        blocks.stream().forEach(val -> {
+                            toSave.put(String.valueOf(val.getHeight()), val);
+                            val.getTransactionList().stream().forEach(trx -> {
+                                transaction_database.save(trx.getFrom(), trx);
+                                transaction_database.save(trx.getTo(), trx);
+                            });
+                        });
                     }
                 }
 
@@ -456,29 +484,24 @@ public class BlockSync implements IBlockSync {
     public void checkIfNeedsSync() {
         List<String> new_ips = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).values().stream().collect(Collectors.toList());
         new_ips.remove(IPFinder.getLocalIP());
-        boolean bError = false;
-        do {
-            try {
+        try {
 
-                var ex = new AsyncServiceNetworkData<Long>(new_ips);
+            var ex = new AsyncServiceNetworkData<Long>(new_ips);
 
-                var asyncResult = ex.startProcess(300L);
-                var cached_result = ex.endProcess(asyncResult);
+            var asyncResult = ex.startProcess(300L);
+            var cached_result = ex.endProcess(asyncResult);
 
-                CachedNetworkData networkData = serialize_cached.decode(ex.getResult());
-                if (!networkData.getCommitteeBlock().equals(CachedLatestBlocks.getInstance().getCommitteeBlock())) {
-                    this.WaitPatientlyYourPosition();
-                    return;
-                } else {
-                    if (networkData.isConsensus_state())
-                        networkData.SetCacheData();
-                }
-            } catch (NoSuchElementException ex) {
-                LOG.error("NoSuchElementException: " + ex.toString());
-                Thread.sleep(ConsensusConfiguration.CONSENSUS_WAIT_TIMEOUT);
-                bError = true;
+            CachedNetworkData networkData = serialize_cached.decode(ex.getResult());
+            if (!networkData.getCommitteeBlock().equals(CachedLatestBlocks.getInstance().getCommitteeBlock())) {
+                this.WaitPatientlyYourPosition();
+            } else {
+                networkData.SetCacheData();
             }
-        } while (bError);
+        } catch (NoSuchElementException ex) {
+            LOG.error("NoSuchElementException: " + ex.toString());
+            Thread.sleep(ConsensusConfiguration.CONSENSUS_WAIT_TIMEOUT);
+            this.WaitPatientlyYourPosition();
+        }
     }
 
     @Override

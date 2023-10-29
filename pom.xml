@@ -395,3 +395,4 @@
         </plugins>
     </build>
 </project><!--mvn -U clean install  mvn clean install -DskipTests-->
+<!--check circle.ci. yml git log prettty command-->

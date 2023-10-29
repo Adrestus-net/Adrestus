@@ -2,11 +2,40 @@ package io.Adrestus.core.RingBuffer.handler.blocks;
 
 import io.Adrestus.MemoryTreePool;
 import io.Adrestus.TreeFactory;
+import io.Adrestus.core.*;
+import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
+import io.Adrestus.core.Resourses.IMemoryPool;
 import io.Adrestus.core.RingBuffer.event.AbstractBlockEvent;
-import io.Adrestus.core.StatusType;
+import io.Adrestus.network.IPFinder;
+import io.distributedLedger.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import io.Adrestus.network.*;
+
+import java.lang.reflect.Type;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import io.Adrestus.rpc.RpcAdrestusClient;
+import com.google.common.reflect.TypeToken;
+import io.Adrestus.MemoryTreePool;
+import io.Adrestus.TreeFactory;
+import io.Adrestus.core.CommitteeBlock;
+import io.Adrestus.core.Resourses.CachedLatestBlocks;
+import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.core.Transaction;
 import io.Adrestus.core.TransactionBlock;
+import io.Adrestus.mapper.MemoryTreePoolSerializer;
+import io.Adrestus.network.CachedEventLoop;
+import io.Adrestus.rpc.RpcAdrestusClient;
+import io.Adrestus.util.SerializationUtil;
+import io.distributedLedger.*;
+import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,6 +74,34 @@ public class PatriciaTreeEventHandler implements BlockEventHandler<AbstractBlock
                     });
 
         if (!replica.getRootHash().equals(transactionBlock.getPatriciaMerkleRoot())) {
+//            Type fluentType = new TypeToken<MemoryTreePool>() {
+//            }.getType();
+//            List<SerializationUtil.Mapping> list = new ArrayList<>();
+//            list.add(new SerializationUtil.Mapping(MemoryTreePool.class, ctx -> new MemoryTreePoolSerializer()));
+//            List<SerializationUtil.Mapping> list2 = new ArrayList<>();
+//            SerializationUtil patricia_tree_wrapper = new SerializationUtil<>(fluentType, list);
+//            IBlockIndex blockIndex = new BlockIndex();
+//            IDatabase<String, CommitteeBlock> committeeBlockIDatabase = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
+//            CommitteeBlock last= CachedLatestBlocks.getInstance().getCommitteeBlock();
+//            Map<String, CommitteeBlock> lists=committeeBlockIDatabase.findBetweenRange(String.valueOf(CachedLatestBlocks.getInstance().getCommitteeBlock().getHeight()-1));
+//            MemoryTreePool a= (MemoryTreePool) TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex());
+//            List<String> new_ips = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).values().stream().collect(Collectors.toList());
+//            new_ips.remove(IPFinder.getLocalIP());
+//            int RPCPatriciaTreeZonePort = ZoneDatabaseFactory.getDatabasePatriciaRPCPort(ZoneDatabaseFactory.getPatriciaTreeZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
+//            ArrayList<InetSocketAddress> toConnectPatricia = new ArrayList<>();
+//            new_ips.stream().forEach(ip -> {
+//                try {
+//                    toConnectPatricia.add(new InetSocketAddress(InetAddress.getByName(ip), RPCPatriciaTreeZonePort));
+//                } catch (UnknownHostException e) {
+//                    throw new RuntimeException(e);
+//                }
+//            });
+//            RpcAdrestusClient client = new RpcAdrestusClient(new byte[]{}, toConnectPatricia, CachedEventLoop.getInstance().getEventloop());
+//            client.connect();
+//            List<byte[]>  treeObjects = client.getPatriciaTreeList("");
+//            MemoryTreePool ar= (MemoryTreePool) patricia_tree_wrapper.decode(treeObjects.get(treeObjects.size()));
+//            MemoryTreePool ar2= (MemoryTreePool) patricia_tree_wrapper.decode(treeObjects.get(treeObjects.size()-1));
+//            MemoryTreePool ar4= (MemoryTreePool) patricia_tree_wrapper.decode(treeObjects.get(treeObjects.size()-2));
             LOG.info("Patricia Merkle root is invalid abort");
             transactionBlock.setStatustype(StatusType.ABORT);
             return;

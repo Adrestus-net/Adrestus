@@ -55,6 +55,8 @@ public class AsyncServiceTest {
 
     private static Transaction transaction;
 
+
+    //MAKE SURE Worker test is running to run this test
     @BeforeAll
     public static void setup() throws Exception {
         int version = 0x00;

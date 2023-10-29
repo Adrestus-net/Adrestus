@@ -90,6 +90,7 @@ public class ConsensusClient {
     @SneakyThrows
     public byte[] deque_message() {
         while (message_deque.isEmpty()) {
+            Thread.sleep(50);
         }
         // System.out.println("take");
         return message_deque.pollFirst();
@@ -113,12 +114,9 @@ public class ConsensusClient {
                 if (data != null) {
                     message_deque.add(data);
                     MESSAGES--;
-                } else {
-                    message_deque.add(new byte[0]);
-                    break;
+                    MAX_MESSAGES--;
                 }
                 // System.out.println("receive" + MESSAGES);
-                MAX_MESSAGES--;
                 // available.release();
             }
         };
@@ -140,7 +138,6 @@ public class ConsensusClient {
     public void close() {
         try {
             this.executorService.shutdownNow().clear();
-            Thread.sleep(400);
             this.subscriber.setLinger(0);
             this.push.setLinger(0);
             this.connected.setLinger(0);
@@ -151,7 +148,7 @@ public class ConsensusClient {
             this.ctx.destroySocket(this.push);
             this.ctx.destroySocket(this.connected);
             this.ctx.destroy();
-            Thread.sleep(100);
+            Thread.sleep(400);
         } catch (AssertionError e) {
             int g = 3;
         } catch (InterruptedException e) {
