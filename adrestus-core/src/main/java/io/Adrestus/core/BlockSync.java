@@ -433,10 +433,8 @@ public class BlockSync implements IBlockSync {
                         .collect(Collectors.toMap(x -> x.getKey(), x -> x.getValue()));
                 tree_database.saveAll(toCollect);
                 byte[] current_tree = toCollect.get(String.valueOf(CachedLatestBlocks.getInstance().getTransactionBlock().getHeight()));
-                if (!toCollect.isEmpty()) {
+                if (current_tree!=null) {
                     TreeFactory.setMemoryTree((MemoryTreePool) patricia_tree_wrapper.decode(current_tree), CachedZoneIndex.getInstance().getZoneIndex());
-                } else if (!treeObjects.isEmpty()) {
-                    TreeFactory.setMemoryTree((MemoryTreePool) patricia_tree_wrapper.decode(treeObjects.get(treeObjects.size() - 1)), CachedZoneIndex.getInstance().getZoneIndex());
                 }
 
                 if (client != null) {
