@@ -86,7 +86,6 @@ public class SyncConsensusNotExistedTest {
         list2.add(new SerializationUtil.Mapping(MemoryTreePool.class, ctx -> new MemoryTreePoolSerializer()));
         SerializationUtil patricia_tree_wrapper = new SerializationUtil<>(fluentType, list2);
 
-        // MAKE SURE YOU CHANGE THIS MANUALLY WHEN YOUR RUN THIS TESTS
 
         char[] mnemonic1 = "sample sail jungle learn general promote task puppy own conduct green affair ".toCharArray();
         char[] mnemonic2 = "photo monitor cushion indicate civil witness orchard estate online favorite sustain extend".toCharArray();
@@ -94,6 +93,7 @@ public class SyncConsensusNotExistedTest {
         char[] mnemonic4 = "enrich pulse twin version inject horror village aunt brief magnet blush else ".toCharArray();
         char[] mnemonic5 = "struggle travel ketchup tomato satoshi caught fog process grace pupil item ahead ".toCharArray();
         char[] mnemonic6 = "abstract raise duty scare year add fluid danger include smart senior ensure".toCharArray();
+        // MAKE SURE YOU CHANGE THIS MANUALLY WHEN YOUR RUN THIS TESTS ALSO CHANGE BLS KEYS TO WORK PROPERLY
         //char[] mnemonic7 = "fluid abstract raise duty scare year add danger include smart senior ensure".toCharArray();
         char[] mnemonic7 = "danger fluid abstract raise duty scare year add include smart senior ensure".toCharArray();
         char[] mnemonic8 = "danger fluid abstract raise duty scare year add include smart senior ensure".toCharArray();
@@ -310,7 +310,7 @@ public class SyncConsensusNotExistedTest {
         var blocksync = new BlockSync();
         blocksync.WaitPatientlyYourPosition();
 
-        CountDownLatch latch = new CountDownLatch(20);
+        CountDownLatch latch = new CountDownLatch(50);
         ConsensusState c = new ConsensusState(latch);
         c.getTransaction_block_timer().scheduleAtFixedRate(new ConsensusState.TransactionBlockConsensusTask(), ConsensusConfiguration.CONSENSUS_TIMER, ConsensusConfiguration.CONSENSUS_TIMER);
         //c.getCommittee_block_timer().scheduleAtFixedRate(new ConsensusState.CommitteeBlockConsensusTask(), ConsensusConfiguration.CONSENSUS_COMMITTEE_TIMER, ConsensusConfiguration.CONSENSUS_COMMITTEE_TIMER);

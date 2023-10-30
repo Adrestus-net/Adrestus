@@ -120,7 +120,7 @@ public class SupervisorConsensusPhases {
                 while (i > 0) {
                     try {
                         byte[] receive = consensusServer.receiveData();
-                        if (receive == null) {
+                        if (receive == null || receive.length <= 0) {
                             LOG.info("PreparePhase: Null message from validators");
                             i--;
                         } else {
@@ -195,7 +195,7 @@ public class SupervisorConsensusPhases {
                 while (i > 0) {
                     try {
                         byte[] receive = consensusServer.receiveData();
-                        if (receive == null) {
+                        if (receive == null || receive.length <= 0) {
                             LOG.info("CommitPhase: Not Receiving from Validators");
                             i--;
                         } else {
@@ -342,7 +342,7 @@ public class SupervisorConsensusPhases {
                 while (i > 0) {
                     byte[] receive = consensusServer.receiveData();
                     try {
-                        if (receive == null) {
+                        if (receive == null || receive.length <= 0) {
                             LOG.info("AggregateVRF: Null message from validator");
                             i--;
                         } else {
@@ -436,7 +436,7 @@ public class SupervisorConsensusPhases {
                 while (i > 0) {
                     byte[] receive = consensusServer.receiveData();
                     try {
-                        if (receive == null) {
+                        if (receive == null || receive.length <= 0) {
                             LOG.info("PreparePhase: Null message from validators");
                             i--;
                         } else {
@@ -510,7 +510,7 @@ public class SupervisorConsensusPhases {
                 while (i > 0) {
                     byte[] receive = consensusServer.receiveData();
                     try {
-                        if (receive == null) {
+                        if (receive == null || receive.length <= 0) {
                             LOG.info("CommitPhase: Not Receiving from Validators");
                             i--;
                         } else {
@@ -666,7 +666,7 @@ public class SupervisorConsensusPhases {
                 while (i > 0) {
                     byte[] receive = consensusServer.receiveData();
                     try {
-                        if (receive == null) {
+                        if (receive == null || receive.length <= 0) {
                             LOG.info("PreparePhase: Null message from validators");
                             i--;
                         } else {
@@ -740,7 +740,7 @@ public class SupervisorConsensusPhases {
                 while (i > 0) {
                     byte[] receive = consensusServer.receiveData();
                     try {
-                        if (receive == null) {
+                        if (receive == null || receive.length <= 0) {
                             LOG.info("CommitPhase: Not Receiving from Validators");
                             i--;
                         } else {

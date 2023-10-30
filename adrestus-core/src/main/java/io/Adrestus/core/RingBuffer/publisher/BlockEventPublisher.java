@@ -54,6 +54,11 @@ public class BlockEventPublisher implements Publisher<AbstractBlock> {
         return this;
     }
 
+    public BlockEventPublisher withPatriciaTreeHeightEventHandler() {
+        group.add(new PatriciaTreeHeightEventHandler());
+        return this;
+    }
+
     public BlockEventPublisher withViewIDEventHandler() {
         group.add(new ViewIDEventHandler());
         return this;

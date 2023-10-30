@@ -340,7 +340,7 @@ public class BlockSync implements IBlockSync {
             } while (commitee_blocks.isEmpty());*/
 
             RpcAdrestusClient client = null;
-            List<String> patriciaRootList = null;
+            List<Integer> patriciaRootList = null;
             try {
                 IDatabase<String, TransactionBlock> block_database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
                 IDatabase<String, LevelDBTransactionWrapper<Transaction>> transaction_database = new DatabaseFactory(String.class, Transaction.class, new TypeToken<LevelDBTransactionWrapper<Transaction>>() {
@@ -354,7 +354,7 @@ public class BlockSync implements IBlockSync {
                 if (block.isPresent()) {
                     blocks = client.getBlocksList(String.valueOf(block.get().getHeight()));
                     if (!blocks.isEmpty() && blocks.size() > 1) {
-                        patriciaRootList = new ArrayList<>(blocks.stream().filter(val -> val.getGeneration() > CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration()).map(TransactionBlock::getHash).collect(Collectors.toList()));
+                        patriciaRootList = new ArrayList<>(blocks.stream().filter(val -> val.getGeneration() > CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration()).map(TransactionBlock::getHeight).collect(Collectors.toList()));
                         blocks.removeIf(x -> x.getGeneration() > CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration());
                         blocks.stream().skip(1).forEach(val -> {
                             toSave.put(String.valueOf(val.getHeight()), val);
@@ -368,7 +368,7 @@ public class BlockSync implements IBlockSync {
                 } else {
                     blocks = client.getBlocksList("");
                     if (!blocks.isEmpty()) {
-                        patriciaRootList = new ArrayList<>(blocks.stream().filter(val -> val.getGeneration() > CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration()).map(TransactionBlock::getHash).collect(Collectors.toList()));
+                        patriciaRootList = new ArrayList<>(blocks.stream().filter(val -> val.getGeneration() > CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration()).map(TransactionBlock::getHeight).collect(Collectors.toList()));
                         blocks.removeIf(x -> x.getGeneration() > CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration());
                         blocks.stream().forEach(val -> {
                             toSave.put(String.valueOf(val.getHeight()), val);
@@ -427,15 +427,12 @@ public class BlockSync implements IBlockSync {
                         });
                     }
                 }
-                List<String> finalPatriciaRootList = patriciaRootList;
+                List<Integer> finalPatriciaRootList = patriciaRootList;
                 Map<String, byte[]> toCollect = toSave.entrySet().stream()
-                        .filter(x -> !finalPatriciaRootList.contains(x.getKey()))
+                        .filter(x -> !finalPatriciaRootList.contains(Integer.valueOf(x.getKey())))
                         .collect(Collectors.toMap(x -> x.getKey(), x -> x.getValue()));
                 tree_database.saveAll(toCollect);
-                byte[] current_tree = toCollect.get(String.valueOf(CachedLatestBlocks.getInstance().getTransactionBlock().getHeight()));
-                if (current_tree!=null) {
-                    TreeFactory.setMemoryTree((MemoryTreePool) patricia_tree_wrapper.decode(current_tree), CachedZoneIndex.getInstance().getZoneIndex());
-                }
+                TreeFactory.setMemoryTree((MemoryTreePool) patricia_tree_wrapper.decode(tree_database.seekLast().get()), CachedZoneIndex.getInstance().getZoneIndex());
 
                 if (client != null) {
                     client.close();

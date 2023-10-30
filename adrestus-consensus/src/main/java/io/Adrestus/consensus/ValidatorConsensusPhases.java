@@ -888,6 +888,7 @@ public class ValidatorConsensusPhases {
                     .withInBoundEventHandler()
                     .withOutBoundEventHandler()
                     .withPatriciaTreeEventHandler()
+                    .withPatriciaTreeHeightEventHandler()
                     .mergeEvents();
 
 
