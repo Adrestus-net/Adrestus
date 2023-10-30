@@ -171,6 +171,7 @@ public class ConsensusState extends ConsensusDataState {
                             CachedEpochGeneration.getInstance().setEpoch_counter(0);
                             committee_state.onEnterState(blockIndex.getPublicKeyByIndex(0, CachedLeaderIndex.getInstance().getCommitteePositionLeader()));
                             clear();
+                            blockSync.SyncBeaconChainState();
                             transaction_block_timer = new Timer(ConsensusConfiguration.CONSENSUS);
                             transaction_block_timer.scheduleAtFixedRate(new TransactionBlockConsensusTask(), ConsensusConfiguration.CONSENSUS_TIMER, ConsensusConfiguration.CONSENSUS_TIMER);
                         }

@@ -12,6 +12,8 @@ import io.Adrestus.crypto.bls.BLS381.ECP;
 import io.Adrestus.crypto.bls.BLS381.ECP2;
 import io.Adrestus.crypto.bls.mapper.ECP2mapper;
 import io.Adrestus.crypto.bls.mapper.ECPmapper;
+import io.Adrestus.crypto.bls.model.BLSPublicKey;
+import io.Adrestus.crypto.bls.model.CachedBLSKeyPair;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.crypto.elliptic.mapper.CustomSerializerTreeMap;
 import io.Adrestus.mapper.MemoryTreePoolSerializer;
@@ -41,7 +43,7 @@ public class BlockSync implements IBlockSync {
     private static SerializationUtil<CachedNetworkData> serialize_cached;
     private final SerializationUtil patricia_tree_wrapper;
 
-
+    private final IBlockIndex blockIndex;
     public BlockSync() {
         Type fluentType = new TypeToken<MemoryTreePool>() {
         }.getType();
@@ -56,6 +58,7 @@ public class BlockSync implements IBlockSync {
         this.patricia_tree_wrapper = new SerializationUtil<>(fluentType, list);
         this.transaction_encode = new SerializationUtil<Transaction>(Transaction.class, list2);
         this.receipt_encode = new SerializationUtil<Receipt>(Receipt.class, list2);
+        this.blockIndex = new BlockIndex();
     }
 
     @Override
@@ -250,6 +253,177 @@ public class BlockSync implements IBlockSync {
         }
     }
 
+
+    @Override
+    @SneakyThrows
+    public void SyncBeaconChainState(){
+        IDatabase<String, CommitteeBlock> database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
+        Optional<CommitteeBlock> prevblock=database.findByKey(String.valueOf(CachedLatestBlocks.getInstance().getCommitteeBlock().getHeight()-1));
+        CachedZoneIndex.getInstance().setZoneIndexInternalIP();
+        int prevzone=-1;
+        if(prevblock.isPresent()){
+            for (Map.Entry<Integer, LinkedHashMap<BLSPublicKey, String>> entry : prevblock.get().getStructureMap().entrySet()) {
+                Optional<BLSPublicKey> find = entry.getValue().keySet().stream().filter(val -> val.equals(CachedBLSKeyPair.getInstance().getPublicKey())).findFirst();
+                if (!find.isEmpty()) {
+                    prevzone= entry.getKey();
+                }
+            }
+            int currentzone=this.blockIndex.getZone(CachedBLSKeyPair.getInstance().getPublicKey());
+            if(currentzone!=prevzone && prevzone!=-1){
+                List<String> ips = prevblock.get().getStructureMap().get(currentzone).values().stream().collect(Collectors.toList());
+                ips.remove(IPFinder.getLocalIP());
+
+                if(!ips.isEmpty()){
+                    int RPCTransactionZonePort = ZoneDatabaseFactory.getDatabaseRPCPort(CachedZoneIndex.getInstance().getZoneIndex());
+                    int RPCPatriciaTreeZonePort = ZoneDatabaseFactory.getDatabasePatriciaRPCPort(ZoneDatabaseFactory.getPatriciaTreeZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
+                    ArrayList<InetSocketAddress> toConnectTransaction = new ArrayList<>();
+                    ArrayList<InetSocketAddress> toConnectPatricia = new ArrayList<>();
+                    ips.stream().forEach(ip -> {
+                        try {
+                            toConnectTransaction.add(new InetSocketAddress(InetAddress.getByName(ip), RPCTransactionZonePort));
+                            toConnectPatricia.add(new InetSocketAddress(InetAddress.getByName(ip), RPCPatriciaTreeZonePort));
+                        } catch (UnknownHostException e) {
+                            throw new RuntimeException(e);
+                        }
+                    });
+
+                    RpcAdrestusClient client = null;
+                    List<Integer> patriciaRootList = null;
+                    try {
+                        IDatabase<String, TransactionBlock> block_database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
+                        IDatabase<String, LevelDBTransactionWrapper<Transaction>> transaction_database = new DatabaseFactory(String.class, Transaction.class, new TypeToken<LevelDBTransactionWrapper<Transaction>>() {
+                        }.getType()).getDatabase(DatabaseType.LEVEL_DB);
+                        client = new RpcAdrestusClient(new TransactionBlock(), toConnectTransaction, CachedEventLoop.getInstance().getEventloop());
+                        client.connect();
+
+                        Optional<TransactionBlock> block = block_database.seekLast();
+                        Map<String, TransactionBlock> toSave = new HashMap<>();
+                        List<TransactionBlock> blocks;
+                        if (block.isPresent()) {
+                            blocks = client.getBlocksList(String.valueOf(block.get().getHeight()));
+                            if (!blocks.isEmpty() && blocks.size() > 1) {
+                                patriciaRootList = new ArrayList<>(blocks.stream().filter(val -> val.getGeneration() > CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration()).map(TransactionBlock::getHeight).collect(Collectors.toList()));
+                                blocks.removeIf(x -> x.getGeneration() > CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration());
+                                blocks.stream().skip(1).forEach(val -> {
+                                    toSave.put(String.valueOf(val.getHeight()), val);
+                                    val.getTransactionList().stream().forEach(trx -> {
+                                        transaction_database.save(trx.getFrom(), trx);
+                                        transaction_database.save(trx.getTo(), trx);
+                                    });
+                                });
+                            }
+
+                        } else {
+                            blocks = client.getBlocksList("");
+                            if (!blocks.isEmpty()) {
+                                patriciaRootList = new ArrayList<>(blocks.stream().filter(val -> val.getGeneration() > CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration()).map(TransactionBlock::getHeight).collect(Collectors.toList()));
+                                blocks.removeIf(x -> x.getGeneration() > CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration());
+                                blocks.stream().forEach(val -> {
+                                    toSave.put(String.valueOf(val.getHeight()), val);
+                                    val.getTransactionList().stream().forEach(trx -> {
+                                        transaction_database.save(trx.getFrom(), trx);
+                                        transaction_database.save(trx.getTo(), trx);
+                                    });
+                                });
+                            }
+                        }
+
+                        block_database.saveAll(toSave);
+
+                        if (!blocks.isEmpty()) {
+                            CachedLatestBlocks.getInstance().setTransactionBlock(blocks.get(blocks.size() - 1));
+                        }
+                        if (client != null) {
+                            client.close();
+                            client = null;
+                        }
+                    } catch (IllegalArgumentException e) {
+                    }
+
+
+                    try {
+                        IDatabase<String, byte[]> tree_database = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getPatriciaTreeZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
+                        client = new RpcAdrestusClient(new byte[]{}, toConnectPatricia, CachedEventLoop.getInstance().getEventloop());
+                        client.connect();
+
+                        Optional<byte[]> tree = tree_database.seekLast();
+                        List<byte[]> treeObjects;
+                        if (tree.isPresent()) {
+                            treeObjects = client.getPatriciaTreeList(((MemoryTreePool) patricia_tree_wrapper.decode(tree.get())).getHeight());
+                        } else {
+                            treeObjects = client.getPatriciaTreeList("");
+                        }
+                        Map<String, byte[]> toSave = new HashMap<>();
+                        if (tree.isPresent()) {
+                            if (!treeObjects.isEmpty() && treeObjects.size() > 1) {
+                                treeObjects.stream().skip(1).forEach(val -> {
+                                    try {
+                                        toSave.put(((MemoryTreePool) patricia_tree_wrapper.decode(val)).getHeight(), val);
+                                    } catch (Exception e) {
+                                        throw new RuntimeException(e);
+                                    }
+                                });
+                            }
+                        } else {
+                            if (!treeObjects.isEmpty()) {
+                                treeObjects.stream().forEach(val -> {
+                                    try {
+                                        toSave.put(((MemoryTreePool) patricia_tree_wrapper.decode(val)).getHeight(), val);
+                                    } catch (Exception e) {
+                                        throw new RuntimeException(e);
+                                    }
+                                });
+                            }
+                        }
+                        List<Integer> finalPatriciaRootList = patriciaRootList;
+                        Map<String, byte[]> toCollect = toSave.entrySet().stream()
+                                .filter(x -> !finalPatriciaRootList.contains(Integer.valueOf(x.getKey())))
+                                .collect(Collectors.toMap(x -> x.getKey(), x -> x.getValue()));
+                        tree_database.saveAll(toCollect);
+                        TreeFactory.setMemoryTree((MemoryTreePool) patricia_tree_wrapper.decode(tree_database.seekLast().get()), CachedZoneIndex.getInstance().getZoneIndex());
+
+                        if (client != null) {
+                            client.close();
+                            client = null;
+                        }
+                    } catch (IllegalArgumentException e) {
+                    }
+                }
+                //find transactions that is not for this zone and sent them to the correct zone
+                List<Transaction> transactionList = MemoryTransactionPool.getInstance().getListByZone(prevzone);
+                if (!transactionList.isEmpty()) {
+                    List<byte[]> toSend = new ArrayList<>();
+                    transactionList.stream().forEach(transaction -> toSend.add(transaction_encode.encode(transaction, 1024)));
+                    List<String> iptoSend = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(prevzone).values().stream().collect(Collectors.toList());
+
+                    if (!toSend.isEmpty()) {
+                        var executor = new AsyncService<Long>(iptoSend, toSend, SocketConfigOptions.TRANSACTION_PORT);
+
+                        var asyncResult = executor.startListProcess(300L);
+                        var result = executor.endProcess(asyncResult);
+                        MemoryTransactionPool.getInstance().delete(transactionList);
+                    }
+                }
+
+                //find receipts that is not for this zone and sent them to the correct zone
+                List<Receipt> receiptList = MemoryReceiptPool.getInstance().getListByZone(prevzone);
+                if (!receiptList.isEmpty()) {
+                    List<byte[]> toSendReceipt = new ArrayList<>();
+                    receiptList.stream().forEach(receipt -> toSendReceipt.add(receipt_encode.encode(receipt, 1024)));
+                    List<String> ReceiptIPWorkers = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(prevzone).values().stream().collect(Collectors.toList());
+
+                    if (!toSendReceipt.isEmpty()) {
+                        var executor = new AsyncService<Long>(ReceiptIPWorkers, toSendReceipt, SocketConfigOptions.RECEIPT_PORT);
+
+                        var asyncResult = executor.startListProcess(300L);
+                        var result = executor.endProcess(asyncResult);
+                        MemoryReceiptPool.getInstance().delete(receiptList);
+                    }
+                }
+
+                }
+            }
+    }
     @Override
     @SneakyThrows
     public void SyncState() {

@@ -7,6 +7,8 @@ public interface IBlockSync {
 
     void SyncState();
 
+    void SyncBeaconChainState();
+
     void checkIfNeedsSync();
 
     void syncCommitBlock();
