@@ -143,9 +143,9 @@ class RPCExampleTest {
         serverTwo.close();
         serverThree.close();
 
-        serverOne = null;
-        serverTwo = null;
-        serverThree = null;
+//        serverOne = null;
+//        serverTwo = null;
+//        serverThree = null;
     }
 
     @Test

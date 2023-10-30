@@ -39,6 +39,8 @@ public class ChangeViewOrganizerConsensusPhase extends ChangeViewConsensusPhase 
                 this.leader_bls = this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), this.current);
                 this.consensusServer = new ConsensusServer(this.blockIndex.getIpValue(CachedZoneIndex.getInstance().getZoneIndex(), this.leader_bls), latch, ConsensusConfiguration.CHANGE_VIEW_COLLECTOR_TIMEOUT, ConsensusConfiguration.CHANGE_VIEW_CONNECTED_TIMEOUT);
                 this.N_COPY = (this.N - 1) - consensusServer.getPeers_not_connected();
+                this.consensusServer.setMAX_MESSAGES(this.N_COPY);
+                this.consensusServer.receive_handler();
             }
         } catch (Exception e) {
             cleanup();
