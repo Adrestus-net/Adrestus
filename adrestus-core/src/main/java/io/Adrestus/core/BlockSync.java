@@ -376,10 +376,15 @@ public class BlockSync implements IBlockSync {
                             }
                         }
                         List<Integer> finalPatriciaRootList = patriciaRootList;
-                        Map<String, byte[]> toCollect = toSave.entrySet().stream()
-                                .filter(x -> !finalPatriciaRootList.contains(Integer.valueOf(x.getKey())))
-                                .collect(Collectors.toMap(x -> x.getKey(), x -> x.getValue()));
-                        tree_database.saveAll(toCollect);
+                        if(finalPatriciaRootList!=null) {
+                            Map<String, byte[]> toCollect = toSave.entrySet().stream()
+                                    .filter(x -> !finalPatriciaRootList.contains(Integer.valueOf(x.getKey())))
+                                    .collect(Collectors.toMap(x -> x.getKey(), x -> x.getValue()));
+                            tree_database.saveAll(toCollect);
+                        }
+                        else {
+                            tree_database.saveAll(toSave);
+                        }
                         TreeFactory.setMemoryTree((MemoryTreePool) patricia_tree_wrapper.decode(tree_database.seekLast().get()), CachedZoneIndex.getInstance().getZoneIndex());
 
                         if (client != null) {
@@ -387,6 +392,7 @@ public class BlockSync implements IBlockSync {
                             client = null;
                         }
                     } catch (IllegalArgumentException e) {
+                        e.printStackTrace();
                     }
                 }
                 //find transactions that is not for this zone and sent them to the correct zone
@@ -602,10 +608,15 @@ public class BlockSync implements IBlockSync {
                     }
                 }
                 List<Integer> finalPatriciaRootList = patriciaRootList;
-                Map<String, byte[]> toCollect = toSave.entrySet().stream()
-                        .filter(x -> !finalPatriciaRootList.contains(Integer.valueOf(x.getKey())))
-                        .collect(Collectors.toMap(x -> x.getKey(), x -> x.getValue()));
-                tree_database.saveAll(toCollect);
+                if(finalPatriciaRootList!=null) {
+                    Map<String, byte[]> toCollect = toSave.entrySet().stream()
+                            .filter(x -> !finalPatriciaRootList.contains(Integer.valueOf(x.getKey())))
+                            .collect(Collectors.toMap(x -> x.getKey(), x -> x.getValue()));
+                    tree_database.saveAll(toCollect);
+                }
+                else {
+                    tree_database.saveAll(toSave);
+                }
                 TreeFactory.setMemoryTree((MemoryTreePool) patricia_tree_wrapper.decode(tree_database.seekLast().get()), CachedZoneIndex.getInstance().getZoneIndex());
 
                 if (client != null) {
@@ -613,6 +624,7 @@ public class BlockSync implements IBlockSync {
                     client = null;
                 }
             } catch (IllegalArgumentException e) {
+                e.printStackTrace();
             }
         }
         //find transactions that is not for this zone and sent them to the correct zone

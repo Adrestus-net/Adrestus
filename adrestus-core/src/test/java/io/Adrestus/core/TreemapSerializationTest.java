@@ -3,6 +3,7 @@ package io.Adrestus.core;
 import com.google.common.reflect.TypeToken;
 import io.Adrestus.MemoryTreePool;
 import io.Adrestus.TreeFactory;
+import io.Adrestus.TreeZone1;
 import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.config.KademliaConfiguration;
@@ -195,20 +196,27 @@ public class TreemapSerializationTest {
         String address = "ADR-ADL3-VDZK-ZU7H-2BX5-M2H4-S7LF-5SR4-ECQA-EIUJ-CBFK";
         PatriciaTreeNode treeNode = new PatriciaTreeNode(2, 1);
         TreeFactory.getMemoryTree(1).store(address, treeNode);
+        TreeZone1.setInstance(null);
         MemoryTreePool m = (MemoryTreePool) TreeFactory.getMemoryTree(1);
+        m.setHeight("1");
         MemoryTreePool m2 = (MemoryTreePool) TreeFactory.getMemoryTree(2);
-        m2.setHeight("4");
+        MemoryTreePool m2clone = (MemoryTreePool) TreeFactory.getMemoryTree(2);
+        m2.setHeight("6");
+        assertNotEquals(m, m2);
+        assertEquals(m2,m2clone);
         //m.getByaddress(address);
         //use only special
         byte[] bt = valueMapper.encode_special(m, SerializationUtils.serialize(m).length);
-        byte[] bt2 = valueMapper.encode_special(m2, SerializationUtils.serialize(m).length);
+        byte[] bt2 = valueMapper.encode_special(m2, SerializationUtils.serialize(m2).length);
         tree_datasbase.save("3", bt);
         tree_datasbase.save("4", bt2);
         tree_datasbase.save("2", bt);
         tree_datasbase.save("1", bt);
+        tree_datasbase.save("4", bt);
         Map<String,byte[]> copy = tree_datasbase.findBetweenRange("2");
         Optional<byte[]>res=tree_datasbase.seekLast();
         MemoryTreePool copys = (MemoryTreePool) valueMapper.decode(tree_datasbase.seekLast().get());
+        assertEquals(String.valueOf(1), copys.getHeight());
         tree_datasbase.delete_db();
     }
 }
