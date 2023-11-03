@@ -30,7 +30,7 @@ import static org.iq80.leveldb.impl.Iq80DBFactory.factory;
 public class LevelDBConnectionManager<K, V> implements IDatabase<K, V> {
 
     private static org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(LevelDBConnectionManager.class);
-    private static final String CONNECTION_NAME = "\\TransactionDatabase";
+    private String CONNECTION_NAME = "\\TransactionDatabase";
 
 
     private final SerializationUtil valueMapper;
@@ -65,6 +65,12 @@ public class LevelDBConnectionManager<K, V> implements IDatabase<K, V> {
         this.rwl = new ReentrantReadWriteLock();
         this.r = rwl.readLock();
         this.w = rwl.writeLock();
+        if(fluentType.getTypeName().contains("Receipt")){
+            this.CONNECTION_NAME="\\ReceiptDatabase";
+        }
+        else {
+            this.CONNECTION_NAME="\\TransactionDatabase";
+        }
         this.dbFile = new File(Directory.getConfigPath() + "\\" + CONNECTION_NAME + "\\");
         this.keyClass = keyClass;
         this.keyMapper = new SerializationUtil<>(this.keyClass);
@@ -96,7 +102,12 @@ public class LevelDBConnectionManager<K, V> implements IDatabase<K, V> {
         Path path = Files.createDirectories(Paths.get(dbFile.getAbsolutePath()));
         try {
             dbFile.createNewFile();
-            level_db = DatabaseRawTransactionInstance.getInstance(options, path.toAbsolutePath().toString()).getDB();
+            if(CONNECTION_NAME.contains("ReceiptDatabase")){
+                level_db = DatabaseRawReceiptInstance.getInstance(options, path.toAbsolutePath().toString()).getDB();
+            }
+            else {
+                level_db = DatabaseRawTransactionInstance.getInstance(options, path.toAbsolutePath().toString()).getDB();
+            }
         } catch (IOException e) {
             LOGGER.error("Path to create file is incorrect. {}", e.getMessage());
         } catch (Exception e) {
@@ -116,7 +127,28 @@ public class LevelDBConnectionManager<K, V> implements IDatabase<K, V> {
                 byte[] serializedkey = keyMapper.encode(key);
                 byte[] serializedValue = valueMapper.encode(value);
                 level_db.put(serializedkey, serializedValue);
-            } else {
+            }
+            else  if(CONNECTION_NAME.contains("ReceiptDatabase")){
+                final Optional<V> obj = findByKey(key);
+                final String str_key = (String) key;
+                final LevelDBTransactionWrapper<Object> wrapper;
+                if(obj==null){
+                    wrapper = new LevelDBTransactionWrapper();
+                    wrapper.addTo(value);
+                }
+                else if (obj.isEmpty()) {
+                    wrapper = new LevelDBTransactionWrapper();
+                    wrapper.addTo(value);
+                } else {
+                    wrapper = (LevelDBTransactionWrapper) obj.get();
+                    wrapper.addTo(value);
+                }
+                byte[] serializedkey = keyMapper.encode(key);
+                byte[] serializedValue = valueMapper.encode(wrapper);
+                level_db.put(serializedkey, serializedValue);
+                return;
+            }
+            else {
                 final Optional<V> obj = findByKey(key);
                 final String str_key = (String) key;
                 final LevelDBTransactionWrapper<Object> wrapper;

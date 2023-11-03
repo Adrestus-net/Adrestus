@@ -83,6 +83,10 @@ public class ReceiptEventPublisher implements Publisher<ReceiptBlock> {
         return this;
     }
 
+    public ReceiptEventPublisher withReplayEventHandler() {
+        group.add(new ReplayEventHandler());
+        return this;
+    }
 
     public ReceiptEventPublisher mergeEvents() {
         ReceiptEventHandler[] events = new  ReceiptEventHandler[group.size()];

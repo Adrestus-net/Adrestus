@@ -18,13 +18,17 @@ import java.util.Optional;
 public class DuplicateEventHandler extends TransactionEventHandler {
     private static Logger LOG = LoggerFactory.getLogger(DuplicateEventHandler.class);
 
+    private final IDatabase<String, LevelDBTransactionWrapper<Transaction>> transaction_database;
+    public DuplicateEventHandler() {
+        this.transaction_database = new DatabaseFactory(String.class, Transaction.class, new TypeToken<LevelDBTransactionWrapper<Transaction>>() {
+        }.getType()).getDatabase(DatabaseType.LEVEL_DB);
+    }
+
     @Override
     public void onEvent(TransactionEvent transactionEvent, long l, boolean b) throws Exception {
         try {
             Transaction transaction = transactionEvent.getTransaction();
 
-            IDatabase<String, LevelDBTransactionWrapper<Transaction>> transaction_database = new DatabaseFactory(String.class, Transaction.class, new TypeToken<LevelDBTransactionWrapper<Transaction>>() {
-            }.getType()).getDatabase(DatabaseType.LEVEL_DB);
             ArrayList<Transaction> tosearch;
             try {
                 tosearch = transaction_database.findByKey(transaction.getFrom()).get().getFrom();

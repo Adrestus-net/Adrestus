@@ -28,11 +28,14 @@ import java.util.stream.Collectors;
 public class ZoneEventHandler extends TransactionEventHandler {
     private static Logger LOG = LoggerFactory.getLogger(ZoneEventHandler.class);
     private final SerializationUtil<Transaction> transaction_encode;
+    private final IDatabase<String, LevelDBTransactionWrapper<Transaction>> transaction_database;
 
     public ZoneEventHandler() {
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         transaction_encode = new SerializationUtil<Transaction>(Transaction.class, list);
+        this.transaction_database = new DatabaseFactory(String.class, Transaction.class, new TypeToken<LevelDBTransactionWrapper<Transaction>>() {
+        }.getType()).getDatabase(DatabaseType.LEVEL_DB);
     }
 
     @Override
@@ -44,8 +47,6 @@ public class ZoneEventHandler extends TransactionEventHandler {
                 return;
 
             if (transaction.getZoneFrom() != CachedZoneIndex.getInstance().getZoneIndex()) {
-                IDatabase<String, LevelDBTransactionWrapper<Transaction>> transaction_database = new DatabaseFactory(String.class, Transaction.class, new TypeToken<LevelDBTransactionWrapper<Transaction>>() {
-                }.getType()).getDatabase(DatabaseType.LEVEL_DB);
                 ArrayList<Transaction> tosearch;
                 try {
                     tosearch = transaction_database.findByKey(transaction.getFrom()).get().getFrom();

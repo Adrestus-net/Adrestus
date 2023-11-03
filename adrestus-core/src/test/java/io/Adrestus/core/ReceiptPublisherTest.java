@@ -44,6 +44,7 @@ import org.spongycastle.util.encoders.Hex;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.TreeMap;
 
@@ -210,7 +211,8 @@ public class ReceiptPublisherTest {
                 withHeightEventHandler().
                 withOutboundMerkleEventHandler().
                 withZoneEventHandler().
-                withAmountEventHandler()
+                withAmountEventHandler().
+                withReplayEventHandler()
                 .mergeEvents();
         publisher.start();
         for (int i = 0; i < transactionBlock.getTransactionList().size(); i++) {
@@ -226,8 +228,10 @@ public class ReceiptPublisherTest {
                 to_search.add(String.valueOf(receipt.getReceiptBlock().getHeight()));
 
                 List<TransactionBlock> currentblock = client.getBlock(to_search);
+                int index = Collections.binarySearch(currentblock.get(currentblock.size()-1).getTransactionList(), receipt.getTransaction());
+                Transaction trx = currentblock.get(currentblock.size()-1).getTransactionList().get(index);
 
-                ReceiptBlock receiptBlock1 = new ReceiptBlock(StatusType.PENDING, receipt, currentblock.get(currentblock.size() - 1), transaction);
+                ReceiptBlock receiptBlock1 = new ReceiptBlock(StatusType.PENDING, receipt, currentblock.get(currentblock.size() - 1), trx);
 
 
                 publisher.publish(receiptBlock1);
