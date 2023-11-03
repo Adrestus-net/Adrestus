@@ -127,7 +127,7 @@ public class MemoryTransactionPool implements IMemoryPool<Transaction> {
     }
 
     @Override
-    public boolean add(Transaction transaction) throws Exception {
+    public boolean add(Transaction transaction) {
         w.lock();
         try {
             boolean val = memorypool_add(transaction);

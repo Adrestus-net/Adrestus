@@ -41,10 +41,7 @@ import org.spongycastle.util.encoders.Hex;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -229,9 +226,33 @@ public class ReceiptsTest {
         Map<Integer, Map<Receipt.ReceiptBlock, List<Receipt>>> map = list
                 .stream()
                 .collect(Collectors.groupingBy(Receipt::getZoneFrom, Collectors.groupingBy(Receipt::getReceiptBlock)));
+
         OutBoundRelay outBoundRelay = new OutBoundRelay(map);
         transactionBlock.setOutbound(outBoundRelay);
-
+        Integer []size=transactionBlock.getOutbound().getMap_receipts().keySet().toArray(new Integer[0]);
+//        for (int i=0;i<size.length;i++) {
+//            List<String> ReceiptIPWorkers = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(size[i]).values().stream().collect(Collectors.toList());
+//            List<byte[]> toSendReceipt = new ArrayList<>();
+//            transactionBlock
+//                    .getOutbound()
+//                    .getMap_receipts()
+//                    .get(size[i])
+//                    .values()
+//                    .forEach(receipts_list -> {
+//                        receipts_list.forEach(
+//                                receipt -> {
+//                                    System.out.println(receipt.toString());
+//                                });
+//                    });
+//        }
+//     map.
+//             entrySet().
+//             forEach(receipt_map-> receipt_map.getValue().
+//                               values().
+//                               forEach(receipts_list->receipts_list.
+//                                       stream().
+//                                       forEach(receipt -> {
+//                                           System.out.println(receipt.getTransaction());})));
         for (int i = 0; i < 1000; i++) {
             byte[] buffer = serenc.encode(transactionBlock);
             TransactionBlock clone = (TransactionBlock) serenc.decode(buffer);

@@ -141,6 +141,8 @@ public class BlockSync implements IBlockSync {
                 IDatabase<String, TransactionBlock> block_database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
                 IDatabase<String, LevelDBTransactionWrapper<Transaction>> transaction_database = new DatabaseFactory(String.class, Transaction.class, new TypeToken<LevelDBTransactionWrapper<Transaction>>() {
                 }.getType()).getDatabase(DatabaseType.LEVEL_DB);
+                IDatabase<String, LevelDBTransactionWrapper<Receipt>> receipt_database = new DatabaseFactory(String.class, Receipt.class, new TypeToken<LevelDBTransactionWrapper<Receipt>>() {
+                }.getType()).getDatabase(DatabaseType.LEVEL_DB);
                 client = new RpcAdrestusClient(new TransactionBlock(), toConnectTransaction, CachedEventLoop.getInstance().getEventloop());
                 client.connect();
 
@@ -151,6 +153,18 @@ public class BlockSync implements IBlockSync {
                     transactionBlocks = client.getBlocksList(String.valueOf(block.get().getHeight()));
                     if (!transactionBlocks.isEmpty() && transactionBlocks.size() > 1) {
                         transactionBlocks.stream().skip(1).forEach(val -> {
+                            val
+                                    .getInbound()
+                                    .getMap_receipts()
+                                    .get(val.getInbound().getMap_receipts().keySet().toArray()[0])
+                                    .entrySet()
+                                    .stream()
+                                    .forEach(entry -> {
+                                        entry.getValue().stream().forEach(receipt -> {
+                                            receipt_database.save(receipt.getAddress(),receipt);
+                                        });
+
+                                    });
                             toSave.put(String.valueOf(val.getHeight()), val);
                             val.getTransactionList().stream().forEach(trx -> {
                                 transaction_database.save(trx.getFrom(), trx);
@@ -163,6 +177,18 @@ public class BlockSync implements IBlockSync {
                     transactionBlocks = client.getBlocksList("");
                     if (!transactionBlocks.isEmpty()) {
                         transactionBlocks.stream().forEach(val -> {
+                            val
+                                    .getInbound()
+                                    .getMap_receipts()
+                                    .get(val.getInbound().getMap_receipts().keySet().toArray()[0])
+                                    .entrySet()
+                                    .stream()
+                                    .forEach(entry -> {
+                                        entry.getValue().stream().forEach(receipt -> {
+                                            receipt_database.save(receipt.getAddress(),receipt);
+                                        });
+
+                                    });
                             toSave.put(String.valueOf(val.getHeight()), val);
                             val.getTransactionList().stream().forEach(trx -> {
                                 transaction_database.save(trx.getFrom(), trx);
@@ -293,6 +319,8 @@ public class BlockSync implements IBlockSync {
                         IDatabase<String, TransactionBlock> block_database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
                         IDatabase<String, LevelDBTransactionWrapper<Transaction>> transaction_database = new DatabaseFactory(String.class, Transaction.class, new TypeToken<LevelDBTransactionWrapper<Transaction>>() {
                         }.getType()).getDatabase(DatabaseType.LEVEL_DB);
+                        IDatabase<String, LevelDBTransactionWrapper<Receipt>> receipt_database = new DatabaseFactory(String.class, Receipt.class, new TypeToken<LevelDBTransactionWrapper<Receipt>>() {
+                        }.getType()).getDatabase(DatabaseType.LEVEL_DB);
                         client = new RpcAdrestusClient(new TransactionBlock(), toConnectTransaction, CachedEventLoop.getInstance().getEventloop());
                         client.connect();
 
@@ -305,6 +333,18 @@ public class BlockSync implements IBlockSync {
                                 patriciaRootList = new ArrayList<>(blocks.stream().filter(val -> val.getGeneration() > CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration()).map(TransactionBlock::getHeight).collect(Collectors.toList()));
                                 blocks.removeIf(x -> x.getGeneration() > CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration());
                                 blocks.stream().skip(1).forEach(val -> {
+                                    val
+                                            .getInbound()
+                                            .getMap_receipts()
+                                            .get(val.getInbound().getMap_receipts().keySet().toArray()[0])
+                                            .entrySet()
+                                            .stream()
+                                            .forEach(entry -> {
+                                                entry.getValue().stream().forEach(receipt -> {
+                                                    receipt_database.save(receipt.getAddress(),receipt);
+                                                });
+
+                                            });
                                     toSave.put(String.valueOf(val.getHeight()), val);
                                     val.getTransactionList().stream().forEach(trx -> {
                                         transaction_database.save(trx.getFrom(), trx);
@@ -319,6 +359,18 @@ public class BlockSync implements IBlockSync {
                                 patriciaRootList = new ArrayList<>(blocks.stream().filter(val -> val.getGeneration() > CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration()).map(TransactionBlock::getHeight).collect(Collectors.toList()));
                                 blocks.removeIf(x -> x.getGeneration() > CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration());
                                 blocks.stream().forEach(val -> {
+                                    val
+                                            .getInbound()
+                                            .getMap_receipts()
+                                            .get(val.getInbound().getMap_receipts().keySet().toArray()[0])
+                                            .entrySet()
+                                            .stream()
+                                            .forEach(entry -> {
+                                                entry.getValue().stream().forEach(receipt -> {
+                                                    receipt_database.save(receipt.getAddress(),receipt);
+                                                });
+
+                                            });
                                     toSave.put(String.valueOf(val.getHeight()), val);
                                     val.getTransactionList().stream().forEach(trx -> {
                                         transaction_database.save(trx.getFrom(), trx);
@@ -525,6 +577,9 @@ public class BlockSync implements IBlockSync {
                 IDatabase<String, TransactionBlock> block_database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
                 IDatabase<String, LevelDBTransactionWrapper<Transaction>> transaction_database = new DatabaseFactory(String.class, Transaction.class, new TypeToken<LevelDBTransactionWrapper<Transaction>>() {
                 }.getType()).getDatabase(DatabaseType.LEVEL_DB);
+                IDatabase<String, LevelDBTransactionWrapper<Receipt>> receipt_database = new DatabaseFactory(String.class, Receipt.class, new TypeToken<LevelDBTransactionWrapper<Receipt>>() {
+                }.getType()).getDatabase(DatabaseType.LEVEL_DB);
+
                 client = new RpcAdrestusClient(new TransactionBlock(), toConnectTransaction, CachedEventLoop.getInstance().getEventloop());
                 client.connect();
 
@@ -537,6 +592,18 @@ public class BlockSync implements IBlockSync {
                         patriciaRootList = new ArrayList<>(blocks.stream().filter(val -> val.getGeneration() > CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration()).map(TransactionBlock::getHeight).collect(Collectors.toList()));
                         blocks.removeIf(x -> x.getGeneration() > CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration());
                         blocks.stream().skip(1).forEach(val -> {
+                            val
+                                    .getInbound()
+                                    .getMap_receipts()
+                                    .get(val.getInbound().getMap_receipts().keySet().toArray()[0])
+                                    .entrySet()
+                                    .stream()
+                                    .forEach(entry -> {
+                                        entry.getValue().stream().forEach(receipt -> {
+                                            receipt_database.save(receipt.getAddress(),receipt);
+                                        });
+
+                                    });
                             toSave.put(String.valueOf(val.getHeight()), val);
                             val.getTransactionList().stream().forEach(trx -> {
                                 transaction_database.save(trx.getFrom(), trx);
@@ -551,6 +618,18 @@ public class BlockSync implements IBlockSync {
                         patriciaRootList = new ArrayList<>(blocks.stream().filter(val -> val.getGeneration() > CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration()).map(TransactionBlock::getHeight).collect(Collectors.toList()));
                         blocks.removeIf(x -> x.getGeneration() > CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration());
                         blocks.stream().forEach(val -> {
+                            val
+                                    .getInbound()
+                                    .getMap_receipts()
+                                    .get(val.getInbound().getMap_receipts().keySet().toArray()[0])
+                                    .entrySet()
+                                    .stream()
+                                    .forEach(entry -> {
+                                        entry.getValue().stream().forEach(receipt -> {
+                                            receipt_database.save(receipt.getAddress(),receipt);
+                                        });
+
+                                    });
                             toSave.put(String.valueOf(val.getHeight()), val);
                             val.getTransactionList().stream().forEach(trx -> {
                                 transaction_database.save(trx.getFrom(), trx);

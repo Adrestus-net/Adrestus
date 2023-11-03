@@ -205,9 +205,9 @@ public class InBoundEventHandler implements BlockEventHandler<AbstractBlockEvent
         int val3 = Integer.compare(index, receipt.getPosition());
         int val4 = Integer.compare(transactionBlock.getHeight(), receiptBlock.getHeight());
         int val5 = Integer.compare(transactionBlock.getGeneration(), receiptBlock.getGeneration());
-        int val6 = Integer.compare(receipt.getZoneFrom(), CachedZoneIndex.getInstance().getZoneIndex());
+        int val6 = Integer.compare(receipt.getZoneTo(), CachedZoneIndex.getInstance().getZoneIndex());
 
-        if (val2 == 0.0 || val3 == 0 || val4 == 0.0 || val5 == 0 || val6 == 0 || bool1 || bool2 || bool3 || bool4 || bool5)
+        if (val2 == 0.0 && val3 == 0 && val4 == 0.0 && val5 == 0 && val6 == 0 && bool1 && bool2 && bool3 && bool4 && bool5)
             return true;
         return false;
     }
