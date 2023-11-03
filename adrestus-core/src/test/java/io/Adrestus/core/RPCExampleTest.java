@@ -234,6 +234,7 @@ class RPCExampleTest {
             System.out.println("Exception caught: " + e.toString());
         }
     }
+
     @Test
     public void myCadownload2() throws Exception {
         try {

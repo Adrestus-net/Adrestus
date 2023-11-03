@@ -75,11 +75,11 @@ public class LevelDBTransactionTest {
         transaction.setFrom("1");
         transaction.setTo("2");
 
-        Receipt receipt=new Receipt(0,2,transaction);
+        Receipt receipt = new Receipt(0, 2, transaction);
         receipt.setAddress("2");
         receipt.setReceiptBlock(new Receipt.ReceiptBlock());
         database.save("1", transaction);
-        receiptdatabase.save(receipt.getAddress(),receipt);
+        receiptdatabase.save(receipt.getAddress(), receipt);
         Optional<LevelDBTransactionWrapper<Transaction>> wrapper = database.findByKey("1");
         Optional<LevelDBTransactionWrapper<Receipt>> wrapperreceipt = receiptdatabase.findByKey("2");
         assertEquals(transaction, wrapper.get().getFrom().get(0));
@@ -88,6 +88,7 @@ public class LevelDBTransactionTest {
         database.delete_db();
         receiptdatabase.delete_db();
     }
+
     @Test
     public void TransactionAddEraseTest() {
         IDatabase<String, LevelDBTransactionWrapper<Transaction>> database = new DatabaseFactory(String.class, Transaction.class, new TypeToken<LevelDBTransactionWrapper<Transaction>>() {

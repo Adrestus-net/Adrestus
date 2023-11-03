@@ -12,11 +12,11 @@ public class AddressEventHandler implements ReceiptEventHandler<ReceiptBlockEven
 
     @Override
     public void onEvent(ReceiptBlockEvent receiptBlockEvent, long l, boolean b) throws InterruptedException {
-        ReceiptBlock receiptBlock=receiptBlockEvent.getReceiptBlock();
-         if(!receiptBlock.getTransaction().getTo().equals(receiptBlock.getReceipt().getAddress())){
-             LOG.info("Receipt Address is not valid with transaction abort");
-             receiptBlockEvent.getReceiptBlock().setStatusType(StatusType.ABORT);
-             return;
-         }
+        ReceiptBlock receiptBlock = receiptBlockEvent.getReceiptBlock();
+        if (!receiptBlock.getTransaction().getTo().equals(receiptBlock.getReceipt().getAddress())) {
+            LOG.info("Receipt Address is not valid with transaction abort");
+            receiptBlockEvent.getReceiptBlock().setStatusType(StatusType.ABORT);
+            return;
+        }
     }
 }

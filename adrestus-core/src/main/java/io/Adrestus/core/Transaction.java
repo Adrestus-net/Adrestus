@@ -15,8 +15,8 @@ import java.util.Comparator;
 
 @SerializeClass(subclasses = {RegularTransaction.class, RewardsTransaction.class, StakingTransaction.class, DelegateTransaction.class})
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "transactiontype")
-@JsonSubTypes({@JsonSubTypes.Type(value = RegularTransaction.class, name = "RegularTransaction"), @JsonSubTypes.Type(value = RewardsTransaction.class, name = "RewardsTransaction"),@JsonSubTypes.Type(value = StakingTransaction.class, name = "StakingTransaction"),@JsonSubTypes.Type(value = DelegateTransaction.class, name = "DelegateTransaction")})
-@JsonPropertyOrder({ "transactiontype", "type","status","timestamp", "hash","nonce","blockNumber", "from","to","zoneFrom","zoneTo","blockNumber","amount","amountWithTransactionFee","xaxis", "yaxis","signature"})
+@JsonSubTypes({@JsonSubTypes.Type(value = RegularTransaction.class, name = "RegularTransaction"), @JsonSubTypes.Type(value = RewardsTransaction.class, name = "RewardsTransaction"), @JsonSubTypes.Type(value = StakingTransaction.class, name = "StakingTransaction"), @JsonSubTypes.Type(value = DelegateTransaction.class, name = "DelegateTransaction")})
+@JsonPropertyOrder({"transactiontype", "type", "status", "timestamp", "hash", "nonce", "blockNumber", "from", "to", "zoneFrom", "zoneTo", "blockNumber", "amount", "amountWithTransactionFee", "xaxis", "yaxis", "signature"})
 public abstract class Transaction implements Cloneable, Comparable<Transaction>, Comparator<Transaction>, Serializable {
 
 

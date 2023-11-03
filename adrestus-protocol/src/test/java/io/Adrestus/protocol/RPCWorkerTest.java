@@ -9,7 +9,6 @@ import io.Adrestus.network.IPFinder;
 import io.Adrestus.rpc.RpcAdrestusClient;
 import io.distributedLedger.*;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.net.InetAddress;

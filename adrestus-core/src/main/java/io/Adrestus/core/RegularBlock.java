@@ -16,7 +16,6 @@ import io.Adrestus.crypto.bls.BLS381.ECP;
 import io.Adrestus.crypto.bls.BLS381.ECP2;
 import io.Adrestus.crypto.bls.mapper.ECP2mapper;
 import io.Adrestus.crypto.bls.mapper.ECPmapper;
-import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.Adrestus.crypto.bls.model.CachedBLSKeyPair;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.crypto.elliptic.mapper.CustomSerializerTreeMap;
@@ -26,7 +25,10 @@ import io.Adrestus.network.AsyncService;
 import io.Adrestus.network.CachedEventLoop;
 import io.Adrestus.p2p.kademlia.repository.KademliaData;
 import io.Adrestus.rpc.RpcAdrestusClient;
-import io.Adrestus.util.*;
+import io.Adrestus.util.CustomRandom;
+import io.Adrestus.util.GetTime;
+import io.Adrestus.util.MathOperationUtil;
+import io.Adrestus.util.SerializationUtil;
 import io.distributedLedger.*;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.SerializationUtils;
@@ -41,7 +43,6 @@ import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.security.SecureRandom;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import static java.util.Comparator.comparing;
@@ -436,7 +437,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
                     .stream()
                     .forEach(entry -> {
                         entry.getValue().stream().forEach(receipt -> {
-                            receipt_database.save(receipt.getAddress(),receipt);
+                            receipt_database.save(receipt.getAddress(), receipt);
                             TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).deposit(receipt.getAddress(), receipt.getAmount(), TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()));
                             MemoryReceiptPool.getInstance().delete(receipt);
                         });
@@ -444,7 +445,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
 
         if (!transactionBlock.getOutbound().getMap_receipts().isEmpty()) {
             Integer[] size = transactionBlock.getOutbound().getMap_receipts().keySet().toArray(new Integer[0]);
-            for (int i=0;i<size.length;i++) {
+            for (int i = 0; i < size.length; i++) {
                 List<String> ReceiptIPWorkers = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(size[i]).values().stream().collect(Collectors.toList());
                 List<byte[]> toSendReceipt = new ArrayList<>();
                 transactionBlock
@@ -548,7 +549,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
             IDatabase<String, byte[]> tree_database = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getPatriciaTreeZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
 
             Optional<TransactionBlock> block = block_database.seekLast();
-            Optional<byte[]>tree=tree_database.seekLast();
+            Optional<byte[]> tree = tree_database.seekLast();
 
             CachedLatestBlocks.getInstance().setTransactionBlock(block.get());
             TreeFactory.setMemoryTree((MemoryTreePool) patricia_tree_wrapper.decode(tree.get()), CachedZoneIndex.getInstance().getZoneIndex());

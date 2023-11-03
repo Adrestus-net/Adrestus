@@ -121,8 +121,8 @@ public class InBoundEventHandler implements BlockEventHandler<AbstractBlockEvent
         //find validator position in structure map
         Integer my_pos = blockIndex.getPublicKeyIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedBLSKeyPair.getInstance().getPublicKey());
         boolean bError = false;
-        Integer receiptZoneIndex=0;
-        List<TransactionBlock> current=null;
+        Integer receiptZoneIndex = 0;
+        List<TransactionBlock> current = null;
         do {
             try {
                 // get first zone index from inner receipts and search in foor loop in which zone index of structure map belongs
@@ -155,18 +155,17 @@ public class InBoundEventHandler implements BlockEventHandler<AbstractBlockEvent
                 for (Receipt.ReceiptBlock receiptBlock : zone.keySet()) {
                     to_search.add(String.valueOf(receiptBlock.getHeight()));
                 }
-                RpcAdrestusClient<TransactionBlock> client = new RpcAdrestusClient<TransactionBlock>(new TransactionBlock(), IP, ZoneDatabaseFactory.getDatabaseRPCPort(blockIndex.getZone(IP)),400, CachedEventLoop.getInstance().getEventloop());
+                RpcAdrestusClient<TransactionBlock> client = new RpcAdrestusClient<TransactionBlock>(new TransactionBlock(), IP, ZoneDatabaseFactory.getDatabaseRPCPort(blockIndex.getZone(IP)), 400, CachedEventLoop.getInstance().getEventloop());
                 client.connect();
 
                 current = client.getBlock(to_search);
                 bError = false;
             } catch (IllegalArgumentException e) {
-                bError=true;
-                if(my_pos==committeeBlock.getStructureMap().get(receiptZoneIndex).size()-1){
-                    my_pos=0;
-                }
-                else {
-                    my_pos=my_pos+1;
+                bError = true;
+                if (my_pos == committeeBlock.getStructureMap().get(receiptZoneIndex).size() - 1) {
+                    my_pos = 0;
+                } else {
+                    my_pos = my_pos + 1;
                 }
             }
         } while (bError);

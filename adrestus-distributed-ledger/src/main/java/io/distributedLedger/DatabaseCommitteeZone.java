@@ -17,7 +17,7 @@ public class DatabaseCommitteeZone implements IDriver<Options, RocksDB> {
     public static DatabaseCommitteeZone getInstance(Options options, String path) {
 
         var result = instance;
-        if (result == null || rocksDB==null) {
+        if (result == null || rocksDB == null) {
             synchronized (DatabaseCommitteeZone.class) {
                 result = instance;
                 if (result == null) {

@@ -203,7 +203,7 @@ public class TreemapSerializationTest {
         MemoryTreePool m2clone = (MemoryTreePool) TreeFactory.getMemoryTree(2);
         m2.setHeight("6");
         assertNotEquals(m, m2);
-        assertEquals(m2,m2clone);
+        assertEquals(m2, m2clone);
         //m.getByaddress(address);
         //use only special
         byte[] bt = valueMapper.encode_special(m, SerializationUtils.serialize(m).length);
@@ -213,8 +213,8 @@ public class TreemapSerializationTest {
         tree_datasbase.save("2", bt);
         tree_datasbase.save("1", bt);
         tree_datasbase.save("4", bt);
-        Map<String,byte[]> copy = tree_datasbase.findBetweenRange("2");
-        Optional<byte[]>res=tree_datasbase.seekLast();
+        Map<String, byte[]> copy = tree_datasbase.findBetweenRange("2");
+        Optional<byte[]> res = tree_datasbase.seekLast();
         MemoryTreePool copys = (MemoryTreePool) valueMapper.decode(tree_datasbase.seekLast().get());
         assertEquals(String.valueOf(1), copys.getHeight());
         tree_datasbase.delete_db();

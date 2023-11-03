@@ -30,7 +30,6 @@ import io.Adrestus.crypto.mnemonic.Mnemonic;
 import io.Adrestus.crypto.mnemonic.Security;
 import io.Adrestus.crypto.mnemonic.WordList;
 import io.Adrestus.network.CachedEventLoop;
-import io.Adrestus.network.IPFinder;
 import io.Adrestus.rpc.RpcAdrestusClient;
 import io.Adrestus.rpc.RpcAdrestusServer;
 import io.Adrestus.util.GetTime;
@@ -198,7 +197,6 @@ public class ReceiptPublisherTest {
         CachedEventLoop.getInstance().start();
 
 
-
         String OriginalRootHash = transactionBlock.getMerkleRoot();
         Receipt.ReceiptBlock receiptBlock = new Receipt.ReceiptBlock(transactionBlock.getHash(), transactionBlock.getHeight(), transactionBlock.getGeneration(), transactionBlock.getMerkleRoot());
 
@@ -228,8 +226,8 @@ public class ReceiptPublisherTest {
                 to_search.add(String.valueOf(receipt.getReceiptBlock().getHeight()));
 
                 List<TransactionBlock> currentblock = client.getBlock(to_search);
-                int index = Collections.binarySearch(currentblock.get(currentblock.size()-1).getTransactionList(), receipt.getTransaction());
-                Transaction trx = currentblock.get(currentblock.size()-1).getTransactionList().get(index);
+                int index = Collections.binarySearch(currentblock.get(currentblock.size() - 1).getTransactionList(), receipt.getTransaction());
+                Transaction trx = currentblock.get(currentblock.size() - 1).getTransactionList().get(index);
 
                 ReceiptBlock receiptBlock1 = new ReceiptBlock(StatusType.PENDING, receipt, currentblock.get(currentblock.size() - 1), trx);
 

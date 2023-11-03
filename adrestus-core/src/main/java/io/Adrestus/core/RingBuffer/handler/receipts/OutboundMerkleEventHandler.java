@@ -17,7 +17,7 @@ public class OutboundMerkleEventHandler implements ReceiptEventHandler<ReceiptBl
 
     @Override
     public void onEvent(ReceiptBlockEvent receiptBlockEvent, long l, boolean b) throws InterruptedException {
-        ReceiptBlock receiptBlock=receiptBlockEvent.getReceiptBlock();
+        ReceiptBlock receiptBlock = receiptBlockEvent.getReceiptBlock();
         final MerkleTreeImp outer_tree = new MerkleTreeImp();
         final ArrayList<MerkleNode> merkleNodeArrayList = new ArrayList<>();
         receiptBlock.getTransactionBlock().getTransactionList().forEach(val -> merkleNodeArrayList.add(new MerkleNode(val.getHash())));
@@ -26,7 +26,7 @@ public class OutboundMerkleEventHandler implements ReceiptEventHandler<ReceiptBl
         boolean bool1 = StringUtils.equals(receiptBlock.getTransactionBlock().getMerkleRoot(), outer_tree.GenerateRoot(receiptBlock.getReceipt().getProofs()));
         boolean bool2 = StringUtils.equals(receiptBlock.getReceipt().getReceiptBlock().getOutboundMerkleRoot(), outer_tree.getRootHash());
 
-        if(!bool1 || !bool2){
+        if (!bool1 || !bool2) {
             LOG.info("Merkle tree is not valid abort");
             receiptBlockEvent.getReceiptBlock().setStatusType(StatusType.ABORT);
             return;

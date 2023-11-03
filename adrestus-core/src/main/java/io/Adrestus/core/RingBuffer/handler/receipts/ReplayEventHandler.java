@@ -5,7 +5,6 @@ import io.Adrestus.core.Receipt;
 import io.Adrestus.core.ReceiptBlock;
 import io.Adrestus.core.RingBuffer.event.ReceiptBlockEvent;
 import io.Adrestus.core.StatusType;
-import io.Adrestus.core.Transaction;
 import io.distributedLedger.DatabaseFactory;
 import io.distributedLedger.DatabaseType;
 import io.distributedLedger.IDatabase;
@@ -21,14 +20,15 @@ public class ReplayEventHandler implements ReceiptEventHandler<ReceiptBlockEvent
 
     private static Logger LOG = LoggerFactory.getLogger(ReplayEventHandler.class);
     private final IDatabase<String, LevelDBTransactionWrapper<Receipt>> receiptdatabase;
+
     public ReplayEventHandler() {
-       this.receiptdatabase = new DatabaseFactory(String.class, Receipt.class, new TypeToken<LevelDBTransactionWrapper<Receipt>>() {
+        this.receiptdatabase = new DatabaseFactory(String.class, Receipt.class, new TypeToken<LevelDBTransactionWrapper<Receipt>>() {
         }.getType()).getDatabase(DatabaseType.LEVEL_DB);
     }
 
     @Override
     public void onEvent(ReceiptBlockEvent receiptBlockEvent, long l, boolean b) throws InterruptedException {
-        ReceiptBlock receiptBlock=receiptBlockEvent.getReceiptBlock();
+        ReceiptBlock receiptBlock = receiptBlockEvent.getReceiptBlock();
         try {
             ArrayList<Receipt> tosearch = receiptdatabase.findByKey(receiptBlock.getReceipt().getAddress()).get().getFrom();
             Optional<Receipt> transaction_hint = tosearch.stream().filter(tr -> tr.getTransaction().getHash().equals(receiptBlock.getTransaction().getHash())).findFirst();
@@ -37,7 +37,7 @@ public class ReplayEventHandler implements ReceiptEventHandler<ReceiptBlockEvent
                 receiptBlockEvent.getReceiptBlock().setStatusType(StatusType.ABORT);
                 return;
             }
-        }catch (NoSuchElementException e){
+        } catch (NoSuchElementException e) {
             return;
         }
     }

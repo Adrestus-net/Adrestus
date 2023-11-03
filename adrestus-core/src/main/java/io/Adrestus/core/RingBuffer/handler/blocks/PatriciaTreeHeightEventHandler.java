@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 public class PatriciaTreeHeightEventHandler implements BlockEventHandler<AbstractBlockEvent> {
     private static Logger LOG = LoggerFactory.getLogger(PatriciaTreeHeightEventHandler.class);
@@ -34,14 +35,18 @@ public class PatriciaTreeHeightEventHandler implements BlockEventHandler<Abstrac
 
     @Override
     public void onEvent(AbstractBlockEvent blockEvent, long l, boolean b) throws Exception {
-        IDatabase<String, byte[]> tree_database = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getPatriciaTreeZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
-        TransactionBlock transactionBlock = (TransactionBlock) blockEvent.getBlock();
-        MemoryTreePool clone = (MemoryTreePool) patricia_tree_wrapper.decode(tree_database.seekLast().get());
+        try {
+            IDatabase<String, byte[]> tree_database = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getPatriciaTreeZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
+            TransactionBlock transactionBlock = (TransactionBlock) blockEvent.getBlock();
+            MemoryTreePool clone = (MemoryTreePool) patricia_tree_wrapper.decode(tree_database.seekLast().get());
 
-        if (Integer.parseInt(clone.getHeight()) != transactionBlock.getHeight() - 1) {
-            LOG.info("Patricia Merkle tree height is invalid abort");
-            transactionBlock.setStatustype(StatusType.ABORT);
-            return;
+            if (Integer.parseInt(clone.getHeight()) != transactionBlock.getHeight() - 1) {
+                LOG.info("Patricia Merkle tree height is invalid abort");
+                transactionBlock.setStatustype(StatusType.ABORT);
+                return;
+            }
+        } catch (NoSuchElementException e) {
+
         }
     }
 }

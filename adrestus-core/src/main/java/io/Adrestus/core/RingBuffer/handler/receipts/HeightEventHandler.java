@@ -12,8 +12,8 @@ public class HeightEventHandler implements ReceiptEventHandler<ReceiptBlockEvent
 
     @Override
     public void onEvent(ReceiptBlockEvent receiptBlockEvent, long l, boolean b) throws InterruptedException {
-        ReceiptBlock receiptBlock=receiptBlockEvent.getReceiptBlock();
-        if(receiptBlock.getTransactionBlock().getHeight()!=receiptBlock.getReceipt().getReceiptBlock().getHeight()){
+        ReceiptBlock receiptBlock = receiptBlockEvent.getReceiptBlock();
+        if (receiptBlock.getTransactionBlock().getHeight() != receiptBlock.getReceipt().getReceiptBlock().getHeight()) {
             LOG.info("Receipt Block height are not valid with origin block abort");
             receiptBlockEvent.getReceiptBlock().setStatusType(StatusType.ABORT);
             return;

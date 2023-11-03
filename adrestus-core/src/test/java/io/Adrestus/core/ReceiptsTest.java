@@ -41,7 +41,10 @@ import org.spongycastle.util.encoders.Hex;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -85,7 +88,7 @@ public class ReceiptsTest {
         sk5 = new BLSPrivateKey(5);
         vk5 = new BLSPublicKey(sk5);
 
-        sk6= new BLSPrivateKey(6);
+        sk6 = new BLSPrivateKey(6);
         vk6 = new BLSPublicKey(sk6);
 
         List<SerializationUtil.Mapping> list = new ArrayList<>();
@@ -229,7 +232,7 @@ public class ReceiptsTest {
 
         OutBoundRelay outBoundRelay = new OutBoundRelay(map);
         transactionBlock.setOutbound(outBoundRelay);
-        Integer []size=transactionBlock.getOutbound().getMap_receipts().keySet().toArray(new Integer[0]);
+        Integer[] size = transactionBlock.getOutbound().getMap_receipts().keySet().toArray(new Integer[0]);
 //        for (int i=0;i<size.length;i++) {
 //            List<String> ReceiptIPWorkers = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(size[i]).values().stream().collect(Collectors.toList());
 //            List<byte[]> toSendReceipt = new ArrayList<>();

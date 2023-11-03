@@ -73,7 +73,7 @@ public class DuplicateEventHandler implements BlockEventHandler<AbstractBlockEve
     @SneakyThrows
     @Override
     public void visit(TransactionBlock transactionBlock) {
-        TransactionBlock transactionBlockcloned= (TransactionBlock) transactionBlock.clone();
+        TransactionBlock transactionBlockcloned = (TransactionBlock) transactionBlock.clone();
         List<Transaction> duplicates =
                 transactionBlockcloned
                         .getTransactionList()

@@ -1,11 +1,11 @@
 package io.Adrestus.core.RingBuffer.event;
 
-import io.Adrestus.core.*;
+import io.Adrestus.core.ReceiptBlock;
 
 import java.util.Objects;
 
-public class ReceiptBlockEvent implements Cloneable{
-   private ReceiptBlock receiptBlock;
+public class ReceiptBlockEvent implements Cloneable {
+    private ReceiptBlock receiptBlock;
 
     public ReceiptBlockEvent(ReceiptBlock receiptBlock) {
         this.receiptBlock = receiptBlock;

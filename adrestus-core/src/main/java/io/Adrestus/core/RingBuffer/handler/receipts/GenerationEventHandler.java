@@ -12,8 +12,8 @@ public class GenerationEventHandler implements ReceiptEventHandler<ReceiptBlockE
 
     @Override
     public void onEvent(ReceiptBlockEvent receiptBlockEvent, long l, boolean b) throws InterruptedException {
-        ReceiptBlock receiptBlock=receiptBlockEvent.getReceiptBlock();
-        if(receiptBlock.getTransactionBlock().getGeneration()!=receiptBlock.getReceipt().getReceiptBlock().getGeneration()){
+        ReceiptBlock receiptBlock = receiptBlockEvent.getReceiptBlock();
+        if (receiptBlock.getTransactionBlock().getGeneration() != receiptBlock.getReceipt().getReceiptBlock().getGeneration()) {
             LOG.info("Receipt Generation are not valid with origin block abort");
             receiptBlockEvent.getReceiptBlock().setStatusType(StatusType.ABORT);
             return;

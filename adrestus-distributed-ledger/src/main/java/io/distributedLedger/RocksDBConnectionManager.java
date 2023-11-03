@@ -460,7 +460,7 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
                 byte[] serializedKey = iterator.key();
                 byte[] serializedValue = iterator.value();
                 final byte[] res = rocksDB.get(serializedKey);
-                if(res==null){
+                if (res == null) {
                     return (Map<K, V>) hashmap;
                 }
                 hashmap.put(keyMapper.decode(serializedKey), valueMapper.decode(serializedValue));

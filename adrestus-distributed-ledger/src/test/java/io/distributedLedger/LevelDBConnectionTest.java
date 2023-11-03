@@ -66,6 +66,7 @@ public class LevelDBConnectionTest {
 
         database.delete_db();
     }
+
     @Test
     public void myBfind_between_range2() {
         IDatabase<String, String> database = new DatabaseFactory(String.class, String.class).getDatabase(DatabaseType.LEVEL_DB);

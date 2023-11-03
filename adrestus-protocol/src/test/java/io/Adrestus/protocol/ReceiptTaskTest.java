@@ -6,7 +6,6 @@ import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.crypto.bls.model.BLSPrivateKey;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.Adrestus.network.IPFinder;
-import io.distributedLedger.DatabaseInstance;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -36,6 +35,7 @@ public class ReceiptTaskTest {
 
     private static CommitteeBlock committeeBlock;
     private static TransactionBlock transactionBlock;
+
     @BeforeAll
     public static void setup() throws Exception {
         CachedZoneIndex.getInstance().setZoneIndex(0);
@@ -54,7 +54,7 @@ public class ReceiptTaskTest {
         sk5 = new BLSPrivateKey(5);
         vk5 = new BLSPublicKey(sk5);
 
-        sk6= new BLSPrivateKey(6);
+        sk6 = new BLSPrivateKey(6);
         vk6 = new BLSPublicKey(sk6);
 
         committeeBlock = new CommitteeBlock();
@@ -99,6 +99,7 @@ public class ReceiptTaskTest {
 
         CachedLatestBlocks.getInstance().setTransactionBlock(transactionBlock);
     }
+
     @Test
     public void Test() throws InterruptedException {
         IAdrestusFactory factory = new AdrestusFactory();
@@ -111,7 +112,8 @@ public class ReceiptTaskTest {
             try {
                 if (val != null)
                     val.close();
-            }catch (NullPointerException e){}
+            } catch (NullPointerException e) {
+            }
         });
         tasks.clear();
         executor.shutdown();

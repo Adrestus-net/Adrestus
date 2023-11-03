@@ -67,7 +67,8 @@ public class WorkerTest {
             try {
                 if (val != null)
                     val.close();
-            }catch (NullPointerException e){}
+            } catch (NullPointerException e) {
+            }
         });
         tasks.clear();
         executor.shutdown();
@@ -119,7 +120,8 @@ public class WorkerTest {
             try {
                 if (val != null)
                     val.close();
-            }catch (NullPointerException e){}
+            } catch (NullPointerException e) {
+            }
         });
         tasks.clear();
         executor.shutdown();

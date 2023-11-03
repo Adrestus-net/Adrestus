@@ -92,7 +92,7 @@ public class SignatureEventHandler extends TransactionEventHandler {
                 ECDSASign ecdsaSign = new ECDSASign();
                 BigInteger publicKeyValue = ecdsaSign.recoverPublicKeyValue(transaction.getXAxis(), transaction.getYAxis());
                 boolean verify = ecdsaSign.secp256Verify(HashUtil.sha256(transaction.getHash().getBytes(StandardCharsets.UTF_8)), transaction.getFrom(), publicKeyValue, transaction.getSignature());
-                if(!verify){
+                if (!verify) {
                     LOG.info("Transaction Wallet signature is not valid ABORT");
                     if (type.equals(SignatureBehaviorType.BLOCK_TRANSACTIONS))
                         latch.countDown();
@@ -100,8 +100,7 @@ public class SignatureEventHandler extends TransactionEventHandler {
                     MemoryTransactionPool.getInstance().delete(transaction);
                     return;
                 }
-            }
-            else {
+            } else {
                 if (!ecdsaSign.secp256Verify(Hex.decode(transaction.getHash()), transaction.getFrom(), transaction.getSignature())) {
                     LOG.info("Transaction signature is not valid ABORT");
                     if (type.equals(SignatureBehaviorType.BLOCK_TRANSACTIONS))

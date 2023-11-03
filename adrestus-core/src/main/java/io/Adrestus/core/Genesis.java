@@ -1,7 +1,6 @@
 package io.Adrestus.core;
 
 
-import io.Adrestus.util.GetTime;
 import io.distributedLedger.DatabaseFactory;
 import io.distributedLedger.DatabaseType;
 import io.distributedLedger.IDatabase;

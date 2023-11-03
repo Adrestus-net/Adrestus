@@ -9,8 +9,9 @@ import io.Adrestus.config.ConsensusConfiguration;
 import io.Adrestus.config.KademliaConfiguration;
 import io.Adrestus.config.NodeSettings;
 import io.Adrestus.consensus.ConsensusState;
-import io.Adrestus.core.*;
+import io.Adrestus.core.CommitteeBlock;
 import io.Adrestus.core.Resourses.*;
+import io.Adrestus.core.TransactionBlock;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.SecurityAuditProofs;
 import io.Adrestus.crypto.WalletAddress;
@@ -76,14 +77,14 @@ public class BootstrapConsensusTest {
     private static BLSPrivateKey sk6;
     private static BLSPublicKey vk6;
 
-    private static ECKeyPair ecKeyPair1, ecKeyPair2, ecKeyPair3, ecKeyPair4, ecKeyPair5, ecKeyPair6, ecKeyPair7, ecKeyPair8,ecKeyPair9,ecKeyPair10,ecKeyPair11,ecKeyPair12;
-    private static String address1, address2, address3, address4, address5, address6, address7, address8,address9,address10,address11,address12;
+    private static ECKeyPair ecKeyPair1, ecKeyPair2, ecKeyPair3, ecKeyPair4, ecKeyPair5, ecKeyPair6, ecKeyPair7, ecKeyPair8, ecKeyPair9, ecKeyPair10, ecKeyPair11, ecKeyPair12;
+    private static String address1, address2, address3, address4, address5, address6, address7, address8, address9, address10, address11, address12;
     private static ECDSASign ecdsaSign = new ECDSASign();
     private static VdfEngine vdf;
     private static KademliaData kad1, kad2, kad3, kad4, kad5, kad6;
     private static KeyHashGenerator<BigInteger, String> keyHashGenerator;
     private static char[] passphrase;
-    private static byte[] key1, key2, key3, key4, key5, key6, key7, key8,key9,key10,key11,key12;
+    private static byte[] key1, key2, key3, key4, key5, key6, key7, key8, key9, key10, key11, key12;
 
     @BeforeAll
     public static void setup() throws Exception {
@@ -194,7 +195,6 @@ public class BootstrapConsensusTest {
         ecKeyPair12 = Keys.createEcKeyPair(random);
 
 
-
         address1 = WalletAddress.generate_address((byte) version, ecKeyPair1.getPublicKey());
         address2 = WalletAddress.generate_address((byte) version, ecKeyPair2.getPublicKey());
         address3 = WalletAddress.generate_address((byte) version, ecKeyPair3.getPublicKey());
@@ -229,8 +229,8 @@ public class BootstrapConsensusTest {
         TreeFactory.getMemoryTree(0).store(address11, new PatriciaTreeNode(3000, 0));
         TreeFactory.getMemoryTree(0).store(address12, new PatriciaTreeNode(3000, 0));
         TreeFactory.getMemoryTree(0).store("ADR-GBIV-HG2J-27P5-BNVN-MLN6-DL5V-M3YZ-PKEJ-CFFG-FK4L", new PatriciaTreeNode(1000, 0));
-        TreeFactory.getMemoryTree(0).store("ADR-GBZX-XXCW-LWJC-J7RZ-Q6BJ-RFBA-J5WU-NBAG-4RL7-7G6Z",new PatriciaTreeNode(1000,0));
-        TreeFactory.getMemoryTree(0).store("ADR-GD3G-DK4I-DKM2-IQSB-KBWL-HWRV-BBQA-MUAS-MGXA-5QPP",new PatriciaTreeNode(1000,0));
+        TreeFactory.getMemoryTree(0).store("ADR-GBZX-XXCW-LWJC-J7RZ-Q6BJ-RFBA-J5WU-NBAG-4RL7-7G6Z", new PatriciaTreeNode(1000, 0));
+        TreeFactory.getMemoryTree(0).store("ADR-GD3G-DK4I-DKM2-IQSB-KBWL-HWRV-BBQA-MUAS-MGXA-5QPP", new PatriciaTreeNode(1000, 0));
 
         TreeFactory.getMemoryTree(1).store(address1, new PatriciaTreeNode(3000, 0));
         TreeFactory.getMemoryTree(1).store(address2, new PatriciaTreeNode(3000, 0));
@@ -245,8 +245,8 @@ public class BootstrapConsensusTest {
         TreeFactory.getMemoryTree(1).store(address11, new PatriciaTreeNode(3000, 0));
         TreeFactory.getMemoryTree(1).store(address12, new PatriciaTreeNode(3000, 0));
         TreeFactory.getMemoryTree(1).store("ADR-GBIV-HG2J-27P5-BNVN-MLN6-DL5V-M3YZ-PKEJ-CFFG-FK4L", new PatriciaTreeNode(1000, 0));
-        TreeFactory.getMemoryTree(1).store("ADR-GBZX-XXCW-LWJC-J7RZ-Q6BJ-RFBA-J5WU-NBAG-4RL7-7G6Z",new PatriciaTreeNode(2000,0));
-        TreeFactory.getMemoryTree(1).store("ADR-GD3G-DK4I-DKM2-IQSB-KBWL-HWRV-BBQA-MUAS-MGXA-5QPP",new PatriciaTreeNode(2000,0));
+        TreeFactory.getMemoryTree(1).store("ADR-GBZX-XXCW-LWJC-J7RZ-Q6BJ-RFBA-J5WU-NBAG-4RL7-7G6Z", new PatriciaTreeNode(2000, 0));
+        TreeFactory.getMemoryTree(1).store("ADR-GD3G-DK4I-DKM2-IQSB-KBWL-HWRV-BBQA-MUAS-MGXA-5QPP", new PatriciaTreeNode(2000, 0));
 
         TreeFactory.getMemoryTree(2).store(address1, new PatriciaTreeNode(3000, 0));
         TreeFactory.getMemoryTree(2).store(address2, new PatriciaTreeNode(3000, 0));
@@ -261,8 +261,8 @@ public class BootstrapConsensusTest {
         TreeFactory.getMemoryTree(2).store(address11, new PatriciaTreeNode(3000, 0));
         TreeFactory.getMemoryTree(2).store(address12, new PatriciaTreeNode(3000, 0));
         TreeFactory.getMemoryTree(2).store("ADR-GBIV-HG2J-27P5-BNVN-MLN6-DL5V-M3YZ-PKEJ-CFFG-FK4L", new PatriciaTreeNode(1000, 0));
-        TreeFactory.getMemoryTree(2).store("ADR-GBZX-XXCW-LWJC-J7RZ-Q6BJ-RFBA-J5WU-NBAG-4RL7-7G6Z",new PatriciaTreeNode(3000,0));
-        TreeFactory.getMemoryTree(2).store("ADR-GD3G-DK4I-DKM2-IQSB-KBWL-HWRV-BBQA-MUAS-MGXA-5QPP",new PatriciaTreeNode(3000,0));
+        TreeFactory.getMemoryTree(2).store("ADR-GBZX-XXCW-LWJC-J7RZ-Q6BJ-RFBA-J5WU-NBAG-4RL7-7G6Z", new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(2).store("ADR-GD3G-DK4I-DKM2-IQSB-KBWL-HWRV-BBQA-MUAS-MGXA-5QPP", new PatriciaTreeNode(3000, 0));
 
         TreeFactory.getMemoryTree(3).store(address1, new PatriciaTreeNode(3000, 0));
         TreeFactory.getMemoryTree(3).store(address2, new PatriciaTreeNode(3000, 0));
@@ -277,8 +277,8 @@ public class BootstrapConsensusTest {
         TreeFactory.getMemoryTree(3).store(address11, new PatriciaTreeNode(3000, 0));
         TreeFactory.getMemoryTree(3).store(address12, new PatriciaTreeNode(3000, 0));
         TreeFactory.getMemoryTree(3).store("ADR-GBIV-HG2J-27P5-BNVN-MLN6-DL5V-M3YZ-PKEJ-CFFG-FK4L", new PatriciaTreeNode(1000, 0));
-        TreeFactory.getMemoryTree(3).store("ADR-GBZX-XXCW-LWJC-J7RZ-Q6BJ-RFBA-J5WU-NBAG-4RL7-7G6Z",new PatriciaTreeNode(4000,0));
-        TreeFactory.getMemoryTree(3).store("ADR-GD3G-DK4I-DKM2-IQSB-KBWL-HWRV-BBQA-MUAS-MGXA-5QPP",new PatriciaTreeNode(4000,0));
+        TreeFactory.getMemoryTree(3).store("ADR-GBZX-XXCW-LWJC-J7RZ-Q6BJ-RFBA-J5WU-NBAG-4RL7-7G6Z", new PatriciaTreeNode(4000, 0));
+        TreeFactory.getMemoryTree(3).store("ADR-GD3G-DK4I-DKM2-IQSB-KBWL-HWRV-BBQA-MUAS-MGXA-5QPP", new PatriciaTreeNode(4000, 0));
 
         kad1 = new KademliaData(new SecurityAuditProofs(address1, vk1, ecKeyPair1.getPublicKey(), signatureData1), new NettyConnectionInfo("192.168.1.106", KademliaConfiguration.PORT));
         kad2 = new KademliaData(new SecurityAuditProofs(address2, vk2, ecKeyPair2.getPublicKey(), signatureData2), new NettyConnectionInfo("192.168.1.113", KademliaConfiguration.PORT));
@@ -351,10 +351,10 @@ public class BootstrapConsensusTest {
         TreeFactory.getMemoryTree(1).setHeight("1");
         TreeFactory.getMemoryTree(2).setHeight("1");
         TreeFactory.getMemoryTree(3).setHeight("1");
-        patricia_tree0.save(TreeFactory.getMemoryTree(0).getHeight(),patricia_tree_wrapper.encode(TreeFactory.getMemoryTree(0)));
-        patricia_tree1.save(TreeFactory.getMemoryTree(1).getHeight(),patricia_tree_wrapper.encode(TreeFactory.getMemoryTree(1)));
-        patricia_tree2.save(TreeFactory.getMemoryTree(2).getHeight(),patricia_tree_wrapper.encode(TreeFactory.getMemoryTree(2)));
-        patricia_tree3.save(TreeFactory.getMemoryTree(3).getHeight(),patricia_tree_wrapper.encode(TreeFactory.getMemoryTree(3)));
+        patricia_tree0.save(TreeFactory.getMemoryTree(0).getHeight(), patricia_tree_wrapper.encode(TreeFactory.getMemoryTree(0)));
+        patricia_tree1.save(TreeFactory.getMemoryTree(1).getHeight(), patricia_tree_wrapper.encode(TreeFactory.getMemoryTree(1)));
+        patricia_tree2.save(TreeFactory.getMemoryTree(2).getHeight(), patricia_tree_wrapper.encode(TreeFactory.getMemoryTree(2)));
+        patricia_tree3.save(TreeFactory.getMemoryTree(3).getHeight(), patricia_tree_wrapper.encode(TreeFactory.getMemoryTree(3)));
     }
 
 

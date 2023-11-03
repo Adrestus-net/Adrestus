@@ -19,6 +19,7 @@ public class DuplicateEventHandler extends TransactionEventHandler {
     private static Logger LOG = LoggerFactory.getLogger(DuplicateEventHandler.class);
 
     private final IDatabase<String, LevelDBTransactionWrapper<Transaction>> transaction_database;
+
     public DuplicateEventHandler() {
         this.transaction_database = new DatabaseFactory(String.class, Transaction.class, new TypeToken<LevelDBTransactionWrapper<Transaction>>() {
         }.getType()).getDatabase(DatabaseType.LEVEL_DB);

@@ -90,7 +90,7 @@ public class OrganizerConsensusPhases {
                         CachedLeaderIndex.getInstance().setTransactionPositionLeader(current + 1);
                     }
                     this.N_COPY = (this.N - 1) - consensusServer.getPeers_not_connected();
-                    this.consensusServer.setMAX_MESSAGES(this.N_COPY*2);
+                    this.consensusServer.setMAX_MESSAGES(this.N_COPY * 2);
                     this.consensusServer.receive_handler();
                 }
             } catch (Exception e) {

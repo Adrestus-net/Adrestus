@@ -5,16 +5,10 @@ import com.lmax.disruptor.TimeoutException;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 import com.lmax.disruptor.util.DaemonThreadFactory;
-import io.Adrestus.core.AbstractBlock;
-import io.Adrestus.core.Receipt;
 import io.Adrestus.core.ReceiptBlock;
 import io.Adrestus.core.RingBuffer.Publisher;
-import io.Adrestus.core.RingBuffer.event.AbstractBlockEvent;
 import io.Adrestus.core.RingBuffer.event.ReceiptBlockEvent;
-import io.Adrestus.core.RingBuffer.factory.AbstractBlockEventFactory;
 import io.Adrestus.core.RingBuffer.factory.ReceiptBlockEventFactory;
-import io.Adrestus.core.RingBuffer.handler.blocks.BlockEventHandler;
-import io.Adrestus.core.RingBuffer.handler.blocks.TransactionsMerkleeEventHandler;
 import io.Adrestus.core.RingBuffer.handler.receipts.*;
 import io.Adrestus.util.BufferCapacity;
 import org.slf4j.Logger;
@@ -89,11 +83,12 @@ public class ReceiptEventPublisher implements Publisher<ReceiptBlock> {
     }
 
     public ReceiptEventPublisher mergeEvents() {
-        ReceiptEventHandler[] events = new  ReceiptEventHandler[group.size()];
+        ReceiptEventHandler[] events = new ReceiptEventHandler[group.size()];
         group.toArray(events);
         disruptor.handleEventsWith(events).then(new ReceiptInsertEventHandler());
         return this;
     }
+
     @Override
     public void start() {
         disruptor.start();

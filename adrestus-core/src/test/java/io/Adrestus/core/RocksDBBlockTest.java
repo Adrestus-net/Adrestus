@@ -26,7 +26,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 public class RocksDBBlockTest {
 
@@ -359,6 +358,7 @@ public class RocksDBBlockTest {
         assertEquals("hash1", firstKey.get());
         database.delete_db();
     }
+
     @Test
     public void find_between_range2() {
         IDatabase<String, TransactionBlock> database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.ZONE_1_TRANSACTION_BLOCK);

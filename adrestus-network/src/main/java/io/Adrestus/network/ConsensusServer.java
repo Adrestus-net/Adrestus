@@ -40,6 +40,7 @@ public class ConsensusServer {
     private final ExecutorService executorService;
 
     private final LinkedBlockingDeque<byte[]> message_deque;
+
     public ConsensusServer(String IP, CountDownLatch latch) {
         this.executorService = Executors.newSingleThreadExecutor();
         this.message_deque = new LinkedBlockingDeque<>();
@@ -116,8 +117,9 @@ public class ConsensusServer {
         this.collector.setReceiveTimeOut(CONSENSUS_TIMEOUT);
         this.publisher.setSendTimeOut(CONSENSUS_TIMEOUT);
     }
-    public ConsensusServer(String IP,int MAX_MESSAGES) {
-        this.MAX_MESSAGES=MAX_MESSAGES;
+
+    public ConsensusServer(String IP, int MAX_MESSAGES) {
+        this.MAX_MESSAGES = MAX_MESSAGES;
         this.executorService = Executors.newSingleThreadExecutor();
         this.message_deque = new LinkedBlockingDeque<>();
         this.IP = IP;
@@ -228,6 +230,7 @@ public class ConsensusServer {
         };
         this.executorService.execute(runnableTask);
     }
+
     public String receiveStringData() {
         String data = "";
         try {

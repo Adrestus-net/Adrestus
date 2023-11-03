@@ -44,6 +44,7 @@ public class BlockSync implements IBlockSync {
     private final SerializationUtil patricia_tree_wrapper;
 
     private final IBlockIndex blockIndex;
+
     public BlockSync() {
         Type fluentType = new TypeToken<MemoryTreePool>() {
         }.getType();
@@ -161,7 +162,7 @@ public class BlockSync implements IBlockSync {
                                     .stream()
                                     .forEach(entry -> {
                                         entry.getValue().stream().forEach(receipt -> {
-                                            receipt_database.save(receipt.getAddress(),receipt);
+                                            receipt_database.save(receipt.getAddress(), receipt);
                                         });
 
                                     });
@@ -185,7 +186,7 @@ public class BlockSync implements IBlockSync {
                                     .stream()
                                     .forEach(entry -> {
                                         entry.getValue().stream().forEach(receipt -> {
-                                            receipt_database.save(receipt.getAddress(),receipt);
+                                            receipt_database.save(receipt.getAddress(), receipt);
                                         });
 
                                     });
@@ -282,24 +283,24 @@ public class BlockSync implements IBlockSync {
 
     @Override
     @SneakyThrows
-    public void SyncBeaconChainState(){
+    public void SyncBeaconChainState() {
         IDatabase<String, CommitteeBlock> database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
-        Optional<CommitteeBlock> prevblock=database.findByKey(String.valueOf(CachedLatestBlocks.getInstance().getCommitteeBlock().getHeight()-1));
+        Optional<CommitteeBlock> prevblock = database.findByKey(String.valueOf(CachedLatestBlocks.getInstance().getCommitteeBlock().getHeight() - 1));
         CachedZoneIndex.getInstance().setZoneIndexInternalIP();
-        int prevzone=-1;
-        if(prevblock.isPresent()){
+        int prevzone = -1;
+        if (prevblock.isPresent()) {
             for (Map.Entry<Integer, LinkedHashMap<BLSPublicKey, String>> entry : prevblock.get().getStructureMap().entrySet()) {
                 Optional<BLSPublicKey> find = entry.getValue().keySet().stream().filter(val -> val.equals(CachedBLSKeyPair.getInstance().getPublicKey())).findFirst();
                 if (!find.isEmpty()) {
-                    prevzone= entry.getKey();
+                    prevzone = entry.getKey();
                 }
             }
-            int currentzone=this.blockIndex.getZone(CachedBLSKeyPair.getInstance().getPublicKey());
-            if(currentzone!=prevzone && prevzone!=-1){
+            int currentzone = this.blockIndex.getZone(CachedBLSKeyPair.getInstance().getPublicKey());
+            if (currentzone != prevzone && prevzone != -1) {
                 List<String> ips = prevblock.get().getStructureMap().get(currentzone).values().stream().collect(Collectors.toList());
                 ips.remove(IPFinder.getLocalIP());
 
-                if(!ips.isEmpty()){
+                if (!ips.isEmpty()) {
                     int RPCTransactionZonePort = ZoneDatabaseFactory.getDatabaseRPCPort(CachedZoneIndex.getInstance().getZoneIndex());
                     int RPCPatriciaTreeZonePort = ZoneDatabaseFactory.getDatabasePatriciaRPCPort(ZoneDatabaseFactory.getPatriciaTreeZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
                     ArrayList<InetSocketAddress> toConnectTransaction = new ArrayList<>();
@@ -341,7 +342,7 @@ public class BlockSync implements IBlockSync {
                                             .stream()
                                             .forEach(entry -> {
                                                 entry.getValue().stream().forEach(receipt -> {
-                                                    receipt_database.save(receipt.getAddress(),receipt);
+                                                    receipt_database.save(receipt.getAddress(), receipt);
                                                 });
 
                                             });
@@ -367,7 +368,7 @@ public class BlockSync implements IBlockSync {
                                             .stream()
                                             .forEach(entry -> {
                                                 entry.getValue().stream().forEach(receipt -> {
-                                                    receipt_database.save(receipt.getAddress(),receipt);
+                                                    receipt_database.save(receipt.getAddress(), receipt);
                                                 });
 
                                             });
@@ -428,13 +429,12 @@ public class BlockSync implements IBlockSync {
                             }
                         }
                         List<Integer> finalPatriciaRootList = patriciaRootList;
-                        if(finalPatriciaRootList!=null) {
+                        if (finalPatriciaRootList != null) {
                             Map<String, byte[]> toCollect = toSave.entrySet().stream()
                                     .filter(x -> !finalPatriciaRootList.contains(Integer.valueOf(x.getKey())))
                                     .collect(Collectors.toMap(x -> x.getKey(), x -> x.getValue()));
                             tree_database.saveAll(toCollect);
-                        }
-                        else {
+                        } else {
                             tree_database.saveAll(toSave);
                         }
                         TreeFactory.setMemoryTree((MemoryTreePool) patricia_tree_wrapper.decode(tree_database.seekLast().get()), CachedZoneIndex.getInstance().getZoneIndex());
@@ -479,9 +479,10 @@ public class BlockSync implements IBlockSync {
                     }
                 }
 
-                }
             }
+        }
     }
+
     @Override
     @SneakyThrows
     public void SyncState() {
@@ -600,7 +601,7 @@ public class BlockSync implements IBlockSync {
                                     .stream()
                                     .forEach(entry -> {
                                         entry.getValue().stream().forEach(receipt -> {
-                                            receipt_database.save(receipt.getAddress(),receipt);
+                                            receipt_database.save(receipt.getAddress(), receipt);
                                         });
 
                                     });
@@ -626,7 +627,7 @@ public class BlockSync implements IBlockSync {
                                     .stream()
                                     .forEach(entry -> {
                                         entry.getValue().stream().forEach(receipt -> {
-                                            receipt_database.save(receipt.getAddress(),receipt);
+                                            receipt_database.save(receipt.getAddress(), receipt);
                                         });
 
                                     });
@@ -687,13 +688,12 @@ public class BlockSync implements IBlockSync {
                     }
                 }
                 List<Integer> finalPatriciaRootList = patriciaRootList;
-                if(finalPatriciaRootList!=null) {
+                if (finalPatriciaRootList != null) {
                     Map<String, byte[]> toCollect = toSave.entrySet().stream()
                             .filter(x -> !finalPatriciaRootList.contains(Integer.valueOf(x.getKey())))
                             .collect(Collectors.toMap(x -> x.getKey(), x -> x.getValue()));
                     tree_database.saveAll(toCollect);
-                }
-                else {
+                } else {
                     tree_database.saveAll(toSave);
                 }
                 TreeFactory.setMemoryTree((MemoryTreePool) patricia_tree_wrapper.decode(tree_database.seekLast().get()), CachedZoneIndex.getInstance().getZoneIndex());

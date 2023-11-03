@@ -4,7 +4,6 @@ import io.Adrestus.config.SocketConfigOptions;
 import io.Adrestus.core.*;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
-import io.Adrestus.core.Resourses.MemoryReceiptPool;
 import io.Adrestus.core.RingBuffer.publisher.ReceiptEventPublisher;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.network.CachedEventLoop;
@@ -30,7 +29,7 @@ import java.util.stream.Collectors;
 public class BindServerReceiptTask extends AdrestusTask {
     private static Logger LOG = LoggerFactory.getLogger(BindServerReceiptTask.class);
     private final SerializationUtil<Receipt> recep;
-    private final  ReceiptEventPublisher publisher;
+    private final ReceiptEventPublisher publisher;
     private TCPTransactionConsumer<byte[]> receive;
     private ReceiptChannelHandler receiptChannelHandler;
 
@@ -77,12 +76,12 @@ public class BindServerReceiptTask extends AdrestusTask {
             to_search.add(String.valueOf(receipt.getReceiptBlock().getHeight()));
 
             List<TransactionBlock> currentblock = client.getBlock(to_search);
-            if(currentblock.isEmpty()){
+            if (currentblock.isEmpty()) {
                 return "";
             }
 
-            int index = Collections.binarySearch(currentblock.get(currentblock.size()-1).getTransactionList(), receipt.getTransaction());
-            Transaction trx = currentblock.get(currentblock.size()-1).getTransactionList().get(index);
+            int index = Collections.binarySearch(currentblock.get(currentblock.size() - 1).getTransactionList(), receipt.getTransaction());
+            Transaction trx = currentblock.get(currentblock.size() - 1).getTransactionList().get(index);
 
             ReceiptBlock receiptBlock1 = new ReceiptBlock(StatusType.PENDING, receipt, currentblock.get(currentblock.size() - 1), trx);
 

@@ -50,7 +50,7 @@ public class RandomizedEventHandler implements BlockEventHandler<AbstractBlockEv
         List<Map.Entry<StakingData, KademliaData>> entryList = committeeBlock.getStakingMap().entrySet().stream().collect(Collectors.toList());
         int MAX_ZONE_SIZE = committeeBlock.getStakingMap().size() / 4;
 
-        int j=0;
+        int j = 0;
         if (MAX_ZONE_SIZE >= 2) {
             int addition = committeeBlock.getStakingMap().size() - MathOperationUtil.closestNumber(committeeBlock.getStakingMap().size(), 4);
             while (zone_count < 4) {

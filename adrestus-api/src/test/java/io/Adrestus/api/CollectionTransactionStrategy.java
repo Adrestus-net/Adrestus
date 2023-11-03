@@ -141,7 +141,6 @@ public class CollectionTransactionStrategy {
     }
 
 
-
     //RUN THIS with consensustransaction Timer 4 support on adrestus protocol
     @Test
     public void execute() throws Exception {

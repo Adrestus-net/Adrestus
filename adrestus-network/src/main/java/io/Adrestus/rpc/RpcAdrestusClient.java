@@ -94,13 +94,14 @@ public class RpcAdrestusClient<T> {
         this.valueMapper = new SerializationUtil(typeParameterClass.getClass(), list, true);
         this.valueMapper2 = new SerializationUtil(typeParameterClass.getClass(), list, true);
     }
-    public RpcAdrestusClient(T typeParameterClass, String host, int port,int timeout, Eventloop eventloop) {
+
+    public RpcAdrestusClient(T typeParameterClass, String host, int port, int timeout, Eventloop eventloop) {
         this.rpc_serialize = SerializerBuilder.create();
         this.typeParameterClass = typeParameterClass;
         this.host = host;
         this.port = port;
         this.eventloop = eventloop;
-        this.TIMEOUT=timeout;
+        this.TIMEOUT = timeout;
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
         list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));

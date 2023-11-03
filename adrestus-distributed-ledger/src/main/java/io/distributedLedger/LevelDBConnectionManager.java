@@ -65,11 +65,10 @@ public class LevelDBConnectionManager<K, V> implements IDatabase<K, V> {
         this.rwl = new ReentrantReadWriteLock();
         this.r = rwl.readLock();
         this.w = rwl.writeLock();
-        if(fluentType.getTypeName().contains("Receipt")){
-            this.CONNECTION_NAME="\\ReceiptDatabase";
-        }
-        else {
-            this.CONNECTION_NAME="\\TransactionDatabase";
+        if (fluentType.getTypeName().contains("Receipt")) {
+            this.CONNECTION_NAME = "\\ReceiptDatabase";
+        } else {
+            this.CONNECTION_NAME = "\\TransactionDatabase";
         }
         this.dbFile = new File(Directory.getConfigPath() + "\\" + CONNECTION_NAME + "\\");
         this.keyClass = keyClass;
@@ -102,10 +101,9 @@ public class LevelDBConnectionManager<K, V> implements IDatabase<K, V> {
         Path path = Files.createDirectories(Paths.get(dbFile.getAbsolutePath()));
         try {
             dbFile.createNewFile();
-            if(CONNECTION_NAME.contains("ReceiptDatabase")){
+            if (CONNECTION_NAME.contains("ReceiptDatabase")) {
                 level_db = DatabaseRawReceiptInstance.getInstance(options, path.toAbsolutePath().toString()).getDB();
-            }
-            else {
+            } else {
                 level_db = DatabaseRawTransactionInstance.getInstance(options, path.toAbsolutePath().toString()).getDB();
             }
         } catch (IOException e) {
@@ -127,16 +125,14 @@ public class LevelDBConnectionManager<K, V> implements IDatabase<K, V> {
                 byte[] serializedkey = keyMapper.encode(key);
                 byte[] serializedValue = valueMapper.encode(value);
                 level_db.put(serializedkey, serializedValue);
-            }
-            else  if(CONNECTION_NAME.contains("ReceiptDatabase")){
+            } else if (CONNECTION_NAME.contains("ReceiptDatabase")) {
                 final Optional<V> obj = findByKey(key);
                 final String str_key = (String) key;
                 final LevelDBTransactionWrapper<Object> wrapper;
-                if(obj==null){
+                if (obj == null) {
                     wrapper = new LevelDBTransactionWrapper();
                     wrapper.addTo(value);
-                }
-                else if (obj.isEmpty()) {
+                } else if (obj.isEmpty()) {
                     wrapper = new LevelDBTransactionWrapper();
                     wrapper.addTo(value);
                 } else {
@@ -147,8 +143,7 @@ public class LevelDBConnectionManager<K, V> implements IDatabase<K, V> {
                 byte[] serializedValue = valueMapper.encode(wrapper);
                 level_db.put(serializedkey, serializedValue);
                 return;
-            }
-            else {
+            } else {
                 final Optional<V> obj = findByKey(key);
                 final String str_key = (String) key;
                 final LevelDBTransactionWrapper<Object> wrapper;
@@ -162,11 +157,10 @@ public class LevelDBConnectionManager<K, V> implements IDatabase<K, V> {
                         wrapper.addFrom(value);
                     }
                 } else {
-                    if(obj==null){
+                    if (obj == null) {
                         wrapper = new LevelDBTransactionWrapper();
                         wrapper.addTo(value);
-                    }
-                   else if (obj.isEmpty()) {
+                    } else if (obj.isEmpty()) {
                         wrapper = new LevelDBTransactionWrapper();
                         wrapper.addTo(value);
                     } else {
@@ -354,7 +348,7 @@ public class LevelDBConnectionManager<K, V> implements IDatabase<K, V> {
                 level_db.delete(iterator.peekNext().getKey());
             }
 
-           return true;
+            return true;
         } catch (NullPointerException exception) {
             LOGGER.error("Exception occurred during delete_db operation. {}", exception.getMessage());
         } catch (final Exception exception) {

@@ -1,8 +1,6 @@
 package io.Adrestus.core.RingBuffer.handler.receipts;
 
-import io.Adrestus.core.Receipt;
 import io.Adrestus.core.ReceiptBlock;
-import io.Adrestus.core.RegularTransaction;
 import io.Adrestus.core.Resourses.MemoryReceiptPool;
 import io.Adrestus.core.RingBuffer.event.ReceiptBlockEvent;
 import io.Adrestus.core.StatusType;
@@ -17,8 +15,8 @@ public class ReceiptInsertEventHandler implements ReceiptEventHandler<ReceiptBlo
     @SneakyThrows
     @Override
     public void onEvent(ReceiptBlockEvent receiptBlockEvent, long l, boolean b) throws Exception {
-        ReceiptBlock receiptBlock=receiptBlockEvent.getReceiptBlock();
-        if(receiptBlock.getStatusType()!= StatusType.ABORT){
+        ReceiptBlock receiptBlock = receiptBlockEvent.getReceiptBlock();
+        if (receiptBlock.getStatusType() != StatusType.ABORT) {
             MemoryReceiptPool.getInstance().add(receiptBlock.getReceipt());
         }
     }

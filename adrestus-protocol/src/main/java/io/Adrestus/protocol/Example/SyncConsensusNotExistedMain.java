@@ -23,8 +23,6 @@ import io.Adrestus.crypto.mnemonic.Security;
 import io.Adrestus.crypto.mnemonic.WordList;
 import io.Adrestus.mapper.MemoryTreePoolSerializer;
 import io.Adrestus.network.CachedEventLoop;
-import io.Adrestus.p2p.kademlia.exception.UnsupportedBoundingException;
-import io.Adrestus.p2p.kademlia.util.BoundedHashUtil;
 import io.Adrestus.protocol.AdrestusFactory;
 import io.Adrestus.protocol.AdrestusTask;
 import io.Adrestus.protocol.IAdrestusFactory;
@@ -36,7 +34,6 @@ import lombok.SneakyThrows;
 import org.apache.commons.codec.binary.StringUtils;
 
 import java.lang.reflect.Type;
-import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,11 +42,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class SyncConsensusNotExistedMain {
-    private static ECKeyPair ecKeyPair1, ecKeyPair2, ecKeyPair3, ecKeyPair4, ecKeyPair5, ecKeyPair6, ecKeyPair7, ecKeyPair8,ecKeyPair9,ecKeyPair10,ecKeyPair11,ecKeyPair12;
-    private static String address1, address2, address3, address4, address5, address6, address7, address8,address9,address10,address11,address12;
+    private static ECKeyPair ecKeyPair1, ecKeyPair2, ecKeyPair3, ecKeyPair4, ecKeyPair5, ecKeyPair6, ecKeyPair7, ecKeyPair8, ecKeyPair9, ecKeyPair10, ecKeyPair11, ecKeyPair12;
+    private static String address1, address2, address3, address4, address5, address6, address7, address8, address9, address10, address11, address12;
     private static ECDSASign ecdsaSign = new ECDSASign();
     private static char[] passphrase;
-    private static byte[] key1, key2, key3, key4, key5, key6, key7, key8,key9,key10,key11,key12;
+    private static byte[] key1, key2, key3, key4, key5, key6, key7, key8, key9, key10, key11, key12;
+
     @SneakyThrows
     private static void setup() throws InterruptedException {
         int version = 0x00;
@@ -126,7 +124,6 @@ public class SyncConsensusNotExistedMain {
         ecKeyPair12 = Keys.createEcKeyPair(random);
 
 
-
         address1 = WalletAddress.generate_address((byte) version, ecKeyPair1.getPublicKey());
         address2 = WalletAddress.generate_address((byte) version, ecKeyPair2.getPublicKey());
         address3 = WalletAddress.generate_address((byte) version, ecKeyPair3.getPublicKey());
@@ -161,8 +158,8 @@ public class SyncConsensusNotExistedMain {
         TreeFactory.getMemoryTree(0).store(address11, new PatriciaTreeNode(3000, 0));
         TreeFactory.getMemoryTree(0).store(address12, new PatriciaTreeNode(3000, 0));
         TreeFactory.getMemoryTree(0).store("ADR-GBIV-HG2J-27P5-BNVN-MLN6-DL5V-M3YZ-PKEJ-CFFG-FK4L", new PatriciaTreeNode(1000, 0));
-        TreeFactory.getMemoryTree(0).store("ADR-GBZX-XXCW-LWJC-J7RZ-Q6BJ-RFBA-J5WU-NBAG-4RL7-7G6Z",new PatriciaTreeNode(1000,0));
-        TreeFactory.getMemoryTree(0).store("ADR-GD3G-DK4I-DKM2-IQSB-KBWL-HWRV-BBQA-MUAS-MGXA-5QPP",new PatriciaTreeNode(1000,0));
+        TreeFactory.getMemoryTree(0).store("ADR-GBZX-XXCW-LWJC-J7RZ-Q6BJ-RFBA-J5WU-NBAG-4RL7-7G6Z", new PatriciaTreeNode(1000, 0));
+        TreeFactory.getMemoryTree(0).store("ADR-GD3G-DK4I-DKM2-IQSB-KBWL-HWRV-BBQA-MUAS-MGXA-5QPP", new PatriciaTreeNode(1000, 0));
 
         TreeFactory.getMemoryTree(1).store(address1, new PatriciaTreeNode(3000, 0));
         TreeFactory.getMemoryTree(1).store(address2, new PatriciaTreeNode(3000, 0));
@@ -177,8 +174,8 @@ public class SyncConsensusNotExistedMain {
         TreeFactory.getMemoryTree(1).store(address11, new PatriciaTreeNode(3000, 0));
         TreeFactory.getMemoryTree(1).store(address12, new PatriciaTreeNode(3000, 0));
         TreeFactory.getMemoryTree(1).store("ADR-GBIV-HG2J-27P5-BNVN-MLN6-DL5V-M3YZ-PKEJ-CFFG-FK4L", new PatriciaTreeNode(1000, 0));
-        TreeFactory.getMemoryTree(1).store("ADR-GBZX-XXCW-LWJC-J7RZ-Q6BJ-RFBA-J5WU-NBAG-4RL7-7G6Z",new PatriciaTreeNode(2000,0));
-        TreeFactory.getMemoryTree(1).store("ADR-GD3G-DK4I-DKM2-IQSB-KBWL-HWRV-BBQA-MUAS-MGXA-5QPP",new PatriciaTreeNode(2000,0));
+        TreeFactory.getMemoryTree(1).store("ADR-GBZX-XXCW-LWJC-J7RZ-Q6BJ-RFBA-J5WU-NBAG-4RL7-7G6Z", new PatriciaTreeNode(2000, 0));
+        TreeFactory.getMemoryTree(1).store("ADR-GD3G-DK4I-DKM2-IQSB-KBWL-HWRV-BBQA-MUAS-MGXA-5QPP", new PatriciaTreeNode(2000, 0));
 
 
         TreeFactory.getMemoryTree(2).store(address1, new PatriciaTreeNode(3000, 0));
@@ -194,8 +191,8 @@ public class SyncConsensusNotExistedMain {
         TreeFactory.getMemoryTree(2).store(address11, new PatriciaTreeNode(3000, 0));
         TreeFactory.getMemoryTree(2).store(address12, new PatriciaTreeNode(3000, 0));
         TreeFactory.getMemoryTree(2).store("ADR-GBIV-HG2J-27P5-BNVN-MLN6-DL5V-M3YZ-PKEJ-CFFG-FK4L", new PatriciaTreeNode(1000, 0));
-        TreeFactory.getMemoryTree(2).store("ADR-GBZX-XXCW-LWJC-J7RZ-Q6BJ-RFBA-J5WU-NBAG-4RL7-7G6Z",new PatriciaTreeNode(3000,0));
-        TreeFactory.getMemoryTree(2).store("ADR-GD3G-DK4I-DKM2-IQSB-KBWL-HWRV-BBQA-MUAS-MGXA-5QPP",new PatriciaTreeNode(3000,0));
+        TreeFactory.getMemoryTree(2).store("ADR-GBZX-XXCW-LWJC-J7RZ-Q6BJ-RFBA-J5WU-NBAG-4RL7-7G6Z", new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(2).store("ADR-GD3G-DK4I-DKM2-IQSB-KBWL-HWRV-BBQA-MUAS-MGXA-5QPP", new PatriciaTreeNode(3000, 0));
 
 
         TreeFactory.getMemoryTree(3).store(address1, new PatriciaTreeNode(3000, 0));
@@ -211,8 +208,8 @@ public class SyncConsensusNotExistedMain {
         TreeFactory.getMemoryTree(3).store(address11, new PatriciaTreeNode(3000, 0));
         TreeFactory.getMemoryTree(3).store(address12, new PatriciaTreeNode(3000, 0));
         TreeFactory.getMemoryTree(3).store("ADR-GBIV-HG2J-27P5-BNVN-MLN6-DL5V-M3YZ-PKEJ-CFFG-FK4L", new PatriciaTreeNode(1000, 0));
-        TreeFactory.getMemoryTree(3).store("ADR-GBZX-XXCW-LWJC-J7RZ-Q6BJ-RFBA-J5WU-NBAG-4RL7-7G6Z",new PatriciaTreeNode(4000,0));
-        TreeFactory.getMemoryTree(3).store("ADR-GD3G-DK4I-DKM2-IQSB-KBWL-HWRV-BBQA-MUAS-MGXA-5QPP",new PatriciaTreeNode(4000,0));
+        TreeFactory.getMemoryTree(3).store("ADR-GBZX-XXCW-LWJC-J7RZ-Q6BJ-RFBA-J5WU-NBAG-4RL7-7G6Z", new PatriciaTreeNode(4000, 0));
+        TreeFactory.getMemoryTree(3).store("ADR-GD3G-DK4I-DKM2-IQSB-KBWL-HWRV-BBQA-MUAS-MGXA-5QPP", new PatriciaTreeNode(4000, 0));
 
         TransactionBlock TransactionBlockZone2 = new TransactionBlock();
         TransactionBlockZone2.setHeight(1);
@@ -229,25 +226,26 @@ public class SyncConsensusNotExistedMain {
         Zone2TransactionDatabase.save("1", TransactionBlockZone2);
         Zone3TransactionDatabase.save("1", TransactionBlockZone3);
 
-       // IDatabase<String, byte[]> patricia_tree0 = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, PatriciaTreeInstance.PATRICIA_TREE_INSTANCE_0);
-       // IDatabase<String, byte[]> patricia_tree1 = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, PatriciaTreeInstance.PATRICIA_TREE_INSTANCE_1);
+        // IDatabase<String, byte[]> patricia_tree0 = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, PatriciaTreeInstance.PATRICIA_TREE_INSTANCE_0);
+        // IDatabase<String, byte[]> patricia_tree1 = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, PatriciaTreeInstance.PATRICIA_TREE_INSTANCE_1);
         IDatabase<String, byte[]> patricia_tree2 = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, PatriciaTreeInstance.PATRICIA_TREE_INSTANCE_2);
         IDatabase<String, byte[]> patricia_tree3 = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, PatriciaTreeInstance.PATRICIA_TREE_INSTANCE_3);
 
         TreeFactory.getMemoryTree(2).setHeight("1");
         TreeFactory.getMemoryTree(3).setHeight("1");
-       // patricia_tree0.save(TreeFactory.getMemoryTree(0).getRootHash(),patricia_tree_wrapper.encode(TreeFactory.getMemoryTree(0)));
-       // patricia_tree1.save(TreeFactory.getMemoryTree(1).getRootHash(),patricia_tree_wrapper.encode(TreeFactory.getMemoryTree(1)));
-        patricia_tree2.save(TreeFactory.getMemoryTree(2).getHeight(),patricia_tree_wrapper.encode(TreeFactory.getMemoryTree(2)));
-        patricia_tree3.save(TreeFactory.getMemoryTree(3).getHeight(),patricia_tree_wrapper.encode(TreeFactory.getMemoryTree(3)));
+        // patricia_tree0.save(TreeFactory.getMemoryTree(0).getRootHash(),patricia_tree_wrapper.encode(TreeFactory.getMemoryTree(0)));
+        // patricia_tree1.save(TreeFactory.getMemoryTree(1).getRootHash(),patricia_tree_wrapper.encode(TreeFactory.getMemoryTree(1)));
+        patricia_tree2.save(TreeFactory.getMemoryTree(2).getHeight(), patricia_tree_wrapper.encode(TreeFactory.getMemoryTree(2)));
+        patricia_tree3.save(TreeFactory.getMemoryTree(3).getHeight(), patricia_tree_wrapper.encode(TreeFactory.getMemoryTree(3)));
     }
+
     public static void main(String[] args) throws InterruptedException {
         setup();
-        String mnemonic=args[0];
-        String passphrase=args[1];
+        String mnemonic = args[0];
+        String passphrase = args[1];
         IAdrestusFactory factory = new AdrestusFactory();
         List<AdrestusTask> tasks = new java.util.ArrayList<>(List.of(
-                factory.createBindServerKademliaTask(mnemonic,passphrase),
+                factory.createBindServerKademliaTask(mnemonic, passphrase),
                 factory.createBindServerCachedTask(),
                 factory.createBindServerTransactionTask(),
                 factory.createBindServerReceiptTask(),

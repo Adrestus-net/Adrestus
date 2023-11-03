@@ -66,8 +66,6 @@ public class ConsensusTransactionTimer4Test {
     private static IBlockIndex blockIndex;
 
 
-
-
     //YOU NEED TO RUN COLLECTION STRATEGY FROM API
     @BeforeAll
     public static void construct() throws Exception {

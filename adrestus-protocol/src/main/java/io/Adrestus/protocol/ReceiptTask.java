@@ -80,7 +80,7 @@ public class ReceiptTask extends AdrestusTask {
                                             socket.close();
                                             socket = null;
                                             try {
-                                                transactionBlockPrev= (TransactionBlock) transactionBlock.clone();
+                                                transactionBlockPrev = (TransactionBlock) transactionBlock.clone();
                                             } catch (CloneNotSupportedException ex) {
                                                 throw new RuntimeException(ex);
                                             }

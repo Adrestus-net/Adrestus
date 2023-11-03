@@ -39,12 +39,12 @@ public class ZoneEventHandler implements ReceiptEventHandler<ReceiptBlockEvent> 
 
     @Override
     public void onEvent(ReceiptBlockEvent receiptBlockEvent, long l, boolean b) throws InterruptedException {
-        ReceiptBlock receiptBlock=receiptBlockEvent.getReceiptBlock();
-        if(receiptBlock.getReceipt().getZoneTo()!= CachedZoneIndex.getInstance().getZoneIndex()){
+        ReceiptBlock receiptBlock = receiptBlockEvent.getReceiptBlock();
+        if (receiptBlock.getReceipt().getZoneTo() != CachedZoneIndex.getInstance().getZoneIndex()) {
             LOG.info("Receipt Block zone are not valid Sending it to the correct zone and abort");
             receiptBlockEvent.getReceiptBlock().setStatusType(StatusType.ABORT);
             List<String> ReceiptIPWorkers = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(receiptBlock.getReceipt().getZoneTo()).values().stream().collect(Collectors.toList());
-            if(!ReceiptIPWorkers.isEmpty()) {
+            if (!ReceiptIPWorkers.isEmpty()) {
                 List<byte[]> toSendReceipt = new ArrayList<>();
 
                 toSendReceipt.add(receipt_encode.encode(receiptBlock.getReceipt(), 1024));
