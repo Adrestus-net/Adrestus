@@ -7,7 +7,7 @@ import io.Adrestus.crypto.bls.BLSSignatureData;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.activej.serializer.annotations.Serialize;
 
-import java.io.Serializable;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -189,6 +189,24 @@ public class TransactionBlock extends AbstractBlock implements BlockFactory, Dis
         return Objects.hashCode(super.hashCode(), Zone, TransactionList, StakingTransactionList, Inbound, Outbound, TransactionProposer, LeaderPublicKey, MerkleRoot, PatriciaMerkleRoot);
     }
 
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        try {
+            ByteArrayOutputStream bOut = new ByteArrayOutputStream();
+            ObjectOutputStream out = new ObjectOutputStream(bOut);
+            out.writeObject(super.clone());
+            out.close();
+
+            ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(bOut.toByteArray()));
+            TransactionBlock copy = (TransactionBlock)in.readObject();
+            in.close();
+
+            return copy;
+        }
+        catch(Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
     @Override
     public String toString() {
         return "TransactionBlock{" +

@@ -4,10 +4,11 @@ import com.google.common.base.Objects;
 import io.activej.serializer.annotations.Deserialize;
 import io.activej.serializer.annotations.Serialize;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MerkleProofs {
+public class MerkleProofs implements Serializable {
     private String roothash;
     private List<MerkleNode> list_builder;
     private MerkleNode target;

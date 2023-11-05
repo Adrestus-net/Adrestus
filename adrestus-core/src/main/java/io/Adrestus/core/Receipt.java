@@ -6,7 +6,9 @@ import io.activej.serializer.annotations.Deserialize;
 import io.activej.serializer.annotations.Serialize;
 import io.activej.serializer.annotations.SerializeNullable;
 
-public class Receipt {
+import java.io.Serializable;
+
+public class Receipt implements Serializable {
 
     private int zoneFrom;
     private int zoneTo;
@@ -218,7 +220,7 @@ public class Receipt {
                 '}';
     }
 
-    public static final class ReceiptBlock {
+    public static final class ReceiptBlock implements Serializable {
         private String block_hash;
         private int height;
         private int generation;

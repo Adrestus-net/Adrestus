@@ -1,8 +1,9 @@
 package io.Adrestus.core;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-public class ReceiptBlock {
+public class ReceiptBlock implements Serializable {
     private StatusType statusType;
     private Receipt receipt;
     private TransactionBlock transactionBlock;

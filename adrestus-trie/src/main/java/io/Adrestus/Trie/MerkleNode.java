@@ -4,7 +4,9 @@ import com.google.common.base.Objects;
 import io.activej.serializer.annotations.Serialize;
 import io.activej.serializer.annotations.SerializeNullable;
 
-public class MerkleNode {
+import java.io.Serializable;
+
+public class MerkleNode implements Serializable {
     private String transactionHash;
     private MerkleNode root;
     private MerkleNode left;
