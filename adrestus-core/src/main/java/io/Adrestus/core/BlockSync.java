@@ -154,18 +154,21 @@ public class BlockSync implements IBlockSync {
                     transactionBlocks = client.getBlocksList(String.valueOf(block.get().getHeight()));
                     if (!transactionBlocks.isEmpty() && transactionBlocks.size() > 1) {
                         transactionBlocks.stream().skip(1).forEach(val -> {
-                            val
-                                    .getInbound()
-                                    .getMap_receipts()
-                                    .get(val.getInbound().getMap_receipts().keySet().toArray()[0])
-                                    .entrySet()
-                                    .stream()
-                                    .forEach(entry -> {
-                                        entry.getValue().stream().forEach(receipt -> {
-                                            receipt_database.save(receipt.getAddress(), receipt);
-                                        });
+                            Integer []receipts_array=val.getInbound().getMap_receipts().keySet().toArray(new Integer[0]);
+                            if(receipts_array.length>0) {
+                                val
+                                        .getInbound()
+                                        .getMap_receipts()
+                                        .get(receipts_array[0])
+                                        .entrySet()
+                                        .stream()
+                                        .forEach(entry -> {
+                                            entry.getValue().stream().forEach(receipt -> {
+                                                receipt_database.save(receipt.getAddress(), receipt);
+                                            });
 
-                                    });
+                                        });
+                            }
                             toSave.put(String.valueOf(val.getHeight()), val);
                             val.getTransactionList().stream().forEach(trx -> {
                                 transaction_database.save(trx.getFrom(), trx);
@@ -178,18 +181,21 @@ public class BlockSync implements IBlockSync {
                     transactionBlocks = client.getBlocksList("");
                     if (!transactionBlocks.isEmpty()) {
                         transactionBlocks.stream().forEach(val -> {
-                            val
-                                    .getInbound()
-                                    .getMap_receipts()
-                                    .get(val.getInbound().getMap_receipts().keySet().toArray()[0])
-                                    .entrySet()
-                                    .stream()
-                                    .forEach(entry -> {
-                                        entry.getValue().stream().forEach(receipt -> {
-                                            receipt_database.save(receipt.getAddress(), receipt);
-                                        });
+                            Integer []receipts_array=val.getInbound().getMap_receipts().keySet().toArray(new Integer[0]);
+                            if(receipts_array.length>0) {
+                                val
+                                        .getInbound()
+                                        .getMap_receipts()
+                                        .get(receipts_array[0])
+                                        .entrySet()
+                                        .stream()
+                                        .forEach(entry -> {
+                                            entry.getValue().stream().forEach(receipt -> {
+                                                receipt_database.save(receipt.getAddress(), receipt);
+                                            });
 
-                                    });
+                                        });
+                            }
                             toSave.put(String.valueOf(val.getHeight()), val);
                             val.getTransactionList().stream().forEach(trx -> {
                                 transaction_database.save(trx.getFrom(), trx);
@@ -334,18 +340,21 @@ public class BlockSync implements IBlockSync {
                                 patriciaRootList = new ArrayList<>(blocks.stream().filter(val -> val.getGeneration() > CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration()).map(TransactionBlock::getHeight).collect(Collectors.toList()));
                                 blocks.removeIf(x -> x.getGeneration() > CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration());
                                 blocks.stream().skip(1).forEach(val -> {
-                                    val
-                                            .getInbound()
-                                            .getMap_receipts()
-                                            .get(val.getInbound().getMap_receipts().keySet().toArray()[0])
-                                            .entrySet()
-                                            .stream()
-                                            .forEach(entry -> {
-                                                entry.getValue().stream().forEach(receipt -> {
-                                                    receipt_database.save(receipt.getAddress(), receipt);
-                                                });
+                                    Integer []receipts_array=val.getInbound().getMap_receipts().keySet().toArray(new Integer[0]);
+                                    if(receipts_array.length>0) {
+                                        val
+                                                .getInbound()
+                                                .getMap_receipts()
+                                                .get(receipts_array[0])
+                                                .entrySet()
+                                                .stream()
+                                                .forEach(entry -> {
+                                                    entry.getValue().stream().forEach(receipt -> {
+                                                        receipt_database.save(receipt.getAddress(), receipt);
+                                                    });
 
-                                            });
+                                                });
+                                    }
                                     toSave.put(String.valueOf(val.getHeight()), val);
                                     val.getTransactionList().stream().forEach(trx -> {
                                         transaction_database.save(trx.getFrom(), trx);
@@ -360,18 +369,21 @@ public class BlockSync implements IBlockSync {
                                 patriciaRootList = new ArrayList<>(blocks.stream().filter(val -> val.getGeneration() > CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration()).map(TransactionBlock::getHeight).collect(Collectors.toList()));
                                 blocks.removeIf(x -> x.getGeneration() > CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration());
                                 blocks.stream().forEach(val -> {
-                                    val
-                                            .getInbound()
-                                            .getMap_receipts()
-                                            .get(val.getInbound().getMap_receipts().keySet().toArray()[0])
-                                            .entrySet()
-                                            .stream()
-                                            .forEach(entry -> {
-                                                entry.getValue().stream().forEach(receipt -> {
-                                                    receipt_database.save(receipt.getAddress(), receipt);
-                                                });
+                                    Integer []receipts_array=val.getInbound().getMap_receipts().keySet().toArray(new Integer[0]);
+                                    if(receipts_array.length>0) {
+                                        val
+                                                .getInbound()
+                                                .getMap_receipts()
+                                                .get(receipts_array[0])
+                                                .entrySet()
+                                                .stream()
+                                                .forEach(entry -> {
+                                                    entry.getValue().stream().forEach(receipt -> {
+                                                        receipt_database.save(receipt.getAddress(), receipt);
+                                                    });
 
-                                            });
+                                                });
+                                    }
                                     toSave.put(String.valueOf(val.getHeight()), val);
                                     val.getTransactionList().stream().forEach(trx -> {
                                         transaction_database.save(trx.getFrom(), trx);
@@ -593,18 +605,21 @@ public class BlockSync implements IBlockSync {
                         patriciaRootList = new ArrayList<>(blocks.stream().filter(val -> val.getGeneration() > CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration()).map(TransactionBlock::getHeight).collect(Collectors.toList()));
                         blocks.removeIf(x -> x.getGeneration() > CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration());
                         blocks.stream().skip(1).forEach(val -> {
-                            val
-                                    .getInbound()
-                                    .getMap_receipts()
-                                    .get(val.getInbound().getMap_receipts().keySet().toArray()[0])
-                                    .entrySet()
-                                    .stream()
-                                    .forEach(entry -> {
-                                        entry.getValue().stream().forEach(receipt -> {
-                                            receipt_database.save(receipt.getAddress(), receipt);
-                                        });
+                            Integer []receipts_array=val.getInbound().getMap_receipts().keySet().toArray(new Integer[0]);
+                            if(receipts_array.length>0) {
+                                val
+                                        .getInbound()
+                                        .getMap_receipts()
+                                        .get(receipts_array[0])
+                                        .entrySet()
+                                        .stream()
+                                        .forEach(entry -> {
+                                            entry.getValue().stream().forEach(receipt -> {
+                                                receipt_database.save(receipt.getAddress(), receipt);
+                                            });
 
-                                    });
+                                        });
+                            }
                             toSave.put(String.valueOf(val.getHeight()), val);
                             val.getTransactionList().stream().forEach(trx -> {
                                 transaction_database.save(trx.getFrom(), trx);
@@ -619,18 +634,21 @@ public class BlockSync implements IBlockSync {
                         patriciaRootList = new ArrayList<>(blocks.stream().filter(val -> val.getGeneration() > CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration()).map(TransactionBlock::getHeight).collect(Collectors.toList()));
                         blocks.removeIf(x -> x.getGeneration() > CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration());
                         blocks.stream().forEach(val -> {
-                            val
-                                    .getInbound()
-                                    .getMap_receipts()
-                                    .get(val.getInbound().getMap_receipts().keySet().toArray()[0])
-                                    .entrySet()
-                                    .stream()
-                                    .forEach(entry -> {
-                                        entry.getValue().stream().forEach(receipt -> {
-                                            receipt_database.save(receipt.getAddress(), receipt);
-                                        });
+                            Integer []receipts_array=val.getInbound().getMap_receipts().keySet().toArray(new Integer[0]);
+                            if(receipts_array.length>0) {
+                                val
+                                        .getInbound()
+                                        .getMap_receipts()
+                                        .get(receipts_array[0])
+                                        .entrySet()
+                                        .stream()
+                                        .forEach(entry -> {
+                                            entry.getValue().stream().forEach(receipt -> {
+                                                receipt_database.save(receipt.getAddress(), receipt);
+                                            });
 
-                                    });
+                                        });
+                            }
                             toSave.put(String.valueOf(val.getHeight()), val);
                             val.getTransactionList().stream().forEach(trx -> {
                                 transaction_database.save(trx.getFrom(), trx);

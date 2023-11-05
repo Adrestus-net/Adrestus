@@ -143,7 +143,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
 
         Map<Integer, Map<Receipt.ReceiptBlock, List<Receipt>>> outbound = receiptList
                 .stream()
-                .collect(Collectors.groupingBy(Receipt::getZoneTo, Collectors.groupingBy(Receipt::getReceiptBlock, Collectors.mapping(Receipt::merge, Collectors.toList()))));
+                .collect(Collectors.groupingBy(Receipt::getZoneFrom, Collectors.groupingBy(Receipt::getReceiptBlock)));
 
         OutBoundRelay outBoundRelay = new OutBoundRelay(outbound);
         transactionBlock.setOutbound(outBoundRelay);
@@ -171,7 +171,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
             }
             Map<Integer, Map<Receipt.ReceiptBlock, List<Receipt>>> inbound_map = ((ArrayList<Receipt>) MemoryReceiptPool.getInstance().getAll())
                     .stream()
-                    .collect(Collectors.groupingBy(Receipt::getZoneFrom, Collectors.groupingBy(Receipt::getReceiptBlock, Collectors.mapping(Receipt::merge, Collectors.toList()))));
+                    .collect(Collectors.groupingBy(Receipt::getZoneFrom, Collectors.groupingBy(Receipt::getReceiptBlock)));
             InboundRelay inboundRelay = new InboundRelay(inbound_map);
             transactionBlock.setInbound(inboundRelay);
         }
@@ -211,6 +211,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
             this.blockSizeCalculator.setTransactionBlock(transactionBlock);
             byte[] tohash = encode.encode(transactionBlock, this.blockSizeCalculator.TransactionBlockSizeCalculator());
             transactionBlock.setHash(HashUtil.sha256_bytetoString(tohash));
+            transactionBlock.getOutbound().getMap_receipts().values().forEach(receiptBlocks->receiptBlocks.keySet().forEach(vals->vals.setBlock_hash(transactionBlock.getHash())));
             publisher.start();
             publisher.publish(transactionBlock);
             publisher.getJobSyncUntilRemainingCapacityZero();
@@ -455,7 +456,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
                         .values()
                         .forEach(receipts_list -> {
                             receipts_list.forEach(
-                                    receipt -> {
+                                    receipt -> {;
                                         toSendReceipt.add(receipt_encode.encode(receipt, 1024));
                                     });
                         });

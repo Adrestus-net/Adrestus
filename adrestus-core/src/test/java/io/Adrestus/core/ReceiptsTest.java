@@ -12,6 +12,7 @@ import io.Adrestus.core.Resourses.MemoryTransactionPool;
 import io.Adrestus.core.RingBuffer.handler.transactions.SignatureEventHandler;
 import io.Adrestus.core.RingBuffer.publisher.BlockEventPublisher;
 import io.Adrestus.core.RingBuffer.publisher.TransactionEventPublisher;
+import io.Adrestus.core.Util.BlockSizeCalculator;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.WalletAddress;
 import io.Adrestus.crypto.bls.BLS381.ECP;
@@ -207,8 +208,8 @@ public class ReceiptsTest {
         transactionBlock.setHash("hash");
 
 
-        Receipt.ReceiptBlock receiptBlock1 = new Receipt.ReceiptBlock("1", 1, 1, "1");
-        Receipt.ReceiptBlock receiptBlock1a = new Receipt.ReceiptBlock("1a", 5, 6, "1a");
+        Receipt.ReceiptBlock receiptBlock1 = new Receipt.ReceiptBlock("", 1, 1, "1");
+        Receipt.ReceiptBlock receiptBlock1a = new Receipt.ReceiptBlock("", 5, 6, "1a");
         Receipt.ReceiptBlock receiptBlock2 = new Receipt.ReceiptBlock("2", 2, 2, "2");
         Receipt.ReceiptBlock receiptBlock3 = new Receipt.ReceiptBlock("3", 3, 3, "3");
         //its wrong each block must be unique for each zone need changes
@@ -232,6 +233,7 @@ public class ReceiptsTest {
 
         OutBoundRelay outBoundRelay = new OutBoundRelay(map);
         transactionBlock.setOutbound(outBoundRelay);
+        receiptBlock1.setBlock_hash("1");
         Integer[] size = transactionBlock.getOutbound().getMap_receipts().keySet().toArray(new Integer[0]);
 //        for (int i=0;i<size.length;i++) {
 //            List<String> ReceiptIPWorkers = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(size[i]).values().stream().collect(Collectors.toList());
@@ -309,7 +311,44 @@ public class ReceiptsTest {
         publisher.close();
     }
 
+    @Test
+    //@Order(2)
+    public void outbound_test2() throws Exception {
+        BlockSizeCalculator blockSizeCalculator = new BlockSizeCalculator();
+        BlockEventPublisher publisher = new BlockEventPublisher(1024);
+        TransactionBlock transactionBlock = new TransactionBlock();
+        transactionBlock.setGeneration(8);
+        transactionBlock.setZone(2);
+        transactionBlock.setHeight(15);
+        transactionBlock.setMerkleRoot("1");
 
+        Receipt.ReceiptBlock receiptBlock1 = new Receipt.ReceiptBlock(transactionBlock.getHash(), transactionBlock.getHeight(), transactionBlock.getGeneration(), transactionBlock.getMerkleRoot());
+        //its wrong each block must be unique for each zone need changes
+        Receipt receipt1 = new Receipt(0, 1, receiptBlock1, new RegularTransaction("a"));
+        Receipt receipt2 = new Receipt(0, 1, receiptBlock1, new RegularTransaction("b"));
+        blockSizeCalculator.setTransactionBlock(transactionBlock);
+
+        ArrayList<Receipt> list = new ArrayList<>();
+        list.add(receipt1);
+        list.add(receipt2);
+
+        Map<Integer, Map<Receipt.ReceiptBlock, List<Receipt>>> map = list
+                .stream()
+                .collect(Collectors.groupingBy(Receipt::getZoneFrom, Collectors.groupingBy(Receipt::getReceiptBlock)));
+
+        OutBoundRelay outBoundRelay = new OutBoundRelay(map);
+        transactionBlock.setOutbound(outBoundRelay);
+
+        byte[] tohash = serenc.encode(transactionBlock,blockSizeCalculator.TransactionBlockSizeCalculator());
+        transactionBlock.setHash(HashUtil.sha256_bytetoString(tohash));
+        transactionBlock.getOutbound().getMap_receipts().values().forEach(receiptBlock->receiptBlock.keySet().forEach(vals->vals.setBlock_hash(transactionBlock.getHash())));
+        publisher.withHashHandler().mergeEvents();
+        publisher.start();
+        publisher.publish(transactionBlock);
+
+        publisher.getJobSyncUntilRemainingCapacityZero();
+        publisher.close();
+    }
     @Test
     //@Order(3)
     public void inbound_test() throws Exception {

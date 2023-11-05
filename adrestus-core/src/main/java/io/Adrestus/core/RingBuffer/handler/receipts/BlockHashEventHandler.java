@@ -13,6 +13,11 @@ public class BlockHashEventHandler implements ReceiptEventHandler<ReceiptBlockEv
     @Override
     public void onEvent(ReceiptBlockEvent receiptBlockEvent, long l, boolean b) throws InterruptedException {
         ReceiptBlock receiptBlock = receiptBlockEvent.getReceiptBlock();
+        if(receiptBlock.getTransactionBlock()==null){
+            LOG.info("Receipt Block is null abort");
+            receiptBlockEvent.getReceiptBlock().setStatusType(StatusType.ABORT);
+            return;
+        }
         if (!receiptBlock.getTransactionBlock().getHash().equals(receiptBlock.getReceipt().getReceiptBlock().getBlock_hash())) {
             LOG.info("Receipt Block hashes are not valid with origin block abort");
             receiptBlockEvent.getReceiptBlock().setStatusType(StatusType.ABORT);

@@ -58,6 +58,12 @@ public class BindServerReceiptTask extends AdrestusTask {
     public void callBackReceive() {
         this.receive = x -> {
             Receipt receipt = recep.decode(x);
+            if(receipt.getReceiptBlock()==null){
+                return "";
+            }
+            if(receipt.getReceiptBlock().getBlock_hash().equals("")){
+                return "";
+            }
             List<String> ips = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(receipt.getZoneFrom()).values().stream().collect(Collectors.toList());
             ips.remove(IPFinder.getLocalIP());
             int RPCTransactionZonePort = ZoneDatabaseFactory.getDatabaseRPCPort(CachedZoneIndex.getInstance().getZoneIndex());
