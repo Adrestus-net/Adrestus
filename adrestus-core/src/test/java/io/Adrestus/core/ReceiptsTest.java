@@ -334,7 +334,7 @@ public class ReceiptsTest {
 
         Map<Integer, Map<Receipt.ReceiptBlock, List<Receipt>>> map = list
                 .stream()
-                .collect(Collectors.groupingBy(Receipt::getZoneFrom, Collectors.groupingBy(Receipt::getReceiptBlock)));
+                .collect(Collectors.groupingBy(Receipt::getZoneTo, Collectors.groupingBy(Receipt::getReceiptBlock)));
 
         OutBoundRelay outBoundRelay = new OutBoundRelay(map);
         transactionBlock.setOutbound(outBoundRelay);
@@ -348,6 +348,8 @@ public class ReceiptsTest {
 
         publisher.getJobSyncUntilRemainingCapacityZero();
         publisher.close();
+        assertEquals(transactionBlock.getHash(), HashUtil.sha256_bytetoString(tohash));
+        assertEquals(transactionBlock.getOutbound().getMap_receipts().get(CachedZoneIndex.getInstance().getZoneIndex()).keySet().stream().findFirst().get().getBlock_hash(), HashUtil.sha256_bytetoString(tohash));
     }
     @Test
     //@Order(3)
@@ -362,8 +364,9 @@ public class ReceiptsTest {
 
         BlockEventPublisher publisher = new BlockEventPublisher(1024);
         CachedZoneIndex.getInstance().setZoneIndex(1);
-        CachedBLSKeyPair.getInstance().setPublicKey(vk5);
-        CachedBLSKeyPair.getInstance().setPrivateKey(sk5);
+        //Give the correct one closer to commite block zone validators check validators ip closest to vk4
+        CachedBLSKeyPair.getInstance().setPublicKey(vk4);
+        CachedBLSKeyPair.getInstance().setPrivateKey(sk4);
         String OriginalRootHash = transactionBlock.getMerkleRoot();
         Receipt.ReceiptBlock receiptBlock = new Receipt.ReceiptBlock(transactionBlock.getHash(), transactionBlock.getHeight(), transactionBlock.getGeneration(), transactionBlock.getMerkleRoot());
 

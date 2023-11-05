@@ -92,6 +92,12 @@ public class HashEventHandler implements BlockEventHandler<AbstractBlockEvent>, 
             if (!result_hash.equals(transactionBlock.getHash())) {
                 LOG.info("Block hash is manipulated");
                 transactionBlock.setStatustype(StatusType.ABORT);
+                return;
+            }
+            else {
+                if(!cloneable.getOutbound().getMap_receipts().isEmpty()) {
+                    cloneable.getOutbound().getMap_receipts().values().forEach(receiptBlock -> receiptBlock.keySet().forEach(vals -> vals.setBlock_hash(result_hash)));
+                }
             }
         } catch (NullPointerException ex) {
             LOG.info("Block is empty");
