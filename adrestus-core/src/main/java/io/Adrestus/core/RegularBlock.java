@@ -143,7 +143,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
 
         Map<Integer, Map<Receipt.ReceiptBlock, List<Receipt>>> outbound = receiptList
                 .stream()
-                .collect(Collectors.groupingBy(Receipt::getZoneFrom, Collectors.groupingBy(Receipt::getReceiptBlock)));
+                .collect(Collectors.groupingBy(Receipt::getZoneTo, Collectors.groupingBy(Receipt::getReceiptBlock)));
 
         OutBoundRelay outBoundRelay = new OutBoundRelay(outbound);
         transactionBlock.setOutbound(outBoundRelay);
