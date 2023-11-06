@@ -37,18 +37,17 @@ import io.Adrestus.rpc.RpcAdrestusServer;
 import io.Adrestus.util.GetTime;
 import io.Adrestus.util.SerializationUtil;
 import io.distributedLedger.*;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.*;
 import org.spongycastle.util.encoders.Hex;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ReceiptsTest {
@@ -199,6 +198,7 @@ public class ReceiptsTest {
         transactionBlock.setHash(HashUtil.sha256_bytetoString(tohash));
     }
 
+    @SneakyThrows
     @Test
     @Order(1)
     public void serialize_test() throws InterruptedException {
@@ -209,7 +209,7 @@ public class ReceiptsTest {
 
 
         Receipt.ReceiptBlock receiptBlock1 = new Receipt.ReceiptBlock("1", 1, 1, "1");
-        Receipt.ReceiptBlock receiptBlock1a = new Receipt.ReceiptBlock("1a", 5, 6, "1a");
+        Receipt.ReceiptBlock receiptBlock1a = new Receipt.ReceiptBlock("1", 5, 6, "1a");
         Receipt.ReceiptBlock receiptBlock2 = new Receipt.ReceiptBlock("2", 2, 2, "2");
         Receipt.ReceiptBlock receiptBlock3 = new Receipt.ReceiptBlock("3", 3, 3, "3");
         //its wrong each block must be unique for each zone need changes
@@ -227,12 +227,13 @@ public class ReceiptsTest {
         list.add(receipt4);
         list.add(receipt5);
         list.add(receipt6);
-        Map<Integer, Map<Receipt.ReceiptBlock, List<Receipt>>> map = list
+        Map<Integer, Map<Receipt.ReceiptBlock, List<Receipt>>> map =  list
                 .stream()
                 .collect(Collectors.groupingBy(Receipt::getZoneFrom, Collectors.groupingBy(Receipt::getReceiptBlock)));
 
         OutBoundRelay outBoundRelay = new OutBoundRelay(map);
         transactionBlock.setOutbound(outBoundRelay);
+        transactionBlock.getOutbound().getMap_receipts().values().forEach(receiptBlock->receiptBlock.keySet().forEach(vals->vals.setBlock_hash(transactionBlock.getHash())));
         Integer[] size = transactionBlock.getOutbound().getMap_receipts().keySet().toArray(new Integer[0]);
 //        for (int i=0;i<size.length;i++) {
 //            List<String> ReceiptIPWorkers = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(size[i]).values().stream().collect(Collectors.toList());
@@ -259,10 +260,14 @@ public class ReceiptsTest {
 //                                           System.out.println(receipt.getTransaction());})));
         for (int i = 0; i < 1000; i++) {
             byte[] buffer = serenc.encode(transactionBlock);
+            TransactionBlock clone2 = (TransactionBlock) transactionBlock.clone();
             TransactionBlock clone = (TransactionBlock) serenc.decode(buffer);
             Map.Entry<Receipt.ReceiptBlock, List<Receipt>> entry = clone.getOutbound().getMap_receipts().get(0).entrySet().iterator().next();
-            assertEquals(entry.getKey().getBlock_hash(), "1");
+            assertEquals(entry.getKey().getBlock_hash(), "hash");
+            assertEquals(transactionBlock, clone2);
             assertEquals(transactionBlock, clone);
+            clone2.getOutbound().getMap_receipts().values().forEach(receiptBlock->receiptBlock.keySet().forEach(vals->vals.setBlock_hash("random")));
+            assertNotEquals(clone2,transactionBlock);
         }
 
     }
