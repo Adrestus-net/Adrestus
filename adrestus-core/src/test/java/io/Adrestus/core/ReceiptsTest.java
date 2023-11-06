@@ -273,7 +273,7 @@ public class ReceiptsTest {
     }
 
     @Test
-    //@Order(2)
+    @Order(2)
     public void outbound_test() throws Exception {
         CachedZoneIndex.getInstance().setZoneIndexInternalIP();
         //Thread.sleep(2000);
@@ -321,6 +321,7 @@ public class ReceiptsTest {
         BlockSizeCalculator blockSizeCalculator = new BlockSizeCalculator();
         BlockEventPublisher publisher = new BlockEventPublisher(1024);
         TransactionBlock transactionBlock = new TransactionBlock();
+        transactionBlock.setHash("");
         transactionBlock.setGeneration(8);
         transactionBlock.setZone(2);
         transactionBlock.setHeight(15);
@@ -343,20 +344,27 @@ public class ReceiptsTest {
         OutBoundRelay outBoundRelay = new OutBoundRelay(map);
         transactionBlock.setOutbound(outBoundRelay);
 
+        blockSizeCalculator.setTransactionBlock(transactionBlock);
         byte[] tohash = serenc.encode(transactionBlock,blockSizeCalculator.TransactionBlockSizeCalculator());
         transactionBlock.setHash(HashUtil.sha256_bytetoString(tohash));
-        transactionBlock.getOutbound().getMap_receipts().values().forEach(receiptBlock->receiptBlock.keySet().forEach(vals->vals.setBlock_hash(transactionBlock.getHash())));
+        map.values().forEach(receiptBlock->receiptBlock.keySet().forEach(vals->vals.setBlock_hash(transactionBlock.getHash())));
+        TransactionBlock clone2 = (TransactionBlock) transactionBlock.clone();
+        TransactionBlock clone3 = (TransactionBlock) transactionBlock.clone();
         publisher.withHashHandler().mergeEvents();
         publisher.start();
         publisher.publish(transactionBlock);
 
         publisher.getJobSyncUntilRemainingCapacityZero();
         publisher.close();
+        assertEquals(clone2,transactionBlock);
+        assertEquals(clone3,transactionBlock);
+        clone3.getOutbound().getMap_receipts().values().forEach(receiptBlock->receiptBlock.keySet().forEach(vals->vals.setBlock_hash("random")));
+        assertNotEquals(clone3,transactionBlock);
         assertEquals(transactionBlock.getHash(), HashUtil.sha256_bytetoString(tohash));
-        assertEquals(transactionBlock.getOutbound().getMap_receipts().get(CachedZoneIndex.getInstance().getZoneIndex()).keySet().stream().findFirst().get().getBlock_hash(), HashUtil.sha256_bytetoString(tohash));
+        //assertEquals(transactionBlock.getOutbound().getMap_receipts().get(CachedZoneIndex.getInstance().getZoneIndex()).keySet().stream().findFirst().get().getBlock_hash(), HashUtil.sha256_bytetoString(tohash));
     }
     @Test
-    //@Order(3)
+    @Order(3)
     public void inbound_test() throws Exception {
         IDatabase<String, TransactionBlock> database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.ZONE_0_TRANSACTION_BLOCK);
         database.save(String.valueOf(transactionBlock.getHeight()), transactionBlock);
