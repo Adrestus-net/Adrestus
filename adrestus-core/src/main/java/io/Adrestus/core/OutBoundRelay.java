@@ -1,10 +1,13 @@
 package io.Adrestus.core;
 
 import com.google.common.base.Objects;
+import com.google.common.collect.MapDifference;
+import com.google.common.collect.Maps;
 import io.activej.serializer.annotations.Deserialize;
 import io.activej.serializer.annotations.Serialize;
 
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,12 +37,17 @@ public class OutBoundRelay implements Serializable {
         this.map_receipts = map_receipts;
     }
 
+
+
+    //NEVER DELETE THIS FUNCTION ELSE BLOCK HASH EVENT HANDLER WILL HAVE PROBLEM IS EQUALS FUNCTIONALITY
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         OutBoundRelay that = (OutBoundRelay) o;
-        return Objects.equal(map_receipts, that.map_receipts);
+        boolean keys=Objects.equal(map_receipts.keySet(), that.map_receipts.keySet() );
+        boolean values=new HashSet<>( map_receipts.values()).equals(new HashSet<>( that.map_receipts.values() ));
+        return keys && values;
     }
 
     @Override

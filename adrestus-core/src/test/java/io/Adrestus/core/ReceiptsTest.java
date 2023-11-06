@@ -208,8 +208,8 @@ public class ReceiptsTest {
         transactionBlock.setHash("hash");
 
 
-        Receipt.ReceiptBlock receiptBlock1 = new Receipt.ReceiptBlock("", 1, 1, "1");
-        Receipt.ReceiptBlock receiptBlock1a = new Receipt.ReceiptBlock("", 5, 6, "1a");
+        Receipt.ReceiptBlock receiptBlock1 = new Receipt.ReceiptBlock("1", 1, 1, "1");
+        Receipt.ReceiptBlock receiptBlock1a = new Receipt.ReceiptBlock("1a", 5, 6, "1a");
         Receipt.ReceiptBlock receiptBlock2 = new Receipt.ReceiptBlock("2", 2, 2, "2");
         Receipt.ReceiptBlock receiptBlock3 = new Receipt.ReceiptBlock("3", 3, 3, "3");
         //its wrong each block must be unique for each zone need changes
@@ -233,7 +233,6 @@ public class ReceiptsTest {
 
         OutBoundRelay outBoundRelay = new OutBoundRelay(map);
         transactionBlock.setOutbound(outBoundRelay);
-        receiptBlock1.setBlock_hash("1");
         Integer[] size = transactionBlock.getOutbound().getMap_receipts().keySet().toArray(new Integer[0]);
 //        for (int i=0;i<size.length;i++) {
 //            List<String> ReceiptIPWorkers = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(size[i]).values().stream().collect(Collectors.toList());
