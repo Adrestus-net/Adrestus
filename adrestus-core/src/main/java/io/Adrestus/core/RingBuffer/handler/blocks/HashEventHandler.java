@@ -85,6 +85,7 @@ public class HashEventHandler implements BlockEventHandler<AbstractBlockEvent>, 
             cloneable.setHash("");
             if(!cloneable.getOutbound().getMap_receipts().isEmpty()){
                 cloneable.getOutbound().getMap_receipts().values().forEach(receiptBlock->receiptBlock.keySet().forEach(vals->vals.setBlock_hash("")));
+                cloneable.getOutbound().getMap_receipts().values().forEach(receiptBlock->receiptBlock.values().forEach(lis->lis.forEach(rcp->rcp.getReceiptBlock().setBlock_hash(""))));
             }
             this.sizeCalculator.setTransactionBlock(cloneable);
             byte[] buffer = wrapper.encode(cloneable, this.sizeCalculator.TransactionBlockSizeCalculator());
