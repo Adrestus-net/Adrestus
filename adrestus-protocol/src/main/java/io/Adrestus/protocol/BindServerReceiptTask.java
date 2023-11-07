@@ -49,7 +49,13 @@ public class BindServerReceiptTask extends AdrestusTask {
                 withOutboundMerkleEventHandler().
                 withZoneEventHandler().
                 withAmountEventHandler().
-                withReplayEventHandler()
+                withReplayEventHandler().
+                withEmptyEventHandler().
+                withNonceEventHandler().
+                withPublicKeyEventHandler()
+                .withSignatureEventHandler()
+                .withTimestampEventHandler()
+                .withZoneFromEventHandler()
                 .mergeEvents();
         this.publisher.start();
     }
@@ -66,7 +72,7 @@ public class BindServerReceiptTask extends AdrestusTask {
             }
             List<String> ips = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(receipt.getZoneFrom()).values().stream().collect(Collectors.toList());
             ips.remove(IPFinder.getLocalIP());
-            int RPCTransactionZonePort = ZoneDatabaseFactory.getDatabaseRPCPort(CachedZoneIndex.getInstance().getZoneIndex());
+            int RPCTransactionZonePort = ZoneDatabaseFactory.getDatabaseRPCPort(receipt.getZoneFrom());
             ArrayList<InetSocketAddress> toConnectTransaction = new ArrayList<>();
             ips.stream().forEach(ip -> {
                 try {

@@ -6,15 +6,18 @@ import io.Adrestus.core.StatusType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AddressEventHandler implements ReceiptEventHandler<ReceiptBlockEvent> {
+import java.util.Objects;
 
-    private static Logger LOG = LoggerFactory.getLogger(AddressEventHandler.class);
+public class SignatureEventHandler implements ReceiptEventHandler<ReceiptBlockEvent> {
+
+    private static Logger LOG = LoggerFactory.getLogger(SignatureEventHandler.class);
 
     @Override
     public void onEvent(ReceiptBlockEvent receiptBlockEvent, long l, boolean b) throws InterruptedException {
         ReceiptBlock receiptBlock = receiptBlockEvent.getReceiptBlock();
-        if (!receiptBlock.getTransaction().getTo().equals(receiptBlock.getReceipt().getAddress()) || !receiptBlock.getTransaction().getFrom().equals(receiptBlock.getReceipt().getTransaction().getFrom()) || !receiptBlock.getTransaction().getTo().equals(receiptBlock.getReceipt().getTransaction().getTo())) {
-            LOG.info("Receipt Address is not valid with transaction abort");
+        boolean res = Objects.equals(receiptBlock.getReceipt().getTransaction().getSignature(),receiptBlock.getTransaction().getSignature());
+        if (!res) {
+            LOG.info("Signatures are not equal abort");
             receiptBlockEvent.getReceiptBlock().setStatusType(StatusType.ABORT);
             return;
         }

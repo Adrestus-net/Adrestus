@@ -13,8 +13,8 @@ public class AmountEventHandler implements ReceiptEventHandler<ReceiptBlockEvent
     @Override
     public void onEvent(ReceiptBlockEvent receiptBlockEvent, long l, boolean b) throws InterruptedException {
         ReceiptBlock receiptBlock = receiptBlockEvent.getReceiptBlock();
-        if (receiptBlock.getTransaction().getAmount() != receiptBlock.getReceipt().getAmount()) {
-            LOG.info("Receipt Amount is not the same abort");
+        if (receiptBlock.getTransaction().getAmount() != receiptBlock.getReceipt().getTransaction().getAmount() ||receiptBlock.getTransaction().getAmountWithTransactionFee()!=receiptBlock.getReceipt().getTransaction().getAmountWithTransactionFee()) {
+            LOG.info("Receipt Amount or fees is not the same abort");
             receiptBlockEvent.getReceiptBlock().setStatusType(StatusType.ABORT);
             return;
         }

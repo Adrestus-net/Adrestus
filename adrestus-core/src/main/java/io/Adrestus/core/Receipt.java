@@ -81,16 +81,45 @@ public class Receipt implements Serializable {
 
     public Receipt(@Deserialize("zoneFrom") int zoneFrom,
                    @Deserialize("zoneTo") int zoneTo,
+                   @Deserialize("address") String address,
                    @Deserialize("receiptBlock") ReceiptBlock receiptBlock,
-                   @Deserialize("transaction") Transaction transaction) {
+                   @Deserialize("transaction") Transaction transaction,
+                   @Deserialize("proofs")MerkleProofs proofs) {
         this.zoneFrom = zoneFrom;
         this.zoneTo = zoneTo;
+        this.address = address;
         this.receiptBlock = receiptBlock;
         this.transaction = transaction;
-        this.proofs = new MerkleProofs();
-        this.transaction = transaction;
+        this.proofs=proofs;
         this.position = 0;
+        this.amount = 0.0;
+    }
+    public Receipt(int zoneFrom,
+                   int zoneTo,
+                   ReceiptBlock receiptBlock,
+                   Transaction transaction) {
+        this.zoneFrom = zoneFrom;
+        this.zoneTo = zoneTo;
         this.address = "";
+        this.receiptBlock = receiptBlock;
+        this.transaction = transaction;
+        this.proofs=new MerkleProofs();
+        this.position = 0;
+        this.amount = 0.0;
+    }
+
+    public Receipt(int zoneFrom,
+                  int zoneTo,
+                   String address,
+                   ReceiptBlock receiptBlock,
+                   Transaction transaction) {
+        this.zoneFrom = zoneFrom;
+        this.zoneTo = zoneTo;
+        this.address = address;
+        this.receiptBlock = receiptBlock;
+        this.transaction = transaction;
+        this.proofs=new MerkleProofs();
+        this.position = 0;
         this.amount = 0.0;
     }
 

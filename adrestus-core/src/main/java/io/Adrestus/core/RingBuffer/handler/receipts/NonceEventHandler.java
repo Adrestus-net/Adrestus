@@ -6,15 +6,16 @@ import io.Adrestus.core.StatusType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AddressEventHandler implements ReceiptEventHandler<ReceiptBlockEvent> {
+public class NonceEventHandler implements ReceiptEventHandler<ReceiptBlockEvent> {
 
-    private static Logger LOG = LoggerFactory.getLogger(AddressEventHandler.class);
+    private static Logger LOG = LoggerFactory.getLogger(NonceEventHandler.class);
 
     @Override
     public void onEvent(ReceiptBlockEvent receiptBlockEvent, long l, boolean b) throws InterruptedException {
         ReceiptBlock receiptBlock = receiptBlockEvent.getReceiptBlock();
-        if (!receiptBlock.getTransaction().getTo().equals(receiptBlock.getReceipt().getAddress()) || !receiptBlock.getTransaction().getFrom().equals(receiptBlock.getReceipt().getTransaction().getFrom()) || !receiptBlock.getTransaction().getTo().equals(receiptBlock.getReceipt().getTransaction().getTo())) {
-            LOG.info("Receipt Address is not valid with transaction abort");
+        int res = Integer.compare(receiptBlock.getTransaction().getNonce(), receiptBlock.getReceipt().getTransaction().getNonce());
+        if (res!=0) {
+            LOG.info("Nonce is not valid with abort");
             receiptBlockEvent.getReceiptBlock().setStatusType(StatusType.ABORT);
             return;
         }

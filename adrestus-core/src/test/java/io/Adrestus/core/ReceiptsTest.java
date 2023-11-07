@@ -199,7 +199,7 @@ public class ReceiptsTest {
     }
 
     @SneakyThrows
-   // @Test
+    @Test
     @Order(1)
     public void serialize_test() throws InterruptedException {
         //Thread.sleep(2000);
@@ -272,7 +272,7 @@ public class ReceiptsTest {
 
     }
 
-    //@Test
+    @Test
     @Order(2)
     public void outbound_test() throws Exception {
         CachedZoneIndex.getInstance().setZoneIndexInternalIP();
@@ -347,7 +347,7 @@ public class ReceiptsTest {
         blockSizeCalculator.setTransactionBlock(transactionBlock);
         byte[] tohash = serenc.encode(transactionBlock,blockSizeCalculator.TransactionBlockSizeCalculator());
         transactionBlock.setHash(HashUtil.sha256_bytetoString(tohash));
-        map.values().forEach(receiptBlock->receiptBlock.keySet().forEach(vals->vals.setBlock_hash(transactionBlock.getHash())));
+        transactionBlock.getOutbound().getMap_receipts().values().forEach(receiptBlock->receiptBlock.keySet().forEach(vals->vals.setBlock_hash(transactionBlock.getHash())));
         TransactionBlock clone2 = (TransactionBlock) transactionBlock.clone();
         TransactionBlock clone3 = (TransactionBlock) transactionBlock.clone();
         publisher.withHashHandler().mergeEvents();
@@ -364,9 +364,10 @@ public class ReceiptsTest {
         clone3.getOutbound().getMap_receipts().values().forEach(receiptBlock->receiptBlock.keySet().forEach(vals->vals.setBlock_hash("random")));
         assertNotEquals(clone3,transactionBlock);
         assertEquals(transactionBlock.getHash(), HashUtil.sha256_bytetoString(tohash));
-        //assertEquals(transactionBlock.getOutbound().getMap_receipts().get(CachedZoneIndex.getInstance().getZoneIndex()).keySet().stream().findFirst().get().getBlock_hash(), HashUtil.sha256_bytetoString(tohash));
+        assertEquals(transactionBlock.getOutbound().getMap_receipts().get(1).keySet().stream().findFirst().get().getBlock_hash(), HashUtil.sha256_bytetoString(tohash));
+        assertEquals(transactionBlock.getOutbound().getMap_receipts().get(1).values().stream().findFirst().get().stream().findFirst().get().getReceiptBlock().getBlock_hash(), HashUtil.sha256_bytetoString(tohash));
     }
-    //@Test
+    @Test
     @Order(3)
     public void inbound_test() throws Exception {
         IDatabase<String, TransactionBlock> database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.ZONE_0_TRANSACTION_BLOCK);

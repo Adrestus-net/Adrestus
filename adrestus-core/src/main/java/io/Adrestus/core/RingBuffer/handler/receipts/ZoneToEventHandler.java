@@ -24,11 +24,11 @@ import java.util.List;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
-public class ZoneEventHandler implements ReceiptEventHandler<ReceiptBlockEvent> {
+public class ZoneToEventHandler implements ReceiptEventHandler<ReceiptBlockEvent> {
     private final SerializationUtil<Receipt> receipt_encode;
-    private static Logger LOG = LoggerFactory.getLogger(ZoneEventHandler.class);
+    private static Logger LOG = LoggerFactory.getLogger(ZoneToEventHandler.class);
 
-    public ZoneEventHandler() {
+    public ZoneToEventHandler() {
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
         list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
