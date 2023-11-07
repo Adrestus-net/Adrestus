@@ -121,12 +121,10 @@ public class MemoryReceiptPool implements IMemoryPool<Receipt> {
     }
 
     @Override
-    public boolean add(Receipt transaction) {
+    public boolean add(Receipt receipt) {
         w.lock();
         try {
-            if (transaction.getZoneTo() != CachedZoneIndex.getInstance().getZoneIndex())
-                return false;
-            return check_add(transaction);
+            return check_add(receipt);
         } finally {
             w.unlock();
         }
