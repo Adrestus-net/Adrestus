@@ -16,18 +16,18 @@ public class MemoryReceiptPool implements IMemoryPool<Receipt> {
 
     private static volatile IMemoryPool instance;
 
-    private final List<Receipt> memorypool;
-    private final ReentrantReadWriteLock rwl;
-    private final Lock r;
-    private final Lock w;
-    private final TransactionHashComparator hashComparator;
+    private static List<Receipt> memorypool;
+    private static ReentrantReadWriteLock rwl;
+    private static Lock r;
+    private static Lock w;
+    private static ReceiptHashComparator hashComparator;
 
     private MemoryReceiptPool() {
         if (instance != null) {
             throw new IllegalStateException("Already initialized.");
         } else {
             this.memorypool = new ArrayList<>();
-            this.hashComparator = new TransactionHashComparator();
+            this.hashComparator = new ReceiptHashComparator();
             this.rwl = new ReentrantReadWriteLock();
             this.r = rwl.readLock();
             this.w = rwl.writeLock();
@@ -204,7 +204,7 @@ public class MemoryReceiptPool implements IMemoryPool<Receipt> {
         return false;
     }
 
-    private final class TransactionHashComparator implements Comparator<Receipt> {
+    private final class ReceiptHashComparator implements Comparator<Receipt> {
         @Override
         public int compare(Receipt t1, Receipt t2) {
             return t1.getTransaction().getHash().compareTo(t2.getTransaction().getHash());
