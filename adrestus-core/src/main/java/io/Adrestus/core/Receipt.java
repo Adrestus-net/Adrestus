@@ -82,17 +82,18 @@ public class Receipt implements Serializable {
     public Receipt(@Deserialize("zoneFrom") int zoneFrom,
                    @Deserialize("zoneTo") int zoneTo,
                    @Deserialize("address") String address,
+                   @Deserialize("amount") Double amount,
                    @Deserialize("receiptBlock") ReceiptBlock receiptBlock,
                    @Deserialize("transaction") Transaction transaction,
                    @Deserialize("proofs")MerkleProofs proofs) {
         this.zoneFrom = zoneFrom;
         this.zoneTo = zoneTo;
         this.address = address;
+        this.amount = amount;
         this.receiptBlock = receiptBlock;
         this.transaction = transaction;
         this.proofs=proofs;
         this.position = 0;
-        this.amount = 0.0;
     }
     public Receipt(int zoneFrom,
                    int zoneTo,

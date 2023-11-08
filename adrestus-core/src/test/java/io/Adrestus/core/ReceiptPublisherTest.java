@@ -224,7 +224,7 @@ public class ReceiptPublisherTest {
             MerkleNode node = new MerkleNode(transaction.getHash());
             tree.build_proofs2(merkleNodeArrayList, node);
             if (CachedZoneIndex.getInstance().getZoneIndex() == transaction.getZoneTo()) {
-                Receipt receipt = new Receipt(transaction.getZoneFrom(), transaction.getZoneTo(),transaction.getTo(), receiptBlock, (Transaction) transaction.clone(),tree.getMerkleeproofs());
+                Receipt receipt = new Receipt(transaction.getZoneFrom(), transaction.getZoneTo(),transaction.getTo(),transaction.getAmount(), receiptBlock, (Transaction) transaction.clone(),tree.getMerkleeproofs());
 
                 RpcAdrestusClient<TransactionBlock> client = new RpcAdrestusClient<TransactionBlock>(new TransactionBlock(), "localhost", ZoneDatabaseFactory.getDatabaseRPCPort(CachedZoneIndex.getInstance().getZoneIndex()), 400, CachedEventLoop.getInstance().getEventloop());
                 client.connect();
