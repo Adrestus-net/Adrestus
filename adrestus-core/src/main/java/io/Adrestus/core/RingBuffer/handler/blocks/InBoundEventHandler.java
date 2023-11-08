@@ -59,55 +59,32 @@ public class InBoundEventHandler implements BlockEventHandler<AbstractBlockEvent
         }
 
         Collections.sort(transactionBlock.getTransactionList());
-        ExecutorService service = Executors.newFixedThreadPool(3);
         Set<Integer> keyset = inner_receipts.keySet();
 
 
-        atomicInteger = new AtomicInteger(3);
-        latch = new CountDownLatch(3);
+        ExecutorService service = Executors.newFixedThreadPool(keyset.size());
+        atomicInteger = new AtomicInteger(keyset.size());
+        latch = new CountDownLatch(keyset.size());
 
 
-        service.submit(() -> {
-            try {
-                Map<Receipt.ReceiptBlock, List<Receipt>> zone_1 = inner_receipts.get(keyset.toArray()[0]);
-                ServiceSubmit(zone_1);
-            } catch (Exception e) {
-                e.printStackTrace();
-            } finally {
-                latch.countDown();
-            }
+        ExecutorService finalService = service;
+        keyset.forEach(key -> {
+            finalService.submit(() -> {
+                try {
+                    Map<Receipt.ReceiptBlock, List<Receipt>> zone = inner_receipts.get(key);
+                    ServiceSubmit(zone);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    latch.countDown();
+                }
+            });
         });
-
-
-        service.submit(() -> {
-            try {
-                Map<Receipt.ReceiptBlock, List<Receipt>> zone_2 = inner_receipts.get(keyset.toArray()[1]);
-                ServiceSubmit(zone_2);
-            } catch (Exception e) {
-                // e.printStackTrace();
-            } finally {
-                latch.countDown();
-            }
-        });
-
-
-        service.submit(() -> {
-            try {
-                Map<Receipt.ReceiptBlock, List<Receipt>> zone_3 = inner_receipts.get(keyset.toArray()[2]);
-                ServiceSubmit(zone_3);
-            } catch (Exception e) {
-                // e.printStackTrace();
-            } finally {
-                latch.countDown();
-            }
-
-        });
-
 
         latch.await();
         service.shutdownNow();
         service = null;
-        if (atomicInteger.get() != 3) {
+        if (atomicInteger.get() != keyset.size()) {
             LOG.info("Validation check of Inbound list is invalid abort");
             transactionBlock.setStatustype(StatusType.ABORT);
             return;
