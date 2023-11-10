@@ -1,5 +1,6 @@
 package io.Adrestus.core;
 
+import com.google.common.reflect.TypeToken;
 import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.MerkleNode;
 import io.Adrestus.Trie.MerkleTreeImp;
@@ -371,6 +372,10 @@ public class ReceiptsTest {
     @Order(3)
     public void inbound_test() throws Exception {
         IDatabase<String, TransactionBlock> database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.ZONE_0_TRANSACTION_BLOCK);
+        IDatabase<String, LevelDBTransactionWrapper<Transaction>> transaction_database = new DatabaseFactory(String.class, Transaction.class, new TypeToken<LevelDBTransactionWrapper<Transaction>>() {
+        }.getType()).getDatabase(DatabaseType.LEVEL_DB);
+        IDatabase<String, LevelDBTransactionWrapper<Receipt>> receipt_database = new DatabaseFactory(String.class, Receipt.class, new TypeToken<LevelDBTransactionWrapper<Receipt>>() {
+        }.getType()).getDatabase(DatabaseType.LEVEL_DB);
         database.save(String.valueOf(transactionBlock.getHeight()), transactionBlock);
         //  CachedEventLoop.getInstance().setEventloop(Eventloop.create().withCurrentThread());
         // new Thread(CachedEventLoop.getInstance().getEventloop());
@@ -389,15 +394,19 @@ public class ReceiptsTest {
 
         for (int i = 0; i < transactionBlock.getTransactionList().size(); i++) {
             Transaction transaction = transactionBlock.getTransactionList().get(i);
+            transaction_database.save(transaction.getFrom(),transaction);
+            int index = Collections.binarySearch(transactionBlock.getTransactionList(), transactionBlock.getTransactionList().get(i));
             MerkleNode node = new MerkleNode(transaction.getHash());
             tree.build_proofs2(merkleNodeArrayList, node);
             if (CachedZoneIndex.getInstance().getZoneIndex() == transaction.getZoneTo())
-                MemoryReceiptPool.getInstance().add(new Receipt(transaction.getZoneFrom(), transaction.getZoneTo(), receiptBlock, new RegularTransaction(transaction.getHash()), i, tree.getMerkleeproofs(), transaction.getTo(), transaction.getAmount()));
+                MemoryReceiptPool.getInstance().add(new Receipt(transaction.getZoneFrom(), transaction.getZoneTo(), transaction.getTo(),transaction.getAmount(),receiptBlock, (Transaction) transaction.clone(),tree.getMerkleeproofs(),index));
         }
 
         Map<Integer, Map<Receipt.ReceiptBlock, List<Receipt>>> map = ((ArrayList<Receipt>) MemoryReceiptPool.getInstance().getAll())
                 .stream()
-                .collect(Collectors.groupingBy(Receipt::getZoneFrom, Collectors.groupingBy(Receipt::getReceiptBlock, Collectors.mapping(Receipt::merge, Collectors.toList()))));
+                .collect(Collectors.groupingBy(Receipt::getZoneFrom, Collectors.groupingBy(Receipt::getReceiptBlock)));
+               // .collect(Collectors.groupingBy(Receipt::getZoneFrom, Collectors.groupingBy(Receipt::getReceiptBlock, Collectors.mapping(Receipt::merge, Collectors.toList()))));
+
 
         for (Integer key : map.keySet()) {
             map.get(key).entrySet().stream().forEach(val -> {
@@ -408,6 +417,19 @@ public class ReceiptsTest {
         InboundRelay inboundRelay = new InboundRelay(map);
         transactionBlock.setInbound(inboundRelay);
 
+        transactionBlock
+                .getInbound()
+                .getMap_receipts()
+                .get(transactionBlock.getInbound().getMap_receipts().keySet().toArray()[0])
+                .entrySet()
+                .stream()
+                .forEach(entry -> {
+                    entry.getValue().stream().forEach(receipt -> {
+                        receipt_database.save(receipt.getAddress(), receipt);
+                        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).deposit(receipt.getAddress(), receipt.getAmount(), TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()));
+                        MemoryReceiptPool.getInstance().delete(receipt);
+                    });
+                });
         byte[] buffer = serenc.encode(transactionBlock);
         TransactionBlock clone = (TransactionBlock) serenc.decode(buffer);
         assertEquals(transactionBlock, clone);
@@ -420,5 +442,7 @@ public class ReceiptsTest {
         publisher.close();
 
         database.delete_db();
+        receipt_database.delete_db();
+        transaction_database.delete_db();
     }
 }

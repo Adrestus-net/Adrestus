@@ -135,10 +135,11 @@ public class RegularBlock implements BlockForge, BlockInvent {
         ArrayList<Receipt> receiptList = new ArrayList<>();
         for (int i = 0; i < transactionBlock.getTransactionList().size(); i++) {
             Transaction transaction = transactionBlock.getTransactionList().get(i);
+            int index = Collections.binarySearch(transactionBlock.getTransactionList(), transaction);
             MerkleNode node = new MerkleNode(transaction.getHash());
             tree.build_proofs2(merkleNodeArrayList, node);
             if (transaction.getZoneFrom() != transaction.getZoneTo())
-                receiptList.add(new Receipt(transaction.getZoneFrom(), transaction.getZoneTo(), transaction.getTo(),transaction.getAmount(),receiptBlock, (Transaction) transaction.clone(),tree.getMerkleeproofs()));
+                receiptList.add(new Receipt(transaction.getZoneFrom(), transaction.getZoneTo(), transaction.getTo(),transaction.getAmount(),receiptBlock, (Transaction) transaction.clone(),tree.getMerkleeproofs(),index));
         }
 
         Map<Integer, Map<Receipt.ReceiptBlock, List<Receipt>>> outbound = receiptList

@@ -85,7 +85,8 @@ public class Receipt implements Serializable {
                    @Deserialize("amount") Double amount,
                    @Deserialize("receiptBlock") ReceiptBlock receiptBlock,
                    @Deserialize("transaction") Transaction transaction,
-                   @Deserialize("proofs")MerkleProofs proofs) {
+                   @Deserialize("proofs")MerkleProofs proofs,
+                   @Deserialize("position")int position) {
         this.zoneFrom = zoneFrom;
         this.zoneTo = zoneTo;
         this.address = address;
@@ -93,7 +94,7 @@ public class Receipt implements Serializable {
         this.receiptBlock = receiptBlock;
         this.transaction = transaction;
         this.proofs=proofs;
-        this.position = 0;
+        this.position = position;
     }
     public Receipt(int zoneFrom,
                    int zoneTo,
