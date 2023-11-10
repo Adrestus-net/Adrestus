@@ -76,7 +76,12 @@ public class BlockSync implements IBlockSync {
                 client.connect();
                 try {
                     if (last_block.isPresent()) {
-                        blocks = client.getBlocksList(String.valueOf(last_block.get().getHeight()));
+                        if(last_block.get().getHeight()>1){
+                            blocks = client.getBlocksList(String.valueOf(last_block.get().getHeight()-1));
+                        }
+                        else {
+                            blocks = client.getBlocksList(String.valueOf(last_block.get().getHeight()));
+                        }
                         if (!blocks.isEmpty() && blocks.size() > 1) {
                             blocks.stream().skip(1).forEach(val -> toSave.put(String.valueOf(val.getHeight()), val));
                         }

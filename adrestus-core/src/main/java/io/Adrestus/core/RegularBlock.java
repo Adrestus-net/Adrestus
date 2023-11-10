@@ -170,7 +170,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
                     }
                 }
             }
-            Map<Integer, Map<Receipt.ReceiptBlock, List<Receipt>>> inbound_map = ((ArrayList<Receipt>) MemoryReceiptPool.getInstance().getAll())
+            Map<Integer, Map<Receipt.ReceiptBlock, List<Receipt>>> inbound_map = (new ArrayList<Receipt>((ArrayList<Receipt>) MemoryReceiptPool.getInstance().getAll()))
                     .stream()
                     .collect(Collectors.groupingBy(Receipt::getZoneFrom, Collectors.groupingBy(Receipt::getReceiptBlock)));
             InboundRelay inboundRelay = new InboundRelay(inbound_map);
