@@ -30,7 +30,7 @@ import static org.iq80.leveldb.impl.Iq80DBFactory.factory;
 public class LevelDBConnectionManager<K, V> implements IDatabase<K, V> {
 
     private static org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(LevelDBConnectionManager.class);
-    private String CONNECTION_NAME = "\\TransactionDatabase";
+    private String CONNECTION_NAME = "TransactionDatabase";
 
 
     private final SerializationUtil valueMapper;
@@ -66,11 +66,12 @@ public class LevelDBConnectionManager<K, V> implements IDatabase<K, V> {
         this.r = rwl.readLock();
         this.w = rwl.writeLock();
         if (fluentType.getTypeName().contains("Receipt")) {
-            this.CONNECTION_NAME = "\\ReceiptDatabase";
+            this.CONNECTION_NAME = "ReceiptDatabase";
         } else {
-            this.CONNECTION_NAME = "\\TransactionDatabase";
+            this.CONNECTION_NAME = "TransactionDatabase";
         }
-        this.dbFile = new File(Directory.getConfigPath() + "\\" + CONNECTION_NAME + "\\");
+        String path= Paths.get(Directory.getConfigPath(), CONNECTION_NAME).toString();
+        this.dbFile = new File(path);
         this.keyClass = keyClass;
         this.keyMapper = new SerializationUtil<>(this.keyClass);
         this.valueMapper = new SerializationUtil<>(fluentType, list);
@@ -97,7 +98,8 @@ public class LevelDBConnectionManager<K, V> implements IDatabase<K, V> {
     @Override
     public void load_connection() {
         w.lock();
-        this.dbFile = new File(Directory.getConfigPath() + "\\" + CONNECTION_NAME + "\\");
+        String pathstring= Paths.get(Directory.getConfigPath(), CONNECTION_NAME).toString();
+        this.dbFile = new File(pathstring);
         Path path = Files.createDirectories(Paths.get(dbFile.getAbsolutePath()));
         try {
             dbFile.createNewFile();
@@ -321,7 +323,12 @@ public class LevelDBConnectionManager<K, V> implements IDatabase<K, V> {
                 level_db.delete(iterator.peekNext().getKey());
             }
 
-            DatabaseRawTransactionInstance.getInstance(options, dbFile.getParentFile().getAbsolutePath()).close(options);
+            if (CONNECTION_NAME.contains("ReceiptDatabase")){
+                DatabaseRawReceiptInstance.getInstance(options, dbFile.getParentFile().getAbsolutePath()).close(options);
+            }
+            else {
+                DatabaseRawTransactionInstance.getInstance(options, dbFile.getParentFile().getAbsolutePath()).close(options);
+            }
             level_db.close();
             factory.destroy(dbFile.getParentFile(), options);
             level_db = null;

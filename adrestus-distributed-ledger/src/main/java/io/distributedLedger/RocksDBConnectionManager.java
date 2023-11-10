@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -45,7 +46,7 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
     private final Lock w;
 
 
-    private String CONNECTION_NAME = "\\Blockchain_rocks-db";
+    private String CONNECTION_NAME = "Blockchain_rocks-db";
     private File dbFile;
     private Options options;
     private RocksDB rocksDB;
@@ -56,7 +57,8 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
         this.rwl = new ReentrantReadWriteLock();
         this.r = rwl.readLock();
         this.w = rwl.writeLock();
-        this.dbFile = new File(Directory.getConfigPath() + CONNECTION_NAME);
+        String path= Paths.get(Directory.getConfigPath(), CONNECTION_NAME).toString();
+        this.dbFile = new File(path);
         this.valueClass = valueClass;
         this.keyClass = keyClass;
         List<SerializationUtil.Mapping> list = new ArrayList<>();
@@ -81,7 +83,8 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
         this.r = rwl.readLock();
         this.w = rwl.writeLock();
         this.CONNECTION_NAME = databaseInstance.getTitle();
-        this.dbFile = new File(Directory.getConfigPath() + "\\" + CONNECTION_NAME);
+        String path= Paths.get(Directory.getConfigPath(), CONNECTION_NAME).toString();
+        this.dbFile = new File(path);
         this.valueClass = valueClass;
         this.keyClass = keyClass;
         List<SerializationUtil.Mapping> list = new ArrayList<>();
@@ -105,7 +108,8 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
         this.r = rwl.readLock();
         this.w = rwl.writeLock();
         this.CONNECTION_NAME = patriciaTreeInstance.getTitle();
-        this.dbFile = new File(Directory.getConfigPath() + "\\" + CONNECTION_NAME);
+        String path= Paths.get(Directory.getConfigPath(), CONNECTION_NAME).toString();
+        this.dbFile = new File(path);
         this.valueClass = valueClass;
         this.keyClass = keyClass;
         List<SerializationUtil.Mapping> list = new ArrayList<>();
@@ -172,7 +176,8 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
     @Override
     public synchronized void load_connection() {
         w.lock();
-        dbFile = new File(Directory.getConfigPath(), CONNECTION_NAME);
+        String path= Paths.get(Directory.getConfigPath(), CONNECTION_NAME).toString();
+        this.dbFile = new File(path);
         try {
             Files.createDirectories(dbFile.getParentFile().toPath());
             //Files.createDirectories(dbFile.getAbsoluteFile().toPath());
