@@ -3,6 +3,7 @@ package io.Adrestus.protocol;
 import io.Adrestus.config.SocketConfigOptions;
 import io.Adrestus.core.*;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
+import io.Adrestus.core.Resourses.CachedReceiptSemaphore;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.core.RingBuffer.publisher.ReceiptEventPublisher;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
@@ -63,11 +64,14 @@ public class BindServerReceiptTask extends AdrestusTask {
 
     public void callBackReceive() {
         this.receive = x -> {
+            CachedReceiptSemaphore.getInstance().getSemaphore().acquire();
             Receipt receipt = recep.decode(x);
-            if(receipt.getReceiptBlock()==null){
+            if (receipt.getReceiptBlock() == null) {
+                CachedReceiptSemaphore.getInstance().getSemaphore().release();
                 return "";
             }
-            if(receipt.getReceiptBlock().getBlock_hash().equals("")){
+            if (receipt.getReceiptBlock().getBlock_hash().equals("")) {
+                CachedReceiptSemaphore.getInstance().getSemaphore().release();
                 return "";
             }
             List<String> ips = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(receipt.getZoneFrom()).values().stream().collect(Collectors.toList());
@@ -81,26 +85,38 @@ public class BindServerReceiptTask extends AdrestusTask {
                     throw new RuntimeException(e);
                 }
             });
-            RpcAdrestusClient client = new RpcAdrestusClient(new TransactionBlock(), toConnectTransaction, CachedEventLoop.getInstance().getEventloop());
-            client.connect();
+            RpcAdrestusClient client = null;
+            try {
+                client = new RpcAdrestusClient(new TransactionBlock(), toConnectTransaction, CachedEventLoop.getInstance().getEventloop());
+                client.connect();
 
-            ArrayList<String> to_search = new ArrayList<>();
-            to_search.add(String.valueOf(receipt.getReceiptBlock().getHeight()));
+                ArrayList<String> to_search = new ArrayList<>();
+                to_search.add(String.valueOf(receipt.getReceiptBlock().getHeight()));
 
-            List<TransactionBlock> currentblock = client.getBlock(to_search);
-            if (currentblock.isEmpty()) {
+                List<TransactionBlock> currentblock = client.getBlock(to_search);
+                if (currentblock.isEmpty()) {
+                    CachedReceiptSemaphore.getInstance().getSemaphore().release();
+                    return "";
+                }
+
+                int index = Collections.binarySearch(currentblock.get(currentblock.size() - 1).getTransactionList(), receipt.getTransaction());
+                Transaction trx = currentblock.get(currentblock.size() - 1).getTransactionList().get(index);
+
+                ReceiptBlock receiptBlock1 = new ReceiptBlock(StatusType.PENDING, receipt, currentblock.get(currentblock.size() - 1), trx);
+
+
+                publisher.publish(receiptBlock1);
+            } catch (Exception e) {
+
+            }
+            finally {
+                if (client != null) {
+                    client.close();
+                    client=null;
+                }
+                CachedReceiptSemaphore.getInstance().getSemaphore().release();
                 return "";
             }
-
-            int index = Collections.binarySearch(currentblock.get(currentblock.size() - 1).getTransactionList(), receipt.getTransaction());
-            Transaction trx = currentblock.get(currentblock.size() - 1).getTransactionList().get(index);
-
-            ReceiptBlock receiptBlock1 = new ReceiptBlock(StatusType.PENDING, receipt, currentblock.get(currentblock.size() - 1), trx);
-
-
-            publisher.publish(receiptBlock1);
-
-            return "";
         };
     }
 
