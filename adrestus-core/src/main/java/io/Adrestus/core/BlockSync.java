@@ -147,7 +147,7 @@ public class BlockSync implements IBlockSync {
                 IDatabase<String, TransactionBlock> block_database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
                 IDatabase<String, LevelDBTransactionWrapper<Transaction>> transaction_database = new DatabaseFactory(String.class, Transaction.class, new TypeToken<LevelDBTransactionWrapper<Transaction>>() {
                 }.getType()).getDatabase(DatabaseType.LEVEL_DB);
-                IDatabase<String, LevelDBTransactionWrapper<Receipt>> receipt_database = new DatabaseFactory(String.class, Receipt.class, new TypeToken<LevelDBTransactionWrapper<Receipt>>() {
+                IDatabase<String, LevelDBReceiptWrapper<Receipt>> receipt_database = new DatabaseFactory(String.class, Receipt.class, new TypeToken<LevelDBReceiptWrapper<Receipt>>() {
                 }.getType()).getDatabase(DatabaseType.LEVEL_DB);
                 client = new RpcAdrestusClient(new TransactionBlock(), toConnectTransaction, CachedEventLoop.getInstance().getEventloop());
                 client.connect();
@@ -331,7 +331,7 @@ public class BlockSync implements IBlockSync {
                         IDatabase<String, TransactionBlock> block_database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
                         IDatabase<String, LevelDBTransactionWrapper<Transaction>> transaction_database = new DatabaseFactory(String.class, Transaction.class, new TypeToken<LevelDBTransactionWrapper<Transaction>>() {
                         }.getType()).getDatabase(DatabaseType.LEVEL_DB);
-                        IDatabase<String, LevelDBTransactionWrapper<Receipt>> receipt_database = new DatabaseFactory(String.class, Receipt.class, new TypeToken<LevelDBTransactionWrapper<Receipt>>() {
+                        IDatabase<String, LevelDBReceiptWrapper<Receipt>> receipt_database = new DatabaseFactory(String.class, Receipt.class, new TypeToken<LevelDBReceiptWrapper<Receipt>>() {
                         }.getType()).getDatabase(DatabaseType.LEVEL_DB);
                         client = new RpcAdrestusClient(new TransactionBlock(), toConnectTransaction, CachedEventLoop.getInstance().getEventloop());
                         client.connect();
@@ -595,7 +595,7 @@ public class BlockSync implements IBlockSync {
                 IDatabase<String, TransactionBlock> block_database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
                 IDatabase<String, LevelDBTransactionWrapper<Transaction>> transaction_database = new DatabaseFactory(String.class, Transaction.class, new TypeToken<LevelDBTransactionWrapper<Transaction>>() {
                 }.getType()).getDatabase(DatabaseType.LEVEL_DB);
-                IDatabase<String, LevelDBTransactionWrapper<Receipt>> receipt_database = new DatabaseFactory(String.class, Receipt.class, new TypeToken<LevelDBTransactionWrapper<Receipt>>() {
+                IDatabase<String, LevelDBReceiptWrapper<Receipt>> receipt_database = new DatabaseFactory(String.class, Receipt.class, new TypeToken<LevelDBReceiptWrapper<Receipt>>() {
                 }.getType()).getDatabase(DatabaseType.LEVEL_DB);
 
                 client = new RpcAdrestusClient(new TransactionBlock(), toConnectTransaction, CachedEventLoop.getInstance().getEventloop());

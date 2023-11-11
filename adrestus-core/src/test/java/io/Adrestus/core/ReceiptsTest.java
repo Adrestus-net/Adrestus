@@ -374,7 +374,7 @@ public class ReceiptsTest {
         IDatabase<String, TransactionBlock> database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.ZONE_0_TRANSACTION_BLOCK);
         IDatabase<String, LevelDBTransactionWrapper<Transaction>> transaction_database = new DatabaseFactory(String.class, Transaction.class, new TypeToken<LevelDBTransactionWrapper<Transaction>>() {
         }.getType()).getDatabase(DatabaseType.LEVEL_DB);
-        IDatabase<String, LevelDBTransactionWrapper<Receipt>> receipt_database = new DatabaseFactory(String.class, Receipt.class, new TypeToken<LevelDBTransactionWrapper<Receipt>>() {
+        IDatabase<String, LevelDBReceiptWrapper<Receipt>> receipt_database = new DatabaseFactory(String.class, Receipt.class, new TypeToken<LevelDBReceiptWrapper<Receipt>>() {
         }.getType()).getDatabase(DatabaseType.LEVEL_DB);
         database.save(String.valueOf(transactionBlock.getHeight()), transactionBlock);
         //  CachedEventLoop.getInstance().setEventloop(Eventloop.create().withCurrentThread());

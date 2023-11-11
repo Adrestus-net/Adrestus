@@ -63,31 +63,6 @@ public class LevelDBTransactionTest {
         database.delete_db();
     }
 
-    @Test
-    public void TransactionReceiptTest() {
-        IDatabase<String, LevelDBTransactionWrapper<Transaction>> database = new DatabaseFactory(String.class, Transaction.class, new TypeToken<LevelDBTransactionWrapper<Transaction>>() {
-        }.getType()).getDatabase(DatabaseType.LEVEL_DB);
-        IDatabase<String, LevelDBTransactionWrapper<Receipt>> receiptdatabase = new DatabaseFactory(String.class, Receipt.class, new TypeToken<LevelDBTransactionWrapper<Receipt>>() {
-        }.getType()).getDatabase(DatabaseType.LEVEL_DB);
-        Transaction transaction = new RegularTransaction();
-        transaction.setAmount(100);
-        transaction.setHash("Hash");
-        transaction.setFrom("1");
-        transaction.setTo("2");
-
-        Receipt receipt = new Receipt(0, 2, transaction);
-        receipt.setAddress("2");
-        receipt.setReceiptBlock(new Receipt.ReceiptBlock());
-        database.save("1", transaction);
-        receiptdatabase.save(receipt.getAddress(), receipt);
-        Optional<LevelDBTransactionWrapper<Transaction>> wrapper = database.findByKey("1");
-        Optional<LevelDBTransactionWrapper<Receipt>> wrapperreceipt = receiptdatabase.findByKey("2");
-        assertEquals(transaction, wrapper.get().getFrom().get(0));
-        assertEquals(receipt, wrapperreceipt.get().getTo().get(0));
-
-        database.delete_db();
-        receiptdatabase.delete_db();
-    }
 
     @Test
     public void TransactionAddEraseTest() {

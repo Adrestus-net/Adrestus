@@ -14,6 +14,8 @@ public class Receipt implements Serializable {
     private int zoneTo;
     private ReceiptBlock receiptBlock;
     private Transaction transaction;
+
+    private String transaction_hash;
     private int position;
     private MerkleProofs proofs;
     private String address;
@@ -28,6 +30,7 @@ public class Receipt implements Serializable {
         this.position = 0;
         this.proofs = new MerkleProofs();
         this.address = "";
+        this.transaction_hash="";
         this.amount = 0.0;
     }
 
@@ -43,6 +46,7 @@ public class Receipt implements Serializable {
         this.zoneTo = zoneTo;
         this.receiptBlock = receiptBlock;
         this.transaction = transaction;
+        this.transaction_hash=transaction.getHash();
         this.position = position;
         this.proofs = proofs;
         this.address = address;
@@ -53,6 +57,7 @@ public class Receipt implements Serializable {
         this.zoneFrom = zoneFrom;
         this.zoneTo = zoneTo;
         this.transaction = transaction;
+        this.transaction_hash=transaction.getHash();
         this.position = position;
         this.proofs = proofs;
         this.address = address;
@@ -64,6 +69,7 @@ public class Receipt implements Serializable {
         this.zoneTo = zoneTo;
         this.proofs = new MerkleProofs();
         this.transaction = new RegularTransaction("");
+        this.transaction_hash= this.transaction.getHash();
         this.position = 0;
         this.address = "";
         this.amount = 0.0;
@@ -73,6 +79,7 @@ public class Receipt implements Serializable {
         this.zoneFrom = zoneFrom;
         this.zoneTo = zoneTo;
         this.transaction = transaction;
+        this.transaction_hash= this.transaction.getHash();
         this.position = 0;
         this.proofs = new MerkleProofs();
         this.address = "";
@@ -93,6 +100,7 @@ public class Receipt implements Serializable {
         this.amount = amount;
         this.receiptBlock = receiptBlock;
         this.transaction = transaction;
+        this.transaction_hash= this.transaction.getHash();
         this.proofs=proofs;
         this.position = position;
     }
@@ -105,6 +113,7 @@ public class Receipt implements Serializable {
         this.address = "";
         this.receiptBlock = receiptBlock;
         this.transaction = transaction;
+        this.transaction_hash= this.transaction.getHash();
         this.proofs=new MerkleProofs();
         this.position = 0;
         this.amount = 0.0;
@@ -120,6 +129,7 @@ public class Receipt implements Serializable {
         this.address = address;
         this.receiptBlock = receiptBlock;
         this.transaction = transaction;
+        this.transaction_hash= this.transaction.getHash();
         this.proofs=new MerkleProofs();
         this.position = 0;
         this.amount = 0.0;
@@ -131,6 +141,7 @@ public class Receipt implements Serializable {
         this.transaction = transaction;
         this.proofs = new MerkleProofs();
         this.transaction = transaction;
+        this.transaction_hash= this.transaction.getHash();
         this.position = 0;
         this.proofs = new MerkleProofs();
         this.address = "";
@@ -212,6 +223,14 @@ public class Receipt implements Serializable {
     }
 
 
+    public String getTransaction_hash() {
+        return transaction_hash;
+    }
+
+    public void setTransaction_hash(String transaction_hash) {
+        this.transaction_hash = transaction_hash;
+    }
+
     public static Receipt merge(Receipt receipt) {
         return new Receipt(
                 receipt.getZoneFrom(),
@@ -224,17 +243,18 @@ public class Receipt implements Serializable {
                 receipt.getAmount());
     }
 
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Receipt receipt = (Receipt) o;
-        return zoneFrom == receipt.zoneFrom && zoneTo == receipt.zoneTo && position == receipt.position && Objects.equal(receiptBlock, receipt.receiptBlock) && Objects.equal(transaction, receipt.transaction) && Objects.equal(proofs, receipt.proofs) && Objects.equal(address, receipt.address) && Objects.equal(amount, receipt.amount);
+        return zoneFrom == receipt.zoneFrom && zoneTo == receipt.zoneTo && position == receipt.position && java.util.Objects.equals(receiptBlock, receipt.receiptBlock) && java.util.Objects.equals(transaction, receipt.transaction) && java.util.Objects.equals(transaction_hash, receipt.transaction_hash) && java.util.Objects.equals(proofs, receipt.proofs) && java.util.Objects.equals(address, receipt.address) && java.util.Objects.equals(amount, receipt.amount);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(zoneFrom, zoneTo, receiptBlock, transaction, position, proofs, address, amount);
+        return java.util.Objects.hash(zoneFrom, zoneTo, receiptBlock, transaction, transaction_hash, position, proofs, address, amount);
     }
 
     @Override
@@ -244,6 +264,7 @@ public class Receipt implements Serializable {
                 ", zoneTo=" + zoneTo +
                 ", receiptBlock=" + receiptBlock +
                 ", transaction=" + transaction +
+                ", transaction_hash='" + transaction_hash + '\'' +
                 ", position=" + position +
                 ", proofs=" + proofs +
                 ", address='" + address + '\'' +

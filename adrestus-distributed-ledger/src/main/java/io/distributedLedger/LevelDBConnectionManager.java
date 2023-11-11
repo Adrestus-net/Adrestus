@@ -130,15 +130,15 @@ public class LevelDBConnectionManager<K, V> implements IDatabase<K, V> {
             } else if (CONNECTION_NAME.contains("ReceiptDatabase")) {
                 final Optional<V> obj = findByKey(key);
                 final String str_key = (String) key;
-                final LevelDBTransactionWrapper<Object> wrapper;
+                final LevelDBReceiptWrapper<Object> wrapper;
                 if (obj == null) {
-                    wrapper = new LevelDBTransactionWrapper();
+                    wrapper = new LevelDBReceiptWrapper();
                     wrapper.addTo(value);
                 } else if (obj.isEmpty()) {
-                    wrapper = new LevelDBTransactionWrapper();
+                    wrapper = new LevelDBReceiptWrapper();
                     wrapper.addTo(value);
                 } else {
-                    wrapper = (LevelDBTransactionWrapper) obj.get();
+                    wrapper = (LevelDBReceiptWrapper) obj.get();
                     wrapper.addTo(value);
                 }
                 byte[] serializedkey = keyMapper.encode(key);

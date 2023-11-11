@@ -394,7 +394,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
         IDatabase<String, LevelDBTransactionWrapper<Transaction>> transaction_database = new DatabaseFactory(String.class, Transaction.class, new TypeToken<LevelDBTransactionWrapper<Transaction>>() {
         }.getType()).getDatabase(DatabaseType.LEVEL_DB);
 
-        IDatabase<String, LevelDBTransactionWrapper<Receipt>> receipt_database = new DatabaseFactory(String.class, Receipt.class, new TypeToken<LevelDBTransactionWrapper<Receipt>>() {
+        IDatabase<String, LevelDBReceiptWrapper<Receipt>> receipt_database = new DatabaseFactory(String.class, Receipt.class, new TypeToken<LevelDBReceiptWrapper<Receipt>>() {
         }.getType()).getDatabase(DatabaseType.LEVEL_DB);
 
         transactionBlock.setStatustype(StatusType.SUCCES);
@@ -425,7 +425,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
                     TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).withdraw(transaction.getFrom(), transaction.getAmount(), TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()));
                     TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).deposit(transaction.getTo(), transaction.getAmount(), TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()));
                 } else {
-                    TreeFactory.getMemoryTree(transaction.getZoneFrom()).withdraw(transaction.getFrom(), transaction.getAmount(), TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()));
+                    TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).withdraw(transaction.getFrom(), transaction.getAmount(), TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()));
                 }
             }
         }
