@@ -107,7 +107,7 @@ public class BindServerReceiptTask extends AdrestusTask {
 
                 publisher.publish(receiptBlock1);
             } catch (Exception e) {
-
+                   e.printStackTrace();
             }
             finally {
                 if (client != null) {
