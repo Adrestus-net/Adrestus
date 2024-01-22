@@ -6,10 +6,10 @@
     <version>1.0-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>adrestus-crypto</artifactId>
-  <name>adrestus-crypto</name>
+  <artifactId>adrestus-bloom-filter</artifactId>
+  <name>adrestus-bloom-filter</name>
   <version>1.0-SNAPSHOT</version>
-  <url>http://www.example.com</url>
+  <url>http://maven.apache.org</url>
   <build>
     <resources>
       <resource>
@@ -35,7 +35,7 @@
         <configuration>
           <archive>
             <manifest>
-              <mainClass>io.Adrestus.crypto.Example.App</mainClass>
+              <mainClass>io.Adrestus.bloom_filter.Creation</mainClass>
             </manifest>
           </archive>
           <descriptorRefs>
@@ -50,7 +50,7 @@
           <archive>
             <index>true</index>
             <manifest>
-              <mainClass>io.Adrestus.crypto.Example.App</mainClass>
+              <mainClass>io.Adrestus.bloom_filter.Creation</mainClass>
             </manifest>
           </archive>
         </configuration>
@@ -104,8 +104,8 @@
               </filters>
               <relocations>
                 <relocation>
-                  <pattern>io.Adrestus.crypto</pattern>
-                  <shadedPattern>io.Adrestus.crypto</shadedPattern>
+                  <pattern>io.Adrestus.bloom_filter</pattern>
+                  <shadedPattern>io.Adrestus.bloom_filter</shadedPattern>
                 </relocation>
               </relocations>
             </configuration>
@@ -122,6 +122,12 @@
     </plugins>
   </build>
   <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>3.8.1</version>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>org.awaitility</groupId>
       <artifactId>awaitility</artifactId>
@@ -142,17 +148,10 @@
     </dependency>
   </dependencies>
   <properties>
-    <milagro.version>0.4.0</milagro.version>
-    <util.version>1.0-SNAPSHOT</util.version>
+    <json.version>20231013</json.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <http.components>5.2.1</http.components>
-    <jna.version>5.12.1</jna.version>
-    <codec.version>1.15</codec.version>
-    <bcprov.version>1.70</bcprov.version>
-    <maven.compiler.source>1.7</maven.compiler.source>
-    <config.version>1.0-SNAPSHOT</config.version>
-    <spongycastle.version>1.58.0.0</spongycastle.version>
-    <maven.compiler.target>1.7</maven.compiler.target>
-    <jnr.version>2.2.12</jnr.version>
+    <crypto.version>1.0-SNAPSHOT</crypto.version>
+    <fastjson2.version>2.0.45</fastjson2.version>
+    <lz4.version>1.8.0</lz4.version>
   </properties>
 </project>

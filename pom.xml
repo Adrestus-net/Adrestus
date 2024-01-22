@@ -81,6 +81,7 @@
         <module>adrestus-distributed-ledger</module>
         <module>adrestus-trie</module>
         <module>adrestus-api</module>
+        <module>adrestus-bloom-filter</module>
     </modules>
     <distributionManagement>
         <repository>
