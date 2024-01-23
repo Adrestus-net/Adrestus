@@ -9,9 +9,12 @@ public class BloomObject {
 
     private int numBitsRequired;
 
+    public BloomObject() {
+    }
+
     public BloomObject(int[] array, int hashFunctionNum, int numBitsRequired) {
         this.array = array;
-        HashFunctionNum = hashFunctionNum;
+        this.HashFunctionNum = hashFunctionNum;
         this.numBitsRequired = numBitsRequired;
     }
 

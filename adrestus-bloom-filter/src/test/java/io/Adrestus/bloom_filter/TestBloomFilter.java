@@ -11,6 +11,7 @@ import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -67,6 +68,7 @@ public class TestBloomFilter {
         String Adress1="ADR-GBIV-HG2J-27P5-BNVN-MLN6-DL5V-M3YZ-PKEJ-CFFG-FK4L";
         filter1.add(Adress1);
 
+        String get= Arrays.toString(filter1.toBitsetArray());
         BloomObject bloomObject=new BloomObject(filter1.toBitsetArray(),filter1.getNumberOfHashFunctions(),filter1.getNumberOfBits());
         JSONObject jsonObject = new JSONObject(bloomObject);
         String myJson = jsonObject.toString();
