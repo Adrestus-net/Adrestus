@@ -4,14 +4,19 @@ import com.google.common.base.Objects;
 import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.Trie.optimize64_trie.MerklePatriciaTrie;
 import io.Adrestus.util.bytes.Bytes;
+import io.Adrestus.util.bytes.Bytes53;
 import io.activej.serializer.annotations.Serialize;
 import io.vavr.control.Option;
 import lombok.SneakyThrows;
+import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.SerializationUtils;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.stream.Collectors;
 
 public class MemoryTreePool implements IMemoryTreePool, Cloneable {
 
@@ -194,6 +199,25 @@ public class MemoryTreePool implements IMemoryTreePool, Cloneable {
         return patriciaTreeImp;
     }
 
+    @Override
+    public Set<String> Keyset(final Bytes53 startKeyHash, final int limit) {
+        w.lock();
+        try {
+            return patriciaTreeImp.entriesFrom(startKeyHash, limit)
+                    .keySet()
+                    .stream()
+                    .map(val -> {
+                        try {
+                            return new String(Hex.decodeHex(val.toString().substring(2)), StandardCharsets.UTF_8);
+                        } catch (DecoderException e) {
+                            e.printStackTrace();
+                            return "";
+                        }
+                    }).collect(Collectors.toSet());
+        } finally {
+            w.unlock();
+        }
+    }
 
     public SerializableFunction<PatriciaTreeNode, Bytes> getValueSerializer() {
         return valueSerializer;

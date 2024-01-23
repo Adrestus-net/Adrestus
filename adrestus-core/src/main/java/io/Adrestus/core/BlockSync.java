@@ -76,10 +76,9 @@ public class BlockSync implements IBlockSync {
                 client.connect();
                 try {
                     if (last_block.isPresent()) {
-                        if(last_block.get().getHeight()>1){
-                            blocks = client.getBlocksList(String.valueOf(last_block.get().getHeight()-1));
-                        }
-                        else {
+                        if (last_block.get().getHeight() > 1) {
+                            blocks = client.getBlocksList(String.valueOf(last_block.get().getHeight() - 1));
+                        } else {
                             blocks = client.getBlocksList(String.valueOf(last_block.get().getHeight()));
                         }
                         if (!blocks.isEmpty() && blocks.size() > 1) {
@@ -159,8 +158,8 @@ public class BlockSync implements IBlockSync {
                     transactionBlocks = client.getBlocksList(String.valueOf(block.get().getHeight()));
                     if (!transactionBlocks.isEmpty() && transactionBlocks.size() > 1) {
                         transactionBlocks.stream().skip(1).forEach(val -> {
-                            Integer []receipts_array=val.getInbound().getMap_receipts().keySet().toArray(new Integer[0]);
-                            if(receipts_array.length>0) {
+                            Integer[] receipts_array = val.getInbound().getMap_receipts().keySet().toArray(new Integer[0]);
+                            if (receipts_array.length > 0) {
                                 val
                                         .getInbound()
                                         .getMap_receipts()
@@ -186,8 +185,8 @@ public class BlockSync implements IBlockSync {
                     transactionBlocks = client.getBlocksList("");
                     if (!transactionBlocks.isEmpty()) {
                         transactionBlocks.stream().forEach(val -> {
-                            Integer []receipts_array=val.getInbound().getMap_receipts().keySet().toArray(new Integer[0]);
-                            if(receipts_array.length>0) {
+                            Integer[] receipts_array = val.getInbound().getMap_receipts().keySet().toArray(new Integer[0]);
+                            if (receipts_array.length > 0) {
                                 val
                                         .getInbound()
                                         .getMap_receipts()
@@ -345,8 +344,8 @@ public class BlockSync implements IBlockSync {
                                 patriciaRootList = new ArrayList<>(blocks.stream().filter(val -> val.getGeneration() > CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration()).map(TransactionBlock::getHeight).collect(Collectors.toList()));
                                 blocks.removeIf(x -> x.getGeneration() > CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration());
                                 blocks.stream().skip(1).forEach(val -> {
-                                    Integer []receipts_array=val.getInbound().getMap_receipts().keySet().toArray(new Integer[0]);
-                                    if(receipts_array.length>0) {
+                                    Integer[] receipts_array = val.getInbound().getMap_receipts().keySet().toArray(new Integer[0]);
+                                    if (receipts_array.length > 0) {
                                         val
                                                 .getInbound()
                                                 .getMap_receipts()
@@ -374,8 +373,8 @@ public class BlockSync implements IBlockSync {
                                 patriciaRootList = new ArrayList<>(blocks.stream().filter(val -> val.getGeneration() > CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration()).map(TransactionBlock::getHeight).collect(Collectors.toList()));
                                 blocks.removeIf(x -> x.getGeneration() > CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration());
                                 blocks.stream().forEach(val -> {
-                                    Integer []receipts_array=val.getInbound().getMap_receipts().keySet().toArray(new Integer[0]);
-                                    if(receipts_array.length>0) {
+                                    Integer[] receipts_array = val.getInbound().getMap_receipts().keySet().toArray(new Integer[0]);
+                                    if (receipts_array.length > 0) {
                                         val
                                                 .getInbound()
                                                 .getMap_receipts()
@@ -610,8 +609,8 @@ public class BlockSync implements IBlockSync {
                         patriciaRootList = new ArrayList<>(blocks.stream().filter(val -> val.getGeneration() > CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration()).map(TransactionBlock::getHeight).collect(Collectors.toList()));
                         blocks.removeIf(x -> x.getGeneration() > CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration());
                         blocks.stream().skip(1).forEach(val -> {
-                            Integer []receipts_array=val.getInbound().getMap_receipts().keySet().toArray(new Integer[0]);
-                            if(receipts_array.length>0) {
+                            Integer[] receipts_array = val.getInbound().getMap_receipts().keySet().toArray(new Integer[0]);
+                            if (receipts_array.length > 0) {
                                 val
                                         .getInbound()
                                         .getMap_receipts()
@@ -639,8 +638,8 @@ public class BlockSync implements IBlockSync {
                         patriciaRootList = new ArrayList<>(blocks.stream().filter(val -> val.getGeneration() > CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration()).map(TransactionBlock::getHeight).collect(Collectors.toList()));
                         blocks.removeIf(x -> x.getGeneration() > CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration());
                         blocks.stream().forEach(val -> {
-                            Integer []receipts_array=val.getInbound().getMap_receipts().keySet().toArray(new Integer[0]);
-                            if(receipts_array.length>0) {
+                            Integer[] receipts_array = val.getInbound().getMap_receipts().keySet().toArray(new Integer[0]);
+                            if (receipts_array.length > 0) {
                                 val
                                         .getInbound()
                                         .getMap_receipts()

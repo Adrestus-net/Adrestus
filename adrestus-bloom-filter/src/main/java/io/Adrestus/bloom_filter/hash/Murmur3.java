@@ -7,7 +7,7 @@ import java.nio.ByteOrder;
 /**
  * A pure Java implementation of the Murmur 3 hashing algorithm as presented
  * at <a href="https://sites.google.com/site/murmurhash/">Murmur Project</a>
- *
+ * <p>
  * Code is ported from original C++ source at
  * <a href="https://code.google.com/p/smhasher/source/browse/trunk/MurmurHash3.cpp">
  * MurmurHash3.cpp</a>
@@ -28,15 +28,9 @@ public class Murmur3 implements MurmurConstants {
     /**
      * Compute the Murmur3 hash as described in the original source code.
      *
-     * @param data
-     *            the data that needs to be hashed
-     *
-     * @param length
-     *            the length of the data that needs to be hashed
-     *
-     * @param seed
-     *            the seed to use to compute the hash
-     *
+     * @param data   the data that needs to be hashed
+     * @param length the length of the data that needs to be hashed
+     * @param seed   the seed to use to compute the hash
      * @return the computed hash value
      */
     public static long hash_x86_32(final byte[] data, int length, long seed) {
@@ -45,7 +39,7 @@ public class Murmur3 implements MurmurConstants {
 
         //----------
         // body
-        for(int i = 0; i < nblocks; i++) {
+        for (int i = 0; i < nblocks; i++) {
             final int i4 = i << 2;
 
             long k1 = (data[i4] & UNSIGNED_MASK);
@@ -60,7 +54,7 @@ public class Murmur3 implements MurmurConstants {
             k1 = (k1 * X86_32_C2) & UINT_MASK;
 
             hash ^= k1;
-            hash = rotl32(hash,13);
+            hash = rotl32(hash, 13);
             hash = (((hash * 5) & UINT_MASK) + 0xe6546b64l) & UINT_MASK;
         }
 
@@ -98,15 +92,9 @@ public class Murmur3 implements MurmurConstants {
     /**
      * Compute the Murmur3 hash (128-bit version) as described in the original source code.
      *
-     * @param data
-     *            the data that needs to be hashed
-     *
-     * @param length
-     *            the length of the data that needs to be hashed
-     *
-     * @param seed
-     *            the seed to use to compute the hash
-     *
+     * @param data   the data that needs to be hashed
+     * @param length the length of the data that needs to be hashed
+     * @param seed   the seed to use to compute the hash
      * @return the computed hash value
      */
     public static long[] hash_x64_128(final byte[] data, final int length, final long seed) {
@@ -116,7 +104,7 @@ public class Murmur3 implements MurmurConstants {
         ByteBuffer buffer = ByteBuffer.wrap(data);
         buffer.order(ByteOrder.LITTLE_ENDIAN);
 
-        while(buffer.remaining() >= 16) {
+        while (buffer.remaining() >= 16) {
             long k1 = buffer.getLong();
             long k2 = buffer.getLong();
 
@@ -143,7 +131,7 @@ public class Murmur3 implements MurmurConstants {
         buffer.flip();
 
         final int remaining = buffer.remaining();
-        if(remaining > 0) {
+        if (remaining > 0) {
             long k1 = 0;
             long k2 = 0;
             switch (buffer.remaining()) {
@@ -218,7 +206,7 @@ public class Murmur3 implements MurmurConstants {
         h1 += h2;
         h2 += h1;
 
-        return (new long[] { h1, h2 });
+        return (new long[]{h1, h2});
     }
 
     private static long mixK1(long k1) {
@@ -231,7 +219,7 @@ public class Murmur3 implements MurmurConstants {
 
     private static long mixK2(long k2) {
         k2 *= X64_128_C2;
-        k2 = Long.rotateLeft(k2,  33);
+        k2 = Long.rotateLeft(k2, 33);
         k2 *= X64_128_C1;
 
         return k2;

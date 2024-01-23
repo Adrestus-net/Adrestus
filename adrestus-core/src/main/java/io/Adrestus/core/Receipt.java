@@ -30,7 +30,7 @@ public class Receipt implements Serializable {
         this.position = 0;
         this.proofs = new MerkleProofs();
         this.address = "";
-        this.transaction_hash="";
+        this.transaction_hash = "";
         this.amount = 0.0;
     }
 
@@ -46,7 +46,7 @@ public class Receipt implements Serializable {
         this.zoneTo = zoneTo;
         this.receiptBlock = receiptBlock;
         this.transaction = transaction;
-        this.transaction_hash=transaction.getHash();
+        this.transaction_hash = transaction.getHash();
         this.position = position;
         this.proofs = proofs;
         this.address = address;
@@ -57,7 +57,7 @@ public class Receipt implements Serializable {
         this.zoneFrom = zoneFrom;
         this.zoneTo = zoneTo;
         this.transaction = transaction;
-        this.transaction_hash=transaction.getHash();
+        this.transaction_hash = transaction.getHash();
         this.position = position;
         this.proofs = proofs;
         this.address = address;
@@ -69,7 +69,7 @@ public class Receipt implements Serializable {
         this.zoneTo = zoneTo;
         this.proofs = new MerkleProofs();
         this.transaction = new RegularTransaction("");
-        this.transaction_hash= this.transaction.getHash();
+        this.transaction_hash = this.transaction.getHash();
         this.position = 0;
         this.address = "";
         this.amount = 0.0;
@@ -79,7 +79,7 @@ public class Receipt implements Serializable {
         this.zoneFrom = zoneFrom;
         this.zoneTo = zoneTo;
         this.transaction = transaction;
-        this.transaction_hash= this.transaction.getHash();
+        this.transaction_hash = this.transaction.getHash();
         this.position = 0;
         this.proofs = new MerkleProofs();
         this.address = "";
@@ -92,18 +92,19 @@ public class Receipt implements Serializable {
                    @Deserialize("amount") Double amount,
                    @Deserialize("receiptBlock") ReceiptBlock receiptBlock,
                    @Deserialize("transaction") Transaction transaction,
-                   @Deserialize("proofs")MerkleProofs proofs,
-                   @Deserialize("position")int position) {
+                   @Deserialize("proofs") MerkleProofs proofs,
+                   @Deserialize("position") int position) {
         this.zoneFrom = zoneFrom;
         this.zoneTo = zoneTo;
         this.address = address;
         this.amount = amount;
         this.receiptBlock = receiptBlock;
         this.transaction = transaction;
-        this.transaction_hash= this.transaction.getHash();
-        this.proofs=proofs;
+        this.transaction_hash = this.transaction.getHash();
+        this.proofs = proofs;
         this.position = position;
     }
+
     public Receipt(int zoneFrom,
                    int zoneTo,
                    ReceiptBlock receiptBlock,
@@ -113,14 +114,14 @@ public class Receipt implements Serializable {
         this.address = "";
         this.receiptBlock = receiptBlock;
         this.transaction = transaction;
-        this.transaction_hash= this.transaction.getHash();
-        this.proofs=new MerkleProofs();
+        this.transaction_hash = this.transaction.getHash();
+        this.proofs = new MerkleProofs();
         this.position = 0;
         this.amount = 0.0;
     }
 
     public Receipt(int zoneFrom,
-                  int zoneTo,
+                   int zoneTo,
                    String address,
                    ReceiptBlock receiptBlock,
                    Transaction transaction) {
@@ -129,8 +130,8 @@ public class Receipt implements Serializable {
         this.address = address;
         this.receiptBlock = receiptBlock;
         this.transaction = transaction;
-        this.transaction_hash= this.transaction.getHash();
-        this.proofs=new MerkleProofs();
+        this.transaction_hash = this.transaction.getHash();
+        this.proofs = new MerkleProofs();
         this.position = 0;
         this.amount = 0.0;
     }
@@ -141,7 +142,7 @@ public class Receipt implements Serializable {
         this.transaction = transaction;
         this.proofs = new MerkleProofs();
         this.transaction = transaction;
-        this.transaction_hash= this.transaction.getHash();
+        this.transaction_hash = this.transaction.getHash();
         this.position = 0;
         this.proofs = new MerkleProofs();
         this.address = "";

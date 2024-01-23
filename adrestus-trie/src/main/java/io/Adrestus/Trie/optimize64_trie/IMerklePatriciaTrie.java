@@ -17,6 +17,7 @@ package io.Adrestus.Trie.optimize64_trie;
 import io.Adrestus.util.RLP;
 import io.Adrestus.util.bytes.Bytes;
 import io.Adrestus.util.bytes.Bytes32;
+import io.Adrestus.util.bytes.Bytes53;
 import io.activej.serializer.annotations.Serialize;
 import io.vavr.control.Option;
 
@@ -124,7 +125,7 @@ public interface IMerklePatriciaTrie<K, V> extends Serializable {
      * @param limit        the maximum number of entries to return.
      * @return the requested storage entries as a map of key hash to value.
      */
-    Map<Bytes32, V> entriesFrom(Bytes32 startKeyHash, int limit);
+    Map<Bytes53, V> entriesFrom(Bytes53 startKeyHash, int limit);
 
     /**
      * Retrieve entries using a custom collector
@@ -132,7 +133,7 @@ public interface IMerklePatriciaTrie<K, V> extends Serializable {
      * @param handler a custom trie collector.
      * @return the requested storage entries as a map of key hash to value.
      */
-    Map<Bytes32, V> entriesFrom(final Function<Node<V>, Map<Bytes32, V>> handler);
+    Map<Bytes53, V> entriesFrom(final Function<Node<V>, Map<Bytes53, V>> handler);
 
     void visitAll(Consumer<Node<V>> nodeConsumer);
 

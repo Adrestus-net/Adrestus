@@ -5,7 +5,10 @@ import io.Adrestus.core.Receipt;
 import io.Adrestus.core.ReceiptBlock;
 import io.Adrestus.core.RingBuffer.event.ReceiptBlockEvent;
 import io.Adrestus.core.StatusType;
-import io.distributedLedger.*;
+import io.distributedLedger.DatabaseFactory;
+import io.distributedLedger.DatabaseType;
+import io.distributedLedger.IDatabase;
+import io.distributedLedger.LevelDBReceiptWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

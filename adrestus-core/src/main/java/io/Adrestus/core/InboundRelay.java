@@ -36,18 +36,18 @@ public class InboundRelay implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         InboundRelay that = (InboundRelay) o;
-        boolean keys=Objects.equal(map_receipts.keySet(), that.map_receipts.keySet() );
-        boolean values=linkedEquals(map_receipts.values(),that.map_receipts.values());
+        boolean keys = Objects.equal(map_receipts.keySet(), that.map_receipts.keySet());
+        boolean values = linkedEquals(map_receipts.values(), that.map_receipts.values());
         return keys && values;
     }
 
     public static boolean linkedEquals(Collection<LinkedHashMap<Receipt.ReceiptBlock, List<Receipt>>> left, Collection<LinkedHashMap<Receipt.ReceiptBlock, List<Receipt>>> right) {
-        if(left.size()!= right.size())
+        if (left.size() != right.size())
             return false;
 
         List<LinkedHashMap<Receipt.ReceiptBlock, List<Receipt>>> left_list = new ArrayList(left);
         List<LinkedHashMap<Receipt.ReceiptBlock, List<Receipt>>> right_list = new ArrayList(right);
-        for(int i=0;i<left_list.size();i++) {
+        for (int i = 0; i < left_list.size(); i++) {
             Iterator<Map.Entry<Receipt.ReceiptBlock, List<Receipt>>> leftItr = left_list.get(i).entrySet().iterator();
             Iterator<Map.Entry<Receipt.ReceiptBlock, List<Receipt>>> rightItr = right_list.get(i).entrySet().iterator();
 
@@ -63,6 +63,7 @@ public class InboundRelay implements Serializable {
         }
         return true;
     }
+
     @Override
     public int hashCode() {
         return Objects.hashCode(map_receipts);

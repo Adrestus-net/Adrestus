@@ -94,8 +94,8 @@ public class LevelDBReceiptWrapper<T> implements Serializable {
         @SneakyThrows
         @Override
         public int compare(T o1, T o2) {
-            Method m1= Arrays.stream(o1.getClass().getMethods()).filter(val->val.getName().equals("getTransaction_hash")).findFirst().get();
-            Method m2= Arrays.stream(o2.getClass().getMethods()).filter(val->val.getName().equals("getTransaction_hash")).findFirst().get();
+            Method m1 = Arrays.stream(o1.getClass().getMethods()).filter(val -> val.getName().equals("getTransaction_hash")).findFirst().get();
+            Method m2 = Arrays.stream(o2.getClass().getMethods()).filter(val -> val.getName().equals("getTransaction_hash")).findFirst().get();
             return ((String) m1.invoke(o1)).compareTo((String) m2.invoke(o2));
         }
     }

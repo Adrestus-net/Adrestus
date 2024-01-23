@@ -1,11 +1,6 @@
 package io.Adrestus.core;
 
 import com.google.common.base.Objects;
-import com.google.common.base.Predicates;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.MapDifference;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import io.activej.serializer.annotations.Deserialize;
 import io.activej.serializer.annotations.Serialize;
 
@@ -38,25 +33,24 @@ public class OutBoundRelay implements Serializable {
     }
 
 
-
     //NEVER DELETE THIS FUNCTION ELSE BLOCK HASH EVENT HANDLER WILL HAVE PROBLEM IS EQUALS FUNCTIONALITY
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         OutBoundRelay that = (OutBoundRelay) o;
-        boolean keys=Objects.equal(map_receipts.keySet(), that.map_receipts.keySet() );
-        boolean values=linkedEquals(map_receipts.values(),that.map_receipts.values());
+        boolean keys = Objects.equal(map_receipts.keySet(), that.map_receipts.keySet());
+        boolean values = linkedEquals(map_receipts.values(), that.map_receipts.values());
         return keys && values;
     }
 
     public static boolean linkedEquals(Collection<LinkedHashMap<Receipt.ReceiptBlock, List<Receipt>>> left, Collection<LinkedHashMap<Receipt.ReceiptBlock, List<Receipt>>> right) {
-        if(left.size()!= right.size())
+        if (left.size() != right.size())
             return false;
 
         List<LinkedHashMap<Receipt.ReceiptBlock, List<Receipt>>> left_list = new ArrayList(left);
         List<LinkedHashMap<Receipt.ReceiptBlock, List<Receipt>>> right_list = new ArrayList(right);
-        for(int i=0;i<left_list.size();i++) {
+        for (int i = 0; i < left_list.size(); i++) {
             Iterator<Map.Entry<Receipt.ReceiptBlock, List<Receipt>>> leftItr = left_list.get(i).entrySet().iterator();
             Iterator<Map.Entry<Receipt.ReceiptBlock, List<Receipt>>> rightItr = right_list.get(i).entrySet().iterator();
 
@@ -72,6 +66,7 @@ public class OutBoundRelay implements Serializable {
         }
         return true;
     }
+
     @Override
     public int hashCode() {
         return Objects.hashCode(map_receipts);

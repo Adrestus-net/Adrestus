@@ -225,7 +225,7 @@ public class ReceiptPublisherTest {
             MerkleNode node = new MerkleNode(transaction.getHash());
             tree.build_proofs2(merkleNodeArrayList, node);
             if (CachedZoneIndex.getInstance().getZoneIndex() == transaction.getZoneTo()) {
-                Receipt receipt = new Receipt(transaction.getZoneFrom(), transaction.getZoneTo(),transaction.getTo(),transaction.getAmount(), receiptBlock, (Transaction) transaction.clone(),tree.getMerkleeproofs(),index1);
+                Receipt receipt = new Receipt(transaction.getZoneFrom(), transaction.getZoneTo(), transaction.getTo(), transaction.getAmount(), receiptBlock, (Transaction) transaction.clone(), tree.getMerkleeproofs(), index1);
 
                 RpcAdrestusClient<TransactionBlock> client = new RpcAdrestusClient<TransactionBlock>(new TransactionBlock(), "localhost", ZoneDatabaseFactory.getDatabaseRPCPort(CachedZoneIndex.getInstance().getZoneIndex()), 400, CachedEventLoop.getInstance().getEventloop());
                 client.connect();
@@ -236,7 +236,7 @@ public class ReceiptPublisherTest {
                 int index = Collections.binarySearch(currentblock.get(currentblock.size() - 1).getTransactionList(), receipt.getTransaction());
                 Transaction trx = currentblock.get(currentblock.size() - 1).getTransactionList().get(index);
 
-                ReceiptBlock receiptBlock1 = new ReceiptBlock(StatusType.PENDING, receipt, currentblock.get(currentblock.size()-1), trx);
+                ReceiptBlock receiptBlock1 = new ReceiptBlock(StatusType.PENDING, receipt, currentblock.get(currentblock.size() - 1), trx);
 
 
                 publisher.publish(receiptBlock1);

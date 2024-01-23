@@ -4,7 +4,6 @@ import io.Adrestus.config.SocketConfigOptions;
 import io.Adrestus.core.*;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedReceiptSemaphore;
-import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.core.RingBuffer.publisher.ReceiptEventPublisher;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.network.CachedEventLoop;
@@ -107,12 +106,11 @@ public class BindServerReceiptTask extends AdrestusTask {
 
                 publisher.publish(receiptBlock1);
             } catch (Exception e) {
-                   e.printStackTrace();
-            }
-            finally {
+                e.printStackTrace();
+            } finally {
                 if (client != null) {
                     client.close();
-                    client=null;
+                    client = null;
                 }
                 CachedReceiptSemaphore.getInstance().getSemaphore().release();
                 return "";

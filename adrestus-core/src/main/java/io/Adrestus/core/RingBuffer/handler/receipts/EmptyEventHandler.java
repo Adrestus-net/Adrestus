@@ -13,12 +13,12 @@ public class EmptyEventHandler implements ReceiptEventHandler<ReceiptBlockEvent>
     @Override
     public void onEvent(ReceiptBlockEvent receiptBlockEvent, long l, boolean b) throws InterruptedException {
         ReceiptBlock receiptBlock = receiptBlockEvent.getReceiptBlock();
-        if(receiptBlock.getReceipt().getReceiptBlock()==null){
+        if (receiptBlock.getReceipt().getReceiptBlock() == null) {
             LOG.info("Receipt Block is null abort");
             receiptBlockEvent.getReceiptBlock().setStatusType(StatusType.ABORT);
             return;
         }
-        if(receiptBlock.getReceipt().getReceiptBlock().getBlock_hash().equals("")){
+        if (receiptBlock.getReceipt().getReceiptBlock().getBlock_hash().equals("")) {
             LOG.info("Receipt Block is empty abort");
             receiptBlockEvent.getReceiptBlock().setStatusType(StatusType.ABORT);
             return;

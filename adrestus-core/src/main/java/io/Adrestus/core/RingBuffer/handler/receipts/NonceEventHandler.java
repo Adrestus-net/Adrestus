@@ -14,7 +14,7 @@ public class NonceEventHandler implements ReceiptEventHandler<ReceiptBlockEvent>
     public void onEvent(ReceiptBlockEvent receiptBlockEvent, long l, boolean b) throws InterruptedException {
         ReceiptBlock receiptBlock = receiptBlockEvent.getReceiptBlock();
         int res = Integer.compare(receiptBlock.getTransaction().getNonce(), receiptBlock.getReceipt().getTransaction().getNonce());
-        if (res!=0) {
+        if (res != 0) {
             LOG.info("Nonce is not valid with abort");
             receiptBlockEvent.getReceiptBlock().setStatusType(StatusType.ABORT);
             return;

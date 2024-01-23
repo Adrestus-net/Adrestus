@@ -1,13 +1,12 @@
 package io.Adrestus.bloom_filter.hash;
 
-import io.Adrestus.bloom_filter.Util.UtilBloomFilter;
-import io.Adrestus.crypto.HashUtil;
 import net.jpountz.xxhash.XXHash64;
 import net.jpountz.xxhash.XXHashFactory;
 
 public class XXXHashFunction implements HashFunction {
 
     private static final long SEED = 0x12345678;
+
     @Override
     public boolean isSingleValued() {
         return false;

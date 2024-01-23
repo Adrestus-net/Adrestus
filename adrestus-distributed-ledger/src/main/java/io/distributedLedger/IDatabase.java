@@ -1,9 +1,12 @@
 package io.distributedLedger;
 
+import io.distributedLedger.exception.FindFailedException;
+
 import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.TreeSet;
 
 public interface IDatabase<K, V> {
 
@@ -28,6 +31,8 @@ public interface IDatabase<K, V> {
      * @return Optional of entity.
      */
     Optional<V> findByKey(K key);
+
+    TreeSet<K> retrieveAllKeys() throws FindFailedException;
 
     List<V> findByListKey(List<K> key);
 

@@ -16,6 +16,7 @@ package io.Adrestus.Trie.optimize64_trie;
 
 import io.Adrestus.util.bytes.Bytes;
 import io.Adrestus.util.bytes.Bytes32;
+import io.Adrestus.util.bytes.Bytes53;
 import io.activej.serializer.annotations.Serialize;
 import io.vavr.control.Option;
 
@@ -154,12 +155,12 @@ public class MerklePatriciaTrie<K extends Bytes, V> implements IMerklePatriciaTr
     }
 
     @Override
-    public Map<Bytes32, V> entriesFrom(final Bytes32 startKeyHash, final int limit) {
+    public Map<Bytes53, V> entriesFrom(final Bytes53 startKeyHash, final int limit) {
         return StorageEntriesCollector.collectEntries(root, startKeyHash, limit);
     }
 
     @Override
-    public Map<Bytes32, V> entriesFrom(final Function<Node<V>, Map<Bytes32, V>> handler) {
+    public Map<Bytes53, V> entriesFrom(final Function<Node<V>, Map<Bytes53, V>> handler) {
         return handler.apply(root);
     }
 

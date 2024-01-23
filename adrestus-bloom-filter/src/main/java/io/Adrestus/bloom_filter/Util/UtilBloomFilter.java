@@ -22,10 +22,10 @@ public class UtilBloomFilter {
         int[] temp = new int[bs.size()];
 
         for (int i = 0; i < temp.length; i++)
-            if(bs.get(i))
-                temp[i]=1;
+            if (bs.get(i))
+                temp[i] = 1;
             else
-                temp[i]=0;
+                temp[i] = 0;
 
         return temp;
     }

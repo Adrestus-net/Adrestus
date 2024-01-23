@@ -57,7 +57,7 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
         this.rwl = new ReentrantReadWriteLock();
         this.r = rwl.readLock();
         this.w = rwl.writeLock();
-        String path= Paths.get(Directory.getConfigPath(), CONNECTION_NAME).toString();
+        String path = Paths.get(Directory.getConfigPath(), CONNECTION_NAME).toString();
         this.dbFile = new File(path);
         this.valueClass = valueClass;
         this.keyClass = keyClass;
@@ -83,7 +83,7 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
         this.r = rwl.readLock();
         this.w = rwl.writeLock();
         this.CONNECTION_NAME = databaseInstance.getTitle();
-        String path= Paths.get(Directory.getConfigPath(), CONNECTION_NAME).toString();
+        String path = Paths.get(Directory.getConfigPath(), CONNECTION_NAME).toString();
         this.dbFile = new File(path);
         this.valueClass = valueClass;
         this.keyClass = keyClass;
@@ -108,7 +108,7 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
         this.r = rwl.readLock();
         this.w = rwl.writeLock();
         this.CONNECTION_NAME = patriciaTreeInstance.getTitle();
-        String path= Paths.get(Directory.getConfigPath(), CONNECTION_NAME).toString();
+        String path = Paths.get(Directory.getConfigPath(), CONNECTION_NAME).toString();
         this.dbFile = new File(path);
         this.valueClass = valueClass;
         this.keyClass = keyClass;
@@ -176,7 +176,7 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
     @Override
     public synchronized void load_connection() {
         w.lock();
-        String path= Paths.get(Directory.getConfigPath(), CONNECTION_NAME).toString();
+        String path = Paths.get(Directory.getConfigPath(), CONNECTION_NAME).toString();
         this.dbFile = new File(path);
         try {
             Files.createDirectories(dbFile.getParentFile().toPath());
@@ -269,6 +269,28 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
             r.unlock();
         }
         return Optional.empty();
+    }
+
+    @Override
+    public TreeSet<K> retrieveAllKeys() throws FindFailedException {
+        r.lock();
+        TreeSet<K> hashSet = new TreeSet<>();
+        try {
+            final RocksIterator iterator = rocksDB.newIterator();
+            iterator.seekToFirst();
+            do {
+                byte[] serializedKey = iterator.key();
+                hashSet.add((K) keyMapper.decode(serializedKey));
+                iterator.next();
+            } while (iterator.isValid());
+        } catch (final NullPointerException exception) {
+            LOGGER.info("Key value not exists in Database return empty");
+        } catch (final SerializationException exception) {
+            LOGGER.error("Serialization exception occurred during findByKey operation. {}", exception.getMessage());
+        } finally {
+            r.unlock();
+        }
+        return hashSet;
     }
 
     @SneakyThrows

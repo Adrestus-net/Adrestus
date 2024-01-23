@@ -86,21 +86,22 @@ public class HashUtil {
      * @param data - data for hashing
      * @return - sha1 hash of the data
      */
-    public static long sha1ToLong(byte[] data){
-        return Hashing.sha1().hashBytes( data).asLong();
+    public static long sha1ToLong(byte[] data) {
+        return Hashing.sha1().hashBytes(data).asLong();
     }
 
     /**
      * @param data - data for hashing
      * @return - sha1 hash of the data
      */
-    public static byte[] sha1ToBytes(byte[] data){
-        return Hashing.sha1().hashBytes( data).asBytes();
+    public static byte[] sha1ToBytes(byte[] data) {
+        return Hashing.sha1().hashBytes(data).asBytes();
     }
 
-    public static long md5ToLong(byte[] data){
-        return Hashing.md5().hashBytes( data).asLong();
+    public static long md5ToLong(byte[] data) {
+        return Hashing.md5().hashBytes(data).asLong();
     }
+
     public static byte[] sha256(byte[] input) {
         try {
             MessageDigest sha256digest = MessageDigest.getInstance(HASH_256_ALGORITHM_NAME);

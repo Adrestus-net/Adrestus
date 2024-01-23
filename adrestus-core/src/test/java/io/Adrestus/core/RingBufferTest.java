@@ -1,6 +1,5 @@
 package io.Adrestus.core;
 
-import io.Adrestus.core.RingBuffer.handler.transactions.SignatureEventHandler;
 import io.Adrestus.core.RingBuffer.publisher.BlockEventPublisher;
 import io.Adrestus.core.RingBuffer.publisher.TransactionEventPublisher;
 import io.Adrestus.crypto.HashUtil;
@@ -21,9 +20,10 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class RingBufferTest {
-   static TransactionEventPublisher publisher = new TransactionEventPublisher(1024);
+    static TransactionEventPublisher publisher = new TransactionEventPublisher(1024);
+
     @BeforeAll
-    public static void setup(){
+    public static void setup() {
         publisher
                 .withAddressSizeEventHandler()
                 .withAmountEventHandler()

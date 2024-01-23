@@ -198,15 +198,15 @@ public class TransactionBlock extends AbstractBlock implements BlockFactory, Dis
             out.close();
 
             ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(bOut.toByteArray()));
-            TransactionBlock copy = (TransactionBlock)in.readObject();
+            TransactionBlock copy = (TransactionBlock) in.readObject();
             in.close();
 
             return copy;
-        }
-        catch(Exception e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
+
     @Override
     public String toString() {
         return "TransactionBlock{" +

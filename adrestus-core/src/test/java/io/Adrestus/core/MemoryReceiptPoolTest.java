@@ -161,12 +161,12 @@ public class MemoryReceiptPoolTest {
         Receipt.ReceiptBlock receiptBlock1 = new Receipt.ReceiptBlock("1", 1, 1, "1");
         Receipt.ReceiptBlock receiptBlock2 = new Receipt.ReceiptBlock("2", 2, 2, "2");
 
-        RegularTransaction tr1=new RegularTransaction("a");
-        RegularTransaction tr2=new RegularTransaction("b");
-        RegularTransaction tr3=new RegularTransaction("c");
-        RegularTransaction tr4=new RegularTransaction("d");
-        RegularTransaction tr5=new RegularTransaction("e");
-        RegularTransaction tr6=new RegularTransaction("f");
+        RegularTransaction tr1 = new RegularTransaction("a");
+        RegularTransaction tr2 = new RegularTransaction("b");
+        RegularTransaction tr3 = new RegularTransaction("c");
+        RegularTransaction tr4 = new RegularTransaction("d");
+        RegularTransaction tr5 = new RegularTransaction("e");
+        RegularTransaction tr6 = new RegularTransaction("f");
         tr1.setTo("1");
         tr2.setTo("2");
         tr3.setTo("3");
@@ -174,12 +174,12 @@ public class MemoryReceiptPoolTest {
         tr5.setTo("5");
         tr6.setTo("6");
         //its wrong each block must be unique for each zone need changes
-        Receipt receipt1 = new Receipt(0, 1, tr1.getTo(),receiptBlock1,tr1);
-        Receipt receipt2 = new Receipt(0, 1, tr2.getTo(),receiptBlock1,tr2);
-        Receipt receipt3 = new Receipt(2, 1, tr3.getTo(),receiptBlock1,tr3);
-        Receipt receipt4 = new Receipt(2, 1, tr4.getTo(),receiptBlock2,tr4);
-        Receipt receipt5 = new Receipt(3, 1, tr5.getTo(),receiptBlock2,tr5);
-        Receipt receipt6 = new Receipt(3, 1, tr6.getTo(),receiptBlock2,tr6);
+        Receipt receipt1 = new Receipt(0, 1, tr1.getTo(), receiptBlock1, tr1);
+        Receipt receipt2 = new Receipt(0, 1, tr2.getTo(), receiptBlock1, tr2);
+        Receipt receipt3 = new Receipt(2, 1, tr3.getTo(), receiptBlock1, tr3);
+        Receipt receipt4 = new Receipt(2, 1, tr4.getTo(), receiptBlock2, tr4);
+        Receipt receipt5 = new Receipt(3, 1, tr5.getTo(), receiptBlock2, tr5);
+        Receipt receipt6 = new Receipt(3, 1, tr6.getTo(), receiptBlock2, tr6);
         Receipt clon = serenc.decode(serenc.encode(receipt1));
         assertEquals(receipt1, clon);
         MemoryReceiptPool.getInstance().add(receipt1);

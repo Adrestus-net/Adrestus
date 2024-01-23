@@ -1,10 +1,12 @@
 package io.distributedLedger;
 
+import io.distributedLedger.exception.FindFailedException;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.TreeSet;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -29,7 +31,7 @@ public class LevelDBConnectionTest {
     }
 
     @Test
-    public void myCput_ALL() throws InterruptedException {
+    public void myCput_ALL() throws InterruptedException, FindFailedException {
         IDatabase<String, String> database = new DatabaseFactory(String.class, String.class).getDatabase(DatabaseType.LEVEL_DB);
         Map<String, String> map = new HashMap<>();
         map.put("key1", "value1");
@@ -39,8 +41,15 @@ public class LevelDBConnectionTest {
         map.put("key5", "value5");
         map.put("key5", "value6");
         database.saveAll(map);
-
-
+        TreeSet<String> fg = database.retrieveAllKeys();
+        int n = fg.size();
+        String arr[] = new String[n];
+        arr = fg.toArray(arr);
+        assertEquals("key1", arr[0]);
+        assertEquals("key2", arr[1]);
+        assertEquals("key3", arr[2]);
+        assertEquals("key4", arr[3]);
+        assertEquals("key5", arr[4]);
         Thread.sleep(100);
         assertEquals(5, database.findDBsize());
 

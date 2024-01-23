@@ -15,7 +15,7 @@ public class SignatureEventHandler implements ReceiptEventHandler<ReceiptBlockEv
     @Override
     public void onEvent(ReceiptBlockEvent receiptBlockEvent, long l, boolean b) throws InterruptedException {
         ReceiptBlock receiptBlock = receiptBlockEvent.getReceiptBlock();
-        boolean res = Objects.equals(receiptBlock.getReceipt().getTransaction().getSignature(),receiptBlock.getTransaction().getSignature());
+        boolean res = Objects.equals(receiptBlock.getReceipt().getTransaction().getSignature(), receiptBlock.getTransaction().getSignature());
         if (!res) {
             LOG.info("Signatures are not equal abort");
             receiptBlockEvent.getReceiptBlock().setStatusType(StatusType.ABORT);

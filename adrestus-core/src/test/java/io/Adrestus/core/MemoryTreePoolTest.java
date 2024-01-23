@@ -7,15 +7,20 @@ import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.mapper.MemoryTreePoolSerializer;
 import io.Adrestus.util.SerializationUtil;
+import io.Adrestus.util.bytes.Bytes53;
 import io.vavr.control.Option;
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.SerializationUtils;
+import org.apache.tuweni.bytes.Bytes;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -146,5 +151,29 @@ public class MemoryTreePoolTest {
         int g = 3;
 
         assertEquals(m, copy);
+    }
+
+    @Test
+    public void RetrieveKeys() throws Exception {
+        String Address = "ADR-ADL3-VDZK-ZU7H-2BX5-M2H4-S7LF-5SR4-ECQA-EIUJ-CBFK";
+        String Address2 = "ADR-GBIV-HG2J-27P5-BNVN-MLN6-DL5V-M3YZ-PKEJ-CFFG-FK4L";
+        Bytes key1 = Bytes.wrap(Address.getBytes(StandardCharsets.UTF_8));
+        Bytes53 key53 = Bytes53.wrap(Address.getBytes(StandardCharsets.UTF_8));
+        assertEquals(key1.toString(), key53.toString());
+        String hexString = key1.toUnprefixedHexString();
+        byte[] bytes = Hex.decodeHex(hexString.toCharArray());
+        String copies = new String(bytes, "UTF-8");
+        assertEquals(Address, copies);
+
+        PatriciaTreeNode treeNode1 = new PatriciaTreeNode(1, 112);
+        PatriciaTreeNode treeNode2 = new PatriciaTreeNode(2, 212);
+        TreeFactory.getMemoryTree(1).store(Address, treeNode1);
+        TreeFactory.getMemoryTree(1).store(Address2, treeNode2);
+        Set<String> fg = TreeFactory.getMemoryTree(1).Keyset(Bytes53.ZERO, Integer.MAX_VALUE);
+        int n = fg.size();
+        String arr[] = new String[n];
+        arr = fg.toArray(arr);
+        assertEquals(Address, arr[0]);
+        assertEquals(Address2, arr[1]);
     }
 }

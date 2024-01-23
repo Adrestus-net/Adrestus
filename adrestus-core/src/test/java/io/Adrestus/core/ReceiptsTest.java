@@ -228,13 +228,13 @@ public class ReceiptsTest {
         list.add(receipt4);
         list.add(receipt5);
         list.add(receipt6);
-        Map<Integer, Map<Receipt.ReceiptBlock, List<Receipt>>> map =  list
+        Map<Integer, Map<Receipt.ReceiptBlock, List<Receipt>>> map = list
                 .stream()
                 .collect(Collectors.groupingBy(Receipt::getZoneFrom, Collectors.groupingBy(Receipt::getReceiptBlock)));
 
         OutBoundRelay outBoundRelay = new OutBoundRelay(map);
         transactionBlock.setOutbound(outBoundRelay);
-        transactionBlock.getOutbound().getMap_receipts().values().forEach(receiptBlock->receiptBlock.keySet().forEach(vals->vals.setBlock_hash(transactionBlock.getHash())));
+        transactionBlock.getOutbound().getMap_receipts().values().forEach(receiptBlock -> receiptBlock.keySet().forEach(vals -> vals.setBlock_hash(transactionBlock.getHash())));
         Integer[] size = transactionBlock.getOutbound().getMap_receipts().keySet().toArray(new Integer[0]);
 //        for (int i=0;i<size.length;i++) {
 //            List<String> ReceiptIPWorkers = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(size[i]).values().stream().collect(Collectors.toList());
@@ -267,8 +267,8 @@ public class ReceiptsTest {
             assertEquals(entry.getKey().getBlock_hash(), "hash");
             assertEquals(transactionBlock, clone2);
             assertEquals(transactionBlock, clone);
-            clone2.getOutbound().getMap_receipts().values().forEach(receiptBlock->receiptBlock.keySet().forEach(vals->vals.setBlock_hash("random")));
-            assertNotEquals(clone2,transactionBlock);
+            clone2.getOutbound().getMap_receipts().values().forEach(receiptBlock -> receiptBlock.keySet().forEach(vals -> vals.setBlock_hash("random")));
+            assertNotEquals(clone2, transactionBlock);
         }
 
     }
@@ -346,9 +346,9 @@ public class ReceiptsTest {
         transactionBlock.setOutbound(outBoundRelay);
 
         blockSizeCalculator.setTransactionBlock(transactionBlock);
-        byte[] tohash = serenc.encode(transactionBlock,blockSizeCalculator.TransactionBlockSizeCalculator());
+        byte[] tohash = serenc.encode(transactionBlock, blockSizeCalculator.TransactionBlockSizeCalculator());
         transactionBlock.setHash(HashUtil.sha256_bytetoString(tohash));
-        transactionBlock.getOutbound().getMap_receipts().values().forEach(receiptBlock->receiptBlock.keySet().forEach(vals->vals.setBlock_hash(transactionBlock.getHash())));
+        transactionBlock.getOutbound().getMap_receipts().values().forEach(receiptBlock -> receiptBlock.keySet().forEach(vals -> vals.setBlock_hash(transactionBlock.getHash())));
         TransactionBlock clone2 = (TransactionBlock) transactionBlock.clone();
         TransactionBlock clone3 = (TransactionBlock) transactionBlock.clone();
         publisher.withHashHandler().mergeEvents();
@@ -356,18 +356,19 @@ public class ReceiptsTest {
         publisher.publish(transactionBlock);
         byte[] buffer = serenc.encode(transactionBlock);
         TransactionBlock clonem = (TransactionBlock) serenc.decode(buffer);
-        assertEquals(clonem,transactionBlock);
+        assertEquals(clonem, transactionBlock);
         publisher.publish(clonem);
         publisher.getJobSyncUntilRemainingCapacityZero();
         publisher.close();
-        assertEquals(clone2,transactionBlock);
-        assertEquals(clone3,transactionBlock);
-        clone3.getOutbound().getMap_receipts().values().forEach(receiptBlock->receiptBlock.keySet().forEach(vals->vals.setBlock_hash("random")));
-        assertNotEquals(clone3,transactionBlock);
+        assertEquals(clone2, transactionBlock);
+        assertEquals(clone3, transactionBlock);
+        clone3.getOutbound().getMap_receipts().values().forEach(receiptBlock -> receiptBlock.keySet().forEach(vals -> vals.setBlock_hash("random")));
+        assertNotEquals(clone3, transactionBlock);
         assertEquals(transactionBlock.getHash(), HashUtil.sha256_bytetoString(tohash));
         assertEquals(transactionBlock.getOutbound().getMap_receipts().get(1).keySet().stream().findFirst().get().getBlock_hash(), HashUtil.sha256_bytetoString(tohash));
         assertEquals(transactionBlock.getOutbound().getMap_receipts().get(1).values().stream().findFirst().get().stream().findFirst().get().getReceiptBlock().getBlock_hash(), HashUtil.sha256_bytetoString(tohash));
     }
+
     @Test
     @Order(3)
     public void inbound_test() throws Exception {
@@ -394,18 +395,18 @@ public class ReceiptsTest {
 
         for (int i = 0; i < transactionBlock.getTransactionList().size(); i++) {
             Transaction transaction = transactionBlock.getTransactionList().get(i);
-            transaction_database.save(transaction.getFrom(),transaction);
+            transaction_database.save(transaction.getFrom(), transaction);
             int index = Collections.binarySearch(transactionBlock.getTransactionList(), transactionBlock.getTransactionList().get(i));
             MerkleNode node = new MerkleNode(transaction.getHash());
             tree.build_proofs2(merkleNodeArrayList, node);
             if (CachedZoneIndex.getInstance().getZoneIndex() == transaction.getZoneTo())
-                MemoryReceiptPool.getInstance().add(new Receipt(transaction.getZoneFrom(), transaction.getZoneTo(), transaction.getTo(),transaction.getAmount(),receiptBlock, (Transaction) transaction.clone(),tree.getMerkleeproofs(),index));
+                MemoryReceiptPool.getInstance().add(new Receipt(transaction.getZoneFrom(), transaction.getZoneTo(), transaction.getTo(), transaction.getAmount(), receiptBlock, (Transaction) transaction.clone(), tree.getMerkleeproofs(), index));
         }
 
         Map<Integer, Map<Receipt.ReceiptBlock, List<Receipt>>> map = ((ArrayList<Receipt>) MemoryReceiptPool.getInstance().getAll())
                 .stream()
                 .collect(Collectors.groupingBy(Receipt::getZoneFrom, Collectors.groupingBy(Receipt::getReceiptBlock)));
-               // .collect(Collectors.groupingBy(Receipt::getZoneFrom, Collectors.groupingBy(Receipt::getReceiptBlock, Collectors.mapping(Receipt::merge, Collectors.toList()))));
+        // .collect(Collectors.groupingBy(Receipt::getZoneFrom, Collectors.groupingBy(Receipt::getReceiptBlock, Collectors.mapping(Receipt::merge, Collectors.toList()))));
 
 
         for (Integer key : map.keySet()) {

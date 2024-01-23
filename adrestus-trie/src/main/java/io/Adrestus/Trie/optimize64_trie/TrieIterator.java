@@ -1,7 +1,7 @@
 package io.Adrestus.Trie.optimize64_trie;
 
 import io.Adrestus.util.bytes.Bytes;
-import io.Adrestus.util.bytes.Bytes32;
+import io.Adrestus.util.bytes.Bytes53;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -77,20 +77,20 @@ public class TrieIterator<V> implements PathNodeVisitor<V> {
         return node;
     }
 
-    private Bytes32 keyHash() {
+    private Bytes53 keyHash() {
         final Iterator<Bytes> iterator = paths.descendingIterator();
         Bytes fullPath = iterator.next();
         while (iterator.hasNext()) {
             fullPath = Bytes.wrap(fullPath, iterator.next());
         }
         return fullPath.isZero()
-                ? Bytes32.ZERO
-                : Bytes32.wrap(CompactEncoding.pathToBytes(fullPath), 0);
+                ? Bytes53.ZERO
+                : Bytes53.wrap(CompactEncoding.pathToBytes(fullPath), 0);
     }
 
     public interface LeafHandler<V> {
 
-        State onLeaf(Bytes32 keyHash, Node<V> node);
+        State onLeaf(Bytes53 keyHash, Node<V> node);
     }
 
     public enum State {

@@ -139,7 +139,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
             MerkleNode node = new MerkleNode(transaction.getHash());
             tree.build_proofs2(merkleNodeArrayList, node);
             if (transaction.getZoneFrom() != transaction.getZoneTo())
-                receiptList.add(new Receipt(transaction.getZoneFrom(), transaction.getZoneTo(), transaction.getTo(),transaction.getAmount(),receiptBlock, (Transaction) transaction.clone(),tree.getMerkleeproofs(),index));
+                receiptList.add(new Receipt(transaction.getZoneFrom(), transaction.getZoneTo(), transaction.getTo(), transaction.getAmount(), receiptBlock, (Transaction) transaction.clone(), tree.getMerkleeproofs(), index));
         }
 
         Map<Integer, Map<Receipt.ReceiptBlock, List<Receipt>>> outbound = receiptList
@@ -212,7 +212,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
             this.blockSizeCalculator.setTransactionBlock(transactionBlock);
             byte[] tohash = encode.encode(transactionBlock, this.blockSizeCalculator.TransactionBlockSizeCalculator());
             transactionBlock.setHash(HashUtil.sha256_bytetoString(tohash));
-            transactionBlock.getOutbound().getMap_receipts().values().forEach(receiptBlocks->receiptBlocks.keySet().forEach(vals->vals.setBlock_hash(transactionBlock.getHash())));
+            transactionBlock.getOutbound().getMap_receipts().values().forEach(receiptBlocks -> receiptBlocks.keySet().forEach(vals -> vals.setBlock_hash(transactionBlock.getHash())));
             publisher.start();
             publisher.publish(transactionBlock);
             publisher.getJobSyncUntilRemainingCapacityZero();
@@ -457,7 +457,8 @@ public class RegularBlock implements BlockForge, BlockInvent {
                         .values()
                         .forEach(receipts_list -> {
                             receipts_list.forEach(
-                                    receipt -> {;
+                                    receipt -> {
+                                        ;
                                         toSendReceipt.add(receipt_encode.encode(receipt, 1024));
                                     });
                         });

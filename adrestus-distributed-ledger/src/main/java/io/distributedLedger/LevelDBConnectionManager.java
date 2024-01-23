@@ -70,7 +70,7 @@ public class LevelDBConnectionManager<K, V> implements IDatabase<K, V> {
         } else {
             this.CONNECTION_NAME = "TransactionDatabase";
         }
-        String path= Paths.get(Directory.getConfigPath(), CONNECTION_NAME).toString();
+        String path = Paths.get(Directory.getConfigPath(), CONNECTION_NAME).toString();
         this.dbFile = new File(path);
         this.keyClass = keyClass;
         this.keyMapper = new SerializationUtil<>(this.keyClass);
@@ -98,7 +98,7 @@ public class LevelDBConnectionManager<K, V> implements IDatabase<K, V> {
     @Override
     public void load_connection() {
         w.lock();
-        String pathstring= Paths.get(Directory.getConfigPath(), CONNECTION_NAME).toString();
+        String pathstring = Paths.get(Directory.getConfigPath(), CONNECTION_NAME).toString();
         this.dbFile = new File(pathstring);
         Path path = Files.createDirectories(Paths.get(dbFile.getAbsolutePath()));
         try {
@@ -237,6 +237,29 @@ public class LevelDBConnectionManager<K, V> implements IDatabase<K, V> {
         return Optional.empty();
     }
 
+    @Override
+    public TreeSet<K> retrieveAllKeys() throws FindFailedException {
+        r.lock();
+        TreeSet<K> hashSet = new TreeSet<>();
+        try {
+            final DBIterator iterator = level_db.iterator();
+            iterator.seekToFirst();
+
+            while (iterator.hasNext()) {
+                byte[] serializedKey = iterator.peekNext().getKey();
+                hashSet.add((K) keyMapper.decode(serializedKey));
+                iterator.next();
+            }
+        } catch (final SerializationException exception) {
+            LOGGER.error("Serialization exception occurred during findByKey operation. {}", exception.getMessage());
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage());
+        } finally {
+            r.unlock();
+        }
+        return hashSet;
+    }
+
     @SneakyThrows
     @Override
     public List<V> findByListKey(List<K> key) {
@@ -323,10 +346,9 @@ public class LevelDBConnectionManager<K, V> implements IDatabase<K, V> {
                 level_db.delete(iterator.peekNext().getKey());
             }
 
-            if (CONNECTION_NAME.contains("ReceiptDatabase")){
+            if (CONNECTION_NAME.contains("ReceiptDatabase")) {
                 DatabaseRawReceiptInstance.getInstance(options, dbFile.getParentFile().getAbsolutePath()).close(options);
-            }
-            else {
+            } else {
                 DatabaseRawTransactionInstance.getInstance(options, dbFile.getParentFile().getAbsolutePath()).close(options);
             }
             level_db.close();
