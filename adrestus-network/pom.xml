@@ -22,7 +22,7 @@
         <jeromq.version>0.5.3</jeromq.version>
         <config.version>1.0-SNAPSHOT</config.version>
         <activej.version>5.4.3</activej.version>
-        <netty.version>4.1.77.Final</netty.version>
+        <netty.version>4.1.106.Final</netty.version>
         <ok.http.version>4.9.3</ok.http.version>
         <gson.version>2.9.0</gson.version>
         <trie.version>1.0-SNAPSHOT</trie.version>
