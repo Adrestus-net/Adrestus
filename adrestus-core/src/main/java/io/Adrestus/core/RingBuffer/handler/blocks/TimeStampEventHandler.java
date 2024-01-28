@@ -48,11 +48,14 @@ public class TimeStampEventHandler implements BlockEventHandler<AbstractBlockEve
             Timestamp cached = GetTime.GetTimestampFromString(CachedLatestBlocks.getInstance().getTransactionBlock().getHeaderData().getTimestamp());
 
             if (!cached.before(current)) {
-                if (!cached.before(GetTime.GetTimeStampWithDelay(current))) {
-                    LOG.info("TransactionBlock timestamp is not valid");
-                    transactionBlock.setStatustype(StatusType.ABORT);
-                    return;
-                }
+                LOG.info("TransactionBlock timestamp is not valid");
+                transactionBlock.setStatustype(StatusType.ABORT);
+                return;
+//                if (!cached.before(GetTime.GetTimeStampWithDelay(current))) {
+//                    LOG.info("TransactionBlock timestamp is not valid");
+//                    transactionBlock.setStatustype(StatusType.ABORT);
+//                    return;
+//                }
             }
         } catch (Exception e) {
             e.printStackTrace();

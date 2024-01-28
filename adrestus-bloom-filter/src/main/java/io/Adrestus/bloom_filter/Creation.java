@@ -8,7 +8,7 @@ import org.json.JSONObject;
 public class Creation {
 
     public static void main(String[] args) {
-        System.out.println("run");
+        System.out.println(new Creation().create("run"));
     }
 
     public String create(String address) {
