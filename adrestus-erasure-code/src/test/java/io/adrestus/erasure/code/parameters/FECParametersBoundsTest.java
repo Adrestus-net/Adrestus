@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Set;
 
 import io.Adrestus.erasure.code.parameters.ParameterChecker;
+import lombok.SneakyThrows;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -114,6 +115,7 @@ public class FECParametersBoundsTest {
     public List<Params> paramsList;
 
 
+    @SneakyThrows
     @Test
     public void testDataLength() {
 
@@ -139,6 +141,7 @@ public class FECParametersBoundsTest {
         }
     }
 
+    @SneakyThrows
     @Test
     public void testSymbolSize() {
 
@@ -164,6 +167,7 @@ public class FECParametersBoundsTest {
         }
     }
 
+    @SneakyThrows
     @Test
     public void testNumSourceBlocks() {
 
@@ -191,6 +195,7 @@ public class FECParametersBoundsTest {
         }
     }
 
+    @SneakyThrows
     @Test
     public void testInterleaverLength() {
 

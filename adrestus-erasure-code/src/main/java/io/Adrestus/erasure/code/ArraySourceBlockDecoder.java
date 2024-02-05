@@ -38,6 +38,7 @@ import io.Adrestus.erasure.code.util.collection.ImmutableList;
 import io.Adrestus.erasure.code.util.io.ByteBuffers;
 import io.Adrestus.erasure.code.util.linearalgebra.matrix.ByteMatrix;
 import io.Adrestus.erasure.code.util.rq.SystematicIndices;
+import lombok.SneakyThrows;
 
 
 /**
@@ -667,6 +668,7 @@ final class ArraySourceBlockDecoder implements SourceBlockDecoder {
         }
 
         // requires non-negative parameter
+        @SneakyThrows
         void setSymbolOverhead(int symbOver) {
 
             // the symbol overhead cannot exceed the number of repair symbols

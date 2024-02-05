@@ -46,9 +46,10 @@ final class ISDManager {
     static {
         final List<IntermediateSymbolsDecoder> isdsList = new ArrayList<>();
 
-        final InputStream in = ISDManager.class.getResourceAsStream("ISDs");
+        final InputStream in = ISDManager.class.getResourceAsStream("/ISDs.txt");
         if (in == null) {
             System.err.println("Could not find \"Intermediate Symbols Decoders\" file");
+            //getClass().getResource("/Atmospheric Pressure-44 (1).png"))
         }
         else {
             final BufferedReader reader = new BufferedReader(new InputStreamReader(in));

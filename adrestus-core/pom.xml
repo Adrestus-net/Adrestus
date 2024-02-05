@@ -24,6 +24,8 @@
         <network.version>1.0-SNAPSHOT</network.version>
         <ledger.version>1.0-SNAPSHOT</ledger.version>
         <crypto.version>1.0-SNAPSHOT</crypto.version>
+        <erasure-code.version>1.0-SNAPSHOT</erasure-code.version>
+        <erasure-code.version>1.0-SNAPSHOT</erasure-code.version>
         <lombok.version>1.18.24</lombok.version>
         <disruptor.version>3.4.4</disruptor.version>
         <trove4j.version>3.0.3</trove4j.version>
@@ -59,12 +61,22 @@
         </dependency>
         <dependency>
             <groupId>io.Adrestus.v1</groupId>
+            <artifactId>adrestus-erasure-code</artifactId>
+            <version>${network.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.Adrestus.v1</groupId>
             <artifactId>adrestus-distributed-ledger</artifactId>
             <version>${ledger.version}</version>
         </dependency>
         <dependency>
             <groupId>io.Adrestus.v1</groupId>
             <artifactId>adrestus-crypto</artifactId>
+            <version>${crypto.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.Adrestus.v1</groupId>
+            <artifactId>adrestus-erasure-code</artifactId>
             <version>${crypto.version}</version>
         </dependency>
         <dependency>

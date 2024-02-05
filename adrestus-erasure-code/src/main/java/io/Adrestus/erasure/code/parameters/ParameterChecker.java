@@ -17,6 +17,9 @@
 package io.Adrestus.erasure.code.parameters;
 
 
+import io.Adrestus.erasure.code.Exceptions.*;
+import lombok.SneakyThrows;
+
 import static io.Adrestus.erasure.code.parameters.InternalConstants.*;
 import static io.Adrestus.erasure.code.parameters.InternalFunctions.*;
 import static io.Adrestus.erasure.code.util.math.ExtraMath.ceilDiv;
@@ -140,7 +143,7 @@ public final class ParameterChecker {
      * @exception IllegalArgumentException
      *                If the symbol size is {@linkplain #isSymbolSizeOutOfBounds(int) out of bounds}
      */
-    public static long maxAllowedDataLength(int symbSize) {
+    public static long maxAllowedDataLength(int symbSize) throws CheckSymbolSizeOutOfBoundsException {
 
         _checkSymbolSizeOutOfBounds(symbSize);
         return _maxAllowedDataLength(symbSize);
@@ -191,7 +194,7 @@ public final class ParameterChecker {
      * @exception IllegalArgumentException
      *                If the source data length is {@linkplain #isDataLengthOutOfBounds(long) out of bounds}
      */
-    public static int minAllowedSymbolSize(long dataLen) {
+    public static int minAllowedSymbolSize(long dataLen) throws CheckDataLengthOutOfBoundsException {
 
         _checkDataLengthOutOfBounds(dataLen);
         return _minAllowedSymbolSize(dataLen);
@@ -248,7 +251,7 @@ public final class ParameterChecker {
      * @exception IllegalArgumentException
      *                If either argument is individually out of bounds, or if they are out of bounds in unison
      */
-    public static int minAllowedNumSourceBlocks(long dataLen, int symbSize) {
+    public static int minAllowedNumSourceBlocks(long dataLen, int symbSize) throws CheckDataLengthOutOfBoundsException, CheckSymbolSizeOutOfBoundsException, CheckDataLengthAndSymbolSizeOutOfBoundsException {
 
         _checkDataLengthOutOfBounds(dataLen);
         _checkSymbolSizeOutOfBounds(symbSize);
@@ -273,7 +276,7 @@ public final class ParameterChecker {
      * @exception IllegalArgumentException
      *                If either argument is individually out of bounds, or if they are out of bounds in unison
      */
-    public static int maxAllowedNumSourceBlocks(long dataLen, int symbSize) {
+    public static int maxAllowedNumSourceBlocks(long dataLen, int symbSize) throws CheckDataLengthAndSymbolSizeOutOfBoundsException, CheckSymbolSizeOutOfBoundsException, CheckDataLengthOutOfBoundsException {
 
         _checkDataLengthOutOfBounds(dataLen);
         _checkSymbolSizeOutOfBounds(symbSize);
@@ -330,7 +333,7 @@ public final class ParameterChecker {
      * @exception IllegalArgumentException
      *                If the symbol size is {@linkplain #isSymbolSizeOutOfBounds(int) out of bounds}
      */
-    public static int maxAllowedInterleaverLength(int symbSize) {
+    public static int maxAllowedInterleaverLength(int symbSize) throws CheckSymbolSizeOutOfBoundsException {
 
         _checkSymbolSizeOutOfBounds(symbSize);
         return _maxAllowedInterleaverLength(symbSize);
@@ -515,7 +518,7 @@ public final class ParameterChecker {
      * @exception IllegalArgumentException
      *                If the source data length is {@linkplain #isDataLengthOutOfBounds(long) out of bounds}
      */
-    public static int minAllowedPayloadLength(long dataLen) {
+    public static int minAllowedPayloadLength(long dataLen) throws CheckDataLengthOutOfBoundsException {
 
         return minAllowedSymbolSize(dataLen);
     }
@@ -547,7 +550,7 @@ public final class ParameterChecker {
      * @exception IllegalArgumentException
      *                If either argument is individually out of bounds, or if they are out of bounds in unison
      */
-    public static long minAllowedDecodingBlockSize(long dataLen, int payLen) {
+    public static long minAllowedDecodingBlockSize(long dataLen, int payLen) throws CheckDataLengthOutOfBoundsException, CheckPayloadLengthOutOfBoundsException, CheckDataLengthAndPayloadLengthOutOfBoundsException {
 
         _checkDataLengthOutOfBounds(dataLen);
         _checkPayloadLengthOutOfBounds(payLen);
@@ -575,12 +578,12 @@ public final class ParameterChecker {
      * @exception IllegalArgumentException
      *                If any argument is out of bounds (see method description)
      */
-    public static long maxAllowedDataLength(int payLen, long maxDBMem) {
+    public static long maxAllowedDataLength(int payLen, long maxDBMem) throws MaxAllowedDataLengthException, CheckPayloadLengthOutOfBoundsException, CheckDecodingBlockSizeOutOfBoundsException {
 
         _checkPayloadLengthOutOfBounds(payLen);
         _checkDecodingBlockSizeOutOfBounds(maxDBMem);
         if (maxDBMem < payLen) {
-            throw new IllegalArgumentException(
+            throw new MaxAllowedDataLengthException(
                 "maximum decoding block size must be at least equal to the payload length");
         }
 
@@ -770,7 +773,7 @@ public final class ParameterChecker {
      * @exception IllegalArgumentException
      *                If the number of source blocks is {@linkplain #isNumSourceBlocksOutOfBounds(int) out of bounds}
      */
-    public static boolean isValidFECPayloadID(int sbn, int esi, int numSrcBs) {
+    public static boolean isValidFECPayloadID(int sbn, int esi, int numSrcBs) throws CheckNumSourceBlocksOutOfBoundsException {
 
         return getFECPayloadIDErrorString(sbn, esi, numSrcBs).isEmpty();
     }
@@ -790,7 +793,7 @@ public final class ParameterChecker {
      * @exception IllegalArgumentException
      *                If the number of source blocks is {@linkplain #isNumSourceBlocksOutOfBounds(int) out of bounds}
      */
-    public static String getFECPayloadIDErrorString(int sbn, int esi, int numSBs) {
+    public static String getFECPayloadIDErrorString(int sbn, int esi, int numSBs) throws CheckNumSourceBlocksOutOfBoundsException {
 
         _checkNumSourceBlocksOutOfBounds(numSBs);
 
@@ -851,7 +854,7 @@ public final class ParameterChecker {
      *                If the number of source symbols is {@linkplain #isNumSourceSymbolsPerBlockOutOfBounds(int) out of
      *                bounds}
      */
-    public static int numRepairSymbolsPerBlock(int numSrcSymbs) {
+    public static int numRepairSymbolsPerBlock(int numSrcSymbs) throws CheckNumSourceSymbolsPerBlockOutOfBoundsException, NumRepairSymbolsPerBlockException {
 
         final int firstESI = numSrcSymbs; // initial repair symbol ESI
         return numRepairSymbolsPerBlock(numSrcSymbs, firstESI);
@@ -873,14 +876,14 @@ public final class ParameterChecker {
      *                {@linkplain #isEncodingSymbolIDOutOfBounds(int) out of bounds} or is less than the number of
      *                source symbols
      */
-    public static int numRepairSymbolsPerBlock(int numSrcSymbs, int firstESI) {
+    public static int numRepairSymbolsPerBlock(int numSrcSymbs, int firstESI) throws NumRepairSymbolsPerBlockException, CheckNumSourceSymbolsPerBlockOutOfBoundsException {
 
         _checkNumSourceSymbolsPerBlockOutOfBounds(numSrcSymbs);
 
         final int maxESI = maxEncodingSymbolID();
 
         if (firstESI < numSrcSymbs || firstESI > maxESI) {
-            throw new IllegalArgumentException(
+            throw new NumRepairSymbolsPerBlockException(
                 String.format("first repair symbol identifier must be within [%d, %d]",
                     numSrcSymbs, maxESI));
         }
@@ -967,59 +970,59 @@ public final class ParameterChecker {
         return _areDataLengthAndSymbolSizeOutOfBounds(F, P);
     }
 
-    private static void _checkDataLengthOutOfBounds(long F) {
+    private static void _checkDataLengthOutOfBounds(long F) throws CheckDataLengthOutOfBoundsException {
 
         if (isDataLengthOutOfBounds(F)) {
-            throw new IllegalArgumentException("source data length is out of bounds");
+            throw new CheckDataLengthOutOfBoundsException("source data length is out of bounds");
         }
     }
 
-    private static void _checkSymbolSizeOutOfBounds(int T) {
+    private static void _checkSymbolSizeOutOfBounds(int T) throws CheckSymbolSizeOutOfBoundsException {
 
         if (isSymbolSizeOutOfBounds(T)) {
-            throw new IllegalArgumentException("symbol size is out of bounds");
+            throw new CheckSymbolSizeOutOfBoundsException("symbol size is out of bounds");
         }
     }
 
-    private static void _checkDataLengthAndSymbolSizeOutOfBounds(long F, int T) {
+    private static void _checkDataLengthAndSymbolSizeOutOfBounds(long F, int T) throws CheckDataLengthAndSymbolSizeOutOfBoundsException {
 
         if (_areDataLengthAndSymbolSizeOutOfBounds(F, T)) {
-            throw new IllegalArgumentException("source data length and symbol size are out of bounds in unison");
+            throw new CheckDataLengthAndSymbolSizeOutOfBoundsException("source data length and symbol size are out of bounds in unison");
         }
     }
 
-    private static void _checkNumSourceBlocksOutOfBounds(int Z) {
+    private static void _checkNumSourceBlocksOutOfBounds(int Z) throws CheckNumSourceBlocksOutOfBoundsException {
 
         if (isNumSourceBlocksOutOfBounds(Z)) {
-            throw new IllegalArgumentException("number of source blocks is out of bounds");
+            throw new CheckNumSourceBlocksOutOfBoundsException("number of source blocks is out of bounds");
         }
     }
 
-    private static void _checkPayloadLengthOutOfBounds(int P) {
+    private static void _checkPayloadLengthOutOfBounds(int P) throws CheckPayloadLengthOutOfBoundsException {
 
         if (isPayloadLengthOutOfBounds(P)) {
-            throw new IllegalArgumentException("payload length is out of bounds");
+            throw new CheckPayloadLengthOutOfBoundsException("payload length is out of bounds");
         }
     }
 
-    private static void _checkDataLengthAndPayloadLengthOutOfBounds(long F, int P) {
+    private static void _checkDataLengthAndPayloadLengthOutOfBounds(long F, int P) throws CheckDataLengthAndPayloadLengthOutOfBoundsException {
 
         if (_areDataLengthAndPayloadLengthOutOfBounds(F, P)) {
-            throw new IllegalArgumentException("source data length and payload length are out of bounds in unison");
+            throw new CheckDataLengthAndPayloadLengthOutOfBoundsException("source data length and payload length are out of bounds in unison");
         }
     }
 
-    private static void _checkDecodingBlockSizeOutOfBounds(long WS) {
+    private static void _checkDecodingBlockSizeOutOfBounds(long WS) throws CheckDecodingBlockSizeOutOfBoundsException {
 
         if (WS < minDecodingBlockSize()) {
-            throw new IllegalArgumentException("maximum decoding block size is out of bounds");
+            throw new CheckDecodingBlockSizeOutOfBoundsException("maximum decoding block size is out of bounds");
         }
     }
 
-    private static void _checkNumSourceSymbolsPerBlockOutOfBounds(int K) {
+    private static void _checkNumSourceSymbolsPerBlockOutOfBounds(int K) throws CheckNumSourceSymbolsPerBlockOutOfBoundsException {
 
         if (isNumSourceSymbolsPerBlockOutOfBounds(K)) {
-            throw new IllegalArgumentException("number of source symbols per block is out of bounds");
+            throw new CheckNumSourceSymbolsPerBlockOutOfBoundsException("number of source symbols per block is out of bounds");
         }
     }
 

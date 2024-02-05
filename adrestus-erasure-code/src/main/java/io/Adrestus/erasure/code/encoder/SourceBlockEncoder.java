@@ -18,6 +18,8 @@ package io.Adrestus.erasure.code.encoder;
 
 
 import io.Adrestus.erasure.code.EncodingPacket;
+import io.Adrestus.erasure.code.Exceptions.CheckNumSourceSymbolsPerBlockOutOfBoundsException;
+import io.Adrestus.erasure.code.Exceptions.NumRepairSymbolsPerBlockException;
 import io.Adrestus.erasure.code.parameters.ParameterChecker;
 
 
@@ -285,7 +287,7 @@ public interface SourceBlockEncoder {
      * @see #sourceBlockNumber()
      * @see #numberOfSourceSymbols()
      */
-    public EncodingPacket repairPacket(int esi, int numSymbols);
+    public EncodingPacket repairPacket(int esi, int numSymbols) throws CheckNumSourceSymbolsPerBlockOutOfBoundsException, NumRepairSymbolsPerBlockException;
 
     /**
      * Returns a new builder object for an iterable over encoding packets.

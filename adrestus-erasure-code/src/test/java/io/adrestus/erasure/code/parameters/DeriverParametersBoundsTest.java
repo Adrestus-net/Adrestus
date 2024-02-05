@@ -21,7 +21,9 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import io.Adrestus.erasure.code.Exceptions.MaxAllowedDataLengthException;
 import io.Adrestus.erasure.code.parameters.ParameterChecker;
+import lombok.SneakyThrows;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -102,8 +104,9 @@ public class DeriverParametersBoundsTest {
     public List<Params> paramsList;
 
 
+    @SneakyThrows
     @Test
-    public void testDataLength() {
+    public void testDataLength() throws MaxAllowedDataLengthException {
 
         for (Params params : paramsList) {
             final long F = params.F;
@@ -129,6 +132,7 @@ public class DeriverParametersBoundsTest {
         }
     }
 
+    @SneakyThrows
     @Test
     public void testPayloadLength() {
 
@@ -153,6 +157,7 @@ public class DeriverParametersBoundsTest {
         }
     }
 
+    @SneakyThrows
     @Test
     public void testMaxDecodingBlockSize() {
 

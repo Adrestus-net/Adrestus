@@ -22,6 +22,7 @@ import io.Adrestus.erasure.code.decoder.SourceBlockDecoder;
 import io.Adrestus.erasure.code.encoder.DataEncoder;
 import io.Adrestus.erasure.code.parameters.FECParameters;
 import io.Adrestus.erasure.code.parameters.ParameterChecker;
+import lombok.SneakyThrows;
 
 
 /**
@@ -197,6 +198,7 @@ public final class OpenRQ {
      * @exception IllegalArgumentException
      *                If {@code numSourceSymbols}, {@code symbolOverhead} or {@code loss} are out of bounds
      */
+    @SneakyThrows
     public static final int minRepairSymbols(int numSourceSymbols, int symbolOverhead, double loss) {
 
         if (numSourceSymbols < 1 || numSourceSymbols > ParameterChecker.maxNumSourceSymbolsPerBlock()) {

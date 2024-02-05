@@ -17,6 +17,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import io.Adrestus.erasure.code.Exceptions.CheckNumSourceSymbolsPerBlockOutOfBoundsException;
+import io.Adrestus.erasure.code.Exceptions.NumRepairSymbolsPerBlockException;
 import io.Adrestus.erasure.code.decoder.SourceBlockState;
 import io.Adrestus.erasure.code.parameters.FECParameters;
 import io.Adrestus.erasure.code.parameters.ParameterChecker;
@@ -25,6 +27,7 @@ import io.Adrestus.erasure.code.util.datatype.SizeOf;
 import io.Adrestus.erasure.code.util.datatype.UnsignedTypes;
 import io.Adrestus.erasure.code.util.io.BufferOperation;
 import io.Adrestus.erasure.code.util.io.ExtraChannels;
+import lombok.SneakyThrows;
 
 
 /**
@@ -182,6 +185,7 @@ public final class SBDInfo {
      * @exception NullPointerException
      *                If any argument is {@code null}
      */
+    @SneakyThrows
     public static Parsed<SBDInfo> parse(ByteBuffer buffer, FECParameters fecParams) {
 
         Objects.requireNonNull(buffer);
@@ -282,6 +286,7 @@ public final class SBDInfo {
      * @exception NullPointerException
      *                If any argument is {@code null}
      */
+    @SneakyThrows
     public static Parsed<SBDInfo> readFrom(ReadableByteChannel ch, FECParameters fecParams) throws IOException {
 
         try {
@@ -947,8 +952,7 @@ public final class SBDInfo {
     }
 
     private static int readNumAvailableRepairSymbols(ByteBuffer buf, int K, SourceBlockState state)
-        throws InternalParsingException
-    {
+            throws InternalParsingException, CheckNumSourceSymbolsPerBlockOutOfBoundsException, NumRepairSymbolsPerBlockException {
 
         if (buf.remaining() < SizeOf.UNSIGNED_3_BYTES) {
             throw new InternalParsingException("number of available repair symbols is missing");
@@ -957,6 +961,7 @@ public final class SBDInfo {
         return checkNumAvailable(UnsignedTypes.readUnsignedBytes(buf, SizeOf.UNSIGNED_3_BYTES), K, state);
     }
 
+    @SneakyThrows
     private static int readNumAvailableRepairSymbols(DataInput in, int K, SourceBlockState state)
         throws IOException, InternalParsingException
     {
@@ -968,8 +973,7 @@ public final class SBDInfo {
     }
 
     private static int checkNumAvailable(int numAvail, int K, SourceBlockState state)
-        throws InternalParsingException
-    {
+            throws InternalParsingException, CheckNumSourceSymbolsPerBlockOutOfBoundsException, NumRepairSymbolsPerBlockException {
 
         if (numAvail < 0 || numAvail > ParameterChecker.numRepairSymbolsPerBlock(K)) {
             throw new InternalParsingException("number of available repair symbols is out of bounds");

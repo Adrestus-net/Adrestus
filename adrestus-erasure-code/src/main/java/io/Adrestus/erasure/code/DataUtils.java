@@ -33,6 +33,7 @@ import io.Adrestus.erasure.code.util.io.BufferOperation;
 import io.Adrestus.erasure.code.util.io.ByteBuffers;
 import io.Adrestus.erasure.code.util.io.ExtraChannels;
 import io.Adrestus.erasure.code.util.math.ExtraMath;
+import lombok.SneakyThrows;
 
 
 /**
@@ -333,8 +334,9 @@ public final class DataUtils {
     }
 
     // requires valid symbLen
+    @SneakyThrows
     private static Parsed<EncodingPacket> parsePacket(DataDecoder dec, int sbn,
-        int esi, ByteBuffer symbols, int symbLen, boolean copySymbols) {
+                                                      int esi, ByteBuffer symbols, int symbLen, boolean copySymbols) {
 
         final int Z = dec.numberOfSourceBlocks();
         if (!ParameterChecker.isValidFECPayloadID(sbn, esi, Z)) {

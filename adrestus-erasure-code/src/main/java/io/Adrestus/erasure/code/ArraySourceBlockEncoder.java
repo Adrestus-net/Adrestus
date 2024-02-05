@@ -20,6 +20,8 @@ import java.nio.ByteBuffer;
 import java.util.Iterator;
 import java.util.Objects;
 
+import io.Adrestus.erasure.code.Exceptions.CheckNumSourceSymbolsPerBlockOutOfBoundsException;
+import io.Adrestus.erasure.code.Exceptions.NumRepairSymbolsPerBlockException;
 import io.Adrestus.erasure.code.encoder.SourceBlockEncoder;
 import io.Adrestus.erasure.code.parameters.FECParameters;
 import io.Adrestus.erasure.code.parameters.ParameterChecker;
@@ -27,6 +29,7 @@ import io.Adrestus.erasure.code.util.collection.ImmutableList;
 import io.Adrestus.erasure.code.util.linearalgebra.matrix.ByteMatrix;
 import io.Adrestus.erasure.code.util.rq.IntermediateSymbolsDecoder;
 import io.Adrestus.erasure.code.util.rq.SystematicIndices;
+import lombok.SneakyThrows;
 
 
 /**
@@ -171,7 +174,7 @@ final class ArraySourceBlockEncoder implements SourceBlockEncoder {
     }
 
     @Override
-    public EncodingPacket repairPacket(int esi, int numSymbols) {
+    public EncodingPacket repairPacket(int esi, int numSymbols) throws CheckNumSourceSymbolsPerBlockOutOfBoundsException, NumRepairSymbolsPerBlockException {
 
         checkRepairSymbolESI(esi);
         checkNumRepairSymbols(esi, numSymbols);
@@ -201,8 +204,9 @@ final class ArraySourceBlockEncoder implements SourceBlockEncoder {
             .endAtFinalSourceSymbol().build();
     }
 
+    @SneakyThrows
     @Override
-    public Iterable<EncodingPacket> repairPacketsIterable(int numRepairPackets) {
+    public Iterable<EncodingPacket> repairPacketsIterable(int numRepairPackets){
 
         if (numRepairPackets < 1
             || numRepairPackets > ParameterChecker
@@ -246,7 +250,7 @@ final class ArraySourceBlockEncoder implements SourceBlockEncoder {
     }
 
     // requires valid ESI
-    private void checkNumRepairSymbols(int esi, int numSymbols) {
+    private void checkNumRepairSymbols(int esi, int numSymbols) throws CheckNumSourceSymbolsPerBlockOutOfBoundsException, NumRepairSymbolsPerBlockException {
 
         if (numSymbols < 1
             || numSymbols > ParameterChecker.numRepairSymbolsPerBlock(K(),
