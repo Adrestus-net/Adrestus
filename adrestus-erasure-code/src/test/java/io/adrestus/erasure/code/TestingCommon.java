@@ -1,12 +1,12 @@
 /*
  * Copyright 2014 OpenRQ Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,11 +19,7 @@ package io.adrestus.erasure.code;
 import io.Adrestus.erasure.code.parameters.FECParameters;
 import io.Adrestus.erasure.code.parameters.ParameterChecker;
 
-import java.util.BitSet;
-import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 
 import static io.Adrestus.erasure.code.util.math.ExtraMath.integerPow;
 
@@ -72,7 +68,7 @@ public final class TestingCommon {
 
         while (esis.size() < numSymbols) {
             // exponential distribution with mean K/2
-            final int esi = (int)((-K / 2D) * Math.log(1 - rand.nextDouble()));
+            final int esi = (int) ((-K / 2D) * Math.log(1 - rand.nextDouble()));
             // repeat sampling if a repeated ESI is obtained
             esis.add(Math.min(esi, maxESI));
         }
@@ -173,7 +169,7 @@ public final class TestingCommon {
     public static <C extends Collection<Long>> C addIntsL(C col, int... ints) {
 
         for (int i : ints) {
-            col.add((long)i);
+            col.add((long) i);
         }
         return col;
     }
@@ -190,31 +186,31 @@ public final class TestingCommon {
 
         if (ParameterChecker.isDataLengthOutOfBounds(datalen)) {
             throw new IllegalArgumentException(
-                String.format(
-                    "by default, the data length (%d) must be within [%d, %d] bytes",
-                    datalen,
-                    ParameterChecker.minDataLength(),
-                    ParameterChecker.maxDataLength()));
+                    String.format(
+                            "by default, the data length (%d) must be within [%d, %d] bytes",
+                            datalen,
+                            ParameterChecker.minDataLength(),
+                            ParameterChecker.maxDataLength()));
         }
 
         if (ParameterChecker.isNumSourceSymbolsPerBlockOutOfBounds(srcsymbs)) {
             throw new IllegalArgumentException(
-                String.format(
-                    "by default, the number of source symbols (%d) must be within [%d, %d]",
-                    srcsymbs,
-                    ParameterChecker.minNumSourceSymbolsPerBlock(),
-                    ParameterChecker.maxNumSourceSymbolsPerBlock()));
+                    String.format(
+                            "by default, the number of source symbols (%d) must be within [%d, %d]",
+                            srcsymbs,
+                            ParameterChecker.minNumSourceSymbolsPerBlock(),
+                            ParameterChecker.maxNumSourceSymbolsPerBlock()));
         }
 
-        final long minF = (long)srcsymbs * ParameterChecker.minSymbolSize();
-        final long maxF = (long)srcsymbs * ParameterChecker.maxSymbolSize();
+        final long minF = (long) srcsymbs * ParameterChecker.minSymbolSize();
+        final long maxF = (long) srcsymbs * ParameterChecker.maxSymbolSize();
         if (datalen < minF || maxF < datalen) {
             throw new IllegalArgumentException(
-                String.format(
-                    "%d source symbol(s) can only support a data length within [%d, %d] bytes",
-                    srcsymbs,
-                    minF,
-                    maxF));
+                    String.format(
+                            "%d source symbol(s) can only support a data length within [%d, %d] bytes",
+                            srcsymbs,
+                            minF,
+                            maxF));
         }
     }
 
@@ -321,7 +317,7 @@ public final class TestingCommon {
 
         public static byte[] data() {
 
-            return new byte[(int)F];
+            return new byte[(int) F];
         }
     }
 

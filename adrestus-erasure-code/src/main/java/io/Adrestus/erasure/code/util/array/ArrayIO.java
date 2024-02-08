@@ -1,12 +1,12 @@
 /*
  * Copyright 2014 OpenRQ Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -39,13 +39,10 @@ public final class ArrayIO {
 
     /**
      * Writes integers from an array to a channel.
-     * 
-     * @param ch
-     *            The channel used to write the array
-     * @param src
-     *            An array of ints
-     * @throws IOException
-     *             If an I/O error occurs while writing
+     *
+     * @param ch  The channel used to write the array
+     * @param src An array of ints
+     * @throws IOException If an I/O error occurs while writing
      */
     public static void writeInts(WritableByteChannel ch, int[] src) throws IOException {
 
@@ -54,17 +51,12 @@ public final class ArrayIO {
 
     /**
      * Writes integers from an array region to a channel.
-     * 
-     * @param ch
-     *            The channel used to write the array
-     * @param src
-     *            An array of ints
-     * @param from
-     *            The starting region index (inclusive)
-     * @param to
-     *            The ending region index (exclusive)
-     * @throws IOException
-     *             If an I/O error occurs while writing
+     *
+     * @param ch   The channel used to write the array
+     * @param src  An array of ints
+     * @param from The starting region index (inclusive)
+     * @param to   The ending region index (exclusive)
+     * @throws IOException If an I/O error occurs while writing
      */
     public static void writeInts(WritableByteChannel ch, int[] src, int from, int to) throws IOException {
 
@@ -81,13 +73,10 @@ public final class ArrayIO {
 
     /**
      * Reads integers from a channel to an array.
-     * 
-     * @param ch
-     *            The channel used to read ints from
-     * @param dst
-     *            The array used to store the read ints
-     * @throws IOException
-     *             If an I/O error occurs while reading
+     *
+     * @param ch  The channel used to read ints from
+     * @param dst The array used to store the read ints
+     * @throws IOException If an I/O error occurs while reading
      */
     public static void readInts(ReadableByteChannel ch, int[] dst) throws IOException {
 
@@ -96,17 +85,12 @@ public final class ArrayIO {
 
     /**
      * Reads integers from a channel to an array region.
-     * 
-     * @param ch
-     *            The channel used to read ints from
-     * @param dst
-     *            The array used to store the read ints
-     * @param from
-     *            The starting region index (inclusive)
-     * @param to
-     *            The ending region index (exclusive)
-     * @throws IOException
-     *             If an I/O error occurs while reading
+     *
+     * @param ch   The channel used to read ints from
+     * @param dst  The array used to store the read ints
+     * @param from The starting region index (inclusive)
+     * @param to   The ending region index (exclusive)
+     * @throws IOException If an I/O error occurs while reading
      */
     public static void readInts(ReadableByteChannel ch, int[] dst, int from, int to) throws IOException {
 
@@ -153,8 +137,7 @@ public final class ArrayIO {
 
         if (ch instanceof NetworkChannel || ch instanceof FileChannel || ch instanceof SinkChannel) {
             buf = CACHED_DIRECT_BUFFER.get();
-        }
-        else {
+        } else {
             buf = CACHED_BUFFER.get();
         }
 
@@ -168,8 +151,7 @@ public final class ArrayIO {
 
         if (ch instanceof NetworkChannel || ch instanceof FileChannel || ch instanceof SourceChannel) {
             buf = CACHED_DIRECT_BUFFER.get();
-        }
-        else {
+        } else {
             buf = CACHED_BUFFER.get();
         }
 

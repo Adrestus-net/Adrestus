@@ -1,12 +1,12 @@
 /*
  * Copyright 2014 OpenRQ Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,25 +16,21 @@
 package io.Adrestus.erasure.code;
 
 
-import java.io.BufferedReader;
-import java.io.EOFException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import io.Adrestus.erasure.code.util.io.Resources;
+import io.Adrestus.erasure.code.util.io.UncheckedIOException;
+import io.Adrestus.erasure.code.util.rq.IntermediateSymbolsDecoder;
+import io.Adrestus.erasure.code.util.rq.SystematicIndices;
+
+import java.io.*;
 import java.nio.channels.ReadableByteChannel;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import io.Adrestus.erasure.code.util.io.Resources;
-import io.Adrestus.erasure.code.util.io.UncheckedIOException;
-import io.Adrestus.erasure.code.util.rq.IntermediateSymbolsDecoder;
-import io.Adrestus.erasure.code.util.rq.SystematicIndices;
-
 
 /**
- * 
+ *
  */
 final class ISDManager {
 
@@ -43,6 +39,7 @@ final class ISDManager {
     private static final String ISD_PREFIX = "ISD_";
 
     private static final ISDManager INSTANCE;
+
     static {
         final List<IntermediateSymbolsDecoder> isdsList = new ArrayList<>();
 
@@ -50,8 +47,7 @@ final class ISDManager {
         if (in == null) {
             System.err.println("Could not find \"Intermediate Symbols Decoders\" file");
             //getClass().getResource("/Atmospheric Pressure-44 (1).png"))
-        }
-        else {
+        } else {
             final BufferedReader reader = new BufferedReader(new InputStreamReader(in));
             try {
                 String line;
@@ -61,22 +57,19 @@ final class ISDManager {
                         final int Kprime = Integer.parseInt(line); // should always succeed
                         if (SystematicIndices.containsKPrime(Kprime)) {
                             isdsList.add(new ISD(Kprime));
-                        }
-                        else {
+                        } else {
                             System.err.printf(
-                                "Line %d of \"Intermediate Symbols Decoders\" file was skipped: value %d is an unknown K'%n",
-                                lineNumber, Kprime);
+                                    "Line %d of \"Intermediate Symbols Decoders\" file was skipped: value %d is an unknown K'%n",
+                                    lineNumber, Kprime);
                         }
                     }
 
                     lineNumber++;
                 }
-            }
-            catch (UncheckedIOException e) {
+            } catch (UncheckedIOException e) {
                 System.err.println("Error while reading \"Intermediate Symbols Decoders\" file:");
                 e.getCause().printStackTrace(System.err);
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 System.err.println("Error while reading \"Intermediate Symbols Decoders\" file:");
                 e.printStackTrace(System.err);
             }
@@ -98,11 +91,10 @@ final class ISDManager {
     /**
      * Returns an optimized decoder for the given value of K' (see RFC 6330), or {@code null} if there is none
      * registered for the given value.
-     * 
-     * @param Kprime
-     *            The number of source (and padding) symbols in an extended source block
+     *
+     * @param Kprime The number of source (and padding) symbols in an extended source block
      * @return an optimized decoder for the given value of K', or {@code null} if there is none registered for the given
-     *         value
+     * value
      */
     static IntermediateSymbolsDecoder get(int Kprime) {
 
@@ -143,8 +135,7 @@ final class ISDManager {
                 while (true) {
                     ops.add(ISDOps.readOperation(ch));
                 }
-            }
-            catch (EOFException e) {
+            } catch (EOFException e) {
                 // do nothing, we expect this exception to occur
             }
         }

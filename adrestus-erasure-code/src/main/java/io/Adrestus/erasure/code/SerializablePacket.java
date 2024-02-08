@@ -1,12 +1,12 @@
 /*
  * Copyright 2014 OpenRQ Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,10 +16,10 @@
 package io.Adrestus.erasure.code;
 
 
+import io.Adrestus.erasure.code.parameters.ParameterIO;
+
 import java.io.Serializable;
 import java.util.Objects;
-
-import io.Adrestus.erasure.code.parameters.ParameterIO;
 
 
 /**
@@ -27,7 +27,7 @@ import io.Adrestus.erasure.code.parameters.ParameterIO;
  * <p>
  * This class serializes a <em>FEC Payload ID</em>, and an array of bytes containing encoding symbols (see class
  * {@link EncodingPacket}).
- * 
+ *
  * @see EncodingPacket
  */
 public class SerializablePacket implements Serializable {
@@ -40,13 +40,10 @@ public class SerializablePacket implements Serializable {
 
     /**
      * Constructs a new serializable encoding packet.
-     * 
-     * @param fecPayloadID
-     *            A <em>FEC Payload ID</em> as specified in RFC 6330
-     * @param symbols
-     *            The data from the encoding symbols in the packet
-     * @exception NullPointerException
-     *                If {@code symbols} is {@code null}
+     *
+     * @param fecPayloadID A <em>FEC Payload ID</em> as specified in RFC 6330
+     * @param symbols      The data from the encoding symbols in the packet
+     * @throws NullPointerException If {@code symbols} is {@code null}
      */
     public SerializablePacket(int fecPayloadID, byte[] symbols) {
 
@@ -56,7 +53,7 @@ public class SerializablePacket implements Serializable {
 
     /**
      * Returns the source block number of all encoding symbols.
-     * 
+     *
      * @return the source block number of all encoding symbols
      */
     public int sourceBlockNumber() {
@@ -66,7 +63,7 @@ public class SerializablePacket implements Serializable {
 
     /**
      * Returns the encoding symbol identifier of the first encoding symbol.
-     * 
+     *
      * @return the encoding symbol identifier of the first encoding symbol
      */
     public int encodingSymbolID() {
@@ -76,7 +73,7 @@ public class SerializablePacket implements Serializable {
 
     /**
      * Returns the encoding symbols data.
-     * 
+     *
      * @return the encoding symbols data
      */
     public byte[] symbols() {

@@ -1,12 +1,12 @@
 /*
  * Copyright 2014 OpenRQ Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -38,7 +38,7 @@ public interface DataEncoder {
 
     /**
      * Returns the FEC parameters associated to this encoder.
-     * 
+     *
      * @return the FEC parameters associated to this encoder
      */
     public FECParameters fecParameters();
@@ -46,7 +46,7 @@ public interface DataEncoder {
     /**
      * Returns the length of the source data, in number of bytes. This value is the one returned by
      * {@code this.fecParameters().dataLength()}.
-     * 
+     *
      * @return the length of the data, in number of bytes
      */
     public long dataLength();
@@ -54,7 +54,7 @@ public interface DataEncoder {
     /**
      * Returns the size of a symbol, in number of bytes. This value is the one returned by
      * {@code this.fecParameters().symbolSize()}.
-     * 
+     *
      * @return the size of a symbol, in number of bytes
      */
     public int symbolSize();
@@ -62,7 +62,7 @@ public interface DataEncoder {
     /**
      * Returns the number of source blocks into which the source data is partitioned. This value is the one returned by
      * {@code this.fecParameters().numberOfSourceBlocks()}.
-     * 
+     *
      * @return the number of source blocks
      */
     public int numberOfSourceBlocks();
@@ -76,12 +76,10 @@ public interface DataEncoder {
      * <ul>
      * <li>{@code sbn} &ge; 0
      * <li>{@code sbn} &lt; {@code Z} </ul>
-     * 
-     * @param sbn
-     *            A source block number
+     *
+     * @param sbn A source block number
      * @return an encoder object for a specific source block
-     * @exception IllegalArgumentException
-     *                If the provided source block number is invalid
+     * @throws IllegalArgumentException If the provided source block number is invalid
      * @see #numberOfSourceBlocks()
      */
     public SourceBlockEncoder sourceBlock(int sbn);
@@ -89,7 +87,7 @@ public interface DataEncoder {
     /**
      * Returns a new iterable over all source block encoders. The resulting iterable can be iterated using a "foreach"
      * loop.
-     * 
+     *
      * @return a new iterable over all source block encoders
      */
     public Iterable<SourceBlockEncoder> sourceBlockIterable();

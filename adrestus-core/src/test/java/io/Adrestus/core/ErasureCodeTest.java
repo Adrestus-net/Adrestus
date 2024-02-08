@@ -1,7 +1,8 @@
 package io.Adrestus.core;
 
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import io.Adrestus.Trie.MerkleNode;
+import io.Adrestus.Trie.MerkleTreeImp;
 import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.core.Util.BlockSizeCalculator;
@@ -24,7 +25,10 @@ import io.Adrestus.crypto.mnemonic.Mnemonic;
 import io.Adrestus.crypto.mnemonic.MnemonicException;
 import io.Adrestus.crypto.mnemonic.Security;
 import io.Adrestus.crypto.mnemonic.WordList;
-import io.Adrestus.erasure.code.*;
+import io.Adrestus.erasure.code.ArrayDataDecoder;
+import io.Adrestus.erasure.code.ArrayDataEncoder;
+import io.Adrestus.erasure.code.EncodingPacket;
+import io.Adrestus.erasure.code.OpenRQ;
 import io.Adrestus.erasure.code.decoder.SourceBlockDecoder;
 import io.Adrestus.erasure.code.encoder.SourceBlockEncoder;
 import io.Adrestus.erasure.code.parameters.FECParameterObject;
@@ -52,7 +56,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ErasureCodeTest {
 
-    private static final int TRANSACTION_SIZE = 100;
+    private static final int TRANSACTION_SIZE = 1000;
 
     private static BLSPrivateKey sk1;
     private static BLSPublicKey vk1;
@@ -187,8 +191,9 @@ public class ErasureCodeTest {
         final ArrayDataDecoder dec = OpenRQ.newDecoder(recfecParams, recobject.getSymbolOverhead());
         int counter = 0;
         for (SerializableErasureObject pakcet : recserializableErasureObjects) {
-            final SourceBlockDecoder sbDec = dec.sourceBlock(counter);
-            sbDec.putEncodingPacket(dec.parsePacket(ByteBuffer.wrap(pakcet.getOriginalPacketChunks()), false).value());
+            EncodingPacket encodingPacket = dec.parsePacket(ByteBuffer.wrap(pakcet.getOriginalPacketChunks()), false).value();
+            final SourceBlockDecoder sbDec = dec.sourceBlock(encodingPacket.sourceBlockNumber());
+            sbDec.putEncodingPacket(encodingPacket);
             counter++;
         }
 
@@ -225,28 +230,27 @@ public class ErasureCodeTest {
             for (EncodingPacket srcPacket : sbEnc.sourcePacketsIterable()) {
                 n.add(srcPacket);
             }
-                int numRepairSymbols = OpenRQ.minRepairSymbols(sbEnc.numberOfSourceSymbols(), object.getSymbolOverhead(), loss);
-                if (numRepairSymbols > 0) {
-                    for (EncodingPacket encodingPacketRepair : sbEnc.repairPacketsIterable(numRepairSymbols)) {
-                        f.add(encodingPacketRepair);
-                    }
+            int numRepairSymbols = OpenRQ.minRepairSymbols(sbEnc.numberOfSourceSymbols(), object.getSymbolOverhead(), loss);
+            if (numRepairSymbols > 0) {
+                for (EncodingPacket encodingPacketRepair : sbEnc.repairPacketsIterable(numRepairSymbols)) {
+                    f.add(encodingPacketRepair);
                 }
+            }
         }
         count = 0;
-        List<List<EncodingPacket> > lists = Lists.partition(f, numSrcBlks);
-        if(n.size()>f.size()) {
+        List<List<EncodingPacket>> lists = Lists.partition(f, f.size() / numSrcBlks);
+        if (n.size() > f.size()) {
             for (int i = 0; i < n.size(); i++) {
-                ArrayList<byte[]>bg= (ArrayList<byte[]>) lists.get(count).stream().map(EncodingPacket::asArray).collect(Collectors.toList());
+                ArrayList<byte[]> bg = (ArrayList<byte[]>) lists.get(count).stream().map(EncodingPacket::asArray).collect(Collectors.toList());
                 serializableErasureObjects.add(new SerializableErasureObject(object, n.get(i).asArray(), bg));
                 count++;
                 if (count == f.size() - 1)
                     count = 0;
             }
-        }
-        else{
+        } else {
             int finalCount = count;
-            lists.stream().forEach(lst->{
-                ArrayList<byte[]>repairs= (ArrayList<byte[]>) lst.stream().map(EncodingPacket::asArray).collect(Collectors.toList());
+            lists.stream().forEach(lst -> {
+                ArrayList<byte[]> repairs = (ArrayList<byte[]>) lst.stream().map(EncodingPacket::asArray).collect(Collectors.toList());
                 serializableErasureObjects.add(new SerializableErasureObject(object, n.get(finalCount).asArray(), repairs));
             });
             count++;
@@ -269,16 +273,16 @@ public class ErasureCodeTest {
         FECParameters recfecParams = FECParameters.newParameters(recobject.getDataLen(), recobject.getSymbolSize(), recobject.getNumberOfSymbols());
         final ArrayDataDecoder dec = OpenRQ.newDecoder(recfecParams, recobject.getSymbolOverhead());
 
-        for(int i=0;i<recserializableErasureObjects.size()/2;i++){
-            EncodingPacket encodingPacket=dec.parsePacket(ByteBuffer.wrap(recserializableErasureObjects.get(i).getOriginalPacketChunks()),false).value();
+        for (int i = 0; i < recserializableErasureObjects.size() / 2; i++) {
+            EncodingPacket encodingPacket = dec.parsePacket(ByteBuffer.wrap(recserializableErasureObjects.get(i).getOriginalPacketChunks()), false).value();
             final SourceBlockDecoder sbDec = dec.sourceBlock(encodingPacket.sourceBlockNumber());
             sbDec.putEncodingPacket(encodingPacket);
         }
         ArrayList<EncodingPacket> rec_f = new ArrayList<EncodingPacket>();
-        for(SerializableErasureObject obj:recserializableErasureObjects){
-            obj.getRepairPacketChunks().stream().forEach(val->rec_f.add(dec.parsePacket(val,false).value()));
+        for (SerializableErasureObject obj : recserializableErasureObjects) {
+            obj.getRepairPacketChunks().stream().forEach(val -> rec_f.add(dec.parsePacket(val, false).value()));
         }
-        for(int i=0;i<rec_f.size();i++){
+        for (int i = 0; i < rec_f.size(); i++) {
             final SourceBlockDecoder sbDec = dec.sourceBlock(rec_f.get(i).sourceBlockNumber());
             sbDec.putEncodingPacket(rec_f.get(i));
             boolean val = Arrays.equals(data, dec.dataArray());
@@ -295,10 +299,327 @@ public class ErasureCodeTest {
     }
 
     @Test
-    public void SerializationWithRepairsLooptest() throws MnemonicException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException, CloneNotSupportedException {
+    public void SerializationWithBrokenPackageAndRepairstest() throws MnemonicException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException, CloneNotSupportedException {
         BlockSizeCalculator sizeCalculator = new BlockSizeCalculator();
         sizeCalculator.setTransactionBlock(transactionBlock);
         byte[] buffer = encode.encode(transactionBlock, sizeCalculator.TransactionBlockSizeCalculator());
+
+        long dataLen = buffer.length;
+        int sizeOfCommittee = 4;
+        double loss = .6;
+        int numSrcBlks = sizeOfCommittee;
+        int symbSize = (int) (dataLen / sizeOfCommittee);
+        FECParameterObject object = FECParametersPreConditions.CalculateFECParameters(dataLen, symbSize, numSrcBlks);
+        FECParameters fecParams = FECParameters.newParameters(object.getDataLen(), object.getSymbolSize(), object.getNumberOfSymbols());
+
+        byte[] data = new byte[fecParams.dataLengthAsInt()];
+        System.arraycopy(buffer, 0, data, 0, data.length);
+        final ArrayDataEncoder enc = OpenRQ.newEncoder(data, fecParams);
+        ArrayList<SerializableErasureObject> serializableErasureObjects = new ArrayList<SerializableErasureObject>();
+        ArrayList<EncodingPacket> n = new ArrayList<EncodingPacket>();
+        ArrayList<EncodingPacket> f = new ArrayList<EncodingPacket>();
+        int count = 0;
+        for (SourceBlockEncoder sbEnc : enc.sourceBlockIterable()) {
+            for (EncodingPacket srcPacket : sbEnc.sourcePacketsIterable()) {
+                n.add(srcPacket);
+            }
+            int numRepairSymbols = OpenRQ.minRepairSymbols(sbEnc.numberOfSourceSymbols(), object.getSymbolOverhead(), loss);
+            if (numRepairSymbols > 0) {
+                for (EncodingPacket encodingPacketRepair : sbEnc.repairPacketsIterable(numRepairSymbols)) {
+                    f.add(encodingPacketRepair);
+                }
+            }
+        }
+        count = 0;
+        List<List<EncodingPacket>> lists = Lists.partition(f, f.size() / numSrcBlks);
+        if (n.size() > f.size()) {
+            for (int i = 0; i < n.size(); i++) {
+                ArrayList<byte[]> bg = (ArrayList<byte[]>) lists.get(count).stream().map(EncodingPacket::asArray).collect(Collectors.toList());
+                serializableErasureObjects.add(new SerializableErasureObject(object, n.get(i).asArray(), bg));
+                count++;
+                if (count == f.size() - 1)
+                    count = 0;
+            }
+        } else {
+            int finalCount = count;
+            lists.stream().forEach(lst -> {
+                ArrayList<byte[]> repairs = (ArrayList<byte[]>) lst.stream().map(EncodingPacket::asArray).collect(Collectors.toList());
+                serializableErasureObjects.add(new SerializableErasureObject(object, n.get(finalCount).asArray(), repairs));
+            });
+            count++;
+            if (count == n.size() - 1)
+                count = 0;
+        }
+        serializableErasureObjects.get(0).setOriginalPacketChunks(new byte[0]);
+        ArrayList<byte[]> toSend = new ArrayList<>();
+        for (SerializableErasureObject obj : serializableErasureObjects) {
+            toSend.add(serenc_erasure.encode(obj));
+        }
+        //#########################################################################################################################
+        ArrayList<SerializableErasureObject> recserializableErasureObjects = new ArrayList<SerializableErasureObject>();
+        for (byte[] rec_buff : toSend) {
+            recserializableErasureObjects.add(serenc_erasure.decode(rec_buff));
+        }
+        assertEquals(serializableErasureObjects, recserializableErasureObjects);
+
+        Collections.shuffle(serializableErasureObjects);
+        FECParameterObject recobject = recserializableErasureObjects.get(0).getFecParameterObject();
+        FECParameters recfecParams = FECParameters.newParameters(recobject.getDataLen(), recobject.getSymbolSize(), recobject.getNumberOfSymbols());
+        final ArrayDataDecoder dec = OpenRQ.newDecoder(recfecParams, recobject.getSymbolOverhead());
+
+        boolean flag = false;
+        for (int i = 0; i < recserializableErasureObjects.size() / 2; i++) {
+            try {
+                EncodingPacket encodingPacket = dec.parsePacket(ByteBuffer.wrap(recserializableErasureObjects.get(i).getOriginalPacketChunks()), false).value();
+                final SourceBlockDecoder sbDec = dec.sourceBlock(encodingPacket.sourceBlockNumber());
+                sbDec.putEncodingPacket(encodingPacket);
+            } catch (Exception e) {
+                flag = true;
+            }
+        }
+        ArrayList<EncodingPacket> rec_f = new ArrayList<EncodingPacket>();
+        for (SerializableErasureObject obj : recserializableErasureObjects) {
+            obj.getRepairPacketChunks().stream().forEach(val -> rec_f.add(dec.parsePacket(val, false).value()));
+        }
+        if (flag) {
+            for (int i = 0; i < rec_f.size(); i++) {
+                final SourceBlockDecoder sbDec = dec.sourceBlock(rec_f.get(i).sourceBlockNumber());
+                sbDec.putEncodingPacket(rec_f.get(i));
+                boolean val = Arrays.equals(data, dec.dataArray());
+                if (val) {
+                    break;
+                }
+            }
+        }
+
+        // compare the original and decoded data
+        assertArrayEquals(data, dec.dataArray());
+
+        TransactionBlock copys = encode.decode(data);
+        assertEquals(copys, transactionBlock);
+    }
+
+    @Test
+    public void SerializationWithMerkleAndRepairstest() throws MnemonicException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException, CloneNotSupportedException {
+        BlockSizeCalculator sizeCalculator = new BlockSizeCalculator();
+        sizeCalculator.setTransactionBlock(transactionBlock);
+        byte[] buffer = encode.encode(transactionBlock, sizeCalculator.TransactionBlockSizeCalculator());
+
+        long dataLen = buffer.length;
+        int sizeOfCommittee = 4;
+        double loss = .6;
+        int numSrcBlks = sizeOfCommittee;
+        int symbSize = (int) (dataLen / sizeOfCommittee);
+        FECParameterObject object = FECParametersPreConditions.CalculateFECParameters(dataLen, symbSize, numSrcBlks);
+        FECParameters fecParams = FECParameters.newParameters(object.getDataLen(), object.getSymbolSize(), object.getNumberOfSymbols());
+
+        byte[] data = new byte[fecParams.dataLengthAsInt()];
+        System.arraycopy(buffer, 0, data, 0, data.length);
+        final ArrayDataEncoder enc = OpenRQ.newEncoder(data, fecParams);
+        ArrayList<SerializableErasureObject> serializableErasureObjects = new ArrayList<SerializableErasureObject>();
+        ArrayList<EncodingPacket> n = new ArrayList<EncodingPacket>();
+        ArrayList<EncodingPacket> f = new ArrayList<EncodingPacket>();
+        int count = 0;
+        for (SourceBlockEncoder sbEnc : enc.sourceBlockIterable()) {
+            for (EncodingPacket srcPacket : sbEnc.sourcePacketsIterable()) {
+                n.add(srcPacket);
+            }
+            int numRepairSymbols = OpenRQ.minRepairSymbols(sbEnc.numberOfSourceSymbols(), object.getSymbolOverhead(), loss);
+            if (numRepairSymbols > 0) {
+                for (EncodingPacket encodingPacketRepair : sbEnc.repairPacketsIterable(numRepairSymbols)) {
+                    f.add(encodingPacketRepair);
+                }
+            }
+        }
+        count = 0;
+        List<List<EncodingPacket>> lists = Lists.partition(f, f.size() / numSrcBlks);
+        MerkleTreeImp tree = new MerkleTreeImp();
+        ArrayList<MerkleNode> merkleNodes = new ArrayList<MerkleNode>();
+        if (n.size() > f.size()) {
+            for (int i = 0; i < n.size(); i++) {
+                SerializableErasureObject serializableErasureObject = new SerializableErasureObject();
+                ArrayList<byte[]> bg = (ArrayList<byte[]>) lists.get(count).stream().map(EncodingPacket::asArray).collect(Collectors.toList());
+                serializableErasureObject.setFecParameterObject(object);
+                serializableErasureObject.setOriginalPacketChunks(n.get(i).asArray());
+                serializableErasureObject.setRepairPacketChunks(bg);
+                merkleNodes.add(new MerkleNode(Hex.toHexString(HashUtil.Shake256(serializableErasureObject.getOriginalPacketChunks()))));
+                ByteBuffer allocate = ByteBuffer.allocate(serializableErasureObject.getRepairChunksSize());
+                serializableErasureObject.getRepairPacketChunks().forEach(buff -> allocate.put(buff));
+                merkleNodes.add(new MerkleNode(Hex.toHexString(HashUtil.Shake256(allocate.array()))));
+                serializableErasureObjects.add(serializableErasureObject);
+                count++;
+                if (count == f.size() - 1)
+                    count = 0;
+            }
+        } else {
+            int finalCount = count;
+            lists.stream().forEach(lst -> {
+                SerializableErasureObject serializableErasureObject = new SerializableErasureObject();
+                ArrayList<byte[]> repairs = (ArrayList<byte[]>) lst.stream().map(EncodingPacket::asArray).collect(Collectors.toList());
+                serializableErasureObject.setFecParameterObject(object);
+                serializableErasureObject.setOriginalPacketChunks(n.get(finalCount).asArray());
+                serializableErasureObject.setRepairPacketChunks(repairs);
+                merkleNodes.add(new MerkleNode(Hex.toHexString(HashUtil.Shake256(serializableErasureObject.getOriginalPacketChunks()))));
+                ByteBuffer allocate = ByteBuffer.allocate(serializableErasureObject.getRepairChunksSize());
+                serializableErasureObject.getRepairPacketChunks().forEach(buff -> allocate.put(buff));
+                merkleNodes.add(new MerkleNode(Hex.toHexString(HashUtil.Shake256(allocate.array()))));
+                serializableErasureObjects.add(serializableErasureObject);
+            });
+            count++;
+            if (count == n.size() - 1)
+                count = 0;
+        }
+        tree.my_generate(merkleNodes);
+        String original_hash = tree.getRootHash();
+        for (SerializableErasureObject obj : serializableErasureObjects) {
+            obj.setMerkleNodes(merkleNodes);
+            obj.setRootMerkleHash(tree.getRootHash());
+        }
+        ArrayList<byte[]> toSend = new ArrayList<>();
+        for (SerializableErasureObject obj : serializableErasureObjects) {
+            toSend.add(serenc_erasure.encode(obj));
+        }
+        //#########################################################################################################################
+        ArrayList<SerializableErasureObject> recserializableErasureObjects = new ArrayList<SerializableErasureObject>();
+        for (byte[] rec_buff : toSend) {
+            recserializableErasureObjects.add(serenc_erasure.decode(rec_buff));
+        }
+        assertEquals(serializableErasureObjects, recserializableErasureObjects);
+
+        for (SerializableErasureObject obj : recserializableErasureObjects) {
+            if (!obj.CheckChunksValidity(original_hash, merkleNodes))
+                throw new IllegalArgumentException("Error at Merkle Tree Validation");
+        }
+        Collections.shuffle(serializableErasureObjects);
+        FECParameterObject recobject = recserializableErasureObjects.get(0).getFecParameterObject();
+        FECParameters recfecParams = FECParameters.newParameters(recobject.getDataLen(), recobject.getSymbolSize(), recobject.getNumberOfSymbols());
+        final ArrayDataDecoder dec = OpenRQ.newDecoder(recfecParams, recobject.getSymbolOverhead());
+
+        for (int i = 0; i < recserializableErasureObjects.size() / 2; i++) {
+            EncodingPacket encodingPacket = dec.parsePacket(ByteBuffer.wrap(recserializableErasureObjects.get(i).getOriginalPacketChunks()), false).value();
+            final SourceBlockDecoder sbDec = dec.sourceBlock(encodingPacket.sourceBlockNumber());
+            sbDec.putEncodingPacket(encodingPacket);
+        }
+        ArrayList<EncodingPacket> rec_f = new ArrayList<EncodingPacket>();
+        for (SerializableErasureObject obj : recserializableErasureObjects) {
+            obj.getRepairPacketChunks().stream().forEach(val -> rec_f.add(dec.parsePacket(val, false).value()));
+        }
+        for (int i = 0; i < rec_f.size(); i++) {
+            final SourceBlockDecoder sbDec = dec.sourceBlock(rec_f.get(i).sourceBlockNumber());
+            sbDec.putEncodingPacket(rec_f.get(i));
+            boolean val = Arrays.equals(data, dec.dataArray());
+            if (val) {
+                break;
+            }
+        }
+
+        // compare the original and decoded data
+        assertArrayEquals(data, dec.dataArray());
+
+        TransactionBlock copys = encode.decode(data);
+        assertEquals(copys, transactionBlock);
+    }
+
+    @Test
+    public void SerializationWithRepairstestAndByzantine() throws MnemonicException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException, CloneNotSupportedException {
+        BlockSizeCalculator sizeCalculator = new BlockSizeCalculator();
+        sizeCalculator.setTransactionBlock(transactionBlock);
+        byte[] buffer = encode.encode(transactionBlock, sizeCalculator.TransactionBlockSizeCalculator());
+
+        long dataLen = buffer.length;
+        int sizeOfCommittee = 4;
+        double loss = .6;
+        int numSrcBlks = sizeOfCommittee;
+        int symbSize = (int) (dataLen / sizeOfCommittee);
+        FECParameterObject object = FECParametersPreConditions.CalculateFECParameters(dataLen, symbSize, numSrcBlks);
+        FECParameters fecParams = FECParameters.newParameters(object.getDataLen(), object.getSymbolSize(), object.getNumberOfSymbols());
+
+        byte[] data = new byte[fecParams.dataLengthAsInt()];
+        System.arraycopy(buffer, 0, data, 0, data.length);
+        final ArrayDataEncoder enc = OpenRQ.newEncoder(data, fecParams);
+        ArrayList<SerializableErasureObject> serializableErasureObjects = new ArrayList<SerializableErasureObject>();
+        ArrayList<EncodingPacket> n = new ArrayList<EncodingPacket>();
+        ArrayList<EncodingPacket> f = new ArrayList<EncodingPacket>();
+        int count = 0;
+        for (SourceBlockEncoder sbEnc : enc.sourceBlockIterable()) {
+            for (EncodingPacket srcPacket : sbEnc.sourcePacketsIterable()) {
+                n.add(srcPacket);
+            }
+            int numRepairSymbols = OpenRQ.minRepairSymbols(sbEnc.numberOfSourceSymbols(), object.getSymbolOverhead(), loss);
+            if (numRepairSymbols > 0) {
+                for (EncodingPacket encodingPacketRepair : sbEnc.repairPacketsIterable(numRepairSymbols)) {
+                    f.add(encodingPacketRepair);
+                }
+            }
+        }
+        count = 0;
+        List<List<EncodingPacket>> lists = Lists.partition(f, f.size() / numSrcBlks);
+        if (n.size() > f.size()) {
+            for (int i = 0; i < n.size(); i++) {
+                ArrayList<byte[]> bg = (ArrayList<byte[]>) lists.get(count).stream().map(EncodingPacket::asArray).collect(Collectors.toList());
+                serializableErasureObjects.add(new SerializableErasureObject(object, n.get(i).asArray(), bg));
+                count++;
+                if (count == f.size() - 1)
+                    count = 0;
+            }
+        } else {
+            int finalCount = count;
+            lists.stream().forEach(lst -> {
+                ArrayList<byte[]> repairs = (ArrayList<byte[]>) lst.stream().map(EncodingPacket::asArray).collect(Collectors.toList());
+                serializableErasureObjects.add(new SerializableErasureObject(object, n.get(finalCount).asArray(), repairs));
+            });
+            count++;
+            if (count == n.size() - 1)
+                count = 0;
+        }
+        ArrayList<byte[]> toSend = new ArrayList<>();
+        int byzantine_size = (serializableErasureObjects.size() - 1) / 3;
+        for (int i = 0; i <= byzantine_size; i++) {
+            toSend.add(serenc_erasure.encode(serializableErasureObjects.get(i)));
+        }
+        //#########################################################################################################################
+        ArrayList<SerializableErasureObject> recserializableErasureObjects = new ArrayList<SerializableErasureObject>();
+        for (byte[] rec_buff : toSend) {
+            recserializableErasureObjects.add(serenc_erasure.decode(rec_buff));
+        }
+
+        Collections.shuffle(serializableErasureObjects);
+        FECParameterObject recobject = recserializableErasureObjects.get(0).getFecParameterObject();
+        FECParameters recfecParams = FECParameters.newParameters(recobject.getDataLen(), recobject.getSymbolSize(), recobject.getNumberOfSymbols());
+        final ArrayDataDecoder dec = OpenRQ.newDecoder(recfecParams, recobject.getSymbolOverhead());
+
+        for (int i = 0; i < recserializableErasureObjects.size() / 2; i++) {
+            EncodingPacket encodingPacket = dec.parsePacket(ByteBuffer.wrap(recserializableErasureObjects.get(i).getOriginalPacketChunks()), false).value();
+            final SourceBlockDecoder sbDec = dec.sourceBlock(encodingPacket.sourceBlockNumber());
+            sbDec.putEncodingPacket(encodingPacket);
+        }
+        ArrayList<EncodingPacket> rec_f = new ArrayList<EncodingPacket>();
+        for (SerializableErasureObject obj : recserializableErasureObjects) {
+            obj.getRepairPacketChunks().stream().forEach(val -> rec_f.add(dec.parsePacket(val, false).value()));
+        }
+        for (int i = 0; i < rec_f.size(); i++) {
+            final SourceBlockDecoder sbDec = dec.sourceBlock(rec_f.get(i).sourceBlockNumber());
+            sbDec.putEncodingPacket(rec_f.get(i));
+            boolean val = Arrays.equals(data, dec.dataArray());
+            if (val) {
+                break;
+            }
+        }
+
+        // compare the original and decoded data
+        assertArrayEquals(data, dec.dataArray());
+
+        TransactionBlock copys = encode.decode(data);
+        assertEquals(copys, transactionBlock);
+    }
+
+
+    @Test
+    public void SerializationWithRepairsLooptest() throws MnemonicException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException, CloneNotSupportedException {
+        BlockSizeCalculator sizeCalculator = new BlockSizeCalculator();
+        sizeCalculator.setTransactionBlock(transactionBlock);
+        int blocksize = sizeCalculator.TransactionBlockSizeCalculator();
+        byte[] buffer = encode.encode(transactionBlock, blocksize);
 
         long dataLen = buffer.length;
         int sizeOfCommittee = 4;
@@ -328,7 +649,7 @@ public class ErasureCodeTest {
                 }
             }
             count = 0;
-            List<List<EncodingPacket>> lists = Lists.partition(f, numSrcBlks);
+            List<List<EncodingPacket>> lists = Lists.partition(f, f.size() / numSrcBlks);
             if (n.size() > f.size()) {
                 for (int i = 0; i < n.size(); i++) {
                     ArrayList<byte[]> bg = (ArrayList<byte[]>) lists.get(count).stream().map(EncodingPacket::asArray).collect(Collectors.toList());
@@ -347,9 +668,10 @@ public class ErasureCodeTest {
                 if (count == n.size() - 1)
                     count = 0;
             }
+
             ArrayList<byte[]> toSend = new ArrayList<>();
             for (SerializableErasureObject obj : serializableErasureObjects) {
-                toSend.add(serenc_erasure.encode(obj));
+                toSend.add(serenc_erasure.encode(obj, obj.getSize()));
             }
             //#########################################################################################################################
             ArrayList<SerializableErasureObject> recserializableErasureObjects = new ArrayList<SerializableErasureObject>();

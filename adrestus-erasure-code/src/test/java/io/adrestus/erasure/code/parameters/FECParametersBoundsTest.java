@@ -1,12 +1,12 @@
 /*
  * Copyright 2014 OpenRQ Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,16 +16,6 @@
 package io.adrestus.erasure.code.parameters;
 
 
-
-import static io.adrestus.erasure.code.TestingCommon.*;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assume.assumeTrue;
-
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-
 import io.Adrestus.erasure.code.parameters.ParameterChecker;
 import lombok.SneakyThrows;
 import org.junit.Test;
@@ -33,6 +23,15 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
+
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+
+import static io.adrestus.erasure.code.TestingCommon.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeTrue;
 
 
 /**
@@ -128,16 +127,16 @@ public class FECParametersBoundsTest {
             assumeTrue(ParameterChecker.areValidFECParameters(F, T, Z, N));
 
             assertTrue(String.format("F is less than its minimum - %s", params),
-                F >= ParameterChecker.minDataLength());
+                    F >= ParameterChecker.minDataLength());
 
             assertTrue(String.format("F is greater than its maximum - %s", params),
-                F <= ParameterChecker.maxDataLength());
+                    F <= ParameterChecker.maxDataLength());
 
             assertFalse(String.format("F is out of bounds - %s", params),
-                ParameterChecker.isDataLengthOutOfBounds(F));
+                    ParameterChecker.isDataLengthOutOfBounds(F));
 
             assertTrue(String.format("F is greater than its allowed maximum - %s", params),
-                F <= ParameterChecker.maxAllowedDataLength(T));
+                    F <= ParameterChecker.maxAllowedDataLength(T));
         }
     }
 
@@ -154,16 +153,16 @@ public class FECParametersBoundsTest {
             assumeTrue(ParameterChecker.areValidFECParameters(F, T, Z, N));
 
             assertTrue(String.format("T is less than its minimum - %s", params),
-                T >= ParameterChecker.minSymbolSize());
+                    T >= ParameterChecker.minSymbolSize());
 
             assertTrue(String.format("T is greater than its maximum - %s", params),
-                T <= ParameterChecker.maxSymbolSize());
+                    T <= ParameterChecker.maxSymbolSize());
 
             assertFalse(String.format("T is out of bounds - %s", params),
-                ParameterChecker.isDataLengthOutOfBounds(T));
+                    ParameterChecker.isDataLengthOutOfBounds(T));
 
             assertTrue(String.format("T is less than its allowed minimum - %s", params),
-                T >= ParameterChecker.minAllowedSymbolSize(F));
+                    T >= ParameterChecker.minAllowedSymbolSize(F));
         }
     }
 
@@ -180,18 +179,18 @@ public class FECParametersBoundsTest {
             assumeTrue(ParameterChecker.areValidFECParameters(F, T, Z, N));
 
             assertTrue(String.format("Z is less than its minimum - %s", params),
-                Z >= ParameterChecker.minNumSourceBlocks());
+                    Z >= ParameterChecker.minNumSourceBlocks());
             assertTrue(String.format("Z is greater than its maximum - %s", params),
-                Z <= ParameterChecker.maxNumSourceBlocks());
+                    Z <= ParameterChecker.maxNumSourceBlocks());
 
             assertFalse(String.format("Z is out of bounds - %s", params),
-                ParameterChecker.isNumSourceBlocksOutOfBounds(Z));
+                    ParameterChecker.isNumSourceBlocksOutOfBounds(Z));
 
             assertTrue(String.format("Z is less than its allowed minimum - %s", params),
-                Z >= ParameterChecker.minAllowedNumSourceBlocks(F, T));
+                    Z >= ParameterChecker.minAllowedNumSourceBlocks(F, T));
 
             assertTrue(String.format("Z is greater than its allowed maximum - %s", params),
-                Z <= ParameterChecker.maxAllowedNumSourceBlocks(F, T));
+                    Z <= ParameterChecker.maxAllowedNumSourceBlocks(F, T));
         }
     }
 
@@ -208,16 +207,16 @@ public class FECParametersBoundsTest {
             assumeTrue(ParameterChecker.areValidFECParameters(F, T, Z, N));
 
             assertTrue(String.format("N is less than its minimum - %s", params),
-                N >= ParameterChecker.minInterleaverLength());
+                    N >= ParameterChecker.minInterleaverLength());
 
             assertTrue(String.format("N is greater than its maximum - %s", params),
-                N <= ParameterChecker.maxInterleaverLength());
+                    N <= ParameterChecker.maxInterleaverLength());
 
             assertFalse(String.format("N is out of bounds - %s", params),
-                ParameterChecker.isInterleaverLengthOutOfBounds(N));
+                    ParameterChecker.isInterleaverLengthOutOfBounds(N));
 
             assertTrue(String.format("N is greater than its allowed maximum - %s", params),
-                N <= ParameterChecker.maxAllowedInterleaverLength(T));
+                    N <= ParameterChecker.maxAllowedInterleaverLength(T));
         }
     }
 }

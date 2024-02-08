@@ -1,12 +1,12 @@
 /*
  * Copyright 2014 OpenRQ Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,21 +16,21 @@
 
 /*
  * Copyright 2011-2014, by Vladimir Kostyukov and Contributors.
- * 
+ *
  * This file is part of la4j project (http://la4j.org)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * You may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  * Contributor(s): -
  */
 package io.Adrestus.erasure.code.util.linearalgebra.io;
@@ -53,9 +53,9 @@ abstract class CursorIterator implements Iterator<Byte> {
 
 
     private static final Collection<IteratorState> TAKEN_FROM_BOTH = Arrays.asList(
-        IteratorState.TAKEN_FROM_THESE,
-        IteratorState.TAKEN_FROM_THOSE
-        );
+            IteratorState.TAKEN_FROM_THESE,
+            IteratorState.TAKEN_FROM_THOSE
+    );
 
 
     public abstract byte get();
@@ -82,8 +82,7 @@ abstract class CursorIterator implements Iterator<Byte> {
 
                 if (state.contains(IteratorState.TAKEN_FROM_THESE)) {
                     return these.cursor();
-                }
-                else {
+                } else {
                     return those.cursor();
                 }
             }
@@ -92,15 +91,13 @@ abstract class CursorIterator implements Iterator<Byte> {
             public byte get() {
 
                 if (state.contains(IteratorState.TAKEN_FROM_THESE) &&
-                    state.contains(IteratorState.TAKEN_FROM_THOSE)) {
+                        state.contains(IteratorState.TAKEN_FROM_THOSE)) {
 
                     return function.evaluate(these.get(), those.get());
-                }
-                else if (state.contains(IteratorState.TAKEN_FROM_THESE)) {
-                    return function.evaluate(these.get(), (byte)0);
-                }
-                else {
-                    return function.evaluate((byte)0, those.get());
+                } else if (state.contains(IteratorState.TAKEN_FROM_THESE)) {
+                    return function.evaluate(these.get(), (byte) 0);
+                } else {
+                    return function.evaluate((byte) 0, those.get());
                 }
             }
 
@@ -120,7 +117,7 @@ abstract class CursorIterator implements Iterator<Byte> {
                     return false;
                 }
                 return !state.contains(IteratorState.THESE_ARE_EMPTY) ||
-                       !state.contains(IteratorState.THOSE_ARE_EMPTY);
+                        !state.contains(IteratorState.THOSE_ARE_EMPTY);
             }
 
             @Override
@@ -129,8 +126,7 @@ abstract class CursorIterator implements Iterator<Byte> {
                 if (state.contains(IteratorState.TAKEN_FROM_THESE)) {
                     if (these.hasNext()) {
                         these.next();
-                    }
-                    else {
+                    } else {
                         state.add(IteratorState.THESE_ARE_EMPTY);
                     }
                 }
@@ -138,8 +134,7 @@ abstract class CursorIterator implements Iterator<Byte> {
                 if (state.contains(IteratorState.TAKEN_FROM_THOSE)) {
                     if (those.hasNext()) {
                         those.next();
-                    }
-                    else {
+                    } else {
                         state.add(IteratorState.THOSE_ARE_EMPTY);
                     }
                 }
@@ -148,23 +143,19 @@ abstract class CursorIterator implements Iterator<Byte> {
                 state.remove(IteratorState.TAKEN_FROM_THOSE);
 
                 if (!state.contains(IteratorState.THESE_ARE_EMPTY) &&
-                    !state.contains(IteratorState.THOSE_ARE_EMPTY)) {
+                        !state.contains(IteratorState.THOSE_ARE_EMPTY)) {
 
                     if (these.cursor() < those.cursor()) {
                         state.add(IteratorState.TAKEN_FROM_THESE);
-                    }
-                    else if (these.cursor() > those.cursor()) {
+                    } else if (these.cursor() > those.cursor()) {
                         state.add(IteratorState.TAKEN_FROM_THOSE);
-                    }
-                    else {
+                    } else {
                         state.add(IteratorState.TAKEN_FROM_THESE);
                         state.add(IteratorState.TAKEN_FROM_THOSE);
                     }
-                }
-                else if (state.contains(IteratorState.THESE_ARE_EMPTY)) {
+                } else if (state.contains(IteratorState.THESE_ARE_EMPTY)) {
                     state.add(IteratorState.TAKEN_FROM_THOSE);
-                }
-                else if (state.contains(IteratorState.THOSE_ARE_EMPTY)) {
+                } else if (state.contains(IteratorState.THOSE_ARE_EMPTY)) {
                     state.add(IteratorState.TAKEN_FROM_THESE);
                 }
 
@@ -207,11 +198,9 @@ abstract class CursorIterator implements Iterator<Byte> {
                     while (these.cursor() != those.cursor()) {
                         if (these.hasNext() && these.cursor() < those.cursor()) {
                             these.next();
-                        }
-                        else if (those.hasNext() && these.cursor() > those.cursor()) {
+                        } else if (those.hasNext() && these.cursor() > those.cursor()) {
                             those.next();
-                        }
-                        else {
+                        } else {
                             return;
                         }
                     }

@@ -1,12 +1,12 @@
 /*
  * Copyright 2014 OpenRQ Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -33,13 +33,11 @@ public enum BufferOperation {
      * </ul>
      */
     ADVANCE_POSITION {
-
         @Override
         public void apply(
-            Buffer buf,
-            @SuppressWarnings("unused") int beforeBufPos,
-            int afterBufPos)
-        {
+                Buffer buf,
+                @SuppressWarnings("unused") int beforeBufPos,
+                int afterBufPos) {
 
             buf.position(afterBufPos);
         }
@@ -54,13 +52,11 @@ public enum BufferOperation {
      * </ul>
      */
     RESTORE_POSITION {
-
         @Override
         public void apply(
-            Buffer buf,
-            int beforeBufPos,
-            @SuppressWarnings("unused") int afterBufPos)
-        {
+                Buffer buf,
+                int beforeBufPos,
+                @SuppressWarnings("unused") int afterBufPos) {
 
             buf.position(beforeBufPos);
         }
@@ -76,13 +72,11 @@ public enum BufferOperation {
      * </ul>
      */
     FLIP_RELATIVELY {
-
         @Override
         public void apply(
-            Buffer buf,
-            int beforeBufPos,
-            int afterBufPos)
-        {
+                Buffer buf,
+                int beforeBufPos,
+                int afterBufPos) {
 
             buf.position(beforeBufPos);
             buf.limit(afterBufPos);
@@ -99,12 +93,11 @@ public enum BufferOperation {
      * </ul>
      */
     FLIP_ABSOLUTELY {
-
         @Override
         public void apply(
-            Buffer buf,
-            @SuppressWarnings("unused") int beforeBufPos,
-            int afterBufPos) {
+                Buffer buf,
+                @SuppressWarnings("unused") int beforeBufPos,
+                int afterBufPos) {
 
             buf.position(0);
             buf.limit(afterBufPos);
@@ -113,13 +106,10 @@ public enum BufferOperation {
 
     /**
      * Applies this operation to the provided buffer.
-     * 
-     * @param buf
-     *            The buffer to be affected by this operation
-     * @param beforeBufPos
-     *            The position of the buffer before a specific operation took place
-     * @param afterBufPos
-     *            The position of the buffer after a specific operation took place
+     *
+     * @param buf          The buffer to be affected by this operation
+     * @param beforeBufPos The position of the buffer before a specific operation took place
+     * @param afterBufPos  The position of the buffer after a specific operation took place
      */
     public abstract void apply(Buffer buf, int beforeBufPos, int afterBufPos);
 }

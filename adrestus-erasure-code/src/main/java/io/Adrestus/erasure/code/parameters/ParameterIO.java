@@ -1,12 +1,12 @@
 /*
  * Copyright 2014 OpenRQ Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -85,9 +85,8 @@ public class ParameterIO {
 
     /**
      * Extracts the source data length from a <em>Common FEC Object Transmission Information</em>.
-     * 
-     * @param commonFecOTI
-     *            A <em>Common FEC Object Transmission Information</em> as specified in RFC 6330
+     *
+     * @param commonFecOTI A <em>Common FEC Object Transmission Information</em> as specified in RFC 6330
      * @return a source data length, in number of bytes
      */
     public static long extractDataLength(long commonFecOTI) {
@@ -105,14 +104,13 @@ public class ParameterIO {
 
     /**
      * Extracts the symbol size from a <em>Common FEC Object Transmission Information</em>.
-     * 
-     * @param commonFecOTI
-     *            A <em>Common FEC Object Transmission Information</em> as specified in RFC 6330
+     *
+     * @param commonFecOTI A <em>Common FEC Object Transmission Information</em> as specified in RFC 6330
      * @return a symbol size, in number of bytes
      */
     public static int extractSymbolSize(long commonFecOTI) {
 
-        return unsignSymbolSize((int)commonFecOTI);
+        return unsignSymbolSize((int) commonFecOTI);
     }
 
     // =========== number of source blocks - Z ========== //
@@ -137,9 +135,8 @@ public class ParameterIO {
 
     /**
      * Extracts the number of source blocks from a <em>Scheme-specific FEC Object Transmission Information</em>.
-     * 
-     * @param schemeSpecFecOTI
-     *            A <em>Scheme-specific FEC Object Transmission Information</em> as specified in RFC 6330
+     *
+     * @param schemeSpecFecOTI A <em>Scheme-specific FEC Object Transmission Information</em> as specified in RFC 6330
      * @return a number of source blocks
      */
     public static int extractNumSourceBlocks(int schemeSpecFecOTI) {
@@ -163,9 +160,8 @@ public class ParameterIO {
 
     /**
      * Extracts the interleaver length from a <em>Scheme-specific FEC Object Transmission Information</em>.
-     * 
-     * @param schemeSpecFecOTI
-     *            A <em>Scheme-specific FEC Object Transmission Information</em> as specified in RFC 6330
+     *
+     * @param schemeSpecFecOTI A <em>Scheme-specific FEC Object Transmission Information</em> as specified in RFC 6330
      * @return an interleaver length
      */
     public static int extractInterleaverLength(int schemeSpecFecOTI) {
@@ -183,9 +179,8 @@ public class ParameterIO {
 
     /**
      * Extracts the symbol alignment from a <em>Scheme-specific FEC Object Transmission Information</em>.
-     * 
-     * @param schemeSpecFecOTI
-     *            A <em>Scheme-specific FEC Object Transmission Information</em> as specified in RFC 6330
+     *
+     * @param schemeSpecFecOTI A <em>Scheme-specific FEC Object Transmission Information</em> as specified in RFC 6330
      * @return a symbol alignment parameter
      */
     public static int extractSymbolAlignment(int schemeSpecFecOTI) {
@@ -209,9 +204,8 @@ public class ParameterIO {
 
     /**
      * Extracts the source block number from a <em>FEC Payload ID</em>.
-     * 
-     * @param fecPayloadID
-     *            A <em>FEC Payload ID</em> as specified in RFC 6330
+     *
+     * @param fecPayloadID A <em>FEC Payload ID</em> as specified in RFC 6330
      * @return a source block number
      */
     public static int extractSourceBlockNumber(int fecPayloadID) {
@@ -229,9 +223,8 @@ public class ParameterIO {
 
     /**
      * Extracts the encoding symbol identifier from a <em>FEC Payload ID</em>.
-     * 
-     * @param fecPayloadID
-     *            A <em>FEC Payload ID</em> as specified in RFC 6330
+     *
+     * @param fecPayloadID A <em>FEC Payload ID</em> as specified in RFC 6330
      * @return an encoding symbol identifier
      */
     public static int extractEncodingSymbolID(int fecPayloadID) {
@@ -243,11 +236,9 @@ public class ParameterIO {
 
     /**
      * Constructs a <em>Common FEC Object Transmission Information</em> from the provided FEC parameters.
-     * 
-     * @param dataLen
-     *            The source data length, in number of bytes
-     * @param symbolSize
-     *            The symbol size, in number of bytes
+     *
+     * @param dataLen    The source data length, in number of bytes
+     * @param symbolSize The symbol size, in number of bytes
      * @return a <em>Common FEC Object Transmission Information</em> as specified in RFC 6330
      */
     public static long buildCommonFecOTI(long dataLen, int symbolSize) {
@@ -270,13 +261,10 @@ public class ParameterIO {
 
     /**
      * Constructs a <em>Scheme-specific FEC Object Transmission Information</em> from the provided FEC parameters.
-     * 
-     * @param numSrcBs
-     *            The number of source blocks into which the source data is divided
-     * @param interLen
-     *            The interleaver length, in number of sub-blocks per source block
-     * @param sAlign
-     *            The symbol alignment parameter
+     *
+     * @param numSrcBs The number of source blocks into which the source data is divided
+     * @param interLen The interleaver length, in number of sub-blocks per source block
+     * @param sAlign   The symbol alignment parameter
      * @return a <em>Scheme-specific FEC Object Transmission Information</em> as specified in RFC 6330
      */
     public static int buildSchemeSpecFecOTI(int numSrcBs, int interLen, int sAlign) {
@@ -293,11 +281,9 @@ public class ParameterIO {
 
     /**
      * Constructs a <em>FEC Payload ID</em> from the provided encoding packet parameters.
-     * 
-     * @param sbn
-     *            The source block number
-     * @param esi
-     *            The encoding symbol identifier
+     *
+     * @param sbn The source block number
+     * @param esi The encoding symbol identifier
      * @return a <em>FEC Payload ID</em> as specified in RFC 6330
      */
     public static int buildFECpayloadID(int sbn, int esi) {

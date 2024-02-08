@@ -1,33 +1,25 @@
 package io.Adrestus.erasure.code.util.collection;
 
 
-import java.util.AbstractList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.ConcurrentModificationException;
-import java.util.Objects;
-import java.util.RandomAccess;
+import java.util.*;
 
 
 /**
  * This class is a simple implementation of an immutable list where all the "write" methods simply throw an
  * {@code UnsupportedOperationException}.
- * 
+ *
+ * @param <E> The element type of the list
  * @author Ricardo Fonseca &lt;rfonseca&#064;lasige.di.fc.ul.pt&gt;
- * @param <E>
- *            The element type of the list
  */
 public class ImmutableList<E> extends AbstractList<E> implements RandomAccess {
 
     /**
      * Returns an immutable list with the provided elements. The returned list keeps a reference to the provided array
      * of elements, so make sure the array is not modifiable.
-     * 
-     * @param elements
-     *            The elements to be placed in an immutable list
+     *
+     * @param elements The elements to be placed in an immutable list
      * @return an immutable list of the provided elements
-     * @exception NullPointerException
-     *                If {@code elements} is {@code null}
+     * @throws NullPointerException If {@code elements} is {@code null}
      */
     @SafeVarargs
     public static <T> ImmutableList<T> of(T... elements) {
@@ -39,12 +31,10 @@ public class ImmutableList<E> extends AbstractList<E> implements RandomAccess {
      * Returns an immutable list with the provided elements. The returned list keeps a reference to the provided array
      * of elements, so make sure the array is not modifiable. Additionally, this method does not permit {@code null}
      * elements and will throw a {@code NullPointerException} if any {@code null} element is found.
-     * 
-     * @param elements
-     *            The elements to be placed in an immutable list
+     *
+     * @param elements The elements to be placed in an immutable list
      * @return an immutable list of the provided elements
-     * @exception NullPointerException
-     *                If {@code elements} is {@code null}, or any specific element is {@code null}
+     * @throws NullPointerException If {@code elements} is {@code null}, or any specific element is {@code null}
      */
     @SafeVarargs
     public static <T> ImmutableList<T> ofNonNull(T... elements) {
@@ -58,12 +48,10 @@ public class ImmutableList<E> extends AbstractList<E> implements RandomAccess {
     /**
      * Returns an immutable list with the provided elements. The returned list does not keep a reference to the provided
      * array of elements.
-     * 
-     * @param elements
-     *            The elements to be placed in an immutable list
+     *
+     * @param elements The elements to be placed in an immutable list
      * @return an immutable list of the provided elements
-     * @exception NullPointerException
-     *                If {@code elements} is {@code null}
+     * @throws NullPointerException If {@code elements} is {@code null}
      */
     @SafeVarargs
     public static <T> ImmutableList<T> copyOf(T... elements) {
@@ -75,12 +63,10 @@ public class ImmutableList<E> extends AbstractList<E> implements RandomAccess {
      * Returns an immutable list with the provided elements. The returned list does not keep a reference to the provided
      * array of elements. Additionally, this method does not permit {@code null} elements and will throw a
      * {@code NullPointerException} if any {@code null} element is found.
-     * 
-     * @param elements
-     *            The elements to be placed in an immutable list
+     *
+     * @param elements The elements to be placed in an immutable list
      * @return an immutable list of the provided elements
-     * @exception NullPointerException
-     *                If {@code elements} is {@code null}, or any specific element is {@code null}
+     * @throws NullPointerException If {@code elements} is {@code null}, or any specific element is {@code null}
      */
     @SafeVarargs
     public static <T> ImmutableList<T> copyOfNonNull(T... elements) {
@@ -95,14 +81,11 @@ public class ImmutableList<E> extends AbstractList<E> implements RandomAccess {
     /**
      * Returns an immutable copy of the provided collection, as a list. This method iterates over the elements of the
      * collection while copying them to the returned list.
-     * 
-     * @param collection
-     *            A collection to be copied
+     *
+     * @param collection A collection to be copied
      * @return an immutable copy of the provided collection, as a list
-     * @exception NullPointerException
-     *                If {@code collection} is {@code null}
-     * @exception ConcurrentModificationException
-     *                If the method detects a modification in the provided collection while copying its elements
+     * @throws NullPointerException            If {@code collection} is {@code null}
+     * @throws ConcurrentModificationException If the method detects a modification in the provided collection while copying its elements
      */
     public static <T> ImmutableList<T> copyOf(Collection<T> collection) {
 
@@ -129,14 +112,11 @@ public class ImmutableList<E> extends AbstractList<E> implements RandomAccess {
      * collection while copying them to the returned list. Additionally, this method does not permit {@code null}
      * elements inside the collection and will throw a {@code NullPointerException} if any {@code null} element is
      * found.
-     * 
-     * @param collection
-     *            A collection to be copied
+     *
+     * @param collection A collection to be copied
      * @return an immutable copy of the provided collection, as a list
-     * @exception NullPointerException
-     *                If {@code collection} or any of its elements is {@code null}
-     * @exception ConcurrentModificationException
-     *                If the method detects a modification in the provided collection while copying its elements
+     * @throws NullPointerException            If {@code collection} or any of its elements is {@code null}
+     * @throws ConcurrentModificationException If the method detects a modification in the provided collection while copying its elements
      */
     public static <T> ImmutableList<T> copyOfNonNull(Collection<T> collection) {
 
@@ -172,9 +152,8 @@ public class ImmutableList<E> extends AbstractList<E> implements RandomAccess {
 
     /**
      * {@inheritDoc}
-     * 
-     * @throws IndexOutOfBoundsException
-     *             {@inheritDoc}
+     *
+     * @throws IndexOutOfBoundsException {@inheritDoc}
      */
     @Override
     public E get(int index) {
@@ -183,8 +162,7 @@ public class ImmutableList<E> extends AbstractList<E> implements RandomAccess {
             throw new IndexOutOfBoundsException();
         }
 
-        @SuppressWarnings("unchecked")
-        final E el = (E)elements[index];
+        @SuppressWarnings("unchecked") final E el = (E) elements[index];
         return el;
     }
 
@@ -204,8 +182,7 @@ public class ImmutableList<E> extends AbstractList<E> implements RandomAccess {
                     return i;
                 }
             }
-        }
-        else {
+        } else {
             for (int i = 0; i < size; i++) {
                 if (o.equals(elements[i])) {
                     return i;
@@ -225,8 +202,7 @@ public class ImmutableList<E> extends AbstractList<E> implements RandomAccess {
                     return i;
                 }
             }
-        }
-        else {
+        } else {
             for (int i = (size - 1); i >= 0; i--) {
                 if (o.equals(elements[i])) {
                     return i;

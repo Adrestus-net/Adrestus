@@ -1,12 +1,12 @@
 /*
  * Copyright 2014 OpenRQ Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,17 +15,6 @@
  */
 package io.Adrestus.erasure.code;
 
-
-import java.io.PrintStream;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 import io.Adrestus.erasure.code.util.array.ArrayUtils;
 import io.Adrestus.erasure.code.util.linearalgebra.LinearAlgebra;
@@ -40,8 +29,13 @@ import io.Adrestus.erasure.code.util.rq.SystematicIndices;
 import io.Adrestus.erasure.code.util.time.TimeUnits;
 import io.Adrestus.erasure.code.util.time.TimerUtils;
 
+import java.io.PrintStream;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+
 
 /**
+ *
  */
 final class LinearSystem {
 
@@ -79,70 +73,62 @@ final class LinearSystem {
 
     private static Factory getMatrixAfactory(int L, int overheadRows) {
 
-        if ((long)L * (L + overheadRows) < A_SPARSE_THRESHOLD) {
+        if ((long) L * (L + overheadRows) < A_SPARSE_THRESHOLD) {
             return DENSE_FACTORY;
-        }
-        else {
+        } else {
             return SPARSE_FACTORY;
         }
     }
 
     private static Factory getMatrixMTfactory(int H, int Kprime, int S) {
 
-        if ((long)H * (Kprime + S) < MT_SPARSE_THRESHOLD) {
+        if ((long) H * (Kprime + S) < MT_SPARSE_THRESHOLD) {
             return DENSE_FACTORY;
-        }
-        else {
+        } else {
             return SPARSE_FACTORY;
         }
     }
 
     /**
      * Initializes the G_LDPC1 submatrix.
-     * 
+     *
      * @param A
      * @param B
      * @param S
      */
-    private static void initializeG_LPDC1(ByteMatrix A, int B, int S)
-    {
+    private static void initializeG_LPDC1(ByteMatrix A, int B, int S) {
 
         int circulant_matrix = -1;
 
-        for (int col = 0; col < B; col++)
-        {
+        for (int col = 0; col < B; col++) {
             int circulant_matrix_column = col % S;
 
-            if (circulant_matrix_column != 0)
-            {
+            if (circulant_matrix_column != 0) {
                 // cyclic down-shift
                 A.set(0, col, A.get(S - 1, col - 1));
 
-                for (int row = 1; row < S; row++)
-                {
+                for (int row = 1; row < S; row++) {
                     A.set(row, col, A.get(row - 1, col - 1));
                 }
-            }
-            else
-            {   // if 0, then it's the first column of the current circulant matrix
+            } else {   // if 0, then it's the first column of the current circulant matrix
 
                 circulant_matrix++;
 
                 // 0
-                A.set(0, col, (byte)1);
+                A.set(0, col, (byte) 1);
 
                 // (i + 1) mod S
-                A.set((circulant_matrix + 1) % S, col, (byte)1);
+                A.set((circulant_matrix + 1) % S, col, (byte) 1);
 
                 // (2 * (i + 1)) mod S
-                A.set((2 * (circulant_matrix + 1)) % S, col, (byte)1);
+                A.set((2 * (circulant_matrix + 1)) % S, col, (byte) 1);
             }
         }
     }
 
     /**
      * Initializes the G_LPDC2 submatrix.
-     * 
+     *
      * @param A
      * @param S
      * @param P
@@ -150,17 +136,16 @@ final class LinearSystem {
      */
     private static void initializeG_LPDC2(ByteMatrix A, int S, int P, int W) {
 
-        for (int row = 0; row < S; row++)
-        {
+        for (int row = 0; row < S; row++) {
             // consecutive 1s modulo P
-            A.set(row, (row % P) + W, (byte)1);
-            A.set(row, ((row + 1) % P) + W, (byte)1);
+            A.set(row, (row % P) + W, (byte) 1);
+            A.set(row, ((row + 1) % P) + W, (byte) 1);
         }
     }
 
     /**
      * Initializes the I_S submatrix.
-     * 
+     *
      * @param A
      * @param S
      * @param B
@@ -168,50 +153,45 @@ final class LinearSystem {
     private static void initializeIs(ByteMatrix A, int S, int B) {
 
         for (int n = 0; n < S; n++) {
-            A.set(n, n + B, (byte)1);
+            A.set(n, n + B, (byte) 1);
         }
     }
 
     /**
      * Initializes the I_H submatrix.
-     * 
+     *
      * @param A
      * @param W
      * @param U
      * @param H
      * @param S
      */
-    private static void initializeIh(ByteMatrix A, int W, int U, int H, int S)
-    {
+    private static void initializeIh(ByteMatrix A, int W, int U, int H, int S) {
 
         int lower_limit_col = W + U;
 
         for (int n = 0; n < H; n++) {
-            A.set(n + S, n + lower_limit_col, (byte)1);
+            A.set(n + S, n + lower_limit_col, (byte) 1);
         }
     }
 
     /**
      * Generates the MT matrix that is used to generate G_HDPC submatrix.
-     * 
+     *
      * @param H
      * @param Kprime
      * @param S
      * @return MT
      */
-    private static ByteMatrix generateMT(int H, int Kprime, int S)
-    {
+    private static ByteMatrix generateMT(int H, int Kprime, int S) {
 
         ByteMatrix MT = getMatrixMTfactory(H, Kprime, S).createMatrix(H, Kprime + S);
 
-        for (int row = 0; row < H; row++)
-        {
-            for (int col = 0; col < Kprime + S - 1; col++)
-            {
+        for (int row = 0; row < H; row++) {
+            for (int col = 0; col < Kprime + S - 1; col++) {
                 if (row == (int) Rand.rand(col + 1, 6, H) ||
-                    row == (((int)Rand.rand(col + 1, 6, H) + (int)Rand.rand(col + 1, 7, H - 1) + 1) % H))
-                {
-                    MT.set(row, col, (byte)1);
+                        row == (((int) Rand.rand(col + 1, 6, H) + (int) Rand.rand(col + 1, 7, H - 1) + 1) % H)) {
+                    MT.set(row, col, (byte) 1);
                 }
             }
         }
@@ -225,21 +205,18 @@ final class LinearSystem {
 
     /**
      * Generates the GAMMA matrix that is used to generate G_HDPC submatrix.
-     * 
+     *
      * @param Kprime
      * @param S
      * @return GAMMA
      */
-    private static ByteMatrix generateGAMMA(int Kprime, int S)
-    {
+    private static ByteMatrix generateGAMMA(int Kprime, int S) {
 
         // FIXME this needs a more efficient representation since it is a lower triangular matrix
         ByteMatrix GAMMA = DENSE_FACTORY.createMatrix(Kprime + S, Kprime + S);
 
-        for (int row = 0; row < Kprime + S; row++)
-        {
-            for (int col = 0; col < Kprime + S; col++)
-            {
+        for (int row = 0; row < Kprime + S; row++) {
+            for (int col = 0; col < Kprime + S; col++) {
                 if (row >= col) {
                     GAMMA.set(row, col, OctetOps.alphaPower((row - col) % 256));
                 }
@@ -251,32 +228,29 @@ final class LinearSystem {
 
     /**
      * Initializes the G_ENC submatrix.
-     * 
+     *
      * @param A
      * @param S
      * @param H
      * @param L
      * @param Kprime
      */
-    private static void initializeG_ENC(ByteMatrix A, int S, int H, int L, int Kprime)
-    {
+    private static void initializeG_ENC(ByteMatrix A, int S, int H, int L, int Kprime) {
 
-        for (int row = S + H; row < L; row++)
-        {
+        for (int row = S + H; row < L; row++) {
             Tuple tuple = new Tuple(Kprime, row - S - H);
 
             Set<Integer> indexes = encIndexes(Kprime, tuple);
 
-            for (Integer j : indexes)
-            {
-                A.set(row, j, (byte)1);
+            for (Integer j : indexes) {
+                A.set(row, j, (byte) 1);
             }
         }
     }
 
     /**
      * Generates the constraint matrix.
-     * 
+     *
      * @param Kprime
      * @return a constraint matrix
      */
@@ -287,7 +261,7 @@ final class LinearSystem {
 
     /**
      * Generates the constraint matrix.
-     * 
+     *
      * @param Kprime
      * @param overheadRows
      * @return a constraint matrix
@@ -362,13 +336,12 @@ final class LinearSystem {
     /**
      * Returns the indexes of the intermediate symbols that should be XORed to encode
      * the symbol for the given tuple.
-     * 
+     *
      * @param Kprime
      * @param tuple
      * @return Set of indexes.
      */
-    static Set<Integer> encIndexes(int Kprime, Tuple tuple)
-    {
+    static Set<Integer> encIndexes(int Kprime, Tuple tuple) {
 
         // allocate memory for the indexes
         final Set<Integer> indexes = new HashSet<>(Kprime);
@@ -397,28 +370,25 @@ final class LinearSystem {
          * simulated encoding -- refer to section 5.3.3.3 of RFC 6330
          */
 
-        indexes.add((int)b);
+        indexes.add((int) b);
 
-        for (long j = 1; j < d; j++)
-        {
+        for (long j = 1; j < d; j++) {
             b = (b + a) % W;
-            indexes.add((int)b);
+            indexes.add((int) b);
         }
 
-        while (b1 >= P)
-        {
+        while (b1 >= P) {
             b1 = (b1 + a1) % P1;
         }
 
-        indexes.add((int)(W + b1));
+        indexes.add((int) (W + b1));
 
-        for (long j = 1; j < d1; j++)
-        {
+        for (long j = 1; j < d1; j++) {
             do
                 b1 = (b1 + a1) % P1;
             while (b1 >= P);
 
-            indexes.add((int)(W + b1));
+            indexes.add((int) (W + b1));
         }
 
         return indexes;
@@ -426,7 +396,7 @@ final class LinearSystem {
 
     /**
      * Encodes a source symbol.
-     * 
+     *
      * @param Kprime
      * @param C
      * @param tuple
@@ -442,16 +412,16 @@ final class LinearSystem {
         final int W = SystematicIndices.W(Ki);
         final long L = Kprime + S + H;
         final long P = L - W;
-        final int P1 = (int)MatrixUtilities.ceilPrime(P);
+        final int P1 = (int) MatrixUtilities.ceilPrime(P);
         final long d = tuple.getD();
-        final int a = (int)tuple.getA();
+        final int a = (int) tuple.getA();
 
-        int b = (int)tuple.getB();
+        int b = (int) tuple.getB();
 
         final long d1 = tuple.getD1();
-        final int a1 = (int)tuple.getA1();
+        final int a1 = (int) tuple.getA1();
 
-        int b1 = (int)tuple.getB1();
+        int b1 = (int) tuple.getB1();
 
         // allocate memory and initialize the encoding symbol
         final byte[] result = Arrays.copyOf(C[b], T);
@@ -460,8 +430,7 @@ final class LinearSystem {
          * encoding -- refer to section 5.3.5.3 of RFC 6330
          */
 
-        for (long j = 1; j < d; j++)
-        {
+        for (long j = 1; j < d; j++) {
             b = (b + a) % W;
             OctetOps.vectorVectorAddition(C[b], result, result);
         }
@@ -471,8 +440,7 @@ final class LinearSystem {
 
         OctetOps.vectorVectorAddition(C[W + b1], result, result);
 
-        for (long j = 1; j < d1; j++)
-        {
+        for (long j = 1; j < d1; j++) {
             do
                 b1 = (b1 + a1) % P1;
             while (b1 >= P);
@@ -485,20 +453,15 @@ final class LinearSystem {
 
     /**
      * Solves the decoding system of linear equations using the permanent inactivation technique.
-     * 
-     * @param A
-     *            The constraint matrix
-     * @param D
-     *            The vector with available symbols (each row of the matrix contains one symbol)
-     * @param Kprime
-     *            The total number of source symbols for decoding
+     *
+     * @param A      The constraint matrix
+     * @param D      The vector with available symbols (each row of the matrix contains one symbol)
+     * @param Kprime The total number of source symbols for decoding
      * @return the intermediate symbols
-     * @throws SingularMatrixException
-     *             If the decoding fails
+     * @throws SingularMatrixException If the decoding fails
      */
     static byte[][] PInactivationDecoding(ByteMatrix A, byte[][] D, int Kprime)
-        throws SingularMatrixException
-    {
+            throws SingularMatrixException {
 
         // decoding parameters
         int Ki = SystematicIndices.getKIndex(Kprime);
@@ -516,16 +479,15 @@ final class LinearSystem {
     }
 
     private static byte[][] pidPhase1(
-        final ByteMatrix A,
-        final byte[][] D,
-        final int Kprime,
-        final int S,
-        final int H,
-        final int L,
-        final int P,
-        final int M)
-        throws SingularMatrixException
-    {
+            final ByteMatrix A,
+            final byte[][] D,
+            final int Kprime,
+            final int S,
+            final int H,
+            final int L,
+            final int P,
+            final int M)
+            throws SingularMatrixException {
 
         long initNanos = 0L; // DEBUG
         long findRNanos = 0L; // DEBUG
@@ -585,8 +547,7 @@ final class LinearSystem {
                 }
 
                 rows.put(row, new Row(row, nonZeros, originalDegree, isHDPC, nodes));
-            }
-            else {
+            } else {
                 int originalDegree = 0;
 
                 ByteVectorIterator it = A.nonZeroRowIterator(row, 0, L - u);
@@ -603,8 +564,7 @@ final class LinearSystem {
         initNanos += TimerUtils.getEllapsedTimeLong(TimeUnit.NANOSECONDS);
 
         // at most L steps
-        while (i + u != L)
-        {
+        while (i + u != L) {
             // the degree of the 'currently chosen' row
             int minDegree = 256 * L;
 
@@ -637,8 +597,7 @@ final class LinearSystem {
                     chosenRow = row;
                     r = chosenRow.nonZeros;
                     minDegree = chosenRow.originalDegree;
-                }
-                else if (row.nonZeros == r && row.originalDegree < minDegree) {
+                } else if (row.nonZeros == r && row.originalDegree < minDegree) {
                     chosenRow = row;
                     minDegree = chosenRow.originalDegree;
                 }
@@ -649,7 +608,7 @@ final class LinearSystem {
 
             if (allZeros) {// DECODING FAILURE
                 throw new SingularMatrixException(
-                    "Decoding Failure - PI Decoding @ Phase 1: All entries in V are zero.");
+                        "Decoding Failure - PI Decoding @ Phase 1: All entries in V are zero.");
             }
 
             /*
@@ -668,25 +627,20 @@ final class LinearSystem {
                 Map<Integer, Set<Integer>> graph = new HashMap<>(L - u - i + 1, 1.0f);
 
                 // lets go through all the rows... (yet again!)
-                for (Row row : rows.values())
-                {
+                for (Row row : rows.values()) {
                     // is this row an edge?
-                    if (row.nodes != null)
-                    {
+                    if (row.nodes != null) {
                         // get the nodes connected through this edge
                         Integer[] edge = row.nodes.toArray(new Integer[2]);
                         int node1 = edge[0];
                         int node2 = edge[1];
 
                         // node1 already in graph?
-                        if (graph.keySet().contains(node1))
-                        { // it is
+                        if (graph.keySet().contains(node1)) { // it is
 
                             // then lets add node 2 to its neighbours
                             graph.get(node1).add(node2);
-                        }
-                        else
-                        { // it isn't
+                        } else { // it isn't
 
                             // allocate memory for its neighbours
                             Set<Integer> edges = new HashSet<>(L - u - i + 1, 1.0f);
@@ -699,14 +653,11 @@ final class LinearSystem {
                         }
 
                         // node2 already in graph?
-                        if (graph.keySet().contains(node2))
-                        { // it is
+                        if (graph.keySet().contains(node2)) { // it is
 
                             // then lets add node 1 to its neighbours
                             graph.get(node2).add(node1);
-                        }
-                        else
-                        { // it isn't
+                        } else { // it isn't
 
                             // allocate memory for its neighbours
                             Set<Integer> edges = new HashSet<>(L - u - i + 1, 1.0f);
@@ -717,8 +668,7 @@ final class LinearSystem {
                             // finally, add node 2 to the graph along with its neighbours
                             graph.put(node2, edges);
                         }
-                    }
-                    else continue;
+                    } else continue;
                 }
 
                 /*
@@ -749,8 +699,7 @@ final class LinearSystem {
                 // let's iterate through the nodes in the graph, looking for the maximum
                 // size component. we will be doing a breadth first search // TODO optimize this with a better
                 // algorithm?
-                while (it.hasNext())
-                {
+                while (it.hasNext()) {
                     // get our initial node
                     Map.Entry<Integer, Set<Integer>> node = it.next();
                     int initialNode = node.getKey();
@@ -773,15 +722,13 @@ final class LinearSystem {
 
                     // add my edges to the set of nodes we must visit
                     // and also put them in the used set
-                    for (Integer edge : edges)
-                    {
+                    for (Integer edge : edges) {
                         toVisit.add(edge);
                         used.add(edge);
                     }
 
                     // start the search!
-                    while (toVisit.size() != 0)
-                    {
+                    while (toVisit.size() != 0) {
                         // the node we are visiting
                         int no = toVisit.remove(0);
 
@@ -794,16 +741,14 @@ final class LinearSystem {
                     }
 
                     // is the number of visited nodes, greater than the 'currently' largest component?
-                    if (visited.size() > maximumSize)
-                    { // it is! we've found a greater component then...
+                    if (visited.size() > maximumSize) { // it is! we've found a greater component then...
 
                         // update the maximum size
                         maximumSize = visited.size();
 
                         // update our greatest component
                         greatestComponent = visited;
-                    }
-                    else continue;
+                    } else continue;
                 }
 
                 /*
@@ -811,11 +756,9 @@ final class LinearSystem {
                  */
 
                 // let's choose the row
-                for (Row row : rows.values())
-                {
+                for (Row row : rows.values()) {
                     // is it a node in the graph?
-                    if (row.nodes != null)
-                    { // it is
+                    if (row.nodes != null) { // it is
 
                         // get the nodes connected through this edge
                         Integer[] edge = row.nodes.toArray(new Integer[2]);
@@ -823,22 +766,18 @@ final class LinearSystem {
                         int node2 = edge[1];
 
                         // is this row an edge in the maximum size component?
-                        if (greatestComponent.contains(node1) && greatestComponent.contains(node2))
-                        {
+                        if (greatestComponent.contains(node1) && greatestComponent.contains(node2)) {
                             chosenRow = row;
                             break;
-                        }
-                        else continue;
-                    }
-                    else continue;
+                        } else continue;
+                    } else continue;
                 }
 
                 chosenRowsCounter++;
 
                 TimerUtils.markTimestamp(); // DEBUG
                 chooseRowNanos += TimerUtils.getEllapsedTimeLong(TimeUnit.NANOSECONDS);
-            }
-            else {
+            } else {
 
                 // already chosen (in 'find r')
                 chosenRowsCounter++;
@@ -948,8 +887,7 @@ final class LinearSystem {
                     continue;
                 }
                 // if it's a non-zero we've got to "zerofy" it
-                else
-                {
+                else {
                     /*
                      * "then beta/alpha multiplied by the chosen row is added to this row"
                      */
@@ -985,8 +923,7 @@ final class LinearSystem {
 
                 if (row.nonZeros != 2 || row.isHDPC) {
                     row.nodes = null;
-                }
-                else {
+                } else {
                     final Set<Integer> nodes = new HashSet<>(2 + 1, 1.0f); // we know there will only be two non zeros
                     ByteVectorIterator it = A.nonZeroRowIterator(row.position, i, L - u);
                     while (it.hasNext()) {
@@ -1017,17 +954,16 @@ final class LinearSystem {
     }
 
     private static byte[][] pidPhase2(
-        final ByteMatrix A,
-        final ByteMatrix X,
-        final byte[][] D,
-        final int[] d,
-        final int[] c,
-        final int L,
-        final int M,
-        final int i,
-        final int u)
-        throws SingularMatrixException
-    {
+            final ByteMatrix A,
+            final ByteMatrix X,
+            final byte[][] D,
+            final int[] d,
+            final int[] c,
+            final int L,
+            final int M,
+            final int i,
+            final int u)
+            throws SingularMatrixException {
 
         TimerUtils.beginTimer(); // DEBUG
 
@@ -1051,7 +987,7 @@ final class LinearSystem {
         // check U_lower's rank, if it's less than 'u' we've got a decoding failure
         if (MatrixUtilities.nonZeroRows(A, i, M, i, L) < u) {
             throw new SingularMatrixException(
-                "Decoding Failure - PI Decoding @ Phase 2: U_lower's rank is less than u.");
+                    "Decoding Failure - PI Decoding @ Phase 2: U_lower's rank is less than u.");
         }
 
         /*
@@ -1066,14 +1002,13 @@ final class LinearSystem {
     }
 
     private static byte[][] pidPhase3(
-        ByteMatrix A,
-        final ByteMatrix X,
-        final byte[][] D,
-        final int[] d,
-        final int[] c,
-        final int L,
-        final int i)
-    {
+            ByteMatrix A,
+            final ByteMatrix X,
+            final byte[][] D,
+            final int[] d,
+            final int[] c,
+            final int L,
+            final int i) {
 
         TimerUtils.beginTimer(); // DEBUG
 
@@ -1097,7 +1032,7 @@ final class LinearSystem {
 
         for (int row = 0; row < Xrows; row++) {
             // multiply X[row] by D
-            BasicByteVector prod = (BasicByteVector)X.multiplyRow(row, DM, 0, Xcols, LinearAlgebra.BASIC2D_FACTORY);
+            BasicByteVector prod = (BasicByteVector) X.multiplyRow(row, DM, 0, Xcols, LinearAlgebra.BASIC2D_FACTORY);
             D[d[row]] = prod.getInternalArray();
         }
 
@@ -1111,13 +1046,12 @@ final class LinearSystem {
     }
 
     private static byte[][] pidPhase4(
-        final ByteMatrix A,
-        final byte[][] D,
-        final int[] d,
-        final int[] c,
-        final int L,
-        final int i)
-    {
+            final ByteMatrix A,
+            final byte[][] D,
+            final int[] d,
+            final int[] c,
+            final int L,
+            final int i) {
 
         TimerUtils.beginTimer(); // DEBUG
 
@@ -1157,13 +1091,12 @@ final class LinearSystem {
     }
 
     private static byte[][] pidPhase5(
-        final ByteMatrix A,
-        final byte[][] D,
-        final int[] d,
-        final int[] c,
-        final int L,
-        final int i)
-    {
+            final ByteMatrix A,
+            final byte[][] D,
+            final int[] d,
+            final int[] c,
+            final int L,
+            final int i) {
 
         TimerUtils.beginTimer(); // DEBUG
 

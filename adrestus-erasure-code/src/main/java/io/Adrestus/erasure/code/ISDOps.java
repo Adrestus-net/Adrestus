@@ -1,12 +1,12 @@
 /*
  * Copyright 2014 OpenRQ Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,13 +15,6 @@
  */
 package io.Adrestus.erasure.code;
 
-
-import java.io.EOFException;
-import java.io.IOException;
-import java.nio.channels.ReadableByteChannel;
-import java.nio.channels.WritableByteChannel;
-import java.util.Arrays;
-import java.util.Objects;
 
 import io.Adrestus.erasure.code.util.array.ArrayIO;
 import io.Adrestus.erasure.code.util.datatype.UnsignedTypes;
@@ -35,9 +28,16 @@ import io.Adrestus.erasure.code.util.linearalgebra.vector.ByteVector;
 import io.Adrestus.erasure.code.util.linearalgebra.vector.dense.BasicByteVector;
 import io.Adrestus.erasure.code.util.math.OctetOps;
 
+import java.io.EOFException;
+import java.io.IOException;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.WritableByteChannel;
+import java.util.Arrays;
+import java.util.Objects;
+
 
 /**
- * 
+ *
  */
 final class ISDOps {
 
@@ -114,7 +114,7 @@ final class ISDOps {
 
         private static byte toByte(OpID t) {
 
-            return (byte)t.ordinal();
+            return (byte) t.ordinal();
         }
 
         private static OpID fromByte(byte b) {
@@ -177,14 +177,14 @@ final class ISDOps {
         @Override
         public boolean equals(Object other) {
 
-            return other instanceof SymbolAddition && this.equals((SymbolAddition)other);
+            return other instanceof SymbolAddition && this.equals((SymbolAddition) other);
         }
 
         public boolean equals(SymbolAddition other) {
 
             return (this.srcMult == other.srcMult) &&
-                   (this.srcRow == other.srcRow) &&
-                   (this.dstRow == other.dstRow);
+                    (this.srcRow == other.srcRow) &&
+                    (this.dstRow == other.dstRow);
         }
     }
 
@@ -232,13 +232,13 @@ final class ISDOps {
         @Override
         public boolean equals(Object other) {
 
-            return other instanceof SymbolBetaDivision && this.equals((SymbolBetaDivision)other);
+            return other instanceof SymbolBetaDivision && this.equals((SymbolBetaDivision) other);
         }
 
         public boolean equals(SymbolBetaDivision other) {
 
             return (this.beta == other.beta) &&
-                   (this.row == other.row);
+                    (this.row == other.row);
         }
     }
 
@@ -306,23 +306,23 @@ final class ISDOps {
         @Override
         public int hashCode() {
 
-            return Arrays.deepHashCode(new Object[] {A, fromRow, toRow, fromCol, toCol, d});
+            return Arrays.deepHashCode(new Object[]{A, fromRow, toRow, fromCol, toCol, d});
         }
 
         @Override
         public boolean equals(Object other) {
 
-            return other instanceof ReduceMatrixToRowEchelon && this.equals((ReduceMatrixToRowEchelon)other);
+            return other instanceof ReduceMatrixToRowEchelon && this.equals((ReduceMatrixToRowEchelon) other);
         }
 
         public boolean equals(ReduceMatrixToRowEchelon other) {
 
             return (this.A.equals(other.A)) &&
-                   (this.fromRow == other.fromRow) &&
-                   (this.toRow == other.toRow) &&
-                   (this.fromCol == other.fromCol) &&
-                   (this.toCol == other.toCol) &&
-                   (Arrays.equals(this.d, other.d));
+                    (this.fromRow == other.fromRow) &&
+                    (this.toRow == other.toRow) &&
+                    (this.fromCol == other.fromCol) &&
+                    (this.toCol == other.toCol) &&
+                    (Arrays.equals(this.d, other.d));
         }
     }
 
@@ -375,7 +375,7 @@ final class ISDOps {
 
         private byte[] getInnerArray(ByteVector v) {
 
-            return ((BasicByteVector)v).getInternalArray();
+            return ((BasicByteVector) v).getInternalArray();
         }
 
         @Override
@@ -391,21 +391,21 @@ final class ISDOps {
         @Override
         public int hashCode() {
 
-            return Arrays.deepHashCode(new Object[] {X, Xrows, Xcols, d});
+            return Arrays.deepHashCode(new Object[]{X, Xrows, Xcols, d});
         }
 
         @Override
         public boolean equals(Object other) {
 
-            return other instanceof MatrixVectorMultiplication && this.equals((MatrixVectorMultiplication)other);
+            return other instanceof MatrixVectorMultiplication && this.equals((MatrixVectorMultiplication) other);
         }
 
         public boolean equals(MatrixVectorMultiplication other) {
 
             return (this.X.equals(other.X)) &&
-                   (this.Xrows == other.Xrows) &&
-                   (this.Xcols == other.Xcols) &&
-                   (Arrays.equals(this.d, other.d));
+                    (this.Xrows == other.Xrows) &&
+                    (this.Xcols == other.Xcols) &&
+                    (Arrays.equals(this.d, other.d));
         }
     }
 
@@ -455,20 +455,20 @@ final class ISDOps {
         @Override
         public int hashCode() {
 
-            return Arrays.deepHashCode(new Object[] {L, c, d});
+            return Arrays.deepHashCode(new Object[]{L, c, d});
         }
 
         @Override
         public boolean equals(Object other) {
 
-            return other instanceof SymbolReordering && this.equals((SymbolReordering)other);
+            return other instanceof SymbolReordering && this.equals((SymbolReordering) other);
         }
 
         public boolean equals(SymbolReordering other) {
 
             return (this.L == other.L) &&
-                   (Arrays.equals(this.c, other.c)) &&
-                   (Arrays.equals(this.d, other.d));
+                    (Arrays.equals(this.c, other.c)) &&
+                    (Arrays.equals(this.d, other.d));
         }
     }
 
@@ -488,8 +488,7 @@ final class ISDOps {
 
         try {
             return ByteMatrices.deserializeMatrix(ch);
-        }
-        catch (DeserializationException e) {
+        } catch (DeserializationException e) {
             throw new IOException("deserialization error: " + e.getMessage());
         }
     }

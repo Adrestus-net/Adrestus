@@ -1,12 +1,12 @@
 /*
  * Copyright 2014 OpenRQ Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,7 +23,7 @@ import java.io.Serializable;
  * A serializable container for FEC parameters.
  * <p>
  * This class serializes the FEC parameters defined in class {@link FECParameters}.
- * 
+ *
  * @see FECParameters
  */
 public class SerializableParameters implements Serializable {
@@ -36,11 +36,9 @@ public class SerializableParameters implements Serializable {
 
     /**
      * Constructs a new serializable object containing FEC parameters.
-     * 
-     * @param commonFecOTI
-     *            A Common FEC Object Transmission Information
-     * @param schemeSpecFecOTI
-     *            A Scheme-Specific FEC Object Transmission Information
+     *
+     * @param commonFecOTI     A Common FEC Object Transmission Information
+     * @param schemeSpecFecOTI A Scheme-Specific FEC Object Transmission Information
      */
     public SerializableParameters(long commonFecOTI, int schemeSpecFecOTI) {
 
@@ -50,7 +48,7 @@ public class SerializableParameters implements Serializable {
 
     /**
      * Returns the Common FEC Object Transmission Information.
-     * 
+     *
      * @return the Common FEC Object Transmission Information
      */
     public long commonOTI() {
@@ -60,7 +58,7 @@ public class SerializableParameters implements Serializable {
 
     /**
      * Returns the Scheme-Specific FEC Object Transmission Information.
-     * 
+     *
      * @return the Scheme-Specific FEC Object Transmission Information
      */
     public int schemeSpecificOTI() {
@@ -81,7 +79,7 @@ public class SerializableParameters implements Serializable {
     @Override
     public boolean equals(Object obj) {
 
-        return obj instanceof SerializableParameters && areEqual(this, (SerializableParameters)obj);
+        return obj instanceof SerializableParameters && areEqual(this, (SerializableParameters) obj);
     }
 
     private static boolean areEqual(SerializableParameters sp1, SerializableParameters sp2) {

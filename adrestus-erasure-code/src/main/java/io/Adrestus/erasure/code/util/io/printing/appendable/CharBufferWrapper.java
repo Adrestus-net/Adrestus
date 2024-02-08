@@ -6,8 +6,8 @@ import java.nio.CharBuffer;
 
 
 /**
- * @author Ricardo Fonseca &lt;rfonseca&#064;lasige.di.fc.ul.pt&gt;
  * @param <C>
+ * @author Ricardo Fonseca &lt;rfonseca&#064;lasige.di.fc.ul.pt&gt;
  */
 final class CharBufferWrapper<C extends CharBuffer> extends AppendableWrapper<C> {
 
@@ -19,7 +19,7 @@ final class CharBufferWrapper<C extends CharBuffer> extends AppendableWrapper<C>
     @Override
     public void print(CharSequence csq) throws IOException {
 
-        if (csq instanceof CharBuffer) appendable.put((CharBuffer)csq);
+        if (csq instanceof CharBuffer) appendable.put((CharBuffer) csq);
         else super.print(csq);
     }
 

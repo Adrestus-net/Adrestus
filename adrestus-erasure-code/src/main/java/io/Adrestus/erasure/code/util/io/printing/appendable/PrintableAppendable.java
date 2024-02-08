@@ -1,12 +1,12 @@
 /*
  * Copyright 2014 OpenRQ Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -31,7 +31,7 @@ import java.util.Objects;
  * underlying {@code Appendable} object. Instead, they ignore the error, but may be configured to print an exception
  * stack trace to
  * the standard error stream.
- * 
+ *
  * @author Ricardo Fonseca &lt;rfonseca&#064;lasige.di.fc.ul.pt&gt;
  */
 public final class PrintableAppendable extends NoisyPrintableAppendable {
@@ -41,24 +41,18 @@ public final class PrintableAppendable extends NoisyPrintableAppendable {
         Objects.requireNonNull(appendable);
 
         if (appendable instanceof PrintStream) {
-            return new PrintableAppendable(new PrintStreamWrapper<>((PrintStream)appendable), printStackTrace);
-        }
-        else if (appendable instanceof PrintWriter) {
-            return new PrintableAppendable(new PrintWriterWrapper<>((PrintWriter)appendable), printStackTrace);
-        }
-        else if (appendable instanceof Writer) {
-            return new PrintableAppendable(new WriterWrapper<>((Writer)appendable), printStackTrace);
-        }
-        else if (appendable instanceof StringBuilder) {
-            return new PrintableAppendable(new StringBuilderWrapper((StringBuilder)appendable), printStackTrace);
-        }
-        else if (appendable instanceof StringBuffer) {
-            return new PrintableAppendable(new StringBufferWrapper((StringBuffer)appendable), printStackTrace);
-        }
-        else if (appendable instanceof CharBuffer) {
-            return new PrintableAppendable(new CharBufferWrapper<>((CharBuffer)appendable), printStackTrace);
-        }
-        else {
+            return new PrintableAppendable(new PrintStreamWrapper<>((PrintStream) appendable), printStackTrace);
+        } else if (appendable instanceof PrintWriter) {
+            return new PrintableAppendable(new PrintWriterWrapper<>((PrintWriter) appendable), printStackTrace);
+        } else if (appendable instanceof Writer) {
+            return new PrintableAppendable(new WriterWrapper<>((Writer) appendable), printStackTrace);
+        } else if (appendable instanceof StringBuilder) {
+            return new PrintableAppendable(new StringBuilderWrapper((StringBuilder) appendable), printStackTrace);
+        } else if (appendable instanceof StringBuffer) {
+            return new PrintableAppendable(new StringBufferWrapper((StringBuffer) appendable), printStackTrace);
+        } else if (appendable instanceof CharBuffer) {
+            return new PrintableAppendable(new CharBufferWrapper<>((CharBuffer) appendable), printStackTrace);
+        } else {
             return new PrintableAppendable(new AppendableWrapper<>(appendable), printStackTrace);
         }
     }
@@ -83,8 +77,7 @@ public final class PrintableAppendable extends NoisyPrintableAppendable {
 
         try {
             super.print(c);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             handleIOException(e);
         }
 
@@ -96,8 +89,7 @@ public final class PrintableAppendable extends NoisyPrintableAppendable {
 
         try {
             super.print(c);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             handleIOException(e);
         }
 
@@ -109,8 +101,7 @@ public final class PrintableAppendable extends NoisyPrintableAppendable {
 
         try {
             super.print(c, off, len);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             handleIOException(e);
         }
 
@@ -122,8 +113,7 @@ public final class PrintableAppendable extends NoisyPrintableAppendable {
 
         try {
             super.print(csq);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             handleIOException(e);
         }
 
@@ -135,8 +125,7 @@ public final class PrintableAppendable extends NoisyPrintableAppendable {
 
         try {
             super.print(csq, start, end);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             handleIOException(e);
         }
 
@@ -148,8 +137,7 @@ public final class PrintableAppendable extends NoisyPrintableAppendable {
 
         try {
             super.printf(format, args);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             handleIOException(e);
         }
 
@@ -161,8 +149,7 @@ public final class PrintableAppendable extends NoisyPrintableAppendable {
 
         try {
             super.println();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             handleIOException(e);
         }
 
@@ -174,8 +161,7 @@ public final class PrintableAppendable extends NoisyPrintableAppendable {
 
         try {
             super.println(c);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             handleIOException(e);
         }
 
@@ -187,8 +173,7 @@ public final class PrintableAppendable extends NoisyPrintableAppendable {
 
         try {
             super.println(c);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             handleIOException(e);
         }
 
@@ -200,8 +185,7 @@ public final class PrintableAppendable extends NoisyPrintableAppendable {
 
         try {
             super.println(c, off, len);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             handleIOException(e);
         }
 
@@ -213,8 +197,7 @@ public final class PrintableAppendable extends NoisyPrintableAppendable {
 
         try {
             super.println(csq);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             handleIOException(e);
         }
 
@@ -226,8 +209,7 @@ public final class PrintableAppendable extends NoisyPrintableAppendable {
 
         try {
             super.println(csq, start, end);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             handleIOException(e);
         }
 

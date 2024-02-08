@@ -1,12 +1,12 @@
 /*
  * Copyright 2014 OpenRQ Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -28,7 +28,7 @@ import io.Adrestus.erasure.code.util.linearalgebra.vector.dense.BasicByteVector;
 
 
 /**
- * 
+ *
  */
 public class RowIndirected2DByteMatrix extends AbstractBasicByteMatrix implements DenseByteMatrix {
 
@@ -192,7 +192,7 @@ public class RowIndirected2DByteMatrix extends AbstractBasicByteMatrix implement
 
         for (int i = 0; i < Math.min(this.rows(), rows); i++) {
             System.arraycopy(self[row(i)], 0, $self[i], 0,
-                Math.min(this.columns(), columns));
+                    Math.min(this.columns(), columns));
         }
 
         return new Basic2DByteMatrix($self);

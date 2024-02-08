@@ -1,12 +1,12 @@
 /*
  * Copyright 2014 OpenRQ Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,19 +15,6 @@
  */
 package io.Adrestus.erasure.code;
 
-
-import java.nio.ByteBuffer;
-import java.util.BitSet;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.Set;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 import io.Adrestus.erasure.code.decoder.SourceBlockDecoder;
 import io.Adrestus.erasure.code.decoder.SourceBlockState;
@@ -40,33 +27,39 @@ import io.Adrestus.erasure.code.util.linearalgebra.matrix.ByteMatrix;
 import io.Adrestus.erasure.code.util.rq.SystematicIndices;
 import lombok.SneakyThrows;
 
+import java.nio.ByteBuffer;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
 
 /**
+ *
  */
 final class ArraySourceBlockDecoder implements SourceBlockDecoder {
 
     // requires valid arguments
     static ArraySourceBlockDecoder newDecoder(
-        ArrayDataDecoder dataDecoder,
-        final byte[] array,
-        int arrayOff,
-        FECParameters fecParams,
-        int sbn,
-        int symbOver)
-    {
+            ArrayDataDecoder dataDecoder,
+            final byte[] array,
+            int arrayOff,
+            FECParameters fecParams,
+            int sbn,
+            int symbOver) {
 
         ImmutableList<SourceSymbol> sourceSymbols = DataUtils.partitionSourceBlock(
-            sbn,
-            fecParams,
-            arrayOff,
-            SourceSymbol.class, new DataUtils.SourceSymbolSupplier<SourceSymbol>() {
+                sbn,
+                fecParams,
+                arrayOff,
+                SourceSymbol.class, new DataUtils.SourceSymbolSupplier<SourceSymbol>() {
 
-                @Override
-                public SourceSymbol get(int off, @SuppressWarnings("unused") int esi, int T) {
+                    @Override
+                    public SourceSymbol get(int off, @SuppressWarnings("unused") int esi, int T) {
 
-                    return ArraySourceSymbol.newSymbol(array, off, T);
-                }
-            });
+                        return ArraySourceSymbol.newSymbol(array, off, T);
+                    }
+                });
 
         return new ArraySourceBlockDecoder(dataDecoder, sbn, sourceSymbols, symbOver);
     }
@@ -80,11 +73,10 @@ final class ArraySourceBlockDecoder implements SourceBlockDecoder {
 
 
     private ArraySourceBlockDecoder(
-        ArrayDataDecoder dataDecoder,
-        int sbn,
-        ImmutableList<SourceSymbol> sourceSymbols,
-        int symbOver)
-    {
+            ArrayDataDecoder dataDecoder,
+            int sbn,
+            ImmutableList<SourceSymbol> sourceSymbols,
+            int symbOver) {
 
         this.dataDecoder = Objects.requireNonNull(dataDecoder);
 
@@ -128,8 +120,7 @@ final class ArraySourceBlockDecoder implements SourceBlockDecoder {
         symbolsState.lock();
         try {
             return symbolsState.containsSourceSymbol(esi);
-        }
-        finally {
+        } finally {
             symbolsState.unlock();
         }
     }
@@ -141,8 +132,7 @@ final class ArraySourceBlockDecoder implements SourceBlockDecoder {
         symbolsState.lock();
         try {
             return symbolsState.containsRepairSymbol(esi);
-        }
-        finally {
+        } finally {
             symbolsState.unlock();
         }
     }
@@ -153,8 +143,7 @@ final class ArraySourceBlockDecoder implements SourceBlockDecoder {
         symbolsState.lock();
         try {
             return symbolsState.isSourceBlockDecoded();
-        }
-        finally {
+        } finally {
             symbolsState.unlock();
         }
     }
@@ -165,8 +154,7 @@ final class ArraySourceBlockDecoder implements SourceBlockDecoder {
         symbolsState.lock();
         try {
             return symbolsState.sourceBlockState();
-        }
-        finally {
+        } finally {
             symbolsState.unlock();
         }
     }
@@ -177,8 +165,7 @@ final class ArraySourceBlockDecoder implements SourceBlockDecoder {
         symbolsState.lock();
         try {
             return getMissingSourceSymbols();
-        }
-        finally {
+        } finally {
             symbolsState.unlock();
         }
     }
@@ -189,8 +176,7 @@ final class ArraySourceBlockDecoder implements SourceBlockDecoder {
         symbolsState.lock();
         try {
             return getAvailableRepairSymbols();
-        }
-        finally {
+        } finally {
             symbolsState.unlock();
         }
     }
@@ -201,12 +187,11 @@ final class ArraySourceBlockDecoder implements SourceBlockDecoder {
         symbolsState.lock();
         try {
             return SBDInfo.newInformation(
-                sbn,
-                symbolsState.sourceBlockState(),
-                getMissingSourceSymbols(),
-                getAvailableRepairSymbols());
-        }
-        finally {
+                    sbn,
+                    symbolsState.sourceBlockState(),
+                    getMissingSourceSymbols(),
+                    getAvailableRepairSymbols());
+        } finally {
             symbolsState.unlock();
         }
     }
@@ -232,13 +217,13 @@ final class ArraySourceBlockDecoder implements SourceBlockDecoder {
                         for (int i = 0; i < packet.numberOfSymbols(); i++) {
                             putNewSymbol |= putSourceData(esi + i, symbols, SourceSymbolDataType.TRANSPORT);
                         }
-                    break;
+                        break;
 
                     case REPAIR:
                         for (int i = 0; i < packet.numberOfSymbols(); i++) {
                             putNewSymbol |= putRepairData(esi + i, symbols);
                         }
-                    break;
+                        break;
 
                     default:
                         throw new AssertionError("unknown enum value");
@@ -248,16 +233,14 @@ final class ArraySourceBlockDecoder implements SourceBlockDecoder {
                 // 2. the addition of a source symbol may have decoded the source block
                 // 3. enough (source/repair) symbols may have been received for a decode to start
                 if (putNewSymbol &&
-                    !symbolsState.isSourceBlockDecoded() &&
-                    symbolsState.haveEnoughSymbolsToDecode())
-                {
+                        !symbolsState.isSourceBlockDecoded() &&
+                        symbolsState.haveEnoughSymbolsToDecode()) {
                     decode();
                 }
             }
 
             return symbolsState.sourceBlockState();
-        }
-        finally {
+        } finally {
             symbolsState.unlock();
         }
     }
@@ -268,8 +251,7 @@ final class ArraySourceBlockDecoder implements SourceBlockDecoder {
         symbolsState.lock();
         try {
             return symbolsState.symbolOverhead();
-        }
-        finally {
+        } finally {
             symbolsState.unlock();
         }
     }
@@ -282,8 +264,7 @@ final class ArraySourceBlockDecoder implements SourceBlockDecoder {
         symbolsState.lock();
         try {
             symbolsState.setSymbolOverhead(symbOver);
-        }
-        finally {
+        } finally {
             symbolsState.unlock();
         }
     }
@@ -309,8 +290,7 @@ final class ArraySourceBlockDecoder implements SourceBlockDecoder {
 
         if (symbolsState.isSourceBlockDecoded()) {
             return Collections.emptySet();
-        }
-        else {
+        } else {
             final int numMissing = symbolsState.numMissingSourceSymbols();
 
             // linked hash set preserves insertion ordering (while not being sorted)
@@ -330,8 +310,7 @@ final class ArraySourceBlockDecoder implements SourceBlockDecoder {
 
         if (symbolsState.isSourceBlockDecoded()) {
             return Collections.emptySet();
-        }
-        else {
+        } else {
             // linked hash set preserves insertion ordering (while not being sorted)
             return new LinkedHashSet<>(symbolsState.repairSymbolsESIs());
         }
@@ -347,8 +326,7 @@ final class ArraySourceBlockDecoder implements SourceBlockDecoder {
 
         if (intermediate_symbols == null) {
             symbolsState.setSourceBlockDecodingFailure();
-        }
-        else {
+        } else {
             /*
              * with the intermediate symbols calculated, one can recover
              * every missing source symbol
@@ -359,7 +337,7 @@ final class ArraySourceBlockDecoder implements SourceBlockDecoder {
             // recover missing source symbols
             for (int esi : missingSourceSymbols()) {
                 byte[] sourceSymbol = LinearSystem.enc(
-                    Kprime, intermediate_symbols, new Tuple(Kprime, esi), fecParameters().symbolSize());
+                        Kprime, intermediate_symbols, new Tuple(Kprime, esi), fecParameters().symbolSize());
 
                 // write to data buffer
                 putSourceData(esi, ByteBuffer.wrap(sourceSymbol), SourceSymbolDataType.CODE);
@@ -420,7 +398,7 @@ final class ArraySourceBlockDecoder implements SourceBlockDecoder {
 
             A.clearRow(row); // must clear previous data first!
             for (Integer col : indexes) {
-                A.set(row, col, (byte)1);
+                A.set(row, col, (byte) 1);
             }
 
             // fill in missing source symbols in D with the repair symbols
@@ -440,7 +418,7 @@ final class ArraySourceBlockDecoder implements SourceBlockDecoder {
 
             A.clearRow(row); // must clear previous data first!
             for (Integer col : indexes) {
-                A.set(row, col, (byte)1);
+                A.set(row, col, (byte) 1);
             }
 
             // update D with the data for that symbol
@@ -455,8 +433,7 @@ final class ArraySourceBlockDecoder implements SourceBlockDecoder {
         try {
             return LinearSystem.PInactivationDecoding(A, D, Kprime);
             // return MatrixUtilities.gaussElimination(constraint_matrix, D);
-        }
-        catch (SingularMatrixException e) {
+        } catch (SingularMatrixException e) {
 
             return null; // decoding failure
         }
@@ -472,8 +449,7 @@ final class ArraySourceBlockDecoder implements SourceBlockDecoder {
             final int T = fecParameters().symbolSize();
             symbolData.position(symbolData.position() + T);
             return false;
-        }
-        else {
+        } else {
             symbolsState.addSourceSymbol(esi, symbolData, dataType);
             return true;
         }
@@ -489,8 +465,7 @@ final class ArraySourceBlockDecoder implements SourceBlockDecoder {
             final int T = fecParameters().symbolSize();
             symbolData.position(symbolData.position() + T);
             return false;
-        }
-        else {
+        } else {
             // add this repair symbol to the set of received repair symbols
             symbolsState.addRepairSymbol(esi, symbolData);
             return true;
@@ -599,11 +574,11 @@ final class ArraySourceBlockDecoder implements SourceBlockDecoder {
             switch (dataType) {
                 case CODE:
                     sourceSymbols.get(esi).putCodeData(symbolData);
-                break;
+                    break;
 
                 case TRANSPORT:
                     sourceSymbols.get(esi).putTransportData(symbolData);
-                break;
+                    break;
 
                 default:
                     throw new AssertionError("unknown enum type");
@@ -722,8 +697,7 @@ final class ArraySourceBlockDecoder implements SourceBlockDecoder {
         try {
             decoder.decode();
             return decoder.symbolsState.sourceBlockState();
-        }
-        finally {
+        } finally {
             decoder.symbolsState.unlock();
         }
     }

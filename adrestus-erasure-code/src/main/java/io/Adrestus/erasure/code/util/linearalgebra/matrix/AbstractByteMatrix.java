@@ -1,12 +1,12 @@
 /*
  * Copyright 2014 OpenRQ Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,21 +16,21 @@
 
 /*
  * Copyright 2011-2014, by Vladimir Kostyukov and Contributors.
- * 
+ *
  * This file is part of la4j project (http://la4j.org)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * You may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  * Contributor(s): Evgenia Krivova
  * Pavel Kalaidin
  * Jakob Moellers
@@ -42,13 +42,13 @@
  */
 package io.Adrestus.erasure.code.util.linearalgebra.matrix;
 
-import java.util.Random;
-
 import io.Adrestus.erasure.code.util.checking.Indexables;
 import io.Adrestus.erasure.code.util.linearalgebra.factory.Factory;
 import io.Adrestus.erasure.code.util.linearalgebra.io.ByteVectorIterator;
 import io.Adrestus.erasure.code.util.linearalgebra.matrix.functor.*;
 import io.Adrestus.erasure.code.util.linearalgebra.vector.ByteVector;
+
+import java.util.Random;
 
 import static io.Adrestus.erasure.code.util.math.OctetOps.*;
 
@@ -106,7 +106,7 @@ public abstract class AbstractByteMatrix implements ByteMatrix {
 
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < columns; j++) {
-                safeSet(i, j, (byte)0);
+                safeSet(i, j, (byte) 0);
             }
         }
     }
@@ -117,7 +117,7 @@ public abstract class AbstractByteMatrix implements ByteMatrix {
         ByteVectorIterator it = rowIterator(i);
         while (it.hasNext()) {
             it.next();
-            it.set((byte)0);
+            it.set((byte) 0);
         }
     }
 
@@ -127,7 +127,7 @@ public abstract class AbstractByteMatrix implements ByteMatrix {
         ByteVectorIterator it = columnIterator(j);
         while (it.hasNext()) {
             it.next();
-            it.set((byte)0);
+            it.set((byte) 0);
         }
     }
 
@@ -498,7 +498,7 @@ public abstract class AbstractByteMatrix implements ByteMatrix {
 
         if (columns != matrix.rows()) {
             fail("Wrong matrix dimensions: " + matrix.rows() + "x" + matrix.columns() +
-                 ". Should be: " + columns + "x_.");
+                    ". Should be: " + columns + "x_.");
         }
 
         ByteMatrix result = factory.createMatrix(rows, matrix.columns());
@@ -522,39 +522,37 @@ public abstract class AbstractByteMatrix implements ByteMatrix {
 
     @Override
     public ByteMatrix multiply(
-        ByteMatrix matrix,
-        int fromThisRow,
-        int toThisRow,
-        int fromThisColumn,
-        int toThisColumn,
-        int fromOtherRow,
-        int toOtherRow,
-        int fromOtherColumn,
-        int toOtherColumn)
-    {
+            ByteMatrix matrix,
+            int fromThisRow,
+            int toThisRow,
+            int fromThisColumn,
+            int toThisColumn,
+            int fromOtherRow,
+            int toOtherRow,
+            int fromOtherColumn,
+            int toOtherColumn) {
 
         return multiply(
-            matrix,
-            fromThisRow, toThisRow,
-            fromThisColumn, toThisColumn,
-            fromOtherRow, toOtherRow,
-            fromOtherColumn, toOtherColumn,
-            factory);
+                matrix,
+                fromThisRow, toThisRow,
+                fromThisColumn, toThisColumn,
+                fromOtherRow, toOtherRow,
+                fromOtherColumn, toOtherColumn,
+                factory);
     }
 
     @Override
     public ByteMatrix multiply(
-        ByteMatrix matrix,
-        int fromThisRow,
-        int toThisRow,
-        int fromThisColumn,
-        int toThisColumn,
-        int fromOtherRow,
-        int toOtherRow,
-        int fromOtherColumn,
-        int toOtherColumn,
-        Factory factory)
-    {
+            ByteMatrix matrix,
+            int fromThisRow,
+            int toThisRow,
+            int fromThisColumn,
+            int toThisColumn,
+            int fromOtherRow,
+            int toOtherRow,
+            int fromOtherColumn,
+            int toOtherColumn,
+            Factory factory) {
 
         ensureFactoryIsNotNull(factory);
         ensureArgumentIsNotNull(matrix, "matrix");
@@ -565,8 +563,8 @@ public abstract class AbstractByteMatrix implements ByteMatrix {
 
         if ((toThisColumn - fromThisColumn) != (toOtherRow - fromOtherRow)) {
             fail("Wrong matrix dimensions: " +
-                 (toOtherRow - fromOtherRow) + "x" + (toOtherColumn - fromOtherColumn) +
-                 ". Should be: " + (toThisColumn - fromThisColumn) + "x_.");
+                    (toOtherRow - fromOtherRow) + "x" + (toOtherColumn - fromOtherColumn) +
+                    ". Should be: " + (toThisColumn - fromThisColumn) + "x_.");
         }
 
         ByteMatrix result = factory.createMatrix(toThisRow - fromThisRow, toOtherColumn - fromOtherColumn);
@@ -602,7 +600,7 @@ public abstract class AbstractByteMatrix implements ByteMatrix {
 
         if (columns != matrix.rows()) {
             fail("Wrong matrix dimensions: " + matrix.rows() + "x" + matrix.columns() +
-                 ". Should be: " + columns + "x_.");
+                    ". Should be: " + columns + "x_.");
         }
 
         ByteVector result = factory.createVector(matrix.columns());
@@ -638,7 +636,7 @@ public abstract class AbstractByteMatrix implements ByteMatrix {
 
         if ((toColumn - fromColumn) != matrix.rows()) {
             fail("Wrong matrix dimensions: " + matrix.rows() + "x" + matrix.columns() +
-                 ". Should be: " + (toColumn - fromColumn) + "x_.");
+                    ". Should be: " + (toColumn - fromColumn) + "x_.");
         }
 
         ByteVector result = factory.createVector(matrix.columns());
@@ -695,7 +693,7 @@ public abstract class AbstractByteMatrix implements ByteMatrix {
 
         if (rows != matrix.rows() || columns != matrix.columns()) {
             fail("Wrong matrix dimensions: " + matrix.rows() + "x" + matrix.columns() +
-                 ". Should be: " + rows + "x" + columns + ".");
+                    ". Should be: " + rows + "x" + columns + ".");
         }
 
         ByteMatrix result = blank(factory);
@@ -745,7 +743,7 @@ public abstract class AbstractByteMatrix implements ByteMatrix {
 
         if (rows != matrix.rows() || columns != matrix.columns()) {
             fail("Wrong matrix dimensions: " + matrix.rows() + "x" + matrix.columns() +
-                 ". Should be: " + rows + "x" + columns + ".");
+                    ". Should be: " + rows + "x" + columns + ".");
         }
 
         ByteMatrix result = blank(factory);
@@ -880,7 +878,7 @@ public abstract class AbstractByteMatrix implements ByteMatrix {
     @Override
     public byte product() {
 
-        return fold(ByteMatrices.asProductAccumulator((byte)1));
+        return fold(ByteMatrices.asProductAccumulator((byte) 1));
     }
 
     @Override
@@ -897,7 +895,7 @@ public abstract class AbstractByteMatrix implements ByteMatrix {
 
         if ((columns != matrix.columns()) || (rows != matrix.rows())) {
             fail("Wrong matrix dimensions: " + matrix.rows() + "x" + matrix.columns() +
-                 ". Should be: " + rows + "x" + columns + ".");
+                    ". Should be: " + rows + "x" + columns + ".");
         }
 
         ByteMatrix result = factory.createMatrix(rows, columns);
@@ -914,7 +912,7 @@ public abstract class AbstractByteMatrix implements ByteMatrix {
     @Override
     public byte sum() {
 
-        return fold(ByteMatrices.asSumAccumulator((byte)0));
+        return fold(ByteMatrices.asSumAccumulator((byte) 0));
     }
 
     @Override
@@ -1023,23 +1021,21 @@ public abstract class AbstractByteMatrix implements ByteMatrix {
 
     @Override
     public ByteMatrix slice(
-        int fromRow,
-        int fromColumn,
-        int untilRow,
-        int untilColumn)
-    {
+            int fromRow,
+            int fromColumn,
+            int untilRow,
+            int untilColumn) {
 
         return slice(fromRow, fromColumn, untilRow, untilColumn, factory);
     }
 
     @Override
     public ByteMatrix slice(
-        int fromRow,
-        int fromColumn,
-        int untilRow,
-        int untilColumn,
-        Factory factory)
-    {
+            int fromRow,
+            int fromColumn,
+            int untilRow,
+            int untilColumn,
+            Factory factory) {
 
         Indexables.checkFromToBounds(fromRow, untilRow, rows());
         Indexables.checkFromToBounds(fromColumn, untilColumn, columns());
@@ -2002,8 +1998,7 @@ public abstract class AbstractByteMatrix implements ByteMatrix {
         if (srcMultiplier != 0) { // if the multiplier is zero, then nothing needs to be added to row2
             if (srcMultiplier == 1) { // if the multiplier is one, then a product is not required
                 addRowsInPlace(srcRow, destRow);
-            }
-            else {
+            } else {
                 Indexables.checkIndexBounds(srcRow, rows());
                 Indexables.checkIndexBounds(destRow, rows());
 
@@ -2025,8 +2020,7 @@ public abstract class AbstractByteMatrix implements ByteMatrix {
         if (srcMultiplier != 0) { // if the multiplier is zero, then nothing needs to be added to row2
             if (srcMultiplier == 1) { // if the multiplier is one, then a product is not required
                 addRowsInPlace(srcRow, destRow, fromColumn, toColumn);
-            }
-            else {
+            } else {
                 Indexables.checkIndexBounds(srcRow, rows());
                 Indexables.checkIndexBounds(destRow, rows());
                 Indexables.checkFromToBounds(fromColumn, toColumn, columns());
@@ -2051,7 +2045,7 @@ public abstract class AbstractByteMatrix implements ByteMatrix {
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < columns; j++) {
                 long value = safeGet(i, j);
-                result = 37 * result + (int)(value ^ (value >>> 32));
+                result = 37 * result + (int) (value ^ (value >>> 32));
             }
         }
 
@@ -2070,7 +2064,7 @@ public abstract class AbstractByteMatrix implements ByteMatrix {
             return false;
         }
 
-        ByteMatrix matrix = (ByteMatrix)object;
+        ByteMatrix matrix = (ByteMatrix) object;
 
         if (rows != matrix.rows() || columns != matrix.columns()) {
             return false;

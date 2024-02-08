@@ -1,12 +1,12 @@
 /*
  * Copyright 2014 OpenRQ Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,10 +15,6 @@
  */
 package io.Adrestus.erasure.code;
 
-
-import java.nio.ByteBuffer;
-import java.util.Iterator;
-import java.util.Objects;
 
 import io.Adrestus.erasure.code.Exceptions.CheckNumSourceSymbolsPerBlockOutOfBoundsException;
 import io.Adrestus.erasure.code.Exceptions.NumRepairSymbolsPerBlockException;
@@ -31,8 +27,13 @@ import io.Adrestus.erasure.code.util.rq.IntermediateSymbolsDecoder;
 import io.Adrestus.erasure.code.util.rq.SystematicIndices;
 import lombok.SneakyThrows;
 
+import java.nio.ByteBuffer;
+import java.util.Iterator;
+import java.util.Objects;
+
 
 /**
+ *
  */
 final class ArraySourceBlockEncoder implements SourceBlockEncoder {
 
@@ -43,15 +44,15 @@ final class ArraySourceBlockEncoder implements SourceBlockEncoder {
                                               final byte[] array, int arrayOff, FECParameters fecParams, int sbn) {
 
         ImmutableList<SourceSymbol> sourceSymbols = DataUtils.partitionSourceBlock(
-            sbn, fecParams, arrayOff,
-            SourceSymbol.class, new DataUtils.SourceSymbolSupplier<SourceSymbol>() {
+                sbn, fecParams, arrayOff,
+                SourceSymbol.class, new DataUtils.SourceSymbolSupplier<SourceSymbol>() {
 
-                @Override
-                public SourceSymbol get(int off, @SuppressWarnings("unused") int esi, int T) {
+                    @Override
+                    public SourceSymbol get(int off, @SuppressWarnings("unused") int esi, int T) {
 
-                    return ArraySourceSymbol.newSymbol(array, off, T);
-                }
-            });
+                        return ArraySourceSymbol.newSymbol(array, off, T);
+                    }
+                });
 
         return new ArraySourceBlockEncoder(dataEncoder, sbn, sourceSymbols);
     }
@@ -66,7 +67,7 @@ final class ArraySourceBlockEncoder implements SourceBlockEncoder {
 
 
     private ArraySourceBlockEncoder(ArrayDataEncoder dataEncoder, int sbn,
-        ImmutableList<SourceSymbol> sourceSymbols) {
+                                    ImmutableList<SourceSymbol> sourceSymbols) {
 
         this.dataEncoder = Objects.requireNonNull(dataEncoder);
         this.sourceSymbols = Objects.requireNonNull(sourceSymbols);
@@ -126,11 +127,10 @@ final class ArraySourceBlockEncoder implements SourceBlockEncoder {
 
         if (esi < K()) { // source symbol
             return EncodingPacket.newSourcePacket(sbn, esi,
-                getSourceSymbol(esi).transportData(), 1);
-        }
-        else { // repair symbol
+                    getSourceSymbol(esi).transportData(), 1);
+        } else { // repair symbol
             return EncodingPacket.newRepairPacket(sbn, esi,
-                getRepairSymbol(esi).readOnlyData(), 1);
+                    getRepairSymbol(esi).readOnlyData(), 1);
         }
     }
 
@@ -139,7 +139,7 @@ final class ArraySourceBlockEncoder implements SourceBlockEncoder {
 
         checkSourceSymbolESI(esi);
         return EncodingPacket.newSourcePacket(sbn, esi, getSourceSymbol(esi)
-            .transportData(), 1);
+                .transportData(), 1);
     }
 
     @Override
@@ -162,7 +162,7 @@ final class ArraySourceBlockEncoder implements SourceBlockEncoder {
         symbols.flip();
 
         return EncodingPacket.newSourcePacket(sbn, esi,
-            symbols.asReadOnlyBuffer(), numSymbols);
+                symbols.asReadOnlyBuffer(), numSymbols);
     }
 
     @Override
@@ -170,7 +170,7 @@ final class ArraySourceBlockEncoder implements SourceBlockEncoder {
 
         checkRepairSymbolESI(esi);
         return EncodingPacket.newRepairPacket(sbn, esi, getRepairSymbol(esi)
-            .readOnlyData(), 1);
+                .readOnlyData(), 1);
     }
 
     @Override
@@ -181,14 +181,14 @@ final class ArraySourceBlockEncoder implements SourceBlockEncoder {
 
         // retrieve repair symbols data
         final ByteBuffer symbols = ByteBuffer.allocate(numSymbols
-                                                       * fecParameters().symbolSize());
+                * fecParameters().symbolSize());
         for (int i = 0; i < numSymbols; i++) {
             symbols.put(getRepairSymbol(esi + i).readOnlyData());
         }
         symbols.flip();
 
         return EncodingPacket.newRepairPacket(sbn, esi,
-            symbols.asReadOnlyBuffer(), numSymbols);
+                symbols.asReadOnlyBuffer(), numSymbols);
     }
 
     @Override
@@ -201,22 +201,22 @@ final class ArraySourceBlockEncoder implements SourceBlockEncoder {
     public Iterable<EncodingPacket> sourcePacketsIterable() {
 
         return newIterableBuilder().startAtInitialSourceSymbol()
-            .endAtFinalSourceSymbol().build();
+                .endAtFinalSourceSymbol().build();
     }
 
     @SneakyThrows
     @Override
-    public Iterable<EncodingPacket> repairPacketsIterable(int numRepairPackets){
+    public Iterable<EncodingPacket> repairPacketsIterable(int numRepairPackets) {
 
         if (numRepairPackets < 1
-            || numRepairPackets > ParameterChecker
+                || numRepairPackets > ParameterChecker
                 .numRepairSymbolsPerBlock(K())) {
             throw new IllegalArgumentException(
-                "invalid number of repair packets");
+                    "invalid number of repair packets");
         }
 
         return newIterableBuilder().startAtInitialRepairSymbol()
-            .endAt(numberOfSourceSymbols() + numRepairPackets - 1).build();
+                .endAt(numberOfSourceSymbols() + numRepairPackets - 1).build();
     }
 
     private void checkGenericEncodingSymbolESI(int esi) {
@@ -238,7 +238,7 @@ final class ArraySourceBlockEncoder implements SourceBlockEncoder {
 
         if (numSymbols < 1 || numSymbols > K() - esi) {
             throw new IllegalArgumentException(
-                "invalid number of source symbols");
+                    "invalid number of source symbols");
         }
     }
 
@@ -253,10 +253,10 @@ final class ArraySourceBlockEncoder implements SourceBlockEncoder {
     private void checkNumRepairSymbols(int esi, int numSymbols) throws CheckNumSourceSymbolsPerBlockOutOfBoundsException, NumRepairSymbolsPerBlockException {
 
         if (numSymbols < 1
-            || numSymbols > ParameterChecker.numRepairSymbolsPerBlock(K(),
+                || numSymbols > ParameterChecker.numRepairSymbolsPerBlock(K(),
                 esi)) {
             throw new IllegalArgumentException(
-                "invalid number of repair symbols");
+                    "invalid number of repair symbols");
         }
     }
 
@@ -275,7 +275,7 @@ final class ArraySourceBlockEncoder implements SourceBlockEncoder {
         // generate the repair symbol data
         final int T = fecParameters().symbolSize();
         byte[] enc_data = LinearSystem.enc(Kprime, getIntermediateSymbols(),
-            new Tuple(Kprime, isi), T);
+                new Tuple(Kprime, isi), T);
 
         // TODO should we store the repair symbols generated?
         return RepairSymbol.wrapData(ByteBuffer.wrap(enc_data));
@@ -308,23 +308,21 @@ final class ArraySourceBlockEncoder implements SourceBlockEncoder {
         final IntermediateSymbolsDecoder isd = ISDManager.get(Kprime);
         if (isd != null) {
             return isd.decode(D);
-        }
-        else { // if no optimized decoder is available, fall back to the
-               // standard decoding process
+        } else { // if no optimized decoder is available, fall back to the
+            // standard decoding process
 
             // generate LxL Constraint Matrix
             ByteMatrix constraint_matrix = LinearSystem
-                .generateConstraintMatrix(Kprime); // A
+                    .generateConstraintMatrix(Kprime); // A
 
             // solve system of equations
             try {
                 return LinearSystem.PInactivationDecoding(constraint_matrix, D,
-                    Kprime);
+                        Kprime);
                 // return Utilities.gaussElimination(constraint_matrix, D);
-            }
-            catch (SingularMatrixException e) {
+            } catch (SingularMatrixException e) {
                 throw new RuntimeException(
-                    "FATAL ERROR: Singular matrix for the encoding process. This should never happen.");
+                        "FATAL ERROR: Singular matrix for the encoding process. This should never happen.");
             }
         }
     }
@@ -349,7 +347,7 @@ final class ArraySourceBlockEncoder implements SourceBlockEncoder {
 
             if (esi < 0 || esi > ParameterChecker.maxEncodingSymbolID()) {
                 throw new IllegalArgumentException(
-                    "invalid encoding symbol identifier");
+                        "invalid encoding symbol identifier");
             }
 
             setStartingESI(esi);
@@ -375,7 +373,7 @@ final class ArraySourceBlockEncoder implements SourceBlockEncoder {
 
             if (esi < 0 || esi > ParameterChecker.maxEncodingSymbolID()) {
                 throw new IllegalArgumentException(
-                    "invalid encoding symbol identifier");
+                        "invalid encoding symbol identifier");
             }
 
             setEndingESI(esi);
@@ -398,7 +396,7 @@ final class ArraySourceBlockEncoder implements SourceBlockEncoder {
                 public Iterator<EncodingPacket> iterator() {
 
                     return new EncodingPacketIterator(encoder, startingESI,
-                        endingESI);
+                            endingESI);
                 }
             };
         }
@@ -423,7 +421,7 @@ final class ArraySourceBlockEncoder implements SourceBlockEncoder {
     }
 
     private static final class EncodingPacketIterator implements
-        Iterator<EncodingPacket> {
+            Iterator<EncodingPacket> {
 
         private final SourceBlockEncoder encoder;
         private final int fence;
@@ -431,10 +429,10 @@ final class ArraySourceBlockEncoder implements SourceBlockEncoder {
 
 
         EncodingPacketIterator(SourceBlockEncoder encoder, int startingESI,
-            int endingESI) {
+                               int endingESI) {
 
             if (endingESI < startingESI) throw new IllegalArgumentException(
-                "ending ESI smaller than starting ESI");
+                    "ending ESI smaller than starting ESI");
 
             this.encoder = Objects.requireNonNull(encoder);
             this.fence = endingESI + 1;
@@ -452,8 +450,7 @@ final class ArraySourceBlockEncoder implements SourceBlockEncoder {
 
             try {
                 return encoder.encodingPacket(nextESI);
-            }
-            finally {
+            } finally {
                 this.nextESI++;
             }
         }

@@ -60,6 +60,9 @@ public class FECParameterObject {
         this.symbolOverhead = symbolOverhead;
     }
 
+    public int getSize() {
+        return (4 * 3) + 8;
+    }
 
     @Override
     public boolean equals(Object o) {

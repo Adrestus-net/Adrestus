@@ -1,12 +1,12 @@
 /*
  * Copyright 2014 OpenRQ Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,28 +16,26 @@
 
 /*
  * Copyright 2011-2014, by Vladimir Kostyukov and Contributors.
- * 
+ *
  * This file is part of la4j project (http://la4j.org)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * You may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  * Contributor(s): Ewald Grusk
  * Yuriy Drozd
  * Maxim Samoylov
  */
 package io.Adrestus.erasure.code.util.linearalgebra.vector.sparse;
-
-import java.util.Arrays;
 
 import io.Adrestus.erasure.code.util.checking.Indexables;
 import io.Adrestus.erasure.code.util.datatype.UnsignedTypes;
@@ -49,6 +47,8 @@ import io.Adrestus.erasure.code.util.linearalgebra.vector.ByteVectors;
 import io.Adrestus.erasure.code.util.linearalgebra.vector.functor.VectorFunction;
 import io.Adrestus.erasure.code.util.linearalgebra.vector.source.VectorSource;
 import io.Adrestus.erasure.code.util.math.ExtraMath;
+
+import java.util.Arrays;
 
 import static io.Adrestus.erasure.code.util.math.OctetOps.*;
 
@@ -69,7 +69,7 @@ public class CompressedByteVector extends SparseByteVector {
 
     private static byte getValue(int nonzero) {
 
-        return (byte)UnsignedTypes.getUnsignedByte(nonzero);
+        return (byte) UnsignedTypes.getUnsignedByte(nonzero);
     }
 
     private static int getIndex(int nonzero) {
@@ -151,9 +151,8 @@ public class CompressedByteVector extends SparseByteVector {
 
     /**
      * Returns {@code true} iff there is a nonzero entry associated to the given k-index.
-     * 
-     * @param k
-     *            a k-index (a value returned by the method {@link #binarySearch(int)})
+     *
+     * @param k a k-index (a value returned by the method {@link #binarySearch(int)})
      * @return {@code true} iff there is a nonzero entry associated to the given k-index
      */
     private static boolean hasEntry(int k) {
@@ -169,12 +168,11 @@ public class CompressedByteVector extends SparseByteVector {
      * <p>
      * If a position of a new nonzero entry is returned (instead of a position of an entry associated to the given
      * k-index), then the returned position is also the insertion point in the nonzero entry arrays.
-     * 
-     * @param k
-     *            a k-index (a value returned by the method {@link #binarySearch(int)})
+     *
+     * @param k a k-index (a value returned by the method {@link #binarySearch(int)})
      * @return the position of an existing nonzero entry associated to the given k-index, or the position of a new
-     *         nonzero entry created from the element index that returned in the given k-index via the method
-     *         {@link #binarySearch(int)}
+     * nonzero entry created from the element index that returned in the given k-index via the method
+     * {@link #binarySearch(int)}
      */
     private static int getEntry(int k) {
 
@@ -184,9 +182,8 @@ public class CompressedByteVector extends SparseByteVector {
 
     /**
      * Searches for a nonzero entry given an element index and returns a k-index.
-     * 
-     * @param i
-     *            an element index
+     *
+     * @param i an element index
      * @return a k-index
      */
     private int binarySearch(int i) {
@@ -200,11 +197,9 @@ public class CompressedByteVector extends SparseByteVector {
 
             if (midInd < i) {
                 low = mid + 1;
-            }
-            else if (midInd > i) {
+            } else if (midInd > i) {
                 high = mid - 1;
-            }
-            else {
+            } else {
                 return mid; // key found
             }
         }
@@ -252,8 +247,7 @@ public class CompressedByteVector extends SparseByteVector {
 
         if (value == 0) {
             clear();
-        }
-        else {
+        } else {
             ByteVectorIterator it = nonZeroIterator();
             while (it.hasNext()) {
                 it.next();
@@ -276,7 +270,7 @@ public class CompressedByteVector extends SparseByteVector {
 
         if (length() != matrix.rows()) {
             fail("Wrong matrix dimensions: " + matrix.rows() + "x" + matrix.columns() +
-                 ". Should be: " + length() + "x_.");
+                    ". Should be: " + length() + "x_.");
         }
 
         ByteVector result = factory.createVector(matrix.columns());
@@ -312,7 +306,7 @@ public class CompressedByteVector extends SparseByteVector {
 
         if ((toIndex - fromIndex) != matrix.rows()) {
             fail("Wrong matrix dimensions: " + matrix.rows() + "x" + matrix.columns() +
-                 ". Should be: " + (toIndex - fromIndex) + "x_.");
+                    ". Should be: " + (toIndex - fromIndex) + "x_.");
         }
 
         ByteVector result = factory.createVector(matrix.columns());
@@ -455,8 +449,7 @@ public class CompressedByteVector extends SparseByteVector {
                 final byte rightValue = getValue(nonzeros[rightPos]);
                 nonzeros[leftPos] = updateValue(nonzeros[leftPos], rightValue);
                 nonzeros[rightPos] = updateValue(nonzeros[rightPos], leftValue);
-            }
-            else if (hasEntry(leftPos)) { // if only the left position was found
+            } else if (hasEntry(leftPos)) { // if only the left position was found
                 // store temporarily the current value at leftPos
                 int prevLeftNonzero = nonzeros[leftPos];
 
@@ -469,8 +462,7 @@ public class CompressedByteVector extends SparseByteVector {
 
                 // update the element at newLeftPos with the new value/position
                 nonzeros[newLeftPos] = updateIndex(prevLeftNonzero, right);
-            }
-            else if (hasEntry(rightPos)) { // if only the right position was found
+            } else if (hasEntry(rightPos)) { // if only the right position was found
                 // store temporarily the current value at rightPos
                 int prevRightNonzero = nonzeros[rightPos];
 
@@ -561,8 +553,7 @@ public class CompressedByteVector extends SparseByteVector {
 
         if (oldCapacity == 0) {
             return Math.max(minCapacity, DEFAULT_CAPACITY);
-        }
-        else {
+        } else {
             return Math.max(minCapacity, ExtraMath.addExact(oldCapacity, oldCapacity / 2));
         }
     }
@@ -599,12 +590,10 @@ public class CompressedByteVector extends SparseByteVector {
             if (isNonZero()) {
                 if (value != 0) {
                     nonzeros[k] = updateValue(nonzeros[k], value);
-                }
-                else {
+                } else {
                     removeNonZero(k);
                 }
-            }
-            else {
+            } else {
                 insertNonZero(getEntry(k), i, value);
             }
         }
@@ -688,12 +677,10 @@ public class CompressedByteVector extends SparseByteVector {
             if (isCurrentNonZero()) {
                 if (value != 0) {
                     nonzeros[k] = updateValue(nonzeros[k], value);
-                }
-                else {
+                } else {
                     removeNonZero(k);
                 }
-            }
-            else {
+            } else {
                 insertNonZero(k, i, value);
             }
         }
@@ -776,11 +763,9 @@ public class CompressedByteVector extends SparseByteVector {
                 currentIsRemoved = true;
                 removedIndex = getIndex(nonzeros[k]);
                 removeNonZero(k--);
-            }
-            else if (value != 0 && !currentIsRemoved) {
+            } else if (value != 0 && !currentIsRemoved) {
                 nonzeros[k] = updateValue(nonzeros[k], value);
-            }
-            else {
+            } else {
                 currentIsRemoved = false;
                 insertNonZero(++k, removedIndex, value);
             }

@@ -1,12 +1,12 @@
 /*
  * Copyright 2014 OpenRQ Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -18,7 +18,6 @@ package io.adrestus.erasure.code.suites;
 
 import io.adrestus.erasure.code.parameters.DeriverParametersBoundsTest;
 import io.adrestus.erasure.code.parameters.FECParametersBoundsTest;
-
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
@@ -26,8 +25,8 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses({
-               FECParametersBoundsTest.class,
-               DeriverParametersBoundsTest.class,
+        FECParametersBoundsTest.class,
+        DeriverParametersBoundsTest.class,
 })
 public class ParametersBoundsSuite {
 

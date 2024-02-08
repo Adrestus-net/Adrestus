@@ -1,12 +1,12 @@
 /*
  * Copyright 2014 OpenRQ Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,28 +16,24 @@
 
 /*
  * Copyright 2011-2014, by Vladimir Kostyukov and Contributors.
- * 
+ *
  * This file is part of la4j project (http://la4j.org)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * You may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  * Contributor(s): -
  */
 package io.Adrestus.erasure.code.util.linearalgebra.vector.sparse;
-
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.channels.WritableByteChannel;
 
 import io.Adrestus.erasure.code.util.linearalgebra.LinearAlgebra;
 import io.Adrestus.erasure.code.util.linearalgebra.io.ByteVectorIterator;
@@ -47,6 +43,10 @@ import io.Adrestus.erasure.code.util.linearalgebra.vector.ByteVector;
 import io.Adrestus.erasure.code.util.linearalgebra.vector.ByteVectors;
 import io.Adrestus.erasure.code.util.linearalgebra.vector.operation.VectorOperation;
 import io.Adrestus.erasure.code.util.linearalgebra.vector.operation.VectorVectorOperation;
+
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.WritableByteChannel;
 
 import static io.Adrestus.erasure.code.util.math.OctetOps.aIsGreaterThanB;
 import static io.Adrestus.erasure.code.util.math.OctetOps.aIsLessThanB;
@@ -67,7 +67,7 @@ public abstract class SparseByteVector extends AbstractByteVector {
     /**
      * Returns the cardinality (the number of non-zero elements)
      * of this sparse vector.
-     * 
+     *
      * @return the cardinality of this vector
      */
     public int cardinality() {
@@ -78,12 +78,12 @@ public abstract class SparseByteVector extends AbstractByteVector {
     /**
      * Returns the density (non-zero elements divided by total elements)
      * of this sparse vector.
-     * 
+     *
      * @return the density of this vector
      */
     public double density() {
 
-        return cardinality / (double)length();
+        return cardinality / (double) length();
     }
 
     @Override
@@ -92,8 +92,7 @@ public abstract class SparseByteVector extends AbstractByteVector {
         // fast clear
         if (value == 0) {
             cardinality = 0;
-        }
-        else {
+        } else {
             super.assign(value);
         }
     }
@@ -117,10 +116,9 @@ public abstract class SparseByteVector extends AbstractByteVector {
     public byte max() {
 
         byte max = foldNonZero(ByteVectors.mkMaxAccumulator());
-        if (cardinality == length() || aIsGreaterThanB(max, (byte)0)) {
+        if (cardinality == length() || aIsGreaterThanB(max, (byte) 0)) {
             return max;
-        }
-        else {
+        } else {
             return 0;
         }
     }
@@ -129,10 +127,9 @@ public abstract class SparseByteVector extends AbstractByteVector {
     public byte min() {
 
         byte min = foldNonZero(ByteVectors.mkMinAccumulator());
-        if (cardinality == length() || aIsLessThanB(min, (byte)0)) {
+        if (cardinality == length() || aIsLessThanB(min, (byte) 0)) {
             return min;
-        }
-        else {
+        } else {
             return 0;
         }
     }
@@ -203,15 +200,15 @@ public abstract class SparseByteVector extends AbstractByteVector {
     private int getSerializedDataSize() {
 
         final long dataSize = Serialization.SERIALIZATION_TYPE_NUMBYTES +
-                              Serialization.VECTOR_LENGTH_NUMBYTES +
-                              Serialization.VECTOR_CARDINALITY_NUMBYTES +
-                              Serialization.VECTOR_INDEX_NUMBYTES * (long)length() +
-                              length();
+                Serialization.VECTOR_LENGTH_NUMBYTES +
+                Serialization.VECTOR_CARDINALITY_NUMBYTES +
+                Serialization.VECTOR_INDEX_NUMBYTES * (long) length() +
+                length();
 
         if (dataSize > Integer.MAX_VALUE) {
             throw new UnsupportedOperationException("vector is too large to be serialized");
         }
 
-        return (int)dataSize;
+        return (int) dataSize;
     }
 }

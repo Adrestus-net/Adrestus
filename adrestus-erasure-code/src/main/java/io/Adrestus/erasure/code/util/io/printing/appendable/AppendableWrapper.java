@@ -8,13 +8,13 @@ import java.util.Objects;
 
 
 /**
- * @author Ricardo Fonseca &lt;rfonseca&#064;lasige.di.fc.ul.pt&gt;
  * @param <A>
+ * @author Ricardo Fonseca &lt;rfonseca&#064;lasige.di.fc.ul.pt&gt;
  */
 class AppendableWrapper<A extends Appendable> implements Appendable {
 
     protected final A appendable;
-    private Formatter formatter;	// lazily initialized
+    private Formatter formatter;    // lazily initialized
 
 
     public AppendableWrapper(A appendable) {

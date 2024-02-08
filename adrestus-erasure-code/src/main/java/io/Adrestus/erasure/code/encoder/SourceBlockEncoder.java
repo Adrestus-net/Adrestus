@@ -1,12 +1,12 @@
 /*
  * Copyright 2014 OpenRQ Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,7 +21,6 @@ import io.Adrestus.erasure.code.EncodingPacket;
 import io.Adrestus.erasure.code.Exceptions.CheckNumSourceSymbolsPerBlockOutOfBoundsException;
 import io.Adrestus.erasure.code.Exceptions.NumRepairSymbolsPerBlockException;
 import io.Adrestus.erasure.code.parameters.ParameterChecker;
-
 
 
 /**
@@ -61,19 +60,17 @@ public interface SourceBlockEncoder {
          * <ul>
          * <li>{@code esi} &ge; 0
          * <li>{@code esi} &le; {@code max_esi} </ul>
-         * 
-         * @param esi
-         *            The encoding symbol identifier of the symbol in the first encoding packet
+         *
+         * @param esi The encoding symbol identifier of the symbol in the first encoding packet
          * @return this builder (for chained invocation)
-         * @exception IllegalArgumentException
-         *                If the provided encoding symbol identifier is invalid
+         * @throws IllegalArgumentException If the provided encoding symbol identifier is invalid
          */
         public IterableBuilder startAt(int esi);
 
         /**
          * Convenience method for defining the {@linkplain #startAt(int) starting} encoding symbol identifier (ESI) to
          * the ESI of the first source symbol.
-         * 
+         *
          * @return this builder (for chained invocation)
          */
         public IterableBuilder startAtInitialSourceSymbol();
@@ -81,7 +78,7 @@ public interface SourceBlockEncoder {
         /**
          * Convenience method for defining the {@linkplain #startAt(int) starting} encoding symbol identifier (ESI) to
          * the ESI of the first repair symbol.
-         * 
+         *
          * @return this builder (for chained invocation)
          */
         public IterableBuilder startAtInitialRepairSymbol();
@@ -101,19 +98,17 @@ public interface SourceBlockEncoder {
          * <ul>
          * <li>{@code esi} &ge; 0
          * <li>{@code esi} &le; {@code max_esi} </ul>
-         * 
-         * @param esi
-         *            The encoding symbol identifier of the symbol in the last encoding packet
+         *
+         * @param esi The encoding symbol identifier of the symbol in the last encoding packet
          * @return this builder (for chained invocation)
-         * @exception IllegalArgumentException
-         *                If the provided encoding symbol identifier is invalid
+         * @throws IllegalArgumentException If the provided encoding symbol identifier is invalid
          */
         public IterableBuilder endAt(int esi);
 
         /**
          * Convenience method for defining the {@linkplain #endAt(int) ending} encoding symbol identifier (ESI) to the
          * ESI of the last source symbol.
-         * 
+         *
          * @return this builder (for chained invocation)
          */
         public IterableBuilder endAtFinalSourceSymbol();
@@ -124,7 +119,7 @@ public interface SourceBlockEncoder {
          * <p>
          * <b>Note:</b> <em>The iterator from the resulting iterable will <b>not</b> support the
          * {@linkplain java.util.Iterator#remove() remove()} method.</em>
-         * 
+         *
          * @return the resulting iterable over encoding packets
          */
         public Iterable<EncodingPacket> build();
@@ -133,21 +128,21 @@ public interface SourceBlockEncoder {
 
     /**
      * Returns the data encoder object from which this source block encoder was retrieved.
-     * 
+     *
      * @return the data encoder object from which this source block encoder was retrieved
      */
     public DataEncoder dataEncoder();
 
     /**
      * Returns the identifier of the source block being encoded.
-     * 
+     *
      * @return the identifier of the source block being encoded
      */
     public int sourceBlockNumber();
 
     /**
      * Returns the total number of source symbols into which is divided the source block being encoded.
-     * 
+     *
      * @return the total number of source symbols into which is divided the source block being encoded
      */
     public int numberOfSourceSymbols();
@@ -166,12 +161,10 @@ public interface SourceBlockEncoder {
      * <ul>
      * <li>{@code esi} &ge; 0
      * <li>{@code esi} &le; {@code max_esi} </ul>
-     * 
-     * @param esi
-     *            The encoding symbol identifier of the encoding symbol in the returned packet
+     *
+     * @param esi The encoding symbol identifier of the encoding symbol in the returned packet
      * @return an encoding packet with an encoding symbol from the source block being encoded
-     * @exception IllegalArgumentException
-     *                If the provided encoding symbol identifier is invalid
+     * @throws IllegalArgumentException If the provided encoding symbol identifier is invalid
      * @see #sourceBlockNumber()
      * @see #numberOfSourceSymbols()
      */
@@ -189,12 +182,10 @@ public interface SourceBlockEncoder {
      * <ul>
      * <li>{@code esi} &ge; 0
      * <li>{@code esi} &lt; {@code K} </ul>
-     * 
-     * @param esi
-     *            The encoding symbol identifier of the source symbol in the returned packet
+     *
+     * @param esi The encoding symbol identifier of the source symbol in the returned packet
      * @return an encoding packet with a source symbol from the source block being encoded
-     * @exception IllegalArgumentException
-     *                If the provided encoding symbol identifier is invalid
+     * @throws IllegalArgumentException If the provided encoding symbol identifier is invalid
      * @see #sourceBlockNumber()
      * @see #numberOfSourceSymbols()
      */
@@ -220,14 +211,11 @@ public interface SourceBlockEncoder {
      * <li>{@code esi} &lt; {@code K} <li>{@code numSymbols} &gt; 0
      * <li>{@code numSymbols} &le; ({@code K - esi})
      * </ul>
-     * 
-     * @param esi
-     *            The encoding symbol identifier of the first source symbol in the returned packet
-     * @param numSymbols
-     *            The number of source symbols to be placed in the returned packet
+     *
+     * @param esi        The encoding symbol identifier of the first source symbol in the returned packet
+     * @param numSymbols The number of source symbols to be placed in the returned packet
      * @return an encoding packet with multiple source symbols from the source block being encoded
-     * @exception IllegalArgumentException
-     *                If the provided encoding symbol identifier or the number of symbols are invalid
+     * @throws IllegalArgumentException If the provided encoding symbol identifier or the number of symbols are invalid
      * @see #sourceBlockNumber()
      * @see #numberOfSourceSymbols()
      */
@@ -245,12 +233,10 @@ public interface SourceBlockEncoder {
      * {@code IllegalArgumentException} is thrown:
      * <ul>
      * <li>{@code esi} &ge; {@code K} <li>{@code esi} &le; {@code max_esi} </ul>
-     * 
-     * @param esi
-     *            The encoding symbol identifier of the repair symbol in the returned packet
+     *
+     * @param esi The encoding symbol identifier of the repair symbol in the returned packet
      * @return an encoding packet with a repair symbol from the source block being encoded
-     * @exception IllegalArgumentException
-     *                If the provided encoding symbol identifier is invalid
+     * @throws IllegalArgumentException If the provided encoding symbol identifier is invalid
      * @see #sourceBlockNumber()
      * @see #numberOfSourceSymbols()
      */
@@ -276,14 +262,11 @@ public interface SourceBlockEncoder {
      * <li>{@code esi} &ge; {@code K} <li>{@code esi} &le; {@code max_esi} <li>{@code numSymbols} &gt; 0
      * <li>{@code numSymbols} &le; ({@code 1 + max_esi - esi})
      * </ul>
-     * 
-     * @param esi
-     *            The encoding symbol identifier of the first repair symbol in the returned packet
-     * @param numSymbols
-     *            The number of repair symbols to be placed in the returned packet
+     *
+     * @param esi        The encoding symbol identifier of the first repair symbol in the returned packet
+     * @param numSymbols The number of repair symbols to be placed in the returned packet
      * @return an encoding packet with multiple repair symbols from the source block being encoded
-     * @exception IllegalArgumentException
-     *                If the provided encoding symbol identifier or the number of symbols are invalid
+     * @throws IllegalArgumentException If the provided encoding symbol identifier or the number of symbols are invalid
      * @see #sourceBlockNumber()
      * @see #numberOfSourceSymbols()
      */
@@ -303,7 +286,7 @@ public interface SourceBlockEncoder {
      * for (EncodingPacket packet : iterable) {
      * // process packet...
      * }</pre>
-     * 
+     *
      * @return a new builder object for an iterable over encoding packets
      */
     public IterableBuilder newIterableBuilder();
@@ -323,7 +306,7 @@ public interface SourceBlockEncoder {
      * .endAtFinalSourceSymbol()
      * .build();
      * </pre>
-     * 
+     *
      * @return an iterable over all source packets
      * @see #newIterableBuilder()
      */
@@ -353,12 +336,10 @@ public interface SourceBlockEncoder {
      * <li>{@code numRepairPackets} &gt; 0
      * <li>{@code numRepairPackets} &le; ({@code 1 + max_esi - K})
      * </ul>
-     * 
-     * @param numRepairPackets
-     *            The number of repair packets to iterate
+     *
+     * @param numRepairPackets The number of repair packets to iterate
      * @return an iterable over a number of repair packets
-     * @exception IllegalArgumentException
-     *                If the number of repair packets is invalid
+     * @throws IllegalArgumentException If the number of repair packets is invalid
      * @see #newIterableBuilder()
      */
     public Iterable<EncodingPacket> repairPacketsIterable(int numRepairPackets);

@@ -1,12 +1,12 @@
 /*
  * Copyright 2014 OpenRQ Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,16 +14,6 @@
  * limitations under the License.
  */
 package io.adrestus.erasure.code;
-
-
-import static io.Adrestus.erasure.code.util.math.ExtraMath.*;
-import static org.junit.Assert.assertArrayEquals;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
 
 
 import io.Adrestus.erasure.code.ArrayDataDecoder;
@@ -35,7 +25,6 @@ import io.Adrestus.erasure.code.decoder.SourceBlockState;
 import io.Adrestus.erasure.code.encoder.SourceBlockEncoder;
 import io.Adrestus.erasure.code.parameters.FECParameters;
 import io.Adrestus.erasure.code.parameters.ParameterChecker;
-import io.Adrestus.erasure.code.util.math.ExtraMath;
 import org.junit.Assume;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -43,6 +32,11 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
+
+import java.util.*;
+
+import static io.Adrestus.erasure.code.util.math.ExtraMath.ceilDiv;
+import static org.junit.Assert.assertArrayEquals;
 
 
 /**
@@ -86,14 +80,14 @@ public final class DataIntegrityCheckTest {
 
                     final int T = ceilDiv(F, K);
                     if (ParameterChecker.areValidFECParameters(F, T, Z, N)) {
-                        params.add(new Object[] {FECParameters.newParameters(F, T, Z)});
+                        params.add(new Object[]{FECParameters.newParameters(F, T, Z)});
                     }
                 }
             }
         }
 
         System.out.printf("Testing data integrity with F=[%d, %d] K=[%d, %d] Z=[%d, %d] N=%d%n",
-            Fs[0], Fs[Fs.length - 1], Ks[0], Ks[Ks.length - 1], Zs[0], Zs[Zs.length - 1], N, N);
+                Fs[0], Fs[Fs.length - 1], Ks[0], Ks[Ks.length - 1], Zs[0], Zs[Zs.length - 1], N, N);
         System.out.println("Testing " + 2 * params.size() + " data integrity tests...");
         return params;
     }

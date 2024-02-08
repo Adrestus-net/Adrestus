@@ -46,7 +46,7 @@ public class MerkleTreeTest {
     @Test
     public void merklee_proofs_search() {
         List<MerkleNode> list = new ArrayList<MerkleNode>();
-        MerkleTreeImp tree2=new MerkleTreeImp();
+        MerkleTreeImp tree2 = new MerkleTreeImp();
         for (int i = 0; i < 100000; i++) {
             MerkleNode node = new MerkleNode(String.valueOf(i));
             list.add(node);

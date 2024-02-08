@@ -1,12 +1,12 @@
 /*
  * Copyright 2014 OpenRQ Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -25,7 +25,6 @@ import java.io.DataInput;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ReadableByteChannel;
-
 
 
 /**
@@ -47,7 +46,7 @@ public interface DataDecoder {
 
     /**
      * Returns the FEC parameters associated to this decoder.
-     * 
+     *
      * @return the FEC parameters associated to this decoder
      */
     public FECParameters fecParameters();
@@ -55,7 +54,7 @@ public interface DataDecoder {
     /**
      * Returns the length of the source data, in number of bytes. This value is the one returned by
      * {@code this.fecParameters().dataLength()}.
-     * 
+     *
      * @return the length of the data, in number of bytes
      */
     public long dataLength();
@@ -63,7 +62,7 @@ public interface DataDecoder {
     /**
      * Returns the size of a symbol, in number of bytes. This value is the one returned by
      * {@code this.fecParameters().symbolSize()}.
-     * 
+     *
      * @return the size of a symbol, in number of bytes
      */
     public int symbolSize();
@@ -71,7 +70,7 @@ public interface DataDecoder {
     /**
      * Returns the number of source blocks into which the source data is partitioned. This value is the one returned by
      * {@code this.fecParameters().numberOfSourceBlocks()}.
-     * 
+     *
      * @return the number of source blocks
      */
     public int numberOfSourceBlocks();
@@ -79,7 +78,7 @@ public interface DataDecoder {
     /**
      * Returns {@code true} if, and only if, the original data is fully decoded. The original data is considered fully
      * decoded when every source block is fully decoded.
-     * 
+     *
      * @return {@code true} if, and only if, the original data is fully decoded
      */
     public boolean isDataDecoded();
@@ -93,12 +92,10 @@ public interface DataDecoder {
      * <ul>
      * <li>{@code sbn} &ge; 0
      * <li>{@code sbn} &lt; {@code Z} </ul>
-     * 
-     * @param sbn
-     *            A source block number
+     *
+     * @param sbn A source block number
      * @return a decoder object for a specific source block
-     * @exception IllegalArgumentException
-     *                If the provided source block number is invalid
+     * @throws IllegalArgumentException If the provided source block number is invalid
      * @see #numberOfSourceBlocks()
      */
     public SourceBlockDecoder sourceBlock(int sbn);
@@ -106,7 +103,7 @@ public interface DataDecoder {
     /**
      * Returns a new iterable over all source block decoders. The resulting iterable can be iterated using a "foreach"
      * loop.
-     * 
+     *
      * @return a new iterable over all source block decoders
      */
     public Iterable<SourceBlockDecoder> sourceBlockIterable();
@@ -125,25 +122,17 @@ public interface DataDecoder {
      * <li>If the parsing succeeded, the encoding packet can be retrieved by calling the method {@link Parsed#value()}
      * <li>If the parsing failed, the container object will be {@linkplain Parsed#isValid() invalid} and the reason for
      * the parsing failure can be retrieved by calling the method {@link Parsed#failureReason()} </ul>
-     * 
-     * @param sbn
-     *            The common source block number of all symbols in the packet
-     * @param esi
-     *            The encoding symbol identifier of the first symbol in the packet
-     * @param symbols
-     *            An array of bytes containing the symbols data
-     * @param off
-     *            The starting index in the array (must be non-negative)
-     * @param len
-     *            The length of the symbols data (must be non-negative and no larger than {@code symbols.length - off})
-     * @param copySymbols
-     *            If {@code true}, a copy of the symbols data will be performed, otherwise the packet will keep a
-     *            reference to the array
+     *
+     * @param sbn         The common source block number of all symbols in the packet
+     * @param esi         The encoding symbol identifier of the first symbol in the packet
+     * @param symbols     An array of bytes containing the symbols data
+     * @param off         The starting index in the array (must be non-negative)
+     * @param len         The length of the symbols data (must be non-negative and no larger than {@code symbols.length - off})
+     * @param copySymbols If {@code true}, a copy of the symbols data will be performed, otherwise the packet will keep a
+     *                    reference to the array
      * @return a container object containing an encoding packet or a parsing failure reason string
-     * @exception IndexOutOfBoundsException
-     *                If the pre-conditions on the array offset and length do not hold
-     * @exception NullPointerException
-     *                If {@code symbols} is {@code null}
+     * @throws IndexOutOfBoundsException If the pre-conditions on the array offset and length do not hold
+     * @throws NullPointerException      If {@code symbols} is {@code null}
      */
     public Parsed<EncodingPacket> parsePacket(int sbn, int esi, byte[] symbols, int off, int len, boolean copySymbols);
 
@@ -160,19 +149,14 @@ public interface DataDecoder {
      * <li>If the parsing succeeded, the encoding packet can be retrieved by calling the method {@link Parsed#value()}
      * <li>If the parsing failed, the container object will be {@linkplain Parsed#isValid() invalid} and the reason for
      * the parsing failure can be retrieved by calling the method {@link Parsed#failureReason()} </ul>
-     * 
-     * @param sbn
-     *            The common source block number of all symbols in the packet
-     * @param esi
-     *            The encoding symbol identifier of the first symbol in the packet
-     * @param symbols
-     *            A buffer containing the symbols data
-     * @param copySymbols
-     *            If {@code true}, a copy of the symbols data will be performed, otherwise the packet will keep a
-     *            {@linkplain ByteBuffer#duplicate() duplicate} of the buffer
+     *
+     * @param sbn         The common source block number of all symbols in the packet
+     * @param esi         The encoding symbol identifier of the first symbol in the packet
+     * @param symbols     A buffer containing the symbols data
+     * @param copySymbols If {@code true}, a copy of the symbols data will be performed, otherwise the packet will keep a
+     *                    {@linkplain ByteBuffer#duplicate() duplicate} of the buffer
      * @return a container object containing an encoding packet or a parsing failure reason string
-     * @exception NullPointerException
-     *                If {@code symbols} is {@code null}
+     * @throws NullPointerException If {@code symbols} is {@code null}
      */
     public Parsed<EncodingPacket> parsePacket(int sbn, int esi, ByteBuffer symbols, boolean copySymbols);
 
@@ -184,15 +168,12 @@ public interface DataDecoder {
      * <li>If the parsing succeeded, the encoding packet can be retrieved by calling the method {@link Parsed#value()}
      * <li>If the parsing failed, the container object will be {@linkplain Parsed#isValid() invalid} and the reason for
      * the parsing failure can be retrieved by calling the method {@link Parsed#failureReason()} </ul>
-     * 
-     * @param serPac
-     *            A serializable packet
-     * @param copySymbols
-     *            If {@code true}, a copy of the symbols data will be performed, otherwise the packet will keep a
-     *            reference to the array inside the serializable packet
+     *
+     * @param serPac      A serializable packet
+     * @param copySymbols If {@code true}, a copy of the symbols data will be performed, otherwise the packet will keep a
+     *                    reference to the array inside the serializable packet
      * @return a container object containing an encoding packet or a parsing failure reason string
-     * @exception NullPointerException
-     *                If {@code ser} is {@code null}
+     * @throws NullPointerException If {@code ser} is {@code null}
      */
     public Parsed<EncodingPacket> parsePacket(SerializablePacket serPac, boolean copySymbols);
 
@@ -208,15 +189,12 @@ public interface DataDecoder {
      * <li>If the parsing succeeded, the encoding packet can be retrieved by calling the method {@link Parsed#value()}
      * <li>If the parsing failed, the container object will be {@linkplain Parsed#isValid() invalid} and the reason for
      * the parsing failure can be retrieved by calling the method {@link Parsed#failureReason()} </ul>
-     * 
-     * @param array
-     *            An array of bytes containing an encoding packet
-     * @param copySymbols
-     *            If {@code true}, a copy of the symbols data will be performed, otherwise the packet will keep a
-     *            reference to the array
+     *
+     * @param array       An array of bytes containing an encoding packet
+     * @param copySymbols If {@code true}, a copy of the symbols data will be performed, otherwise the packet will keep a
+     *                    reference to the array
      * @return a container object containing an encoding packet or a parsing failure reason string
-     * @exception NullPointerException
-     *                If {@code array} is {@code null}
+     * @throws NullPointerException If {@code array} is {@code null}
      */
     public Parsed<EncodingPacket> parsePacket(byte[] array, boolean copySymbols);
 
@@ -232,21 +210,15 @@ public interface DataDecoder {
      * <li>If the parsing succeeded, the encoding packet can be retrieved by calling the method {@link Parsed#value()}
      * <li>If the parsing failed, the container object will be {@linkplain Parsed#isValid() invalid} and the reason for
      * the parsing failure can be retrieved by calling the method {@link Parsed#failureReason()} </ul>
-     * 
-     * @param array
-     *            An array of bytes containing an encoding packet
-     * @param off
-     *            The starting index in the array (must be non-negative)
-     * @param len
-     *            The length of the encoding packet (must be non-negative and no larger than {@code array.length - off})
-     * @param copySymbols
-     *            If {@code true}, a copy of the symbols data will be performed, otherwise the packet will keep a
-     *            reference to the array
+     *
+     * @param array       An array of bytes containing an encoding packet
+     * @param off         The starting index in the array (must be non-negative)
+     * @param len         The length of the encoding packet (must be non-negative and no larger than {@code array.length - off})
+     * @param copySymbols If {@code true}, a copy of the symbols data will be performed, otherwise the packet will keep a
+     *                    reference to the array
      * @return a container object containing an encoding packet or a parsing failure reason string
-     * @exception IndexOutOfBoundsException
-     *                If the pre-conditions on the array offset and length do not hold
-     * @exception NullPointerException
-     *                If {@code array} is {@code null}
+     * @throws IndexOutOfBoundsException If the pre-conditions on the array offset and length do not hold
+     * @throws NullPointerException      If {@code array} is {@code null}
      */
     public Parsed<EncodingPacket> parsePacket(byte[] array, int off, int len, boolean copySymbols);
 
@@ -263,15 +235,12 @@ public interface DataDecoder {
      * <li>If the parsing succeeded, the encoding packet can be retrieved by calling the method {@link Parsed#value()}
      * <li>If the parsing failed, the container object will be {@linkplain Parsed#isValid() invalid} and the reason for
      * the parsing failure can be retrieved by calling the method {@link Parsed#failureReason()} </ul>
-     * 
-     * @param buffer
-     *            A buffer containing an encoding packet
-     * @param copySymbols
-     *            If {@code true}, a copy of the symbols data will be performed, otherwise the packet will keep a
-     *            {@linkplain ByteBuffer#duplicate() duplicate} of the buffer
+     *
+     * @param buffer      A buffer containing an encoding packet
+     * @param copySymbols If {@code true}, a copy of the symbols data will be performed, otherwise the packet will keep a
+     *                    {@linkplain ByteBuffer#duplicate() duplicate} of the buffer
      * @return a container object containing an encoding packet or a parsing failure reason string
-     * @exception NullPointerException
-     *                If {@code buffer} is {@code null}
+     * @throws NullPointerException If {@code buffer} is {@code null}
      */
     public Parsed<EncodingPacket> parsePacket(ByteBuffer buffer, boolean copySymbols);
 
@@ -290,14 +259,11 @@ public interface DataDecoder {
      * <p>
      * <b><em>Blocking behavior</em></b>: this method blocks until a whole packet is read from the input, or a parsing
      * failure is detected, or an {@code IOException} is throw.
-     * 
-     * @param in
-     *            A {@code DataInput} object from which an encoding packet is read
+     *
+     * @param in A {@code DataInput} object from which an encoding packet is read
      * @return a container object containing an encoding packet or a parsing failure reason string
-     * @throws IOException
-     *             If an I/O error occurs while reading from the {@code DataInput} object
-     * @exception NullPointerException
-     *                If {@code in} is {@code null}
+     * @throws IOException          If an I/O error occurs while reading from the {@code DataInput} object
+     * @throws NullPointerException If {@code in} is {@code null}
      */
     public Parsed<EncodingPacket> readPacketFrom(DataInput in) throws IOException;
 
@@ -316,14 +282,11 @@ public interface DataDecoder {
      * <p>
      * <b><em>Blocking behavior</em></b>: this method blocks until a whole packet is read from the channel, or a parsing
      * failure is detected, or an {@code IOException} is throw.
-     * 
-     * @param ch
-     *            A {@code ReadableByteChannel} object from which an encoding packet is read
+     *
+     * @param ch A {@code ReadableByteChannel} object from which an encoding packet is read
      * @return a container object containing an encoding packet or a parsing failure reason string
-     * @throws IOException
-     *             If an I/O error occurs while reading from the {@code ReadableByteChannel} object
-     * @exception NullPointerException
-     *                If {@code ch} is {@code null}
+     * @throws IOException          If an I/O error occurs while reading from the {@code ReadableByteChannel} object
+     * @throws NullPointerException If {@code ch} is {@code null}
      */
     public Parsed<EncodingPacket> readPacketFrom(ReadableByteChannel ch) throws IOException;
 }

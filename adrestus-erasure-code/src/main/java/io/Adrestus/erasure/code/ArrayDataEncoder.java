@@ -1,12 +1,12 @@
 /*
  * Copyright 2014 OpenRQ Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,13 +16,13 @@
 package io.Adrestus.erasure.code;
 
 
-import java.util.Objects;
-
 import io.Adrestus.erasure.code.encoder.DataEncoder;
 import io.Adrestus.erasure.code.encoder.SourceBlockEncoder;
 import io.Adrestus.erasure.code.parameters.FECParameters;
 import io.Adrestus.erasure.code.util.checking.Indexables;
 import io.Adrestus.erasure.code.util.collection.ImmutableList;
+
+import java.util.Objects;
 
 
 /**
@@ -31,31 +31,25 @@ import io.Adrestus.erasure.code.util.collection.ImmutableList;
 public final class ArrayDataEncoder implements DataEncoder {
 
     /**
-     * @param fecParams
-     *            FEC parameters that configure the returned data encoder object
-     * @param data
-     *            An array of bytes containing the source data to be encoded
-     * @param offset
-     *            The index in the array where the source data begins
+     * @param fecParams FEC parameters that configure the returned data encoder object
+     * @param data      An array of bytes containing the source data to be encoded
+     * @param offset    The index in the array where the source data begins
      * @return a data encoder object backed by an array of bytes
-     * @exception NullPointerException
-     *                If {@code data} or {@code fecParams} are {@code null}
-     * @exception IllegalArgumentException
-     *                If {@code fecParams.dataLength() > Integer.MAX_VALUE}
-     * @exception IndexOutOfBoundsException
-     *                If {@code offset < 0 || fecParams.dataLength() > (data.length - offset)}
+     * @throws NullPointerException      If {@code data} or {@code fecParams} are {@code null}
+     * @throws IllegalArgumentException  If {@code fecParams.dataLength() > Integer.MAX_VALUE}
+     * @throws IndexOutOfBoundsException If {@code offset < 0 || fecParams.dataLength() > (data.length - offset)}
      */
     static ArrayDataEncoder newEncoder(byte[] data, int offset,
-        FECParameters fecParams) {
+                                       FECParameters fecParams) {
 
         Objects.requireNonNull(data);
         // throws NullPointerException if null fecParams
         if (fecParams.dataLength() > Integer.MAX_VALUE) {
             throw new IllegalArgumentException(
-                "data length must be at most 2^^31 - 1");
+                    "data length must be at most 2^^31 - 1");
         }
         Indexables.checkOffsetLengthBounds(offset, fecParams.dataLengthAsInt(),
-            data.length);
+                data.length);
 
         return new ArrayDataEncoder(data, offset, fecParams);
     }
@@ -76,18 +70,18 @@ public final class ArrayDataEncoder implements DataEncoder {
         this.fecParams = fecParams;
 
         this.srcBlockEncoders = DataUtils.partitionSourceData(
-            fecParams, offset,
-            SourceBlockEncoder.class, new DataUtils.SourceBlockSupplier<SourceBlockEncoder>() {
+                fecParams, offset,
+                SourceBlockEncoder.class, new DataUtils.SourceBlockSupplier<SourceBlockEncoder>() {
 
-                @Override
-                public SourceBlockEncoder get(int off, int sbn) {
+                    @Override
+                    public SourceBlockEncoder get(int off, int sbn) {
 
-                    return ArraySourceBlockEncoder.newEncoder(
-                        ArrayDataEncoder.this,
-                        ArrayDataEncoder.this.array, off,
-                        ArrayDataEncoder.this.fecParams, sbn);
-                }
-            });
+                        return ArraySourceBlockEncoder.newEncoder(
+                                ArrayDataEncoder.this,
+                                ArrayDataEncoder.this.array, off,
+                                ArrayDataEncoder.this.fecParams, sbn);
+                    }
+                });
     }
 
     @Override
@@ -116,9 +110,8 @@ public final class ArrayDataEncoder implements DataEncoder {
 
     /**
      * {@inheritDoc}
-     * 
-     * @exception IllegalArgumentException
-     *                If the provided source block number is invalid
+     *
+     * @throws IllegalArgumentException If the provided source block number is invalid
      * @see #numberOfSourceBlocks()
      */
     @Override
@@ -126,8 +119,7 @@ public final class ArrayDataEncoder implements DataEncoder {
 
         try {
             return srcBlockEncoders.get(sbn); // list is random access
-        }
-        catch (IndexOutOfBoundsException e) {
+        } catch (IndexOutOfBoundsException e) {
             throw new IllegalArgumentException("invalid source block number");
         }
     }
@@ -140,7 +132,7 @@ public final class ArrayDataEncoder implements DataEncoder {
 
     /**
      * Returns an array of bytes containing the source data.
-     * 
+     *
      * @return an array of bytes containing the source data
      */
     public byte[] dataArray() {
@@ -150,7 +142,7 @@ public final class ArrayDataEncoder implements DataEncoder {
 
     /**
      * Returns the index in the source data array of the first byte.
-     * 
+     *
      * @return the index in the source data array of the first byte
      */
     public int dataOffset() {

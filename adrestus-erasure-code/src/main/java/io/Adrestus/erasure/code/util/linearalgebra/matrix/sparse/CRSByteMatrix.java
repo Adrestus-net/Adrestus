@@ -1,12 +1,12 @@
 /*
  * Copyright 2014 OpenRQ Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,21 +16,21 @@
 
 /*
  * Copyright 2011-2014, by Vladimir Kostyukov and Contributors.
- * 
+ *
  * This file is part of la4j project (http://la4j.org)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * You may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  * Contributor(s): Chandler May
  * Maxim Samoylov
  * Anveshi Charuvaka
@@ -39,11 +39,6 @@
  */
 package io.Adrestus.erasure.code.util.linearalgebra.matrix.sparse;
 
-
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.channels.WritableByteChannel;
-import java.util.Objects;
 
 import io.Adrestus.erasure.code.util.checking.Indexables;
 import io.Adrestus.erasure.code.util.linearalgebra.LinearAlgebra;
@@ -56,6 +51,11 @@ import io.Adrestus.erasure.code.util.linearalgebra.matrix.functor.MatrixProcedur
 import io.Adrestus.erasure.code.util.linearalgebra.matrix.source.MatrixSource;
 import io.Adrestus.erasure.code.util.linearalgebra.serialize.Serialization;
 import io.Adrestus.erasure.code.util.linearalgebra.vector.ByteVector;
+
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.WritableByteChannel;
+import java.util.Objects;
 
 import static io.Adrestus.erasure.code.util.math.OctetOps.*;
 
@@ -231,7 +231,7 @@ public class CRSByteMatrix extends AbstractCompressedByteMatrix implements Spars
 
         if (columns() != matrix.rows()) {
             fail("Wrong matrix dimensions: " + matrix.rows() + "x" + matrix.columns() +
-                 ". Should be: " + columns() + "x_.");
+                    ". Should be: " + columns() + "x_.");
         }
 
         ByteMatrix result = factory.createMatrix(rows(), matrix.columns());
@@ -257,39 +257,37 @@ public class CRSByteMatrix extends AbstractCompressedByteMatrix implements Spars
 
     @Override
     public ByteMatrix multiply(
-        ByteMatrix matrix,
-        int fromThisRow,
-        int toThisRow,
-        int fromThisColumn,
-        int toThisColumn,
-        int fromOtherRow,
-        int toOtherRow,
-        int fromOtherColumn,
-        int toOtherColumn)
-    {
+            ByteMatrix matrix,
+            int fromThisRow,
+            int toThisRow,
+            int fromThisColumn,
+            int toThisColumn,
+            int fromOtherRow,
+            int toOtherRow,
+            int fromOtherColumn,
+            int toOtherColumn) {
 
         return multiply(
-            matrix,
-            fromThisRow, toThisRow,
-            fromThisColumn, toThisColumn,
-            fromOtherRow, toOtherRow,
-            fromOtherColumn, toOtherColumn,
-            factory());
+                matrix,
+                fromThisRow, toThisRow,
+                fromThisColumn, toThisColumn,
+                fromOtherRow, toOtherRow,
+                fromOtherColumn, toOtherColumn,
+                factory());
     }
 
     @Override
     public ByteMatrix multiply(
-        ByteMatrix matrix,
-        int fromThisRow,
-        int toThisRow,
-        int fromThisColumn,
-        int toThisColumn,
-        int fromOtherRow,
-        int toOtherRow,
-        int fromOtherColumn,
-        int toOtherColumn,
-        Factory factory)
-    {
+            ByteMatrix matrix,
+            int fromThisRow,
+            int toThisRow,
+            int fromThisColumn,
+            int toThisColumn,
+            int fromOtherRow,
+            int toOtherRow,
+            int fromOtherColumn,
+            int toOtherColumn,
+            Factory factory) {
 
         ensureFactoryIsNotNull(factory);
         ensureArgumentIsNotNull(matrix, "matrix");
@@ -300,8 +298,8 @@ public class CRSByteMatrix extends AbstractCompressedByteMatrix implements Spars
 
         if ((toThisColumn - fromThisColumn) != (toOtherRow - fromOtherRow)) {
             fail("Wrong matrix dimensions: " +
-                 (toOtherRow - fromOtherRow) + "x" + (toOtherColumn - fromOtherColumn) +
-                 ". Should be: " + (toThisColumn - fromThisColumn) + "x_.");
+                    (toOtherRow - fromOtherRow) + "x" + (toOtherColumn - fromOtherColumn) +
+                    ". Should be: " + (toThisColumn - fromThisColumn) + "x_.");
         }
 
         ByteMatrix result = factory.createMatrix(toThisRow - fromThisRow, toOtherColumn - fromOtherColumn);
@@ -339,7 +337,7 @@ public class CRSByteMatrix extends AbstractCompressedByteMatrix implements Spars
 
         if (columns() != matrix.rows()) {
             fail("Wrong matrix dimensions: " + matrix.rows() + "x" + matrix.columns() +
-                 ". Should be: " + columns() + "x_.");
+                    ". Should be: " + columns() + "x_.");
         }
 
         ByteVector result = factory.createVector(matrix.columns());
@@ -375,7 +373,7 @@ public class CRSByteMatrix extends AbstractCompressedByteMatrix implements Spars
 
         if ((toColumn - fromColumn) != matrix.rows()) {
             fail("Wrong matrix dimensions: " + matrix.rows() + "x" + matrix.columns() +
-                 ". Should be: " + (toColumn - fromColumn) + "x_.");
+                    ". Should be: " + (toColumn - fromColumn) + "x_.");
         }
 
         ByteVector result = factory.createVector(matrix.columns());
@@ -602,10 +600,9 @@ public class CRSByteMatrix extends AbstractCompressedByteMatrix implements Spars
     public byte maxInRow(int i) {
 
         byte max = foldNonZeroInRow(i, ByteMatrices.mkMaxAccumulator());
-        if (sparseRows.vectorR(i).nonZeros() == columns() || aIsGreaterThanB(max, (byte)0)) {
+        if (sparseRows.vectorR(i).nonZeros() == columns() || aIsGreaterThanB(max, (byte) 0)) {
             return max;
-        }
-        else {
+        } else {
             return 0;
         }
     }
@@ -614,10 +611,9 @@ public class CRSByteMatrix extends AbstractCompressedByteMatrix implements Spars
     public byte minInRow(int i) {
 
         byte min = foldNonZeroInRow(i, ByteMatrices.mkMinAccumulator());
-        if (sparseRows.vectorR(i).nonZeros() == columns() || aIsLessThanB(min, (byte)0)) {
+        if (sparseRows.vectorR(i).nonZeros() == columns() || aIsLessThanB(min, (byte) 0)) {
             return min;
-        }
-        else {
+        } else {
             return 0;
         }
     }
@@ -695,16 +691,16 @@ public class CRSByteMatrix extends AbstractCompressedByteMatrix implements Spars
     private int getSerializedDataSize() {
 
         final long dataSize = Serialization.SERIALIZATION_TYPE_NUMBYTES +
-                              Serialization.MATRIX_ROWS_NUMBYTES +
-                              Serialization.MATRIX_COLUMNS_NUMBYTES +
-                              Serialization.MATRIX_ROW_CARDINALITY_NUMBYTES * (long)rows() +
-                              Serialization.MATRIX_COLUMN_INDEX_NUMBYTES * (long)cardinality() +
-                              cardinality();
+                Serialization.MATRIX_ROWS_NUMBYTES +
+                Serialization.MATRIX_COLUMNS_NUMBYTES +
+                Serialization.MATRIX_ROW_CARDINALITY_NUMBYTES * (long) rows() +
+                Serialization.MATRIX_COLUMN_INDEX_NUMBYTES * (long) cardinality() +
+                cardinality();
 
         if (dataSize > Integer.MAX_VALUE) {
             throw new UnsupportedOperationException("matrix is too large to be serialized");
         }
 
-        return (int)dataSize;
+        return (int) dataSize;
     }
 }

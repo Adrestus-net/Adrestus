@@ -1,12 +1,12 @@
 /*
  * Copyright 2014 OpenRQ Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -34,13 +34,10 @@ public class UncheckedIOException extends RuntimeException {
 
     /**
      * Constructs an instance of this class.
-     * 
-     * @param message
-     *            the detail message, can be null
-     * @param cause
-     *            the {@code IOException}
-     * @throws NullPointerException
-     *             if the cause is {@code null}
+     *
+     * @param message the detail message, can be null
+     * @param cause   the {@code IOException}
+     * @throws NullPointerException if the cause is {@code null}
      */
     public UncheckedIOException(String message, IOException cause) {
 
@@ -49,11 +46,9 @@ public class UncheckedIOException extends RuntimeException {
 
     /**
      * Constructs an instance of this class.
-     * 
-     * @param cause
-     *            the {@code IOException}
-     * @throws NullPointerException
-     *             if the cause is {@code null}
+     *
+     * @param cause the {@code IOException}
+     * @throws NullPointerException if the cause is {@code null}
      */
     public UncheckedIOException(IOException cause) {
 
@@ -62,24 +57,23 @@ public class UncheckedIOException extends RuntimeException {
 
     /**
      * Returns the cause of this exception.
-     * 
+     *
      * @return the {@code IOException} which is the cause of this exception.
      */
     @Override
     public synchronized IOException getCause() {
 
-        return (IOException)super.getCause();
+        return (IOException) super.getCause();
     }
 
     /**
      * Called to read the object from a stream.
-     * 
+     *
      * @param s
      * @throws IOException
      * @throws ClassNotFoundException
-     * @throws InvalidObjectException
-     *             if the object is invalid or has a cause that is not
-     *             an {@code IOException}
+     * @throws InvalidObjectException if the object is invalid or has a cause that is not
+     *                                an {@code IOException}
      */
     private void readObject(ObjectInputStream s) throws IOException, ClassNotFoundException {
 

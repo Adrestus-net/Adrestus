@@ -6,8 +6,8 @@ import java.io.PrintWriter;
 
 
 /**
- * @author Ricardo Fonseca &lt;rfonseca&#064;lasige.di.fc.ul.pt&gt;
  * @param <P>
+ * @author Ricardo Fonseca &lt;rfonseca&#064;lasige.di.fc.ul.pt&gt;
  */
 final class PrintWriterWrapper<P extends PrintWriter> extends WriterWrapper<P> {
 
@@ -38,9 +38,8 @@ final class PrintWriterWrapper<P extends PrintWriter> extends WriterWrapper<P> {
     public void println(CharSequence csq) throws IOException {
 
         if (csq instanceof String) {
-            appendable.println((String)csq);
-        }
-        else {
+            appendable.println((String) csq);
+        } else {
             super.println(csq);
         }
     }

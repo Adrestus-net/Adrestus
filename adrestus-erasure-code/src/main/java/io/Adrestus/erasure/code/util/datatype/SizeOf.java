@@ -2,7 +2,7 @@ package io.Adrestus.erasure.code.util.datatype;
 
 /**
  * Useful byte sizes for primitive java types.
- * 
+ *
  * @author Ricardo Fonseca &lt;rfonseca&#064;lasige.di.fc.ul.pt&gt;
  */
 public final class SizeOf {
@@ -70,121 +70,107 @@ public final class SizeOf {
 
     /**
      * Returns the size in number of bytes required to hold the given (non-negative) amount of bits.
-     * 
-     * @param numBits
-     *            A non-negative amount of bits
+     *
+     * @param numBits A non-negative amount of bits
      * @return the size in number of bytes required to hold the given non-negative number of bits
-     * @exception IllegalArgumentException
-     *                If {@code numBits} is negative
+     * @throws IllegalArgumentException If {@code numBits} is negative
      */
     public static final int bitsInBytes(int numBits) {
 
         if (numBits < 0) throw new IllegalArgumentException("numBits < 0");
 
         // there is a cast to a long here in order to avoid integer overflow
-        return (int)((numBits + (Byte.SIZE - 1L)) / Byte.SIZE);
+        return (int) ((numBits + (Byte.SIZE - 1L)) / Byte.SIZE);
     }
 
     /**
      * Returns the size in number of chars required to hold the given (non-negative) amount of bits.
-     * 
-     * @param numBits
-     *            A non-negative amount of bits
+     *
+     * @param numBits A non-negative amount of bits
      * @return the size in number of chars required to hold the given non-negative number of bits
-     * @exception IllegalArgumentException
-     *                If {@code numBits} is negative
+     * @throws IllegalArgumentException If {@code numBits} is negative
      */
     public static final int bitsInChars(int numBits) {
 
         if (numBits < 0) throw new IllegalArgumentException("numBits < 0");
 
         // there is a cast to a long here in order to avoid integer overflow
-        return (int)((numBits + (Character.SIZE - 1L)) / Character.SIZE);
+        return (int) ((numBits + (Character.SIZE - 1L)) / Character.SIZE);
     }
 
     /**
      * Returns the size in number of shorts required to hold the given (non-negative) amount of bits.
-     * 
-     * @param numBits
-     *            A non-negative amount of bits
+     *
+     * @param numBits A non-negative amount of bits
      * @return the size in number of shorts required to hold the given non-negative number of bits
-     * @exception IllegalArgumentException
-     *                If {@code numBits} is negative
+     * @throws IllegalArgumentException If {@code numBits} is negative
      */
     public static final int bitsInShorts(int numBits) {
 
         if (numBits < 0) throw new IllegalArgumentException("numBits < 0");
 
         // there is a cast to a long here in order to avoid integer overflow
-        return (int)((numBits + (Short.SIZE - 1L)) / Short.SIZE);
+        return (int) ((numBits + (Short.SIZE - 1L)) / Short.SIZE);
     }
 
     /**
      * Returns the size in number of ints required to hold the given (non-negative) amount of bits.
-     * 
-     * @param numBits
-     *            A non-negative amount of bits
+     *
+     * @param numBits A non-negative amount of bits
      * @return the size in number of ints required to hold the given non-negative number of bits
-     * @exception IllegalArgumentException
-     *                If {@code numBits} is negative
+     * @throws IllegalArgumentException If {@code numBits} is negative
      */
     public static final int bitsInInts(int numBits) {
 
         if (numBits < 0) throw new IllegalArgumentException("numBits < 0");
 
         // there is a cast to a long here in order to avoid integer overflow
-        return (int)((numBits + (Integer.SIZE - 1L)) / Integer.SIZE);
+        return (int) ((numBits + (Integer.SIZE - 1L)) / Integer.SIZE);
     }
 
     /**
      * Returns the size in number of longs required to hold the given (non-negative) amount of bits.
-     * 
-     * @param numBits
-     *            A non-negative amount of bits
+     *
+     * @param numBits A non-negative amount of bits
      * @return the size in number of longs required to hold the given non-negative number of bits
-     * @exception IllegalArgumentException
-     *                If {@code numBits} is negative
+     * @throws IllegalArgumentException If {@code numBits} is negative
      */
     public static final int bitsInLongs(int numBits) {
 
         if (numBits < 0) throw new IllegalArgumentException("numBits < 0");
 
         // there is a cast to a long here in order to avoid integer overflow
-        return (int)((numBits + (Long.SIZE - 1L)) / Long.SIZE);
+        return (int) ((numBits + (Long.SIZE - 1L)) / Long.SIZE);
     }
 
     /**
      * Returns the size in number of floats required to hold the given (non-negative) amount of bits.
-     * 
-     * @param numBits
-     *            A non-negative amount of bits
+     *
+     * @param numBits A non-negative amount of bits
      * @return the size in number of floats required to hold the given non-negative number of bits
-     * @exception IllegalArgumentException
-     *                If {@code numBits} is negative
+     * @throws IllegalArgumentException If {@code numBits} is negative
      */
     public static final int bitsInFloats(int numBits) {
 
         if (numBits < 0) throw new IllegalArgumentException("numBits < 0");
 
         // there is a cast to a long here in order to avoid integer overflow
-        return (int)((numBits + (Float.SIZE - 1L)) / Float.SIZE);
+        return (int) ((numBits + (Float.SIZE - 1L)) / Float.SIZE);
     }
 
     /**
      * Returns the size in number of doubles required to hold the given (non-negative) amount of bits.
-     * 
-     * @param numBits
-     *            A non-negative amount of bits
+     *
+     * @param numBits A non-negative amount of bits
      * @return the size in number of doubles required to hold the given non-negative number of bits
-     * @exception IllegalArgumentException
-     *                If {@code numBits} is negative
+     * @throws IllegalArgumentException If {@code numBits} is negative
      */
     public static final int bitsInDoubles(int numBits) {
 
         if (numBits < 0) throw new IllegalArgumentException("numBits < 0");
 
         // there is a cast to a long here in order to avoid integer overflow
-        return (int)((numBits + (Double.SIZE - 1L)) / Double.SIZE);
+        return (int) ((numBits + (Double.SIZE - 1L)) / Double.SIZE);
     }
 
     private SizeOf() {

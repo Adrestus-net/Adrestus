@@ -7,8 +7,8 @@ import java.nio.CharBuffer;
 
 
 /**
- * @author Ricardo Fonseca &lt;rfonseca&#064;lasige.di.fc.ul.pt&gt;
  * @param <W>
+ * @author Ricardo Fonseca &lt;rfonseca&#064;lasige.di.fc.ul.pt&gt;
  */
 class WriterWrapper<W extends Writer> extends AppendableWrapper<W> {
 
@@ -26,15 +26,13 @@ class WriterWrapper<W extends Writer> extends AppendableWrapper<W> {
     public void print(CharSequence csq) throws IOException {
 
         if (csq instanceof String) {
-            appendable.write((String)csq);
-        }
-        else if (csq instanceof CharBuffer) {
+            appendable.write((String) csq);
+        } else if (csq instanceof CharBuffer) {
             final int srcLen = csq.length();
             final char[] array = allocateArray(srcLen);
-            ((CharBuffer)csq).get(array, 0, srcLen);
+            ((CharBuffer) csq).get(array, 0, srcLen);
             print(array, 0, srcLen);
-        }
-        else {
+        } else {
             super.print(csq);
         }
     }
@@ -47,27 +45,23 @@ class WriterWrapper<W extends Writer> extends AppendableWrapper<W> {
         }
 
         if (csq instanceof String) {
-            appendable.write((String)csq, start, end - start);
-        }
-        else if (csq instanceof StringBuilder) {
+            appendable.write((String) csq, start, end - start);
+        } else if (csq instanceof StringBuilder) {
             final int srcLen = end - start;
             final char[] array = allocateArray(srcLen);
-            ((StringBuilder)csq).getChars(start, end, array, 0);
+            ((StringBuilder) csq).getChars(start, end, array, 0);
             print(array, 0, srcLen);
-        }
-        else if (csq instanceof StringBuffer) {
+        } else if (csq instanceof StringBuffer) {
             final int srcLen = end - start;
             final char[] array = allocateArray(srcLen);
-            ((StringBuffer)csq).getChars(start, end, array, 0);
+            ((StringBuffer) csq).getChars(start, end, array, 0);
             print(array, 0, srcLen);
-        }
-        else if (csq instanceof CharBuffer) {
+        } else if (csq instanceof CharBuffer) {
             final int srcLen = end - start;
             final char[] array = allocateArray(srcLen);
-            ((CharBuffer)csq).subSequence(start, end).get(array, 0, srcLen);
+            ((CharBuffer) csq).subSequence(start, end).get(array, 0, srcLen);
             print(array, 0, srcLen);
-        }
-        else {
+        } else {
             super.print(csq, start, end);
         }
     }

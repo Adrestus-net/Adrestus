@@ -1,12 +1,12 @@
 /*
  * Copyright 2014 OpenRQ Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,36 +21,29 @@ import io.Adrestus.erasure.code.util.checking.Indexables;
 import java.lang.reflect.Array;
 
 
-
 /**
+ *
  */
 public final class ArrayUtils {
 
     /**
-     * @param componentType
-     *            The {@code Class} object representing the component type of the new array
-     * @param length
-     *            The length of the new array
+     * @param componentType The {@code Class} object representing the component type of the new array
+     * @param length        The length of the new array
      * @return a new array with a specific component type and length
-     * @exception NullPointerException
-     *                If the specified {@code componentType} parameter is null
-     * @exception IllegalArgumentException
-     *                If {@code componentType} is {@link Void#TYPE}
-     * @exception NegativeArraySizeException
-     *                If the specified {@code length} is negative
+     * @throws NullPointerException       If the specified {@code componentType} parameter is null
+     * @throws IllegalArgumentException   If {@code componentType} is {@link Void#TYPE}
+     * @throws NegativeArraySizeException If the specified {@code length} is negative
      */
     public static <T> T[] newArray(Class<T> componentType, int length) {
 
-        @SuppressWarnings("unchecked")
-        final T[] array = (T[])Array.newInstance(componentType, length);
+        @SuppressWarnings("unchecked") final T[] array = (T[]) Array.newInstance(componentType, length);
         return array;
     }
 
     /**
      * Returns {@code true} iff an array of ints is sorted.
-     * 
-     * @param array
-     *            An array of ints
+     *
+     * @param array An array of ints
      * @return {@code true} iff an array of ints is sorted
      */
     public static boolean isSorted(int[] array) {
@@ -60,13 +53,10 @@ public final class ArrayUtils {
 
     /**
      * Returns {@code true} iff an array of ints is sorted.
-     * 
-     * @param array
-     *            An array of ints
-     * @param from
-     *            The starting index (inclusive)
-     * @param to
-     *            The ending index (exclusive)
+     *
+     * @param array An array of ints
+     * @param from  The starting index (inclusive)
+     * @param to    The ending index (exclusive)
      * @return {@code true} iff an array of ints is sorted
      */
     public static boolean isSorted(int[] array, int from, int to) {
@@ -84,17 +74,12 @@ public final class ArrayUtils {
 
     /**
      * Swaps two non intersecting blocks inside an array of bytes.
-     * 
-     * @param array
-     *            The array
-     * @param fromA
-     *            The starting index of block A (inclusive)
-     * @param toA
-     *            The ending index of block B (exclusive)
-     * @param fromB
-     *            The starting index of block B (inclusive)
-     * @param toB
-     *            The ending index of block B (exclusive)
+     *
+     * @param array The array
+     * @param fromA The starting index of block A (inclusive)
+     * @param toA   The ending index of block B (exclusive)
+     * @param fromB The starting index of block B (inclusive)
+     * @param toB   The ending index of block B (exclusive)
      */
     public static void swapBlocks(byte[] array, int fromA, int toA, int fromB, int toB) {
 
@@ -114,17 +99,12 @@ public final class ArrayUtils {
 
     /**
      * Swaps two non intersecting blocks inside an array of ints.
-     * 
-     * @param array
-     *            The array
-     * @param fromA
-     *            The starting index of block A (inclusive)
-     * @param toA
-     *            The ending index of block B (exclusive)
-     * @param fromB
-     *            The starting index of block B (inclusive)
-     * @param toB
-     *            The ending index of block B (exclusive)
+     *
+     * @param array The array
+     * @param fromA The starting index of block A (inclusive)
+     * @param toA   The ending index of block B (exclusive)
+     * @param fromB The starting index of block B (inclusive)
+     * @param toB   The ending index of block B (exclusive)
      */
     public static void swapBlocks(int[] array, int fromA, int toA, int fromB, int toB) {
 
@@ -175,13 +155,10 @@ public final class ArrayUtils {
 
     /**
      * Swaps two bytes in an array of bytes.
-     * 
-     * @param array
-     *            The array of bytes
-     * @param a
-     *            One of the indices of the values to be swapped
-     * @param b
-     *            One of the indices of the values to be swapped
+     *
+     * @param array The array of bytes
+     * @param a     One of the indices of the values to be swapped
+     * @param b     One of the indices of the values to be swapped
      */
     public static void swapBytes(byte[] array, int a, int b) {
 
@@ -192,13 +169,10 @@ public final class ArrayUtils {
 
     /**
      * Swaps two ints in an array of ints.
-     * 
-     * @param array
-     *            The array of ints
-     * @param a
-     *            One of the indices of the values to be swapped
-     * @param b
-     *            One of the indices of the values to be swapped
+     *
+     * @param array The array of ints
+     * @param a     One of the indices of the values to be swapped
+     * @param b     One of the indices of the values to be swapped
      */
     public static void swapInts(int[] array, int a, int b) {
 
@@ -209,13 +183,10 @@ public final class ArrayUtils {
 
     /**
      * Swaps two Objects in an array of Objects.
-     * 
-     * @param array
-     *            The array of Objects
-     * @param a
-     *            One of the indices of the values to be swapped
-     * @param b
-     *            One of the indices of the values to be swapped
+     *
+     * @param array The array of Objects
+     * @param a     One of the indices of the values to be swapped
+     * @param b     One of the indices of the values to be swapped
      */
     public static void swapObjects(Object[] array, int a, int b) {
 
@@ -242,7 +213,7 @@ public final class ArrayUtils {
 
         /**
          * Returns an empty array of bytes.
-         * 
+         *
          * @return an empty array of bytes
          */
         public static byte[] bytes() {
@@ -252,7 +223,7 @@ public final class ArrayUtils {
 
         /**
          * Returns an empty array of chars.
-         * 
+         *
          * @return an empty array of chars
          */
         public static char[] chars() {
@@ -262,7 +233,7 @@ public final class ArrayUtils {
 
         /**
          * Returns an empty array of shorts.
-         * 
+         *
          * @return an empty array of shorts
          */
         public static short[] shorts() {
@@ -272,7 +243,7 @@ public final class ArrayUtils {
 
         /**
          * Returns an empty array of ints.
-         * 
+         *
          * @return an empty array of ints
          */
         public static int[] ints() {
@@ -282,7 +253,7 @@ public final class ArrayUtils {
 
         /**
          * Returns an empty array of longs.
-         * 
+         *
          * @return an empty array of longs
          */
         public static long[] longs() {
@@ -292,7 +263,7 @@ public final class ArrayUtils {
 
         /**
          * Returns an empty array of floats.
-         * 
+         *
          * @return an empty array of floats
          */
         public static float[] floats() {
@@ -302,7 +273,7 @@ public final class ArrayUtils {
 
         /**
          * Returns an empty array of doubles.
-         * 
+         *
          * @return an empty array of doubles
          */
         public static double[] doubles() {
@@ -312,15 +283,13 @@ public final class ArrayUtils {
 
         /**
          * Returns an empty array of objects.
-         * 
-         * @param <T>
-         *            The container type of the array
+         *
+         * @param <T> The container type of the array
          * @return an empty array of objects
          */
         public static <T> T[] objects() {
 
-            @SuppressWarnings("unchecked")
-            final T[] array = (T[])OBJECTS;
+            @SuppressWarnings("unchecked") final T[] array = (T[]) OBJECTS;
             return array;
         }
     }

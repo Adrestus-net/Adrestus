@@ -81,6 +81,10 @@ public class MerkleNode implements Serializable {
         return Objects.equal(transactionHash, that.transactionHash) && Objects.equal(root, that.root) && Objects.equal(left, that.left) && Objects.equal(right, that.right);
     }
 
+    public int getLength() {
+        return transactionHash.length() + root.transactionHash.length() + left.transactionHash.length() + right.transactionHash.length();
+    }
+
     @Override
     public int hashCode() {
         return Objects.hashCode(transactionHash, root, left, right);

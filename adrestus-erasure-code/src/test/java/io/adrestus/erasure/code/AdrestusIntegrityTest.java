@@ -25,7 +25,6 @@ import java.util.Random;
 
 import static io.Adrestus.erasure.code.parameters.ParameterChecker.maxAllowedDataLength;
 import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
 
 public class AdrestusIntegrityTest {
 
@@ -325,7 +324,7 @@ public class AdrestusIntegrityTest {
                     sbDec.putEncodingPacket(n.get(i));
                 }
 
-                count=0;
+                count = 0;
                 for (EncodingPacket repair : f) {
                     final SourceBlockDecoder sbDec = dec.sourceBlock(repair.sourceBlockNumber());
                     sbDec.putEncodingPacket(repair);

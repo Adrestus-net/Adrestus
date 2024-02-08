@@ -5,7 +5,6 @@ import io.Adrestus.Trie.MerklePatriciaTreeImp;
 import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.Trie.optimize64_trie.IMerklePatriciaTrie;
 import io.Adrestus.Trie.optimize64_trie.MerklePatriciaTrie;
-import io.Adrestus.Trie.optimize64_trie.Proof;
 import io.Adrestus.util.bytes.Bytes;
 import org.apache.commons.lang3.SerializationUtils;
 import org.junit.jupiter.api.BeforeEach;

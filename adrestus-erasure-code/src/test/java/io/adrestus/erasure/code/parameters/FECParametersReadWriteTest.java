@@ -1,12 +1,12 @@
 /*
  * Copyright 2014 OpenRQ Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,13 +16,14 @@
 package io.adrestus.erasure.code.parameters;
 
 
-import static org.junit.Assert.assertEquals;
+import io.Adrestus.erasure.code.Parsed;
+import io.Adrestus.erasure.code.parameters.FECParameters;
+import io.Adrestus.erasure.code.parameters.SerializableParameters;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
+import java.io.*;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.nio.ReadOnlyBufferException;
@@ -31,12 +32,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import io.Adrestus.erasure.code.Parsed;
-import io.Adrestus.erasure.code.parameters.FECParameters;
-import io.Adrestus.erasure.code.parameters.SerializableParameters;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 
 /**
@@ -177,8 +173,7 @@ public class FECParametersReadWriteTest {
 
                 try {
                     PARAMS.writeTo(new DataOutputStream(out));
-                }
-                catch (IOException e) {
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
@@ -201,8 +196,7 @@ public class FECParametersReadWriteTest {
 
                 try {
                     PARAMS.writeTo(pipe.sink());
-                }
-                catch (IOException e) {
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
             }

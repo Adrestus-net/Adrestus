@@ -1,12 +1,12 @@
 /*
  * Copyright 2014 OpenRQ Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,11 +16,6 @@
 package io.adrestus.erasure.code.parameters;
 
 
-
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-
 import io.Adrestus.erasure.code.Exceptions.MaxAllowedDataLengthException;
 import io.Adrestus.erasure.code.parameters.ParameterChecker;
 import lombok.SneakyThrows;
@@ -29,6 +24,10 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
+
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
 import static io.adrestus.erasure.code.TestingCommon.*;
 import static org.junit.Assert.assertFalse;
@@ -116,19 +115,19 @@ public class DeriverParametersBoundsTest {
             assumeTrue(ParameterChecker.areValidDeriverParameters(F, P, WS));
 
             assertTrue(String.format("F is less than its minimum - %s", params),
-                F >= ParameterChecker.minDataLength());
+                    F >= ParameterChecker.minDataLength());
 
             assertTrue(String.format("F is greater than its maximum - %s", params),
-                F <= ParameterChecker.maxDataLength());
+                    F <= ParameterChecker.maxDataLength());
 
             assertFalse(String.format("F is out of bounds - %s", params),
-                ParameterChecker.isDataLengthOutOfBounds(F));
+                    ParameterChecker.isDataLengthOutOfBounds(F));
 
             assertTrue(String.format("F is greater than its allowed maximum given P - %s", params),
-                F <= ParameterChecker.maxAllowedDataLength(P));
+                    F <= ParameterChecker.maxAllowedDataLength(P));
 
             assertTrue(String.format("F is greater than its allowed maximum given P and WS - %s", params),
-                F <= ParameterChecker.maxAllowedDataLength(P, WS));
+                    F <= ParameterChecker.maxAllowedDataLength(P, WS));
         }
     }
 
@@ -144,16 +143,16 @@ public class DeriverParametersBoundsTest {
             assumeTrue(ParameterChecker.areValidDeriverParameters(F, P, WS));
 
             assertTrue(String.format("P is less than its minimum - %s", params),
-                P >= ParameterChecker.minPayloadLength());
+                    P >= ParameterChecker.minPayloadLength());
 
             assertTrue(String.format("P is greater than its maximum - %s", params),
-                P <= ParameterChecker.maxPayloadLength());
+                    P <= ParameterChecker.maxPayloadLength());
 
             assertFalse(String.format("P is out of bounds - %s", params),
-                ParameterChecker.isPayloadLengthOutOfBounds(P));
+                    ParameterChecker.isPayloadLengthOutOfBounds(P));
 
             assertTrue(String.format("P is less than its allowed minimum - %s", params),
-                P >= ParameterChecker.minAllowedPayloadLength(F));
+                    P >= ParameterChecker.minAllowedPayloadLength(F));
         }
     }
 
@@ -169,13 +168,13 @@ public class DeriverParametersBoundsTest {
             assumeTrue(ParameterChecker.areValidDeriverParameters(F, P, WS));
 
             assertTrue(String.format("WS is less than P - %s", params),
-                WS >= P);
+                    WS >= P);
 
             assertTrue(String.format("WS is less than its minimum - %s", params),
-                WS >= ParameterChecker.minDecodingBlockSize());
+                    WS >= ParameterChecker.minDecodingBlockSize());
 
             assertTrue(String.format("WS is less than its allowed minimum - %s", params),
-                WS >= ParameterChecker.minAllowedDecodingBlockSize(F, P));
+                    WS >= ParameterChecker.minAllowedDecodingBlockSize(F, P));
         }
     }
 }

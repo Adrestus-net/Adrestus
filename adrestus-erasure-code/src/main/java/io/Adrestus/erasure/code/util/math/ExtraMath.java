@@ -1,12 +1,12 @@
 /*
  * Copyright 2014 OpenRQ Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -28,14 +28,11 @@ public final class ExtraMath {
      * <b>NOTE: Copied from {@code java.lang.Math} in Java 8.</b>
      * <p>
      * Returns the sum of its arguments, throwing an exception if the result overflows an {@code int}.
-     * 
-     * @param x
-     *            the first value
-     * @param y
-     *            the second value
+     *
+     * @param x the first value
+     * @param y the second value
      * @return the result
-     * @throws ArithmeticException
-     *             if the result overflows an int
+     * @throws ArithmeticException if the result overflows an int
      */
     public static int addExact(int x, int y) {
 
@@ -51,14 +48,11 @@ public final class ExtraMath {
      * <b>NOTE: Copied from {@code java.lang.Math} in Java 8.</b>
      * <p>
      * Returns the sum of its arguments, throwing an exception if the result overflows a {@code long}.
-     * 
-     * @param x
-     *            the first value
-     * @param y
-     *            the second value
+     *
+     * @param x the first value
+     * @param y the second value
      * @return the result
-     * @throws ArithmeticException
-     *             if the result overflows a long
+     * @throws ArithmeticException if the result overflows a long
      */
     public static long addExact(long x, long y) {
 
@@ -75,22 +69,19 @@ public final class ExtraMath {
      * <p>
      * Returns the product of the arguments,
      * throwing an exception if the result overflows an {@code int}.
-     * 
-     * @param x
-     *            the first value
-     * @param y
-     *            the second value
+     *
+     * @param x the first value
+     * @param y the second value
      * @return the result
-     * @throws ArithmeticException
-     *             if the result overflows an int
+     * @throws ArithmeticException if the result overflows an int
      */
     public static int multiplyExact(int x, int y) {
 
-        long r = (long)x * (long)y;
-        if ((int)r != r) {
+        long r = (long) x * (long) y;
+        if ((int) r != r) {
             throw new ArithmeticException("integer overflow");
         }
-        return (int)r;
+        return (int) r;
     }
 
     /**
@@ -98,14 +89,11 @@ public final class ExtraMath {
      * <p>
      * Returns the product of the arguments,
      * throwing an exception if the result overflows a {@code long}.
-     * 
-     * @param x
-     *            the first value
-     * @param y
-     *            the second value
+     *
+     * @param x the first value
+     * @param y the second value
      * @return the result
-     * @throws ArithmeticException
-     *             if the result overflows a long
+     * @throws ArithmeticException if the result overflows a long
      */
     public static long multiplyExact(long x, long y) {
 
@@ -117,7 +105,7 @@ public final class ExtraMath {
             // Check the result using the divide operator
             // and check for the special case of Long.MIN_VALUE * -1
             if (((y != 0) && (r / y != x)) ||
-                (x == Long.MIN_VALUE && y == -1)) {
+                    (x == Long.MIN_VALUE && y == -1)) {
                 throw new ArithmeticException("long overflow");
             }
         }
@@ -126,30 +114,24 @@ public final class ExtraMath {
 
     /**
      * Returns the ceiling value of an integer division (requires non-negative arguments).
-     * 
-     * @param num
-     *            The numerator
-     * @param den
-     *            The denominator
+     *
+     * @param num The numerator
+     * @param den The denominator
      * @return the ceiling value of an integer division
-     * @exception ArithmeticException
-     *                If the denominator is equal to zero
+     * @throws ArithmeticException If the denominator is equal to zero
      */
     public static int ceilDiv(int num, int den) {
 
-        return (int)((num + (den - 1L)) / den); // there is an implicit cast to long to prevent integer overflow
+        return (int) ((num + (den - 1L)) / den); // there is an implicit cast to long to prevent integer overflow
     }
 
     /**
      * Returns the ceiling value of a long integer division (requires non-negative arguments).
-     * 
-     * @param num
-     *            The numerator
-     * @param den
-     *            The denominator
+     *
+     * @param num The numerator
+     * @param den The denominator
      * @return the ceiling value of a long integer division
-     * @exception ArithmeticException
-     *                If the denominator is equal to zero
+     * @throws ArithmeticException If the denominator is equal to zero
      */
     public static long ceilDiv(long num, long den) {
 
@@ -157,22 +139,18 @@ public final class ExtraMath {
             final BigInteger bigNum = BigInteger.valueOf(num);
             final BigInteger bigDen = BigInteger.valueOf(den);
             return bigNum.add(bigDen.subtract(BigInteger.ONE)).divide(bigDen).longValue();
-        }
-        else {
+        } else {
             return (num + (den - 1L)) / den;
         }
     }
 
     /**
      * Returns the (modular in case of overflow) integer power.
-     * 
-     * @param base
-     *            The power base
-     * @param exp
-     *            The power exponent
+     *
+     * @param base The power base
+     * @param exp  The power exponent
      * @return base^^exp
-     * @exception IllegalArgumentException
-     *                If the exponent is negative or if both base and exponent are equal to zero
+     * @throws IllegalArgumentException If the exponent is negative or if both base and exponent are equal to zero
      */
     public static int integerPow(int base, int exp) {
 
@@ -185,8 +163,7 @@ public final class ExtraMath {
         // exponentiation by squaring
 
         int result = 1;
-        while (exp != 0)
-        {
+        while (exp != 0) {
             if ((exp & 1) == 1) {
                 result *= base;
             }
@@ -199,14 +176,11 @@ public final class ExtraMath {
 
     /**
      * Returns the (modular in case of overflow) long integer power.
-     * 
-     * @param base
-     *            The power base
-     * @param exp
-     *            The power exponent
+     *
+     * @param base The power base
+     * @param exp  The power exponent
      * @return base^^exp
-     * @exception IllegalArgumentException
-     *                If the exponent is negative or if both base and exponent are equal to zero
+     * @throws IllegalArgumentException If the exponent is negative or if both base and exponent are equal to zero
      */
     public static long integerPow(long base, long exp) {
 
@@ -219,8 +193,7 @@ public final class ExtraMath {
         // exponentiation by squaring
 
         long result = 1;
-        while (exp != 0)
-        {
+        while (exp != 0) {
             if ((exp & 1) == 1) {
                 result *= base;
             }

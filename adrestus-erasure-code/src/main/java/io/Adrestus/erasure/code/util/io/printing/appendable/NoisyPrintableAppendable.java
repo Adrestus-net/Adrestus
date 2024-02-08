@@ -14,7 +14,7 @@ import java.util.Objects;
  * <p>
  * The methods from this class throw an {@code IOException} if they detect an I/O error from the underlying
  * {@code Appendable} object.
- * 
+ *
  * @author Ricardo Fonseca &lt;rfonseca&#064;lasige.di.fc.ul.pt&gt;
  */
 public class NoisyPrintableAppendable implements Appendable {
@@ -24,24 +24,18 @@ public class NoisyPrintableAppendable implements Appendable {
         Objects.requireNonNull(appendable);
 
         if (appendable instanceof PrintStream) {
-            return new NoisyPrintableAppendable(new PrintStreamWrapper<>((PrintStream)appendable));
-        }
-        else if (appendable instanceof PrintWriter) {
-            return new NoisyPrintableAppendable(new PrintWriterWrapper<>((PrintWriter)appendable));
-        }
-        else if (appendable instanceof Writer) {
-            return new NoisyPrintableAppendable(new WriterWrapper<>((Writer)appendable));
-        }
-        else if (appendable instanceof StringBuilder) {
-            return new NoisyPrintableAppendable(new StringBuilderWrapper((StringBuilder)appendable));
-        }
-        else if (appendable instanceof StringBuffer) {
-            return new NoisyPrintableAppendable(new StringBufferWrapper((StringBuffer)appendable));
-        }
-        else if (appendable instanceof CharBuffer) {
-            return new NoisyPrintableAppendable(new CharBufferWrapper<>((CharBuffer)appendable));
-        }
-        else {
+            return new NoisyPrintableAppendable(new PrintStreamWrapper<>((PrintStream) appendable));
+        } else if (appendable instanceof PrintWriter) {
+            return new NoisyPrintableAppendable(new PrintWriterWrapper<>((PrintWriter) appendable));
+        } else if (appendable instanceof Writer) {
+            return new NoisyPrintableAppendable(new WriterWrapper<>((Writer) appendable));
+        } else if (appendable instanceof StringBuilder) {
+            return new NoisyPrintableAppendable(new StringBuilderWrapper((StringBuilder) appendable));
+        } else if (appendable instanceof StringBuffer) {
+            return new NoisyPrintableAppendable(new StringBufferWrapper((StringBuffer) appendable));
+        } else if (appendable instanceof CharBuffer) {
+            return new NoisyPrintableAppendable(new CharBufferWrapper<>((CharBuffer) appendable));
+        } else {
             return new NoisyPrintableAppendable(new AppendableWrapper<>(appendable));
         }
     }

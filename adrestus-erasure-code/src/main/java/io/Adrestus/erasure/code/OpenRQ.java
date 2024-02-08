@@ -1,12 +1,12 @@
 /*
  * Copyright 2014 OpenRQ Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -40,18 +40,13 @@ public final class OpenRQ {
      * provided FEC parameters.
      * <p>
      * Note that the maximum supported data length is {@link Integer#MAX_VALUE}.
-     * 
-     * @param fecParams
-     *            FEC parameters that configure the returned data encoder object
-     * @param data
-     *            An array of bytes containing the source data to be encoded
+     *
+     * @param fecParams FEC parameters that configure the returned data encoder object
+     * @param data      An array of bytes containing the source data to be encoded
      * @return a data encoder object backed by an array of bytes
-     * @exception NullPointerException
-     *                If {@code data} or {@code fecParams} are {@code null}
-     * @exception IllegalArgumentException
-     *                If {@code fecParams.dataLength() > Integer.MAX_VALUE}
-     * @exception IndexOutOfBoundsException
-     *                If {@code fecParams.dataLength() > data.length}
+     * @throws NullPointerException      If {@code data} or {@code fecParams} are {@code null}
+     * @throws IllegalArgumentException  If {@code fecParams.dataLength() > Integer.MAX_VALUE}
+     * @throws IndexOutOfBoundsException If {@code fecParams.dataLength() > data.length}
      */
     public static ArrayDataEncoder newEncoder(byte[] data, FECParameters fecParams) {
 
@@ -63,20 +58,14 @@ public final class OpenRQ {
      * provided FEC parameters.
      * <p>
      * Note that the maximum supported data length is {@link Integer#MAX_VALUE}.
-     * 
-     * @param fecParams
-     *            FEC parameters that configure the returned data encoder object
-     * @param data
-     *            An array of bytes containing the source data to be encoded
-     * @param offset
-     *            The index in the array where the source data begins
+     *
+     * @param fecParams FEC parameters that configure the returned data encoder object
+     * @param data      An array of bytes containing the source data to be encoded
+     * @param offset    The index in the array where the source data begins
      * @return a data encoder object backed by an array of bytes
-     * @exception NullPointerException
-     *                If {@code data} or {@code fecParams} are {@code null}
-     * @exception IllegalArgumentException
-     *                If {@code fecParams.dataLength() > Integer.MAX_VALUE}
-     * @exception IndexOutOfBoundsException
-     *                If {@code offset < 0 || fecParams.dataLength() > (data.length - offset)}
+     * @throws NullPointerException      If {@code data} or {@code fecParams} are {@code null}
+     * @throws IllegalArgumentException  If {@code fecParams.dataLength() > Integer.MAX_VALUE}
+     * @throws IndexOutOfBoundsException If {@code offset < 0 || fecParams.dataLength() > (data.length - offset)}
      */
     public static ArrayDataEncoder newEncoder(byte[] data, int offset, FECParameters fecParams) {
 
@@ -94,16 +83,12 @@ public final class OpenRQ {
      * {@link SourceBlockDecoder} class header.
      * <p>
      * Note that the maximum supported data length is {@link Integer#MAX_VALUE}.
-     * 
-     * @param fecParams
-     *            FEC parameters that configure the returned data decoder object
-     * @param symbolOverhead
-     *            Symbol overhead (must be non-negative)
+     *
+     * @param fecParams      FEC parameters that configure the returned data decoder object
+     * @param symbolOverhead Symbol overhead (must be non-negative)
      * @return a data decoder object that decodes source data into an array of bytes
-     * @exception NullPointerException
-     *                If {@code fecParams} is {@code null}
-     * @exception IllegalArgumentException
-     *                If {@code fecParams.dataLength() > Integer.MAX_VALUE || symbolOverhead < 0}
+     * @throws NullPointerException     If {@code fecParams} is {@code null}
+     * @throws IllegalArgumentException If {@code fecParams.dataLength() > Integer.MAX_VALUE || symbolOverhead < 0}
      */
     public static ArrayDataDecoder newDecoder(FECParameters fecParams, int symbolOverhead) {
 
@@ -121,14 +106,11 @@ public final class OpenRQ {
      * {@link SourceBlockDecoder} class header.
      * <p>
      * Note that the maximum supported data length is {@link Integer#MAX_VALUE}.
-     * 
-     * @param fecParams
-     *            FEC parameters that configure the returned data decoder object
+     *
+     * @param fecParams FEC parameters that configure the returned data decoder object
      * @return a data decoder object that decodes source data into an array of bytes
-     * @exception NullPointerException
-     *                If {@code fecParams} is {@code null}
-     * @exception IllegalArgumentException
-     *                If {@code fecParams.dataLength() > Integer.MAX_VALUE}
+     * @throws NullPointerException     If {@code fecParams} is {@code null}
+     * @throws IllegalArgumentException If {@code fecParams.dataLength() > Integer.MAX_VALUE}
      */
     public static ArrayDataDecoder newDecoderWithZeroOverhead(FECParameters fecParams) {
 
@@ -145,14 +127,11 @@ public final class OpenRQ {
      * {@link SourceBlockDecoder} class header.
      * <p>
      * Note that the maximum supported data length is {@link Integer#MAX_VALUE}.
-     * 
-     * @param fecParams
-     *            FEC parameters that configure the returned data decoder object
+     *
+     * @param fecParams FEC parameters that configure the returned data decoder object
      * @return a data decoder object that decodes source data into an array of bytes
-     * @exception NullPointerException
-     *                If {@code fecParams} is {@code null}
-     * @exception IllegalArgumentException
-     *                If {@code fecParams.dataLength() > Integer.MAX_VALUE}
+     * @throws NullPointerException     If {@code fecParams} is {@code null}
+     * @throws IllegalArgumentException If {@code fecParams.dataLength() > Integer.MAX_VALUE}
      */
     public static ArrayDataDecoder newDecoderWithOneOverhead(FECParameters fecParams) {
 
@@ -170,14 +149,11 @@ public final class OpenRQ {
      * {@link SourceBlockDecoder} class header.
      * <p>
      * Note that the maximum supported data length is {@link Integer#MAX_VALUE}.
-     * 
-     * @param fecParams
-     *            FEC parameters that configure the returned data decoder object
+     *
+     * @param fecParams FEC parameters that configure the returned data decoder object
      * @return a data decoder object that decodes source data into an array of bytes
-     * @exception NullPointerException
-     *                If {@code fecParams} is {@code null}
-     * @exception IllegalArgumentException
-     *                If {@code fecParams.dataLength() > Integer.MAX_VALUE}
+     * @throws NullPointerException     If {@code fecParams} is {@code null}
+     * @throws IllegalArgumentException If {@code fecParams.dataLength() > Integer.MAX_VALUE}
      */
     public static ArrayDataDecoder newDecoderWithTwoOverhead(FECParameters fecParams) {
 
@@ -187,16 +163,12 @@ public final class OpenRQ {
     /**
      * Calculates the minimum number of repair symbols from a source block to be transmitted for a given network loss
      * rate.
-     * 
-     * @param numSourceSymbols
-     *            The number of source symbols in the source block (must be between 1 and 56_403)
-     * @param symbolOverhead
-     *            Number of extra encoding symbols necessary for decoding (must be non-negative)
-     * @param loss
-     *            The expected network loss rate (must be between 0 and 1).
+     *
+     * @param numSourceSymbols The number of source symbols in the source block (must be between 1 and 56_403)
+     * @param symbolOverhead   Number of extra encoding symbols necessary for decoding (must be non-negative)
+     * @param loss             The expected network loss rate (must be between 0 and 1).
      * @return the minimum number of repair symbols that should be transmitted
-     * @exception IllegalArgumentException
-     *                If {@code numSourceSymbols}, {@code symbolOverhead} or {@code loss} are out of bounds
+     * @throws IllegalArgumentException If {@code numSourceSymbols}, {@code symbolOverhead} or {@code loss} are out of bounds
      */
     @SneakyThrows
     public static final int minRepairSymbols(int numSourceSymbols, int symbolOverhead, double loss) {
@@ -222,7 +194,7 @@ public final class OpenRQ {
         temp_var /= (1 - loss);
 
         // ceil to an integer and return
-        return (int)Math.ceil(temp_var);
+        return (int) Math.ceil(temp_var);
     }
 
     private OpenRQ() {

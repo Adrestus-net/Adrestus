@@ -1,12 +1,12 @@
 /*
  * Copyright 2014 OpenRQ Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,6 +23,7 @@ import io.Adrestus.erasure.code.util.math.OctetOps;
 
 
 /**
+ *
  */
 final class MatrixUtilities {
 
@@ -51,11 +52,9 @@ final class MatrixUtilities {
     /**
      * Multiplies Matrix A by Matrix B. Requires the number of columns in A
      * to be equal to the number of rows in B.
-     * 
-     * @param A
-     *            Matrix A
-     * @param B
-     *            Matrix B
+     *
+     * @param A Matrix A
+     * @param B Matrix B
      * @return A*B
      */
     static final byte[][] multiplyMatrices(byte[][] A, byte[][] B) {
@@ -70,7 +69,7 @@ final class MatrixUtilities {
 
                     byte temp = OctetOps.aTimesB(A[i][k], B[k][j]);
 
-                    C[i][j] = (byte)(C[i][j] ^ temp);
+                    C[i][j] = (byte) (C[i][j] ^ temp);
                 }
             }
         }
@@ -81,15 +80,13 @@ final class MatrixUtilities {
     /**
      * Multiplies a sub-matrix of Matrix A by a sub-matrix of Matrix B. Requires the number
      * of columns in A's sub-matrix to be equal to the number of rows in B's sub-matrix.
-     * 
-     * @param A
-     *            Matrix A
+     *
+     * @param A          Matrix A
      * @param first_rowA
      * @param first_colA
      * @param last_rowA
      * @param last_colA
-     * @param B
-     *            Matrix B
+     * @param B          Matrix B
      * @param first_rowB
      * @param first_colB
      * @param last_rowB
@@ -97,7 +94,7 @@ final class MatrixUtilities {
      * @return A*B
      */
     static byte[][] multiplyMatrices(byte[][] A, int first_rowA, int last_rowA, int first_colA, int last_colA,
-        byte[][] B, int first_rowB, int last_rowB, int first_colB, int last_colB) {
+                                     byte[][] B, int first_rowB, int last_rowB, int first_colB, int last_colB) {
 
         // if ((last_colA - first_colA) != (last_rowB - first_rowB)) throw new
         // RuntimeException("Illegal matrix dimensions.");
@@ -115,7 +112,7 @@ final class MatrixUtilities {
 
                     byte temp = OctetOps.aTimesB(A[i + first_rowA][k + first_colA], B[k + first_rowB][j + first_colB]);
 
-                    C[i][j] = (byte)(C[i][j] ^ temp);
+                    C[i][j] = (byte) (C[i][j] ^ temp);
                 }
             }
         }
@@ -126,29 +123,26 @@ final class MatrixUtilities {
     /**
      * Multiplies a sub-matrix of Matrix A by a sub-matrix of Matrix B. Requires the number
      * of columns in A's sub-matrix to be equal to the number of rows in B's sub-matrix.
-     * 
-     * @param A
-     *            Matrix A
+     *
+     * @param A          Matrix A
      * @param first_rowA
      * @param first_colA
      * @param last_rowA
      * @param last_colA
-     * @param B
-     *            Matrix B
+     * @param B          Matrix B
      * @param first_rowB
      * @param first_colB
      * @param last_rowB
      * @param last_colB
-     * @param C
-     *            Matrix where the results should be stored.
+     * @param C          Matrix where the results should be stored.
      * @param first_rowC
      * @param first_colC
      * @param last_rowC
      * @param last_colC
      */
     static void multiplyMatrices(byte[][] A, int first_rowA, int last_rowA, int first_colA, int last_colA,
-        byte[][] B, int first_rowB, int last_rowB, int first_colB, int last_colB,
-        byte[][] C, int first_rowC, int last_rowC, int first_colC, int last_colC) {
+                                 byte[][] B, int first_rowB, int last_rowB, int first_colB, int last_colB,
+                                 byte[][] C, int first_rowC, int last_rowC, int first_colC, int last_colC) {
 
         // if ((last_colA - first_colA) != (last_rowB - first_rowB)) throw new
         // RuntimeException("Illegal matrix dimensions.");
@@ -163,7 +157,7 @@ final class MatrixUtilities {
 
                     byte temp = OctetOps.aTimesB(A[i + first_rowA][k + first_colA], B[k + first_rowB][j + first_colB]);
 
-                    C[i + first_rowC][j + first_colC] = (byte)(C[i + first_rowC][j + first_colC] ^ temp);
+                    C[i + first_rowC][j + first_colC] = (byte) (C[i + first_rowC][j + first_colC] ^ temp);
                 }
             }
         }
@@ -173,7 +167,7 @@ final class MatrixUtilities {
      * Multiplies a row (<code>line</code>) by a vector.
      * The number of columns in <code>line</code> must be equal to the number of rows
      * in <code>vector</coder>
-     * 
+     *
      * @param line
      * @param line_length
      * @param vector
@@ -191,7 +185,7 @@ final class MatrixUtilities {
 
                 byte temp = OctetOps.aTimesB(line[colRow], vector[colRow][octet]);
 
-                result[octet] = (byte)(result[octet] ^ temp);
+                result[octet] = (byte) (result[octet] ^ temp);
             }
         }
 
@@ -201,7 +195,7 @@ final class MatrixUtilities {
     /**
      * Performs Gaussian elimination on a region of a matrix A and reduces the matrix region to a reduced row echelon
      * form. The operations are also performed in matrix D, with indices in d.
-     * 
+     *
      * @param A
      * @param fromRow
      * @param toRow
@@ -211,13 +205,13 @@ final class MatrixUtilities {
      * @param D
      */
     static void reduceToRowEchelonForm(
-        ByteMatrix A,
-        final int fromRow,
-        final int toRow,
-        final int fromCol,
-        final int toCol,
-        int[] d,
-        byte[][] D) {
+            ByteMatrix A,
+            final int fromRow,
+            final int toRow,
+            final int fromCol,
+            final int toCol,
+            int[] d,
+            byte[][] D) {
 
         int lead = fromCol;
         for (int r = fromRow; r < toRow; r++) {
@@ -305,12 +299,11 @@ final class MatrixUtilities {
     }
 
     static int nonZeroRows(
-        byte[][] matrix,
-        int first_row,
-        int last_row,
-        int first_col,
-        int last_col)
-    {
+            byte[][] matrix,
+            int first_row,
+            int last_row,
+            int first_col,
+            int last_col) {
 
         int nonZeroRows = 0;
 
@@ -329,12 +322,11 @@ final class MatrixUtilities {
     }
 
     static int nonZeroRows(
-        ByteMatrix matrix,
-        int first_row,
-        int last_row,
-        int first_col,
-        int last_col)
-    {
+            ByteMatrix matrix,
+            int first_row,
+            int last_row,
+            int first_col,
+            int last_col) {
 
         int nonZeroRows = 0;
 
@@ -350,14 +342,13 @@ final class MatrixUtilities {
     /**
      * DEBUG
      * Solves a 'A.x = b' system using regular Gauss elimination.
-     * 
+     *
      * @param A
      * @param b
      * @return Array of symbols 'x'
      * @throws SingularMatrixException
      */
-    static byte[][] gaussElimination(byte[][] A, byte[][] b) throws SingularMatrixException
-    {
+    static byte[][] gaussElimination(byte[][] A, byte[][] b) throws SingularMatrixException {
 
         if (A.length != A[0].length || b.length != A.length) throw new RuntimeException("Illegal matrix dimensions.");
 

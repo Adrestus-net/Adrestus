@@ -1,12 +1,12 @@
 /*
  * Copyright 2014 OpenRQ Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,30 +16,25 @@
 
 /*
  * Copyright 2011-2014, by Vladimir Kostyukov and Contributors.
- * 
+ *
  * This file is part of la4j project (http://la4j.org)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * You may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  * Contributor(s): Maxim Samoylov
  * Miron Aseev
  */
 package io.Adrestus.erasure.code.util.linearalgebra.vector;
-
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.channels.ReadableByteChannel;
-import java.util.Random;
 
 import io.Adrestus.erasure.code.util.io.printing.appendable.PrintableAppendable;
 import io.Adrestus.erasure.code.util.linearalgebra.LinearAlgebra;
@@ -53,6 +48,11 @@ import io.Adrestus.erasure.code.util.linearalgebra.vector.source.ArrayVectorSour
 import io.Adrestus.erasure.code.util.linearalgebra.vector.source.LoopbackVectorSource;
 import io.Adrestus.erasure.code.util.linearalgebra.vector.source.RandomVectorSource;
 import io.Adrestus.erasure.code.util.linearalgebra.vector.source.VectorSource;
+
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.ReadableByteChannel;
+import java.util.Random;
 
 import static io.Adrestus.erasure.code.util.math.OctetOps.*;
 
@@ -76,9 +76,8 @@ public final class ByteVectors {
 
     /**
      * Creates a const function that evaluates it's argument to given {@code value}.
-     * 
-     * @param arg
-     *            a const value
+     *
+     * @param arg a const value
      * @return a closure object that does {@code _}
      */
     public static VectorFunction asConstFunction(final byte arg) {
@@ -95,9 +94,8 @@ public final class ByteVectors {
 
     /**
      * Creates a plus function that adds given {@code value} to it's argument.
-     * 
-     * @param arg
-     *            a value to be added to function's argument
+     *
+     * @param arg a value to be added to function's argument
      * @return a closure object that does {@code _ + _}
      */
     public static VectorFunction asPlusFunction(final byte arg) {
@@ -114,9 +112,8 @@ public final class ByteVectors {
 
     /**
      * Creates a minus function that subtracts given {@code value} from it's argument.
-     * 
-     * @param arg
-     *            a value to be subtracted from function's argument
+     *
+     * @param arg a value to be subtracted from function's argument
      * @return a closure that does {@code _ - _}
      */
     public static VectorFunction asMinusFunction(final byte arg) {
@@ -133,9 +130,8 @@ public final class ByteVectors {
 
     /**
      * Creates a mul function that multiplies given {@code value} by it's argument.
-     * 
-     * @param arg
-     *            a value to be multiplied by function's argument
+     *
+     * @param arg a value to be multiplied by function's argument
      * @return a closure that does {@code _ * _}
      */
     public static VectorFunction asMulFunction(final byte arg) {
@@ -152,9 +148,8 @@ public final class ByteVectors {
 
     /**
      * Creates a div function that divides it's argument by given {@code value}.
-     * 
-     * @param arg
-     *            a divisor value
+     *
+     * @param arg a divisor value
      * @return a closure that does {@code _ / _}
      */
     public static VectorFunction asDivFunction(final byte arg) {
@@ -171,9 +166,8 @@ public final class ByteVectors {
 
     /**
      * Creates a sum vector accumulator that calculates the sum of all elements in the vector.
-     * 
-     * @param neutral
-     *            the neutral value
+     *
+     * @param neutral the neutral value
      * @return a sum accumulator
      */
     public static VectorAccumulator asSumAccumulator(final byte neutral) {
@@ -201,9 +195,8 @@ public final class ByteVectors {
 
     /**
      * Creates a product vector accumulator that calculates the product of all elements in the vector.
-     * 
-     * @param neutral
-     *            the neutral value
+     *
+     * @param neutral the neutral value
      * @return a product accumulator
      */
     public static VectorAccumulator asProductAccumulator(final byte neutral) {
@@ -231,7 +224,7 @@ public final class ByteVectors {
 
     /**
      * Makes a minimum vector accumulator that accumulates the minimum across vector elements.
-     * 
+     *
      * @return a minimum vector accumulator
      */
     public static VectorAccumulator mkMinAccumulator() {
@@ -259,7 +252,7 @@ public final class ByteVectors {
 
     /**
      * Makes a maximum vector accumulator that accumulates the maximum across vector elements.
-     * 
+     *
      * @return a maximum vector accumulator
      */
     public static VectorAccumulator mkMaxAccumulator() {
@@ -288,17 +281,14 @@ public final class ByteVectors {
     /**
      * Creates a function accumulator, that accumulates all elements in the vector after applying given {@code function}
      * to each of them.
-     * 
-     * @param accumulator
-     *            the accumulator
-     * @param function
-     *            the function
+     *
+     * @param accumulator the accumulator
+     * @param function    the function
      * @return a sum function accumulator
      */
     public static VectorAccumulator asFunctionAccumulator(
-        final VectorAccumulator accumulator,
-        final VectorFunction function)
-    {
+            final VectorAccumulator accumulator,
+            final VectorFunction function) {
 
         return new VectorAccumulator() {
 
@@ -320,9 +310,8 @@ public final class ByteVectors {
      * Creates an accumulator procedure that adapts a vector accumulator for procedure
      * interface. This is useful for reusing a single accumulator for multiple fold operations
      * in multiple vectors.
-     * 
-     * @param accumulator
-     *            the vector accumulator
+     *
+     * @param accumulator the vector accumulator
      * @return an accumulator procedure
      */
     public static VectorProcedure asAccumulatorProcedure(final VectorAccumulator accumulator) {
@@ -339,9 +328,8 @@ public final class ByteVectors {
 
     /**
      * Creates a vector source of given {@code vector}.
-     * 
-     * @param vector
-     *            the source vector
+     *
+     * @param vector the source vector
      * @return a vector source
      */
     public static VectorSource asVectorSource(ByteVector vector) {
@@ -351,9 +339,8 @@ public final class ByteVectors {
 
     /**
      * Creates an array vector source of given array {@code reference}.
-     * 
-     * @param array
-     *            the source array
+     *
+     * @param array the source array
      * @return an array vector source
      */
     public static VectorSource asArraySource(byte[] array) {
@@ -363,9 +350,8 @@ public final class ByteVectors {
 
     /**
      * Creates a random vector source of given {@code length}.
-     * 
-     * @param length
-     *            the length of the source
+     *
+     * @param length the length of the source
      * @param random
      * @return a random vector source
      */
@@ -376,9 +362,8 @@ public final class ByteVectors {
 
     /**
      * Creates a default vector from given vararg {@code values}.
-     * 
-     * @param values
-     *            of the vector
+     *
+     * @param values of the vector
      * @return a default vector
      */
     public static ByteVector asVector(byte... values) {
@@ -388,11 +373,9 @@ public final class ByteVectors {
 
     /**
      * Prints a vector to a given appendable.
-     * 
-     * @param vector
-     *            the vector to be printed
-     * @param appendable
-     *            the appendable on which the vector is printed
+     *
+     * @param vector     the vector to be printed
+     * @param appendable the appendable on which the vector is printed
      */
     public static void printVector(ByteVector vector, Appendable appendable) {
 

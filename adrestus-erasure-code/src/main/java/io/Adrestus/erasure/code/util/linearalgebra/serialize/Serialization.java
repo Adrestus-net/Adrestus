@@ -1,12 +1,12 @@
 /*
  * Copyright 2014 OpenRQ Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,20 +16,20 @@
 package io.Adrestus.erasure.code.util.linearalgebra.serialize;
 
 
+import io.Adrestus.erasure.code.util.datatype.SizeOf;
+import io.Adrestus.erasure.code.util.datatype.UnsignedTypes;
+import io.Adrestus.erasure.code.util.io.ExtraChannels;
+import io.Adrestus.erasure.code.util.text.Words;
+
 import java.io.IOException;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 
-import io.Adrestus.erasure.code.util.datatype.SizeOf;
-import io.Adrestus.erasure.code.util.datatype.UnsignedTypes;
-import io.Adrestus.erasure.code.util.io.ExtraChannels;
-import io.Adrestus.erasure.code.util.text.Words;
-
 
 /**
- * 
+ *
  */
 public final class Serialization {
 
@@ -44,7 +44,7 @@ public final class Serialization {
 
         private static byte toByte(Type t) {
 
-            return (byte)t.ordinal();
+            return (byte) t.ordinal();
         }
 
         private static Type fromByte(byte b) {
@@ -331,8 +331,7 @@ public final class Serialization {
 
         try {
             return buffer.get();
-        }
-        catch (BufferUnderflowException e) {
+        } catch (BufferUnderflowException e) {
             throw new DeserializationException("incomplete " + target);
         }
     }
@@ -361,16 +360,14 @@ public final class Serialization {
             final int value = buffer.getInt();
             if (value < 0) throw new DeserializationException(target + " is negative");
             return value;
-        }
-        catch (BufferUnderflowException e) {
+        } catch (BufferUnderflowException e) {
             throw new DeserializationException("incomplete " + target);
         }
     }
 
     private static int readNonNegativeInt(ReadableByteChannel ch, String target)
-        throws IOException,
-        DeserializationException
-    {
+            throws IOException,
+            DeserializationException {
 
         final int value = ExtraChannels.readInt(ch);
         if (value < 0) throw new DeserializationException(target + " is negative");
@@ -381,7 +378,7 @@ public final class Serialization {
 
         if (buffer.remaining() < numBytes) {
             throw new IllegalArgumentException(
-                "buffer must have at least " + Words.bytes(numBytes) + " available for " + target);
+                    "buffer must have at least " + Words.bytes(numBytes) + " available for " + target);
         }
     }
 

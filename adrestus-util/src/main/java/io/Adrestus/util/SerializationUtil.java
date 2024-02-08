@@ -112,6 +112,33 @@ public class SerializationUtil<T> {
         return size[lo];
     }
 
+    private static int getIndex(int value) {
+
+        if (value < size[0]) {
+            return 0;
+        }
+        if (value > size[size.length - 1]) {
+            return size.length - 1;
+        }
+
+        int lo = 0;
+        int hi = size.length - 1;
+
+        while (lo <= hi) {
+            int mid = (hi + lo) / 2;
+
+            if (value < size[mid]) {
+                hi = mid - 1;
+            } else if (value > size[mid]) {
+                lo = mid + 1;
+            } else {
+                return mid;
+            }
+        }
+        // lo == hi + 1
+        return lo;
+    }
+
     private int getBuffSize(int buff_size) {
         if (size[0] == buff_size)
             return size[1];
@@ -139,7 +166,15 @@ public class SerializationUtil<T> {
         // int buff_size2 = search((int) (ObjectSizer.retainedSize(value)));
         int buff_size = search((int) (ObjectSizeCalculator.getObjectSize(value)));
         buffer = new byte[buff_size];
-        serializer.encode(buffer, 0, value);
+        try {
+            serializer.encode(buffer, 0, value);
+        } catch (ArrayIndexOutOfBoundsException ex) {
+            System.out.println("ArrayIndexOutOfBoundsException caught");
+            int index = getIndex((int) (ObjectSizeCalculator.getObjectSize(value)));
+            buff_size = size[index + 1];
+            buffer = new byte[buff_size];
+            serializer.encode(buffer, 0, value);
+        }
         return buffer;
     }
 

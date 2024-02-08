@@ -1,12 +1,12 @@
 /*
  * Copyright 2014 OpenRQ Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,7 +16,6 @@
 package io.Adrestus.erasure.code.parameters;
 
 
-import io.Adrestus.erasure.code.util.math.ExtraMath;
 import io.Adrestus.erasure.code.util.rq.SystematicIndices;
 
 import static io.Adrestus.erasure.code.parameters.InternalConstants.K_max;
@@ -24,6 +23,7 @@ import static io.Adrestus.erasure.code.util.math.ExtraMath.ceilDiv;
 
 
 /**
+ *
  */
 final class InternalFunctions {
 
@@ -36,7 +36,7 @@ final class InternalFunctions {
     // requires individually and in unison bounded arguments
     static int getTotalSymbols(long F, int T) {
 
-        return (int)ceilDiv(F, T); // downcast never overflows since F and T are bounded
+        return (int) ceilDiv(F, T); // downcast never overflows since F and T are bounded
     }
 
     // requires bounded argument
@@ -54,7 +54,7 @@ final class InternalFunctions {
     static int KL(long WS, int T, int Al, int n) {
 
         // must cast to int after getting the minimum to avoid integer overflow
-        final int K_upper_bound = (int)Math.min(K_max, WS / subSymbolSize(T, Al, n));
+        final int K_upper_bound = (int) Math.min(K_max, WS / subSymbolSize(T, Al, n));
         return SystematicIndices.floor(K_upper_bound);
     }
 
@@ -62,7 +62,7 @@ final class InternalFunctions {
     static long minWS(int Kprime, int T, int Al, int n) {
 
         // must cast to long because product may exceed Integer.MAX_VALUE
-        return (long)SystematicIndices.ceil(Kprime) * subSymbolSize(T, Al, n);
+        return (long) SystematicIndices.ceil(Kprime) * subSymbolSize(T, Al, n);
     }
 
     // since interleaving is disabled, this should always return T

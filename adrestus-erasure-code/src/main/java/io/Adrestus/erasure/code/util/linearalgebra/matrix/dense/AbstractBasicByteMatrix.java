@@ -1,12 +1,12 @@
 /*
  * Copyright 2014 OpenRQ Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,25 +16,24 @@
 
 /*
  * Copyright 2011-2014, by Vladimir Kostyukov and Contributors.
- * 
+ *
  * This file is part of la4j project (http://la4j.org)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * You may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  * Contributor(s): -
  */
 package io.Adrestus.erasure.code.util.linearalgebra.matrix.dense;
-
 
 
 import io.Adrestus.erasure.code.util.linearalgebra.factory.Factory;
@@ -64,8 +63,8 @@ public abstract class AbstractBasicByteMatrix extends AbstractByteMatrix impleme
     public ByteMatrix multiply(ByteMatrix matrix, Factory factory) {
 
         if (matrix instanceof DenseByteMatrix && (rows() % BLOCKSIZE == 0)
-            && (columns() % BLOCKSIZE == 0)
-            && (matrix.columns() % BLOCKSIZE == 0)) {
+                && (columns() % BLOCKSIZE == 0)
+                && (matrix.columns() % BLOCKSIZE == 0)) {
 
             return multiplyBlockedWith64(matrix, factory);
         }
@@ -132,15 +131,14 @@ public abstract class AbstractBasicByteMatrix extends AbstractByteMatrix impleme
     private int getSerializedDataSize() {
 
         final long dataSize = Serialization.SERIALIZATION_TYPE_NUMBYTES +
-                              Serialization.MATRIX_ROWS_NUMBYTES +
-                              Serialization.MATRIX_COLUMNS_NUMBYTES +
-                              (long)rows() * columns();
+                Serialization.MATRIX_ROWS_NUMBYTES +
+                Serialization.MATRIX_COLUMNS_NUMBYTES +
+                (long) rows() * columns();
 
         if (dataSize > Integer.MAX_VALUE) {
             throw new UnsupportedOperationException("matrix is too large to be serialized");
-        }
-        else {
-            return (int)dataSize;
+        } else {
+            return (int) dataSize;
         }
     }
 }

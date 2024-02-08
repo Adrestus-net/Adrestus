@@ -1,12 +1,12 @@
 /*
  * Copyright 2014 OpenRQ Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,7 +23,7 @@ import java.util.List;
 
 /**
  * Used by parameter bounds tests.
- * 
+ *
  * @param <T>
  */
 final class BufferedObjects<T> implements Iterable<Object[]> {
@@ -51,13 +51,11 @@ final class BufferedObjects<T> implements Iterable<Object[]> {
 
         if (internal.isEmpty()) {
             addInNewList(obj);
-        }
-        else {
+        } else {
             final List<T> last = lastList();
             if (last.size() < bufferSize) {
                 last.add(obj);
-            }
-            else {
+            } else {
                 addInNewList(obj);
             }
         }
@@ -65,8 +63,7 @@ final class BufferedObjects<T> implements Iterable<Object[]> {
 
     private List<T> lastList() {
 
-        @SuppressWarnings("unchecked")
-        final List<T> lastList = (List<T>)internal.get(internal.size() - 1)[0];
+        @SuppressWarnings("unchecked") final List<T> lastList = (List<T>) internal.get(internal.size() - 1)[0];
         return lastList;
     }
 
@@ -74,7 +71,7 @@ final class BufferedObjects<T> implements Iterable<Object[]> {
 
         final List<T> newList = new ArrayList<>();
         newList.add(obj);
-        internal.add(new Object[] {newList});
+        internal.add(new Object[]{newList});
     }
 
     @Override

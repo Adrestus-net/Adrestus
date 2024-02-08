@@ -61,7 +61,6 @@ public class ByteSink {
     }
 
     /**
-     *
      * @param bytes
      * @param offset
      * @param length

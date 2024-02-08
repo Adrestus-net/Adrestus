@@ -52,4 +52,13 @@ public class GetTime {
         Timestamp timestamp = new java.sql.Timestamp(parsedDate.getTime());
         return timestamp;
     }
+
+    public static boolean CheckIfTimestampIsUnderOneMinute(Timestamp timestamp) {
+        long tenAgo = System.currentTimeMillis() - ONE_MINUTE;
+
+        if (tenAgo < timestamp.getTime())
+            return true;
+
+        return false;
+    }
 }

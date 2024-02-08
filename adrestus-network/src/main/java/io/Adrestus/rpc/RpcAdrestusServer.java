@@ -274,7 +274,6 @@ public class RpcAdrestusServer<T> implements Runnable {
         rpcServer.closeFuture().cancel(true);
         try {
             rpcServer.closeFuture().get(5, TimeUnit.SECONDS);
-            ;
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         } catch (ExecutionException e) {

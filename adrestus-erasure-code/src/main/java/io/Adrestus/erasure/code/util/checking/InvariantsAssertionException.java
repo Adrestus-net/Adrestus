@@ -2,7 +2,7 @@ package io.Adrestus.erasure.code.util.checking;
 
 /**
  * This exception should never be caught. Its purpose is only to indicate development time errors.
- * 
+ *
  * @author Ricardo Fonseca &lt;rfonseca&#064;lasige.di.fc.ul.pt&gt;
  */
 public final class InvariantsAssertionException extends RuntimeException {

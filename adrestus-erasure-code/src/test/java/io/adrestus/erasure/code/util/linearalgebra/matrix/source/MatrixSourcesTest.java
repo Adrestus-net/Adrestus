@@ -1,12 +1,12 @@
 /*
  * Copyright 2014 OpenRQ Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,27 +16,25 @@
 
 /*
  * Copyright 2011-2014, by Vladimir Kostyukov and Contributors.
- * 
+ *
  * This file is part of la4j project (http://la4j.org)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * You may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  * Contributor(s): -
  */
 package io.adrestus.erasure.code.util.linearalgebra.matrix.source;
 
-
-import static org.junit.Assert.assertEquals;
 
 import io.Adrestus.erasure.code.util.linearalgebra.factory.Basic1DFactory;
 import io.Adrestus.erasure.code.util.linearalgebra.factory.Basic2DFactory;
@@ -46,12 +44,14 @@ import io.Adrestus.erasure.code.util.linearalgebra.matrix.ByteMatrix;
 import io.Adrestus.erasure.code.util.linearalgebra.matrix.source.IdentityMatrixSource;
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
+
 
 public class MatrixSourcesTest {
 
     public static final Factory[] FACTORIES = {
-                                               new Basic1DFactory(), new Basic2DFactory(),
-                                               new CRSFactory()// , new CCSFactory()
+            new Basic1DFactory(), new Basic2DFactory(),
+            new CRSFactory()// , new CCSFactory()
     };
 
 
@@ -68,8 +68,7 @@ public class MatrixSourcesTest {
                 for (int j = 0; j < a.columns(); j++) {
                     if (i == j) {
                         assertEquals(a.get(i, j), 1);
-                    }
-                    else {
+                    } else {
                         assertEquals(a.get(i, j), 0);
                     }
                 }

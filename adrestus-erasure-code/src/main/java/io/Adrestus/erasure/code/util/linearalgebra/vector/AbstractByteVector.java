@@ -1,12 +1,12 @@
 /*
  * Copyright 2014 OpenRQ Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,21 +16,21 @@
 
 /*
  * Copyright 2011-2014, by Vladimir Kostyukov and Contributors.
- * 
+ *
  * This file is part of la4j project (http://la4j.org)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * You may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  * Contributor(s): Daniel Renshaw
  * Ewald Grusk
  * Jakob Moellers
@@ -38,9 +38,6 @@
  * Miron Aseev
  */
 package io.Adrestus.erasure.code.util.linearalgebra.vector;
-
-import java.util.Iterator;
-import java.util.Random;
 
 import io.Adrestus.erasure.code.util.checking.Indexables;
 import io.Adrestus.erasure.code.util.linearalgebra.factory.Factory;
@@ -51,6 +48,9 @@ import io.Adrestus.erasure.code.util.linearalgebra.vector.functor.VectorFunction
 import io.Adrestus.erasure.code.util.linearalgebra.vector.functor.VectorPredicate;
 import io.Adrestus.erasure.code.util.linearalgebra.vector.functor.VectorProcedure;
 import io.Adrestus.erasure.code.util.linearalgebra.vector.operation.VectorOperations;
+
+import java.util.Iterator;
+import java.util.Random;
 
 import static io.Adrestus.erasure.code.util.linearalgebra.vector.ByteVectors.printVector;
 import static io.Adrestus.erasure.code.util.math.OctetOps.*;
@@ -104,7 +104,7 @@ public abstract class AbstractByteVector implements ByteVector {
     @Override
     public void clear() {
 
-        assign((byte)0);
+        assign((byte) 0);
     }
 
     @Override
@@ -242,8 +242,7 @@ public abstract class AbstractByteVector implements ByteVector {
 
         if (value == 0) {
             clear();
-        }
-        else {
+        } else {
             ByteVectorIterator it = iterator();
             while (it.hasNext()) {
                 it.next();
@@ -282,7 +281,7 @@ public abstract class AbstractByteVector implements ByteVector {
 
         if (length != matrix.rows()) {
             fail("Wrong matrix dimensions: " + matrix.rows() + "x" + matrix.columns() +
-                 ". Should be: " + length + "x_.");
+                    ". Should be: " + length + "x_.");
         }
 
         ByteVector result = factory.createVector(matrix.columns());
@@ -318,7 +317,7 @@ public abstract class AbstractByteVector implements ByteVector {
 
         if ((toIndex - fromIndex) != matrix.rows()) {
             fail("Wrong matrix dimensions: " + matrix.rows() + "x" + matrix.columns() +
-                 ". Should be: " + (toIndex - fromIndex) + "x_.");
+                    ". Should be: " + (toIndex - fromIndex) + "x_.");
         }
 
         ByteVector result = factory.createVector(matrix.columns());
@@ -447,13 +446,13 @@ public abstract class AbstractByteVector implements ByteVector {
     @Override
     public byte product() {
 
-        return fold(ByteVectors.asProductAccumulator((byte)1));
+        return fold(ByteVectors.asProductAccumulator((byte) 1));
     }
 
     @Override
     public byte sum() {
 
-        return fold(ByteVectors.asSumAccumulator((byte)0));
+        return fold(ByteVectors.asSumAccumulator((byte) 0));
     }
 
     @Override
@@ -1000,7 +999,7 @@ public abstract class AbstractByteVector implements ByteVector {
         while (it.hasNext()) {
             it.next();
             long value = it.get();
-            result = 37 * result + (int)(value ^ (value >>> 32));
+            result = 37 * result + (int) (value ^ (value >>> 32));
         }
 
         return result;
@@ -1018,7 +1017,7 @@ public abstract class AbstractByteVector implements ByteVector {
             return false;
         }
 
-        ByteVector vector = (ByteVector)object;
+        ByteVector vector = (ByteVector) object;
 
         if (length != vector.length()) {
             return false;

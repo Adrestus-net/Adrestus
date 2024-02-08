@@ -1,12 +1,12 @@
 /*
  * Copyright 2014 OpenRQ Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,21 +16,21 @@
 
 /*
  * Copyright 2011-2014, by Vladimir Kostyukov and Contributors.
- * 
+ *
  * This file is part of la4j project (http://la4j.org)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * You may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  * Contributor(s): Yuriy Drozd
  * Ewald Grusk
  * Maxim Samoylov
@@ -38,11 +38,6 @@
  * Todd Brunhoff
  */
 package io.Adrestus.erasure.code.util.linearalgebra.matrix;
-
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.channels.ReadableByteChannel;
-import java.util.Random;
 
 import io.Adrestus.erasure.code.util.io.printing.appendable.PrintableAppendable;
 import io.Adrestus.erasure.code.util.linearalgebra.LinearAlgebra;
@@ -52,6 +47,11 @@ import io.Adrestus.erasure.code.util.linearalgebra.serialize.DeserializationExce
 import io.Adrestus.erasure.code.util.linearalgebra.serialize.Serialization;
 import io.Adrestus.erasure.code.util.linearalgebra.vector.functor.VectorFunction;
 import io.Adrestus.erasure.code.util.linearalgebra.vector.source.VectorSource;
+
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.ReadableByteChannel;
+import java.util.Random;
 
 import static io.Adrestus.erasure.code.util.math.OctetOps.*;
 
@@ -258,9 +258,8 @@ public final class ByteMatrices {
 
     /**
      * Creates a const function that evaluates it's argument to given {@code value}.
-     * 
-     * @param arg
-     *            a constant value
+     *
+     * @param arg a constant value
      * @return a closure object that does {@code _}
      */
     public static MatrixFunction asConstFunction(final byte arg) {
@@ -277,9 +276,8 @@ public final class ByteMatrices {
 
     /**
      * Creates a plus function that adds given {@code value} to it's argument.
-     * 
-     * @param arg
-     *            a value to be added to function's argument
+     *
+     * @param arg a value to be added to function's argument
      * @return a closure object that does {@code _ + _}
      */
     public static MatrixFunction asPlusFunction(final byte arg) {
@@ -296,9 +294,8 @@ public final class ByteMatrices {
 
     /**
      * Creates a minus function that subtracts given {@code value} from it's argument.
-     * 
-     * @param arg
-     *            a value to be subtracted from function's argument
+     *
+     * @param arg a value to be subtracted from function's argument
      * @return a closure that does {@code _ - _}
      */
     public static MatrixFunction asMinusFunction(final byte arg) {
@@ -315,9 +312,8 @@ public final class ByteMatrices {
 
     /**
      * Creates a mul function that multiplies given {@code value} by it's argument.
-     * 
-     * @param arg
-     *            a value to be multiplied by function's argument
+     *
+     * @param arg a value to be multiplied by function's argument
      * @return a closure that does {@code _ * _}
      */
     public static MatrixFunction asMulFunction(final byte arg) {
@@ -334,9 +330,8 @@ public final class ByteMatrices {
 
     /**
      * Creates a div function that divides it's argument by given {@code value}.
-     * 
-     * @param arg
-     *            a divisor value
+     *
+     * @param arg a divisor value
      * @return a closure that does {@code _ / _}
      */
     public static MatrixFunction asDivFunction(final byte arg) {
@@ -353,7 +348,7 @@ public final class ByteMatrices {
 
     /**
      * Makes a minimum matrix accumulator that accumulates the minimum of matrix elements.
-     * 
+     *
      * @return a minimum matrix accumulator
      */
     public static MatrixAccumulator mkMinAccumulator() {
@@ -381,7 +376,7 @@ public final class ByteMatrices {
 
     /**
      * Makes a maximum matrix accumulator that accumulates the maximum of matrix elements.
-     * 
+     *
      * @return a maximum matrix accumulator
      */
     public static MatrixAccumulator mkMaxAccumulator() {
@@ -409,9 +404,8 @@ public final class ByteMatrices {
 
     /**
      * Creates a sum matrix accumulator that calculates the sum of all elements in the matrix.
-     * 
-     * @param neutral
-     *            the neutral value
+     *
+     * @param neutral the neutral value
      * @return a sum accumulator
      */
     public static MatrixAccumulator asSumAccumulator(final byte neutral) {
@@ -439,9 +433,8 @@ public final class ByteMatrices {
 
     /**
      * Creates a product matrix accumulator that calculates the product of all elements in the matrix.
-     * 
-     * @param neutral
-     *            the neutral value
+     *
+     * @param neutral the neutral value
      * @return a product accumulator
      */
     public static MatrixAccumulator asProductAccumulator(final byte neutral) {
@@ -470,17 +463,14 @@ public final class ByteMatrices {
     /**
      * Creates a function accumulator, that accumulates all elements in the matrix after applying given {@code function}
      * to each of them.
-     * 
-     * @param accumulator
-     *            the matrix accumulator
-     * @param function
-     *            the matrix function
+     *
+     * @param accumulator the matrix accumulator
+     * @param function    the matrix function
      * @return a function accumulator
      */
     public static MatrixAccumulator asFunctionAccumulator(
-        final MatrixAccumulator accumulator,
-        final MatrixFunction function)
-    {
+            final MatrixAccumulator accumulator,
+            final MatrixFunction function) {
 
         return new MatrixAccumulator() {
 
@@ -502,9 +492,8 @@ public final class ByteMatrices {
      * Creates an accumulator procedure that adapts a matrix accumulator for procedure
      * interface. This is useful for reusing a single accumulator for multiple fold operations
      * in multiple matrices.
-     * 
-     * @param accumulator
-     *            the matrix accumulator
+     *
+     * @param accumulator the matrix accumulator
      * @return an accumulator procedure
      */
     public static MatrixProcedure asAccumulatorProcedure(final MatrixAccumulator accumulator) {
@@ -521,7 +510,7 @@ public final class ByteMatrices {
 
     /**
      * Creates a row vector source from a matrix source and a row index.
-     * 
+     *
      * @param source
      * @param row
      * @return a row vector source from a matrix source and a row index
@@ -546,7 +535,7 @@ public final class ByteMatrices {
 
     /**
      * Creates a column vector source from a matrix source and a column index.
-     * 
+     *
      * @param source
      * @param column
      * @return a column vector source from a matrix source and a column index
@@ -571,7 +560,7 @@ public final class ByteMatrices {
 
     /**
      * Creates a row vector function from a matrix function and a row index.
-     * 
+     *
      * @param function
      * @param row
      * @return a row vector function from a matrix function and a row index
@@ -590,7 +579,7 @@ public final class ByteMatrices {
 
     /**
      * Creates a column vector function from a matrix function and a column index.
-     * 
+     *
      * @param function
      * @param column
      * @return a column vector function from a matrix function and a column index
@@ -609,21 +598,19 @@ public final class ByteMatrices {
 
     /**
      * Creates a singleton 1x1 matrix of given {@code value}.
-     * 
-     * @param value
-     *            the singleton value
+     *
+     * @param value the singleton value
      * @return a singleton matrix
      */
     public static ByteMatrix asSingletonMatrix(byte value) {
 
-        return LinearAlgebra.DEFAULT_FACTORY.createMatrix(new byte[][] {{value}});
+        return LinearAlgebra.DEFAULT_FACTORY.createMatrix(new byte[][]{{value}});
     }
 
     /**
      * Creates a matrix source of given {@code matrix}.
-     * 
-     * @param matrix
-     *            the source matrix
+     *
+     * @param matrix the source matrix
      * @return a matrix source
      */
     public static MatrixSource asMatrixSource(ByteMatrix matrix) {
@@ -633,13 +620,10 @@ public final class ByteMatrices {
 
     /**
      * Creates a 1D-array matrix source of given {@code array} reference.
-     * 
-     * @param rows
-     *            the number of rows in the source
-     * @param columns
-     *            the number of columns in the source
-     * @param array
-     *            the array reference
+     *
+     * @param rows    the number of rows in the source
+     * @param columns the number of columns in the source
+     * @param array   the array reference
      * @return a 1D-array matrix source
      */
     public static MatrixSource asArray1DSource(int rows, int columns, byte[] array) {
@@ -649,9 +633,8 @@ public final class ByteMatrices {
 
     /**
      * Creates a 2D-array matrix source of given {@code array} reference.
-     * 
-     * @param array
-     *            the array reference
+     *
+     * @param array the array reference
      * @return a 2D-array matrix source
      */
     public static MatrixSource asArray2DSource(byte[][] array) {
@@ -661,9 +644,8 @@ public final class ByteMatrices {
 
     /**
      * Creates an identity matrix source of given {@code size}.
-     * 
-     * @param size
-     *            the source size
+     *
+     * @param size the source size
      * @return an identity matrix source
      */
     public static MatrixSource asIdentitySource(int size) {
@@ -673,12 +655,10 @@ public final class ByteMatrices {
 
     /**
      * Creates a random matrix source of specified dimensions.
-     * 
-     * @param rows
-     *            the number of rows in the source
-     * @param columns
-     *            the number of columns in the source
-     *            * @param random the random generator instance
+     *
+     * @param rows    the number of rows in the source
+     * @param columns the number of columns in the source
+     *                * @param random the random generator instance
      * @return a random matrix source
      */
     public static MatrixSource asRandomSource(int rows, int columns, Random random) {
@@ -688,21 +668,19 @@ public final class ByteMatrices {
 
     /**
      * Creates a default 1x1 matrix from given {@code value}.
-     * 
-     * @param value
-     *            of the matrix
+     *
+     * @param value of the matrix
      * @return a default 1x1 matrix
      */
     public static ByteMatrix asMatrix1x1(byte value) {
 
-        return LinearAlgebra.DEFAULT_FACTORY.createMatrix(new byte[][] {{value}});
+        return LinearAlgebra.DEFAULT_FACTORY.createMatrix(new byte[][]{{value}});
     }
 
     /**
      * Creates a default 2x2 matrix from given {@code value}.
-     * 
-     * @param values
-     *            of the matrix
+     *
+     * @param values of the matrix
      * @return a default 2x2 matrix
      */
     public static ByteMatrix asMatrix2x2(byte... values) {
@@ -712,9 +690,8 @@ public final class ByteMatrices {
 
     /**
      * Creates a default 3x3 matrix from given {@code value}.
-     * 
-     * @param values
-     *            of the matrix
+     *
+     * @param values of the matrix
      * @return a default 3x3 matrix
      */
     public static ByteMatrix asMatrix3x3(byte... values) {
@@ -724,9 +701,8 @@ public final class ByteMatrices {
 
     /**
      * Creates a default 4x4 matrix from given {@code value}.
-     * 
-     * @param values
-     *            of the matrix
+     *
+     * @param values of the matrix
      * @return a default 4x4 matrix
      */
     public static ByteMatrix asMatrix4x4(byte... values) {
@@ -737,11 +713,9 @@ public final class ByteMatrices {
     /**
      * TODO: It might be a good idea to put internal routines into a special utility class.
      * An internal routine that un-flats given 1D {@code array} to square 2D array with size {@code n}.
-     * 
-     * @param array
-     *            the 1D array
-     * @param n
-     *            the size of square 2D array
+     *
+     * @param array the 1D array
+     * @param n     the size of square 2D array
      * @return the square 2D array
      */
     private static byte[][] unflatten(byte array[], int n) {
@@ -759,11 +733,9 @@ public final class ByteMatrices {
 
     /**
      * Prints a matrix to a given appendable.
-     * 
-     * @param matrix
-     *            the matrix to be printed
-     * @param appendable
-     *            the appendable on which the matrix is printed
+     *
+     * @param matrix     the matrix to be printed
+     * @param appendable the appendable on which the matrix is printed
      */
     public static void printMatrix(ByteMatrix matrix, Appendable appendable) {
 

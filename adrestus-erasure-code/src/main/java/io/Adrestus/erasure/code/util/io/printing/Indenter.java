@@ -1,19 +1,19 @@
 package io.Adrestus.erasure.code.util.io.printing;
 
 
+import io.Adrestus.erasure.code.util.checking.Invariants;
+import io.Adrestus.erasure.code.util.io.printing.appendable.NoisyPrintableAppendable;
+
 import java.io.IOException;
 import java.nio.CharBuffer;
 import java.util.Formatter;
 import java.util.Objects;
 
-import io.Adrestus.erasure.code.util.checking.Invariants;
-import io.Adrestus.erasure.code.util.io.printing.appendable.NoisyPrintableAppendable;
-
 
 /**
  * This class provides support for writing text lines to an {@code Appendable} object, according to specific indentation
  * rules.
- * 
+ *
  * @author Ricardo Fonseca &lt;rfonseca&#064;lasige.di.fc.ul.pt&gt;
  */
 public final class Indenter {
@@ -191,15 +191,13 @@ public final class Indenter {
             if (c == '\r') {
                 lineBuf.flush();
                 requiresPrefixAndIndent = true;
-            }
-            else if (c == '\n') {
+            } else if (c == '\n') {
                 // do not print two newlines on CRLF
                 if (lastChar != '\r') {
                     lineBuf.flush();
                     requiresPrefixAndIndent = true;
                 }
-            }
-            else {
+            } else {
                 requiresPrefixAndIndent = lineBuf.writeChar(c);
             }
 
@@ -297,11 +295,9 @@ public final class Indenter {
 
             if (Character.isWhitespace(c)) {
                 return writeSpaceCharacter(' '); // all whitespace characters are converted to ' '
-            }
-            else if (!Character.isISOControl(c)) { // ignore some non-printable characters
+            } else if (!Character.isISOControl(c)) { // ignore some non-printable characters
                 return writeWordCharacter(c);
-            }
-            else {
+            } else {
                 return false;
             }
         }
@@ -316,8 +312,7 @@ public final class Indenter {
                     lastWordEndPos = nextLinePos - 1;
                     nextLinePos++;
                     lastChar = s;
-                }
-                else {
+                } else {
                     flush(); // also updates lastChar, nextLinePos and lastWordEndPos
                     return true;
                 }
@@ -335,8 +330,7 @@ public final class Indenter {
                 }
                 nextLinePos++;
                 lastChar = c;
-            }
-            else {
+            } else {
                 tempBuf.append(c);
                 flush(); // also updates lastChar, nextLinePos and lastWordEndPos
                 return true;
@@ -353,8 +347,7 @@ public final class Indenter {
                 // OR
                 // 2) The temp buffer has one char and the main buffer is full with one word the size of the lineWidth
                 output.println(mainBuf);
-            }
-            else {
+            } else {
                 final int tempPos = tempBuf.position();
                 if (0 < tempPos && tempPos < (getLineWidth() - lastWordEndPos - 1)) {
                     output.print(mainBuf, 0, lastWordEndPos + 1).print(' ');
@@ -362,8 +355,7 @@ public final class Indenter {
                     output.print(tempBuf);
                     tempBuf.clear();
                     output.println();
-                }
-                else {
+                } else {
                     output.println(mainBuf, 0, lastWordEndPos + 1);
                 }
             }

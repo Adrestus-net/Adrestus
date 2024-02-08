@@ -8,7 +8,7 @@ import java.nio.ByteOrder;
 /**
  * This class provides useful methods for dealing with primitive unsigned values, including reading from and writing to
  * buffers.
- * 
+ *
  * @author Ricardo Fonseca &lt;rfonseca&#064;lasige.di.fc.ul.pt&gt;
  */
 public final class UnsignedTypes {
@@ -59,7 +59,7 @@ public final class UnsignedTypes {
 
     public static void writeUnsignedByte(int ub, ByteBuffer buffer) {
 
-        buffer.put((byte)ub);
+        buffer.put((byte) ub);
     }
 
     // UNSIGNED SHORT //
@@ -88,7 +88,7 @@ public final class UnsignedTypes {
 
     public static void writeUnsignedShort(int us, ByteBuffer buffer) {
 
-        buffer.putShort((short)us);
+        buffer.putShort((short) us);
     }
 
     // UNSIGNED INT //
@@ -117,14 +117,14 @@ public final class UnsignedTypes {
 
     public static void writeUnsignedInt(long ui, ByteBuffer buffer) {
 
-        buffer.putInt((int)ui);
+        buffer.putInt((int) ui);
     }
 
     // UNSIGNED ARBITRARY //
 
     public static int getUnsignedBytes(int ubs, int numBytes) {
 
-        return (int)getUnsignedVariableLong(ubs, numBytes, SizeOf.INT);
+        return (int) getUnsignedVariableLong(ubs, numBytes, SizeOf.INT);
     }
 
     public static long getLongUnsignedBytes(long ubs, int numBytes) {
@@ -139,8 +139,7 @@ public final class UnsignedTypes {
         final int shift = numBytes * Byte.SIZE;
         if (shift >= Long.SIZE) { // the shift is masked to always be under Long.SIZE
             return ubs;
-        }
-        else {
+        } else {
             final long mask = (1L << shift) - 1L;
             return ubs & mask;
         }
@@ -162,7 +161,7 @@ public final class UnsignedTypes {
 
         final byte[] bytes = new byte[numBytes];
         for (int n = 1; n <= numBytes; n++) {
-            bytes[n - 1] = (byte)(ubs >>> ((numBytes - n) * Byte.SIZE));
+            bytes[n - 1] = (byte) (ubs >>> ((numBytes - n) * Byte.SIZE));
         }
 
         return bytes;
@@ -175,7 +174,7 @@ public final class UnsignedTypes {
 
     public static int getUnsignedBytes(byte[] bytes, int off, int numBytes) {
 
-        return (int)getUnsignedVariableLong(bytes, off, numBytes, SizeOf.INT);
+        return (int) getUnsignedVariableLong(bytes, off, numBytes, SizeOf.INT);
     }
 
     public static long getLongUnsignedBytes(byte[] bytes, int numBytes) {
@@ -195,7 +194,7 @@ public final class UnsignedTypes {
 
         long ret = 0L;
         for (int n = numBytes - 1, i = off; n >= 0; n--, i++) {
-            ret |= (bytes[i] & (long)UNSIGNED_BYTE_MASK) << (n * Byte.SIZE);
+            ret |= (bytes[i] & (long) UNSIGNED_BYTE_MASK) << (n * Byte.SIZE);
         }
 
         return ret;
@@ -203,7 +202,7 @@ public final class UnsignedTypes {
 
     public static int readUnsignedBytes(ByteBuffer buffer, int numBytes) {
 
-        return (int)readUnsignedArbitrary(buffer, numBytes, SizeOf.INT);
+        return (int) readUnsignedArbitrary(buffer, numBytes, SizeOf.INT);
     }
 
     public static long readLongUnsignedBytes(ByteBuffer buffer, int numBytes) {
@@ -218,12 +217,11 @@ public final class UnsignedTypes {
         long ret = 0L;
         if (buffer.order() == ByteOrder.BIG_ENDIAN) {
             for (int n = numBytes - 1; n >= 0; n--) {
-                ret |= (buffer.get() & (long)UNSIGNED_BYTE_MASK) << (n * Byte.SIZE);
+                ret |= (buffer.get() & (long) UNSIGNED_BYTE_MASK) << (n * Byte.SIZE);
             }
-        }
-        else {
+        } else {
             for (int n = 0; n < numBytes; n++) {
-                ret |= (buffer.get() & (long)UNSIGNED_BYTE_MASK) << (n * Byte.SIZE);
+                ret |= (buffer.get() & (long) UNSIGNED_BYTE_MASK) << (n * Byte.SIZE);
             }
         }
 
@@ -246,12 +244,11 @@ public final class UnsignedTypes {
 
         if (buffer.order() == ByteOrder.BIG_ENDIAN) {
             for (int n = numBytes - 1; n >= 0; n--) {
-                buffer.put((byte)(ubs >>> (n * Byte.SIZE)));
+                buffer.put((byte) (ubs >>> (n * Byte.SIZE)));
             }
-        }
-        else {
+        } else {
             for (int n = 0; n < numBytes; n++) {
-                buffer.put((byte)(ubs >>> (n * Byte.SIZE)));
+                buffer.put((byte) (ubs >>> (n * Byte.SIZE)));
             }
         }
     }

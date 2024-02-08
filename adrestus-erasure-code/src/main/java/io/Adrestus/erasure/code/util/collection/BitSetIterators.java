@@ -1,12 +1,12 @@
 /*
  * Copyright 2014 OpenRQ Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -29,9 +29,8 @@ public final class BitSetIterators {
 
     /**
      * Returns a new iterator over all true bits in the provided bit set.
-     * 
-     * @param bitSet
-     *            A bit set
+     *
+     * @param bitSet A bit set
      * @return an iterator over true bits
      */
     public static Iterator<Integer> newTrueIterator(BitSet bitSet) {
@@ -41,11 +40,9 @@ public final class BitSetIterators {
 
     /**
      * Returns a new iterator over all true bits in the provided bit set, starting at the provided index (inclusive).
-     * 
-     * @param bitSet
-     *            A bit set
-     * @param fromIndex
-     *            The initial index (inclusive)
+     *
+     * @param bitSet    A bit set
+     * @param fromIndex The initial index (inclusive)
      * @return an iterator over true bits
      */
     public static Iterator<Integer> newTrueIterator(BitSet bitSet, int fromIndex) {
@@ -55,11 +52,9 @@ public final class BitSetIterators {
 
     /**
      * Returns a new iterator over all false bits in the provided bit set, until the provided index (exclusive).
-     * 
-     * @param bitSet
-     *            A bit set
-     * @param toIndex
-     *            The final index (exclusive)
+     *
+     * @param bitSet  A bit set
+     * @param toIndex The final index (exclusive)
      * @return an iterator over false bits
      */
     public static Iterator<Integer> newFalseIterator(BitSet bitSet, int toIndex) {
@@ -70,13 +65,10 @@ public final class BitSetIterators {
     /**
      * Returns a new iterator over all false bits in the provided bit set, starting at one provided index (inclusive),
      * until the other provided index (exclusive).
-     * 
-     * @param bitSet
-     *            A bit set
-     * @param fromIndex
-     *            The initial index (inclusive)
-     * @param toIndex
-     *            The final index (exclusive)
+     *
+     * @param bitSet    A bit set
+     * @param fromIndex The initial index (inclusive)
+     * @param toIndex   The final index (exclusive)
      * @return an iterator over false bits
      */
     public static Iterator<Integer> newFalseIterator(BitSet bitSet, int fromIndex, int toIndex) {
