@@ -88,5 +88,18 @@ public class TestBloomFilter {
             if (val) System.out.println("found");
         }
     }
+    @Test
+    public void testDefaultFilter4() {
+
+        for (int i = 0; i < 10; i++) {
+            BloomFilter<String> filter1 = new InMemoryBloomFilter<String>(100, UtilConstants.FPP);
+            String kl= UUID.randomUUID().toString();
+            filter1.add(kl);
+            BloomObject bloomObject = new BloomObject(filter1.toBitsetArray(), filter1.getNumberOfHashFunctions(), filter1.getNumberOfBits());
+            JSONObject jsonObject = new JSONObject(bloomObject);
+            String myJson = jsonObject.toString();
+            System.out.println(kl+" "+myJson);
+        }
+    }
 
 }

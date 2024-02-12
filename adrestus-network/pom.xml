@@ -28,8 +28,14 @@
         <trie.version>1.0-SNAPSHOT</trie.version>
         <crypto.version>1.0-SNAPSHOT</crypto.version>
         <ledger.version>1.0-SNAPSHOT</ledger.version>
+        <util.version>1.0-SNAPSHOT</util.version>
     </properties>
     <dependencies>
+        <dependency>
+            <groupId>io.Adrestus.v1</groupId>
+            <artifactId>adrestus-util</artifactId>
+            <version>${util.version}</version>
+        </dependency>
         <dependency>
             <groupId>io.Adrestus.v1</groupId>
             <artifactId>adrestus-crypto</artifactId>

@@ -28,6 +28,8 @@ public class ConsensusServer {
     private final ZMQ.Socket publisher;
     private final ZMQ.Socket collector;
 
+    private final ZMQ.Socket chunksCollector;
+
 
     private ZMQ.Socket connected;
     private volatile boolean terminate;
@@ -52,11 +54,13 @@ public class ConsensusServer {
         this.publisher = ctx.createSocket(SocketType.PUB);
         this.collector = ctx.createSocket(SocketType.PULL);
         this.connected = ctx.createSocket(SocketType.REP);
+        this.chunksCollector = ctx.createSocket(SocketType.ROUTER);
 
 
         this.publisher.setHWM(10000);
+        this.chunksCollector.setHWM(10000);
 
-
+        this.chunksCollector.bind("tcp://" + IP + ":" + CHUNKS_COLLECTOR_PORT);
         this.publisher.bind("tcp://" + IP + ":" + PUBLISHER_PORT);
         this.collector.bind("tcp://" + IP + ":" + COLLECTOR_PORT);
         this.connected.bind("tcp://" + IP + ":" + CONNECTED_PORT);
@@ -66,6 +70,9 @@ public class ConsensusServer {
 
         this.connected.setSendTimeOut(CONSENSUS_CONNECTED_SEND_TIMEOUT);
         this.connected.setReceiveTimeOut(CONSENSUS_CONNECTED_RECEIVE_TIMEOUT);
+
+        this.chunksCollector.setSendTimeOut(CONSENSUS_CONNECTED_SEND_TIMEOUT);
+        this.chunksCollector.setReceiveTimeOut(CONSENSUS_CONNECTED_RECEIVE_TIMEOUT);
 
         this.timer = new Timer(ConsensusConfiguration.CONSENSUS);
         this.task = new ConnectedTaskTimeout();
@@ -83,19 +90,24 @@ public class ConsensusServer {
         this.publisher = ctx.createSocket(SocketType.PUB);
         this.collector = ctx.createSocket(SocketType.PULL);
         this.connected = ctx.createSocket(SocketType.REP);
-
+        this.chunksCollector = ctx.createSocket(SocketType.ROUTER);
 
         this.publisher.setHWM(10000);
+        this.chunksCollector.setHWM(10000);
 
-
+        this.chunksCollector.bind("tcp://" + IP + ":" + CHUNKS_COLLECTOR_PORT);
         this.publisher.bind("tcp://" + IP + ":" + PUBLISHER_PORT);
         this.collector.bind("tcp://" + IP + ":" + COLLECTOR_PORT);
         this.connected.bind("tcp://" + IP + ":" + CONNECTED_PORT);
 
         this.collector.setReceiveTimeOut(collector_timeout);
         this.publisher.setSendTimeOut(CONSENSUS_TIMEOUT);
+
         this.connected.setSendTimeOut(connected_timeout);
         this.connected.setReceiveTimeOut(connected_timeout);
+
+        this.chunksCollector.setSendTimeOut(connected_timeout);
+        this.chunksCollector.setReceiveTimeOut(connected_timeout);
 
         this.timer = new Timer(ConsensusConfiguration.CONSENSUS);
         this.task = new ConnectedTaskTimeout();
@@ -110,12 +122,24 @@ public class ConsensusServer {
         this.publisher = ctx.createSocket(SocketType.PUB);
         this.publisher.setHeartbeatIvl(2);
         this.collector = ctx.createSocket(SocketType.PULL);
+        this.chunksCollector = ctx.createSocket(SocketType.ROUTER);
+        this.connected = ctx.createSocket(SocketType.REP);
+        this.chunksCollector.setHeartbeatIvl(2);
 
+        this.chunksCollector.setHWM(10000);
 
+        this.chunksCollector.bind("tcp://" + IP + ":" + CHUNKS_COLLECTOR_PORT);
         this.publisher.bind("tcp://" + IP + ":" + PUBLISHER_PORT);
         this.collector.bind("tcp://" + IP + ":" + COLLECTOR_PORT);
+        this.connected.bind("tcp://" + IP + ":" + CONNECTED_PORT);
         this.collector.setReceiveTimeOut(CONSENSUS_TIMEOUT);
         this.publisher.setSendTimeOut(CONSENSUS_TIMEOUT);
+
+        this.connected.setSendTimeOut(CONSENSUS_TIMEOUT);
+        this.connected.setReceiveTimeOut(CONSENSUS_TIMEOUT);
+
+        this.chunksCollector.setSendTimeOut(CONSENSUS_TIMEOUT);
+        this.chunksCollector.setReceiveTimeOut(CONSENSUS_TIMEOUT);
     }
 
     public ConsensusServer(String IP, int MAX_MESSAGES) {
@@ -127,12 +151,17 @@ public class ConsensusServer {
         this.publisher = ctx.createSocket(SocketType.PUB);
         this.publisher.setHeartbeatIvl(2);
         this.collector = ctx.createSocket(SocketType.PULL);
+        this.chunksCollector = ctx.createSocket(SocketType.ROUTER);
+        this.chunksCollector.setHeartbeatIvl(2);
 
-
+        this.chunksCollector.bind("tcp://" + IP + ":" + CHUNKS_COLLECTOR_PORT);
         this.publisher.bind("tcp://" + IP + ":" + PUBLISHER_PORT);
         this.collector.bind("tcp://" + IP + ":" + COLLECTOR_PORT);
         this.collector.setReceiveTimeOut(CONSENSUS_TIMEOUT);
         this.publisher.setSendTimeOut(CONSENSUS_TIMEOUT);
+
+        this.chunksCollector.setSendTimeOut(CONSENSUS_TIMEOUT);
+        this.chunksCollector.setReceiveTimeOut(CONSENSUS_TIMEOUT);
     }
 
     public ConsensusServer() {
@@ -144,11 +173,16 @@ public class ConsensusServer {
         this.ctx = new ZContext();
         this.publisher = ctx.createSocket(SocketType.PUB);
         this.collector = ctx.createSocket(SocketType.PULL);
+        this.chunksCollector = ctx.createSocket(SocketType.ROUTER);
 
+        this.chunksCollector.bind("tcp://" + IP + ":" + CHUNKS_COLLECTOR_PORT);
         this.publisher.bind("tcp://" + IP + ":" + PUBLISHER_PORT);
         this.collector.bind("tcp://" + IP + ":" + COLLECTOR_PORT);
         this.publisher.setSendTimeOut(CONSENSUS_TIMEOUT);
         this.collector.setReceiveTimeOut(CONSENSUS_TIMEOUT);
+
+        this.chunksCollector.setSendTimeOut(CONSENSUS_TIMEOUT);
+        this.chunksCollector.setReceiveTimeOut(CONSENSUS_TIMEOUT);
     }
 
     public void BlockUntilConnected() {
@@ -184,6 +218,18 @@ public class ConsensusServer {
     public void publishMessage(byte[] data) {
         try {
             publisher.send(data, 0);
+        } catch (ZMQException e) {
+            if (e.getErrorCode() == 156384765) {
+            } else {
+                LOG.info("ZMQException" + e.toString());
+            }
+        }
+    }
+
+    public void setErasureMessage(byte[] data, String identity) {
+        try {
+            this.chunksCollector.sendMore(identity.getBytes(ZMQ.CHARSET));
+            this.chunksCollector.send(data);
         } catch (ZMQException e) {
             if (e.getErrorCode() == 156384765) {
             } else {
@@ -247,6 +293,22 @@ public class ConsensusServer {
         return data;
     }
 
+    public byte[] receiveErasureData() {
+        try {
+            byte[] recv1 = chunksCollector.recv();
+            byte[] recv2 = chunksCollector.recv();
+            return recv2;
+        } catch (NullPointerException e) {
+            //e.printStackTrace();
+        } catch (ZMQException e) {
+            if (e.getErrorCode() == 156384765) {
+            } else {
+                LOG.info("ZMQException" + e.toString());
+            }
+        }
+        return null;
+    }
+
     public static Logger getLOG() {
         return LOG;
     }
@@ -295,11 +357,14 @@ public class ConsensusServer {
             this.collector.close();
         if (this.connected != null)
             this.connected.close();
+        if (this.chunksCollector != null)
+            this.chunksCollector.close();
         if (this.ctx != null) {
             try {
                 this.ctx.destroySocket(this.publisher);
                 this.ctx.destroySocket(this.collector);
                 this.ctx.destroySocket(this.connected);
+                this.ctx.destroySocket(this.chunksCollector);
                 Thread.sleep(500);
                 this.ctx.destroy();
             } catch (AssertionError e) {

@@ -6,7 +6,7 @@ import java.nio.charset.StandardCharsets;
 
 public class ConsensusServerClientTest {
 
-    //@Test
+    @Test
     public void test_subscribe() throws InterruptedException {
         System.out.println("test_subscribe");
         ConsensusServer adrestusServer = new ConsensusServer("localhost");
@@ -55,7 +55,7 @@ public class ConsensusServerClientTest {
         adrestusServer.close();
     }
 
-    //@Test
+    @Test
     public void test_subscribe_with_delay() throws InterruptedException {
         System.out.println("test_subscribe_with_delay");
         ConsensusServer adrestusServer = new ConsensusServer("localhost");
@@ -112,7 +112,7 @@ public class ConsensusServerClientTest {
 
     }
 
-    //@Test
+    @Test
     public void test_client_push_Server() throws InterruptedException {
         System.out.println("test_client_push_Server");
         ConsensusServer adrestusServer = new ConsensusServer("localhost", 4);
@@ -185,7 +185,7 @@ public class ConsensusServerClientTest {
         adrestusClient4.close();
     }
 
-    //@Test
+    @Test
     public void test_client_push_Server2() throws InterruptedException {
         System.out.println("test_client_push_Server2");
         ConsensusServer adrestusServer = new ConsensusServer("localhost", 4);
@@ -248,7 +248,7 @@ public class ConsensusServerClientTest {
     }
 
 
-    //@Test
+    @Test
     public void test_client_push_Server2_with_dealy() throws InterruptedException {
         System.out.println("test_client_push_Server2_with_dealy");
         try {
@@ -292,7 +292,7 @@ public class ConsensusServerClientTest {
         }
     }
 
-    // @Test
+     @Test
     public void Server_push_to_client_with_delay() throws InterruptedException {
         System.out.println("Server_push_to_client_with_delay");
         try {

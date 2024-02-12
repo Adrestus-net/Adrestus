@@ -28,6 +28,8 @@ public class ConsensusClient {
     private final ZMQ.Socket subscriber;
     private final ZMQ.Socket push;
     private final ZMQ.Socket connected;
+
+    private ZMQ.Socket erasure;
     private final LinkedBlockingDeque<byte[]> message_deque;
     private final ExecutorService executorService;
 
@@ -44,6 +46,10 @@ public class ConsensusClient {
         this.connected.setReceiveTimeOut(CONSENSUS_CONNECTED_RECEIVE_TIMEOUT);
         this.connected.setSendTimeOut(CONSENSUS_CONNECTED_SEND_TIMEOUT);
 
+        this.erasure = ctx.createSocket(SocketType.DEALER);
+        this.erasure.setReceiveTimeOut(CONSENSUS_CONNECTED_RECEIVE_TIMEOUT);
+        this.erasure.setSendTimeOut(CONSENSUS_CONNECTED_SEND_TIMEOUT);
+
         this.subscriber.setReceiveBufferSize(10000);
         this.subscriber.setHWM(10000);
         this.subscriber.setRcvHWM(1);
@@ -51,6 +57,41 @@ public class ConsensusClient {
 
         this.subscriber.connect("tcp://" + IP + ":" + SUBSCRIBER_PORT);
         this.connected.connect("tcp://" + IP + ":" + CONNECTED_PORT);
+        this.erasure.connect("tcp://" + IP + ":" + CHUNKS_COLLECTOR_PORT);
+
+        this.subscriber.subscribe(ZMQ.SUBSCRIPTION_ALL);
+        this.subscriber.setReceiveTimeOut(CONSENSUS_TIMEOUT);
+        this.push.connect("tcp://" + IP + ":" + COLLECTOR_PORT);
+
+    }
+
+    public ConsensusClient(String IP, String identity) {
+        this.executorService = Executors.newSingleThreadExecutor();
+        this.ctx = new ZContext();
+        this.message_deque = new LinkedBlockingDeque<>();
+        this.IP = IP;
+        this.available = new Semaphore(MAX_AVAILABLE, true);
+        this.subscriber = ctx.createSocket(SocketType.SUB);
+        this.push = ctx.createSocket(SocketType.PUSH);
+
+        this.connected = ctx.createSocket(SocketType.REQ);
+        this.connected.setReceiveTimeOut(CONSENSUS_CONNECTED_RECEIVE_TIMEOUT);
+        this.connected.setSendTimeOut(CONSENSUS_CONNECTED_SEND_TIMEOUT);
+
+        this.erasure = ctx.createSocket(SocketType.DEALER);
+        this.erasure.setIdentity(identity.getBytes(ZMQ.CHARSET));
+        this.erasure.setReceiveTimeOut(CONSENSUS_CONNECTED_RECEIVE_TIMEOUT);
+        this.erasure.setSendTimeOut(CONSENSUS_CONNECTED_SEND_TIMEOUT);
+
+        this.subscriber.setReceiveBufferSize(10000);
+        this.subscriber.setHWM(10000);
+        this.subscriber.setRcvHWM(1);
+        this.subscriber.setConflate(true);
+
+        this.subscriber.connect("tcp://" + IP + ":" + SUBSCRIBER_PORT);
+        this.connected.connect("tcp://" + IP + ":" + CONNECTED_PORT);
+        this.erasure.connect("tcp://" + IP + ":" + CHUNKS_COLLECTOR_PORT);
+
         this.subscriber.subscribe(ZMQ.SUBSCRIPTION_ALL);
         this.subscriber.setReceiveTimeOut(CONSENSUS_TIMEOUT);
         this.push.connect("tcp://" + IP + ":" + COLLECTOR_PORT);
@@ -84,6 +125,16 @@ public class ConsensusClient {
     public byte[] receiveData() {
         byte[] data = subscriber.recv();
         return data;
+    }
+
+    public byte[] receiveErasureData() {
+        byte[] data = erasure.recv();
+        return data;
+    }
+
+    public void SendErasureData(byte[] data) {
+        erasure.send(data);//its correct first send id and after data
+        erasure.send(data);
     }
 
 
@@ -148,9 +199,11 @@ public class ConsensusClient {
             this.subscriber.close();
             this.push.close();
             this.connected.close();
+            this.erasure.close();
             this.ctx.destroySocket(this.subscriber);
             this.ctx.destroySocket(this.push);
             this.ctx.destroySocket(this.connected);
+            this.ctx.destroySocket(this.erasure);
             this.ctx.destroy();
             Thread.sleep(400);
         } catch (AssertionError e) {

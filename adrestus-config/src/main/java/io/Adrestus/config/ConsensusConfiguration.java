@@ -23,6 +23,7 @@ public class ConsensusConfiguration {
     public static final String CHANGE_VIEW = "CHANGE_VIEW";
 
 
+    public static final String CHUNKS_COLLECTOR_PORT = "5556";
     public static final String PUBLISHER_PORT = "5557";
     public static final String SUBSCRIBER_PORT = "5557";
     public static final String COLLECTOR_PORT = "5558";

@@ -124,7 +124,6 @@ public class StressBLSTest {
         Signature bls_sig2 = valueMapper.decode(Hex.decodeHex(splits[2]));
         String strsgn = joiner2.add(Hex.encodeHexString(blsPublicKey.toBytes())).add(splits[1]).toString();
         Boolean signcheck = BLSSignature.verify(bls_sig2, strsgn.getBytes(StandardCharsets.UTF_8), blsPublicKey);
-
         int g = 3;
     }
 }
