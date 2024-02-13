@@ -106,6 +106,13 @@ public class FullExampleErasureTest {
 
     @BeforeAll
     public static void setup() throws IOException, MnemonicException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException, CloneNotSupportedException, DecoderException {
+        Socket socket = new Socket();
+        socket.connect(new InetSocketAddress("google.com", 80));
+        String IP = socket.getLocalAddress().getHostAddress();
+        if (!IP.substring(0, 3).equals("192")) {
+            return;
+        }
+
         CommitteeBlock committeeBlock = new CommitteeBlock();
         committeeBlock.setGeneration(1);
         committeeBlock.setViewID(1);

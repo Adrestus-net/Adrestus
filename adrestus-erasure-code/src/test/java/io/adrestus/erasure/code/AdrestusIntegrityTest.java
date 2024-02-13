@@ -45,18 +45,18 @@ public class AdrestusIntegrityTest {
         EncodingPacket srcPacket1 = enc.sourceBlockIterable().iterator().next().sourcePacketsIterable().iterator().next();
         int numRepairSymbols = OpenRQ.minRepairSymbols(dataLen / numSrcBlks, symbolOverhead, loss);
         EncodingPacket encodingPacketRepair = enc.sourceBlockIterable().iterator().next().repairPacketsIterable(numRepairSymbols).iterator().next();
-        System.out.println("a" + encodingPacketRepair.sourceBlockNumber());
+//        System.out.println("a" + encodingPacketRepair.sourceBlockNumber());
         int counter = 0;
         for (SourceBlockEncoder sbEnc : enc.sourceBlockIterable()) {
             final int K = sbEnc.numberOfSourceSymbols();
-            System.out.println(sbEnc.sourceBlockNumber());
-            System.out.println(counter);
+//            System.out.println(sbEnc.sourceBlockNumber());
+//            System.out.println(counter);
             final SourceBlockDecoder sbDec = dec.sourceBlock(counter);
             counter++;
             for (EncodingPacket srcPacket : sbEnc.sourcePacketsIterable()) {
-                System.out.println("source " + srcPacket.sourceBlockNumber());
-                System.out.println("Symbols " + srcPacket.numberOfSymbols());
-                System.out.println("Length " + srcPacket.symbolsLength());
+//                System.out.println("source " + srcPacket.sourceBlockNumber());
+//                System.out.println("Symbols " + srcPacket.numberOfSymbols());
+//                System.out.println("Length " + srcPacket.symbolsLength());
                 sbDec.putEncodingPacket(dec.parsePacket(srcPacket.asBuffer(), false).value());
             }
         }
@@ -90,7 +90,7 @@ public class AdrestusIntegrityTest {
             int numRepairSymbols = OpenRQ.minRepairSymbols(sbEnc.numberOfSourceSymbols(), symbolOverhead, loss);
             if (numRepairSymbols > 0) {
                 for (EncodingPacket encodingPacketRepair : sbEnc.repairPacketsIterable(numRepairSymbols)) {
-                    System.out.println("repair length " + encodingPacketRepair.symbolsLength());
+//                    System.out.println("repair length " + encodingPacketRepair.symbolsLength());
                     rpairs.add(encodingPacketRepair);
                 }
             }
@@ -102,8 +102,8 @@ public class AdrestusIntegrityTest {
             }
         }
 
-        System.out.println(Hex.encodeHexString(arr[0].asBuffer().array()));
-        System.out.println(Hex.encodeHexString(arr[1].asBuffer().array()));
+//        System.out.println(Hex.encodeHexString(arr[0].asBuffer().array()));
+//        System.out.println(Hex.encodeHexString(arr[1].asBuffer().array()));
         for (int i = arr.length - 1; i >= 1; i--) {
             System.out.println("Source Block Number: " + arr[i].sourceBlockNumber());
             final SourceBlockDecoder sbDec = dec.sourceBlock(i);
@@ -114,7 +114,7 @@ public class AdrestusIntegrityTest {
             final SourceBlockDecoder sbDec = dec.sourceBlock(repair.sourceBlockNumber());
             sbDec.putEncodingPacket(repair);
             boolean val = Arrays.equals(dst, dec.dataArray());
-            System.out.println("Repair Val: " + val);
+//            System.out.println("Repair Val: " + val);
         }
         // compare the original and decoded data
         assertArrayEquals(dst, dec.dataArray());
@@ -130,7 +130,7 @@ public class AdrestusIntegrityTest {
         for (int i = 0; i < array.length; ++i) {
             dos.writeInt(array[i]);
         }
-        System.out.println(Hex.encodeHexString(HashUtil.Shake256(baos.toByteArray())));
+//        System.out.println(Hex.encodeHexString(HashUtil.Shake256(baos.toByteArray())));
         int g = 3;
     }
 
@@ -154,7 +154,7 @@ public class AdrestusIntegrityTest {
         try {
             long MAX_DATA_LEN = maxAllowedDataLength(symbSize);
         } catch (CheckSymbolSizeOutOfBoundsException e) {
-            System.out.println(e.toString());
+//            System.out.println(e.toString());
         }
         double loss = .6;
         FECParameters fecParams = FECParameters.newParameters(dataLen, symbSize, numSrcBlks);
@@ -165,7 +165,7 @@ public class AdrestusIntegrityTest {
         ArrayList<EncodingPacket> set = new ArrayList<EncodingPacket>();
         for (SourceBlockEncoder sbEnc : enc.sourceBlockIterable()) {
             for (EncodingPacket srcPacket : sbEnc.sourcePacketsIterable()) {
-                System.out.println(srcPacket.sourceBlockNumber());
+//                System.out.println(srcPacket.sourceBlockNumber());
                 set.add(srcPacket);
             }
         }
