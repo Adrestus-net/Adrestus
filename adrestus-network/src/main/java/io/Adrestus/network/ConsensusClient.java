@@ -134,7 +134,7 @@ public class ConsensusClient {
 
     public void SendErasureData(byte[] data) {
         erasure.send(data);//its correct first send id and after data
-        erasure.send(data);
+        //erasure.send(data);
     }
 
 

@@ -58,7 +58,7 @@ public class ConsensusServer {
 
 
         this.publisher.setHWM(10000);
-        this.chunksCollector.setHWM(10000);
+//        this.chunksCollector.setHWM(10000);
 
         this.chunksCollector.bind("tcp://" + IP + ":" + CHUNKS_COLLECTOR_PORT);
         this.publisher.bind("tcp://" + IP + ":" + PUBLISHER_PORT);
@@ -93,7 +93,7 @@ public class ConsensusServer {
         this.chunksCollector = ctx.createSocket(SocketType.ROUTER);
 
         this.publisher.setHWM(10000);
-        this.chunksCollector.setHWM(10000);
+//        this.chunksCollector.setHWM(10000);
 
         this.chunksCollector.bind("tcp://" + IP + ":" + CHUNKS_COLLECTOR_PORT);
         this.publisher.bind("tcp://" + IP + ":" + PUBLISHER_PORT);
@@ -124,9 +124,9 @@ public class ConsensusServer {
         this.collector = ctx.createSocket(SocketType.PULL);
         this.chunksCollector = ctx.createSocket(SocketType.ROUTER);
         this.connected = ctx.createSocket(SocketType.REP);
-        this.chunksCollector.setHeartbeatIvl(2);
-
-        this.chunksCollector.setHWM(10000);
+//        this.chunksCollector.setHeartbeatIvl(2);
+//
+//        this.chunksCollector.setHWM(10000);
 
         this.chunksCollector.bind("tcp://" + IP + ":" + CHUNKS_COLLECTOR_PORT);
         this.publisher.bind("tcp://" + IP + ":" + PUBLISHER_PORT);
@@ -152,7 +152,7 @@ public class ConsensusServer {
         this.publisher.setHeartbeatIvl(2);
         this.collector = ctx.createSocket(SocketType.PULL);
         this.chunksCollector = ctx.createSocket(SocketType.ROUTER);
-        this.chunksCollector.setHeartbeatIvl(2);
+//        this.chunksCollector.setHeartbeatIvl(2);
 
         this.chunksCollector.bind("tcp://" + IP + ":" + CHUNKS_COLLECTOR_PORT);
         this.publisher.bind("tcp://" + IP + ":" + PUBLISHER_PORT);
