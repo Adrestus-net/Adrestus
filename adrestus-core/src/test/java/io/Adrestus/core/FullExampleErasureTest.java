@@ -103,6 +103,7 @@ public class FullExampleErasureTest {
 
     private static Thread thread;
     private static InetSocketAddress address1, address2, address3;
+    private static RpcErasureServer<SerializableErasureObject> server;
 
     @BeforeAll
     public static void setup() throws IOException, MnemonicException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException, CloneNotSupportedException, DecoderException {
@@ -112,7 +113,8 @@ public class FullExampleErasureTest {
         if (!IP.substring(0, 3).equals("192")) {
             return;
         }
-
+        server = new RpcErasureServer<SerializableErasureObject>(new SerializableErasureObject(), IP, 7082, eventloop, 0);
+        new Thread(server).start();
         CommitteeBlock committeeBlock = new CommitteeBlock();
         committeeBlock.setGeneration(1);
         committeeBlock.setViewID(1);
@@ -296,7 +298,8 @@ public class FullExampleErasureTest {
             int count = 1;
             while (count < CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().size() - 1) {
                 String rec = new String(adrestusServer.receiveErasureData(), StandardCharsets.UTF_8);
-                if(!existed.contains(rec)) {
+                if (!existed.contains(rec)) {
+                    System.out.println(rec);
                     existed.add(rec);
                     count++;
                     proofs.add(rec);
@@ -304,7 +307,7 @@ public class FullExampleErasureTest {
             }
             ArrayList<String> identities = new ArrayList<>();
             ArrayList<byte[]> toSend = getChunks(4);
-            int pos=0;
+            int pos = 0;
             for (int j = 0; j < proofs.size(); j++) {
                 StringJoiner joiner2 = new StringJoiner(delimeter);
                 String[] splits = StringUtils.split(proofs.get(j), delimeter);
@@ -320,9 +323,8 @@ public class FullExampleErasureTest {
                     pos++;
                 }
             }
+            Thread.sleep(8000);
         } else {
-            RpcErasureServer<SerializableErasureObject> server = new RpcErasureServer<SerializableErasureObject>(new SerializableErasureObject(), IP, 7082, eventloop, 0);
-            new Thread(server).start();
             for (Map.Entry<BLSPublicKey, String> entry : CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).entrySet()) {
                 if (IP.equals(entry.getValue())) {
                     if (vk2.equals(entry.getKey())) {
@@ -356,8 +358,7 @@ public class FullExampleErasureTest {
                     .get(0).values().stream().findFirst().get();
             ConsensusClient consensusClient = new ConsensusClient(rootIP, toSign);
 
-            consensusClient.SendErasureData(toSend.getBytes(StandardCharsets.UTF_8));
-            byte[] rec_buff = consensusClient.receiveErasureData();
+            byte[] rec_buff = consensusClient.SendRetrieveErasureData(toSend.getBytes(StandardCharsets.UTF_8));
             SerializableErasureObject rootObj = serenc_erasure.decode(rec_buff);
             CachedSerializableErasureObject.getInstance().setSerializableErasureObject(rootObj);
             server.setSerializable_length(rec_buff.length);
@@ -388,6 +389,8 @@ public class FullExampleErasureTest {
                 final SourceBlockDecoder sbDec = dec.sourceBlock(encodingPacket.sourceBlockNumber());
                 sbDec.putEncodingPacket(encodingPacket);
             }
+
+            //this code adds overhead need 2-3 sec
             ArrayList<EncodingPacket> rec_f = new ArrayList<EncodingPacket>();
             for (SerializableErasureObject obj : recserializableErasureObjects) {
                 obj.getRepairPacketChunks().stream().forEach(val -> rec_f.add(dec.parsePacket(val, false).value()));
@@ -400,6 +403,7 @@ public class FullExampleErasureTest {
             TransactionBlock copys = encode.decode(dec.dataArray());
             assertNotNull(copys);
             int g = 3;
+            System.out.println("Done");
         }
     }
 
@@ -454,6 +458,10 @@ public class FullExampleErasureTest {
             count++;
             if (count == n.size() - 1)
                 count = 0;
+        }
+
+        for (int i = 0; i < serializableErasureObjects.size(); i++) {
+            System.out.println(Hex.encodeHexString(serializableErasureObjects.get(i).getOriginalPacketChunks()));
         }
         ArrayList<byte[]> toSend = new ArrayList<>();
         for (SerializableErasureObject obj : serializableErasureObjects) {
