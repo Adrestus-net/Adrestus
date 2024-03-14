@@ -68,8 +68,7 @@ public class ConsensusServerErasureTest {
 
                 String toSend = String.join(delimeter, list);
                 adrestusClient1[0] = new ConsensusClient("localhost", toSign);
-                adrestusClient1[0].SendErasureData(toSend.getBytes(StandardCharsets.UTF_8));
-                byte[] rec = adrestusClient1[0].receiveErasureData();
+                byte[] rec = adrestusClient1[0].SendRetrieveErasureData(toSend.getBytes(StandardCharsets.UTF_8));
                 System.out.println("edw :" + new String(rec, StandardCharsets.UTF_8));
                 assertEquals("test", new String(rec, StandardCharsets.UTF_8));
 
