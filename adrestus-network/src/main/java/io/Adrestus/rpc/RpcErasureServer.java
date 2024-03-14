@@ -1,5 +1,6 @@
 package io.Adrestus.rpc;
 
+import io.Adrestus.config.ConsensusConfiguration;
 import io.Adrestus.util.SerializationUtil;
 import io.activej.eventloop.Eventloop;
 import io.activej.promise.Promise;
@@ -18,10 +19,9 @@ public class RpcErasureServer<T> implements Runnable {
     private final Eventloop eventloop;
     private final T typeParameterClass;
 
-    private final int serializable_length;
-
     private final IErasureService<T> service;
 
+    private int serializable_length;
     private SerializationUtil<T> valueMapper;
     private InetSocketAddress inetSocketAddress;
     private String host;
@@ -69,10 +69,25 @@ public class RpcErasureServer<T> implements Runnable {
         rpcServer.listen();
     }
 
-    private RpcRequestHandler<ErasureRequest, ErasureResponse> downloadChunks(IErasureService<T> service) {
+    public int getSerializable_length() {
+        return serializable_length;
+    }
+
+    public void setSerializable_length(int serializable_length) {
+        this.serializable_length = serializable_length;
+    }
+
+    private RpcRequestHandler<ErasureRequest, ErasureResponse> downloadChunks(IErasureService<T> service) throws InterruptedException {
         return request -> {
             T result;
             try {
+                int rc = 0;
+                while (rc < ConsensusConfiguration.CYCLES && serializable_length == 0) {
+                    rc++;
+                    Thread.sleep(ConsensusConfiguration.HEARTBEAT_INTERVAL);
+                }
+                if (rc == ConsensusConfiguration.CYCLES)
+                    return Promise.of(new ErasureResponse(null));
                 result = service.downloadChunks();
                 if (result == null)
                     return Promise.of(new ErasureResponse(null));

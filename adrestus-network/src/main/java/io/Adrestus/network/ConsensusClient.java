@@ -21,24 +21,24 @@ public class ConsensusClient {
     private int MESSAGES = 6;
     private int MAX_MESSAGES = 6;
     private static final int MAX_AVAILABLE = 6;
-
-    private final Semaphore available;
-    private final String IP;
     private ZContext ctx;
     private final ZMQ.Socket subscriber;
     private final ZMQ.Socket push;
     private final ZMQ.Socket connected;
 
+    private final ZMQ.Poller poller;
+
+    private final String IP;
+    private String Identity;
     private ZMQ.Socket erasure;
     private final LinkedBlockingDeque<byte[]> message_deque;
     private final ExecutorService executorService;
 
     public ConsensusClient(String IP) {
+        this.IP=IP;
         this.executorService = Executors.newSingleThreadExecutor();
         this.ctx = new ZContext();
         this.message_deque = new LinkedBlockingDeque<>();
-        this.IP = IP;
-        this.available = new Semaphore(MAX_AVAILABLE, true);
         this.subscriber = ctx.createSocket(SocketType.SUB);
         this.push = ctx.createSocket(SocketType.PUSH);
 
@@ -63,14 +63,17 @@ public class ConsensusClient {
         this.subscriber.setReceiveTimeOut(CONSENSUS_TIMEOUT);
         this.push.connect("tcp://" + IP + ":" + COLLECTOR_PORT);
 
+        this.poller = ctx.createPoller(1);
+        this.poller.register(this.erasure, ZMQ.Poller.POLLIN);
+
     }
 
     public ConsensusClient(String IP, String identity) {
+        this.IP=IP;
+        this.Identity=identity;
         this.executorService = Executors.newSingleThreadExecutor();
         this.ctx = new ZContext();
         this.message_deque = new LinkedBlockingDeque<>();
-        this.IP = IP;
-        this.available = new Semaphore(MAX_AVAILABLE, true);
         this.subscriber = ctx.createSocket(SocketType.SUB);
         this.push = ctx.createSocket(SocketType.PUSH);
 
@@ -96,6 +99,9 @@ public class ConsensusClient {
         this.subscriber.setReceiveTimeOut(CONSENSUS_TIMEOUT);
         this.push.connect("tcp://" + IP + ":" + COLLECTOR_PORT);
 
+        this.poller = ctx.createPoller(1);
+        this.poller.register(this.erasure, ZMQ.Poller.POLLIN);
+
     }
 
     public void PollOut() {
@@ -108,14 +114,11 @@ public class ConsensusClient {
         poller.pollout(0);
     }
 
-    public void PollIn() {
-        ZMQ.Poller poller = ctx.createPoller(1);
-        poller.register(this.subscriber, ZMQ.Poller.POLLIN);
-        int rc = -1;
-        while (rc == -1) {
-            rc = poller.poll(1);
-        }
-        poller.pollin(0);
+    public boolean PollIn() {
+        int rc = poller.poll(HEARTBEAT_INTERVAL);
+        if (poller.pollin(0))
+            return true;
+        return false;
     }
 
     public void pushMessage(byte[] data) {
@@ -132,9 +135,27 @@ public class ConsensusClient {
         return data;
     }
 
-    public void SendErasureData(byte[] data) {
+    public boolean SendErasureData(byte[] data) {
         erasure.send(data);//its correct first send id and after data
         //erasure.send(data);
+        boolean rec = PollIn();
+        if (rec) return true;
+        int rc = 0;
+        while (rc < CYCLES) {
+            poller.unregister(erasure);
+            ctx.destroySocket(erasure);
+            this.erasure = ctx.createSocket(SocketType.DEALER);
+            this.erasure.setIdentity(Identity.getBytes(ZMQ.CHARSET));
+            this.erasure.setReceiveTimeOut(CONSENSUS_CONNECTED_RECEIVE_TIMEOUT);
+            this.erasure.setSendTimeOut(CONSENSUS_CONNECTED_SEND_TIMEOUT);
+            this.erasure.connect("tcp://" + IP + ":" + CHUNKS_COLLECTOR_PORT);
+            this.poller.register(erasure, ZMQ.Poller.POLLIN);
+            this.erasure.send(data);
+            boolean IsRec = PollIn();
+            if (IsRec) return true;
+            rc++;
+        }
+        return false;
     }
 
 

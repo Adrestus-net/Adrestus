@@ -282,7 +282,7 @@ public class FullExampleErasureTest {
     }
 
     @Test
-    public void test() throws IOException, DecoderException {
+    public void test() throws IOException, DecoderException, InterruptedException {
         Socket socket = new Socket();
         socket.connect(new InetSocketAddress("google.com", 80));
         String IP = socket.getLocalAddress().getHostAddress();
@@ -292,11 +292,15 @@ public class FullExampleErasureTest {
         if (IP.equals(CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).get(vk1))) {
             ConsensusServer adrestusServer = new ConsensusServer(IP);
             ArrayList<String> proofs = new ArrayList<>();
+            ArrayList<String> existed = new ArrayList<>();
             int count = 1;
             while (count < CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().size() - 1) {
                 String rec = new String(adrestusServer.receiveErasureData(), StandardCharsets.UTF_8);
-                proofs.add(rec);
-                count++;
+                if(!existed.contains(rec)) {
+                    existed.add(rec);
+                    count++;
+                    proofs.add(rec);
+                }
             }
             ArrayList<String> identities = new ArrayList<>();
             ArrayList<byte[]> toSend = getChunks(4);
@@ -317,6 +321,8 @@ public class FullExampleErasureTest {
                 }
             }
         } else {
+            RpcErasureServer<SerializableErasureObject> server = new RpcErasureServer<SerializableErasureObject>(new SerializableErasureObject(), IP, 7082, eventloop, 0);
+            new Thread(server).start();
             for (Map.Entry<BLSPublicKey, String> entry : CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).entrySet()) {
                 if (IP.equals(entry.getValue())) {
                     if (vk2.equals(entry.getKey())) {
@@ -354,8 +360,7 @@ public class FullExampleErasureTest {
             byte[] rec_buff = consensusClient.receiveErasureData();
             SerializableErasureObject rootObj = serenc_erasure.decode(rec_buff);
             CachedSerializableErasureObject.getInstance().setSerializableErasureObject(rootObj);
-            RpcErasureServer<SerializableErasureObject> example = new RpcErasureServer<SerializableErasureObject>(new SerializableErasureObject(), IP, 7082, eventloop, rec_buff.length);
-            new Thread(example).start();
+            server.setSerializable_length(rec_buff.length);
             List<String> ips = CachedLatestBlocks.getInstance()
                     .getCommitteeBlock()
                     .getStructureMap()

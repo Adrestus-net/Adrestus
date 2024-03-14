@@ -5,6 +5,8 @@ public class ConsensusConfiguration {
     public static final long CONSENSUS_COMMITTEE_TIMER = 2 * 1000;
     public static final long CONSENSUS_TIMER = 2 * 1000;
     public static final int CONSENSUS_TIMEOUT = 22 * 1000;
+    public final static int HEARTBEAT_INTERVAL = 50;
+    public final static int CYCLES = CONSENSUS_TIMEOUT/(HEARTBEAT_INTERVAL*100);
     public static final int CONSENSUS_CONNECTED_RECEIVE_TIMEOUT = 14 * 1000;
     public static final int CONSENSUS_CONNECTED_SEND_TIMEOUT = 22 * 1000;
     public static final int CONSENSUS_COLLECTED_TIMEOUT = 14 * 1000;
