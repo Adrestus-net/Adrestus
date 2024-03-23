@@ -130,7 +130,7 @@ public class MerkleTreeTest {
         String roothash3 = tree.getRootHash();
         List<MerkleNode> cloned_list = new ArrayList<MerkleNode>(list);
         MerkleNode node = new MerkleNode(String.valueOf(2));
-        MerkleNode node2 = new MerkleNode(String.valueOf(2));
+        MerkleNode node2 = new MerkleNode(String.valueOf(3));
         tree.build_proofs2(list, node);
         String roothash = tree.getRootHash();
         MerkleProofs proofs = tree.getMerkleeproofs();

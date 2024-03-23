@@ -13,6 +13,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.security.spec.*;
 import java.util.Arrays;
+import java.util.Base64;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -198,6 +199,26 @@ public class ECKeyPairTest {
         signatureData.setV((byte) 0);
         signatureData.setR(new BigInteger("30179190089666276834887403079562508974417649980904472865724382004973443579854").toByteArray());
         signatureData.setS(new BigInteger("14029798542497621816798343676332730497595770105064178818079147459382128035034").toByteArray());
+
+        BigInteger publicKeyValue = ecdsaSign.recoverPublicKeyValue(x, y);
+        boolean verify = ecdsaSign.secp256Verify(HashUtil.sha256(message.getBytes(StandardCharsets.UTF_8)), adddress, publicKeyValue, signatureData);
+        assertEquals(verify, true);
+    }
+
+
+    //same values as the above
+    @Test
+    public void verifySecp256ECDSABase64EncodeWithAdressSignFromNodeJSTest() throws Exception {
+        String adddress = "ADR-GBXZ-Z5UR-3UVR-6XUE-NP4N-VDVA-BE3S-TLOL-GEYS-VLBJ";
+        BigInteger x = new BigInteger("73885651435926854515264701221164520142160681037984229233067136520784684869519");
+        BigInteger y = new BigInteger("26683047389995651185679566240952828910936171073908714048119596426948530852435");
+
+        ECDSASign ecdsaSign = new ECDSASign();
+        String message = "dd6d5849a507fc670db1c9ce77fea2166658e1c9b697b33ee9e1d07c03290da3";
+        ECDSASignatureData signatureData = new ECDSASignatureData();
+        signatureData.setV((byte) 0);
+        signatureData.setR(Base64.getDecoder().decode("QrjQ9wiWv/wkFXTZN20gdKU/cmjH1Dv1o8snhZH5f84="));
+        signatureData.setS(Base64.getDecoder().decode("HwSVpnel8+Wg/o8u9Q99fQmSvmeLNDFEG/zDhQ+mRNo="));
 
         BigInteger publicKeyValue = ecdsaSign.recoverPublicKeyValue(x, y);
         boolean verify = ecdsaSign.secp256Verify(HashUtil.sha256(message.getBytes(StandardCharsets.UTF_8)), adddress, publicKeyValue, signatureData);

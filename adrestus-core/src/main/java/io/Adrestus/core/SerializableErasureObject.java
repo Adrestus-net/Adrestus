@@ -3,15 +3,11 @@ package io.Adrestus.core;
 import io.Adrestus.Trie.MerkleNode;
 import io.Adrestus.Trie.MerkleProofs;
 import io.Adrestus.Trie.MerkleTreeImp;
-import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.erasure.code.parameters.FECParameterObject;
 import io.activej.serializer.annotations.Serialize;
-import org.spongycastle.util.encoders.Hex;
 
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 
 public class SerializableErasureObject {
@@ -22,7 +18,7 @@ public class SerializableErasureObject {
 
     private ArrayList<byte[]> repairPacketChunks;
 
-    private List<MerkleNode> merkleNodes;
+    private MerkleProofs proofs;
 
 
     public SerializableErasureObject() {
@@ -33,7 +29,7 @@ public class SerializableErasureObject {
         this.originalPacketChunks = originalPacketChunks;
         this.repairPacketChunks = new ArrayList<>();
         this.rootMerkleHash = "";
-        this.merkleNodes = new ArrayList<>();
+        this.proofs = new MerkleProofs();
     }
 
     public SerializableErasureObject(FECParameterObject fecParameterObject, byte[] originalPacketChunks, ArrayList<byte[]> repairPacketChunks) {
@@ -41,23 +37,23 @@ public class SerializableErasureObject {
         this.originalPacketChunks = originalPacketChunks;
         this.repairPacketChunks = repairPacketChunks;
         this.rootMerkleHash = "";
-        this.merkleNodes = new ArrayList<>();
+        this.proofs = new MerkleProofs();
     }
 
-    public SerializableErasureObject(FECParameterObject fecParameterObject, byte[] originalPacketChunks, List<MerkleNode> merkleNodes) {
+    public SerializableErasureObject(FECParameterObject fecParameterObject, byte[] originalPacketChunks, MerkleProofs proofs) {
         this.fecParameterObject = fecParameterObject;
         this.originalPacketChunks = originalPacketChunks;
         this.repairPacketChunks = new ArrayList<>();
         this.rootMerkleHash = "";
-        this.merkleNodes = merkleNodes;
+        this.proofs = proofs;
     }
 
-    public SerializableErasureObject(FECParameterObject fecParameterObject, byte[] originalPacketChunks, ArrayList<byte[]> repairPacketChunks, List<MerkleNode> merkleNodes) {
+    public SerializableErasureObject(FECParameterObject fecParameterObject, byte[] originalPacketChunks, ArrayList<byte[]> repairPacketChunks, MerkleProofs proofs) {
         this.fecParameterObject = fecParameterObject;
         this.originalPacketChunks = originalPacketChunks;
         this.repairPacketChunks = repairPacketChunks;
         this.rootMerkleHash = "";
-        this.merkleNodes = merkleNodes;
+        this.proofs = proofs;
     }
 
     @Serialize
@@ -98,17 +94,17 @@ public class SerializableErasureObject {
 
 
     @Serialize
-    public List<MerkleNode> getMerkleNodes() {
-        return merkleNodes;
+    public MerkleProofs getProofs() {
+        return proofs;
     }
 
-    public void setMerkleNodes(List<MerkleNode> merkleNodes) {
-        this.merkleNodes = merkleNodes;
+    public void setProofs(MerkleProofs proofs) {
+        this.proofs = proofs;
     }
 
     public int getSize() {
         double SumOfrepairPacketChunk = repairPacketChunks.stream().mapToDouble(this::sum).sum();
-        double SumOMerkleNodes = merkleNodes.stream().mapToInt(MerkleNode::getLength).sum();
+        double SumOMerkleNodes = getProofs().getList_builder().stream().mapToInt(MerkleNode::getLength).sum();
         return (int) (this.fecParameterObject.getSize() + originalPacketChunks.length + SumOfrepairPacketChunk + SumOMerkleNodes) + 1024;
     }
 
@@ -120,20 +116,30 @@ public class SerializableErasureObject {
         return array.length;
     }
 
-    public boolean CheckChunksValidity(String OriginalHash, ArrayList<MerkleNode> merkleNodeArrayList) {
+    public boolean CheckChunksValidity(String OriginalHash) {
         MerkleTreeImp tree = new MerkleTreeImp();
-        tree.build_proofs(merkleNodeArrayList, new MerkleNode(Hex.toHexString(HashUtil.Shake256(getOriginalPacketChunks()))));
-        MerkleProofs original_proofs = tree.getMerkleeproofs();
+        String hash1 = tree.GenerateRoot(this.proofs);
+        return OriginalHash.equals(hash1) && OriginalHash.equals(rootMerkleHash);
+    }
 
-        ByteBuffer allocate = ByteBuffer.allocate(getRepairChunksSize());
-        getRepairPacketChunks().forEach(buff -> allocate.put(buff));
-        tree.build_proofs(merkleNodeArrayList, new MerkleNode(Hex.toHexString(HashUtil.Shake256(allocate.array()))));
-        MerkleProofs repair_proofs = tree.getMerkleeproofs();
+    public boolean CheckChunksWithRepairValidity(String OriginalHash) {
+        MerkleTreeImp tree = new MerkleTreeImp();
+        String hash1 = tree.GenerateRoot(this.proofs);
+        return OriginalHash.equals(hash1);
 
-        String hash1 = tree.GenerateRoot(original_proofs);
-        String hash2 = tree.GenerateRoot(repair_proofs);
-
-        return OriginalHash.equals(hash1) && OriginalHash.equals(hash2);
+//        MerkleTreeImp tree = new MerkleTreeImp();
+//        tree.build_proofs(merkleNodeArrayList, new MerkleNode(Hex.toHexString(HashUtil.Shake256(getOriginalPacketChunks()))));
+//        MerkleProofs original_proofs = tree.getMerkleeproofs();
+//
+//        ByteBuffer allocate = ByteBuffer.allocate(getRepairChunksSize());
+//        getRepairPacketChunks().forEach(buff -> allocate.put(buff));
+//        tree.build_proofs(merkleNodeArrayList, new MerkleNode(Hex.toHexString(HashUtil.Shake256(allocate.array()))));
+//        MerkleProofs repair_proofs = tree.getMerkleeproofs();
+//
+//        String hash1 = tree.GenerateRoot(original_proofs);
+//        String hash2 = tree.GenerateRoot(repair_proofs);
+//
+//        return OriginalHash.equals(hash1) && OriginalHash.equals(hash2);
     }
 
     //DO NOT DELETE THAT FUNCTION ITS CUSTOM CHECK repairPacketChunks ARRAYLIST

@@ -46,6 +46,7 @@ public class ConsensusClient {
         this.erasure = ctx.createSocket(SocketType.DEALER);
         this.erasure.setReceiveTimeOut(CONSENSUS_ERASURE_RECEIVE_TIMEOUT);
         this.erasure.setSendTimeOut(CONSENSUS_ERASURE_SEND_TIMEOUT);
+        this.erasure.setSndHWM(0);
 
         this.subscriber.setReceiveBufferSize(10000);
         this.subscriber.setHWM(10000);
@@ -79,6 +80,7 @@ public class ConsensusClient {
         this.erasure.setIdentity(identity.getBytes(ZMQ.CHARSET));
         this.erasure.setReceiveTimeOut(CONSENSUS_ERASURE_RECEIVE_TIMEOUT);
         this.erasure.setSendTimeOut(CONSENSUS_ERASURE_SEND_TIMEOUT);
+        this.erasure.setSndHWM(0);
 
         this.subscriber.setReceiveBufferSize(10000);
         this.subscriber.setHWM(10000);
@@ -121,36 +123,24 @@ public class ConsensusClient {
     }
 
     public byte[] SendRetrieveErasureData(byte[] data) {
-        erasure.send(data);//its correct first send id and after data
-        //erasure.send(data);
-        boolean flag = false;
-        byte[] rec = null;
-        try {
-            erasure.send(data);
-            rec = erasure.recv();
-            flag = true;
-        } catch (NullPointerException e) {
-            flag = false;
-        }
-        if (flag)
+        erasure.send(data);
+        byte[] rec = receiveErasureData();
+        if (rec != null)
             return rec;
         int rc = 0;
-        while (rc < ERASURE_CYCLES && !flag) {
+        while (rc < ERASURE_CYCLES) {
             this.ctx.destroySocket(erasure);
             this.erasure = ctx.createSocket(SocketType.DEALER);
             this.erasure.setIdentity(Identity.getBytes(ZMQ.CHARSET));
-            this.erasure.setReceiveTimeOut(CONSENSUS_CONNECTED_RECEIVE_TIMEOUT);
-            this.erasure.setSendTimeOut(CONSENSUS_CONNECTED_SEND_TIMEOUT);
+            this.erasure.setReceiveTimeOut(CONSENSUS_ERASURE_RECEIVE_TIMEOUT);
+            this.erasure.setSendTimeOut(CONSENSUS_ERASURE_SEND_TIMEOUT);
             this.erasure.connect("tcp://" + IP + ":" + CHUNKS_COLLECTOR_PORT);
             this.erasure.send(data);
-            try {
-                rec = erasure.recv();
-                flag = true;
-                return rec;
-            } catch (NullPointerException e) {
-                rc++;
+            rc++;
+            rec = erasure.recv();
+            if (rec == null)
                 continue;
-            }
+            return rec;
         }
         return rec;
     }

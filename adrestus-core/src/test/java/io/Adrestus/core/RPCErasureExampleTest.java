@@ -86,6 +86,8 @@ public class RPCErasureExampleTest {
 
     private static Thread thread;
     private static InetSocketAddress address1, address2, address3;
+    private static ArrayList<SerializableErasureObject> serializableErasureObjects = new ArrayList<SerializableErasureObject>();
+    private static int blocksize;
 
     @BeforeAll
     public static void setup() throws MnemonicException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException, CloneNotSupportedException, IOException {
@@ -174,6 +176,32 @@ public class RPCErasureExampleTest {
         transactionBlock.setOutbound(outBoundRelay);
 
 
+        BlockSizeCalculator sizeCalculator = new BlockSizeCalculator();
+        sizeCalculator.setTransactionBlock(transactionBlock);
+        blocksize = sizeCalculator.TransactionBlockSizeCalculator();
+        byte[] buffer = encode.encode(transactionBlock, blocksize);
+
+        long dataLen = buffer.length;
+        int sizeOfCommittee = 4;
+
+        int numSrcBlks = sizeOfCommittee;
+        int symbSize = (int) (dataLen / sizeOfCommittee);
+        FECParameterObject object = FECParametersPreConditions.CalculateFECParameters(dataLen, symbSize, numSrcBlks);
+        FECParameters fecParams = FECParameters.newParameters(object.getDataLen(), object.getSymbolSize(), object.getNumberOfSymbols());
+
+        byte[] data = new byte[fecParams.dataLengthAsInt()];
+        System.arraycopy(buffer, 0, data, 0, data.length);
+        final ArrayDataEncoder enc = OpenRQ.newEncoder(data, fecParams);
+        for (SourceBlockEncoder sbEnc : enc.sourceBlockIterable()) {
+            for (EncodingPacket srcPacket : sbEnc.sourcePacketsIterable()) {
+                serializableErasureObjects.add(new SerializableErasureObject(object, srcPacket.asArray()));
+            }
+        }
+        ArrayList<byte[]> toSend = new ArrayList<>();
+        for (SerializableErasureObject obj : serializableErasureObjects) {
+            toSend.add(serenc_erasure.encode(obj));
+        }
+
         address1 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 8080);
         address2 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 8081);
         address3 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 8084);
@@ -242,33 +270,7 @@ public class RPCErasureExampleTest {
     }
 
     @Test
-    public void test() {
-        BlockSizeCalculator sizeCalculator = new BlockSizeCalculator();
-        sizeCalculator.setTransactionBlock(transactionBlock);
-        int blocksize = sizeCalculator.TransactionBlockSizeCalculator();
-        byte[] buffer = encode.encode(transactionBlock, blocksize);
-
-        long dataLen = buffer.length;
-        int sizeOfCommittee = 4;
-
-        int numSrcBlks = sizeOfCommittee;
-        int symbSize = (int) (dataLen / sizeOfCommittee);
-        FECParameterObject object = FECParametersPreConditions.CalculateFECParameters(dataLen, symbSize, numSrcBlks);
-        FECParameters fecParams = FECParameters.newParameters(object.getDataLen(), object.getSymbolSize(), object.getNumberOfSymbols());
-
-        byte[] data = new byte[fecParams.dataLengthAsInt()];
-        System.arraycopy(buffer, 0, data, 0, data.length);
-        final ArrayDataEncoder enc = OpenRQ.newEncoder(data, fecParams);
-        ArrayList<SerializableErasureObject> serializableErasureObjects = new ArrayList<SerializableErasureObject>();
-        for (SourceBlockEncoder sbEnc : enc.sourceBlockIterable()) {
-            for (EncodingPacket srcPacket : sbEnc.sourcePacketsIterable()) {
-                serializableErasureObjects.add(new SerializableErasureObject(object, srcPacket.asArray()));
-            }
-        }
-        ArrayList<byte[]> toSend = new ArrayList<>();
-        for (SerializableErasureObject obj : serializableErasureObjects) {
-            toSend.add(serenc_erasure.encode(obj));
-        }
+    public void test1() {
 
         CachedSerializableErasureObject.getInstance().setSerializableErasureObject(serializableErasureObjects.get(0));
         RpcErasureServer<SerializableErasureObject> example = new RpcErasureServer<SerializableErasureObject>(new SerializableErasureObject(), "localhost", 7082, eventloop, blocksize);
@@ -278,6 +280,33 @@ public class RPCErasureExampleTest {
         ArrayList<SerializableErasureObject> serializableErasureObject = (ArrayList<SerializableErasureObject>) client.getErasureChunks(new byte[0]);
 
         //#########################################################################################################################
+        CachedSerializableErasureObject.getInstance().setSerializableErasureObject(null);
+        client.close();
+        example.close();
+        example = null;
+
+    }
+
+    @Test
+    public void test2() {
+        RpcErasureServer<SerializableErasureObject> example = new RpcErasureServer<SerializableErasureObject>(new SerializableErasureObject(), "localhost", 7083, eventloop, blocksize);
+        new Thread(example).start();
+        RpcErasureClient<SerializableErasureObject> client = new RpcErasureClient<SerializableErasureObject>(new SerializableErasureObject(), "localhost", 7083, eventloop);
+        client.connect();
+        (new Thread() {
+            public void run() {
+                try {
+                    Thread.sleep(400);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                CachedSerializableErasureObject.getInstance().setSerializableErasureObject(serializableErasureObjects.get(0));
+            }
+        }).start();
+        //#########################################################################################################################
+
+        ArrayList<SerializableErasureObject> serializableErasureObject = (ArrayList<SerializableErasureObject>) client.getErasureChunks(new byte[0]);
+        int g = 3;
 
         client.close();
         example.close();

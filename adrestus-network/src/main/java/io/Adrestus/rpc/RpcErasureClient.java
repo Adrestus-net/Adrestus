@@ -83,15 +83,16 @@ public class RpcErasureClient<T> {
         this.valueMapper = new SerializationUtil(this.typeParameterClass.getClass());
     }
 
-    public RpcErasureClient(T typeParameterClass, List<InetSocketAddress> inetSocketAddresses,int port, Eventloop eventloop) {
+    public RpcErasureClient(T typeParameterClass, List<InetSocketAddress> inetSocketAddresses, int port, Eventloop eventloop) {
         this.rpcSerialize = SerializerBuilder.create();
         this.typeParameterClass = typeParameterClass;
-        this.port=port;
+        this.port = port;
         this.inetSocketAddresses = inetSocketAddresses;
         this.eventloop = eventloop;
         this.serializationUtil = new SerializationUtil<ErasureResponse>(ErasureResponse.class);
         this.valueMapper = new SerializationUtil(this.typeParameterClass.getClass());
     }
+
     public void connect() {
         if (inetSocketAddresses != null) {
             ArrayList<RpcStrategy> strategies = new ArrayList<>();
@@ -139,7 +140,9 @@ public class RpcErasureClient<T> {
                     lst.add((T) this.valueMapper.decode(blockResponse.get().getErasure_data()));
             });
         } else {
-            lst.add((T) this.valueMapper.decode(download_erasure_chunks(this.client, toSend).get().getErasure_data()));
+            Optional<ErasureResponse> blockResponse = download_erasure_chunks(this.client, toSend);
+            if (blockResponse.isPresent())
+                lst.add((T) this.valueMapper.decode(blockResponse.get().getErasure_data()));
         }
         return lst;
     }

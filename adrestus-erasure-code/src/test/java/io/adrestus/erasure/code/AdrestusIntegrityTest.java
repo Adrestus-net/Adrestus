@@ -1,6 +1,5 @@
 package io.adrestus.erasure.code;
 
-import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.erasure.code.ArrayDataDecoder;
 import io.Adrestus.erasure.code.ArrayDataEncoder;
 import io.Adrestus.erasure.code.EncodingPacket;
@@ -11,7 +10,6 @@ import io.Adrestus.erasure.code.encoder.SourceBlockEncoder;
 import io.Adrestus.erasure.code.parameters.FECParameterObject;
 import io.Adrestus.erasure.code.parameters.FECParameters;
 import io.Adrestus.erasure.code.parameters.FECParametersPreConditions;
-import org.apache.commons.codec.binary.Hex;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;

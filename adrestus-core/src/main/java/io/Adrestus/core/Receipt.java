@@ -356,5 +356,3 @@ public class Receipt implements Serializable {
     }
 
 }
-
-

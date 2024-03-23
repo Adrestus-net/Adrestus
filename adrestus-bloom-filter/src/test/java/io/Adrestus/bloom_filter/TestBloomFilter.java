@@ -85,20 +85,37 @@ public class TestBloomFilter {
 
         for (int i = 0; i < 1000000; i++) {
             boolean val = filter1.contains(UUID.randomUUID().toString());
-            if (val) System.out.println("found");
+            // if (val) System.out.println("found");
         }
     }
+
+    @Test
+    public void testDefaultFilter4a() {
+        BloomFilter<String> filter1 = new InMemoryBloomFilter<String>(20000, UtilConstants.FPP);
+        for (int i = 0; i < 2000; i++) {
+            filter1.add(UUID.randomUUID().toString());
+        }
+
+        int count = 0;
+        for (int i = 0; i < 20000; i++) {
+            boolean val = filter1.contains(UUID.randomUUID().toString());
+            if (val)
+                count++;
+        }
+        System.out.println(count);
+    }
+
     @Test
     public void testDefaultFilter4() {
 
         for (int i = 0; i < 10; i++) {
             BloomFilter<String> filter1 = new InMemoryBloomFilter<String>(100, UtilConstants.FPP);
-            String kl= UUID.randomUUID().toString();
+            String kl = UUID.randomUUID().toString();
             filter1.add(kl);
             BloomObject bloomObject = new BloomObject(filter1.toBitsetArray(), filter1.getNumberOfHashFunctions(), filter1.getNumberOfBits());
             JSONObject jsonObject = new JSONObject(bloomObject);
             String myJson = jsonObject.toString();
-            System.out.println(kl+" "+myJson);
+            System.out.println(kl + " " + myJson);
         }
     }
 

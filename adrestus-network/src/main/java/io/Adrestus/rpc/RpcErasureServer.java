@@ -82,7 +82,7 @@ public class RpcErasureServer<T> implements Runnable {
             T result;
             try {
                 int rc = 0;
-                while (rc < ConsensusConfiguration.CYCLES && serializable_length == 0) {
+                while (rc < ConsensusConfiguration.CYCLES && (serializable_length == 0 || CachedSerializableErasureObject.getInstance().getSerializableErasureObject() == null)) {
                     rc++;
                     Thread.sleep(ConsensusConfiguration.HEARTBEAT_INTERVAL);
                 }

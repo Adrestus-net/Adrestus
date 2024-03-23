@@ -1,6 +1,7 @@
 package io.Adrestus.core;
 
-import com.google.common.collect.Lists;
+import io.Adrestus.Trie.MerkleNode;
+import io.Adrestus.Trie.MerkleTreeImp;
 import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
@@ -72,13 +73,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static io.activej.rpc.client.sender.RpcStrategies.server;
-import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class FullExampleErasureTest {
 
-    private static final int TRANSACTION_SIZE = 3;
+    private static final int TRANSACTION_SIZE = 100;
     private static final int TIMEOUT = 1500;
 
     private static final String delimeter = "||";
@@ -93,7 +93,7 @@ public class FullExampleErasureTest {
     private static BLSPrivateKey sk3;
     private static BLSPublicKey vk3;
     private static TransactionBlock transactionBlock;
-    private static SerializationUtil<TransactionBlock> encode;
+    private static SerializationUtil<TransactionBlock> encode, encode2;
     private static SerializationUtil<Transaction> serenc;
     private static SerializationUtil<SerializableErasureObject> serenc_erasure;
 
@@ -144,6 +144,7 @@ public class FullExampleErasureTest {
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
         encode = new SerializationUtil<TransactionBlock>(TransactionBlock.class, list);
+        encode2 = new SerializationUtil<TransactionBlock>(TransactionBlock.class, list);
         serenc = new SerializationUtil<Transaction>(Transaction.class, list);
         serenc_erasure = new SerializationUtil<SerializableErasureObject>(SerializableErasureObject.class);
         valueMapper = new SerializationUtil<Signature>(Signature.class, list);
@@ -177,13 +178,10 @@ public class FullExampleErasureTest {
             transaction.setNonce(1);
             byte byf[] = serenc.encode(transaction);
             transaction.setHash(HashUtil.sha256_bytetoString(byf));
-            await().atMost(500, TimeUnit.MILLISECONDS);
 
             ECDSASignatureData signatureData = ecdsaSign.secp256SignMessage(Hex.decodeHex(transaction.getHash()), keypair.get(i));
             transaction.setSignature(signatureData);
-            //MemoryPool.getInstance().add(transaction);
             transactions.add(transaction);
-            await().atMost(1000, TimeUnit.MILLISECONDS);
         }
         transactionBlock = new TransactionBlock();
         transactionBlock.getHeaderData().setPreviousHash("4c89512018237bd0cd458b50ffbf47190fc7aa7d4430093418fa7927a9a46ac3");
@@ -195,6 +193,7 @@ public class FullExampleErasureTest {
         transactionBlock.setViewID(1);
         transactionBlock.setZone(CachedZoneIndex.getInstance().getZoneIndex());
         transactionBlock.setLeaderPublicKey(vk1);
+        transactionBlock.setTransactionProposer(vk1.toRaw());
         transactionBlock.setTransactionList(transactions);
         transactionBlock.setHash("hash10");
         transactionBlock.setSize(1);
@@ -377,6 +376,11 @@ public class FullExampleErasureTest {
             RpcErasureClient<SerializableErasureObject> client = new RpcErasureClient<SerializableErasureObject>(new SerializableErasureObject(), list_ip, 7082, eventloop);
             client.connect();
             ArrayList<SerializableErasureObject> recserializableErasureObjects = (ArrayList<SerializableErasureObject>) client.getErasureChunks(new byte[0]);
+
+            for (SerializableErasureObject obj : recserializableErasureObjects) {
+                if (!obj.CheckChunksValidity(rootObj.getRootMerkleHash()))
+                    throw new IllegalArgumentException("Merklee Hash is not valid");
+            }
             recserializableErasureObjects.add(rootObj);
 
             Collections.shuffle(recserializableErasureObjects);
@@ -384,20 +388,10 @@ public class FullExampleErasureTest {
             FECParameters recfecParams = FECParameters.newParameters(recobject.getDataLen(), recobject.getSymbolSize(), recobject.getNumberOfSymbols());
             final ArrayDataDecoder dec = OpenRQ.newDecoder(recfecParams, recobject.getSymbolOverhead());
 
-            for (int i = 0; i < recserializableErasureObjects.size() / 2; i++) {
+            for (int i = 0; i < recserializableErasureObjects.size(); i++) {
                 EncodingPacket encodingPacket = dec.parsePacket(ByteBuffer.wrap(recserializableErasureObjects.get(i).getOriginalPacketChunks()), false).value();
                 final SourceBlockDecoder sbDec = dec.sourceBlock(encodingPacket.sourceBlockNumber());
                 sbDec.putEncodingPacket(encodingPacket);
-            }
-
-            //this code adds overhead need 2-3 sec
-            ArrayList<EncodingPacket> rec_f = new ArrayList<EncodingPacket>();
-            for (SerializableErasureObject obj : recserializableErasureObjects) {
-                obj.getRepairPacketChunks().stream().forEach(val -> rec_f.add(dec.parsePacket(val, false).value()));
-            }
-            for (int i = 0; i < rec_f.size(); i++) {
-                final SourceBlockDecoder sbDec = dec.sourceBlock(rec_f.get(i).sourceBlockNumber());
-                sbDec.putEncodingPacket(rec_f.get(i));
             }
 
             TransactionBlock copys = encode.decode(dec.dataArray());
@@ -426,42 +420,24 @@ public class FullExampleErasureTest {
         final ArrayDataEncoder enc = OpenRQ.newEncoder(data, fecParams);
         ArrayList<SerializableErasureObject> serializableErasureObjects = new ArrayList<SerializableErasureObject>();
         ArrayList<EncodingPacket> n = new ArrayList<EncodingPacket>();
-        ArrayList<EncodingPacket> f = new ArrayList<EncodingPacket>();
-        int count = 0;
         for (SourceBlockEncoder sbEnc : enc.sourceBlockIterable()) {
             for (EncodingPacket srcPacket : sbEnc.sourcePacketsIterable()) {
                 n.add(srcPacket);
             }
-            int numRepairSymbols = OpenRQ.minRepairSymbols(sbEnc.numberOfSourceSymbols(), object.getSymbolOverhead(), loss);
-            if (numRepairSymbols > 0) {
-                for (EncodingPacket encodingPacketRepair : sbEnc.repairPacketsIterable(numRepairSymbols)) {
-                    f.add(encodingPacketRepair);
-                }
-            }
         }
-        count = 0;
-        List<List<EncodingPacket>> lists = Lists.partition(f, f.size() / numSrcBlks);
-        if (n.size() > f.size()) {
-            for (int i = 0; i < n.size(); i++) {
-                ArrayList<byte[]> bg = (ArrayList<byte[]>) lists.get(count).stream().map(EncodingPacket::asArray).collect(Collectors.toList());
-                serializableErasureObjects.add(new SerializableErasureObject(object, n.get(i).asArray(), bg));
-                count++;
-                if (count == f.size() - 1)
-                    count = 0;
-            }
-        } else {
-            int finalCount = count;
-            lists.stream().forEach(lst -> {
-                ArrayList<byte[]> repairs = (ArrayList<byte[]>) lst.stream().map(EncodingPacket::asArray).collect(Collectors.toList());
-                serializableErasureObjects.add(new SerializableErasureObject(object, n.get(finalCount).asArray(), repairs));
-            });
-            count++;
-            if (count == n.size() - 1)
-                count = 0;
+        MerkleTreeImp tree = new MerkleTreeImp();
+        ArrayList<MerkleNode> merkleNodes = new ArrayList<MerkleNode>();
+        for (int i = 0; i < n.size(); i++) {
+            SerializableErasureObject serializableErasureObject = new SerializableErasureObject(object, n.get(i).asArray(), new ArrayList<byte[]>());
+            serializableErasureObjects.add(serializableErasureObject);
+            merkleNodes.add(new MerkleNode(HashUtil.sha256_bytetoString(serializableErasureObject.getOriginalPacketChunks())));
         }
-
-        for (int i = 0; i < serializableErasureObjects.size(); i++) {
-            System.out.println(Hex.encodeHexString(serializableErasureObjects.get(i).getOriginalPacketChunks()));
+        tree.my_generate2(merkleNodes);
+        String original_hash = tree.getRootHash();
+        for (int j = 0; j < serializableErasureObjects.size(); j++) {
+            tree.build_proofs2(merkleNodes, new MerkleNode(HashUtil.sha256_bytetoString(serializableErasureObjects.get(j).getOriginalPacketChunks())));
+            serializableErasureObjects.get(j).setProofs(tree.getMerkleeproofs());
+            serializableErasureObjects.get(j).setRootMerkleHash(tree.getRootHash());
         }
         ArrayList<byte[]> toSend = new ArrayList<>();
         for (SerializableErasureObject obj : serializableErasureObjects) {

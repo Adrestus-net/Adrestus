@@ -73,6 +73,7 @@ public class ConsensusServer {
 
         this.chunksCollector.setSendTimeOut(CONSENSUS_CONNECTED_SEND_TIMEOUT);
         this.chunksCollector.setReceiveTimeOut(CONSENSUS_CONNECTED_RECEIVE_TIMEOUT);
+        this.chunksCollector.setSndHWM(0);
 
         this.timer = new Timer(ConsensusConfiguration.CONSENSUS);
         this.task = new ConnectedTaskTimeout();
@@ -108,6 +109,7 @@ public class ConsensusServer {
 
         this.chunksCollector.setSendTimeOut(connected_timeout);
         this.chunksCollector.setReceiveTimeOut(connected_timeout);
+        this.chunksCollector.setSndHWM(0);
 
         this.timer = new Timer(ConsensusConfiguration.CONSENSUS);
         this.task = new ConnectedTaskTimeout();
@@ -140,6 +142,7 @@ public class ConsensusServer {
 
         this.chunksCollector.setSendTimeOut(CONSENSUS_TIMEOUT);
         this.chunksCollector.setReceiveTimeOut(CONSENSUS_TIMEOUT);
+        this.chunksCollector.setSndHWM(0);
     }
 
     public ConsensusServer(String IP, int MAX_MESSAGES) {
@@ -162,6 +165,7 @@ public class ConsensusServer {
 
         this.chunksCollector.setSendTimeOut(CONSENSUS_TIMEOUT);
         this.chunksCollector.setReceiveTimeOut(CONSENSUS_TIMEOUT);
+        this.chunksCollector.setSndHWM(0);
     }
 
     public ConsensusServer() {
@@ -183,6 +187,7 @@ public class ConsensusServer {
 
         this.chunksCollector.setSendTimeOut(CONSENSUS_TIMEOUT);
         this.chunksCollector.setReceiveTimeOut(CONSENSUS_TIMEOUT);
+        this.chunksCollector.setSndHWM(0);
     }
 
     public void BlockUntilConnected() {

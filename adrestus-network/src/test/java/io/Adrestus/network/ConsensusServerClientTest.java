@@ -292,7 +292,7 @@ public class ConsensusServerClientTest {
         }
     }
 
-     @Test
+    @Test
     public void Server_push_to_client_with_delay() throws InterruptedException {
         System.out.println("Server_push_to_client_with_delay");
         try {
