@@ -36,6 +36,7 @@ import io.Adrestus.util.GetTime;
 import io.Adrestus.util.SerializationUtil;
 import lombok.SneakyThrows;
 import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.tuweni.bytes.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1019,9 +1020,23 @@ public class ValidatorConsensusPhases {
 
 
             CachedTransactionBlockEventPublisher.getInstance().publish(this.original_copy);
+            CachedTransactionBlockEventPublisher.getInstance().WaitUntilRemainingCapacityZero();
             if (this.original_copy.getStatustype().equals(StatusType.ABORT)) {
                 cleanup();
                 LOG.info("AnnouncePhase: Block is not valid marked as ABORT");
+                data.setStatusType(ConsensusStatusType.ABORT);
+                return;
+            }
+            boolean bool1 = StringUtils.equals(original_copy.getHash(), data.getData().getHash());
+            boolean bool2 = StringUtils.equals(original_copy.getHeaderData().getPreviousHash(), data.getData().getHeaderData().getPreviousHash());
+            boolean bool3 = StringUtils.equals(original_copy.getHeaderData().getTimestamp(), data.getData().getHeaderData().getTimestamp());
+            int val1 = Integer.compare(original_copy.getHeight(), data.getData().getHeight());
+            int val2 = Integer.compare(original_copy.getViewID(), data.getData().getViewID());
+            int val3 = Integer.compare(original_copy.getZone(), data.getData().getZone());
+
+            if (val1 != 0 || val2 != 0 || val3 != 0 && !bool1 || !bool2 || !bool3) {
+                cleanup();
+                LOG.info("AnnouncePhase: Original Block is not same with Header Data Block Abort");
                 data.setStatusType(ConsensusStatusType.ABORT);
                 return;
             }
@@ -1105,6 +1120,20 @@ public class ValidatorConsensusPhases {
                 data.setStatusType(ConsensusStatusType.ABORT);
                 return;
             }
+            boolean bool1 = StringUtils.equals(original_copy.getHash(), data.getData().getHash());
+            boolean bool2 = StringUtils.equals(original_copy.getHeaderData().getPreviousHash(), data.getData().getHeaderData().getPreviousHash());
+            boolean bool3 = StringUtils.equals(original_copy.getHeaderData().getTimestamp(), data.getData().getHeaderData().getTimestamp());
+            int val1 = Integer.compare(original_copy.getHeight(), data.getData().getHeight());
+            int val2 = Integer.compare(original_copy.getViewID(), data.getData().getViewID());
+            int val3 = Integer.compare(original_copy.getZone(), data.getData().getZone());
+
+            if (val1 != 0 || val2 != 0 || val3 != 0 && !bool1 || !bool2 || !bool3) {
+                cleanup();
+                LOG.info("PreparePhase: Original Block is not same with Header Data Block Abort");
+                data.setStatusType(ConsensusStatusType.ABORT);
+                return;
+            }
+
             List<BLSPublicKey> publicKeys = data.getSignatures().stream().map(ConsensusMessage.ChecksumData::getBlsPublicKey).collect(Collectors.toList());
             List<Signature> signature = data.getSignatures().stream().map(ConsensusMessage.ChecksumData::getSignature).collect(Collectors.toList());
 
@@ -1203,6 +1232,20 @@ public class ValidatorConsensusPhases {
             if (!data.getMessageType().equals(ConsensusMessageType.COMMIT)) {
                 cleanup();
                 LOG.info("CommitPhase: Organizer not send correct header message expected " + ConsensusMessageType.COMMIT);
+                data.setStatusType(ConsensusStatusType.ABORT);
+                return;
+            }
+
+            boolean bool1 = StringUtils.equals(original_copy.getHash(), data.getData().getHash());
+            boolean bool2 = StringUtils.equals(original_copy.getHeaderData().getPreviousHash(), data.getData().getHeaderData().getPreviousHash());
+            boolean bool3 = StringUtils.equals(original_copy.getHeaderData().getTimestamp(), data.getData().getHeaderData().getTimestamp());
+            int val1 = Integer.compare(original_copy.getHeight(), data.getData().getHeight());
+            int val2 = Integer.compare(original_copy.getViewID(), data.getData().getViewID());
+            int val3 = Integer.compare(original_copy.getZone(), data.getData().getZone());
+
+            if (val1 != 0 || val2 != 0 || val3 != 0 && !bool1 || !bool2 || !bool3) {
+                cleanup();
+                LOG.info("AnnouncePhase: Original Block is not same with Header Data Block Abort");
                 data.setStatusType(ConsensusStatusType.ABORT);
                 return;
             }
@@ -1369,7 +1412,7 @@ public class ValidatorConsensusPhases {
 
 
             CachedCommitteeBlockEventPublisher.getInstance().publish(block.getData());
-
+            CachedCommitteeBlockEventPublisher.getInstance().WaitUntilRemainingCapacityZero();
             if (block.getData().getStatustype().equals(StatusType.ABORT)) {
                 cleanup();
                 LOG.info("AnnouncePhase: Block is not valid marked as ABORT");

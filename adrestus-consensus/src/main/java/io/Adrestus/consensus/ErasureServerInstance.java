@@ -41,10 +41,6 @@ public final class ErasureServerInstance {
     private static void Init() throws IOException {
         server = new RpcErasureServer<SerializableErasureObject>(new SerializableErasureObject(), IPFinder.getLocal_address(), ERASURE_SERVER_PORT, CachedEventLoop.getInstance().getEventloop(), 0);
         new Thread(server).start();
-//        RpcServer.create(CachedEventLoop.getInstance().getEventloop())
-//                .withMessageTypes(String.class)
-//                .withListenAddress(new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 6102)).listen();
-//        new Thread(CachedEventLoop.getInstance().getEventloop()).start();
     }
 
     public RpcErasureServer<SerializableErasureObject> getServer() {

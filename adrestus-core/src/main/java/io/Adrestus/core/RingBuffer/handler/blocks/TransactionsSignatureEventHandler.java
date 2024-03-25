@@ -44,7 +44,6 @@ public class TransactionsSignatureEventHandler implements BlockEventHandler<Abst
     public void onEvent(AbstractBlockEvent blockEvent, long l, boolean b) throws Exception {
         try {
             TransactionBlock block = (TransactionBlock) blockEvent.getBlock();
-
             if (block.getStatustype().equals(StatusType.ABORT)) {
                 LOG.info("Status marked as invalid ABORT");
                 return;
@@ -57,7 +56,7 @@ public class TransactionsSignatureEventHandler implements BlockEventHandler<Abst
 
             CountDownLatch latch = new CountDownLatch(block.getTransactionList().size());
             this.signatureEventHandler.setLatch(latch);
-            block.getTransactionList().stream().forEach(publisher::publish);
+            block.getTransactionList().forEach(publisher::publish);
             latch.await();
             Optional<Transaction> marked = block.getTransactionList().stream().filter(this::isStatusAbort).findAny();
 

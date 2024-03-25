@@ -30,8 +30,7 @@ public class CachedTransactionBlockEventPublisher {
                 .withOutBoundEventHandler()
                 .withPatriciaTreeEventHandler()
                 .withPatriciaTreeHeightEventHandler()
-                .mergeEvents();
-
+                .mergeEventsAndPassVerifySig();
 
         this.publisher.start();
     }
@@ -54,6 +53,10 @@ public class CachedTransactionBlockEventPublisher {
         this.publisher.publish(transactionBlock);
     }
 
+    @SneakyThrows
+    public void WaitUntilRemainingCapacityZero(){
+        this.publisher.getJobSyncUntilRemainingCapacityZero();
+    }
     @SneakyThrows
     public void close() {
         publisher.getJobSyncUntilRemainingCapacityZero();

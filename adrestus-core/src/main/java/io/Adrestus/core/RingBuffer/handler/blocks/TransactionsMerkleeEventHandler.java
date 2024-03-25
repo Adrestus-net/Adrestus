@@ -14,17 +14,16 @@ import java.util.List;
 public class TransactionsMerkleeEventHandler implements BlockEventHandler<AbstractBlockEvent> {
     private static Logger LOG = LoggerFactory.getLogger(TransactionsMerkleeEventHandler.class);
     private final MerkleTreeImp tree;
-    private final List<MerkleNode> list;
 
     public TransactionsMerkleeEventHandler() {
         this.tree = new MerkleTreeImp();
-        this.list = new ArrayList<MerkleNode>();
     }
 
     @Override
     public void onEvent(AbstractBlockEvent blockEvent, long l, boolean b) throws Exception {
         try {
             TransactionBlock transactionBlock = (TransactionBlock) blockEvent.getBlock();
+            List<MerkleNode> list = new ArrayList<MerkleNode>();
             if (transactionBlock.getTransactionList().isEmpty()) {
                 LOG.info("Empty Transaction List");
                 return;

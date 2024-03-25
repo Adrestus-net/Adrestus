@@ -55,6 +55,11 @@ public class CachedCommitteeBlockEventPublisher {
     }
 
     @SneakyThrows
+    public void WaitUntilRemainingCapacityZero(){
+        this.publisher.getJobSyncUntilRemainingCapacityZero();
+    }
+
+    @SneakyThrows
     public void close() {
         publisher.getJobSyncUntilRemainingCapacityZero();
         publisher.close();
