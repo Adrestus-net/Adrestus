@@ -2,6 +2,7 @@ package io.Adrestus.consensus;
 
 public enum ConsensusMessageType {
 
+    DISPERSE("DISPERSE"),
     ANNOUNCE("ANNOUNCE"),
     PREPARE("PREPARE"),
     COMMIT("COMMIT");

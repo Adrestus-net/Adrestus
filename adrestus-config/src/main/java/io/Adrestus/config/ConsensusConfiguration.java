@@ -2,6 +2,7 @@ package io.Adrestus.config;
 
 public class ConsensusConfiguration {
 
+    public static final int ERASURE_SERVER_PORT = 7082;
     public static final long CONSENSUS_COMMITTEE_TIMER = 2 * 1000;
     public static final long CONSENSUS_TIMER = 2 * 1000;
     public static final int CONSENSUS_TIMEOUT = 22 * 1000;

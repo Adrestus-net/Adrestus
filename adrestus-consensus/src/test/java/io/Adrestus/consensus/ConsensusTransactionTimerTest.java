@@ -21,6 +21,7 @@ import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.crypto.mnemonic.Mnemonic;
 import io.Adrestus.crypto.mnemonic.Security;
 import io.Adrestus.crypto.mnemonic.WordList;
+import io.Adrestus.network.CachedEventLoop;
 import io.Adrestus.util.GetTime;
 import io.Adrestus.util.SerializationUtil;
 import io.distributedLedger.*;
@@ -247,6 +248,7 @@ public class ConsensusTransactionTimerTest {
         if (hit == 0)
             return;
 
+        CachedEventLoop.getInstance().start();
         addreses_old = new ArrayList<>(addreses);
         CountDownLatch latch = new CountDownLatch(5);
         ConsensusTransactionTimer c = new ConsensusTransactionTimer(latch, addreses, keypair);

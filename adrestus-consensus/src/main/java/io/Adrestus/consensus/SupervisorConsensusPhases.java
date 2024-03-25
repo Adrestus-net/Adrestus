@@ -92,6 +92,11 @@ public class SupervisorConsensusPhases {
         }
 
         @Override
+        public void DispersePhase(ConsensusMessage<VDFMessage> data) throws Exception {
+            return;
+        }
+
+        @Override
         public void AnnouncePhase(ConsensusMessage<VDFMessage> data) {
             data.setMessageType(ConsensusMessageType.ANNOUNCE);
             byte[] solution = vdf.solve(CachedSecurityHeaders.getInstance().getSecurityHeader().getPRnd(), CachedLatestBlocks.getInstance().getCommitteeBlock().getDifficulty());
@@ -317,6 +322,7 @@ public class SupervisorConsensusPhases {
             }
         }
 
+
         @Override
         public void Initialize(VRFMessage message) {
             message.setBlockHash(CachedLatestBlocks.getInstance().getCommitteeBlock().getHash());
@@ -409,6 +415,10 @@ public class SupervisorConsensusPhases {
         }
 
 
+        @Override
+        public void DispersePhase(ConsensusMessage<VRFMessage> data) throws Exception {
+            return;
+        }
         @Override
         public void AnnouncePhase(ConsensusMessage<VRFMessage> data) {
             if (data.getStatusType().equals(ConsensusStatusType.ABORT)) return;
@@ -632,6 +642,11 @@ public class SupervisorConsensusPhases {
                 cleanup();
                 throw new IllegalArgumentException("Exception caught " + e.toString());
             }
+        }
+
+        @Override
+        public void DispersePhase(ConsensusMessage<CommitteeBlock> data) throws Exception {
+            return;
         }
 
         @Override

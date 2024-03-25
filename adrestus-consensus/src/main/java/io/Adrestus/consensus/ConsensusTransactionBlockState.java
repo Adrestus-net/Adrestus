@@ -42,6 +42,7 @@ public class ConsensusTransactionBlockState extends AbstractState {
                 consensusManager.changeStateTo(ConsensusRoleType.ORGANIZER);
                 var organizerphase = consensusManager.getRole().manufacturePhases(ConsensusType.TRANSACTION_BLOCK);
                 organizerphase.InitialSetup();
+                organizerphase.DispersePhase(consensusMessage);
                 organizerphase.AnnouncePhase(consensusMessage);
                 organizerphase.PreparePhase(consensusMessage);
                 organizerphase.CommitPhase(consensusMessage);
@@ -50,6 +51,7 @@ public class ConsensusTransactionBlockState extends AbstractState {
                 consensusManager.changeStateTo(ConsensusRoleType.VALIDATOR);
                 var validatorphase = consensusManager.getRole().manufacturePhases(ConsensusType.TRANSACTION_BLOCK);
                 validatorphase.InitialSetup();
+                validatorphase.DispersePhase(consensusMessage);
                 validatorphase.AnnouncePhase(consensusMessage);
                 validatorphase.PreparePhase(consensusMessage);
                 validatorphase.CommitPhase(consensusMessage);

@@ -1,11 +1,14 @@
 package io.Adrestus.consensus;
 
 import com.google.common.reflect.TypeToken;
+import io.Adrestus.Trie.MerkleNode;
+import io.Adrestus.Trie.MerkleTreeImp;
 import io.Adrestus.core.*;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedLeaderIndex;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.core.Util.BlockSizeCalculator;
+import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.bls.BLS381.ECP;
 import io.Adrestus.crypto.bls.BLS381.ECP2;
 import io.Adrestus.crypto.bls.BLSSignatureData;
@@ -17,14 +20,26 @@ import io.Adrestus.crypto.bls.model.CachedBLSKeyPair;
 import io.Adrestus.crypto.bls.model.Signature;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.crypto.elliptic.mapper.CustomSerializerTreeMap;
+import io.Adrestus.erasure.code.ArrayDataEncoder;
+import io.Adrestus.erasure.code.EncodingPacket;
+import io.Adrestus.erasure.code.OpenRQ;
+import io.Adrestus.erasure.code.encoder.SourceBlockEncoder;
+import io.Adrestus.erasure.code.parameters.FECParameterObject;
+import io.Adrestus.erasure.code.parameters.FECParameters;
+import io.Adrestus.erasure.code.parameters.FECParametersPreConditions;
 import io.Adrestus.network.ConsensusServer;
+import io.Adrestus.util.GetTime;
 import io.Adrestus.util.SerializationUtil;
+import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.tuweni.bytes.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Type;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
+import java.sql.Timestamp;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
@@ -37,10 +52,13 @@ public class OrganizerConsensusPhases {
 
 
         private static Logger LOG = LoggerFactory.getLogger(ProposeTransactionBlock.class);
+        private static final String delimeter = "||";
 
         private final DefaultFactory factory;
         private final SerializationUtil<AbstractBlock> block_serialize;
         private final SerializationUtil<ConsensusMessage> consensus_serialize;
+        private final SerializationUtil<Signature> signatureMapper;
+        private final SerializationUtil<SerializableErasureObject> serenc_erasure;
         private final boolean DEBUG;
         private final IBlockIndex blockIndex;
         private final Map<BLSPublicKey, BLSSignatureData> signatureDataMap;
@@ -69,6 +87,8 @@ public class OrganizerConsensusPhases {
             this.consensus_serialize = new SerializationUtil<ConsensusMessage>(fluentType, list);
             this.signatureDataMap = new HashMap<BLSPublicKey, BLSSignatureData>();
             this.sizeCalculator = new BlockSizeCalculator();
+            this.signatureMapper = new SerializationUtil<Signature>(Signature.class, list);
+            this.serenc_erasure = new SerializationUtil<SerializableErasureObject>(SerializableErasureObject.class);
         }
 
         @Override
@@ -101,6 +121,110 @@ public class OrganizerConsensusPhases {
         }
 
         @Override
+        public void DispersePhase(ConsensusMessage<TransactionBlock> data) throws Exception {
+            var regural_block = factory.getBlock(BlockType.REGULAR);
+            regural_block.forgeTransactionBlock(data.getData());
+            this.original_copy = (TransactionBlock) data.getData().clone();
+            data.setMessageType(ConsensusMessageType.DISPERSE);
+            if (DEBUG)
+                return;
+
+            ArrayList<String> proofs = new ArrayList<>();
+            ArrayList<String> existed = new ArrayList<>();
+
+            int unique = 0;
+            while (unique < N_COPY) {
+                String rec = new String(this.consensusServer.receiveErasureData(), StandardCharsets.UTF_8);
+                if (!existed.contains(rec)) {
+                    existed.add(rec);
+                    unique++;
+                    proofs.add(rec);
+                }
+            }
+
+            if (proofs.size() < N_COPY - F) {
+                LOG.info("DispersePhase: Size of validators are not correct Abort");
+                data.setStatusType(ConsensusStatusType.ABORT);
+                cleanup();
+                return;
+            }
+
+//           ###############################################Get_Chucks###############################################
+            BlockSizeCalculator sizeCalculator = new BlockSizeCalculator();
+            sizeCalculator.setTransactionBlock(this.original_copy);
+            byte[] buffer = block_serialize.encode(this.original_copy, sizeCalculator.TransactionBlockSizeCalculator());
+
+            long dataLen = buffer.length;
+            int sizeOfCommittee = N_COPY;
+            double loss = .6;
+            int numSrcBlks = sizeOfCommittee;
+            int symbSize = (int) (dataLen / sizeOfCommittee);
+            FECParameterObject object = FECParametersPreConditions.CalculateFECParameters(dataLen, symbSize, numSrcBlks);
+            FECParameters fecParams = FECParameters.newParameters(object.getDataLen(), object.getSymbolSize(), object.getNumberOfSymbols());
+
+            byte[] content = new byte[fecParams.dataLengthAsInt()];
+            System.arraycopy(buffer, 0, content, 0, content.length);
+            final ArrayDataEncoder enc = OpenRQ.newEncoder(content, fecParams);
+            ArrayList<SerializableErasureObject> serializableErasureObjects = new ArrayList<SerializableErasureObject>();
+            ArrayList<EncodingPacket> n = new ArrayList<EncodingPacket>();
+            for (SourceBlockEncoder sbEnc : enc.sourceBlockIterable()) {
+                for (EncodingPacket srcPacket : sbEnc.sourcePacketsIterable()) {
+                    n.add(srcPacket);
+                }
+            }
+            MerkleTreeImp tree = new MerkleTreeImp();
+            ArrayList<MerkleNode> merkleNodes = new ArrayList<MerkleNode>();
+            for (int i = 0; i < n.size(); i++) {
+                SerializableErasureObject serializableErasureObject = new SerializableErasureObject(object, n.get(i).asArray(), new ArrayList<byte[]>());
+                serializableErasureObjects.add(serializableErasureObject);
+                merkleNodes.add(new MerkleNode(HashUtil.sha256_bytetoString(serializableErasureObject.getOriginalPacketChunks())));
+            }
+            tree.my_generate2(merkleNodes);
+            for (int j = 0; j < serializableErasureObjects.size(); j++) {
+                tree.build_proofs2(merkleNodes, new MerkleNode(HashUtil.sha256_bytetoString(serializableErasureObjects.get(j).getOriginalPacketChunks())));
+                serializableErasureObjects.get(j).setProofs(tree.getMerkleeproofs());
+                serializableErasureObjects.get(j).setRootMerkleHash(tree.getRootHash());
+            }
+            ArrayList<byte[]> toSend = new ArrayList<>();
+            for (SerializableErasureObject obj : serializableErasureObjects) {
+                toSend.add(serenc_erasure.encode(obj));
+            }
+//           ###############################################Get_Chucks###############################################
+
+            ArrayList<String> identities = new ArrayList<>();
+            int valid = 0;
+            for (int j = 0; j < proofs.size(); j++) {
+                try {
+                    StringJoiner joiner2 = new StringJoiner(delimeter);
+                    String[] splits = StringUtils.split(proofs.get(j), delimeter);
+                    BLSPublicKey blsPublicKey = BLSPublicKey.fromByte(Hex.decodeHex(splits[0]));
+                    Timestamp timestamp = GetTime.GetTimestampFromString(splits[1]);
+                    boolean val = GetTime.CheckIfTimestampIsUnderOneMinute(timestamp);
+                    Signature bls_sig2 = this.signatureMapper.decode(Hex.decodeHex(splits[2]));
+                    String strsgn = joiner2.add(Hex.encodeHexString(blsPublicKey.toBytes())).add(splits[1]).toString();
+                    Boolean signcheck = BLSSignature.verify(bls_sig2, strsgn.getBytes(StandardCharsets.UTF_8), blsPublicKey);
+                    if (signcheck && val) {
+                        identities.add(strsgn);
+                        valid++;
+                    }
+                } catch (Exception e) {
+                    LOG.info("DispersePhase: Decoding String Erasure Proofs failed");
+                }
+            }
+
+            if (valid < N_COPY - F) {
+                LOG.info("DispersePhase: Validators dont send correct header messages abort");
+                data.setStatusType(ConsensusStatusType.ABORT);
+                cleanup();
+                return;
+            }
+
+            for(int i=0;i<valid;i++){
+                this.consensusServer.setErasureMessage(toSend.get(valid), identities.get(valid));
+            }
+        }
+
+        @Override
         public void AnnouncePhase(ConsensusMessage<TransactionBlock> data) throws Exception {
             if (!DEBUG) {
                 if (this.consensusServer.getPeers_not_connected() > F) {
@@ -110,9 +234,13 @@ public class OrganizerConsensusPhases {
                     return;
                 }
             }
-            var regural_block = factory.getBlock(BlockType.REGULAR);
-            regural_block.forgeTransactionBlock(data.getData());
-            this.original_copy = (TransactionBlock) data.getData().clone();
+            data.setData(new TransactionBlock(
+                    original_copy.getHash(),
+                    original_copy.getHeaderData().getPreviousHash(),
+                    original_copy.getSize(), original_copy.getHeight(),
+                    original_copy.getZone(), original_copy.getViewID(),
+                    original_copy.getHeaderData().getTimestamp(),
+                    original_copy.getZone()));
             data.setMessageType(ConsensusMessageType.ANNOUNCE);
             if (DEBUG)
                 return;
@@ -320,9 +448,9 @@ public class OrganizerConsensusPhases {
             this.original_copy.setSignatureData(signatureDataMap);
             BlockInvent regural_block = (BlockInvent) factory.getBlock(BlockType.REGULAR);
 
-            BLSPublicKey next_key = blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedLeaderIndex.getInstance().getTransactionPositionLeader());
-            this.original_copy.setTransactionProposer(next_key.toRaw());
-            this.original_copy.setLeaderPublicKey(next_key);
+//            BLSPublicKey next_key = blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedLeaderIndex.getInstance().getTransactionPositionLeader());
+//            this.original_copy.setTransactionProposer(next_key.toRaw());
+//            this.original_copy.setLeaderPublicKey(next_key);
 
             regural_block.InventTransactionBlock(this.original_copy);
             /*while (i > 0) {
