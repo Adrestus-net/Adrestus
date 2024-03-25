@@ -7,7 +7,6 @@ import io.Adrestus.core.StatusType;
 import io.Adrestus.core.Transaction;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.elliptic.ECDSASign;
-import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
@@ -15,7 +14,6 @@ import org.spongycastle.util.encoders.Hex;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
 
 public class SignatureEventHandler extends TransactionEventHandler {
     private static Logger LOG = LoggerFactory.getLogger(SignatureEventHandler.class);
@@ -23,13 +21,10 @@ public class SignatureEventHandler extends TransactionEventHandler {
     private final ECDSASign ecdsaSign;
     private final SignatureBehaviorType type;
 
-
-    private ExecutorService executorService;
     private CountDownLatch latch;
 
 
-    public SignatureEventHandler(ExecutorService executorService) {
-        this.executorService = executorService;
+    public SignatureEventHandler() {
         this.ecdsaSign = new ECDSASign();
         this.type = SignatureBehaviorType.SIMPLE_TRANSACTIONS;
     }
@@ -46,12 +41,13 @@ public class SignatureEventHandler extends TransactionEventHandler {
         this.latch = null;
     }
 
-    public ExecutorService getExecutorService() {
-        return executorService;
+
+    public CountDownLatch getLatch() {
+        return latch;
     }
 
-    public void setExecutorService(ExecutorService executorService) {
-        this.executorService = executorService;
+    public void setLatch(CountDownLatch latch) {
+        this.latch = latch;
     }
 
     @Override
@@ -68,59 +64,38 @@ public class SignatureEventHandler extends TransactionEventHandler {
             return;
         }
 
-        FinalizeTask task = new FinalizeTask((Transaction) transaction.clone());
-        executorService.submit(task);
-    }
-
-
-    private class FinalizeTask implements Runnable {
-        private Transaction transaction;
-
-        public FinalizeTask(Transaction transaction) {
-            this.transaction = transaction;
-        }
-
-        public Transaction getTransaction() {
-            return transaction;
-        }
-
-
-        @SneakyThrows
-        @Override
-        public void run() {
-            if (!transaction.getXAxis().toString().equals("0") && !transaction.getYAxis().toString().equals("0")) {
-                ECDSASign ecdsaSign = new ECDSASign();
-                BigInteger publicKeyValue = ecdsaSign.recoverPublicKeyValue(transaction.getXAxis(), transaction.getYAxis());
-                boolean verify = ecdsaSign.secp256Verify(HashUtil.sha256(transaction.getHash().getBytes(StandardCharsets.UTF_8)), transaction.getFrom(), publicKeyValue, transaction.getSignature());
-                if (!verify) {
-                    LOG.info("Transaction Wallet signature is not valid ABORT");
-                    if (type.equals(SignatureBehaviorType.BLOCK_TRANSACTIONS))
-                        latch.countDown();
-                    transaction.setStatus(StatusType.ABORT);
-                    MemoryTransactionPool.getInstance().delete(transaction);
-                    return;
-                }
-            } else {
-                if (!ecdsaSign.secp256Verify(Hex.decode(transaction.getHash()), transaction.getFrom(), transaction.getSignature())) {
-                    LOG.info("Transaction signature is not valid ABORT");
-                    if (type.equals(SignatureBehaviorType.BLOCK_TRANSACTIONS))
-                        latch.countDown();
-                    transaction.setStatus(StatusType.ABORT);
-                    MemoryTransactionPool.getInstance().delete(transaction);
-                    return;
-                }
-            }
-            if (type.equals(SignatureBehaviorType.BLOCK_TRANSACTIONS)) {
-                //LOG.info("Transaction signature is  valid: " + transaction.getHash());
-                latch.countDown();
+        if (!transaction.getXAxis().toString().equals("0") && !transaction.getYAxis().toString().equals("0")) {
+            ECDSASign ecdsaSign = new ECDSASign();
+            BigInteger publicKeyValue = ecdsaSign.recoverPublicKeyValue(transaction.getXAxis(), transaction.getYAxis());
+            boolean verify = ecdsaSign.secp256Verify(HashUtil.sha256(transaction.getHash().getBytes(StandardCharsets.UTF_8)), transaction.getFrom(), publicKeyValue, transaction.getSignature());
+            if (!verify) {
+                LOG.info("Transaction Wallet signature is not valid ABORT");
+                if (type.equals(SignatureBehaviorType.BLOCK_TRANSACTIONS))
+                    latch.countDown();
+                transaction.setStatus(StatusType.ABORT);
+                MemoryTransactionPool.getInstance().delete(transaction);
                 return;
             }
-            // LOG.info("Transaction signature is  valid: " + transaction.getHash());
-            if (MemoryTransactionPool.getInstance().checkAdressExists(transaction)) {
-                CacheTemporalTransactionPool.getInstance().add(transaction);
-            } else {
-                MemoryTransactionPool.getInstance().add(transaction);
+        } else {
+            if (!ecdsaSign.secp256Verify(Hex.decode(transaction.getHash()), transaction.getFrom(), transaction.getSignature())) {
+                LOG.info("Transaction signature is not valid ABORT");
+                if (type.equals(SignatureBehaviorType.BLOCK_TRANSACTIONS))
+                    latch.countDown();
+                transaction.setStatus(StatusType.ABORT);
+                MemoryTransactionPool.getInstance().delete(transaction);
+                return;
             }
+        }
+        if (type.equals(SignatureBehaviorType.BLOCK_TRANSACTIONS)) {
+            //LOG.info("Transaction signature is  valid: " + transaction.getHash());
+            latch.countDown();
+            return;
+        }
+        // LOG.info("Transaction signature is  valid: " + transaction.getHash());
+        if (MemoryTransactionPool.getInstance().checkAdressExists(transaction)) {
+            CacheTemporalTransactionPool.getInstance().add(transaction);
+        } else {
+            MemoryTransactionPool.getInstance().add(transaction);
         }
     }
 

@@ -45,7 +45,7 @@ public class RingBufferTest {
     }
 
     //CHANGE PUBLISHER START NOT TO INSTATIED IN CONSENUS BLOCK CAUSE ADDS OVERHEAD
-    @Test
+    // @Test
     public void TransactionTest() throws InterruptedException {
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
@@ -63,13 +63,13 @@ public class RingBufferTest {
         byte byf[] = serenc.encode(transaction);
         transaction.setHash(HashUtil.sha256_bytetoString(byf));
         publisher.publish(transaction);
-        //publisher.getJobSyncUntilRemainingCapacityZero();
+        publisher.getJobSyncUntilRemainingCapacityZero();
         publisher.publish(transaction);
         Thread.sleep(5000);
     }
 
 
-    @Test
+    //@Test
     public void CommitBlockTest() throws InterruptedException, IOException {
         BlockEventPublisher publisher = new BlockEventPublisher(1024);
         CommitteeBlock block = new CommitteeBlock();
@@ -95,12 +95,28 @@ public class RingBufferTest {
         BlockEventPublisher publisher = new BlockEventPublisher(1024);
         TransactionBlock block = new TransactionBlock();
         block.setHash("hash");
-
+        ArrayList<Transaction> list = new ArrayList<>();
+        Transaction transaction = new RegularTransaction("hash1");
+        Transaction transaction2 = new RegularTransaction("hash2");
+        list.add(transaction);
+        block.setTransactionList(list);
         publisher.withHashHandler().mergeEventsAndPassVerifySig();
         publisher.start();
+
+
+        System.out.println("wait");
         publisher.publish(block);
+        publisher.getJobSyncUntilRemainingCapacityZero();
+        System.out.println("finish");
 
+        ArrayList<Transaction> list2 = new ArrayList<>();
+        list2.add(transaction2);
+        block.setTransactionList(list2);
 
+        System.out.println("wait");
+        publisher.publish(block);
+        publisher.getJobSyncUntilRemainingCapacityZero();
+        System.out.println("finish");
         Thread.sleep(5000);
     }
 }

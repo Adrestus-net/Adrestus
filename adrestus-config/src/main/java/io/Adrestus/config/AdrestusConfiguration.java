@@ -13,6 +13,7 @@ public class AdrestusConfiguration {
     public static final int MAX_ZONES = 3;
 
     public static final String ALGORITHM = "SHA1PRNG";
+
     public static final String PROVIDER = "SUN";
 
 
@@ -20,4 +21,8 @@ public class AdrestusConfiguration {
     public static final String SIGN_PROVIDER = "BC";
 
     public static final String SIGN_CURVE = "secp256k1";
+
+
+    public static final int TRANSACTIONS_QUEUE_SIZE = 1024 * 8;
+    public static final int BLOCK_QUEUE_SIZE = 1024;
 }

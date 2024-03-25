@@ -88,11 +88,11 @@ public class TransactionEventPublisher implements Publisher<Transaction> {
     @Override
     public void getJobSyncUntilRemainingCapacityZero() throws InterruptedException {
         while (disruptor.getRingBuffer().remainingCapacity() != bufferSize) {
-            Thread.sleep(100);
+            Thread.sleep(45);
         }
         try {
             executor.shutdown();
-            executor.awaitTermination(5, TimeUnit.SECONDS);
+            executor.awaitTermination(1, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             LOG.trace("Executor shutdown interrupted", e);
         } finally {
@@ -202,7 +202,6 @@ public class TransactionEventPublisher implements Publisher<Transaction> {
     public TransactionEventPublisher mergeEventsAndPassThen(SignatureEventHandler signatureEventHandler) {
         TransactionEventHandler[] events = new TransactionEventHandler[group.size()];
         group.toArray(events);
-        signatureEventHandler.setExecutorService(executor);
         disruptor.handleEventsWith(events).then(signatureEventHandler);
         return this;
     }
@@ -210,7 +209,6 @@ public class TransactionEventPublisher implements Publisher<Transaction> {
     public TransactionEventPublisher AddMergeEventsAndPassThen(SignatureEventHandler signatureEventHandler, TransactionEventHandler... args) {
         TransactionEventHandler[] events = new TransactionEventHandler[group.size()];
         group.toArray(events);
-        signatureEventHandler.setExecutorService(executor);
         disruptor.handleEventsWith(args[0]).then(args[1]).then(events).then(signatureEventHandler);
         return this;
     }

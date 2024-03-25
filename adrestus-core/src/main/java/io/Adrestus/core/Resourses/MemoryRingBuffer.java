@@ -1,5 +1,6 @@
 package io.Adrestus.core.Resourses;
 
+import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.core.RingBuffer.handler.transactions.DuplicateEventHandler;
 import io.Adrestus.core.RingBuffer.handler.transactions.SameOriginEventHandler;
 import io.Adrestus.core.RingBuffer.handler.transactions.SignatureEventHandler;
@@ -15,7 +16,7 @@ public class MemoryRingBuffer {
         if (instance != null) {
             throw new IllegalStateException("Already initialized.");
         }
-        this.publisher = new TransactionEventPublisher(2048);
+        this.publisher = new TransactionEventPublisher(AdrestusConfiguration.TRANSACTIONS_QUEUE_SIZE);
     }
 
     public static MemoryRingBuffer getInstance() {

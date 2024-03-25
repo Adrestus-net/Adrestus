@@ -70,7 +70,7 @@ public class ConsensusTransactionTimer {
     }
 
     private void chooser() throws InterruptedException {
-        ArrayList<BLSPublicKey> keyList = new ArrayList<BLSPublicKey>(CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).keySet());
+        ArrayList<BLSPublicKey> keyList = new ArrayList<BLSPublicKey>(CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).keySet());
         if (CachedBLSKeyPair.getInstance().getPublicKey().equals(keyList.get(0))) {
             SaveTransactions(0, 1);
         } else if (CachedBLSKeyPair.getInstance().getPublicKey().equals(keyList.get(1))) {

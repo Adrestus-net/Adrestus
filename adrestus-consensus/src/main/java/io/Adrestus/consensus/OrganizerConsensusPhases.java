@@ -149,6 +149,13 @@ public class OrganizerConsensusPhases {
                 return;
             }
 
+            if (N_COPY == 0) {
+                LOG.info("DispersePhase: None of validators connected abort");
+                data.setStatusType(ConsensusStatusType.ABORT);
+                cleanup();
+                return;
+            }
+
 //           ###############################################Get_Chucks###############################################
             BlockSizeCalculator sizeCalculator = new BlockSizeCalculator();
             sizeCalculator.setTransactionBlock(this.original_copy);
@@ -219,8 +226,8 @@ public class OrganizerConsensusPhases {
                 return;
             }
 
-            for(int i=0;i<valid;i++){
-                this.consensusServer.setErasureMessage(toSend.get(valid), identities.get(valid));
+            for (int i = 0; i < valid; i++) {
+                this.consensusServer.setErasureMessage(toSend.get(i), identities.get(i));
             }
         }
 
@@ -439,28 +446,13 @@ public class OrganizerConsensusPhases {
             byte[] toSend = consensus_serialize.encode(data);
             consensusServer.publishMessage(toSend);
 
-          /*  if (current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).size() - 1)
-                data.getData().setLeaderPublicKey(this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), 0));
-            else {
-                data.getData().setLeaderPublicKey(this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), current + 1));
-            }*/
-            // CachedLatestBlocks.getInstance().setTransactionBlock(data.getData());
             this.original_copy.setSignatureData(signatureDataMap);
             BlockInvent regural_block = (BlockInvent) factory.getBlock(BlockType.REGULAR);
-
-//            BLSPublicKey next_key = blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedLeaderIndex.getInstance().getTransactionPositionLeader());
-//            this.original_copy.setTransactionProposer(next_key.toRaw());
-//            this.original_copy.setLeaderPublicKey(next_key);
-
             regural_block.InventTransactionBlock(this.original_copy);
-            /*while (i > 0) {
-                try {
-                    consensusServer.receiveStringData();
-                } catch (NullPointerException ex) {
-                } finally {
-                    i--;
-                }
-            }*/
+
+            BLSPublicKey next_key = blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedLeaderIndex.getInstance().getTransactionPositionLeader());
+            CachedLatestBlocks.getInstance().getTransactionBlock().setTransactionProposer(next_key.toRaw());
+            CachedLatestBlocks.getInstance().getTransactionBlock().setLeaderPublicKey(next_key);
             LOG.info("Block is finalized with Success");
             cleanup();
         }
@@ -473,5 +465,20 @@ public class OrganizerConsensusPhases {
         }
     }
 
+      /*  if (current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).size() - 1)
+                data.getData().setLeaderPublicKey(this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), 0));
+            else {
+                data.getData().setLeaderPublicKey(this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), current + 1));
+            }*/
+    // CachedLatestBlocks.getInstance().setTransactionBlock(data.getData());
+
+     /*while (i > 0) {
+                try {
+                    consensusServer.receiveStringData();
+                } catch (NullPointerException ex) {
+                } finally {
+                    i--;
+                }
+            }*/
 
 }

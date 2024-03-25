@@ -26,6 +26,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 public class RocksDBBlockTest {
 
@@ -137,6 +138,21 @@ public class RocksDBBlockTest {
         List<AbstractBlock> values = database.findByListKey(list);
         assertEquals(transactionBlock1, values.get(0));
         assertEquals(transactionBlock2, values.get(1));
+
+        database.delete_db();
+    }
+
+    @Test
+    public void find_by_key() {
+        IDatabase<String, AbstractBlock> database = new DatabaseFactory(String.class, AbstractBlock.class).getDatabase(DatabaseType.ROCKS_DB);
+        TransactionBlock transactionBlock1 = new TransactionBlock();
+        transactionBlock1.setHash("hash1");
+
+        database.save("hash1", transactionBlock1);
+
+        transactionBlock1.setHash("new hash");
+        Optional<AbstractBlock> values = database.findByKey("hash1");
+        assertNotEquals(transactionBlock1, values.get());
 
         database.delete_db();
     }

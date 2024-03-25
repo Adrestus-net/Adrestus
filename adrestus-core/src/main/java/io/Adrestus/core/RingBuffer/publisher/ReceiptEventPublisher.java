@@ -21,7 +21,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ReceiptEventPublisher implements Publisher<ReceiptBlock> {
-    private static Logger LOG = LoggerFactory.getLogger(BlockEventPublisher.class);
+    private static Logger LOG = LoggerFactory.getLogger(ReceiptEventPublisher.class);
     private final AtomicInteger droppedJobsCount = new AtomicInteger();
     private final Disruptor<ReceiptBlockEvent> disruptor;
     private final int bufferSize;

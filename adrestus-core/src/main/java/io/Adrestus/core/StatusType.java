@@ -1,7 +1,7 @@
 package io.Adrestus.core;
 
 public enum StatusType {
-    SUCCES("SUCCES"),
+    SUCCES("SUCCESS"),
     FAILED("FAILED"),
     PENDING("PENDING"),
     BUFFERED("BUFFERED"),

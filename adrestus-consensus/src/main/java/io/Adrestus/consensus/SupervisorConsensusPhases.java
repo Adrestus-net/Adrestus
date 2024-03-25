@@ -419,6 +419,7 @@ public class SupervisorConsensusPhases {
         public void DispersePhase(ConsensusMessage<VRFMessage> data) throws Exception {
             return;
         }
+
         @Override
         public void AnnouncePhase(ConsensusMessage<VRFMessage> data) {
             if (data.getStatusType().equals(ConsensusStatusType.ABORT)) return;

@@ -1,5 +1,6 @@
 package io.Adrestus.core.RingBuffer.handler.blocks;
 
+import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.core.RingBuffer.event.AbstractBlockEvent;
 import io.Adrestus.core.RingBuffer.handler.transactions.SignatureEventHandler;
 import io.Adrestus.core.RingBuffer.publisher.TransactionEventPublisher;
@@ -14,12 +15,29 @@ import java.util.concurrent.CountDownLatch;
 
 public class TransactionsSignatureEventHandler implements BlockEventHandler<AbstractBlockEvent> {
     private static Logger LOG = LoggerFactory.getLogger(TransactionsSignatureEventHandler.class);
-    private static final int JOB_QUEUE_SIZE = 1024;
 
     private final TransactionEventPublisher publisher;
 
+    private final SignatureEventHandler signatureEventHandler;
+
     public TransactionsSignatureEventHandler() {
-        publisher = new TransactionEventPublisher(JOB_QUEUE_SIZE);
+        this.signatureEventHandler = new SignatureEventHandler(SignatureEventHandler.SignatureBehaviorType.BLOCK_TRANSACTIONS);
+        this.publisher = new TransactionEventPublisher(AdrestusConfiguration.TRANSACTIONS_QUEUE_SIZE);
+        this.publisher
+                .withAddressSizeEventHandler()
+                .withAmountEventHandler()
+                .withDelegateEventHandler()
+                .withHashEventHandler()
+                .withNonceEventHandler()
+                .withRewardEventHandler()
+                .withStakingEventHandler()
+                .withTransactionFeeEventHandler()
+                .withTimestampEventHandler()
+                .withZoneEventHandler()
+                .withDuplicateEventHandler()
+                .mergeEventsAndPassThen(this.signatureEventHandler);
+
+        this.publisher.start();
     }
 
     @Override
@@ -38,22 +56,7 @@ public class TransactionsSignatureEventHandler implements BlockEventHandler<Abst
 
 
             CountDownLatch latch = new CountDownLatch(block.getTransactionList().size());
-
-            publisher
-                    .withAddressSizeEventHandler()
-                    .withAmountEventHandler()
-                    .withDelegateEventHandler()
-                    .withHashEventHandler()
-                    .withNonceEventHandler()
-                    .withRewardEventHandler()
-                    .withStakingEventHandler()
-                    .withTransactionFeeEventHandler()
-                    .withTimestampEventHandler()
-                    .withZoneEventHandler()
-                    .withDuplicateEventHandler()
-                    .mergeEventsAndPassThen(new SignatureEventHandler(SignatureEventHandler.SignatureBehaviorType.BLOCK_TRANSACTIONS, latch));
-
-            publisher.start();
+            this.signatureEventHandler.setLatch(latch);
             block.getTransactionList().stream().forEach(publisher::publish);
             latch.await();
             Optional<Transaction> marked = block.getTransactionList().stream().filter(this::isStatusAbort).findAny();
@@ -62,7 +65,6 @@ public class TransactionsSignatureEventHandler implements BlockEventHandler<Abst
                 block.setStatustype(StatusType.ABORT);
 
             publisher.getJobSyncUntilRemainingCapacityZero();
-            publisher.close();
 
         } catch (NullPointerException ex) {
             LOG.info("Block is empty");

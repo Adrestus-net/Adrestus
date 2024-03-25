@@ -6,14 +6,14 @@ public class ConsensusConfiguration {
     public static final long CONSENSUS_COMMITTEE_TIMER = 2 * 1000;
     public static final long CONSENSUS_TIMER = 2 * 1000;
     public static final int CONSENSUS_TIMEOUT = 22 * 1000;
-    public final static int HEARTBEAT_INTERVAL = 40;
-    public final static int CYCLES = 100;
-    public final static int ERASURE_CYCLES = 14;
+    public final static int HEARTBEAT_INTERVAL = 10;
+    public final static int CYCLES = 1100;
+    public final static int ERASURE_CYCLES = 1;
     public static final int CONSENSUS_CONNECTED_RECEIVE_TIMEOUT = 14 * 1000;
     public static final int CONSENSUS_CONNECTED_SEND_TIMEOUT = 22 * 1000;
 
-    public static final int CONSENSUS_ERASURE_RECEIVE_TIMEOUT = 1000;
-    public static final int CONSENSUS_ERASURE_SEND_TIMEOUT = 1000;
+    public static final int CONSENSUS_ERASURE_RECEIVE_TIMEOUT = 17000;
+    public static final int CONSENSUS_ERASURE_SEND_TIMEOUT = 17000;
     public static final int CONSENSUS_COLLECTED_TIMEOUT = 14 * 1000;
     public static final int CONSENSUS_PUBLISHER_TIMEOUT = 4 * 1000;
 

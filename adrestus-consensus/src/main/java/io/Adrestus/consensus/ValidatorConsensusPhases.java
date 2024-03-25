@@ -3,11 +3,7 @@ package io.Adrestus.consensus;
 import com.google.common.reflect.TypeToken;
 import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.core.*;
-import io.Adrestus.core.Resourses.CachedLatestBlocks;
-import io.Adrestus.core.Resourses.CachedLeaderIndex;
-import io.Adrestus.core.Resourses.CachedSecurityHeaders;
-import io.Adrestus.core.Resourses.CachedZoneIndex;
-import io.Adrestus.core.RingBuffer.publisher.BlockEventPublisher;
+import io.Adrestus.core.Resourses.*;
 import io.Adrestus.core.Util.BlockSizeCalculator;
 import io.Adrestus.crypto.bls.BLS381.ECP;
 import io.Adrestus.crypto.bls.BLS381.ECP2;
@@ -865,13 +861,6 @@ public class ValidatorConsensusPhases {
         public void DispersePhase(ConsensusMessage<TransactionBlock> data) throws Exception {
             if (!DEBUG) {
                 try {
-                    if (!data.getMessageType().equals(ConsensusMessageType.DISPERSE)) {
-                        cleanup();
-                        LOG.info("DispersePhase: Organizer not send correct header message expected " + ConsensusMessageType.DISPERSE);
-                        data.setStatusType(ConsensusStatusType.ABORT);
-                        return;
-                    }
-
                     consensusClient.send_heartbeat(HEARTBEAT_MESSAGE);
                     String heartbeat = consensusClient.rec_heartbeat();
                     if (heartbeat == null) {
@@ -905,7 +894,7 @@ public class ValidatorConsensusPhases {
                         list_ip.add(address);
                     }
 
-                    RpcErasureClient<SerializableErasureObject> client = new RpcErasureClient<SerializableErasureObject>(new SerializableErasureObject(), list_ip, 7082, CachedEventLoop.getInstance().getEventloop());
+                    RpcErasureClient<SerializableErasureObject> client = new RpcErasureClient<SerializableErasureObject>(new SerializableErasureObject(), list_ip, ERASURE_SERVER_PORT, CachedEventLoop.getInstance().getEventloop());
                     client.connect();
                     ArrayList<SerializableErasureObject> recserializableErasureObjects = (ArrayList<SerializableErasureObject>) client.getErasureChunks(new byte[0]);
                     client.close();
@@ -1028,30 +1017,8 @@ public class ValidatorConsensusPhases {
                 return;
             }
 
-            BlockEventPublisher publisher = new BlockEventPublisher(1024);
 
-
-            publisher
-                    .withDuplicateHandler()
-                    .withGenerationHandler()
-                    .withHashHandler()
-                    .withHeaderEventHandler()
-                    .withHeightEventHandler()
-                    .withViewIDEventHandler()
-                    .withTimestampEventHandler()
-                    .withTransactionMerkleeEventHandler()
-                    .withInBoundEventHandler()
-                    .withOutBoundEventHandler()
-                    .withPatriciaTreeEventHandler()
-                    .withPatriciaTreeHeightEventHandler()
-                    .mergeEvents();
-
-
-            publisher.start();
-            publisher.publish(this.original_copy);
-            publisher.getJobSyncUntilRemainingCapacityZero();
-            publisher.close();
-
+            CachedTransactionBlockEventPublisher.getInstance().publish(this.original_copy);
             if (this.original_copy.getStatustype().equals(StatusType.ABORT)) {
                 cleanup();
                 LOG.info("AnnouncePhase: Block is not valid marked as ABORT");
@@ -1400,30 +1367,8 @@ public class ValidatorConsensusPhases {
                 return;
             }
 
-            BlockEventPublisher publisher = new BlockEventPublisher(1024);
 
-
-            publisher
-                    .withHashHandler()
-                    .withHeaderEventHandler()
-                    .withTimestampEventHandler()
-                    .withDuplicateHandler()
-                    .withHeightEventHandler()
-                    .withViewIDEventHandler()
-                    .withSortedStakingEventHandler()
-                    .withMinimumStakingEventHandler()
-                    .withVerifyDifficultyEventHandler()
-                    .withVerifyVDFEventHandler()
-                    .withVRFEventHandler()
-                    .withRandomizedEventHandler()
-                    .withLeaderRandomnessEventHandler()
-                    .mergeEvents();
-
-
-            publisher.start();
-            publisher.publish(block.getData());
-            publisher.getJobSyncUntilRemainingCapacityZero();
-            publisher.close();
+            CachedCommitteeBlockEventPublisher.getInstance().publish(block.getData());
 
             if (block.getData().getStatustype().equals(StatusType.ABORT)) {
                 cleanup();

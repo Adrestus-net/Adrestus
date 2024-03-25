@@ -180,16 +180,16 @@ public class ConsensusTransactionTimerTest {
         keypair.add(ecKeyPair9);
         keypair.add(ecKeyPair10);
 
-        TreeFactory.getMemoryTree(1).store(adddress1, new PatriciaTreeNode(1000, 0));
-        TreeFactory.getMemoryTree(1).store(adddress2, new PatriciaTreeNode(1000, 0));
-        TreeFactory.getMemoryTree(1).store(adddress3, new PatriciaTreeNode(1000, 0));
-        TreeFactory.getMemoryTree(1).store(adddress4, new PatriciaTreeNode(1000, 0));
-        TreeFactory.getMemoryTree(1).store(adddress5, new PatriciaTreeNode(1000, 0));
-        TreeFactory.getMemoryTree(1).store(adddress6, new PatriciaTreeNode(1000, 0));
-        TreeFactory.getMemoryTree(1).store(adddress7, new PatriciaTreeNode(1000, 0));
-        TreeFactory.getMemoryTree(1).store(adddress8, new PatriciaTreeNode(1000, 0));
-        TreeFactory.getMemoryTree(1).store(adddress9, new PatriciaTreeNode(1000, 0));
-        TreeFactory.getMemoryTree(1).store(adddress10, new PatriciaTreeNode(1000, 0));
+        TreeFactory.getMemoryTree(0).store(adddress1, new PatriciaTreeNode(1000, 0));
+        TreeFactory.getMemoryTree(0).store(adddress2, new PatriciaTreeNode(1000, 0));
+        TreeFactory.getMemoryTree(0).store(adddress3, new PatriciaTreeNode(1000, 0));
+        TreeFactory.getMemoryTree(0).store(adddress4, new PatriciaTreeNode(1000, 0));
+        TreeFactory.getMemoryTree(0).store(adddress5, new PatriciaTreeNode(1000, 0));
+        TreeFactory.getMemoryTree(0).store(adddress6, new PatriciaTreeNode(1000, 0));
+        TreeFactory.getMemoryTree(0).store(adddress7, new PatriciaTreeNode(1000, 0));
+        TreeFactory.getMemoryTree(0).store(adddress8, new PatriciaTreeNode(1000, 0));
+        TreeFactory.getMemoryTree(0).store(adddress9, new PatriciaTreeNode(1000, 0));
+        TreeFactory.getMemoryTree(0).store(adddress10, new PatriciaTreeNode(1000, 0));
 
 
         TransactionBlock prevblock = new TransactionBlock();
@@ -204,11 +204,11 @@ public class ConsensusTransactionTimerTest {
         CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
         CachedLatestBlocks.getInstance().setTransactionBlock(prevblock);
 
-        CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).put(vk1, "192.168.1.106");
+        CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).put(vk1, "192.168.1.106");
         //CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).put(vk2, "192.168.1.110");
-        CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).put(vk3, "192.168.1.113");
+        CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).put(vk3, "192.168.1.113");
         // CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).put(vk4, "192.168.1.115");
-        CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).put(vk5, "192.168.1.116");
+        CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).put(vk5, "192.168.1.116");
         // CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).put(vk6, "192.168.1.104");
         CachedZoneIndex.getInstance().setZoneIndexInternalIP();
     }
@@ -220,7 +220,7 @@ public class ConsensusTransactionTimerTest {
         socket.connect(new InetSocketAddress("google.com", 80));
         String IP = socket.getLocalAddress().getHostAddress();
         int hit = 0;
-        for (Map.Entry<BLSPublicKey, String> entry : CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).entrySet()) {
+        for (Map.Entry<BLSPublicKey, String> entry : CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).entrySet()) {
             if (IP.equals(entry.getValue())) {
                 if (vk1.equals(entry.getKey())) {
                     CachedBLSKeyPair.getInstance().setPrivateKey(sk1);
@@ -261,15 +261,15 @@ public class ConsensusTransactionTimerTest {
         }
 
         //be aware that print functionality is  different
-        assertEquals(980, TreeFactory.getMemoryTree(1).getByaddress(addreses.get(0)).get().getAmount());
-        assertEquals(998, TreeFactory.getMemoryTree(1).getByaddress(addreses.get(1)).get().getAmount());
-        assertEquals(998, TreeFactory.getMemoryTree(1).getByaddress(addreses.get(2)).get().getAmount());
-        assertEquals(998, TreeFactory.getMemoryTree(1).getByaddress(addreses.get(3)).get().getAmount());
-        assertEquals(1012, TreeFactory.getMemoryTree(1).getByaddress(addreses.get(4)).get().getAmount());
-        assertEquals(999, TreeFactory.getMemoryTree(1).getByaddress(addreses.get(5)).get().getAmount());
-        assertEquals(1015, TreeFactory.getMemoryTree(1).getByaddress(addreses.get(6)).get().getAmount());
-        assertEquals(1000, TreeFactory.getMemoryTree(1).getByaddress(addreses.get(7)).get().getAmount());
-        assertEquals(1000, TreeFactory.getMemoryTree(1).getByaddress(addreses.get(8)).get().getAmount());
+        assertEquals(980, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(0)).get().getAmount());
+        assertEquals(998, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(1)).get().getAmount());
+        assertEquals(998, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(2)).get().getAmount());
+        assertEquals(998, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(3)).get().getAmount());
+        assertEquals(1012, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(4)).get().getAmount());
+        assertEquals(999, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(5)).get().getAmount());
+        assertEquals(1015, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(6)).get().getAmount());
+        assertEquals(1000, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(7)).get().getAmount());
+        assertEquals(1000, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(8)).get().getAmount());
 
 
     }

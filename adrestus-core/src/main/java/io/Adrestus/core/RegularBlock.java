@@ -9,7 +9,6 @@ import io.Adrestus.Trie.MerkleTreeImp;
 import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.config.SocketConfigOptions;
 import io.Adrestus.core.Resourses.*;
-import io.Adrestus.core.RingBuffer.publisher.BlockEventPublisher;
 import io.Adrestus.core.Util.BlockSizeCalculator;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.bls.BLS381.ECP;
@@ -82,20 +81,6 @@ public class RegularBlock implements BlockForge, BlockInvent {
     @Override
     public void forgeTransactionBlock(TransactionBlock transactionBlock) throws Exception {
         CachedReceiptSemaphore.getInstance().getSemaphore().acquire();
-
-        BlockEventPublisher publisher = new BlockEventPublisher(1024);
-
-
-        publisher
-                .withDuplicateHandler()
-                .withGenerationHandler()
-                .withHashHandler()
-                .withHeaderEventHandler()
-                .withHeightEventHandler()
-                .withTimestampEventHandler()
-                .withTransactionMerkleeEventHandler()
-                .mergeEventsAndPassVerifySig();
-
 
         MerkleTreeImp tree = new MerkleTreeImp();
         ArrayList<MerkleNode> merkleNodeArrayList = new ArrayList<>();
@@ -209,19 +194,11 @@ public class RegularBlock implements BlockForge, BlockInvent {
         transactionBlock.setPatriciaMerkleRoot(replica.getRootHash());
         //######################Patricia_Tree#############################################
 
-        try {
-            this.blockSizeCalculator.setTransactionBlock(transactionBlock);
-            byte[] tohash = encode.encode(transactionBlock, this.blockSizeCalculator.TransactionBlockSizeCalculator());
-            transactionBlock.setHash(HashUtil.sha256_bytetoString(tohash));
-            transactionBlock.getOutbound().getMap_receipts().values().forEach(receiptBlocks -> receiptBlocks.keySet().forEach(vals -> vals.setBlock_hash(transactionBlock.getHash())));
-            publisher.start();
-            publisher.publish(transactionBlock);
-            publisher.getJobSyncUntilRemainingCapacityZero();
 
-        } finally {
-            publisher.close();
-        }
-
+        this.blockSizeCalculator.setTransactionBlock(transactionBlock);
+        byte[] tohash = encode.encode(transactionBlock, this.blockSizeCalculator.TransactionBlockSizeCalculator());
+        transactionBlock.setHash(HashUtil.sha256_bytetoString(tohash));
+        transactionBlock.getOutbound().getMap_receipts().values().forEach(receiptBlocks -> receiptBlocks.keySet().forEach(vals -> vals.setBlock_hash(transactionBlock.getHash())));
     }
 
     @SneakyThrows

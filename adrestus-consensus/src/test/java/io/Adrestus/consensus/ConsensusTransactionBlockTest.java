@@ -205,8 +205,6 @@ public class ConsensusTransactionBlockTest {
             consensusMessage.getSignatures().add(consensusMessage.getChecksumData());
 
 
-
-
         CachedBLSKeyPair.getInstance().setPrivateKey(leadersk);
         CachedBLSKeyPair.getInstance().setPublicKey(leadervk);
 
@@ -218,7 +216,6 @@ public class ConsensusTransactionBlockTest {
         validatorphase.PreparePhase(consensusMessage);
         if (consensusMessage.getStatusType().equals(ConsensusStatusType.SUCCESS))
             consensusMessage.getSignatures().add(consensusMessage.getChecksumData());
-
 
 
         CachedBLSKeyPair.getInstance().setPrivateKey(leadersk);
