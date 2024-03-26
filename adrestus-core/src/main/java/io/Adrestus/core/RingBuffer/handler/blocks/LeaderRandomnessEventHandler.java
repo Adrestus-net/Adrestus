@@ -16,16 +16,14 @@ import java.util.Arrays;
 
 public class LeaderRandomnessEventHandler implements BlockEventHandler<AbstractBlockEvent> {
     private static Logger LOG = LoggerFactory.getLogger(LeaderRandomnessEventHandler.class);
-    private final SecureRandom secureRandom;
 
     @SneakyThrows
-    public LeaderRandomnessEventHandler() {
-        this.secureRandom = SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
-    }
+    public LeaderRandomnessEventHandler() {}
 
     @Override
     public void onEvent(AbstractBlockEvent blockEvent, long l, boolean b) throws Exception {
         CommitteeBlock block = (CommitteeBlock) blockEvent.getBlock();
+        SecureRandom secureRandom = SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
         secureRandom.setSeed(Hex.decode(block.getVDF()));
 
         ArrayList<Integer> replica = new ArrayList<>();
