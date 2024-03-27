@@ -884,7 +884,7 @@ public class ValidatorConsensusPhases {
                     List<String> ips = CachedLatestBlocks.getInstance()
                             .getCommitteeBlock()
                             .getStructureMap()
-                            .get(0).values()
+                            .get(CachedZoneIndex.getInstance().getZoneIndex()).values()
                             .stream()
                             .filter(val -> !val.equals(this.blockIndex.getIpValue(CachedZoneIndex.getInstance().getZoneIndex(), CachedBLSKeyPair.getInstance().getPublicKey())) && !val.equals(this.blockIndex.getIpValue(CachedZoneIndex.getInstance().getZoneIndex(), this.leader_bls)))
                             .collect(Collectors.toList());
