@@ -15,12 +15,10 @@ import java.util.Optional;
 
 public class HeaderEventHandler implements BlockEventHandler<AbstractBlockEvent>, DisruptorBlockVisitor {
     private static Logger LOG = LoggerFactory.getLogger(HeaderEventHandler.class);
-    private final IDatabase<String, TransactionBlock> transactionBlockIDatabase;
     private final IDatabase<String, CommitteeBlock> committeeBlockIDatabase;
 
     public HeaderEventHandler() {
         this.committeeBlockIDatabase = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
-        this.transactionBlockIDatabase = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
     }
 
     @Override
@@ -59,15 +57,16 @@ public class HeaderEventHandler implements BlockEventHandler<AbstractBlockEvent>
 
     @Override
     public void visit(TransactionBlock transactionBlock) {
+        IDatabase<String, TransactionBlock> transactionBlockIDatabase = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
         if (!transactionBlock.getHeaderData().getPreviousHash().equals(CachedLatestBlocks.getInstance().getTransactionBlock().getHash())) {
             LOG.info("TransactionBlock previous hashes does not match");
             transactionBlock.setStatustype(StatusType.ABORT);
         }
-        int finish = this.transactionBlockIDatabase.findDBsize();
+        int finish = transactionBlockIDatabase.findDBsize();
         if (finish == 0)
             return;
 
-        Optional<TransactionBlock> transactionBlockDBEntry = this.transactionBlockIDatabase.seekLast();
+        Optional<TransactionBlock> transactionBlockDBEntry = transactionBlockIDatabase.seekLast();
 
         if (transactionBlockDBEntry.isEmpty()) {
             LOG.info("TransactionBlock hashes is empty");
