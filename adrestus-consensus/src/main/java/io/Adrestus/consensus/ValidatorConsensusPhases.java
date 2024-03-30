@@ -923,20 +923,15 @@ public class ValidatorConsensusPhases {
                     FECParameters recfecParams = FECParameters.newParameters(recobject.getDataLen(), recobject.getSymbolSize(), recobject.getNumberOfSymbols());
                     final ArrayDataDecoder dec = OpenRQ.newDecoder(recfecParams, recobject.getSymbolOverhead());
 
-                    boolean isDecoded = false;
                     for (int i = 0; i < recserializableErasureObjects.size(); i++) {
                         EncodingPacket encodingPacket = dec.parsePacket(ByteBuffer.wrap(recserializableErasureObjects.get(i).getOriginalPacketChunks()), false).value();
                         final SourceBlockDecoder sbDec = dec.sourceBlock(encodingPacket.sourceBlockNumber());
                         sbDec.putEncodingPacket(encodingPacket);
-                        try {
-                            this.original_copy = (TransactionBlock) block_serialize.decode(dec.dataArray());
-                            isDecoded = true;
-                            break;
-                        } catch (Exception e) {
-                        }
                     }
 
-                    if (!isDecoded) {
+                    try {
+                        this.original_copy = (TransactionBlock) block_serialize.decode(dec.dataArray());
+                    } catch (Exception e) {
                         cleanup();
                         LOG.info("DispersePhase: Disperse failed cannot decode block need more chunks abort");
                         data.setStatusType(ConsensusStatusType.ABORT);

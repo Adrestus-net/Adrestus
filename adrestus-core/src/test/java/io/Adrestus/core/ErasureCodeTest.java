@@ -134,6 +134,7 @@ public class ErasureCodeTest {
         transactionBlock.setTransactionList(transactions);
         transactionBlock.setHash("hash10");
         transactionBlock.setSize(1);
+        transactionBlock.setMerkleRoot("Asdsa602355c8255d11baf4915c500a92e9d027f478dfa2286ee509a7469c08ab");
         transactionBlock.setPatriciaMerkleRoot("1d51602355c8255d11baf4915c500a92e9d027f478dfa2286ee509a7469c08ab");
         transactionBlock.setHash("1d51602355c8255d11baf4915c500a92e9d027f478dfa2286ee509a7469c08ab");
 
