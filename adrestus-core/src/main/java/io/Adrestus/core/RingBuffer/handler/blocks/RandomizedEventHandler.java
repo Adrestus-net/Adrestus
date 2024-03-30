@@ -39,7 +39,7 @@ public class RandomizedEventHandler implements BlockEventHandler<AbstractBlockEv
         ArrayList<Integer> exclude = new ArrayList<Integer>();
         ArrayList<Integer> order = new ArrayList<Integer>();
         for (Map.Entry<StakingData, KademliaData> entry : committeeBlock.getStakingMap().entrySet()) {
-            int nextInt = generateRandom(0, committeeBlock.getStakingMap().size() - 1, exclude);
+            int nextInt = generateRandom(secureRandom,0, committeeBlock.getStakingMap().size() - 1, exclude);
             if (!exclude.contains(nextInt)) {
                 exclude.add(nextInt);
             }
@@ -104,7 +104,7 @@ public class RandomizedEventHandler implements BlockEventHandler<AbstractBlockEv
                 .allMatch(e -> e.getValue().equals(second.get(e.getKey())));
     }
 
-    public int generateRandom(int start, int end, ArrayList<Integer> excludeRows) {
+    public int generateRandom(SecureRandom secureRandom,int start, int end, ArrayList<Integer> excludeRows) {
         int range = end - start + 1;
         int random = secureRandom.nextInt(range);
         while (excludeRows.contains(random)) {
