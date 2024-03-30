@@ -895,6 +895,13 @@ public class ValidatorConsensusPhases {
                         list_ip.add(address);
                     }
 
+                    if (list_ip.isEmpty()) {
+                        cleanup();
+                        LOG.info("DispersePhase: Erasure connect list is empty abort");
+                        data.setStatusType(ConsensusStatusType.ABORT);
+                        return;
+                    }
+
                     RpcErasureClient<SerializableErasureObject> client = new RpcErasureClient<SerializableErasureObject>(new SerializableErasureObject(), list_ip, ERASURE_SERVER_PORT, CachedEventLoop.getInstance().getEventloop());
                     client.connect();
                     ArrayList<SerializableErasureObject> recserializableErasureObjects = (ArrayList<SerializableErasureObject>) client.getErasureChunks(new byte[0]);
