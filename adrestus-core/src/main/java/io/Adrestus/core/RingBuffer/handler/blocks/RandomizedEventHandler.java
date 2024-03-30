@@ -22,15 +22,14 @@ import java.util.stream.Collectors;
 public class RandomizedEventHandler implements BlockEventHandler<AbstractBlockEvent> {
 
     private static Logger LOG = LoggerFactory.getLogger(RandomizedEventHandler.class);
-    private final SecureRandom secureRandom;
+
 
     @SneakyThrows
-    public RandomizedEventHandler() {
-        this.secureRandom = SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
-    }
+    public RandomizedEventHandler() {}
 
     @Override
     public void onEvent(AbstractBlockEvent blockEvent, long l, boolean b) throws Exception {
+        SecureRandom secureRandom= SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
         CommitteeBlock block = (CommitteeBlock) blockEvent.getBlock();
         CommitteeBlock committeeBlock = (CommitteeBlock) block.clone();
         committeeBlock.createStructureMap();
