@@ -895,30 +895,29 @@ public class ValidatorConsensusPhases {
                         list_ip.add(address);
                     }
 
+                    ArrayList<SerializableErasureObject> recserializableErasureObjects=new ArrayList<>();
                     if (list_ip.isEmpty()) {
-                        cleanup();
-                        LOG.info("DispersePhase: Erasure connect list is empty abort");
-                        data.setStatusType(ConsensusStatusType.ABORT);
-                        return;
+                        LOG.info("DispersePhase: Erasure connect list is empty");
                     }
+                    else {
+                        RpcErasureClient<SerializableErasureObject> client = new RpcErasureClient<SerializableErasureObject>(new SerializableErasureObject(), list_ip, ERASURE_SERVER_PORT, CachedEventLoop.getInstance().getEventloop());
+                        client.connect();
+                        recserializableErasureObjects = (ArrayList<SerializableErasureObject>) client.getErasureChunks(new byte[0]);
+                        client.close();
 
-                    RpcErasureClient<SerializableErasureObject> client = new RpcErasureClient<SerializableErasureObject>(new SerializableErasureObject(), list_ip, ERASURE_SERVER_PORT, CachedEventLoop.getInstance().getEventloop());
-                    client.connect();
-                    ArrayList<SerializableErasureObject> recserializableErasureObjects = (ArrayList<SerializableErasureObject>) client.getErasureChunks(new byte[0]);
-                    client.close();
-
-                    for (SerializableErasureObject obj : recserializableErasureObjects) {
-                        if (!obj.CheckChunksValidity(rootObj.getRootMerkleHash())) {
-                            LOG.info("Merklee Hash is not valid");
-                            recserializableErasureObjects.remove(obj);
+                        for (SerializableErasureObject obj : recserializableErasureObjects) {
+                            if (!obj.CheckChunksValidity(rootObj.getRootMerkleHash())) {
+                                LOG.info("Merklee Hash is not valid");
+                                recserializableErasureObjects.remove(obj);
+                            }
                         }
-                    }
 
-                    if (recserializableErasureObjects.isEmpty()) {
-                        cleanup();
-                        LOG.info("DispersePhase: Received null or incorrect chunks from validators abort");
-                        data.setStatusType(ConsensusStatusType.ABORT);
-                        return;
+                        if (recserializableErasureObjects.isEmpty()) {
+                            cleanup();
+                            LOG.info("DispersePhase: Received null or incorrect chunks from validators abort");
+                            data.setStatusType(ConsensusStatusType.ABORT);
+                            return;
+                        }
                     }
                     recserializableErasureObjects.add(rootObj);
 
