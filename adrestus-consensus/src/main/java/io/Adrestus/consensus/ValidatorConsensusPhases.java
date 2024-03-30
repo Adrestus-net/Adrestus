@@ -829,12 +829,10 @@ public class ValidatorConsensusPhases {
                 if (current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).size() - 1) {
                     this.leader_bls = this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), this.current);
                     this.consensusClient = new ConsensusClient(this.blockIndex.getIpValue(CachedZoneIndex.getInstance().getZoneIndex(), this.leader_bls), clientID);
-                    this.consensusClient.receive_handler();
                     CachedLeaderIndex.getInstance().setTransactionPositionLeader(0);
                 } else {
                     this.leader_bls = this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), this.current);
                     this.consensusClient = new ConsensusClient(this.blockIndex.getIpValue(CachedZoneIndex.getInstance().getZoneIndex(), this.leader_bls), clientID);
-                    this.consensusClient.receive_handler();
                     CachedLeaderIndex.getInstance().setTransactionPositionLeader(current + 1);
                 }
 
@@ -866,7 +864,7 @@ public class ValidatorConsensusPhases {
                     String heartbeat = consensusClient.rec_heartbeat();
                     if (heartbeat == null) {
                         cleanup();
-                        LOG.info("AnnouncePhase: heartbeat message is null");
+                        LOG.info("DispersePhase: heartbeat message is null");
                         data.setStatusType(ConsensusStatusType.ABORT);
                         return;
                     }
@@ -907,7 +905,7 @@ public class ValidatorConsensusPhases {
 
                         for (SerializableErasureObject obj : recserializableErasureObjects) {
                             if (!obj.CheckChunksValidity(rootObj.getRootMerkleHash())) {
-                                LOG.info("Merklee Hash is not valid");
+                                LOG.info("Merkle Hash is not valid");
                                 recserializableErasureObjects.remove(obj);
                             }
                         }
@@ -975,6 +973,7 @@ public class ValidatorConsensusPhases {
 
             if (!DEBUG) {
                 try {
+                    this.consensusClient.receive_handler();
                     byte[] receive = this.consensusClient.deque_message();
                     if (receive == null || receive.length <= 0) {
                         cleanup();

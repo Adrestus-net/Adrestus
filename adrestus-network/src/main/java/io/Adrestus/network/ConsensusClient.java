@@ -213,7 +213,7 @@ public class ConsensusClient {
             this.ctx.destroySocket(this.connected);
             this.ctx.destroySocket(this.erasure);
             this.ctx.destroy();
-            Thread.sleep(400);
+            Thread.sleep(200);
         } catch (AssertionError e) {
             int g = 3;
         } catch (InterruptedException e) {

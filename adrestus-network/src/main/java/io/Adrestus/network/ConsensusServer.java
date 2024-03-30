@@ -370,8 +370,8 @@ public class ConsensusServer {
                 this.ctx.destroySocket(this.collector);
                 this.ctx.destroySocket(this.connected);
                 this.ctx.destroySocket(this.chunksCollector);
-                Thread.sleep(500);
                 this.ctx.destroy();
+                Thread.sleep(350);
             } catch (AssertionError e) {
             } catch (InterruptedException e) {
             }
