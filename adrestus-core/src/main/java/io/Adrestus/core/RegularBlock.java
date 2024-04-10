@@ -125,7 +125,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
             MerkleNode node = new MerkleNode(transaction.getHash());
             tree.build_proofs2(merkleNodeArrayList, node);
             if (transaction.getZoneFrom() != transaction.getZoneTo())
-                receiptList.add(new Receipt(transaction.getZoneFrom(), transaction.getZoneTo(), receiptBlock, tree.getMerkleeproofs(), index,transaction.getHash()));
+                receiptList.add(new Receipt(transaction.getZoneFrom(), transaction.getZoneTo(), receiptBlock, tree.getMerkleeproofs(), index, transaction.getHash()));
         }
 
         Map<Integer, Map<Receipt.ReceiptBlock, List<Receipt>>> outbound = receiptList
@@ -161,6 +161,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
                     .collect(Collectors.groupingBy(Receipt::getZoneFrom, Collectors.groupingBy(Receipt::getReceiptBlock)));
             InboundRelay inboundRelay = new InboundRelay(inbound_map);
             transactionBlock.setInbound(inboundRelay);
+            CachedInboundTransactionBlocks.generate(inbound_map);
         }
         //##########InBound############
 
@@ -187,7 +188,8 @@ public class RegularBlock implements BlockForge, BlockInvent {
                     .stream()
                     .forEach(entry -> {
                         entry.getValue().stream().forEach(receipt -> {
-                            Transaction trx=transactionBlock.getTransactionList().get(receipt.getPosition());
+                            TransactionBlock block = CachedInboundTransactionBlocks.retrieve(receipt.getZoneFrom(), receipt.getReceiptBlock().getHeight());
+                            Transaction trx = block.getTransactionList().get(receipt.getPosition());
                             replica.depositReplica(trx.getFrom(), trx.getAmount(), replica);
                         });
 
@@ -418,7 +420,8 @@ public class RegularBlock implements BlockForge, BlockInvent {
                     .stream()
                     .forEach(entry -> {
                         entry.getValue().stream().forEach(receipt -> {
-                            Transaction trx=transactionBlock.getTransactionList().get(receipt.getPosition());
+                            TransactionBlock block = CachedInboundTransactionBlocks.retrieve(receipt.getZoneFrom(), receipt.getReceiptBlock().getHeight());
+                            Transaction trx = block.getTransactionList().get(receipt.getPosition());
                             receipt_database.save(trx.getFrom(), receipt);
                             TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).deposit(trx.getFrom(), trx.getAmount(), TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()));
                             MemoryReceiptPool.getInstance().delete(receipt);
@@ -499,6 +502,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
             } catch (IllegalArgumentException e) {
             }
         }*/
+        CachedInboundTransactionBlocks.clear();
         CachedReceiptSemaphore.getInstance().getSemaphore().release();
 
     }

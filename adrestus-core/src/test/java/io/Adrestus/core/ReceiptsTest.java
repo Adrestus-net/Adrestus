@@ -230,7 +230,7 @@ public class ReceiptsTest {
         list.add(receipt6);
         Map<Integer, Map<Receipt.ReceiptBlock, List<Receipt>>> map = list
                 .stream()
-                .collect(Collectors.groupingBy(Receipt::getZoneFrom, Collectors.groupingBy(Receipt::getReceiptBlock)));
+                .collect(Collectors.groupingBy(Receipt::getZoneTo, Collectors.groupingBy(Receipt::getReceiptBlock)));
 
         OutBoundRelay outBoundRelay = new OutBoundRelay(map);
         transactionBlock.setOutbound(outBoundRelay);
@@ -263,7 +263,6 @@ public class ReceiptsTest {
             byte[] buffer = serenc.encode(transactionBlock);
             TransactionBlock clone2 = (TransactionBlock) transactionBlock.clone();
             TransactionBlock clone = (TransactionBlock) serenc.decode(buffer);
-            Map.Entry<Receipt.ReceiptBlock, List<Receipt>> entry = clone.getOutbound().getMap_receipts().get(0).entrySet().iterator().next();
             assertEquals(transactionBlock, clone2);
             assertEquals(transactionBlock, clone);
 //            clone2.getOutbound().getMap_receipts().values().forEach(receiptBlock -> receiptBlock.keySet().forEach(vals -> vals.setBlock_hash("random")));
@@ -291,7 +290,7 @@ public class ReceiptsTest {
 
         Map<Integer, Map<Receipt.ReceiptBlock, List<Receipt>>> map = receiptList
                 .stream()
-                .collect(Collectors.groupingBy(Receipt::getZoneTo, Collectors.groupingBy(Receipt::getReceiptBlock, Collectors.mapping(Receipt::merge, Collectors.toList()))));
+                .collect(Collectors.groupingBy(Receipt::getZoneFrom, Collectors.groupingBy(Receipt::getReceiptBlock, Collectors.mapping(Receipt::merge, Collectors.toList()))));
 
         for (Integer key : map.keySet()) {
             map.get(key).entrySet().stream().forEach(val -> {
@@ -330,7 +329,7 @@ public class ReceiptsTest {
         Receipt.ReceiptBlock receiptBlock1 = new Receipt.ReceiptBlock(transactionBlock.getHeight(), transactionBlock.getGeneration(), transactionBlock.getMerkleRoot());
         //its wrong each block must be unique for each zone need changes
         Receipt receipt1 = new Receipt(0, 1, receiptBlock1,null,1,new RegularTransaction("a").getHash());
-        Receipt receipt2 = new Receipt(0, 1, receiptBlock1,null,2,new RegularTransaction("b").getHash());
+        Receipt receipt2 = new Receipt(0, 2, receiptBlock1,null,2,new RegularTransaction("b").getHash());
         blockSizeCalculator.setTransactionBlock(transactionBlock);
 
         ArrayList<Receipt> list = new ArrayList<>();

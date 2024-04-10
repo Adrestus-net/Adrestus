@@ -3,6 +3,7 @@ package io.Adrestus.core.RingBuffer.handler.blocks;
 import io.Adrestus.Trie.MerkleNode;
 import io.Adrestus.Trie.MerkleTreeImp;
 import io.Adrestus.core.*;
+import io.Adrestus.core.Resourses.CachedInboundTransactionBlocks;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.core.RingBuffer.event.AbstractBlockEvent;
@@ -50,13 +51,14 @@ public class InBoundEventHandler implements BlockEventHandler<AbstractBlockEvent
             transactionBlock.setStatustype(StatusType.ABORT);
             return;
         }
-        for (Integer key : inner_receipts.keySet()) {
-            if (key == CachedZoneIndex.getInstance().getZoneIndex()) {
+
+        inner_receipts.values().forEach(val -> val.values().stream().forEach(col -> col.stream().forEach(rcp -> {
+            if (rcp.getZoneTo() != CachedZoneIndex.getInstance().getZoneIndex()) {
                 LOG.info("Sender zone is invalid");
                 transactionBlock.setStatustype(StatusType.ABORT);
                 return;
             }
-        }
+        })));
 
         Collections.sort(transactionBlock.getTransactionList());
         Set<Integer> keyset = inner_receipts.keySet();
@@ -72,7 +74,7 @@ public class InBoundEventHandler implements BlockEventHandler<AbstractBlockEvent
             finalService.submit(() -> {
                 try {
                     Map<Receipt.ReceiptBlock, List<Receipt>> zone = inner_receipts.get(key);
-                    ServiceSubmit(zone);
+                    ServiceSubmit(key, zone);
                 } catch (Exception e) {
                     e.printStackTrace();
                 } finally {
@@ -93,7 +95,7 @@ public class InBoundEventHandler implements BlockEventHandler<AbstractBlockEvent
     }
 
 
-    public void ServiceSubmit(Map<Receipt.ReceiptBlock, List<Receipt>> zone) {
+    public void ServiceSubmit(int zoneIndex, Map<Receipt.ReceiptBlock, List<Receipt>> zone) {
 
         //find validator position in structure map
         Integer my_pos = blockIndex.getPublicKeyIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedBLSKeyPair.getInstance().getPublicKey());
@@ -137,6 +139,9 @@ public class InBoundEventHandler implements BlockEventHandler<AbstractBlockEvent
 
                 current = client.getBlock(to_search);
                 bError = false;
+                HashMap<Integer, TransactionBlock> trxtosave = new HashMap<>();
+                current.stream().forEach(val -> trxtosave.put(val.getHeight(), val));
+                CachedInboundTransactionBlocks.store(zoneIndex, trxtosave);
             } catch (IllegalArgumentException e) {
                 bError = true;
                 if (my_pos == committeeBlock.getStructureMap().get(receiptZoneIndex).size() - 1) {

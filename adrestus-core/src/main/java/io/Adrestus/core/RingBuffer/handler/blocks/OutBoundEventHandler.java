@@ -33,13 +33,13 @@ public class OutBoundEventHandler implements BlockEventHandler<AbstractBlockEven
             transactionBlock.setStatustype(StatusType.ABORT);
             return;
         }
-        for (Integer key : outer_receipts.keySet()) {
-            if (key == CachedZoneIndex.getInstance().getZoneIndex()) {
+        outer_receipts.values().forEach(val->val.values().stream().forEach(col->col.stream().forEach(rcp->{
+            if (rcp.getZoneFrom() != CachedZoneIndex.getInstance().getZoneIndex()) {
                 LOG.info("Sender zone is invalid");
                 transactionBlock.setStatustype(StatusType.ABORT);
                 return;
             }
-        }
+        })));
 
         Collections.sort(transactionBlock.getTransactionList());
         ExecutorService service = Executors.newFixedThreadPool(3);

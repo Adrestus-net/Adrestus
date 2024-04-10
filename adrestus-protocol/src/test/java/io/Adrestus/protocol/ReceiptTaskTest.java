@@ -3,6 +3,7 @@ package io.Adrestus.protocol;
 import io.Adrestus.core.*;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
+import io.Adrestus.core.Resourses.MemoryReceiptPool;
 import io.Adrestus.crypto.bls.model.BLSPrivateKey;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.Adrestus.network.IPFinder;
@@ -93,9 +94,13 @@ public class ReceiptTaskTest {
         list.add(receipt6);
         Map<Integer, Map<Receipt.ReceiptBlock, List<Receipt>>> map = list
                 .stream()
-                .collect(Collectors.groupingBy(Receipt::getZoneFrom, Collectors.groupingBy(Receipt::getReceiptBlock)));
+                .collect(Collectors.groupingBy(Receipt::getZoneTo, Collectors.groupingBy(Receipt::getReceiptBlock)));
         OutBoundRelay outBoundRelay = new OutBoundRelay(map);
         transactionBlock.setOutbound(outBoundRelay);
+
+        Map<Integer, Map<Receipt.ReceiptBlock, List<Receipt>>> inboundmap = list
+                .stream()
+                .collect(Collectors.groupingBy(Receipt::getZoneFrom, Collectors.groupingBy(Receipt::getReceiptBlock)));
 
         CachedLatestBlocks.getInstance().setTransactionBlock(transactionBlock);
     }
