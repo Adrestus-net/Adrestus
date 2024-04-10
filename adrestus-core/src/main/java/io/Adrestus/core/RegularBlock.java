@@ -161,7 +161,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
                     .collect(Collectors.groupingBy(Receipt::getZoneFrom, Collectors.groupingBy(Receipt::getReceiptBlock)));
             InboundRelay inboundRelay = new InboundRelay(inbound_map);
             transactionBlock.setInbound(inboundRelay);
-            CachedInboundTransactionBlocks.getInstance().generate(inbound_map);
+            CachedInboundTransactionBlocks.getInstance().generate(inboundRelay.getMap_receipts());
         }
         //##########InBound############
 

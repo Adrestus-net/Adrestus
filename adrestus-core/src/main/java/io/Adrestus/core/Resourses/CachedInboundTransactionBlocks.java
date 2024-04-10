@@ -10,10 +10,7 @@ import io.distributedLedger.ZoneDatabaseFactory;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
@@ -100,12 +97,12 @@ public class CachedInboundTransactionBlocks {
     public void clear(){
         transactionBlockHashMap.clear();
     }
-    public void generate(Map<Integer, Map<Receipt.ReceiptBlock, List<Receipt>>> inboundmap) {
+    public void generate(LinkedHashMap<Integer, LinkedHashMap<Receipt.ReceiptBlock, List<Receipt>>> inboundmap) {
         if (inboundmap.isEmpty())
             return;
 
         Map<Integer, ArrayList<String>> block_retrieval = new HashMap<Integer, ArrayList<String>>();
-        for (Map.Entry<Integer, Map<Receipt.ReceiptBlock, List<Receipt>>> entry : inboundmap.entrySet()) {
+        for (Map.Entry<Integer, LinkedHashMap<Receipt.ReceiptBlock, List<Receipt>>> entry : inboundmap.entrySet()) {
             ArrayList<String> height_list = new ArrayList<>();
             for (Map.Entry<Receipt.ReceiptBlock, List<Receipt>> entry2 : entry.getValue().entrySet()) {
                 if (!contains(entry.getKey(), entry2.getKey().getHeight()))
