@@ -1,6 +1,7 @@
 package io.Adrestus.core.Resourses;
 
 import io.Adrestus.core.Receipt;
+import io.Adrestus.core.ReceiptBlock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,14 +21,14 @@ public class MemoryReceiptPool implements IMemoryPool<Receipt> {
     private static ReentrantReadWriteLock rwl;
     private static Lock r;
     private static Lock w;
-    private static ReceiptHashComparator hashComparator;
+    private static ReceiptEqualityComparator equalityComparator;
 
     private MemoryReceiptPool() {
         if (instance != null) {
             throw new IllegalStateException("Already initialized.");
         } else {
             this.memorypool = new ArrayList<>();
-            this.hashComparator = new ReceiptHashComparator();
+            this.equalityComparator = new ReceiptEqualityComparator();
             this.rwl = new ReentrantReadWriteLock();
             this.r = rwl.readLock();
             this.w = rwl.writeLock();
@@ -58,10 +59,10 @@ public class MemoryReceiptPool implements IMemoryPool<Receipt> {
     }
 
     @Override
-    public List<Receipt> getAll() throws Exception {
+    public ArrayList<Receipt> getAll() throws Exception {
         r.lock();
         try {
-            return memorypool;
+            return (ArrayList<Receipt>) memorypool;
         } finally {
             r.unlock();
         }
@@ -89,20 +90,21 @@ public class MemoryReceiptPool implements IMemoryPool<Receipt> {
 
     @Override
     public Optional<Receipt> getObjectByHash(String hash) throws Exception {
-        r.lock();
-        try {
-            Optional<Receipt> result = memorypool.stream().filter(val -> val.getTransaction().getHash().equals(hash)).findFirst();
-            return result;
-        } finally {
-            r.unlock();
-        }
+        return null;
+//        r.lock();
+//        try {
+//            Optional<Receipt> result = memorypool.stream().filter(val -> val.getTransaction().getHash().equals(hash)).findFirst();
+//            return result;
+//        } finally {
+//            r.unlock();
+//        }
     }
 
     @Override
     public List<Receipt> getListByZone(int zone) throws Exception {
         r.lock();
         try {
-            List<Receipt> result = memorypool.stream().filter(val -> val.getTransaction().getZoneTo() == zone).collect(Collectors.toList());
+            List<Receipt> result = memorypool.stream().filter(val -> val.getZoneTo() == zone).collect(Collectors.toList());
             return result;
         } finally {
             r.unlock();
@@ -113,7 +115,7 @@ public class MemoryReceiptPool implements IMemoryPool<Receipt> {
     public List<Receipt> getListNotByZone(int zone) throws Exception {
         r.lock();
         try {
-            List<Receipt> result = memorypool.stream().filter(val -> val.getTransaction().getZoneTo() != zone).collect(Collectors.toList());
+            List<Receipt> result = memorypool.stream().filter(val -> val.getZoneTo() != zone).collect(Collectors.toList());
             return result;
         } finally {
             r.unlock();
@@ -141,10 +143,10 @@ public class MemoryReceiptPool implements IMemoryPool<Receipt> {
     }
 
     @Override
-    public void delete(Receipt transaction) {
+    public void delete(Receipt receipt) {
         w.lock();
         try {
-            int index = Collections.binarySearch(memorypool, transaction, hashComparator);
+            int index = Collections.binarySearch(memorypool, receipt, equalityComparator);
             if (index >= 0)
                 memorypool.remove(index);
         } finally {
@@ -159,10 +161,10 @@ public class MemoryReceiptPool implements IMemoryPool<Receipt> {
     }
 
     @Override
-    public boolean checkHashExists(Receipt transaction) throws Exception {
+    public boolean checkHashExists(Receipt receipt) throws Exception {
         r.lock();
         try {
-            int index = Collections.binarySearch(memorypool, transaction, hashComparator);
+            int index = Collections.binarySearch(memorypool, receipt, equalityComparator);
             if (index >= 0)
                 return true;
             else
@@ -191,12 +193,11 @@ public class MemoryReceiptPool implements IMemoryPool<Receipt> {
 
     @Override
     public void clear() {
-
         memorypool.clear();
     }
 
     private boolean check_add(Receipt transaction) {
-        int index = Collections.binarySearch(memorypool, transaction, hashComparator);
+        int index = Collections.binarySearch(memorypool, transaction, equalityComparator);
         if (index >= 0)
             return true;
         else if (index < 0) index = ~index;
@@ -204,10 +205,14 @@ public class MemoryReceiptPool implements IMemoryPool<Receipt> {
         return false;
     }
 
-    private final class ReceiptHashComparator implements Comparator<Receipt> {
+    private final class ReceiptEqualityComparator implements Comparator<Receipt> {
         @Override
         public int compare(Receipt t1, Receipt t2) {
-            return t1.getTransaction().getHash().compareTo(t2.getTransaction().getHash());
+            return Comparator.comparing(Receipt::getZoneFrom)
+                    .thenComparingInt(val->val.getReceiptBlock().getGeneration())
+                    .thenComparingInt(val->val.getReceiptBlock().getHeight())
+                    .thenComparingInt(Receipt::getPosition)
+                    .compare(t1, t2);
         }
     }
 }

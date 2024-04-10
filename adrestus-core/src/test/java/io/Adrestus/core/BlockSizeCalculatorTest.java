@@ -41,7 +41,6 @@ public class BlockSizeCalculatorTest {
         list2.add(new Receipt());
 
         Receipt.ReceiptBlock receipt2 = new Receipt.ReceiptBlock();
-        receipt2.setBlock_hash("asd");
         receipt2.setHeight(2);
         map.put(new Receipt.ReceiptBlock(), list);
         map.put(receipt2, list2);
@@ -86,15 +85,12 @@ public class BlockSizeCalculatorTest {
         list4.add(new Receipt());
 
         Receipt.ReceiptBlock receipt2 = new Receipt.ReceiptBlock();
-        receipt2.setBlock_hash("asd");
         receipt2.setHeight(2);
 
         Receipt.ReceiptBlock receipt3 = new Receipt.ReceiptBlock();
-        receipt3.setBlock_hash("3");
         receipt3.setHeight(2);
 
         Receipt.ReceiptBlock receipt4 = new Receipt.ReceiptBlock();
-        receipt4.setBlock_hash("4");
         receipt4.setHeight(2);
 
 
@@ -106,7 +102,7 @@ public class BlockSizeCalculatorTest {
         b.getInbound().getMap_receipts().put(1, map);
         b.getOutbound().getMap_receipts().put(0, out_map);
         BlockSizeCalculator blockSizeCalculator = new BlockSizeCalculator(b);
-        assertEquals(21504, blockSizeCalculator.TransactionBlockSizeCalculator());
+        assertEquals(17408, blockSizeCalculator.TransactionBlockSizeCalculator());
     }
 
     @Test

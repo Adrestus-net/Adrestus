@@ -41,20 +41,14 @@ public class BindServerReceiptTask extends AdrestusTask {
         this.callBackReceive();
         this.publisher = new ReceiptEventPublisher(1024);
         this.publisher.
-                withAddressEventHandler().
-                withBlockHashEventHandler().
                 withGenerationEventHandler().
-                withHashEventHandler().
                 withHeightEventHandler().
                 withOutboundMerkleEventHandler().
                 withZoneEventHandler().
-                withAmountEventHandler().
                 withReplayEventHandler().
                 withEmptyEventHandler().
-                withNonceEventHandler().
                 withPublicKeyEventHandler()
                 .withSignatureEventHandler()
-                .withTimestampEventHandler()
                 .withZoneFromEventHandler()
                 .mergeEvents();
         this.publisher.start();
@@ -66,10 +60,6 @@ public class BindServerReceiptTask extends AdrestusTask {
             CachedReceiptSemaphore.getInstance().getSemaphore().acquire();
             Receipt receipt = recep.decode(x);
             if (receipt.getReceiptBlock() == null) {
-                CachedReceiptSemaphore.getInstance().getSemaphore().release();
-                return "";
-            }
-            if (receipt.getReceiptBlock().getBlock_hash().equals("")) {
                 CachedReceiptSemaphore.getInstance().getSemaphore().release();
                 return "";
             }
@@ -98,7 +88,7 @@ public class BindServerReceiptTask extends AdrestusTask {
                     return "";
                 }
 
-                int index = Collections.binarySearch(currentblock.get(currentblock.size() - 1).getTransactionList(), receipt.getTransaction());
+                int index = receipt.getPosition();
                 Transaction trx = currentblock.get(currentblock.size() - 1).getTransactionList().get(index);
 
                 ReceiptBlock receiptBlock1 = new ReceiptBlock(StatusType.PENDING, receipt, currentblock.get(currentblock.size() - 1), trx);

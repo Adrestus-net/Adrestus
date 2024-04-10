@@ -30,8 +30,8 @@ public class ReplayEventHandler implements ReceiptEventHandler<ReceiptBlockEvent
     public void onEvent(ReceiptBlockEvent receiptBlockEvent, long l, boolean b) throws InterruptedException {
         ReceiptBlock receiptBlock = receiptBlockEvent.getReceiptBlock();
         try {
-            ArrayList<Receipt> tosearch = receiptdatabase.findByKey(receiptBlock.getReceipt().getAddress()).get().getTo();
-            Optional<Receipt> transaction_hint = tosearch.stream().filter(tr -> tr.getTransaction().getHash().equals(receiptBlock.getTransaction().getHash())).findFirst();
+            ArrayList<Receipt> tosearch = receiptdatabase.findByKey(receiptBlock.getTransaction().getFrom()).get().getTo();
+            Optional<Receipt> transaction_hint = tosearch.stream().filter(tr -> tr.getReceiptBlock().getHeight()==receiptBlock.getTransactionBlock().getHeight()).findFirst();
 
             if (transaction_hint.isPresent()) {
                 receiptBlockEvent.getReceiptBlock().setStatusType(StatusType.ABORT);

@@ -209,17 +209,17 @@ public class ReceiptsTest {
         transactionBlock.setHash("hash");
 
 
-        Receipt.ReceiptBlock receiptBlock1 = new Receipt.ReceiptBlock("1", 1, 1, "1");
-        Receipt.ReceiptBlock receiptBlock1a = new Receipt.ReceiptBlock("1", 5, 6, "1a");
-        Receipt.ReceiptBlock receiptBlock2 = new Receipt.ReceiptBlock("2", 2, 2, "2");
-        Receipt.ReceiptBlock receiptBlock3 = new Receipt.ReceiptBlock("3", 3, 3, "3");
+        Receipt.ReceiptBlock receiptBlock1 = new Receipt.ReceiptBlock( 1, 1, "1");
+        Receipt.ReceiptBlock receiptBlock1a = new Receipt.ReceiptBlock( 2, 6, "1a");
+        Receipt.ReceiptBlock receiptBlock2 = new Receipt.ReceiptBlock( 3, 2, "2");
+        Receipt.ReceiptBlock receiptBlock3 = new Receipt.ReceiptBlock( 4, 3, "3");
         //its wrong each block must be unique for each zone need changes
-        Receipt receipt1 = new Receipt(0, 1, receiptBlock1, new RegularTransaction("a"));
-        Receipt receipt2 = new Receipt(0, 1, receiptBlock1a, new RegularTransaction("b"));
-        Receipt receipt3 = new Receipt(2, 1, receiptBlock2, new RegularTransaction("c"));
-        Receipt receipt4 = new Receipt(2, 1, receiptBlock2, new RegularTransaction("d"));
-        Receipt receipt5 = new Receipt(3, 1, receiptBlock3, new RegularTransaction("f"));
-        Receipt receipt6 = new Receipt(3, 1, receiptBlock3, new RegularTransaction("e"));
+        Receipt receipt1 = new Receipt(0, 1, receiptBlock1, null,1,"a");
+        Receipt receipt2 = new Receipt(0, 1, receiptBlock1a, null,2,"b");
+        Receipt receipt3 = new Receipt(2, 1, receiptBlock2, null,1,"c");
+        Receipt receipt4 = new Receipt(2, 1, receiptBlock2, null,2,"d");
+        Receipt receipt5 = new Receipt(3, 1, receiptBlock3, null,1,"e");
+        Receipt receipt6 = new Receipt(3, 1, receiptBlock3, null,2,"f");
 
         ArrayList<Receipt> list = new ArrayList<>();
         list.add(receipt1);
@@ -234,7 +234,7 @@ public class ReceiptsTest {
 
         OutBoundRelay outBoundRelay = new OutBoundRelay(map);
         transactionBlock.setOutbound(outBoundRelay);
-        transactionBlock.getOutbound().getMap_receipts().values().forEach(receiptBlock -> receiptBlock.keySet().forEach(vals -> vals.setBlock_hash(transactionBlock.getHash())));
+//        transactionBlock.getOutbound().getMap_receipts().values().forEach(receiptBlock -> receiptBlock.keySet().forEach(vals -> vals.setBlock_hash(transactionBlock.getHash())));
         Integer[] size = transactionBlock.getOutbound().getMap_receipts().keySet().toArray(new Integer[0]);
 //        for (int i=0;i<size.length;i++) {
 //            List<String> ReceiptIPWorkers = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(size[i]).values().stream().collect(Collectors.toList());
@@ -264,11 +264,10 @@ public class ReceiptsTest {
             TransactionBlock clone2 = (TransactionBlock) transactionBlock.clone();
             TransactionBlock clone = (TransactionBlock) serenc.decode(buffer);
             Map.Entry<Receipt.ReceiptBlock, List<Receipt>> entry = clone.getOutbound().getMap_receipts().get(0).entrySet().iterator().next();
-            assertEquals(entry.getKey().getBlock_hash(), "hash");
             assertEquals(transactionBlock, clone2);
             assertEquals(transactionBlock, clone);
-            clone2.getOutbound().getMap_receipts().values().forEach(receiptBlock -> receiptBlock.keySet().forEach(vals -> vals.setBlock_hash("random")));
-            assertNotEquals(clone2, transactionBlock);
+//            clone2.getOutbound().getMap_receipts().values().forEach(receiptBlock -> receiptBlock.keySet().forEach(vals -> vals.setBlock_hash("random")));
+//            assertNotEquals(clone2, transactionBlock);
         }
 
     }
@@ -281,13 +280,13 @@ public class ReceiptsTest {
         BlockEventPublisher publisher = new BlockEventPublisher(1024);
 
         String OriginalRootHash = transactionBlock.getMerkleRoot();
-        Receipt.ReceiptBlock receiptBlock = new Receipt.ReceiptBlock(transactionBlock.getHash(), transactionBlock.getHeight(), transactionBlock.getGeneration(), transactionBlock.getMerkleRoot());
+        Receipt.ReceiptBlock receiptBlock = new Receipt.ReceiptBlock(transactionBlock.getHeight(), transactionBlock.getGeneration(), transactionBlock.getMerkleRoot());
         ArrayList<Receipt> receiptList = new ArrayList<>();
         for (int i = 0; i < transactionBlock.getTransactionList().size(); i++) {
             Transaction transaction = transactionBlock.getTransactionList().get(i);
             MerkleNode node = new MerkleNode(transaction.getHash());
             tree.build_proofs2(merkleNodeArrayList, node);
-            receiptList.add(new Receipt(transaction.getZoneFrom(), transaction.getZoneTo(), receiptBlock, new RegularTransaction(transaction.getHash()), i, tree.getMerkleeproofs(), transaction.getTo(), transaction.getAmount()));
+            receiptList.add(new Receipt(transaction.getZoneFrom(), transaction.getZoneTo(), receiptBlock,  i, tree.getMerkleeproofs(),transaction.getHash()));
         }
 
         Map<Integer, Map<Receipt.ReceiptBlock, List<Receipt>>> map = receiptList
@@ -328,10 +327,10 @@ public class ReceiptsTest {
         transactionBlock.setHeight(15);
         transactionBlock.setMerkleRoot("1");
 
-        Receipt.ReceiptBlock receiptBlock1 = new Receipt.ReceiptBlock(transactionBlock.getHash(), transactionBlock.getHeight(), transactionBlock.getGeneration(), transactionBlock.getMerkleRoot());
+        Receipt.ReceiptBlock receiptBlock1 = new Receipt.ReceiptBlock(transactionBlock.getHeight(), transactionBlock.getGeneration(), transactionBlock.getMerkleRoot());
         //its wrong each block must be unique for each zone need changes
-        Receipt receipt1 = new Receipt(0, 1, receiptBlock1, new RegularTransaction("a"));
-        Receipt receipt2 = new Receipt(0, 1, receiptBlock1, new RegularTransaction("b"));
+        Receipt receipt1 = new Receipt(0, 1, receiptBlock1,null,1,new RegularTransaction("a").getHash());
+        Receipt receipt2 = new Receipt(0, 1, receiptBlock1,null,2,new RegularTransaction("b").getHash());
         blockSizeCalculator.setTransactionBlock(transactionBlock);
 
         ArrayList<Receipt> list = new ArrayList<>();
@@ -348,7 +347,7 @@ public class ReceiptsTest {
         blockSizeCalculator.setTransactionBlock(transactionBlock);
         byte[] tohash = serenc.encode(transactionBlock, blockSizeCalculator.TransactionBlockSizeCalculator());
         transactionBlock.setHash(HashUtil.sha256_bytetoString(tohash));
-        transactionBlock.getOutbound().getMap_receipts().values().forEach(receiptBlock -> receiptBlock.keySet().forEach(vals -> vals.setBlock_hash(transactionBlock.getHash())));
+//        transactionBlock.getOutbound().getMap_receipts().values().forEach(receiptBlock -> receiptBlock.keySet().forEach(vals -> vals.setBlock_hash(transactionBlock.getHash())));
         TransactionBlock clone2 = (TransactionBlock) transactionBlock.clone();
         TransactionBlock clone3 = (TransactionBlock) transactionBlock.clone();
         publisher.withHashHandler().mergeEvents();
@@ -362,11 +361,11 @@ public class ReceiptsTest {
         publisher.close();
         assertEquals(clone2, transactionBlock);
         assertEquals(clone3, transactionBlock);
-        clone3.getOutbound().getMap_receipts().values().forEach(receiptBlock -> receiptBlock.keySet().forEach(vals -> vals.setBlock_hash("random")));
-        assertNotEquals(clone3, transactionBlock);
+//        clone3.getOutbound().getMap_receipts().values().forEach(receiptBlock -> receiptBlock.keySet().forEach(vals -> vals.setBlock_hash("random")));
+//        assertNotEquals(clone3, transactionBlock);
         assertEquals(transactionBlock.getHash(), HashUtil.sha256_bytetoString(tohash));
-        assertEquals(transactionBlock.getOutbound().getMap_receipts().get(1).keySet().stream().findFirst().get().getBlock_hash(), HashUtil.sha256_bytetoString(tohash));
-        assertEquals(transactionBlock.getOutbound().getMap_receipts().get(1).values().stream().findFirst().get().stream().findFirst().get().getReceiptBlock().getBlock_hash(), HashUtil.sha256_bytetoString(tohash));
+//        assertEquals(transactionBlock.getOutbound().getMap_receipts().get(1).keySet().stream().findFirst().get().getBlock_hash(), HashUtil.sha256_bytetoString(tohash));
+//        assertEquals(transactionBlock.getOutbound().getMap_receipts().get(1).values().stream().findFirst().get().stream().findFirst().get().getReceiptBlock().getBlock_hash(), HashUtil.sha256_bytetoString(tohash));
     }
 
     @Test
@@ -390,7 +389,7 @@ public class ReceiptsTest {
         CachedBLSKeyPair.getInstance().setPublicKey(vk4);
         CachedBLSKeyPair.getInstance().setPrivateKey(sk4);
         String OriginalRootHash = transactionBlock.getMerkleRoot();
-        Receipt.ReceiptBlock receiptBlock = new Receipt.ReceiptBlock(transactionBlock.getHash(), transactionBlock.getHeight(), transactionBlock.getGeneration(), transactionBlock.getMerkleRoot());
+        Receipt.ReceiptBlock receiptBlock = new Receipt.ReceiptBlock(transactionBlock.getHeight(), transactionBlock.getGeneration(), transactionBlock.getMerkleRoot());
 
 
         for (int i = 0; i < transactionBlock.getTransactionList().size(); i++) {
@@ -400,7 +399,7 @@ public class ReceiptsTest {
             MerkleNode node = new MerkleNode(transaction.getHash());
             tree.build_proofs2(merkleNodeArrayList, node);
             if (CachedZoneIndex.getInstance().getZoneIndex() == transaction.getZoneTo())
-                MemoryReceiptPool.getInstance().add(new Receipt(transaction.getZoneFrom(), transaction.getZoneTo(), transaction.getTo(), transaction.getAmount(), receiptBlock, (Transaction) transaction.clone(), tree.getMerkleeproofs(), index));
+                MemoryReceiptPool.getInstance().add(new Receipt(transaction.getZoneFrom(), transaction.getZoneTo(), receiptBlock, tree.getMerkleeproofs(), index,transaction.getHash()));
         }
 
         Map<Integer, Map<Receipt.ReceiptBlock, List<Receipt>>> map = ((ArrayList<Receipt>) MemoryReceiptPool.getInstance().getAll())
@@ -426,8 +425,9 @@ public class ReceiptsTest {
                 .stream()
                 .forEach(entry -> {
                     entry.getValue().stream().forEach(receipt -> {
-                        receipt_database.save(receipt.getAddress(), receipt);
-                        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).deposit(receipt.getAddress(), receipt.getAmount(), TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()));
+                        Transaction trx=transactionBlock.getTransactionList().get(receipt.getPosition());
+                        receipt_database.save(trx.getFrom(), receipt);
+                        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).deposit(trx.getFrom(), trx.getAmount(), TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()));
                         MemoryReceiptPool.getInstance().delete(receipt);
                     });
                 });

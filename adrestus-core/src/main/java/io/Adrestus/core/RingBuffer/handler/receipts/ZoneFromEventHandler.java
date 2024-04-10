@@ -13,7 +13,7 @@ public class ZoneFromEventHandler implements ReceiptEventHandler<ReceiptBlockEve
     @Override
     public void onEvent(ReceiptBlockEvent receiptBlockEvent, long l, boolean b) throws InterruptedException {
         ReceiptBlock receiptBlock = receiptBlockEvent.getReceiptBlock();
-        if (receiptBlock.getTransaction().getZoneFrom() != receiptBlock.getReceipt().getTransaction().getZoneFrom()) {
+        if (receiptBlock.getTransaction().getZoneFrom() != receiptBlock.getReceipt().getZoneFrom()) {
             LOG.info("Receipt Zone From is not the same abort");
             receiptBlockEvent.getReceiptBlock().setStatusType(StatusType.ABORT);
             return;

@@ -168,7 +168,8 @@ public class BlockSync implements IBlockSync {
                                         .stream()
                                         .forEach(entry -> {
                                             entry.getValue().stream().forEach(receipt -> {
-                                                receipt_database.save(receipt.getAddress(), receipt);
+                                                Transaction trx=val.getTransactionList().get(receipt.getPosition());
+                                                receipt_database.save(trx.getFrom(), receipt);
                                             });
 
                                         });
@@ -195,7 +196,8 @@ public class BlockSync implements IBlockSync {
                                         .stream()
                                         .forEach(entry -> {
                                             entry.getValue().stream().forEach(receipt -> {
-                                                receipt_database.save(receipt.getAddress(), receipt);
+                                                Transaction trx=val.getTransactionList().get(receipt.getPosition());
+                                                receipt_database.save(trx.getFrom(), receipt);
                                             });
 
                                         });
@@ -354,7 +356,8 @@ public class BlockSync implements IBlockSync {
                                                 .stream()
                                                 .forEach(entry -> {
                                                     entry.getValue().stream().forEach(receipt -> {
-                                                        receipt_database.save(receipt.getAddress(), receipt);
+                                                        Transaction trx=val.getTransactionList().get(receipt.getPosition());
+                                                        receipt_database.save(trx.getFrom(), receipt);
                                                     });
 
                                                 });
@@ -383,7 +386,8 @@ public class BlockSync implements IBlockSync {
                                                 .stream()
                                                 .forEach(entry -> {
                                                     entry.getValue().stream().forEach(receipt -> {
-                                                        receipt_database.save(receipt.getAddress(), receipt);
+                                                        Transaction trx=val.getTransactionList().get(receipt.getPosition());
+                                                        receipt_database.save(trx.getFrom(), receipt);
                                                     });
 
                                                 });
@@ -619,7 +623,8 @@ public class BlockSync implements IBlockSync {
                                         .stream()
                                         .forEach(entry -> {
                                             entry.getValue().stream().forEach(receipt -> {
-                                                receipt_database.save(receipt.getAddress(), receipt);
+                                                Transaction trx=val.getTransactionList().get(receipt.getPosition());
+                                                receipt_database.save(trx.getFrom(), receipt);
                                             });
 
                                         });
@@ -648,7 +653,8 @@ public class BlockSync implements IBlockSync {
                                         .stream()
                                         .forEach(entry -> {
                                             entry.getValue().stream().forEach(receipt -> {
-                                                receipt_database.save(receipt.getAddress(), receipt);
+                                                Transaction trx=val.getTransactionList().get(receipt.getPosition());
+                                                receipt_database.save(trx.getFrom(), receipt);
                                             });
 
                                         });

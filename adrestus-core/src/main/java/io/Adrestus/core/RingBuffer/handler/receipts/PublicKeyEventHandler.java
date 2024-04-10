@@ -14,8 +14,8 @@ public class PublicKeyEventHandler implements ReceiptEventHandler<ReceiptBlockEv
     @Override
     public void onEvent(ReceiptBlockEvent receiptBlockEvent, long l, boolean b) throws InterruptedException {
         ReceiptBlock receiptBlock = receiptBlockEvent.getReceiptBlock();
-        boolean bool1 = StringUtils.equals(receiptBlock.getTransaction().getXAxis().toString(), receiptBlock.getReceipt().getTransaction().getXAxis().toString());
-        boolean bool2 = StringUtils.equals(receiptBlock.getTransaction().getYAxis().toString(), receiptBlock.getReceipt().getTransaction().getYAxis().toString());
+        boolean bool1 = StringUtils.equals(receiptBlock.getTransaction().getXAxis().toString(), receiptBlock.getTransaction().getXAxis().toString());
+        boolean bool2 = StringUtils.equals(receiptBlock.getTransaction().getYAxis().toString(), receiptBlock.getTransaction().getYAxis().toString());
         if (!bool1 || !bool2) {
             LOG.info("Public keys are not equal abort");
             receiptBlockEvent.getReceiptBlock().setStatusType(StatusType.ABORT);

@@ -37,20 +37,12 @@ public class ReceiptEventPublisher implements Publisher<ReceiptBlock> {
         disruptor = new Disruptor<ReceiptBlockEvent>(new ReceiptBlockEventFactory(), bufferSize, DaemonThreadFactory.INSTANCE, ProducerType.SINGLE, new BlockingWaitStrategy());
     }
 
-    public ReceiptEventPublisher withAddressEventHandler() {
-        group.add(new AddressEventHandler());
-        return this;
-    }
 
     public ReceiptEventPublisher withEmptyEventHandler() {
         group.add(new EmptyEventHandler());
         return this;
     }
 
-    public ReceiptEventPublisher withNonceEventHandler() {
-        group.add(new NonceEventHandler());
-        return this;
-    }
 
     public ReceiptEventPublisher withPublicKeyEventHandler() {
         group.add(new PublicKeyEventHandler());
@@ -62,30 +54,18 @@ public class ReceiptEventPublisher implements Publisher<ReceiptBlock> {
         return this;
     }
 
-    public ReceiptEventPublisher withTimestampEventHandler() {
-        group.add(new TimestampEventHandler());
-        return this;
-    }
 
     public ReceiptEventPublisher withZoneFromEventHandler() {
         group.add(new ZoneFromEventHandler());
         return this;
     }
 
-    public ReceiptEventPublisher withBlockHashEventHandler() {
-        group.add(new BlockHashEventHandler());
-        return this;
-    }
 
     public ReceiptEventPublisher withGenerationEventHandler() {
         group.add(new GenerationEventHandler());
         return this;
     }
 
-    public ReceiptEventPublisher withHashEventHandler() {
-        group.add(new HashEventHandler());
-        return this;
-    }
 
     public ReceiptEventPublisher withHeightEventHandler() {
         group.add(new HeightEventHandler());
@@ -102,10 +82,6 @@ public class ReceiptEventPublisher implements Publisher<ReceiptBlock> {
         return this;
     }
 
-    public ReceiptEventPublisher withAmountEventHandler() {
-        group.add(new AmountEventHandler());
-        return this;
-    }
 
     public ReceiptEventPublisher withReplayEventHandler() {
         group.add(new ReplayEventHandler());

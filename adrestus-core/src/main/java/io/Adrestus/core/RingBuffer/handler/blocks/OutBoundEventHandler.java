@@ -53,9 +53,8 @@ public class OutBoundEventHandler implements BlockEventHandler<AbstractBlockEven
             service.submit(() -> {
                 for (Map.Entry<Receipt.ReceiptBlock, List<Receipt>> entry : zone_1.entrySet()) {
                     entry.getValue().stream().forEach(receipt -> {
-                        int index = Collections.binarySearch(transactionBlock.getTransactionList(), receipt.getTransaction());
-                        Transaction transaction = transactionBlock.getTransactionList().get(index);
-                        boolean check = PreconditionsChecks(receipt, entry.getKey(), transactionBlock, transaction, index);
+                        Transaction transaction = transactionBlock.getTransactionList().get(receipt.getPosition());
+                        boolean check = PreconditionsChecks(receipt, entry.getKey(), transactionBlock, transaction, receipt.getPosition());
                         if (!check)
                             atomicInteger.decrementAndGet();
                     });
@@ -71,9 +70,8 @@ public class OutBoundEventHandler implements BlockEventHandler<AbstractBlockEven
             service.submit(() -> {
                 for (Map.Entry<Receipt.ReceiptBlock, List<Receipt>> entry : zone_2.entrySet()) {
                     entry.getValue().stream().forEach(receipt -> {
-                        int index = Collections.binarySearch(transactionBlock.getTransactionList(), receipt.getTransaction());
-                        Transaction transaction = transactionBlock.getTransactionList().get(index);
-                        boolean check = PreconditionsChecks(receipt, entry.getKey(), transactionBlock, transaction, index);
+                        Transaction transaction = transactionBlock.getTransactionList().get(receipt.getPosition());
+                        boolean check = PreconditionsChecks(receipt, entry.getKey(), transactionBlock, transaction, receipt.getPosition());
                         if (!check)
                             atomicInteger.decrementAndGet();
                     });
@@ -88,9 +86,8 @@ public class OutBoundEventHandler implements BlockEventHandler<AbstractBlockEven
             service.submit(() -> {
                 for (Map.Entry<Receipt.ReceiptBlock, List<Receipt>> entry : zone_3.entrySet()) {
                     entry.getValue().stream().forEach(receipt -> {
-                        int index = Collections.binarySearch(transactionBlock.getTransactionList(), receipt.getTransaction());
-                        Transaction transaction = transactionBlock.getTransactionList().get(index);
-                        boolean check = PreconditionsChecks(receipt, entry.getKey(), transactionBlock, transaction, index);
+                        Transaction transaction = transactionBlock.getTransactionList().get(receipt.getPosition());
+                        boolean check = PreconditionsChecks(receipt, entry.getKey(), transactionBlock, transaction, receipt.getPosition());
                         if (!check)
                             atomicInteger.decrementAndGet();
                     });
@@ -138,18 +135,14 @@ public class OutBoundEventHandler implements BlockEventHandler<AbstractBlockEven
         final ArrayList<MerkleNode> merkleNodeArrayList = new ArrayList<>();
         transactionBlock.getTransactionList().forEach(val -> merkleNodeArrayList.add(new MerkleNode(val.getHash())));
         outer_tree.my_generate2(merkleNodeArrayList);
-        boolean bool1 = StringUtils.equals(transaction.getHash(), receipt.getTransaction().getHash());
-        boolean bool2 = StringUtils.equals(transaction.getTo(), receipt.getAddress());
         boolean bool3 = StringUtils.equals(transactionBlock.getMerkleRoot(), outer_tree.GenerateRoot(receipt.getProofs()));
-        boolean bool4 = StringUtils.equals(transactionBlock.getHash(), receiptBlock.getBlock_hash());
         boolean bool5 = StringUtils.equals(receiptBlock.getOutboundMerkleRoot(), outer_tree.getRootHash());
-        double val2 = Double.compare(transaction.getAmount(), receipt.getAmount());
         int val3 = Integer.compare(index, receipt.getPosition());
         int val4 = Integer.compare(transactionBlock.getHeight(), receiptBlock.getHeight());
         int val5 = Integer.compare(transactionBlock.getGeneration(), receiptBlock.getGeneration());
         int val6 = Integer.compare(receipt.getZoneFrom(), CachedZoneIndex.getInstance().getZoneIndex());
 
-        if (val2 == 0.0 && val3 == 0 && val4 == 0.0 && val5 == 0 && val6 == 0 && bool1 && bool2 && bool3 && bool4 && bool5)
+        if (val3 == 0 && val4 == 0.0 && val5 == 0 && val6 == 0  && bool3 && bool5)
             return true;
         return false;
     }

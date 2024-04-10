@@ -18,10 +18,5 @@ public class EmptyEventHandler implements ReceiptEventHandler<ReceiptBlockEvent>
             receiptBlockEvent.getReceiptBlock().setStatusType(StatusType.ABORT);
             return;
         }
-        if (receiptBlock.getReceipt().getReceiptBlock().getBlock_hash().equals("")) {
-            LOG.info("Receipt Block is empty abort");
-            receiptBlockEvent.getReceiptBlock().setStatusType(StatusType.ABORT);
-            return;
-        }
     }
 }

@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 
 public class GenerationEventHandler implements ReceiptEventHandler<ReceiptBlockEvent> {
 
-    private static Logger LOG = LoggerFactory.getLogger(BlockHashEventHandler.class);
+    private static Logger LOG = LoggerFactory.getLogger(GenerationEventHandler.class);
 
     @Override
     public void onEvent(ReceiptBlockEvent receiptBlockEvent, long l, boolean b) throws InterruptedException {

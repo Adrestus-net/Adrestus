@@ -39,7 +39,8 @@ public class PatriciaTreeEventHandler implements BlockEventHandler<AbstractBlock
                     .stream()
                     .forEach(entry -> {
                         entry.getValue().stream().forEach(receipt -> {
-                            replica.depositReplica(receipt.getAddress(), receipt.getAmount(), replica);
+                            Transaction trx=transactionBlock.getTransactionList().get(receipt.getPosition());
+                            replica.depositReplica(trx.getFrom(), trx.getAmount(), replica);
                         });
 
                     });

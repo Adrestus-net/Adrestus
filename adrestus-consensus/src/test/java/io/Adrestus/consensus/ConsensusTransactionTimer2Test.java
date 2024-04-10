@@ -259,7 +259,7 @@ public class ConsensusTransactionTimer2Test {
 
         TCPTransactionConsumer<byte[]> callback = x -> {
             Receipt receipt = recep.decode(x);
-            if (receipt.getReceiptBlock() != null && !receipt.getReceiptBlock().getBlock_hash().equals(""))
+            if (receipt.getReceiptBlock() != null)
                 MemoryReceiptPool.getInstance().add(receipt);
             //  System.out.println(MemoryReceiptPool.getInstance().getAll().size());
             return "";
@@ -288,7 +288,7 @@ public class ConsensusTransactionTimer2Test {
                                             val.getValue().stream().forEach(receipt -> {
                                                 TransactionBlock transactionBlock = CachedLatestBlocks.getInstance().getTransactionBlock();
                                                 if (!transactionBlock.getHash().equals("hash")) {
-                                                    receipt.setReceiptBlock(new Receipt.ReceiptBlock(transactionBlock.getHash(), transactionBlock.getHeight(), transactionBlock.getGeneration(), transactionBlock.getMerkleRoot()));
+                                                    receipt.setReceiptBlock(new Receipt.ReceiptBlock(transactionBlock.getHeight(), transactionBlock.getGeneration(), transactionBlock.getMerkleRoot()));
                                                     byte data[] = recep.encode(receipt, 1024);
                                                     ByteBuf sizeBuf = ByteBufPool.allocate(2); // enough to serialize size 1024
                                                     sizeBuf.writeVarInt(data.length);
