@@ -44,14 +44,14 @@ public class CachedInboundTransactionBlocks {
     }
 
 
-    private static boolean contains(Integer key1, Integer key2) {
+    private boolean contains(Integer key1, Integer key2) {
         if (transactionBlockHashMap.containsKey(key1))
             if (transactionBlockHashMap.get(key1).containsKey(key2))
                 return true;
         return false;
     }
 
-    private static void storeAll(Map<Integer, ArrayList<String>> block_map) {
+    private void storeAll(Map<Integer, ArrayList<String>> block_map) {
         for (Map.Entry<Integer, ArrayList<String>> entry : block_map.entrySet()) {
             List<String> ips = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(entry.getKey()).values().stream().collect(Collectors.toList());
             ips.remove(IPFinder.getLocalIP());
@@ -89,18 +89,18 @@ public class CachedInboundTransactionBlocks {
         }
     }
 
-    public static TransactionBlock retrieve(int zoneFrom, int height) {
+    public TransactionBlock retrieve(int zoneFrom, int height) {
         return transactionBlockHashMap.get(zoneFrom).get(height);
     }
 
-    public static void store(int zoneFrom, HashMap<Integer, TransactionBlock> map){
+    public void store(int zoneFrom, HashMap<Integer, TransactionBlock> map){
         transactionBlockHashMap.put(zoneFrom,map);
     }
 
-    public static void clear(){
+    public void clear(){
         transactionBlockHashMap.clear();
     }
-    public static void generate(Map<Integer, Map<Receipt.ReceiptBlock, List<Receipt>>> inboundmap) {
+    public void generate(Map<Integer, Map<Receipt.ReceiptBlock, List<Receipt>>> inboundmap) {
         if (inboundmap.isEmpty())
             return;
 
@@ -113,7 +113,7 @@ public class CachedInboundTransactionBlocks {
             }
             block_retrieval.put(entry.getKey(), height_list);
         }
-        CachedInboundTransactionBlocks.storeAll(block_retrieval);
+        CachedInboundTransactionBlocks.getInstance().storeAll(block_retrieval);
     }
 
 

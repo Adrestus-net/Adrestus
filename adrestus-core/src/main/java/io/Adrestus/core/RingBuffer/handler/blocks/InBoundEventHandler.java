@@ -141,7 +141,7 @@ public class InBoundEventHandler implements BlockEventHandler<AbstractBlockEvent
                 bError = false;
                 HashMap<Integer, TransactionBlock> trxtosave = new HashMap<>();
                 current.stream().forEach(val -> trxtosave.put(val.getHeight(), val));
-                CachedInboundTransactionBlocks.store(zoneIndex, trxtosave);
+                CachedInboundTransactionBlocks.getInstance().store(zoneIndex, trxtosave);
             } catch (IllegalArgumentException e) {
                 bError = true;
                 if (my_pos == committeeBlock.getStructureMap().get(receiptZoneIndex).size() - 1) {
