@@ -128,7 +128,6 @@ public class CachedInboundTransactionBlocks {
                 }
             }
         }
-        block_retrieval.clear();
     }
 
     public TransactionBlock retrieve(int zoneFrom, int height) {
@@ -140,6 +139,7 @@ public class CachedInboundTransactionBlocks {
     }
 
     public void clear() {
+        block_retrieval.clear();
         transactionBlockHashMap.clear();
     }
 

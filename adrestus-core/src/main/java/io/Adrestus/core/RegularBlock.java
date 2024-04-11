@@ -415,7 +415,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
             transactionBlock
                     .getInbound()
                     .getMap_receipts()
-                    .get(transactionBlock.getInbound().getMap_receipts().keySet().toArray()[0])
+                    .forEach((key, value) -> value
                     .entrySet()
                     .stream()
                     .forEach(entry -> {
@@ -426,7 +426,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
                             TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).deposit(trx.getFrom(), trx.getAmount(), TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()));
                             MemoryReceiptPool.getInstance().delete(receipt);
                         });
-                    });
+                    }));
 
         if (!transactionBlock.getOutbound().getMap_receipts().isEmpty()) {
             Integer[] size = transactionBlock.getOutbound().getMap_receipts().keySet().toArray(new Integer[0]);
