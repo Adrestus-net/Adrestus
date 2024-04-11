@@ -355,7 +355,7 @@ public class ConsensusTransactionTimer2Test {
         }
 
         addreses_old = new ArrayList<>(addreses);
-        CountDownLatch latch = new CountDownLatch(5);
+        CountDownLatch latch = new CountDownLatch(15);
         ConsensusTransaction2Timer c = new ConsensusTransaction2Timer(latch, addreses, keypair);
         latch.await();
         c.close();

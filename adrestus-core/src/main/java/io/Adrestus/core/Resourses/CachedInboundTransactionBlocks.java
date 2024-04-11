@@ -19,11 +19,14 @@ public class CachedInboundTransactionBlocks {
     private static volatile CachedInboundTransactionBlocks instance;
     private static ConcurrentMap<Integer, HashMap<Integer, TransactionBlock>> transactionBlockHashMap;
 
+    private static Map<Integer, HashSet<String>> block_retrieval;
+
     private CachedInboundTransactionBlocks() {
         if (instance != null) {
             throw new IllegalStateException("Already initialized.");
         }
         transactionBlockHashMap = new ConcurrentHashMap<Integer, HashMap<Integer, TransactionBlock>>();
+        block_retrieval = new HashMap<Integer, HashSet<String>>();
     }
 
     public static CachedInboundTransactionBlocks getInstance() {
@@ -48,8 +51,8 @@ public class CachedInboundTransactionBlocks {
         return false;
     }
 
-    private void storeAll(Map<Integer, ArrayList<String>> block_map) {
-        for (Map.Entry<Integer, ArrayList<String>> entry : block_map.entrySet()) {
+    private void storeAll(Map<Integer, HashSet<String>> block_map) {
+        for (Map.Entry<Integer, HashSet<String>> entry : block_map.entrySet()) {
             List<String> ips = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(entry.getKey()).values().stream().collect(Collectors.toList());
             ips.remove(IPFinder.getLocalIP());
 
@@ -69,7 +72,7 @@ public class CachedInboundTransactionBlocks {
                 client.connect();
 
 
-                List<TransactionBlock> currentblock = client.getBlock(entry.getValue());
+                List<TransactionBlock> currentblock = client.getBlock(entry.getValue().stream().collect(Collectors.toList()));
                 if (!currentblock.isEmpty()) {
                     HashMap<Integer, TransactionBlock> current = new HashMap<>();
                     currentblock.stream().forEach(val -> current.put(val.getHeight(), val));
@@ -86,24 +89,67 @@ public class CachedInboundTransactionBlocks {
         }
     }
 
+    public void StoreAll() {
+        if (block_retrieval.isEmpty())
+            return;
+
+        for (Map.Entry<Integer, HashSet<String>> entry : block_retrieval.entrySet()) {
+            List<String> ips = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(entry.getKey()).values().stream().collect(Collectors.toList());
+            ips.remove(IPFinder.getLocalIP());
+
+            int RPCTransactionZonePort = ZoneDatabaseFactory.getDatabaseRPCPort(entry.getKey());
+            ArrayList<InetSocketAddress> toConnectTransaction = new ArrayList<>();
+            ips.stream().forEach(ip -> {
+                try {
+                    toConnectTransaction.add(new InetSocketAddress(InetAddress.getByName(ip), RPCTransactionZonePort));
+                } catch (UnknownHostException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+
+            RpcAdrestusClient client = null;
+            try {
+                client = new RpcAdrestusClient(new TransactionBlock(), toConnectTransaction, CachedEventLoop.getInstance().getEventloop());
+                client.connect();
+
+
+                List<TransactionBlock> currentblock = client.getBlock(entry.getValue().stream().collect(Collectors.toList()));
+                if (!currentblock.isEmpty()) {
+                    HashMap<Integer, TransactionBlock> current = new HashMap<>();
+                    currentblock.stream().forEach(val -> current.put(val.getHeight(), val));
+                    transactionBlockHashMap.put(entry.getKey(), current);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                if (client != null) {
+                    client.close();
+                    client = null;
+                }
+            }
+        }
+        block_retrieval.clear();
+    }
+
     public TransactionBlock retrieve(int zoneFrom, int height) {
         return transactionBlockHashMap.get(zoneFrom).get(height);
     }
 
-    public void store(int zoneFrom, HashMap<Integer, TransactionBlock> map){
-        transactionBlockHashMap.put(zoneFrom,map);
+    public void store(int zoneFrom, HashMap<Integer, TransactionBlock> map) {
+        transactionBlockHashMap.put(zoneFrom, map);
     }
 
-    public void clear(){
+    public void clear() {
         transactionBlockHashMap.clear();
     }
+
     public void generate(LinkedHashMap<Integer, LinkedHashMap<Receipt.ReceiptBlock, List<Receipt>>> inboundmap) {
         if (inboundmap.isEmpty())
             return;
 
-        Map<Integer, ArrayList<String>> block_retrieval = new HashMap<Integer, ArrayList<String>>();
+        Map<Integer, HashSet<String>> block_retrieval = new HashMap<Integer, HashSet<String>>();
         for (Map.Entry<Integer, LinkedHashMap<Receipt.ReceiptBlock, List<Receipt>>> entry : inboundmap.entrySet()) {
-            ArrayList<String> height_list = new ArrayList<>();
+            HashSet<String> height_list = new HashSet<>();
             for (Map.Entry<Receipt.ReceiptBlock, List<Receipt>> entry2 : entry.getValue().entrySet()) {
                 if (!contains(entry.getKey(), entry2.getKey().getHeight()))
                     height_list.add(String.valueOf(entry2.getKey().getHeight()));
@@ -111,7 +157,38 @@ public class CachedInboundTransactionBlocks {
             block_retrieval.put(entry.getKey(), height_list);
         }
         CachedInboundTransactionBlocks.getInstance().storeAll(block_retrieval);
+
     }
 
+    public void prepare(LinkedHashMap<Integer, LinkedHashMap<Receipt.ReceiptBlock, List<Receipt>>> inboundmap) {
+        if (inboundmap.isEmpty())
+            return;
 
+
+        for (Map.Entry<Integer, LinkedHashMap<Receipt.ReceiptBlock, List<Receipt>>> entry : inboundmap.entrySet()) {
+            if (block_retrieval.containsKey(entry.getKey())) {
+                HashSet<String> height_list = block_retrieval.get(entry.getKey());
+                for (Map.Entry<Receipt.ReceiptBlock, List<Receipt>> entry2 : entry.getValue().entrySet()) {
+                    if (!contains(entry.getKey(), entry2.getKey().getHeight()))
+                        height_list.add(String.valueOf(entry2.getKey().getHeight()));
+                }
+                block_retrieval.put(entry.getKey(), height_list);
+            } else {
+                HashSet<String> height_list = new HashSet<>();
+                for (Map.Entry<Receipt.ReceiptBlock, List<Receipt>> entry2 : entry.getValue().entrySet()) {
+                    if (!contains(entry.getKey(), entry2.getKey().getHeight()))
+                        height_list.add(String.valueOf(entry2.getKey().getHeight()));
+                }
+                block_retrieval.put(entry.getKey(), height_list);
+            }
+        }
+    }
+
+    public ConcurrentMap<Integer, HashMap<Integer, TransactionBlock>> getTransactionBlockHashMap() {
+        return transactionBlockHashMap;
+    }
+
+    public Map<Integer, HashSet<String>> getBlock_retrieval() {
+        return block_retrieval;
+    }
 }
