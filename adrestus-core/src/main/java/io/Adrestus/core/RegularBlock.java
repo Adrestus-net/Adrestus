@@ -416,35 +416,29 @@ public class RegularBlock implements BlockForge, BlockInvent {
                     .getInbound()
                     .getMap_receipts()
                     .forEach((key, value) -> value
-                    .entrySet()
-                    .stream()
-                    .forEach(entry -> {
-                        entry.getValue().stream().forEach(receipt -> {
-                            TransactionBlock block = CachedInboundTransactionBlocks.getInstance().retrieve(receipt.getZoneFrom(), receipt.getReceiptBlock().getHeight());
-                            Transaction trx = block.getTransactionList().get(receipt.getPosition());
-                            receipt_database.save(trx.getFrom(), receipt);
-                            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).deposit(trx.getFrom(), trx.getAmount(), TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()));
-                            MemoryReceiptPool.getInstance().delete(receipt);
-                        });
-                    }));
+                            .entrySet()
+                            .stream()
+                            .forEach(entry -> {
+                                entry.getValue().stream().forEach(receipt -> {
+                                    TransactionBlock block = CachedInboundTransactionBlocks.getInstance().retrieve(receipt.getZoneFrom(), receipt.getReceiptBlock().getHeight());
+                                    Transaction trx = block.getTransactionList().get(receipt.getPosition());
+                                    receipt_database.save(trx.getFrom(), receipt);
+                                    TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).deposit(trx.getFrom(), trx.getAmount(), TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()));
+                                    MemoryReceiptPool.getInstance().delete(receipt);
+                                });
+                            }));
 
         if (!transactionBlock.getOutbound().getMap_receipts().isEmpty()) {
-            List<byte[]> toSendReceipt = new ArrayList<>();
-            transactionBlock
-                    .getOutbound()
-                    .getMap_receipts()
-                    .forEach((key, value) -> value
-                            .values()
-                            .forEach(receipts_list -> {
-                                receipts_list.forEach(
-                                        receipt -> {
-                                            toSendReceipt.add(receipt_encode.encode(receipt, 1024));
-                                        });
-                                List<String> ReceiptIPWorkers = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(key).values().stream().collect(Collectors.toList());
-                                var executor = new AsyncService<Long>(ReceiptIPWorkers, toSendReceipt, SocketConfigOptions.RECEIPT_PORT);
-                                var asyncResult = executor.startListProcess(300L);
-                                var result = executor.endProcess(asyncResult);
-                            }));
+            for (Map.Entry<Integer, LinkedHashMap<Receipt.ReceiptBlock, List<Receipt>>> entry : transactionBlock.getOutbound().getMap_receipts().entrySet()) {
+                List<String> ReceiptIPWorkers = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(entry.getKey()).values().stream().collect(Collectors.toList());
+                List<byte[]> toSendReceipt = new ArrayList<>();
+                for (Map.Entry<Receipt.ReceiptBlock, List<Receipt>> entry2 : entry.getValue().entrySet()) {
+                    entry2.getValue().forEach(receipt -> toSendReceipt.add(receipt_encode.encode(receipt, 1024)));
+                }
+                var executor = new AsyncService<Long>(ReceiptIPWorkers, toSendReceipt, SocketConfigOptions.RECEIPT_PORT);
+                var asyncResult = executor.startListProcess(300L);
+                var result = executor.endProcess(asyncResult);
+            }
         }
         TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).setHeight(String.valueOf(transactionBlock.getHeight()));
         tree_database.save(String.valueOf(transactionBlock.getHeight()), patricia_tree_wrapper.encode_special(TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()), SerializationUtils.serialize(TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex())).length));

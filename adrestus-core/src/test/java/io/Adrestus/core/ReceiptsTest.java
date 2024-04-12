@@ -214,12 +214,12 @@ public class ReceiptsTest {
         Receipt.ReceiptBlock receiptBlock2 = new Receipt.ReceiptBlock( 3, 2, "2");
         Receipt.ReceiptBlock receiptBlock3 = new Receipt.ReceiptBlock( 4, 3, "3");
         //its wrong each block must be unique for each zone need changes
-        Receipt receipt1 = new Receipt(0, 1, receiptBlock1, null,1,"a");
-        Receipt receipt2 = new Receipt(0, 1, receiptBlock1a, null,2,"b");
-        Receipt receipt3 = new Receipt(2, 1, receiptBlock2, null,1,"c");
-        Receipt receipt4 = new Receipt(2, 1, receiptBlock2, null,2,"d");
-        Receipt receipt5 = new Receipt(3, 1, receiptBlock3, null,1,"e");
-        Receipt receipt6 = new Receipt(3, 1, receiptBlock3, null,2,"f");
+        Receipt receipt1 = new Receipt(1, 0, receiptBlock1, null,1,"a");
+        Receipt receipt2 = new Receipt(1, 0, receiptBlock1a, null,2,"b");
+        Receipt receipt3 = new Receipt(1, 2, receiptBlock2, null,1,"c");
+        Receipt receipt4 = new Receipt(1, 2, receiptBlock2, null,2,"d");
+        Receipt receipt5 = new Receipt(1, 3, receiptBlock3, null,1,"e");
+        Receipt receipt6 = new Receipt(1, 4, receiptBlock3, null,2,"f");
 
         ArrayList<Receipt> list = new ArrayList<>();
         list.add(receipt1);
@@ -234,6 +234,7 @@ public class ReceiptsTest {
 
         OutBoundRelay outBoundRelay = new OutBoundRelay(map);
         transactionBlock.setOutbound(outBoundRelay);
+
 //        transactionBlock.getOutbound().getMap_receipts().values().forEach(receiptBlock -> receiptBlock.keySet().forEach(vals -> vals.setBlock_hash(transactionBlock.getHash())));
         Integer[] size = transactionBlock.getOutbound().getMap_receipts().keySet().toArray(new Integer[0]);
 //        for (int i=0;i<size.length;i++) {
