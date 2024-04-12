@@ -245,10 +245,8 @@ public class TreemapSerializationTest {
         PatriciaTreeNode treeNode = new PatriciaTreeNode(2, 1);
         TreeFactory.getMemoryTree(1).store(address, treeNode);
         MemoryTreePool m = (MemoryTreePool) TreeFactory.getMemoryTree(1);
-        m.setHeight("1");
         MemoryTreePool m2 = (MemoryTreePool) TreeFactory.getMemoryTree(2);
         MemoryTreePool m2clone = (MemoryTreePool) TreeFactory.getMemoryTree(2);
-        m2.setHeight("6");
         assertNotEquals(m, m2);
         assertEquals(m2, m2clone);
         //m.getByaddress(address);
@@ -263,7 +261,6 @@ public class TreemapSerializationTest {
         Map<String, byte[]> copy = tree_datasbase.findBetweenRange("2");
         Optional<byte[]> res = tree_datasbase.seekLast();
         MemoryTreePool copys = (MemoryTreePool) valueMapper.decode(tree_datasbase.seekLast().get());
-        assertEquals(String.valueOf(1), copys.getHeight());
         tree_datasbase.delete_db();
     }
 }

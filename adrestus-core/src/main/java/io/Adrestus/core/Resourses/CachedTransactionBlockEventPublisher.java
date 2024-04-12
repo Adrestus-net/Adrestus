@@ -29,7 +29,6 @@ public class CachedTransactionBlockEventPublisher {
                 .withInBoundEventHandler()
                 .withOutBoundEventHandler()
                 .withPatriciaTreeEventHandler()
-                .withPatriciaTreeHeightEventHandler()
                 .mergeEventsAndPassVerifySig();
 
         this.publisher.start();

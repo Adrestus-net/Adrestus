@@ -24,11 +24,6 @@ public interface IMemoryTreePool extends Serializable {
 
     String getRootHash() throws Exception;
 
-
-    void setHeight(String height) throws Exception;
-
-    String getHeight() throws Exception;
-
     Set<String> Keyset(final Bytes53 startKeyHash, final int limit);
 
     MerklePatriciaTrie<Bytes, PatriciaTreeNode> getTrie();

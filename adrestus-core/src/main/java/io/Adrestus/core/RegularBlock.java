@@ -440,8 +440,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
                 var result = executor.endProcess(asyncResult);
             }
         }
-        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).setHeight(String.valueOf(transactionBlock.getHeight()));
-        tree_database.save(String.valueOf(transactionBlock.getHeight()), patricia_tree_wrapper.encode_special(TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()), SerializationUtils.serialize(TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex())).length));
+        tree_database.save(String.valueOf(CachedZoneIndex.getInstance().getZoneIndex()), patricia_tree_wrapper.encode_special(TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()), SerializationUtils.serialize(TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex())).length));
         CachedLatestBlocks.getInstance().setTransactionBlock(transactionBlock);
         MemoryTransactionPool.getInstance().delete(transactionBlock.getTransactionList());
 
@@ -553,26 +552,12 @@ public class RegularBlock implements BlockForge, BlockInvent {
                 Map<String, TransactionBlock> toSave = new HashMap<>();
                 List<TransactionBlock> blocks;
                 if (block.isPresent()) {
-                    /*int counterloops = 0;
-                    do {
-                        blocks = client.getBlocksList(String.valueOf(block.get().getHeight()));
-                        if (!blocks.isEmpty()) {
-                            counterloops = EpochTransitionFinder.countloops(block.get().getHeight(), blocks.get(blocks.size() - 1).getHeight());
-                        }
-                    } while (counterloops != 0);*/
                     blocks = client.getBlocksList(String.valueOf(block.get().getHeight()));
                     if (!blocks.isEmpty()) {
                         blocks.stream().skip(1).forEach(val -> toSave.put(String.valueOf(val.getHeight()), val));
                     }
 
                 } else {
-                    /*int counterloops = 0;
-                    do {
-                        blocks = client.getBlocksList("");
-                        if (!blocks.isEmpty()) {
-                            counterloops = EpochTransitionFinder.countloops(blocks.get(blocks.size() - 1).getHeight());
-                        }
-                    } while (counterloops != 0);*/
                     blocks = client.getBlocksList("");
                     if (!blocks.isEmpty()) {
                         blocks.stream().forEach(val -> toSave.put(String.valueOf(val.getHeight()), val));
@@ -593,40 +578,14 @@ public class RegularBlock implements BlockForge, BlockInvent {
                 client = new RpcAdrestusClient(new byte[]{}, toConnectPatricia, CachedEventLoop.getInstance().getEventloop());
                 client.connect();
 
-                Optional<byte[]> tree = tree_database.seekLast();
-                List<byte[]> treeObjects;
-                if (tree.isPresent()) {
-                    treeObjects = client.getPatriciaTreeList(((MemoryTreePool) patricia_tree_wrapper.decode(tree.get())).getHeight());
-                } else {
-                    treeObjects = client.getPatriciaTreeList("");
-                }
-                Map<String, byte[]> toSave = new HashMap<>();
-                if (tree.isPresent()) {
-                    if (!treeObjects.isEmpty()) {
-                        treeObjects.stream().skip(1).forEach(val -> {
-                            try {
-                                toSave.put(((MemoryTreePool) patricia_tree_wrapper.decode(val)).getHeight(), val);
-                            } catch (Exception e) {
-                                throw new RuntimeException(e);
-                            }
-                        });
-                    }
-                } else {
-                    if (!treeObjects.isEmpty()) {
-                        treeObjects.stream().forEach(val -> {
-                            try {
-                                toSave.put(((MemoryTreePool) patricia_tree_wrapper.decode(val)).getHeight(), val);
-                            } catch (Exception e) {
-                                throw new RuntimeException(e);
-                            }
-                        });
-                    }
-                }
+                List<byte[]>  treeObjects = client.getPatriciaTreeList("");
                 if (!treeObjects.isEmpty()) {
-                    TreeFactory.setMemoryTree((MemoryTreePool) patricia_tree_wrapper.decode(treeObjects.get(treeObjects.size() - 1)), CachedZoneIndex.getInstance().getZoneIndex());
+                    TreeFactory.setMemoryTree((MemoryTreePool) patricia_tree_wrapper.decode(treeObjects.get(0)), CachedZoneIndex.getInstance().getZoneIndex());
+                    tree_database.save(String.valueOf(CachedZoneIndex.getInstance().getZoneIndex()),treeObjects.get(0));
                 }
                 if (client != null)
                     client.close();
+
             } catch (IllegalArgumentException e) {
             }
         }

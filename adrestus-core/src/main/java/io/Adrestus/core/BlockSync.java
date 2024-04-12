@@ -231,42 +231,14 @@ public class BlockSync implements IBlockSync {
                 client = new RpcAdrestusClient(new byte[]{}, toConnectPatricia, CachedEventLoop.getInstance().getEventloop());
                 client.connect();
 
-                Optional<byte[]> tree = tree_database.seekLast();
-                List<byte[]> treeObjects;
-                if (tree.isPresent()) {
-                    treeObjects = client.getPatriciaTreeList(((MemoryTreePool) patricia_tree_wrapper.decode(tree.get())).getHeight());
-                } else {
-                    treeObjects = client.getPatriciaTreeList("");
-                }
-                Map<String, byte[]> toSave = new HashMap<>();
-                if (tree.isPresent()) {
-                    if (!treeObjects.isEmpty() && treeObjects.size() > 1) {
-                        treeObjects.stream().skip(1).forEach(val -> {
-                            try {
-                                toSave.put(((MemoryTreePool) patricia_tree_wrapper.decode(val)).getHeight(), val);
-                            } catch (Exception e) {
-                                throw new RuntimeException(e);
-                            }
-                        });
-                    }
-                } else {
-                    if (!treeObjects.isEmpty()) {
-                        treeObjects.stream().forEach(val -> {
-                            try {
-                                toSave.put(((MemoryTreePool) patricia_tree_wrapper.decode(val)).getHeight(), val);
-                            } catch (Exception e) {
-                                throw new RuntimeException(e);
-                            }
-                        });
-                    }
-                }
-                if (!toSave.isEmpty())
-                    tree_database.saveAll(toSave);
+                List<byte[]>  treeObjects = client.getPatriciaTreeList("");
                 if (!treeObjects.isEmpty()) {
-                    TreeFactory.setMemoryTree((MemoryTreePool) patricia_tree_wrapper.decode(treeObjects.get(treeObjects.size() - 1)), CachedZoneIndex.getInstance().getZoneIndex());
+                    TreeFactory.setMemoryTree((MemoryTreePool) patricia_tree_wrapper.decode(treeObjects.get(0)), CachedZoneIndex.getInstance().getZoneIndex());
+                    tree_database.save(String.valueOf(CachedZoneIndex.getInstance().getZoneIndex()),treeObjects.get(0));
                 }
                 if (client != null)
                     client.close();
+
             } catch (IllegalArgumentException e) {
             }
             //send request to receive cached Data used for consensus
@@ -329,7 +301,6 @@ public class BlockSync implements IBlockSync {
                     });
 
                     RpcAdrestusClient client = null;
-                    List<Integer> patriciaRootList = null;
                     try {
                         IDatabase<String, TransactionBlock> block_database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
                         IDatabase<String, LevelDBTransactionWrapper<Transaction>> transaction_database = new DatabaseFactory(String.class, Transaction.class, new TypeToken<LevelDBTransactionWrapper<Transaction>>() {
@@ -345,7 +316,7 @@ public class BlockSync implements IBlockSync {
                         if (block.isPresent()) {
                             blocks = client.getBlocksList(String.valueOf(block.get().getHeight()));
                             if (!blocks.isEmpty() && blocks.size() > 1) {
-                                patriciaRootList = new ArrayList<>(blocks.stream().filter(val -> val.getGeneration() > CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration()).map(TransactionBlock::getHeight).collect(Collectors.toList()));
+//                              patriciaRootList = new ArrayList<>(blocks.stream().filter(val -> val.getGeneration() > CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration()).map(TransactionBlock::getHeight).collect(Collectors.toList()));
                                 blocks.removeIf(x -> x.getGeneration() > CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration());
                                 blocks.stream().skip(1).forEach(val -> CachedInboundTransactionBlocks.getInstance().prepare(val.getInbound().getMap_receipts()));
                                 CachedInboundTransactionBlocks.getInstance().StoreAll();
@@ -376,7 +347,7 @@ public class BlockSync implements IBlockSync {
                         } else {
                             blocks = client.getBlocksList("");
                             if (!blocks.isEmpty()) {
-                                patriciaRootList = new ArrayList<>(blocks.stream().filter(val -> val.getGeneration() > CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration()).map(TransactionBlock::getHeight).collect(Collectors.toList()));
+//                                patriciaRootList = new ArrayList<>(blocks.stream().filter(val -> val.getGeneration() > CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration()).map(TransactionBlock::getHeight).collect(Collectors.toList()));
                                 blocks.removeIf(x -> x.getGeneration() > CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration());
                                 blocks.stream().skip(1).forEach(val -> CachedInboundTransactionBlocks.getInstance().prepare(val.getInbound().getMap_receipts()));
                                 CachedInboundTransactionBlocks.getInstance().StoreAll();
@@ -423,45 +394,11 @@ public class BlockSync implements IBlockSync {
                         client = new RpcAdrestusClient(new byte[]{}, toConnectPatricia, CachedEventLoop.getInstance().getEventloop());
                         client.connect();
 
-                        Optional<byte[]> tree = tree_database.seekLast();
-                        List<byte[]> treeObjects;
-                        if (tree.isPresent()) {
-                            treeObjects = client.getPatriciaTreeList(((MemoryTreePool) patricia_tree_wrapper.decode(tree.get())).getHeight());
-                        } else {
-                            treeObjects = client.getPatriciaTreeList("");
+                        List<byte[]> treeObjects = client.getPatriciaTreeList("");
+                        if (!treeObjects.isEmpty()) {
+                            TreeFactory.setMemoryTree((MemoryTreePool) patricia_tree_wrapper.decode(treeObjects.get(0)), CachedZoneIndex.getInstance().getZoneIndex());
+                            tree_database.save(String.valueOf(CachedZoneIndex.getInstance().getZoneIndex()),treeObjects.get(0));
                         }
-                        Map<String, byte[]> toSave = new HashMap<>();
-                        if (tree.isPresent()) {
-                            if (!treeObjects.isEmpty() && treeObjects.size() > 1) {
-                                treeObjects.stream().skip(1).forEach(val -> {
-                                    try {
-                                        toSave.put(((MemoryTreePool) patricia_tree_wrapper.decode(val)).getHeight(), val);
-                                    } catch (Exception e) {
-                                        throw new RuntimeException(e);
-                                    }
-                                });
-                            }
-                        } else {
-                            if (!treeObjects.isEmpty()) {
-                                treeObjects.stream().forEach(val -> {
-                                    try {
-                                        toSave.put(((MemoryTreePool) patricia_tree_wrapper.decode(val)).getHeight(), val);
-                                    } catch (Exception e) {
-                                        throw new RuntimeException(e);
-                                    }
-                                });
-                            }
-                        }
-                        List<Integer> finalPatriciaRootList = patriciaRootList;
-                        if (finalPatriciaRootList != null) {
-                            Map<String, byte[]> toCollect = toSave.entrySet().stream()
-                                    .filter(x -> !finalPatriciaRootList.contains(Integer.valueOf(x.getKey())))
-                                    .collect(Collectors.toMap(x -> x.getKey(), x -> x.getValue()));
-                            tree_database.saveAll(toCollect);
-                        } else {
-                            tree_database.saveAll(toSave);
-                        }
-                        TreeFactory.setMemoryTree((MemoryTreePool) patricia_tree_wrapper.decode(tree_database.seekLast().get()), CachedZoneIndex.getInstance().getZoneIndex());
 
                         if (client != null) {
                             client.close();
@@ -692,46 +629,11 @@ public class BlockSync implements IBlockSync {
                 client = new RpcAdrestusClient(new byte[]{}, toConnectPatricia, CachedEventLoop.getInstance().getEventloop());
                 client.connect();
 
-                Optional<byte[]> tree = tree_database.seekLast();
-                List<byte[]> treeObjects;
-                if (tree.isPresent()) {
-                    treeObjects = client.getPatriciaTreeList(((MemoryTreePool) patricia_tree_wrapper.decode(tree.get())).getHeight());
-                } else {
-                    treeObjects = client.getPatriciaTreeList("");
+                List<byte[]> treeObjects = client.getPatriciaTreeList("");
+                if (!treeObjects.isEmpty()) {
+                    TreeFactory.setMemoryTree((MemoryTreePool) patricia_tree_wrapper.decode(treeObjects.get(0)), CachedZoneIndex.getInstance().getZoneIndex());
+                    tree_database.save(String.valueOf(CachedZoneIndex.getInstance().getZoneIndex()),treeObjects.get(0));
                 }
-                Map<String, byte[]> toSave = new HashMap<>();
-                if (tree.isPresent()) {
-                    if (!treeObjects.isEmpty() && treeObjects.size() > 1) {
-                        treeObjects.stream().skip(1).forEach(val -> {
-                            try {
-                                toSave.put(((MemoryTreePool) patricia_tree_wrapper.decode(val)).getHeight(), val);
-                            } catch (Exception e) {
-                                throw new RuntimeException(e);
-                            }
-                        });
-                    }
-                } else {
-                    if (!treeObjects.isEmpty()) {
-                        treeObjects.stream().forEach(val -> {
-                            try {
-                                toSave.put(((MemoryTreePool) patricia_tree_wrapper.decode(val)).getHeight(), val);
-                            } catch (Exception e) {
-                                throw new RuntimeException(e);
-                            }
-                        });
-                    }
-                }
-                List<Integer> finalPatriciaRootList = patriciaRootList;
-                if (finalPatriciaRootList != null) {
-                    Map<String, byte[]> toCollect = toSave.entrySet().stream()
-                            .filter(x -> !finalPatriciaRootList.contains(Integer.valueOf(x.getKey())))
-                            .collect(Collectors.toMap(x -> x.getKey(), x -> x.getValue()));
-                    tree_database.saveAll(toCollect);
-                } else {
-                    tree_database.saveAll(toSave);
-                }
-                TreeFactory.setMemoryTree((MemoryTreePool) patricia_tree_wrapper.decode(tree_database.seekLast().get()), CachedZoneIndex.getInstance().getZoneIndex());
-
                 if (client != null) {
                     client.close();
                     client = null;

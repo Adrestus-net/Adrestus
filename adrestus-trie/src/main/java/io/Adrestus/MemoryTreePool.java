@@ -157,17 +157,6 @@ public class MemoryTreePool implements IMemoryTreePool, Cloneable {
             r.unlock();
         }
     }
-
-    @Override
-    public void setHeight(String height) throws Exception {
-        this.height = height;
-    }
-
-    @Override
-    public String getHeight() throws Exception {
-        return this.height;
-    }
-
     @Override
     public MerklePatriciaTrie<Bytes, PatriciaTreeNode> getTrie() {
         return this.patriciaTreeImp;

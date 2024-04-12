@@ -56,10 +56,7 @@ public class Service<T> implements IService<T> {
     @Override
     public List<T> downloadPatriciaTree(String hash) throws Exception {
         Map<String, T> map;
-        if (hash.equals(""))
-            map = database.seekFromStart();
-        else
-            map = database.findBetweenRange(hash);
+        map = database.seekFromStart();
         List<T> result = new ArrayList<T>(map.values());
         return result;
     }
