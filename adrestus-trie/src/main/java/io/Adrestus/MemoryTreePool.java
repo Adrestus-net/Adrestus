@@ -264,8 +264,9 @@ public class MemoryTreePool implements IMemoryTreePool, Cloneable {
         return Objects.hashCode(patriciaTreeImp, valueSerializer, rwl, r, w);
     }
 
+    @SneakyThrows
     @Override
-    public Object clone() throws CloneNotSupportedException {
+    public Object clone() {
         MemoryTreePool t = new MemoryTreePool();
         t.setPatriciaTreeImp((MerklePatriciaTrie<Bytes, PatriciaTreeNode>) this.patriciaTreeImp.clone());
         t.setValueSerializer(this.valueSerializer);

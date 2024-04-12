@@ -1,7 +1,14 @@
 package io.Adrestus;
 
-public final class TreeFactory {
+public class TreeFactory {
+    private static volatile TreeFactory instance;
 
+
+    private TreeFactory() {
+        if (instance != null) {
+            throw new IllegalStateException("Already initialized.");
+        }
+    }
     public static IMemoryTreePool getMemoryTree(int zone) {
         switch (zone) {
             case 0:
@@ -21,15 +28,17 @@ public final class TreeFactory {
     public static void setMemoryTree(IMemoryTreePool iMemoryTreePool, int zone) {
         switch (zone) {
             case 0:
-                TreeZone0.getInstance().setTree(iMemoryTreePool);
+                TreeZone0.getInstance().setTree((MemoryTreePool) iMemoryTreePool);
+                break;
             case 1:
-                TreeZone1.getInstance().setTree(iMemoryTreePool);
+                TreeZone1.getInstance().setTree((MemoryTreePool) iMemoryTreePool);
+                break;
             case 2:
-                TreeZone2.getInstance().setTree(iMemoryTreePool);
+                TreeZone2.getInstance().setTree((MemoryTreePool) iMemoryTreePool);
+                break;
             case 3:
-                TreeZone3.getInstance().setTree(iMemoryTreePool);
-            default:
-                TreeZone0.getInstance().setTree(iMemoryTreePool);
+                TreeZone3.getInstance().setTree((MemoryTreePool) iMemoryTreePool);
+                break;
         }
     }
 }

@@ -4,5 +4,5 @@ public interface ITreeZone {
 
     public IMemoryTreePool getTree();
 
-    public void setTree(IMemoryTreePool iMemoryTreePool);
+    public void setTree(MemoryTreePool iMemoryTreePool);
 }

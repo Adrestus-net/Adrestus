@@ -56,7 +56,6 @@ public class CachedInboundTransactionBlocksTest {
         OutBoundRelay outBoundRelay1 = new OutBoundRelay(map);
         OutBoundRelay outBoundRelay2 = new OutBoundRelay(map2);
 
-        Integer[] receipts_array = outBoundRelay1.getMap_receipts().keySet().toArray(new Integer[0]);
         CachedInboundTransactionBlocks.getInstance().prepare(outBoundRelay1.getMap_receipts());
         CachedInboundTransactionBlocks.getInstance().prepare(outBoundRelay2.getMap_receipts());
         Map<Integer, HashSet<String>> integerHashSetMap=CachedInboundTransactionBlocks.getInstance().getBlock_retrieval();

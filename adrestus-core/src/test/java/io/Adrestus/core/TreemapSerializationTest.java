@@ -1,6 +1,7 @@
 package io.Adrestus.core;
 
 import com.google.common.reflect.TypeToken;
+import io.Adrestus.IMemoryTreePool;
 import io.Adrestus.MemoryTreePool;
 import io.Adrestus.TreeFactory;
 import io.Adrestus.TreeZone1;
@@ -146,6 +147,53 @@ public class TreemapSerializationTest {
     }
 
     @Test
+    public void treemap_database_test1() throws Exception {
+        IDatabase<String, byte[]> tree_datasbase = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getPatriciaTreeZoneInstance(0));
+
+        Type fluentType = new TypeToken<MemoryTreePool>() {
+        }.getType();
+        List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(MemoryTreePool.class, ctx -> new MemoryTreePoolSerializer()));
+        SerializationUtil valueMapper = new SerializationUtil<>(fluentType, list);
+
+        String address = "ADR-ADL3-VDZK-ZU7H-2BX5-M2H4-S7LF-5SR4-ECQA-EIUJ-CBFK";
+        PatriciaTreeNode treeNode = new PatriciaTreeNode(2, 1);
+        PatriciaTreeNode treeNode1 = new PatriciaTreeNode(12, 2);
+        PatriciaTreeNode treeNode3 = new PatriciaTreeNode(123, 2);
+        PatriciaTreeNode treeNode4 = new PatriciaTreeNode(15, 2);
+        TreeFactory.getMemoryTree(1).store(address, treeNode);
+        TreeFactory.getMemoryTree(0).store(address, treeNode1);
+        TreeFactory.getMemoryTree(2).store(address, treeNode3);
+        TreeFactory.getMemoryTree(3).store(address, treeNode4);
+        IMemoryTreePool m = TreeFactory.getMemoryTree(3);
+        IMemoryTreePool m11 =  TreeFactory.getMemoryTree(1);
+        IMemoryTreePool m12 = TreeFactory.getMemoryTree(0);
+        IMemoryTreePool m13 = TreeFactory.getMemoryTree(2);
+        TreeFactory.setMemoryTree(m,0);
+        IMemoryTreePool m2 = TreeFactory.getMemoryTree(3);
+        IMemoryTreePool m21 =  TreeFactory.getMemoryTree(1);
+        IMemoryTreePool m31 =  TreeFactory.getMemoryTree(0);
+        IMemoryTreePool m41 =  TreeFactory.getMemoryTree(2);
+        //m.getByaddress(address);
+        //use only special
+        byte[] bt = valueMapper.encode_special(m, SerializationUtils.serialize(m).length);
+        tree_datasbase.save("patricia_tree_root", bt);
+        MemoryTreePool copy = (MemoryTreePool) valueMapper.decode(tree_datasbase.findByKey("patricia_tree_root").get());
+
+
+        //copy.store(address, treeNode);
+        Option<PatriciaTreeNode> pat = copy.getByaddress(address);
+
+        assertEquals(treeNode4, pat.get());
+        assertEquals(m, copy);
+        assertEquals(15,TreeFactory.getMemoryTree(3).getByaddress(address).get().getAmount());
+        assertEquals(15,TreeFactory.getMemoryTree(0).getByaddress(address).get().getAmount());
+        assertEquals(2,TreeFactory.getMemoryTree(1).getByaddress(address).get().getAmount());
+        assertEquals(123,TreeFactory.getMemoryTree(2).getByaddress(address).get().getAmount());
+        tree_datasbase.delete_db();
+    }
+
+    @Test
     public void treemap_database_test2() throws Exception {
         IDatabase<String, byte[]> tree_database = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getPatriciaTreeZoneInstance(0));
 
@@ -196,7 +244,6 @@ public class TreemapSerializationTest {
         String address = "ADR-ADL3-VDZK-ZU7H-2BX5-M2H4-S7LF-5SR4-ECQA-EIUJ-CBFK";
         PatriciaTreeNode treeNode = new PatriciaTreeNode(2, 1);
         TreeFactory.getMemoryTree(1).store(address, treeNode);
-        TreeZone1.setInstance(null);
         MemoryTreePool m = (MemoryTreePool) TreeFactory.getMemoryTree(1);
         m.setHeight("1");
         MemoryTreePool m2 = (MemoryTreePool) TreeFactory.getMemoryTree(2);
