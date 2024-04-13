@@ -77,18 +77,18 @@ public class BlockSync implements IBlockSync {
                 try {
                     if (last_block.isPresent()) {
                         if (last_block.get().getHeight() > 1) {
-                            blocks = client.getBlocksList(String.valueOf(last_block.get().getHeight() - 1));
+                            blocks = client.getBlocksList(String.valueOf(last_block.get().getGeneration() - 1));
                         } else {
-                            blocks = client.getBlocksList(String.valueOf(last_block.get().getHeight()));
+                            blocks = client.getBlocksList(String.valueOf(last_block.get().getGeneration()));
                         }
                         if (!blocks.isEmpty() && blocks.size() > 1) {
-                            blocks.stream().skip(1).forEach(val -> toSave.put(String.valueOf(val.getHeight()), val));
+                            blocks.stream().skip(1).forEach(val -> toSave.put(String.valueOf(val.getGeneration()), val));
                         }
 
                     } else {
                         blocks = client.getBlocksList("");
                         if (!blocks.isEmpty()) {
-                            blocks.stream().forEach(val -> toSave.put(String.valueOf(val.getHeight()), val));
+                            blocks.stream().forEach(val -> toSave.put(String.valueOf(val.getGeneration()), val));
                         }
                     }
 
@@ -271,7 +271,7 @@ public class BlockSync implements IBlockSync {
     @SneakyThrows
     public void SyncBeaconChainState() {
         IDatabase<String, CommitteeBlock> database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
-        Optional<CommitteeBlock> prevblock = database.findByKey(String.valueOf(CachedLatestBlocks.getInstance().getCommitteeBlock().getHeight() - 1));
+        Optional<CommitteeBlock> prevblock = database.findByKey(String.valueOf(CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration() - 1));
         CachedZoneIndex.getInstance().setZoneIndexInternalIP();
         int prevzone = -1;
         if (prevblock.isPresent()) {
@@ -333,7 +333,6 @@ public class BlockSync implements IBlockSync {
                                                             Transaction trx = current.getTransactionList().get(receipt.getPosition());
                                                             receipt_database.save(trx.getFrom(), receipt);
                                                         });
-
                                                     }));
                                     CachedInboundTransactionBlocks.getInstance().clear();
                                     toSave.put(String.valueOf(val.getHeight()), val);
@@ -349,7 +348,7 @@ public class BlockSync implements IBlockSync {
                             if (!blocks.isEmpty()) {
 //                                patriciaRootList = new ArrayList<>(blocks.stream().filter(val -> val.getGeneration() > CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration()).map(TransactionBlock::getHeight).collect(Collectors.toList()));
                                 blocks.removeIf(x -> x.getGeneration() > CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration());
-                                blocks.stream().skip(1).forEach(val -> CachedInboundTransactionBlocks.getInstance().prepare(val.getInbound().getMap_receipts()));
+                                blocks.stream().forEach(val -> CachedInboundTransactionBlocks.getInstance().prepare(val.getInbound().getMap_receipts()));
                                 CachedInboundTransactionBlocks.getInstance().StoreAll();
                                 blocks.stream().forEach(val -> {
                                     val
@@ -466,7 +465,7 @@ public class BlockSync implements IBlockSync {
             RpcAdrestusClient client1 = new RpcAdrestusClient(new CommitteeBlock(), toConnectCommittee, CachedEventLoop.getInstance().getEventloop());
             client1.connect();
 
-            commitee_blocks = client1.getBlocksList(String.valueOf(CachedLatestBlocks.getInstance().getCommitteeBlock().getHeight()));
+            commitee_blocks = client1.getBlocksList(String.valueOf(CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration()));
 
             if (client1 != null) {
                 client1.close();
@@ -481,7 +480,7 @@ public class BlockSync implements IBlockSync {
         CachedEpochGeneration.getInstance().setEpoch_counter(0);
         boolean isNodeExist = CachedZoneIndex.getInstance().isNodeExistOnBlockInternal();
         IDatabase<String, CommitteeBlock> database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
-        database.save(String.valueOf(CachedLatestBlocks.getInstance().getCommitteeBlock().getHeight()), CachedLatestBlocks.getInstance().getCommitteeBlock());
+        database.save(String.valueOf(CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration()), CachedLatestBlocks.getInstance().getCommitteeBlock());
 
         if (!isNodeExist) {
             LOG.info("Node not existed on Committee block WaitPatientlyYourPosition");
@@ -564,9 +563,13 @@ public class BlockSync implements IBlockSync {
                                             .stream()
                                             .forEach(entry -> {
                                                 entry.getValue().stream().forEach(receipt -> {
-                                                    TransactionBlock current = CachedInboundTransactionBlocks.getInstance().retrieve(receipt.getZoneFrom(), receipt.getReceiptBlock().getHeight());
-                                                    Transaction trx = current.getTransactionList().get(receipt.getPosition());
-                                                    receipt_database.save(trx.getFrom(), receipt);
+                                                    try {
+                                                        TransactionBlock current = CachedInboundTransactionBlocks.getInstance().retrieve(receipt.getZoneFrom(), receipt.getReceiptBlock().getHeight());
+                                                        Transaction trx = current.getTransactionList().get(receipt.getPosition());
+                                                        receipt_database.save(trx.getFrom(), receipt);
+                                                    }catch (NullPointerException e){
+                                                        int g=3;
+                                                    }
                                                 });
 
                                             }));
@@ -584,7 +587,7 @@ public class BlockSync implements IBlockSync {
                     if (!blocks.isEmpty()) {
                         patriciaRootList = new ArrayList<>(blocks.stream().filter(val -> val.getGeneration() > CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration()).map(TransactionBlock::getHeight).collect(Collectors.toList()));
                         blocks.removeIf(x -> x.getGeneration() > CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration());
-                        blocks.stream().skip(1).forEach(val -> CachedInboundTransactionBlocks.getInstance().prepare(val.getInbound().getMap_receipts()));
+                        blocks.stream().forEach(val -> CachedInboundTransactionBlocks.getInstance().prepare(val.getInbound().getMap_receipts()));
                         CachedInboundTransactionBlocks.getInstance().StoreAll();
                         blocks.stream().forEach(val -> {
                             val
@@ -633,6 +636,10 @@ public class BlockSync implements IBlockSync {
                 if (!treeObjects.isEmpty()) {
                     TreeFactory.setMemoryTree((MemoryTreePool) patricia_tree_wrapper.decode(treeObjects.get(0)), CachedZoneIndex.getInstance().getZoneIndex());
                     tree_database.save(String.valueOf(CachedZoneIndex.getInstance().getZoneIndex()),treeObjects.get(0));
+                }
+
+                if(CachedZoneIndex.getInstance().getZoneIndex()==1){
+                    System.out.println("EDW: "+TreeFactory.getMemoryTree(1).getByaddress("ADR-GD3G-DK4I-DKM2-IQSB-KBWL-HWRV-BBQA-MUAS-MGXA-5QPP").get().getAmount());
                 }
                 if (client != null) {
                     client.close();
@@ -715,7 +722,7 @@ public class BlockSync implements IBlockSync {
         RpcAdrestusClient client1 = new RpcAdrestusClient(new CommitteeBlock(), toConnectCommittee, CachedEventLoop.getInstance().getEventloop());
         client1.connect();
 
-        List<CommitteeBlock> commitee_blocks = client1.getBlocksList(String.valueOf(CachedLatestBlocks.getInstance().getCommitteeBlock().getHeight()));
+        List<CommitteeBlock> commitee_blocks = client1.getBlocksList(String.valueOf(CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration()));
 
         if (client1 != null) {
             client1.close();

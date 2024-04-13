@@ -107,7 +107,7 @@ public class TreemapSerializationTest {
         CachedLatestBlocks.getInstance().getCommitteeBlock().setHash("hash");
         CachedLatestBlocks.getInstance().getCommitteeBlock().setGeneration(0);
         CachedLatestBlocks.getInstance().getCommitteeBlock().setHeight(0);
-        database.save(CachedLatestBlocks.getInstance().getCommitteeBlock().getHash(), CachedLatestBlocks.getInstance().getCommitteeBlock());
+        database.save(String.valueOf(CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration()), CachedLatestBlocks.getInstance().getCommitteeBlock());
 
         int finish = database.findDBsize();
         Map<String, CommitteeBlock> block_entries = database.seekBetweenRange(0, finish);

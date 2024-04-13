@@ -514,7 +514,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
         if (prevZone == CachedZoneIndex.getInstance().getZoneIndex()) {
             CachedLeaderIndex.getInstance().setTransactionPositionLeader(0);
             committeeBlock.setStatustype(StatusType.SUCCES);
-            database.save(String.valueOf(committeeBlock.getHeight()), committeeBlock);
+            database.save(String.valueOf(committeeBlock.getGeneration()), committeeBlock);
             CachedReceiptSemaphore.getInstance().getSemaphore().release();
             return;
         }
@@ -619,7 +619,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
         }
 
         committeeBlock.setStatustype(StatusType.SUCCES);
-        database.save(String.valueOf(committeeBlock.getHeight()), committeeBlock);
+        database.save(String.valueOf(committeeBlock.getGeneration()), committeeBlock);
 
 
         CachedReceiptSemaphore.getInstance().getSemaphore().release();

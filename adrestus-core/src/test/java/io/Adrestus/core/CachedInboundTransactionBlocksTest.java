@@ -3,10 +3,7 @@ package io.Adrestus.core;
 import io.Adrestus.core.Resourses.CachedInboundTransactionBlocks;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -33,7 +30,7 @@ public class CachedInboundTransactionBlocksTest {
         Receipt receipt3 = new Receipt(2, 1, receiptBlock2, null,1,"c");
         Receipt receipt4 = new Receipt(2, 1, receiptBlock2, null,2,"d");
         Receipt receipt4a = new Receipt(2, 1, receiptBlock4, null,2,"n");
-        Receipt receipt5 = new Receipt(1, 1, receiptBlock3, null,1,"e");
+        Receipt receipt5 = new Receipt(2, 1, receiptBlock3, null,1,"e");
         Receipt receipt6 = new Receipt(3, 1, receiptBlock3, null,2,"f");
 
         ArrayList<Receipt> list = new ArrayList<>();
@@ -58,10 +55,10 @@ public class CachedInboundTransactionBlocksTest {
 
         CachedInboundTransactionBlocks.getInstance().prepare(outBoundRelay1.getMap_receipts());
         CachedInboundTransactionBlocks.getInstance().prepare(outBoundRelay2.getMap_receipts());
-        Map<Integer, HashSet<String>> integerHashSetMap=CachedInboundTransactionBlocks.getInstance().getBlock_retrieval();
-        assertEquals(1,integerHashSetMap.get(0).size());
-        assertEquals(2,integerHashSetMap.get(1).size());
-        assertEquals(2,integerHashSetMap.get(2).size());
-        assertEquals(1,integerHashSetMap.get(3).size());
+        Map<Integer, HashMap<Integer, HashSet<String>>> integerHashSetMap=CachedInboundTransactionBlocks.getInstance().getBlock_retrieval();
+        assertEquals(1,integerHashSetMap.get(0).get(1).size());
+        assertEquals(1,integerHashSetMap.get(1).get(6).size());
+        assertEquals(1,integerHashSetMap.get(2).get(2).size());
+        assertEquals(2,integerHashSetMap.get(2).get(3).size());
     }
 }

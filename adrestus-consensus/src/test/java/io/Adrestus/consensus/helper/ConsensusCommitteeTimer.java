@@ -62,7 +62,7 @@ public class ConsensusCommitteeTimer {
         CachedLatestBlocks.getInstance().getCommitteeBlock().setHash("hash");
         CachedLatestBlocks.getInstance().getCommitteeBlock().setGeneration(0);
         CachedLatestBlocks.getInstance().getCommitteeBlock().setHeight(0);
-        database.save(String.valueOf(CachedLatestBlocks.getInstance().getCommitteeBlock().getHeight()), CachedLatestBlocks.getInstance().getCommitteeBlock());
+        database.save(String.valueOf(CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration()), CachedLatestBlocks.getInstance().getCommitteeBlock());
         CachedSecurityHeaders.getInstance().getSecurityHeader().setPRnd(Hex.decode("c1f72aa5bd1e1d53c723b149259b63f759f40d5ab003b547d5c13d45db9a5da8"));
         CachedSecurityHeaders.getInstance().getSecurityHeader().setRnd(vdf.solve(CachedSecurityHeaders.getInstance().getSecurityHeader().getPRnd(), CachedLatestBlocks.getInstance().getCommitteeBlock().getDifficulty()));
     }
