@@ -1,7 +1,6 @@
 package io.Adrestus.core.Resourses;
 
 import io.Adrestus.core.Receipt;
-import io.Adrestus.core.ReceiptBlock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -209,8 +208,8 @@ public class MemoryReceiptPool implements IMemoryPool<Receipt> {
         @Override
         public int compare(Receipt t1, Receipt t2) {
             return Comparator.comparing(Receipt::getZoneFrom)
-                    .thenComparingInt(val->val.getReceiptBlock().getGeneration())
-                    .thenComparingInt(val->val.getReceiptBlock().getHeight())
+                    .thenComparingInt(val -> val.getReceiptBlock().getGeneration())
+                    .thenComparingInt(val -> val.getReceiptBlock().getHeight())
                     .thenComparingInt(Receipt::getPosition)
                     .compare(t1, t2);
         }

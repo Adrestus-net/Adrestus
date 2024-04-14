@@ -893,11 +893,10 @@ public class ValidatorConsensusPhases {
                         list_ip.add(address);
                     }
 
-                    ArrayList<SerializableErasureObject> recserializableErasureObjects=new ArrayList<>();
+                    ArrayList<SerializableErasureObject> recserializableErasureObjects = new ArrayList<>();
                     if (list_ip.isEmpty()) {
                         LOG.info("DispersePhase: Erasure connect list is empty");
-                    }
-                    else {
+                    } else {
                         RpcErasureClient<SerializableErasureObject> client = new RpcErasureClient<SerializableErasureObject>(new SerializableErasureObject(), list_ip, ERASURE_SERVER_PORT, CachedEventLoop.getInstance().getEventloop());
                         client.connect();
                         recserializableErasureObjects = (ArrayList<SerializableErasureObject>) client.getErasureChunks(new byte[0]);

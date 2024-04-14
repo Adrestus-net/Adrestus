@@ -157,6 +157,7 @@ public class MemoryTreePool implements IMemoryTreePool, Cloneable {
             r.unlock();
         }
     }
+
     @Override
     public MerklePatriciaTrie<Bytes, PatriciaTreeNode> getTrie() {
         return this.patriciaTreeImp;

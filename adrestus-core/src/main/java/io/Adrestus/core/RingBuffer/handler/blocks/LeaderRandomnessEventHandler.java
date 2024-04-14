@@ -18,7 +18,8 @@ public class LeaderRandomnessEventHandler implements BlockEventHandler<AbstractB
     private static Logger LOG = LoggerFactory.getLogger(LeaderRandomnessEventHandler.class);
 
     @SneakyThrows
-    public LeaderRandomnessEventHandler() {}
+    public LeaderRandomnessEventHandler() {
+    }
 
     @Override
     public void onEvent(AbstractBlockEvent blockEvent, long l, boolean b) throws Exception {

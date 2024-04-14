@@ -31,7 +31,7 @@ public class ReplayEventHandler implements ReceiptEventHandler<ReceiptBlockEvent
         ReceiptBlock receiptBlock = receiptBlockEvent.getReceiptBlock();
         try {
             ArrayList<Receipt> tosearch = receiptdatabase.findByKey(receiptBlock.getTransaction().getFrom()).get().getTo();
-            Optional<Receipt> transaction_hint = tosearch.stream().filter(tr -> tr.getReceiptBlock().getHeight()==receiptBlock.getTransactionBlock().getHeight()).findFirst();
+            Optional<Receipt> transaction_hint = tosearch.stream().filter(tr -> tr.getReceiptBlock().getHeight() == receiptBlock.getTransactionBlock().getHeight()).findFirst();
 
             if (transaction_hint.isPresent()) {
                 receiptBlockEvent.getReceiptBlock().setStatusType(StatusType.ABORT);

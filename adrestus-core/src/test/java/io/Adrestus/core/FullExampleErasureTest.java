@@ -204,7 +204,7 @@ public class FullExampleErasureTest {
         ArrayList<Receipt> receiptList = new ArrayList<>();
         for (int i = 0; i < transactionBlock.getTransactionList().size(); i++) {
             Transaction transaction = transactionBlock.getTransactionList().get(i);
-            receiptList.add(new Receipt(transaction.getZoneFrom(), transaction.getZoneTo(), receiptBlock, null, i,transaction.getHash()));
+            receiptList.add(new Receipt(transaction.getZoneFrom(), transaction.getZoneTo(), receiptBlock, null, i, transaction.getHash()));
         }
 
         Map<Integer, Map<Receipt.ReceiptBlock, List<Receipt>>> outbound = receiptList

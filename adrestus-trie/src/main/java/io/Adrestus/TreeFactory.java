@@ -9,6 +9,7 @@ public class TreeFactory {
             throw new IllegalStateException("Already initialized.");
         }
     }
+
     public static IMemoryTreePool getMemoryTree(int zone) {
         switch (zone) {
             case 0:

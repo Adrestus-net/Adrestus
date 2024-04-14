@@ -33,7 +33,7 @@ public class OutBoundEventHandler implements BlockEventHandler<AbstractBlockEven
             transactionBlock.setStatustype(StatusType.ABORT);
             return;
         }
-        outer_receipts.values().forEach(val->val.values().stream().forEach(col->col.stream().forEach(rcp->{
+        outer_receipts.values().forEach(val -> val.values().stream().forEach(col -> col.stream().forEach(rcp -> {
             if (rcp.getZoneFrom() != CachedZoneIndex.getInstance().getZoneIndex()) {
                 LOG.info("Sender zone is invalid");
                 transactionBlock.setStatustype(StatusType.ABORT);
@@ -142,7 +142,7 @@ public class OutBoundEventHandler implements BlockEventHandler<AbstractBlockEven
         int val5 = Integer.compare(transactionBlock.getGeneration(), receiptBlock.getGeneration());
         int val6 = Integer.compare(receipt.getZoneFrom(), CachedZoneIndex.getInstance().getZoneIndex());
 
-        if (val3 == 0 && val4 == 0.0 && val5 == 0 && val6 == 0  && bool3 && bool5)
+        if (val3 == 0 && val4 == 0.0 && val5 == 0 && val6 == 0 && bool3 && bool5)
             return true;
         return false;
     }

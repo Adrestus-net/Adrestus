@@ -53,9 +53,10 @@ public class CachedTransactionBlockEventPublisher {
     }
 
     @SneakyThrows
-    public void WaitUntilRemainingCapacityZero(){
+    public void WaitUntilRemainingCapacityZero() {
         this.publisher.getJobSyncUntilRemainingCapacityZero();
     }
+
     @SneakyThrows
     public void close() {
         publisher.getJobSyncUntilRemainingCapacityZero();

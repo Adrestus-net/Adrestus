@@ -174,7 +174,6 @@ public class BlockSync implements IBlockSync {
                                                 });
 
                                             }));
-                            CachedInboundTransactionBlocks.getInstance().clear();
                             toSave.put(String.valueOf(val.getHeight()), val);
                             val.getTransactionList().stream().forEach(trx -> {
                                 transaction_database.save(trx.getFrom(), trx);
@@ -203,7 +202,6 @@ public class BlockSync implements IBlockSync {
                                                 });
 
                                             }));
-                            CachedInboundTransactionBlocks.getInstance().clear();
                             toSave.put(String.valueOf(val.getHeight()), val);
                             val.getTransactionList().stream().forEach(trx -> {
                                 transaction_database.save(trx.getFrom(), trx);
@@ -231,10 +229,10 @@ public class BlockSync implements IBlockSync {
                 client = new RpcAdrestusClient(new byte[]{}, toConnectPatricia, CachedEventLoop.getInstance().getEventloop());
                 client.connect();
 
-                List<byte[]>  treeObjects = client.getPatriciaTreeList("");
+                List<byte[]> treeObjects = client.getPatriciaTreeList("");
                 if (!treeObjects.isEmpty()) {
                     TreeFactory.setMemoryTree((MemoryTreePool) patricia_tree_wrapper.decode(treeObjects.get(0)), CachedZoneIndex.getInstance().getZoneIndex());
-                    tree_database.save(String.valueOf(CachedZoneIndex.getInstance().getZoneIndex()),treeObjects.get(0));
+                    tree_database.save(String.valueOf(CachedZoneIndex.getInstance().getZoneIndex()), treeObjects.get(0));
                 }
                 if (client != null)
                     client.close();
@@ -334,7 +332,6 @@ public class BlockSync implements IBlockSync {
                                                             receipt_database.save(trx.getFrom(), receipt);
                                                         });
                                                     }));
-                                    CachedInboundTransactionBlocks.getInstance().clear();
                                     toSave.put(String.valueOf(val.getHeight()), val);
                                     val.getTransactionList().stream().forEach(trx -> {
                                         transaction_database.save(trx.getFrom(), trx);
@@ -365,7 +362,6 @@ public class BlockSync implements IBlockSync {
                                                         });
 
                                                     }));
-                                    CachedInboundTransactionBlocks.getInstance().clear();
                                     toSave.put(String.valueOf(val.getHeight()), val);
                                     val.getTransactionList().stream().forEach(trx -> {
                                         transaction_database.save(trx.getFrom(), trx);
@@ -396,7 +392,7 @@ public class BlockSync implements IBlockSync {
                         List<byte[]> treeObjects = client.getPatriciaTreeList("");
                         if (!treeObjects.isEmpty()) {
                             TreeFactory.setMemoryTree((MemoryTreePool) patricia_tree_wrapper.decode(treeObjects.get(0)), CachedZoneIndex.getInstance().getZoneIndex());
-                            tree_database.save(String.valueOf(CachedZoneIndex.getInstance().getZoneIndex()),treeObjects.get(0));
+                            tree_database.save(String.valueOf(CachedZoneIndex.getInstance().getZoneIndex()), treeObjects.get(0));
                         }
 
                         if (client != null) {
@@ -567,13 +563,12 @@ public class BlockSync implements IBlockSync {
                                                         TransactionBlock current = CachedInboundTransactionBlocks.getInstance().retrieve(receipt.getZoneFrom(), receipt.getReceiptBlock().getHeight());
                                                         Transaction trx = current.getTransactionList().get(receipt.getPosition());
                                                         receipt_database.save(trx.getFrom(), receipt);
-                                                    }catch (NullPointerException e){
-                                                        int g=3;
+                                                    } catch (NullPointerException e) {
+                                                        int g = 3;
                                                     }
                                                 });
 
                                             }));
-                            CachedInboundTransactionBlocks.getInstance().clear();
                             toSave.put(String.valueOf(val.getHeight()), val);
                             val.getTransactionList().stream().forEach(trx -> {
                                 transaction_database.save(trx.getFrom(), trx);
@@ -604,7 +599,6 @@ public class BlockSync implements IBlockSync {
                                                 });
 
                                             }));
-                            CachedInboundTransactionBlocks.getInstance().clear();
                             toSave.put(String.valueOf(val.getHeight()), val);
                             val.getTransactionList().stream().forEach(trx -> {
                                 transaction_database.save(trx.getFrom(), trx);
@@ -635,12 +629,9 @@ public class BlockSync implements IBlockSync {
                 List<byte[]> treeObjects = client.getPatriciaTreeList("");
                 if (!treeObjects.isEmpty()) {
                     TreeFactory.setMemoryTree((MemoryTreePool) patricia_tree_wrapper.decode(treeObjects.get(0)), CachedZoneIndex.getInstance().getZoneIndex());
-                    tree_database.save(String.valueOf(CachedZoneIndex.getInstance().getZoneIndex()),treeObjects.get(0));
+                    tree_database.save(String.valueOf(CachedZoneIndex.getInstance().getZoneIndex()), treeObjects.get(0));
                 }
 
-                if(CachedZoneIndex.getInstance().getZoneIndex()==1){
-                    System.out.println("EDW: "+TreeFactory.getMemoryTree(1).getByaddress("ADR-GD3G-DK4I-DKM2-IQSB-KBWL-HWRV-BBQA-MUAS-MGXA-5QPP").get().getAmount());
-                }
                 if (client != null) {
                     client.close();
                     client = null;

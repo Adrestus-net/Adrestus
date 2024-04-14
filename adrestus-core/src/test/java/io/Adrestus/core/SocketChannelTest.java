@@ -55,7 +55,7 @@ public class SocketChannelTest {
                     throw new RuntimeException(ioException);
                 }
 
-                Receipt receipt = new Receipt(1, 1,new RegularTransaction("a").getHash());
+                Receipt receipt = new Receipt(1, 1, new RegularTransaction("a").getHash());
                 byte data[] = recep.encode(receipt, 1024);
                 ByteBuf sizeBuf = ByteBufPool.allocate(2); // enough to serialize size 1024
                 sizeBuf.writeVarInt(data.length);
@@ -96,7 +96,7 @@ public class SocketChannelTest {
                             throw new RuntimeException(ioException);
                         }
 
-                        Receipt receipt = new Receipt(1, 1,new RegularTransaction("b").getHash());
+                        Receipt receipt = new Receipt(1, 1, new RegularTransaction("b").getHash());
                         byte data[] = recep.encode(receipt, 1024);
                         ByteBuf sizeBuf = ByteBufPool.allocate(2); // enough to serialize size 1024
                         sizeBuf.writeVarInt(data.length);

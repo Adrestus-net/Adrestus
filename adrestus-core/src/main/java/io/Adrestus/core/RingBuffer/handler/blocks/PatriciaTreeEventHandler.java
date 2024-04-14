@@ -31,7 +31,7 @@ public class PatriciaTreeEventHandler implements BlockEventHandler<AbstractBlock
             }
         }
 
-        CachedInboundTransactionBlocks.getInstance().generate(transactionBlock.getInbound().getMap_receipts());
+        CachedInboundTransactionBlocks.getInstance().generate(transactionBlock.getInbound().getMap_receipts(), transactionBlock.getGeneration());
         if (!transactionBlock.getInbound().getMap_receipts().isEmpty())
             transactionBlock
                     .getInbound()

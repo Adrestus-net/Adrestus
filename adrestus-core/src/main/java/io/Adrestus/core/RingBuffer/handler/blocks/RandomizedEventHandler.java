@@ -25,11 +25,12 @@ public class RandomizedEventHandler implements BlockEventHandler<AbstractBlockEv
 
 
     @SneakyThrows
-    public RandomizedEventHandler() {}
+    public RandomizedEventHandler() {
+    }
 
     @Override
     public void onEvent(AbstractBlockEvent blockEvent, long l, boolean b) throws Exception {
-        SecureRandom secureRandom= SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
+        SecureRandom secureRandom = SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
         CommitteeBlock block = (CommitteeBlock) blockEvent.getBlock();
         CommitteeBlock committeeBlock = (CommitteeBlock) block.clone();
         committeeBlock.createStructureMap();
@@ -39,7 +40,7 @@ public class RandomizedEventHandler implements BlockEventHandler<AbstractBlockEv
         ArrayList<Integer> exclude = new ArrayList<Integer>();
         ArrayList<Integer> order = new ArrayList<Integer>();
         for (Map.Entry<StakingData, KademliaData> entry : committeeBlock.getStakingMap().entrySet()) {
-            int nextInt = generateRandom(secureRandom,0, committeeBlock.getStakingMap().size() - 1, exclude);
+            int nextInt = generateRandom(secureRandom, 0, committeeBlock.getStakingMap().size() - 1, exclude);
             if (!exclude.contains(nextInt)) {
                 exclude.add(nextInt);
             }
@@ -104,7 +105,7 @@ public class RandomizedEventHandler implements BlockEventHandler<AbstractBlockEv
                 .allMatch(e -> e.getValue().equals(second.get(e.getKey())));
     }
 
-    public int generateRandom(SecureRandom secureRandom,int start, int end, ArrayList<Integer> excludeRows) {
+    public int generateRandom(SecureRandom secureRandom, int start, int end, ArrayList<Integer> excludeRows) {
         int range = end - start + 1;
         int random = secureRandom.nextInt(range);
         while (excludeRows.contains(random)) {

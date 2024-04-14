@@ -161,7 +161,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
                     .collect(Collectors.groupingBy(Receipt::getZoneFrom, Collectors.groupingBy(Receipt::getReceiptBlock)));
             InboundRelay inboundRelay = new InboundRelay(inbound_map);
             transactionBlock.setInbound(inboundRelay);
-            CachedInboundTransactionBlocks.getInstance().generate(inboundRelay.getMap_receipts());
+            CachedInboundTransactionBlocks.getInstance().generate(inboundRelay.getMap_receipts(), transactionBlock.getGeneration());
         }
         //##########InBound############
 
@@ -422,8 +422,8 @@ public class RegularBlock implements BlockForge, BlockInvent {
                                 entry.getValue().stream().forEach(receipt -> {
                                     TransactionBlock block = CachedInboundTransactionBlocks.getInstance().retrieve(receipt.getZoneFrom(), receipt.getReceiptBlock().getHeight());
                                     Transaction trx = block.getTransactionList().get(receipt.getPosition());
-                                    receipt_database.save(trx.getFrom(), receipt);
-                                    TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).deposit(trx.getFrom(), trx.getAmount(), TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()));
+                                    receipt_database.save(trx.getTo(), receipt);
+                                    TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).deposit(trx.getTo(), trx.getAmount(), TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()));
                                     MemoryReceiptPool.getInstance().delete(receipt);
                                 });
                             }));
@@ -578,10 +578,10 @@ public class RegularBlock implements BlockForge, BlockInvent {
                 client = new RpcAdrestusClient(new byte[]{}, toConnectPatricia, CachedEventLoop.getInstance().getEventloop());
                 client.connect();
 
-                List<byte[]>  treeObjects = client.getPatriciaTreeList("");
+                List<byte[]> treeObjects = client.getPatriciaTreeList("");
                 if (!treeObjects.isEmpty()) {
                     TreeFactory.setMemoryTree((MemoryTreePool) patricia_tree_wrapper.decode(treeObjects.get(0)), CachedZoneIndex.getInstance().getZoneIndex());
-                    tree_database.save(String.valueOf(CachedZoneIndex.getInstance().getZoneIndex()),treeObjects.get(0));
+                    tree_database.save(String.valueOf(CachedZoneIndex.getInstance().getZoneIndex()), treeObjects.get(0));
                 }
                 if (client != null)
                     client.close();

@@ -11,7 +11,6 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -30,7 +29,7 @@ public class MemoryReceiptPoolTest {
     public void chek_duplicate() throws Exception {
         MemoryReceiptPool.getInstance().getAll().clear();
 
-        Receipt receipt = new Receipt(0, 1,new Receipt.ReceiptBlock(1,1,"as"),1,null,new RegularTransaction("a").getHash());
+        Receipt receipt = new Receipt(0, 1, new Receipt.ReceiptBlock(1, 1, "as"), 1, null, new RegularTransaction("a").getHash());
         int count = (int) MemoryReceiptPool.getInstance().getAllStream().count();
         MemoryReceiptPool.getInstance().add(receipt);
         MemoryReceiptPool.getInstance().add(receipt);
@@ -43,16 +42,16 @@ public class MemoryReceiptPoolTest {
     public void add_mempool() throws Exception {
         MemoryReceiptPool.getInstance().getAll().clear();
 
-        Receipt receipt = new Receipt(0, 1,new Receipt.ReceiptBlock(1,1,"as"),1,null,new RegularTransaction("b").getHash());
+        Receipt receipt = new Receipt(0, 1, new Receipt.ReceiptBlock(1, 1, "as"), 1, null, new RegularTransaction("b").getHash());
         assertEquals(false, MemoryReceiptPool.getInstance().add(receipt));
         assertEquals(true, MemoryReceiptPool.getInstance().add(receipt));
 
 
-        Receipt receipt1 = new Receipt(0, 1,new Receipt.ReceiptBlock(1,1,"as"),2,null,new RegularTransaction("b").getHash());
+        Receipt receipt1 = new Receipt(0, 1, new Receipt.ReceiptBlock(1, 1, "as"), 2, null, new RegularTransaction("b").getHash());
         assertEquals(false, MemoryReceiptPool.getInstance().add(receipt1));
         assertEquals(true, MemoryReceiptPool.getInstance().add(receipt1));
 
-        Receipt receipt3 = new Receipt(0, 1,new Receipt.ReceiptBlock(1,1,"as"),2,null,new RegularTransaction("c").getHash());
+        Receipt receipt3 = new Receipt(0, 1, new Receipt.ReceiptBlock(1, 1, "as"), 2, null, new RegularTransaction("c").getHash());
         assertEquals(true, MemoryReceiptPool.getInstance().add(receipt3));
         assertEquals(2, MemoryReceiptPool.getInstance().getAll().size());
     }
@@ -63,13 +62,13 @@ public class MemoryReceiptPoolTest {
         MemoryReceiptPool.getInstance().getAll().clear();
 
         ArrayList<Receipt> list = new ArrayList<Receipt>();
-        Receipt receipt1 = new Receipt(0, 1,new Receipt.ReceiptBlock(1,1,"as"),1,null,new RegularTransaction("a").getHash());
+        Receipt receipt1 = new Receipt(0, 1, new Receipt.ReceiptBlock(1, 1, "as"), 1, null, new RegularTransaction("a").getHash());
 
-        Receipt receipt2 = new Receipt(0, 1,new Receipt.ReceiptBlock(1,1,"as"),2,null,new RegularTransaction("b").getHash());
+        Receipt receipt2 = new Receipt(0, 1, new Receipt.ReceiptBlock(1, 1, "as"), 2, null, new RegularTransaction("b").getHash());
 
-        Receipt receipt3 = new Receipt(0, 1,new Receipt.ReceiptBlock(1,1,"as"),3,null,new RegularTransaction("c").getHash());
+        Receipt receipt3 = new Receipt(0, 1, new Receipt.ReceiptBlock(1, 1, "as"), 3, null, new RegularTransaction("c").getHash());
 
-        Receipt receipt4 = new Receipt(0, 1,new Receipt.ReceiptBlock(1,1,"as"),4,null,new RegularTransaction("d").getHash());
+        Receipt receipt4 = new Receipt(0, 1, new Receipt.ReceiptBlock(1, 1, "as"), 4, null, new RegularTransaction("d").getHash());
 
 
         MemoryReceiptPool.getInstance().add(receipt1);
@@ -90,13 +89,13 @@ public class MemoryReceiptPoolTest {
         MemoryReceiptPool.getInstance().getAll().clear();
 
         ArrayList<Receipt> list = new ArrayList<Receipt>();
-        Receipt receipt1 = new Receipt(0, 1,new Receipt.ReceiptBlock(1,1,"as"),1,null,new RegularTransaction("a").getHash());
+        Receipt receipt1 = new Receipt(0, 1, new Receipt.ReceiptBlock(1, 1, "as"), 1, null, new RegularTransaction("a").getHash());
 
-        Receipt receipt2 = new Receipt(0, 1,new Receipt.ReceiptBlock(1,1,"as"),2,null,new RegularTransaction("b").getHash());
+        Receipt receipt2 = new Receipt(0, 1, new Receipt.ReceiptBlock(1, 1, "as"), 2, null, new RegularTransaction("b").getHash());
 
-        Receipt receipt3 = new Receipt(0, 1,new Receipt.ReceiptBlock(1,1,"as"),3,null,new RegularTransaction("c").getHash());
+        Receipt receipt3 = new Receipt(0, 1, new Receipt.ReceiptBlock(1, 1, "as"), 3, null, new RegularTransaction("c").getHash());
 
-        Receipt receipt4 = new Receipt(0, 1,new Receipt.ReceiptBlock(1,1,"as"),4,null,new RegularTransaction("d").getHash());
+        Receipt receipt4 = new Receipt(0, 1, new Receipt.ReceiptBlock(1, 1, "as"), 4, null, new RegularTransaction("d").getHash());
 
 
         MemoryReceiptPool.getInstance().add(receipt1);
@@ -130,15 +129,15 @@ public class MemoryReceiptPoolTest {
 //        //  MemoryPool.getInstance().getAll().forEach(x -> System.out.println(x.toString()));
 //    }
 
-     @Test
+    @Test
     // @Order(3)
     public void check_if_order_is_maintend() throws Exception {
         MemoryReceiptPool.getInstance().getAll().clear();
 
-        Receipt receipt1 = new Receipt(0, 1,new Receipt.ReceiptBlock(2,1,"b"),1,null,new RegularTransaction("a").getHash());
-        Receipt receipt2 = new Receipt(0, 1,new Receipt.ReceiptBlock(4,1,"c"),1,null,new RegularTransaction("b").getHash());
-        Receipt receipt3 = new Receipt(0, 1,new Receipt.ReceiptBlock(1,1,"a"),1,null,new RegularTransaction("c").getHash());
-        Receipt receipt4 = new Receipt(0, 1,new Receipt.ReceiptBlock(3,1,"d"),1,null,new RegularTransaction("d").getHash());
+        Receipt receipt1 = new Receipt(0, 1, new Receipt.ReceiptBlock(2, 1, "b"), 1, null, new RegularTransaction("a").getHash());
+        Receipt receipt2 = new Receipt(0, 1, new Receipt.ReceiptBlock(4, 1, "c"), 1, null, new RegularTransaction("b").getHash());
+        Receipt receipt3 = new Receipt(0, 1, new Receipt.ReceiptBlock(1, 1, "a"), 1, null, new RegularTransaction("c").getHash());
+        Receipt receipt4 = new Receipt(0, 1, new Receipt.ReceiptBlock(3, 1, "d"), 1, null, new RegularTransaction("d").getHash());
         MemoryReceiptPool.getInstance().add(receipt1);
         MemoryReceiptPool.getInstance().add(receipt2);
         MemoryReceiptPool.getInstance().add(receipt3);
@@ -161,8 +160,8 @@ public class MemoryReceiptPoolTest {
         lists.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         SerializationUtil<Receipt> serenc = new SerializationUtil<Receipt>(Receipt.class, lists);
         MemoryReceiptPool.getInstance().getAll().clear();
-        Receipt.ReceiptBlock receiptBlock1 = new Receipt.ReceiptBlock( 1, 1, "1");
-        Receipt.ReceiptBlock receiptBlock2 = new Receipt.ReceiptBlock( 2, 2, "2");
+        Receipt.ReceiptBlock receiptBlock1 = new Receipt.ReceiptBlock(1, 1, "1");
+        Receipt.ReceiptBlock receiptBlock2 = new Receipt.ReceiptBlock(2, 2, "2");
 
         RegularTransaction tr1 = new RegularTransaction("a");
         RegularTransaction tr2 = new RegularTransaction("b");
@@ -177,12 +176,12 @@ public class MemoryReceiptPoolTest {
         tr5.setTo("5");
         tr6.setTo("6");
         //its wrong each block must be unique for each zone need changes
-        Receipt receipt1 = new Receipt(0, 1, receiptBlock1,1,null,new RegularTransaction("a").getHash());
-        Receipt receipt2 = new Receipt(0, 1, receiptBlock1,2,null,new RegularTransaction("b").getHash());
-        Receipt receipt3 = new Receipt(2, 1, receiptBlock1,3,null,new RegularTransaction("c").getHash());
-        Receipt receipt4 = new Receipt(2, 1, receiptBlock2,4,null,new RegularTransaction("d").getHash());
-        Receipt receipt5 = new Receipt(3, 1, receiptBlock2,5,null,new RegularTransaction("e").getHash());
-        Receipt receipt6 = new Receipt(3, 1, receiptBlock2,6,null,new RegularTransaction("f").getHash());
+        Receipt receipt1 = new Receipt(0, 1, receiptBlock1, 1, null, new RegularTransaction("a").getHash());
+        Receipt receipt2 = new Receipt(0, 1, receiptBlock1, 2, null, new RegularTransaction("b").getHash());
+        Receipt receipt3 = new Receipt(2, 1, receiptBlock1, 3, null, new RegularTransaction("c").getHash());
+        Receipt receipt4 = new Receipt(2, 1, receiptBlock2, 4, null, new RegularTransaction("d").getHash());
+        Receipt receipt5 = new Receipt(3, 1, receiptBlock2, 5, null, new RegularTransaction("e").getHash());
+        Receipt receipt6 = new Receipt(3, 1, receiptBlock2, 6, null, new RegularTransaction("f").getHash());
         Receipt clon = serenc.decode(serenc.encode(receipt1));
         assertEquals(receipt1, clon);
         MemoryReceiptPool.getInstance().add(receipt1);

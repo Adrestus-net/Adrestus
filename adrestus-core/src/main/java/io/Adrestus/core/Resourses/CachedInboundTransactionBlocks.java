@@ -52,9 +52,14 @@ public class CachedInboundTransactionBlocks {
         return false;
     }
 
-    private void storeAll(Map<Integer, HashSet<String>> block_map) {
+    private void storeAll(Map<Integer, HashSet<String>> block_map, int generation) {
         for (Map.Entry<Integer, HashSet<String>> entry : block_map.entrySet()) {
-            List<String> ips = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(entry.getKey()).values().stream().collect(Collectors.toList());
+            IDatabase<String, CommitteeBlock> database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
+            Optional<CommitteeBlock> committeeBlock = database.findByKey(String.valueOf(generation));
+            if (!committeeBlock.isPresent()) {
+                throw new IllegalArgumentException("Cannot find commit block for this generation");
+            }
+            List<String> ips = committeeBlock.get().getStructureMap().get(entry.getKey()).values().stream().collect(Collectors.toList());
             ips.remove(IPFinder.getLocalIP());
 
             int RPCTransactionZonePort = ZoneDatabaseFactory.getDatabaseRPCPort(entry.getKey());
@@ -173,7 +178,7 @@ public class CachedInboundTransactionBlocks {
         this.transactionBlockHashMap.clear();
     }
 
-    public void generate(LinkedHashMap<Integer, LinkedHashMap<Receipt.ReceiptBlock, List<Receipt>>> inboundmap) {
+    public void generate(LinkedHashMap<Integer, LinkedHashMap<Receipt.ReceiptBlock, List<Receipt>>> inboundmap, int generation) {
         if (inboundmap.isEmpty())
             return;
 
@@ -186,7 +191,7 @@ public class CachedInboundTransactionBlocks {
             }
             block_retrieval.put(entry.getKey(), height_list);
         }
-        CachedInboundTransactionBlocks.getInstance().storeAll(block_retrieval);
+        CachedInboundTransactionBlocks.getInstance().storeAll(block_retrieval, generation);
 
     }
 

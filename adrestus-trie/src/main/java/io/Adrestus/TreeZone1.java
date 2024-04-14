@@ -28,7 +28,7 @@ public class TreeZone1 implements ITreeZone {
 
     @Override
     public IMemoryTreePool getTree() {
-        return  this.memoryTreePool;
+        return this.memoryTreePool;
     }
 
     @Override

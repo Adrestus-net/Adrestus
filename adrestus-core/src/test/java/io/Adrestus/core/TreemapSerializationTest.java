@@ -4,7 +4,6 @@ import com.google.common.reflect.TypeToken;
 import io.Adrestus.IMemoryTreePool;
 import io.Adrestus.MemoryTreePool;
 import io.Adrestus.TreeFactory;
-import io.Adrestus.TreeZone1;
 import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.config.KademliaConfiguration;
@@ -166,14 +165,14 @@ public class TreemapSerializationTest {
         TreeFactory.getMemoryTree(2).store(address, treeNode3);
         TreeFactory.getMemoryTree(3).store(address, treeNode4);
         IMemoryTreePool m = TreeFactory.getMemoryTree(3);
-        IMemoryTreePool m11 =  TreeFactory.getMemoryTree(1);
+        IMemoryTreePool m11 = TreeFactory.getMemoryTree(1);
         IMemoryTreePool m12 = TreeFactory.getMemoryTree(0);
         IMemoryTreePool m13 = TreeFactory.getMemoryTree(2);
-        TreeFactory.setMemoryTree(m,0);
+        TreeFactory.setMemoryTree(m, 0);
         IMemoryTreePool m2 = TreeFactory.getMemoryTree(3);
-        IMemoryTreePool m21 =  TreeFactory.getMemoryTree(1);
-        IMemoryTreePool m31 =  TreeFactory.getMemoryTree(0);
-        IMemoryTreePool m41 =  TreeFactory.getMemoryTree(2);
+        IMemoryTreePool m21 = TreeFactory.getMemoryTree(1);
+        IMemoryTreePool m31 = TreeFactory.getMemoryTree(0);
+        IMemoryTreePool m41 = TreeFactory.getMemoryTree(2);
         //m.getByaddress(address);
         //use only special
         byte[] bt = valueMapper.encode_special(m, SerializationUtils.serialize(m).length);
@@ -186,10 +185,10 @@ public class TreemapSerializationTest {
 
         assertEquals(treeNode4, pat.get());
         assertEquals(m, copy);
-        assertEquals(15,TreeFactory.getMemoryTree(3).getByaddress(address).get().getAmount());
-        assertEquals(15,TreeFactory.getMemoryTree(0).getByaddress(address).get().getAmount());
-        assertEquals(2,TreeFactory.getMemoryTree(1).getByaddress(address).get().getAmount());
-        assertEquals(123,TreeFactory.getMemoryTree(2).getByaddress(address).get().getAmount());
+        assertEquals(15, TreeFactory.getMemoryTree(3).getByaddress(address).get().getAmount());
+        assertEquals(15, TreeFactory.getMemoryTree(0).getByaddress(address).get().getAmount());
+        assertEquals(2, TreeFactory.getMemoryTree(1).getByaddress(address).get().getAmount());
+        assertEquals(123, TreeFactory.getMemoryTree(2).getByaddress(address).get().getAmount());
         tree_datasbase.delete_db();
     }
 

@@ -3,7 +3,6 @@ package io.Adrestus.protocol;
 import io.Adrestus.core.*;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
-import io.Adrestus.core.Resourses.MemoryReceiptPool;
 import io.Adrestus.crypto.bls.model.BLSPrivateKey;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.Adrestus.network.IPFinder;
@@ -73,17 +72,17 @@ public class ReceiptTaskTest {
         transactionBlock.setGeneration(1);
         transactionBlock.setHash("hash1");
 
-        Receipt.ReceiptBlock receiptBlock1 = new Receipt.ReceiptBlock( 1, 1, "1");
-        Receipt.ReceiptBlock receiptBlock1a = new Receipt.ReceiptBlock( 2, 6, "1a");
-        Receipt.ReceiptBlock receiptBlock2 = new Receipt.ReceiptBlock( 3, 2, "2");
-        Receipt.ReceiptBlock receiptBlock3 = new Receipt.ReceiptBlock( 4, 3, "3");
+        Receipt.ReceiptBlock receiptBlock1 = new Receipt.ReceiptBlock(1, 1, "1");
+        Receipt.ReceiptBlock receiptBlock1a = new Receipt.ReceiptBlock(2, 6, "1a");
+        Receipt.ReceiptBlock receiptBlock2 = new Receipt.ReceiptBlock(3, 2, "2");
+        Receipt.ReceiptBlock receiptBlock3 = new Receipt.ReceiptBlock(4, 3, "3");
         //its wrong each block must be unique for each zone need changes
-        Receipt receipt1 = new Receipt(0, 1, receiptBlock1, 1,null,new RegularTransaction("a").getHash());
-        Receipt receipt2 = new Receipt(0, 1, receiptBlock1a, 1,null,new RegularTransaction("b").getHash());
-        Receipt receipt3 = new Receipt(1, 1, receiptBlock2, 1,null,new RegularTransaction("c").getHash());
-        Receipt receipt4 = new Receipt(2, 1, receiptBlock2,2,null,new RegularTransaction("d").getHash());
-        Receipt receipt5 = new Receipt(3, 1, receiptBlock3, 1,null,new RegularTransaction("e").getHash());
-        Receipt receipt6 = new Receipt(3, 1, receiptBlock3, 2,null,new RegularTransaction("f").getHash());
+        Receipt receipt1 = new Receipt(0, 1, receiptBlock1, 1, null, new RegularTransaction("a").getHash());
+        Receipt receipt2 = new Receipt(0, 1, receiptBlock1a, 1, null, new RegularTransaction("b").getHash());
+        Receipt receipt3 = new Receipt(1, 1, receiptBlock2, 1, null, new RegularTransaction("c").getHash());
+        Receipt receipt4 = new Receipt(2, 1, receiptBlock2, 2, null, new RegularTransaction("d").getHash());
+        Receipt receipt5 = new Receipt(3, 1, receiptBlock3, 1, null, new RegularTransaction("e").getHash());
+        Receipt receipt6 = new Receipt(3, 1, receiptBlock3, 2, null, new RegularTransaction("f").getHash());
 
         ArrayList<Receipt> list = new ArrayList<>();
         list.add(receipt1);

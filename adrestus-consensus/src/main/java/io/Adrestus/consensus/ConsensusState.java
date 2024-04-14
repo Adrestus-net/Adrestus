@@ -179,7 +179,7 @@ public class ConsensusState extends ConsensusDataState {
                 }
             } finally {
                 latch.countDown();
-                LOG.info("Latch Countdown: "+latch.getCount());
+                LOG.info("Latch Countdown: " + latch.getCount());
             }
         }
 
@@ -238,7 +238,7 @@ public class ConsensusState extends ConsensusDataState {
             boolean result = state.onActiveState();
             if (result) {
                 latch.countDown();
-                LOG.info("Latch Countdown: "+latch.getCount());
+                LOG.info("Latch Countdown: " + latch.getCount());
                 if (state.getClass().equals(ConsensusTransactionBlockState.class)) {
                     state.onEnterState(null);
                 } else {
