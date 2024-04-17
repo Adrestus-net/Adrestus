@@ -1,6 +1,5 @@
 package io.Adrestus.protocol;
 
-import com.google.common.reflect.TypeToken;
 import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.config.AdrestusConfiguration;
@@ -76,11 +75,8 @@ public class ConsensusTransactionTimer4Test {
         serenc = new SerializationUtil<Transaction>(Transaction.class, list);
         IDatabase<String, TransactionBlock> block_database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
         IDatabase<String, byte[]> tree_datasbase = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getPatriciaTreeZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
-        IDatabase<String, LevelDBTransactionWrapper<Transaction>> transaction_database = new DatabaseFactory(String.class, Transaction.class, new TypeToken<LevelDBTransactionWrapper<Transaction>>() {
-        }.getType()).getDatabase(DatabaseType.LEVEL_DB);
 
         tree_datasbase.delete_db();
-        transaction_database.delete_db();
         block_database.delete_db();
 
         CachedZoneIndex.getInstance().setZoneIndex(1);
@@ -226,14 +222,6 @@ public class ConsensusTransactionTimer4Test {
         List<Transaction> list = MemoryTransactionPool.getInstance().getAll();
         List<Transaction> gf = list.stream().filter(tr -> tr.getFrom().equals(address)).collect(Collectors.toList());
         List<Transaction> tra = map.get(address);
-        IDatabase<String, LevelDBTransactionWrapper<Transaction>> transaction_database = new DatabaseFactory(String.class, Transaction.class, new TypeToken<LevelDBTransactionWrapper<Transaction>>() {
-        }.getType()).getDatabase(DatabaseType.LEVEL_DB);
-        LevelDBTransactionWrapper<Transaction> tosearch;
-        try {
-            tosearch = transaction_database.findByKey(address).get();
-        } catch (NoSuchElementException e) {
-            return;
-        }
         assertEquals(TestingConfiguration.NONCE * (TestingConfiguration.END - 1), count);
 
     }

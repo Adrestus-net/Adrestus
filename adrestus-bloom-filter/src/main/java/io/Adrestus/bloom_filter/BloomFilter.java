@@ -4,7 +4,6 @@ package io.Adrestus.bloom_filter;
 import io.Adrestus.bloom_filter.core.BitArray;
 import io.Adrestus.bloom_filter.decompose.Decomposer;
 
-import java.nio.charset.Charset;
 import java.util.Collection;
 
 /**
@@ -90,20 +89,6 @@ public interface BloomFilter<T> {
     public boolean containsAddress(int target[]);
 
     public int[] toBitsetArray();
-
-    /**
-     * Set the {@link Charset} for the given name for converting objects to byte-arrays.
-     *
-     * @param charsetName the name of the charset to be used
-     */
-    public void setCharset(String charsetName);
-
-    /**
-     * Set the {@link Charset} for converting objects to byte-arrays.
-     *
-     * @param charset the {@link Charset} to be used
-     */
-    public void setCharset(Charset charset);
 
     /**
      * Get the current custom object decomposer.

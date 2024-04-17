@@ -1,5 +1,6 @@
 package io.Adrestus.bloom_filter.hash;
 
+import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
@@ -15,7 +16,7 @@ import java.nio.ByteOrder;
  * @author sangupta
  * @since 1.0
  */
-public class Murmur3 implements MurmurConstants {
+public class Murmur3 implements MurmurConstants, Cloneable, Serializable {
 
     private static final int X86_32_C1 = 0xcc9e2d51;
 
@@ -274,5 +275,6 @@ public class Murmur3 implements MurmurConstants {
 
         return k;
     }
+
 
 }

@@ -1,8 +1,9 @@
 package io.Adrestus.bloom_filter.decompose;
 
+import java.io.Serializable;
 import java.nio.charset.Charset;
 
-public class DefaultDecomposer implements Decomposer<Object> {
+public class DefaultDecomposer implements Decomposer<Object>, Cloneable, Serializable {
 
     /**
      * The default platform encoding

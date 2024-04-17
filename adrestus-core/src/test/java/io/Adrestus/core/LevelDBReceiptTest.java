@@ -31,8 +31,7 @@ public class LevelDBReceiptTest {
         transaction.setFrom("1");
         transaction.setTo("2");
 
-        Receipt receipt = new Receipt(0, 2, transaction.getHash());
-        receipt.setTransaction_hash("Hash");
+        Receipt receipt = new Receipt(0, 2);
         receipt.setReceiptBlock(new Receipt.ReceiptBlock(1, 1, "root"));
         byte[] buff = recep.encode(receipt);
         Receipt cloned = recep.decode(buff);
@@ -49,9 +48,8 @@ public class LevelDBReceiptTest {
         transaction.setFrom("1");
         transaction.setTo("2");
 
-        Receipt receipt = new Receipt(0, 2, transaction.getHash());
+        Receipt receipt = new Receipt(0, 2);
         receipt.setPosition(1);
-        receipt.setTransaction_hash("Hash");
         receipt.setReceiptBlock(new Receipt.ReceiptBlock(1, 1, "root"));
         receiptdatabase.save(transaction.getFrom(), receipt);
         Optional<LevelDBReceiptWrapper<Receipt>> wrapperreceipt = receiptdatabase.findByKey("1");
@@ -76,13 +74,11 @@ public class LevelDBReceiptTest {
         transaction2.setFrom("1");
         transaction2.setTo("2");
 
-        Receipt receipt = new Receipt(0, 2, transaction.getHash());
+        Receipt receipt = new Receipt(0, 2);
         receipt.setPosition(1);
-        receipt.setTransaction_hash("Hash");
         receipt.setReceiptBlock(new Receipt.ReceiptBlock(1, 1, "root"));
-        Receipt receipt2 = new Receipt(0, 2, transaction.getHash());
+        Receipt receipt2 = new Receipt(0, 2);
         receipt2.setPosition(2);
-        receipt2.setTransaction_hash("Hash2");
         receipt2.setReceiptBlock(new Receipt.ReceiptBlock(2, 1, "root"));
         receiptdatabase.save(transaction.getFrom(), receipt);
         receiptdatabase.save(transaction2.getFrom(), receipt2);

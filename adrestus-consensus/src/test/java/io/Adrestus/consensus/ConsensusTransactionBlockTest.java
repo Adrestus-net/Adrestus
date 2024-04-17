@@ -1,6 +1,5 @@
 package io.Adrestus.consensus;
 
-import com.google.common.reflect.TypeToken;
 import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.config.AdrestusConfiguration;
@@ -25,7 +24,10 @@ import io.Adrestus.crypto.mnemonic.Security;
 import io.Adrestus.crypto.mnemonic.WordList;
 import io.Adrestus.util.GetTime;
 import io.Adrestus.util.SerializationUtil;
-import io.distributedLedger.*;
+import io.distributedLedger.DatabaseFactory;
+import io.distributedLedger.DatabaseType;
+import io.distributedLedger.IDatabase;
+import io.distributedLedger.ZoneDatabaseFactory;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.spongycastle.util.encoders.Hex;
@@ -47,11 +49,8 @@ public class ConsensusTransactionBlockTest {
     public static void delete() {
         IDatabase<String, TransactionBlock> block_database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
         IDatabase<String, byte[]> tree_datasbase = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getPatriciaTreeZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
-        IDatabase<String, LevelDBTransactionWrapper<Transaction>> transaction_database = new DatabaseFactory(String.class, Transaction.class, new TypeToken<LevelDBTransactionWrapper<Transaction>>() {
-        }.getType()).getDatabase(DatabaseType.LEVEL_DB);
 
         tree_datasbase.delete_db();
-        transaction_database.delete_db();
         block_database.delete_db();
 
         CachedZoneIndex.getInstance().setZoneIndex(1);

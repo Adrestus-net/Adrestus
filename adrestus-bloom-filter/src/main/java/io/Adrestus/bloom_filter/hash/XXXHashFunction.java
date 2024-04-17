@@ -3,7 +3,9 @@ package io.Adrestus.bloom_filter.hash;
 import net.jpountz.xxhash.XXHash64;
 import net.jpountz.xxhash.XXHashFactory;
 
-public class XXXHashFunction implements HashFunction {
+import java.io.Serializable;
+
+public class XXXHashFunction implements HashFunction, Cloneable, Serializable {
 
     private static final long SEED = 0x12345678;
 
@@ -24,5 +26,6 @@ public class XXXHashFunction implements HashFunction {
     public long[] hashMultiple(byte[] bytes) {
         return null;
     }
+
 
 }

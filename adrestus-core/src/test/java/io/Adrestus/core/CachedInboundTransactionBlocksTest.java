@@ -24,13 +24,13 @@ public class CachedInboundTransactionBlocksTest {
         Receipt.ReceiptBlock receiptBlock3 = new Receipt.ReceiptBlock(4, 3, "3");
         Receipt.ReceiptBlock receiptBlock4 = new Receipt.ReceiptBlock(12, 3, "3");
         //its wrong each block must be unique for each zone need changes
-        Receipt receipt1 = new Receipt(0, 1, receiptBlock1, null, 1, "a");
-        Receipt receipt2 = new Receipt(1, 1, receiptBlock1a, null, 2, "b");
-        Receipt receipt3 = new Receipt(2, 1, receiptBlock2, null, 1, "c");
-        Receipt receipt4 = new Receipt(2, 1, receiptBlock2, null, 2, "d");
-        Receipt receipt4a = new Receipt(2, 1, receiptBlock4, null, 2, "n");
-        Receipt receipt5 = new Receipt(2, 1, receiptBlock3, null, 1, "e");
-        Receipt receipt6 = new Receipt(3, 1, receiptBlock3, null, 2, "f");
+        Receipt receipt1 = new Receipt(0, 1, receiptBlock1, null, 1);
+        Receipt receipt2 = new Receipt(1, 1, receiptBlock1a, null, 2);
+        Receipt receipt3 = new Receipt(2, 1, receiptBlock2, null, 1);
+        Receipt receipt4 = new Receipt(2, 1, receiptBlock2, null, 2);
+        Receipt receipt4a = new Receipt(2, 1, receiptBlock4, null);
+        Receipt receipt5 = new Receipt(2, 1, receiptBlock3, null, 1);
+        Receipt receipt6 = new Receipt(3, 1, receiptBlock3, null, 2);
 
         ArrayList<Receipt> list = new ArrayList<>();
         ArrayList<Receipt> list2 = new ArrayList<>();

@@ -21,8 +21,9 @@ package io.Adrestus.bloom_filter.decompose;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.Serializable;
 
-public class ByteSink {
+public class ByteSink implements Cloneable, Serializable {
 
     protected ByteArrayOutputStream stream = new ByteArrayOutputStream();
 

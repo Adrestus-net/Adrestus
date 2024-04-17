@@ -8,6 +8,7 @@ import io.Adrestus.config.KademliaConfiguration;
 import io.Adrestus.config.NetworkConfiguration;
 import io.Adrestus.config.SocketConfigOptions;
 import io.Adrestus.core.Resourses.*;
+import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.bls.BLS381.ECP;
 import io.Adrestus.crypto.bls.BLS381.ECP2;
 import io.Adrestus.crypto.bls.mapper.ECP2mapper;
@@ -144,10 +145,6 @@ public class BlockSync implements IBlockSync {
             RpcAdrestusClient client = null;
             try {
                 IDatabase<String, TransactionBlock> block_database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
-                IDatabase<String, LevelDBTransactionWrapper<Transaction>> transaction_database = new DatabaseFactory(String.class, Transaction.class, new TypeToken<LevelDBTransactionWrapper<Transaction>>() {
-                }.getType()).getDatabase(DatabaseType.LEVEL_DB);
-                IDatabase<String, LevelDBReceiptWrapper<Receipt>> receipt_database = new DatabaseFactory(String.class, Receipt.class, new TypeToken<LevelDBReceiptWrapper<Receipt>>() {
-                }.getType()).getDatabase(DatabaseType.LEVEL_DB);
                 client = new RpcAdrestusClient(new TransactionBlock(), toConnectTransaction, CachedEventLoop.getInstance().getEventloop());
                 client.connect();
 
@@ -167,18 +164,21 @@ public class BlockSync implements IBlockSync {
                                             .entrySet()
                                             .stream()
                                             .forEach(entry -> {
-                                                entry.getValue().stream().forEach(receipt -> {
+                                                for (int i = 0; i < entry.getValue().size(); i++) {
+                                                    Receipt receipt = entry.getValue().get(i);
                                                     TransactionBlock current = CachedInboundTransactionBlocks.getInstance().retrieve(receipt.getZoneFrom(), receipt.getReceiptBlock().getHeight());
                                                     Transaction trx = current.getTransactionList().get(receipt.getPosition());
-                                                    receipt_database.save(trx.getFrom(), receipt);
-                                                });
+                                                    String rcphash = HashUtil.sha256_bytetoString(this.receipt_encode.encode(receipt));
+                                                    TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(trx.getTo()).get().addReceiptPosition(rcphash, CachedZoneIndex.getInstance().getZoneIndex(), val.getHeight(), receipt.getZoneFrom(), receipt.getReceiptBlock().getHeight(), i);
+                                                }
 
                                             }));
                             toSave.put(String.valueOf(val.getHeight()), val);
-                            val.getTransactionList().stream().forEach(trx -> {
-                                transaction_database.save(trx.getFrom(), trx);
-                                transaction_database.save(trx.getTo(), trx);
-                            });
+                            for (int i = 0; i < val.getTransactionList().size(); i++) {
+                                Transaction transaction = val.getTransactionList().get(i);
+                                TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(transaction.getFrom()).get().addTransactionPosition(transaction.getHash(), CachedZoneIndex.getInstance().getZoneIndex(), val.getHeight(), i);
+                                TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(transaction.getTo()).get().addTransactionPosition(transaction.getHash(), CachedZoneIndex.getInstance().getZoneIndex(), val.getHeight(), i);
+                            }
                         });
                     }
 
@@ -195,18 +195,21 @@ public class BlockSync implements IBlockSync {
                                             .entrySet()
                                             .stream()
                                             .forEach(entry -> {
-                                                entry.getValue().stream().forEach(receipt -> {
+                                                for (int i = 0; i < entry.getValue().size(); i++) {
+                                                    Receipt receipt = entry.getValue().get(i);
                                                     TransactionBlock current = CachedInboundTransactionBlocks.getInstance().retrieve(receipt.getZoneFrom(), receipt.getReceiptBlock().getHeight());
                                                     Transaction trx = current.getTransactionList().get(receipt.getPosition());
-                                                    receipt_database.save(trx.getFrom(), receipt);
-                                                });
+                                                    String rcphash = HashUtil.sha256_bytetoString(this.receipt_encode.encode(receipt));
+                                                    TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(trx.getTo()).get().addReceiptPosition(rcphash, CachedZoneIndex.getInstance().getZoneIndex(), val.getHeight(), receipt.getZoneFrom(), receipt.getReceiptBlock().getHeight(), i);
+                                                }
 
                                             }));
                             toSave.put(String.valueOf(val.getHeight()), val);
-                            val.getTransactionList().stream().forEach(trx -> {
-                                transaction_database.save(trx.getFrom(), trx);
-                                transaction_database.save(trx.getTo(), trx);
-                            });
+                            for (int i = 0; i < val.getTransactionList().size(); i++) {
+                                Transaction transaction = val.getTransactionList().get(i);
+                                TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(transaction.getFrom()).get().addTransactionPosition(transaction.getHash(), CachedZoneIndex.getInstance().getZoneIndex(), val.getHeight(), i);
+                                TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(transaction.getTo()).get().addTransactionPosition(transaction.getHash(), CachedZoneIndex.getInstance().getZoneIndex(), val.getHeight(), i);
+                            }
                         });
                     }
                 }
@@ -301,10 +304,6 @@ public class BlockSync implements IBlockSync {
                     RpcAdrestusClient client = null;
                     try {
                         IDatabase<String, TransactionBlock> block_database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
-                        IDatabase<String, LevelDBTransactionWrapper<Transaction>> transaction_database = new DatabaseFactory(String.class, Transaction.class, new TypeToken<LevelDBTransactionWrapper<Transaction>>() {
-                        }.getType()).getDatabase(DatabaseType.LEVEL_DB);
-                        IDatabase<String, LevelDBReceiptWrapper<Receipt>> receipt_database = new DatabaseFactory(String.class, Receipt.class, new TypeToken<LevelDBReceiptWrapper<Receipt>>() {
-                        }.getType()).getDatabase(DatabaseType.LEVEL_DB);
                         client = new RpcAdrestusClient(new TransactionBlock(), toConnectTransaction, CachedEventLoop.getInstance().getEventloop());
                         client.connect();
 
@@ -326,17 +325,20 @@ public class BlockSync implements IBlockSync {
                                                     .entrySet()
                                                     .stream()
                                                     .forEach(entry -> {
-                                                        entry.getValue().stream().forEach(receipt -> {
+                                                        for (int i = 0; i < entry.getValue().size(); i++) {
+                                                            Receipt receipt = entry.getValue().get(i);
                                                             TransactionBlock current = CachedInboundTransactionBlocks.getInstance().retrieve(receipt.getZoneFrom(), receipt.getReceiptBlock().getHeight());
                                                             Transaction trx = current.getTransactionList().get(receipt.getPosition());
-                                                            receipt_database.save(trx.getFrom(), receipt);
-                                                        });
+                                                            String rcphash = HashUtil.sha256_bytetoString(this.receipt_encode.encode(receipt));
+                                                            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(trx.getTo()).get().addReceiptPosition(rcphash, CachedZoneIndex.getInstance().getZoneIndex(), val.getHeight(), receipt.getZoneFrom(), receipt.getReceiptBlock().getHeight(), i);
+                                                        }
                                                     }));
                                     toSave.put(String.valueOf(val.getHeight()), val);
-                                    val.getTransactionList().stream().forEach(trx -> {
-                                        transaction_database.save(trx.getFrom(), trx);
-                                        transaction_database.save(trx.getTo(), trx);
-                                    });
+                                    for (int i = 0; i < val.getTransactionList().size(); i++) {
+                                        Transaction transaction = val.getTransactionList().get(i);
+                                        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(transaction.getFrom()).get().addTransactionPosition(transaction.getHash(), CachedZoneIndex.getInstance().getZoneIndex(), val.getHeight(), i);
+                                        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(transaction.getTo()).get().addTransactionPosition(transaction.getHash(), CachedZoneIndex.getInstance().getZoneIndex(), val.getHeight(), i);
+                                    }
                                 });
                             }
 
@@ -355,18 +357,21 @@ public class BlockSync implements IBlockSync {
                                                     .entrySet()
                                                     .stream()
                                                     .forEach(entry -> {
-                                                        entry.getValue().stream().forEach(receipt -> {
+                                                        for (int i = 0; i < entry.getValue().size(); i++) {
+                                                            Receipt receipt = entry.getValue().get(i);
                                                             TransactionBlock current = CachedInboundTransactionBlocks.getInstance().retrieve(receipt.getZoneFrom(), receipt.getReceiptBlock().getHeight());
                                                             Transaction trx = current.getTransactionList().get(receipt.getPosition());
-                                                            receipt_database.save(trx.getFrom(), receipt);
-                                                        });
+                                                            String rcphash = HashUtil.sha256_bytetoString(this.receipt_encode.encode(receipt));
+                                                            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(trx.getTo()).get().addReceiptPosition(rcphash, CachedZoneIndex.getInstance().getZoneIndex(), val.getHeight(), receipt.getZoneFrom(), receipt.getReceiptBlock().getHeight(), i);
+                                                        }
 
                                                     }));
                                     toSave.put(String.valueOf(val.getHeight()), val);
-                                    val.getTransactionList().stream().forEach(trx -> {
-                                        transaction_database.save(trx.getFrom(), trx);
-                                        transaction_database.save(trx.getTo(), trx);
-                                    });
+                                    for (int i = 0; i < val.getTransactionList().size(); i++) {
+                                        Transaction transaction = val.getTransactionList().get(i);
+                                        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(transaction.getFrom()).get().addTransactionPosition(transaction.getHash(), CachedZoneIndex.getInstance().getZoneIndex(), val.getHeight(), i);
+                                        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(transaction.getTo()).get().addTransactionPosition(transaction.getHash(), CachedZoneIndex.getInstance().getZoneIndex(), val.getHeight(), i);
+                                    }
                                 });
                             }
                         }
@@ -532,10 +537,7 @@ public class BlockSync implements IBlockSync {
             List<Integer> patriciaRootList = null;
             try {
                 IDatabase<String, TransactionBlock> block_database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
-                IDatabase<String, LevelDBTransactionWrapper<Transaction>> transaction_database = new DatabaseFactory(String.class, Transaction.class, new TypeToken<LevelDBTransactionWrapper<Transaction>>() {
-                }.getType()).getDatabase(DatabaseType.LEVEL_DB);
-                IDatabase<String, LevelDBReceiptWrapper<Receipt>> receipt_database = new DatabaseFactory(String.class, Receipt.class, new TypeToken<LevelDBReceiptWrapper<Receipt>>() {
-                }.getType()).getDatabase(DatabaseType.LEVEL_DB);
+
 
                 client = new RpcAdrestusClient(new TransactionBlock(), toConnectTransaction, CachedEventLoop.getInstance().getEventloop());
                 client.connect();
@@ -558,22 +560,21 @@ public class BlockSync implements IBlockSync {
                                             .entrySet()
                                             .stream()
                                             .forEach(entry -> {
-                                                entry.getValue().stream().forEach(receipt -> {
-                                                    try {
-                                                        TransactionBlock current = CachedInboundTransactionBlocks.getInstance().retrieve(receipt.getZoneFrom(), receipt.getReceiptBlock().getHeight());
-                                                        Transaction trx = current.getTransactionList().get(receipt.getPosition());
-                                                        receipt_database.save(trx.getFrom(), receipt);
-                                                    } catch (NullPointerException e) {
-                                                        int g = 3;
-                                                    }
-                                                });
+                                                for (int i = 0; i < entry.getValue().size(); i++) {
+                                                    Receipt receipt = entry.getValue().get(i);
+                                                    TransactionBlock current = CachedInboundTransactionBlocks.getInstance().retrieve(receipt.getZoneFrom(), receipt.getReceiptBlock().getHeight());
+                                                    Transaction trx = current.getTransactionList().get(receipt.getPosition());
+                                                    String rcphash = HashUtil.sha256_bytetoString(this.receipt_encode.encode(receipt));
+                                                    TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(trx.getTo()).get().addReceiptPosition(rcphash, CachedZoneIndex.getInstance().getZoneIndex(), val.getHeight(), receipt.getZoneFrom(), receipt.getReceiptBlock().getHeight(), i);
+                                                }
 
                                             }));
                             toSave.put(String.valueOf(val.getHeight()), val);
-                            val.getTransactionList().stream().forEach(trx -> {
-                                transaction_database.save(trx.getFrom(), trx);
-                                transaction_database.save(trx.getTo(), trx);
-                            });
+                            for (int i = 0; i < val.getTransactionList().size(); i++) {
+                                Transaction transaction = val.getTransactionList().get(i);
+                                TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(transaction.getFrom()).get().addTransactionPosition(transaction.getHash(), CachedZoneIndex.getInstance().getZoneIndex(), val.getHeight(), i);
+                                TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(transaction.getTo()).get().addTransactionPosition(transaction.getHash(), CachedZoneIndex.getInstance().getZoneIndex(), val.getHeight(), i);
+                            }
                         });
                     }
 
@@ -592,18 +593,21 @@ public class BlockSync implements IBlockSync {
                                             .entrySet()
                                             .stream()
                                             .forEach(entry -> {
-                                                entry.getValue().stream().forEach(receipt -> {
+                                                for (int i = 0; i < entry.getValue().size(); i++) {
+                                                    Receipt receipt = entry.getValue().get(i);
                                                     TransactionBlock current = CachedInboundTransactionBlocks.getInstance().retrieve(receipt.getZoneFrom(), receipt.getReceiptBlock().getHeight());
                                                     Transaction trx = current.getTransactionList().get(receipt.getPosition());
-                                                    receipt_database.save(trx.getFrom(), receipt);
-                                                });
+                                                    String rcphash = HashUtil.sha256_bytetoString(this.receipt_encode.encode(receipt));
+                                                    TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(trx.getTo()).get().addReceiptPosition(rcphash, CachedZoneIndex.getInstance().getZoneIndex(), val.getHeight(), receipt.getZoneFrom(), receipt.getReceiptBlock().getHeight(), i);
+                                                }
 
                                             }));
                             toSave.put(String.valueOf(val.getHeight()), val);
-                            val.getTransactionList().stream().forEach(trx -> {
-                                transaction_database.save(trx.getFrom(), trx);
-                                transaction_database.save(trx.getTo(), trx);
-                            });
+                            for (int i = 0; i < val.getTransactionList().size(); i++) {
+                                Transaction transaction = val.getTransactionList().get(i);
+                                TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(transaction.getFrom()).get().addTransactionPosition(transaction.getHash(), CachedZoneIndex.getInstance().getZoneIndex(), val.getHeight(), i);
+                                TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(transaction.getTo()).get().addTransactionPosition(transaction.getHash(), CachedZoneIndex.getInstance().getZoneIndex(), val.getHeight(), i);
+                            }
                         });
                     }
                 }

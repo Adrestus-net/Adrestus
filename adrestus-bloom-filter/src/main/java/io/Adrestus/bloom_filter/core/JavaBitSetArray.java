@@ -1,10 +1,12 @@
 package io.Adrestus.bloom_filter.core;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.BitSet;
+import java.util.Objects;
 
-public class JavaBitSetArray implements BitArray {
+public class JavaBitSetArray implements BitArray, Cloneable, Serializable {
 
     final BitSet bitSet;
 
@@ -91,4 +93,17 @@ public class JavaBitSetArray implements BitArray {
         // do nothing
     }
 
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) return true;
+        if (object == null || getClass() != object.getClass()) return false;
+        JavaBitSetArray that = (JavaBitSetArray) object;
+        return size == that.size && Objects.equals(bitSet, that.bitSet);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(bitSet, size);
+    }
 }

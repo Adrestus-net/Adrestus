@@ -20,6 +20,7 @@
         <lz4.version>1.8.0</lz4.version>
         <json.version>20231013</json.version>
         <fastjson2.version>2.0.45</fastjson2.version>
+        <util.version>1.0-SNAPSHOT</util.version>
     </properties>
 
     <dependencies>
@@ -33,6 +34,11 @@
             <groupId>io.Adrestus.v1</groupId>
             <artifactId>adrestus-crypto</artifactId>
             <version>${crypto.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.Adrestus.v1</groupId>
+            <artifactId>adrestus-util</artifactId>
+            <version>${util.version}</version>
         </dependency>
         <dependency>
             <groupId>org.lz4</groupId>

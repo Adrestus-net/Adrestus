@@ -37,24 +37,6 @@ public class NonceEventHandler extends TransactionEventHandler {
         }
 
         if (patriciaTreeNode.getNonce() + 1 != transaction.getNonce()) {
-           /* List<Transaction> list= MemoryTransactionPool.getInstance().getAll();
-            Transaction finalTransaction = transaction;
-            List<Transaction> gf=list.stream().filter(tr->tr.getFrom().equals(finalTransaction.getFrom())).collect(Collectors.toList());
-            IDatabase<String, LevelDBTransactionWrapper<Transaction>> transaction_database = new DatabaseFactory(String.class, Transaction.class, new TypeToken<LevelDBTransactionWrapper<Transaction>>() {
-            }.getType()).getDatabase(DatabaseType.LEVEL_DB);
-            LevelDBTransactionWrapper<Transaction> tosearch;
-            Map<String,List<Transaction>> map=CacheTemporalTransactionPool.getInstance().getAsMap();
-            List<Transaction>tra=map.get(transaction.getFrom());
-            try {
-                tosearch = transaction_database.findByKey(transaction.getFrom()).get();
-            } catch (NoSuchElementException e) {
-                return;
-            }
-            if(!gf.isEmpty()) {
-                boolean val=MemoryTransactionPool.getInstance().checkAdressExists(finalTransaction);
-                System.out.println("previoussssssssssssssssss");
-                int h = 3;
-            }*/
             LOG.info("Transaction nonce is not valid");
             transaction.setStatus(StatusType.ABORT);
         }

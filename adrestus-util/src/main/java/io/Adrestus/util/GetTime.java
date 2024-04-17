@@ -10,7 +10,7 @@ import java.util.TimeZone;
 
 public class GetTime {
     private static final String FORMAT_STRING = "yyyy-MM-dd HH:mm:ss.SSS";
-    private static final int ONE_MINUTE = 1 * 60 * 1000;
+    private static final int ONE_MINUTE = 10 * 1000;
     private static final int TRANSACTION_BLOCK_DELAY = 1000;
 
     private static long ExtractUTCTimestamp() {
@@ -33,9 +33,14 @@ public class GetTime {
         return timestamp;
     }
 
+    @SneakyThrows
     public static Timestamp GetTimeStampWithDelay() {
         Timestamp timestamp = new Timestamp(ExtractUTCTimestamp() + ONE_MINUTE);
-        return timestamp;
+        SimpleDateFormat sdf = new SimpleDateFormat(FORMAT_STRING);
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+        Date parsedDate = sdf.parse(timestamp.toString());
+        Timestamp ts = new java.sql.Timestamp(parsedDate.getTime());
+        return ts;
     }
 
     public static Timestamp GetTimeStampWithDelay(Timestamp timestamp) {

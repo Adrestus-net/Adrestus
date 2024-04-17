@@ -10,7 +10,7 @@ import java.io.Serializable;
 import java.util.Set;
 
 public interface IMemoryTreePool extends Serializable {
-    void store(String address, PatriciaTreeNode patriciaTreeNode) throws Exception;
+    void store(String address, PatriciaTreeNode patriciaTreeNode);
 
     void deposit(String address, double amount, IMemoryTreePool instance);
 

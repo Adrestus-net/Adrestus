@@ -6,13 +6,15 @@ import io.Adrestus.bloom_filter.core.BitArray;
 import io.Adrestus.bloom_filter.core.JavaBitSetArray;
 import io.Adrestus.bloom_filter.hash.HashFunction;
 
+import java.io.Serializable;
+
 /**
  * An in-memory implementation of the bloom filter. Not suitable for
  * persistence.
  *
  * @param <T> the type of object to be stored in the filter
  */
-public class InMemoryBloomFilter<T> extends AbstractBloomFilter<T> {
+public class InMemoryBloomFilter<T> extends AbstractBloomFilter<T> implements Cloneable, Serializable {
 
     /**
      * Constructor

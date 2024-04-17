@@ -3,13 +3,15 @@ package io.Adrestus.bloom_filter.core;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel.MapMode;
 import java.util.Arrays;
+import java.util.Objects;
 
-public class MMapFileBackedBitArray implements BitArray {
+public class MMapFileBackedBitArray implements BitArray, Cloneable, Serializable {
 
     protected final RandomAccessFile backingFile;
 
@@ -210,4 +212,16 @@ public class MMapFileBackedBitArray implements BitArray {
         cb = null;
     }
 
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) return true;
+        if (object == null || getClass() != object.getClass()) return false;
+        MMapFileBackedBitArray that = (MMapFileBackedBitArray) object;
+        return maxElements == that.maxElements && numBytes == that.numBytes && Objects.equals(backingFile, that.backingFile) && Objects.equals(buffer, that.buffer);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(backingFile, maxElements, numBytes, buffer);
+    }
 }

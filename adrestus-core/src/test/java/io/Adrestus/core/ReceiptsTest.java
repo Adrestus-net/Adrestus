@@ -1,6 +1,5 @@
 package io.Adrestus.core;
 
-import com.google.common.reflect.TypeToken;
 import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.MerkleNode;
 import io.Adrestus.Trie.MerkleTreeImp;
@@ -213,12 +212,12 @@ public class ReceiptsTest {
         Receipt.ReceiptBlock receiptBlock2 = new Receipt.ReceiptBlock(3, 2, "2");
         Receipt.ReceiptBlock receiptBlock3 = new Receipt.ReceiptBlock(4, 3, "3");
         //its wrong each block must be unique for each zone need changes
-        Receipt receipt1 = new Receipt(1, 0, receiptBlock1, null, 1, "a");
-        Receipt receipt2 = new Receipt(1, 0, receiptBlock1a, null, 2, "b");
-        Receipt receipt3 = new Receipt(1, 2, receiptBlock2, null, 1, "c");
-        Receipt receipt4 = new Receipt(1, 2, receiptBlock2, null, 2, "d");
-        Receipt receipt5 = new Receipt(1, 3, receiptBlock3, null, 1, "e");
-        Receipt receipt6 = new Receipt(1, 4, receiptBlock3, null, 2, "f");
+        Receipt receipt1 = new Receipt(1, 0, receiptBlock1, null, 1);
+        Receipt receipt2 = new Receipt(1, 0, receiptBlock1a, null, 2);
+        Receipt receipt3 = new Receipt(1, 2, receiptBlock2, null, 1);
+        Receipt receipt4 = new Receipt(1, 2, receiptBlock2, null, 2);
+        Receipt receipt5 = new Receipt(1, 3, receiptBlock3, null, 1);
+        Receipt receipt6 = new Receipt(1, 4, receiptBlock3, null, 2);
 
         ArrayList<Receipt> list = new ArrayList<>();
         list.add(receipt1);
@@ -285,7 +284,7 @@ public class ReceiptsTest {
             Transaction transaction = transactionBlock.getTransactionList().get(i);
             MerkleNode node = new MerkleNode(transaction.getHash());
             tree.build_proofs2(merkleNodeArrayList, node);
-            receiptList.add(new Receipt(transaction.getZoneFrom(), transaction.getZoneTo(), receiptBlock, i, tree.getMerkleeproofs(), transaction.getHash()));
+            receiptList.add(new Receipt(transaction.getZoneFrom(), transaction.getZoneTo(), receiptBlock, i, tree.getMerkleeproofs()));
         }
 
         Map<Integer, Map<Receipt.ReceiptBlock, List<Receipt>>> map = receiptList
@@ -328,8 +327,8 @@ public class ReceiptsTest {
 
         Receipt.ReceiptBlock receiptBlock1 = new Receipt.ReceiptBlock(transactionBlock.getHeight(), transactionBlock.getGeneration(), transactionBlock.getMerkleRoot());
         //its wrong each block must be unique for each zone need changes
-        Receipt receipt1 = new Receipt(0, 1, receiptBlock1, null, 1, new RegularTransaction("a").getHash());
-        Receipt receipt2 = new Receipt(0, 2, receiptBlock1, null, 2, new RegularTransaction("b").getHash());
+        Receipt receipt1 = new Receipt(0, 1, receiptBlock1, null, 1);
+        Receipt receipt2 = new Receipt(0, 2, receiptBlock1, null, 2);
         blockSizeCalculator.setTransactionBlock(transactionBlock);
 
         ArrayList<Receipt> list = new ArrayList<>();
@@ -371,10 +370,6 @@ public class ReceiptsTest {
     @Order(3)
     public void inbound_test() throws Exception {
         IDatabase<String, TransactionBlock> database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.ZONE_0_TRANSACTION_BLOCK);
-        IDatabase<String, LevelDBTransactionWrapper<Transaction>> transaction_database = new DatabaseFactory(String.class, Transaction.class, new TypeToken<LevelDBTransactionWrapper<Transaction>>() {
-        }.getType()).getDatabase(DatabaseType.LEVEL_DB);
-        IDatabase<String, LevelDBReceiptWrapper<Receipt>> receipt_database = new DatabaseFactory(String.class, Receipt.class, new TypeToken<LevelDBReceiptWrapper<Receipt>>() {
-        }.getType()).getDatabase(DatabaseType.LEVEL_DB);
         database.save(String.valueOf(transactionBlock.getHeight()), transactionBlock);
         //  CachedEventLoop.getInstance().setEventloop(Eventloop.create().withCurrentThread());
         // new Thread(CachedEventLoop.getInstance().getEventloop());
@@ -393,12 +388,11 @@ public class ReceiptsTest {
 
         for (int i = 0; i < transactionBlock.getTransactionList().size(); i++) {
             Transaction transaction = transactionBlock.getTransactionList().get(i);
-            transaction_database.save(transaction.getFrom(), transaction);
             int index = Collections.binarySearch(transactionBlock.getTransactionList(), transactionBlock.getTransactionList().get(i));
             MerkleNode node = new MerkleNode(transaction.getHash());
             tree.build_proofs2(merkleNodeArrayList, node);
             if (CachedZoneIndex.getInstance().getZoneIndex() == transaction.getZoneTo())
-                MemoryReceiptPool.getInstance().add(new Receipt(transaction.getZoneFrom(), transaction.getZoneTo(), receiptBlock, tree.getMerkleeproofs(), index, transaction.getHash()));
+                MemoryReceiptPool.getInstance().add(new Receipt(transaction.getZoneFrom(), transaction.getZoneTo(), receiptBlock, tree.getMerkleeproofs(), index));
         }
 
         Map<Integer, Map<Receipt.ReceiptBlock, List<Receipt>>> map = ((ArrayList<Receipt>) MemoryReceiptPool.getInstance().getAll())
@@ -425,7 +419,6 @@ public class ReceiptsTest {
                 .forEach(entry -> {
                     entry.getValue().stream().forEach(receipt -> {
                         Transaction trx = transactionBlock.getTransactionList().get(receipt.getPosition());
-                        receipt_database.save(trx.getFrom(), receipt);
                         TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).deposit(trx.getFrom(), trx.getAmount(), TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()));
                         MemoryReceiptPool.getInstance().delete(receipt);
                     });
@@ -442,7 +435,5 @@ public class ReceiptsTest {
         publisher.close();
 
         database.delete_db();
-        receipt_database.delete_db();
-        transaction_database.delete_db();
     }
 }

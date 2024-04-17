@@ -1,9 +1,10 @@
 package io.Adrestus.bloom_filter.core;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Objects;
 
-public class BloomObject {
+public class BloomObject implements Cloneable, Serializable {
     private int array[];
     private int HashFunctionNum;
 

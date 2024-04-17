@@ -3,9 +3,11 @@ package io.Adrestus.bloom_filter.core;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.io.Serializable;
 import java.util.Arrays;
+import java.util.Objects;
 
-public class FileBackedBitArray implements BitArray {
+public class FileBackedBitArray implements BitArray, Cloneable, Serializable {
 
     /**
      * Underlying file that represents the state of the
@@ -183,4 +185,17 @@ public class FileBackedBitArray implements BitArray {
         this.backingFile.close();
     }
 
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) return true;
+        if (object == null || getClass() != object.getClass()) return false;
+        FileBackedBitArray that = (FileBackedBitArray) object;
+        return maxElements == that.maxElements && numBytes == that.numBytes && Objects.equals(backingFile, that.backingFile);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(backingFile, maxElements, numBytes);
+    }
 }

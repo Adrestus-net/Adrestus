@@ -12,14 +12,15 @@ import io.Adrestus.bloom_filter.hash.Murmur3HashFunction;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.io.Serializable;
 import java.nio.charset.Charset;
-import java.nio.charset.IllegalCharsetNameException;
-import java.nio.charset.UnsupportedCharsetException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Collection;
+import java.util.Objects;
 
-public abstract class AbstractBloomFilter<T> implements BloomFilter<T> {
+public abstract class AbstractBloomFilter<T> implements BloomFilter<T>, Cloneable, Serializable {
 
     /**
      * The decomposer to use when there is none specified at construction
@@ -44,7 +45,6 @@ public abstract class AbstractBloomFilter<T> implements BloomFilter<T> {
     /**
      * The default {@link Charset} is the platform encoding charset
      */
-    protected transient Charset currentCharset = Charset.defaultCharset();
 
     /**
      * The {@link BitArray} instance that holds the entire data
@@ -331,7 +331,7 @@ public abstract class AbstractBloomFilter<T> implements BloomFilter<T> {
             return false;
         }
 
-        return contains(value.toString().getBytes(this.currentCharset));
+        return contains(value.toString().getBytes(StandardCharsets.UTF_8));
     }
 
     /**
@@ -370,44 +370,6 @@ public abstract class AbstractBloomFilter<T> implements BloomFilter<T> {
             list_values.add(value);
         });
         return list_values.stream().mapToInt(Integer::intValue).toArray();
-    }
-
-
-    /**
-     * Override the default charset that will be used when decomposing the
-     * {@link String} values into byte arrays. The default {@link Charset} used
-     * in the platform's default {@link Charset}.
-     *
-     * @param charsetName the name of the charset that needs to be set
-     * @throws IllegalArgumentException    if the charsetName is null
-     * @throws IllegalCharsetNameException If the given charset name is illegal
-     * @throws UnsupportedCharsetException If no support for the named charset is available in this
-     *                                     instance of the Java virtual machine
-     */
-    @Override
-    public void setCharset(String charsetName) {
-        if (charsetName == null) {
-            throw new IllegalArgumentException("Charset to be changed to cannot be null");
-        }
-
-        setCharset(Charset.forName(charsetName));
-    }
-
-    /**
-     * Override the default charset that will be used when decomposing the
-     * {@link String} values into byte arrays. The default {@link Charset} used
-     * in the platform's default {@link Charset}.
-     *
-     * @param charset the {@link Charset} to be used
-     * @throws IllegalArgumentException if the charset is null
-     */
-    @Override
-    public void setCharset(Charset charset) {
-        if (charset == null) {
-            throw new IllegalArgumentException("Charset to be changed to cannot be null");
-        }
-
-        this.currentCharset = charset;
     }
 
     /**
@@ -449,6 +411,20 @@ public abstract class AbstractBloomFilter<T> implements BloomFilter<T> {
     @Override
     public double getFalsePositiveProbability(int numInsertedElements) {
         return Math.pow((1 - Math.exp((-this.kOrNumberOfHashFunctions) * (double) numInsertedElements / (double) this.numBitsRequired)), this.kOrNumberOfHashFunctions);
+    }
+
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) return true;
+        if (object == null || getClass() != object.getClass()) return false;
+        AbstractBloomFilter<?> that = (AbstractBloomFilter<?>) object;
+        return kOrNumberOfHashFunctions == that.kOrNumberOfHashFunctions && numBitsRequired == that.numBitsRequired && Objects.equals(bitArray, that.bitArray) && Objects.equals(customDecomposer, that.customDecomposer) && Objects.equals(hasher, that.hasher);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(bitArray, kOrNumberOfHashFunctions, customDecomposer, hasher, numBitsRequired);
     }
 
     @Override

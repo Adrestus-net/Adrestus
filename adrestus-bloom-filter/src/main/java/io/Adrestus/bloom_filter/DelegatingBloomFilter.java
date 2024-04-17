@@ -3,10 +3,10 @@ package io.Adrestus.bloom_filter;
 
 import io.Adrestus.bloom_filter.decompose.Decomposer;
 
-import java.nio.charset.Charset;
+import java.io.Serializable;
 import java.util.Collection;
 
-public abstract class DelegatingBloomFilter<T> implements BloomFilter<T> {
+public abstract class DelegatingBloomFilter<T> implements BloomFilter<T>, Cloneable, Serializable {
 
     protected final BloomFilter<T> originalBloomFilter;
 
@@ -49,18 +49,6 @@ public abstract class DelegatingBloomFilter<T> implements BloomFilter<T> {
     public boolean containsAll(Collection<T> values) {
         return this.originalBloomFilter.containsAll(values);
     }
-
-
-    @Override
-    public void setCharset(String charsetName) {
-        this.originalBloomFilter.setCharset(charsetName);
-    }
-
-    @Override
-    public void setCharset(Charset charset) {
-        this.originalBloomFilter.setCharset(charset);
-    }
-
 
     @Override
     public Decomposer<T> getObjectDecomposer() {

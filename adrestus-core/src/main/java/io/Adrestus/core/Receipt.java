@@ -8,9 +8,8 @@ import io.activej.serializer.annotations.SerializeNullable;
 import java.io.Serializable;
 import java.util.Objects;
 
-public class Receipt implements Serializable {
+public class Receipt implements Serializable, Cloneable {
 
-    private String transaction_hash;
     private int zoneFrom;
     private int zoneTo;
     private ReceiptBlock receiptBlock;
@@ -19,7 +18,6 @@ public class Receipt implements Serializable {
 
 
     public Receipt() {
-        this.transaction_hash = "";
         this.zoneFrom = 0;
         this.zoneTo = 0;
         this.receiptBlock = new ReceiptBlock();
@@ -31,45 +29,39 @@ public class Receipt implements Serializable {
                    int zoneTo,
                    ReceiptBlock receiptBlock,
                    int position,
-                   MerkleProofs proofs,
-                   String transaction_hash) {
+                   MerkleProofs proofs) {
         this.zoneFrom = zoneFrom;
         this.zoneTo = zoneTo;
         this.receiptBlock = receiptBlock;
         this.position = position;
         this.proofs = proofs;
-        this.transaction_hash = transaction_hash;
 
     }
 
-    public Receipt(int zoneFrom, int zoneTo, int position, MerkleProofs proofs, String transaction_hash) {
+    public Receipt(int zoneFrom, int zoneTo, int position, MerkleProofs proof) {
         this.zoneFrom = zoneFrom;
         this.zoneTo = zoneTo;
         this.position = position;
         this.proofs = proofs;
-        this.transaction_hash = transaction_hash;
     }
 
-    public Receipt(int zoneFrom, int zoneTo, String transaction_hash) {
+    public Receipt(int zoneFrom, int zoneTo) {
         this.zoneFrom = zoneFrom;
         this.zoneTo = zoneTo;
         this.proofs = new MerkleProofs();
         this.position = 0;
-        this.transaction_hash = transaction_hash;
     }
 
     public Receipt(@Deserialize("zoneFrom") int zoneFrom,
                    @Deserialize("zoneTo") int zoneTo,
                    @Deserialize("receiptBlock") ReceiptBlock receiptBlock,
                    @Deserialize("proofs") MerkleProofs proofs,
-                   @Deserialize("position") int position,
-                   @Deserialize("transaction_hash") String transaction_hash) {
+                   @Deserialize("position") int position) {
         this.zoneFrom = zoneFrom;
         this.zoneTo = zoneTo;
         this.receiptBlock = receiptBlock;
         this.proofs = proofs;
         this.position = position;
-        this.transaction_hash = transaction_hash;
     }
 
     public Receipt(int zoneFrom,
@@ -81,18 +73,8 @@ public class Receipt implements Serializable {
         this.receiptBlock = receiptBlock;
         this.proofs = new MerkleProofs();
         this.position = 0;
-        this.transaction_hash = transaction_hash;
     }
 
-
-    @Serialize
-    public String getTransaction_hash() {
-        return transaction_hash;
-    }
-
-    public void setTransaction_hash(String transaction_hash) {
-        this.transaction_hash = transaction_hash;
-    }
 
     @Serialize
     public int getZoneFrom() {
@@ -149,29 +131,31 @@ public class Receipt implements Serializable {
                 receipt.getZoneTo(),
                 null,
                 receipt.getPosition(),
-                receipt.getProofs(),
-                receipt.getTransaction_hash());
+                receipt.getProofs());
     }
 
+
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
 
     @Override
     public boolean equals(Object object) {
         if (this == object) return true;
         if (object == null || getClass() != object.getClass()) return false;
         Receipt receipt = (Receipt) object;
-        return zoneFrom == receipt.zoneFrom && zoneTo == receipt.zoneTo && position == receipt.position && Objects.equals(transaction_hash, receipt.transaction_hash) && Objects.equals(receiptBlock, receipt.receiptBlock) && Objects.equals(proofs, receipt.proofs);
+        return zoneFrom == receipt.zoneFrom && zoneTo == receipt.zoneTo && position == receipt.position && Objects.equals(receiptBlock, receipt.receiptBlock) && Objects.equals(proofs, receipt.proofs);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(transaction_hash, zoneFrom, zoneTo, receiptBlock, position, proofs);
+        return Objects.hash(zoneFrom, zoneTo, receiptBlock, position, proofs);
     }
 
     @Override
     public String toString() {
         return "Receipt{" +
-                "transaction_hash='" + transaction_hash + '\'' +
-                ", zoneFrom=" + zoneFrom +
+                "zoneFrom=" + zoneFrom +
                 ", zoneTo=" + zoneTo +
                 ", receiptBlock=" + receiptBlock +
                 ", position=" + position +

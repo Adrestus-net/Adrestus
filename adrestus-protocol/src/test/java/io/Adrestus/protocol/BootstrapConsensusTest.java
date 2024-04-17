@@ -10,9 +10,7 @@ import io.Adrestus.config.KademliaConfiguration;
 import io.Adrestus.config.NodeSettings;
 import io.Adrestus.consensus.ConsensusState;
 import io.Adrestus.core.CommitteeBlock;
-import io.Adrestus.core.Receipt;
 import io.Adrestus.core.Resourses.*;
-import io.Adrestus.core.Transaction;
 import io.Adrestus.core.TransactionBlock;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.SecurityAuditProofs;
@@ -477,10 +475,6 @@ public class BootstrapConsensusTest {
 
 
     public static void delete_test() {
-        IDatabase<String, LevelDBTransactionWrapper<Transaction>> transaction_database = new DatabaseFactory(String.class, Transaction.class, new TypeToken<LevelDBTransactionWrapper<Transaction>>() {
-        }.getType()).getDatabase(DatabaseType.LEVEL_DB);
-        IDatabase<String, LevelDBReceiptWrapper<Receipt>> receiptdatabase = new DatabaseFactory(String.class, Receipt.class, new TypeToken<LevelDBReceiptWrapper<Receipt>>() {
-        }.getType()).getDatabase(DatabaseType.LEVEL_DB);
         IDatabase<String, TransactionBlock> transaction_block1 = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.ZONE_0_TRANSACTION_BLOCK);
         IDatabase<String, TransactionBlock> transaction_block2 = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.ZONE_1_TRANSACTION_BLOCK);
         IDatabase<String, TransactionBlock> transaction_block3 = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.ZONE_2_TRANSACTION_BLOCK);
@@ -507,7 +501,5 @@ public class BootstrapConsensusTest {
 
 
         commit.delete_db();
-        transaction_database.delete_db();
-        receiptdatabase.delete_db();
     }
 }

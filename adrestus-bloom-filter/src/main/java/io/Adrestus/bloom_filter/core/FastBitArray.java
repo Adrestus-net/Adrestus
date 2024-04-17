@@ -1,13 +1,15 @@
 package io.Adrestus.bloom_filter.core;
 
+import java.io.Serializable;
 import java.math.RoundingMode;
 import java.util.Arrays;
+import java.util.Objects;
 
 import static java.lang.Math.abs;
 import static java.math.RoundingMode.HALF_EVEN;
 import static java.math.RoundingMode.HALF_UP;
 
-public class FastBitArray {
+public class FastBitArray implements Cloneable, Serializable {
 
     /**
      * The data-set
@@ -109,21 +111,6 @@ public class FastBitArray {
         }
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (o instanceof FastBitArray) {
-            FastBitArray bitArray = (FastBitArray) o;
-            return Arrays.equals(data, bitArray.data);
-        }
-
-        return false;
-    }
-
-    @Override
-    public int hashCode() {
-        return Arrays.hashCode(data);
-    }
-
     /**
      * Returns the {@code int} value that is equal to {@code value}, if
      * possible.
@@ -206,6 +193,21 @@ public class FastBitArray {
                 throw new AssertionError();
         }
         return increment ? div + signum : div;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) return true;
+        if (object == null || getClass() != object.getClass()) return false;
+        FastBitArray that = (FastBitArray) object;
+        return bitCount == that.bitCount && Arrays.equals(data, that.data);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Objects.hash(bitCount);
+        result = 31 * result + Arrays.hashCode(data);
+        return result;
     }
 
     static void checkRoundingUnnecessary(boolean condition) {
