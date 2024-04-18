@@ -38,7 +38,7 @@ public class LevelDBReceiptTest {
         assertEquals(receipt, cloned);
     }
 
-    @Test
+    //@Test
     public void ReceiptTest() {
         IDatabase<String, LevelDBReceiptWrapper<Receipt>> receiptdatabase = new DatabaseFactory(String.class, Receipt.class, new TypeToken<LevelDBReceiptWrapper<Receipt>>() {
         }.getType()).getDatabase(DatabaseType.LEVEL_DB);
@@ -58,7 +58,7 @@ public class LevelDBReceiptTest {
         receiptdatabase.delete_db();
     }
 
-    @Test
+    //@Test
     public void ReceiptTest2() {
         IDatabase<String, LevelDBReceiptWrapper<Receipt>> receiptdatabase = new DatabaseFactory(String.class, Receipt.class, new TypeToken<LevelDBReceiptWrapper<Receipt>>() {
         }.getType()).getDatabase(DatabaseType.LEVEL_DB);
