@@ -166,6 +166,10 @@ public class TransactionStrategyTest {
         CachedZoneIndex.getInstance().setZoneIndex(0);
     }
 
+
+
+
+    //I am not sure but this maybe need WorkerTest from protocols tests
     @Test
     public void transaction_list() throws Exception {
         ArrayList<Transaction> list = new ArrayList<>(MemoryTransactionPool.getInstance().getAll());

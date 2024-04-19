@@ -17,14 +17,25 @@ public class AmountEventHandler extends TransactionEventHandler {
 
     @Override
     public void onEvent(TransactionEvent transactionEvent, long l, boolean b) throws Exception {
-        Transaction transaction = null;
+        Transaction transaction = transactionEvent.getTransaction();
+        if (transaction.getStatus().equals(StatusType.BUFFERED) || transaction.getStatus().equals(StatusType.ABORT))
+            return;
+
+        //to
+        try {
+            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(transaction.getTo()).get();
+
+        } catch (NoSuchElementException ex) {
+            LOG.info("State trie is empty we add address");
+            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(transaction.getTo(), new PatriciaTreeNode(0, 0));
+        } catch (NullPointerException ex) {
+            LOG.info("Transaction is empty");
+            transaction.setStatus(StatusType.ABORT);
+            return;
+        }
+        //from
         PatriciaTreeNode patriciaTreeNode = null;
         try {
-            transaction = transactionEvent.getTransaction();
-
-            if (transaction.getStatus().equals(StatusType.BUFFERED) || transaction.getStatus().equals(StatusType.ABORT))
-                return;
-
             patriciaTreeNode = TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(transaction.getFrom()).get();
 
         } catch (NoSuchElementException ex) {
