@@ -1,10 +1,7 @@
 package io.Adrestus.consensus.helper;
 
 import io.Adrestus.config.ConsensusConfiguration;
-import io.Adrestus.consensus.ConsensusManager;
-import io.Adrestus.consensus.ConsensusMessage;
-import io.Adrestus.consensus.ConsensusRoleType;
-import io.Adrestus.consensus.ConsensusType;
+import io.Adrestus.consensus.*;
 import io.Adrestus.core.*;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedLeaderIndex;
@@ -152,7 +149,7 @@ public class ConsensusTransactionTimer {
             CachedLeaderIndex.getInstance().setTransactionPositionLeader(current);
             if (target == current) {
                 LOG.info("ORGANIZER State");
-                chooser();
+                //chooser();
                 consensusManager.changeStateTo(ConsensusRoleType.ORGANIZER);
                 var organizerphase = consensusManager.getRole().manufacturePhases(ConsensusType.TRANSACTION_BLOCK);
                 organizerphase.InitialSetup();
@@ -160,6 +157,8 @@ public class ConsensusTransactionTimer {
                 organizerphase.AnnouncePhase(consensusMessage);
                 organizerphase.PreparePhase(consensusMessage);
                 organizerphase.CommitPhase(consensusMessage);
+                if(consensusMessage.getStatusType().equals(ConsensusStatusType.ABORT))
+                    throw new IllegalArgumentException("Problem occured");
             } else {
                 LOG.info("VALIDATOR State");
                 consensusManager.changeStateTo(ConsensusRoleType.VALIDATOR);
@@ -169,6 +168,8 @@ public class ConsensusTransactionTimer {
                 validatorphase.AnnouncePhase(consensusMessage);
                 validatorphase.PreparePhase(consensusMessage);
                 validatorphase.CommitPhase(consensusMessage);
+                if(consensusMessage.getStatusType().equals(ConsensusStatusType.ABORT))
+                    throw new IllegalArgumentException("Problem occured");
             }
             latch.countDown();
             MemoryTransactionPool.getInstance().clear();

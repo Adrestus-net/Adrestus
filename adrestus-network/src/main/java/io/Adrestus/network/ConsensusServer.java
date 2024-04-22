@@ -56,8 +56,12 @@ public class ConsensusServer {
         this.connected = ctx.createSocket(SocketType.REP);
         this.chunksCollector = ctx.createSocket(SocketType.ROUTER);
 
-
-        this.publisher.setHWM(10000);
+        this.connected.setLinger(200);
+        this.connected.setHWM(1);
+        this.connected.setConflate(true);
+        this.publisher.setLinger(200);
+        this.publisher.setHWM(3);
+        this.publisher.setConflate(true);
 //        this.chunksCollector.setHWM(10000);
 
         this.chunksCollector.bind("tcp://" + IP + ":" + CHUNKS_COLLECTOR_PORT);
@@ -80,6 +84,46 @@ public class ConsensusServer {
         this.BlockUntilConnected();
     }
 
+    public ConsensusServer(String IP, CountDownLatch latch,int random) {
+        this.executorService = Executors.newSingleThreadExecutor();
+        this.message_deque = new LinkedBlockingDeque<>();
+        this.peers_not_connected = 0;
+        this.terminate = false;
+        this.IP = IP;
+        this.latch = latch;
+        this.ctx = new ZContext();
+        this.publisher = ctx.createSocket(SocketType.PUB);
+        this.collector = ctx.createSocket(SocketType.PULL);
+        this.connected = ctx.createSocket(SocketType.REP);
+        this.chunksCollector = ctx.createSocket(SocketType.ROUTER);
+
+        this.connected.setLinger(200);
+        this.connected.setHWM(1);
+        this.connected.setConflate(true);
+        this.publisher.setLinger(200);
+        this.publisher.setHWM(3);
+        this.publisher.setConflate(true);
+//        this.chunksCollector.setHWM(10000);
+
+        this.chunksCollector.bind("tcp://" + IP + ":" + CHUNKS_COLLECTOR_PORT);
+        this.publisher.bind("tcp://" + IP + ":" + PUBLISHER_PORT);
+        this.collector.bind("tcp://" + IP + ":" + COLLECTOR_PORT);
+        this.connected.bind("tcp://" + IP + ":" + CONNECTED_PORT);
+
+        this.collector.setReceiveTimeOut(CONSENSUS_COLLECTED_TIMEOUT);
+        this.publisher.setSendTimeOut(CONSENSUS_PUBLISHER_TIMEOUT);
+
+        this.connected.setSendTimeOut(CONSENSUS_CONNECTED_SEND_TIMEOUT);
+        this.connected.setReceiveTimeOut(CONSENSUS_CONNECTED_RECEIVE_TIMEOUT);
+
+        this.chunksCollector.setSendTimeOut(CONSENSUS_CONNECTED_SEND_TIMEOUT);
+        this.chunksCollector.setReceiveTimeOut(CONSENSUS_CONNECTED_RECEIVE_TIMEOUT);
+        this.chunksCollector.setSndHWM(0);
+
+        this.timer = new Timer(ConsensusConfiguration.CONSENSUS);
+        this.task = new ConnectedTaskTimeout();
+    }
+
     public ConsensusServer(String IP, CountDownLatch latch, int collector_timeout, int connected_timeout) {
         this.executorService = Executors.newSingleThreadExecutor();
         this.message_deque = new LinkedBlockingDeque<>();
@@ -93,7 +137,12 @@ public class ConsensusServer {
         this.connected = ctx.createSocket(SocketType.REP);
         this.chunksCollector = ctx.createSocket(SocketType.ROUTER);
 
-        this.publisher.setHWM(10000);
+        this.connected.setLinger(200);
+        this.connected.setHWM(1);
+        this.connected.setConflate(true);
+        this.publisher.setLinger(200);
+        this.publisher.setHWM(3);
+        this.publisher.setConflate(true);
 //        this.chunksCollector.setHWM(10000);
 
         this.chunksCollector.bind("tcp://" + IP + ":" + CHUNKS_COLLECTOR_PORT);
@@ -126,9 +175,14 @@ public class ConsensusServer {
         this.collector = ctx.createSocket(SocketType.PULL);
         this.chunksCollector = ctx.createSocket(SocketType.ROUTER);
         this.connected = ctx.createSocket(SocketType.REP);
-//        this.chunksCollector.setHeartbeatIvl(2);
-//
-//        this.chunksCollector.setHWM(10000);
+
+
+        this.connected.setLinger(200);
+        this.connected.setHWM(1);
+        this.connected.setConflate(true);
+        this.publisher.setLinger(200);
+        this.publisher.setHWM(3);
+        this.publisher.setConflate(true);
 
         this.chunksCollector.bind("tcp://" + IP + ":" + CHUNKS_COLLECTOR_PORT);
         this.publisher.bind("tcp://" + IP + ":" + PUBLISHER_PORT);
@@ -155,7 +209,14 @@ public class ConsensusServer {
         this.publisher.setHeartbeatIvl(2);
         this.collector = ctx.createSocket(SocketType.PULL);
         this.chunksCollector = ctx.createSocket(SocketType.ROUTER);
-//        this.chunksCollector.setHeartbeatIvl(2);
+
+
+        this.connected.setLinger(200);
+        this.connected.setHWM(1);
+        this.connected.setConflate(true);
+        this.publisher.setLinger(200);
+        this.publisher.setHWM(3);
+        this.publisher.setConflate(true);
 
         this.chunksCollector.bind("tcp://" + IP + ":" + CHUNKS_COLLECTOR_PORT);
         this.publisher.bind("tcp://" + IP + ":" + PUBLISHER_PORT);
@@ -179,6 +240,13 @@ public class ConsensusServer {
         this.collector = ctx.createSocket(SocketType.PULL);
         this.chunksCollector = ctx.createSocket(SocketType.ROUTER);
 
+        this.connected.setLinger(200);
+        this.connected.setHWM(1);
+        this.connected.setConflate(true);
+        this.publisher.setLinger(200);
+        this.publisher.setHWM(3);
+        this.publisher.setConflate(true);
+
         this.chunksCollector.bind("tcp://" + IP + ":" + CHUNKS_COLLECTOR_PORT);
         this.publisher.bind("tcp://" + IP + ":" + PUBLISHER_PORT);
         this.collector.bind("tcp://" + IP + ":" + COLLECTOR_PORT);
@@ -197,13 +265,11 @@ public class ConsensusServer {
         int counter = (int) latch.getCount();
         while (latch.getCount() > 0 && !terminate) {
             String rec = receiveStringData();
-            if (rec.equals("1")) {
-                System.out.println(rec);
-                connected.send(HEARTBEAT_MESSAGE.getBytes(StandardCharsets.UTF_8));
-                counter--;
-                setPeers_not_connected(counter);
-                latch.countDown();
-            }
+            System.out.println(rec);
+            connected.send(HEARTBEAT_MESSAGE.getBytes(StandardCharsets.UTF_8));
+            counter--;
+            setPeers_not_connected(counter);
+            latch.countDown();
         }
         task.cancel();
         timer.purge();
@@ -355,6 +421,10 @@ public class ConsensusServer {
     }
 
     public void close() {
+        this.publisher.setLinger(0);
+        this.collector.setLinger(0);
+        this.chunksCollector.setLinger(0);
+        this.connected.setLinger(0);
         this.executorService.shutdownNow().clear();
         if (this.publisher != null)
             this.publisher.close();
@@ -371,9 +441,7 @@ public class ConsensusServer {
                 this.ctx.destroySocket(this.connected);
                 this.ctx.destroySocket(this.chunksCollector);
                 this.ctx.destroy();
-                Thread.sleep(350);
             } catch (AssertionError e) {
-            } catch (InterruptedException e) {
             }
         }
     }

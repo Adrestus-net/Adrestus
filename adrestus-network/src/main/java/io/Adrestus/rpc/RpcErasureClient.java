@@ -74,6 +74,15 @@ public class RpcErasureClient<T> {
         this.valueMapper = new SerializationUtil(this.typeParameterClass.getClass());
     }
 
+    public RpcErasureClient(String host, int port, int timeout, Eventloop eventloop) {
+        this.rpcSerialize = SerializerBuilder.create();
+        this.inetSocketAddresses = null;
+        this.host = host;
+        this.port = port;
+        this.eventloop = eventloop;
+        this.TIMEOUT = timeout;
+    }
+
     public RpcErasureClient(T typeParameterClass, List<InetSocketAddress> inetSocketAddresses, Eventloop eventloop) {
         this.rpcSerialize = SerializerBuilder.create();
         this.typeParameterClass = typeParameterClass;
@@ -115,7 +124,7 @@ public class RpcErasureClient<T> {
             } else {
                 client = RpcClient.create(eventloop)
                         .withSerializerBuilder(this.rpcSerialize)
-                        .withMessageTypes(ErasureRequest.class, ErasureResponse.class)
+                        .withMessageTypes(ErasureRequest.class, ErasureResponse.class, ConsensusChunksRequest.class, ConsensusChunksResponse.class)
                         .withStrategy(server(new InetSocketAddress(host, port)))
                         .withKeepAlive(Duration.ofMillis(TIMEOUT))
                         .withConnectTimeout(Duration.ofMillis(TIMEOUT));
@@ -147,6 +156,17 @@ public class RpcErasureClient<T> {
         return lst;
     }
 
+    public Optional<byte[]> getConsensusChunks(String number) {
+        Optional<ConsensusChunksResponse> res = download_consensus_chunks(this.client, number);
+        if (res.isPresent()) {
+            if (res.get().getConsensus_data() == null)
+                return Optional.empty();
+            else
+                return Optional.of(res.get().getConsensus_data());
+        }
+        return Optional.empty();
+    }
+
     @SneakyThrows
     private Optional<ErasureResponse> download_erasure_chunks(RpcClient rpcClient, byte[] toSend) {
         try {
@@ -155,6 +175,24 @@ public class RpcErasureClient<T> {
                                     .<ErasureRequest, ErasureResponse>sendRequest(new ErasureRequest(toSend)))
                     .get(TIMEOUT, TimeUnit.MILLISECONDS);
             if (response.getErasure_data() == null)
+                return Optional.empty();
+
+            return Optional.of(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            LOG.info(e.toString());
+        }
+        return Optional.empty();
+    }
+
+    @SneakyThrows
+    private Optional<ConsensusChunksResponse> download_consensus_chunks(RpcClient rpcClient, String number) {
+        try {
+            ConsensusChunksResponse response = rpcClient.getEventloop().submit(
+                            () -> rpcClient
+                                    .<ConsensusChunksRequest, ConsensusChunksResponse>sendRequest(new ConsensusChunksRequest(number)))
+                    .get(TIMEOUT, TimeUnit.MILLISECONDS);
+            if (response.getConsensus_data() == null)
                 return Optional.empty();
 
             return Optional.of(response);

@@ -6,6 +6,8 @@ public class ConsensusConfiguration {
     public static final long CONSENSUS_COMMITTEE_TIMER = 2 * 1000;
     public static final long CONSENSUS_TIMER = 2 * 1000;
     public static final int CONSENSUS_TIMEOUT = 22 * 1000;
+
+    public static final int SUBSCRIBER_TIMEOUT = 580;
     public final static int HEARTBEAT_INTERVAL = 10;
     public final static int CYCLES = 1100;
     public final static int ERASURE_CYCLES = 1;
@@ -37,5 +39,13 @@ public class ConsensusConfiguration {
     public static final String CONNECTED_PORT = "5559";
 
     public static final String HEARTBEAT_MESSAGE = "1";
+
+    public static final String ANNOUNCE_MESSAGE = "0";
+
+    public static final String PREPARE_MESSAGE = "1";
+
+    public static final String COMMITTEE_MESSAGE = "2";
+
+    public static final int ERASURE_CLIENT_TIMEOUT=2000;
 
 }

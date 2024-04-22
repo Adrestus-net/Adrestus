@@ -48,9 +48,12 @@ public class ConsensusClient {
         this.erasure.setSendTimeOut(CONSENSUS_ERASURE_SEND_TIMEOUT);
         this.erasure.setSndHWM(0);
 
-        this.subscriber.setReceiveBufferSize(10000);
-        this.subscriber.setHWM(10000);
-        this.subscriber.setRcvHWM(1);
+
+        this.connected.setHWM(1);
+        this.connected.setLinger(200);
+        this.connected.setConflate(true);
+        this.subscriber.setLinger(200);
+        this.subscriber.setHWM(3);
         this.subscriber.setConflate(true);
 
         this.subscriber.connect("tcp://" + IP + ":" + SUBSCRIBER_PORT);
@@ -58,7 +61,7 @@ public class ConsensusClient {
         this.erasure.connect("tcp://" + IP + ":" + CHUNKS_COLLECTOR_PORT);
 
         this.subscriber.subscribe(ZMQ.SUBSCRIPTION_ALL);
-        this.subscriber.setReceiveTimeOut(CONSENSUS_TIMEOUT);
+        this.subscriber.setReceiveTimeOut(SUBSCRIBER_TIMEOUT);
         this.push.connect("tcp://" + IP + ":" + COLLECTOR_PORT);
 
     }
@@ -82,9 +85,11 @@ public class ConsensusClient {
         this.erasure.setSendTimeOut(CONSENSUS_ERASURE_SEND_TIMEOUT);
         this.erasure.setSndHWM(0);
 
-        this.subscriber.setReceiveBufferSize(10000);
-        this.subscriber.setHWM(10000);
-        this.subscriber.setRcvHWM(1);
+        this.connected.setHWM(1);
+        this.connected.setLinger(200);
+        this.connected.setConflate(true);
+        this.subscriber.setLinger(200);
+        this.subscriber.setHWM(3);
         this.subscriber.setConflate(true);
 
         this.subscriber.connect("tcp://" + IP + ":" + SUBSCRIBER_PORT);
@@ -92,7 +97,7 @@ public class ConsensusClient {
         this.erasure.connect("tcp://" + IP + ":" + CHUNKS_COLLECTOR_PORT);
 
         this.subscriber.subscribe(ZMQ.SUBSCRIPTION_ALL);
-        this.subscriber.setReceiveTimeOut(CONSENSUS_TIMEOUT);
+        this.subscriber.setReceiveTimeOut(SUBSCRIBER_TIMEOUT);
         this.push.connect("tcp://" + IP + ":" + COLLECTOR_PORT);
 
     }
@@ -213,11 +218,8 @@ public class ConsensusClient {
             this.ctx.destroySocket(this.connected);
             this.ctx.destroySocket(this.erasure);
             this.ctx.destroy();
-            Thread.sleep(200);
         } catch (AssertionError e) {
             int g = 3;
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
         }
     }
 

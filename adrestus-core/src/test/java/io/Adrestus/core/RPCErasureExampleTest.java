@@ -30,6 +30,7 @@ import io.Adrestus.erasure.code.parameters.FECParameterObject;
 import io.Adrestus.erasure.code.parameters.FECParameters;
 import io.Adrestus.erasure.code.parameters.FECParametersPreConditions;
 import io.Adrestus.network.CachedEventLoop;
+import io.Adrestus.rpc.CachedConsensusPublisherData;
 import io.Adrestus.rpc.CachedSerializableErasureObject;
 import io.Adrestus.rpc.RpcErasureClient;
 import io.Adrestus.rpc.RpcErasureServer;
@@ -53,14 +54,12 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -314,6 +313,39 @@ public class RPCErasureExampleTest {
 
     }
 
+    @Test
+    public void test3() {
+        RpcErasureServer example = new RpcErasureServer(new SerializableErasureObject(), "localhost", 7083, eventloop, blocksize);
+        new Thread(example).start();
+        RpcErasureClient client = new RpcErasureClient<SerializableErasureObject>( "localhost", 7083,4000, eventloop);
+        client.connect();
+        (new Thread() {
+            public void run() {
+                try {
+                    Thread.sleep(400);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                CachedSerializableErasureObject.getInstance().setSerializableErasureObject(serializableErasureObjects.get(0));
+            }
+        }).start();
+        //#########################################################################################################################
+
+        CachedConsensusPublisherData.getInstance().storeAtPosition(1,"1".getBytes());
+        CachedConsensusPublisherData.getInstance().storeAtPosition(2,"2".getBytes());
+        CachedConsensusPublisherData.getInstance().storeAtPosition(0,"0".getBytes());
+        Optional<byte[]> re0 = client.getConsensusChunks("0");
+        Optional<byte[]> re1 = client.getConsensusChunks("1");
+        Optional<byte[]> re2 = client.getConsensusChunks("2");
+        assertEquals("0",new String(re0.get(),StandardCharsets.UTF_8));
+        assertEquals("1",new String(re1.get(),StandardCharsets.UTF_8));
+        assertEquals("2",new String(re2.get(),StandardCharsets.UTF_8));
+
+        client.close();
+        example.close();
+        example = null;
+
+    }
     private interface HelloService {
         String hello(String name) throws Exception;
     }

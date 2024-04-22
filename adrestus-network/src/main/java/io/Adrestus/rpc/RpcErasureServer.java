@@ -19,7 +19,7 @@ public class RpcErasureServer<T> implements Runnable {
     private final Eventloop eventloop;
     private final T typeParameterClass;
 
-    private final IErasureService<T> service;
+    private final IChunksService<T> service;
 
     private int serializable_length;
     private SerializationUtil<T> valueMapper;
@@ -37,7 +37,17 @@ public class RpcErasureServer<T> implements Runnable {
         this.eventloop = eventloop;
         this.typeParameterClass = typeParameterClass;
         this.valueMapper = new SerializationUtil<T>(this.typeParameterClass.getClass());
-        this.service = new ErasureService<T>();
+        this.service = new ChunksService<T>();
+    }
+
+    public RpcErasureServer( String host, int port, Eventloop eventloop) {
+        this.rpcSerialize = SerializerBuilder.create();
+        this.host = host;
+        this.port = port;
+        this.eventloop = eventloop;
+        this.service = new ChunksService<T>();
+        this.inetSocketAddress=null;
+        this.typeParameterClass=null;
     }
 
     public RpcErasureServer(T typeParameterClass, InetSocketAddress inetSocketAddress, Eventloop eventloop, int serializable_length) {
@@ -47,7 +57,7 @@ public class RpcErasureServer<T> implements Runnable {
         this.serializable_length = serializable_length;
         this.typeParameterClass = typeParameterClass;
         this.valueMapper = new SerializationUtil<T>(this.typeParameterClass.getClass());
-        this.service = new ErasureService<T>();
+        this.service = new ChunksService<T>();
     }
 
     @SneakyThrows
@@ -57,13 +67,14 @@ public class RpcErasureServer<T> implements Runnable {
             rpcServer = RpcServer.create(eventloop)
                     .withMessageTypes(ErasureRequest.class, ErasureResponse.class)
                     .withSerializerBuilder(this.rpcSerialize)
-                    .withHandler(ErasureRequest.class, downloadChunks(service))
+                    .withHandler(ErasureRequest.class, downloadErasureChunks(service))
                     .withListenAddress(inetSocketAddress);
         } else {
             rpcServer = RpcServer.create(eventloop)
-                    .withMessageTypes(ErasureRequest.class, ErasureResponse.class)
+                    .withMessageTypes(ErasureRequest.class, ErasureResponse.class, ConsensusChunksRequest.class, ConsensusChunksResponse.class)
                     .withSerializerBuilder(this.rpcSerialize)
-                    .withHandler(ErasureRequest.class, downloadChunks(service))
+                    .withHandler(ErasureRequest.class, downloadErasureChunks(service))
+                    .withHandler(ConsensusChunksRequest.class, downloadConsensusChunks(service))
                     .withListenAddress(new InetSocketAddress(host, port));
         }
         rpcServer.listen();
@@ -77,7 +88,7 @@ public class RpcErasureServer<T> implements Runnable {
         this.serializable_length = serializable_length;
     }
 
-    private RpcRequestHandler<ErasureRequest, ErasureResponse> downloadChunks(IErasureService<T> service) throws InterruptedException {
+    private RpcRequestHandler<ErasureRequest, ErasureResponse> downloadErasureChunks(IChunksService<T> service) throws InterruptedException {
         return request -> {
             T result;
             try {
@@ -88,7 +99,7 @@ public class RpcErasureServer<T> implements Runnable {
                 }
                 if (rc == ConsensusConfiguration.CYCLES)
                     return Promise.of(new ErasureResponse(null));
-                result = service.downloadChunks();
+                result = service.downloadErasureChunks();
                 if (result == null)
                     return Promise.of(new ErasureResponse(null));
                 return Promise.of(new ErasureResponse(this.valueMapper.encode(result, serializable_length)));
@@ -96,6 +107,27 @@ public class RpcErasureServer<T> implements Runnable {
                 return Promise.ofException(e);
             }
 
+        };
+    }
+
+    private RpcRequestHandler<ConsensusChunksRequest, ConsensusChunksResponse> downloadConsensusChunks(IChunksService<T> service) throws InterruptedException {
+        return request -> {
+            byte[] result;
+            try {
+                int rc = 0;
+                while (rc < ConsensusConfiguration.CYCLES && (serializable_length == 0 || CachedConsensusPublisherData.getInstance().getDataAtPosition(Integer.parseInt(request.number)) == null)) {
+                    rc++;
+                    Thread.sleep(ConsensusConfiguration.HEARTBEAT_INTERVAL);
+                }
+                if (rc == ConsensusConfiguration.CYCLES)
+                    return Promise.of(new ConsensusChunksResponse(null));
+                result = service.downloadConsensusChunks(Integer.parseInt(request.number));
+                if (result == null)
+                    return Promise.of(new ConsensusChunksResponse(null));
+                return Promise.of(new ConsensusChunksResponse(result));
+            } catch (Exception e) {
+                return Promise.ofException(e);
+            }
         };
     }
 
