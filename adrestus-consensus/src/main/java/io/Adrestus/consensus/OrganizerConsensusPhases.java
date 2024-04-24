@@ -27,8 +27,10 @@ import io.Adrestus.erasure.code.encoder.SourceBlockEncoder;
 import io.Adrestus.erasure.code.parameters.FECParameterObject;
 import io.Adrestus.erasure.code.parameters.FECParameters;
 import io.Adrestus.erasure.code.parameters.FECParametersPreConditions;
+import io.Adrestus.network.CachedEventLoop;
 import io.Adrestus.network.ConsensusServer;
 import io.Adrestus.rpc.CachedConsensusPublisherData;
+import io.Adrestus.rpc.RpcErasureServer;
 import io.Adrestus.util.GetTime;
 import io.Adrestus.util.SerializationUtil;
 import org.apache.commons.codec.binary.Hex;
@@ -90,6 +92,8 @@ public class OrganizerConsensusPhases {
             this.sizeCalculator = new BlockSizeCalculator();
             this.signatureMapper = new SerializationUtil<Signature>(Signature.class, list);
             this.serenc_erasure = new SerializationUtil<SerializableErasureObject>(SerializableErasureObject.class);
+            CachedConsensusPublisherData.getInstance().clear();
+            ErasureServerInstance.getInstance();
         }
 
         @Override
@@ -111,7 +115,6 @@ public class OrganizerConsensusPhases {
                         this.consensusServer = new ConsensusServer(this.blockIndex.getIpValue(CachedZoneIndex.getInstance().getZoneIndex(), this.leader_bls), latch,0);
                         CachedLeaderIndex.getInstance().setTransactionPositionLeader(current + 1);
                     }
-                    CachedConsensusPublisherData.getInstance().clear();
                     this.N_COPY = (this.N - 1) - consensusServer.getPeers_not_connected();
                     this.consensusServer.setMAX_MESSAGES(this.N_COPY * 2);
                     this.consensusServer.receive_handler();

@@ -64,4 +64,12 @@ public class ReceiptBlock implements Serializable {
     public int hashCode() {
         return Objects.hash(statusType, receipt, transactionBlock, transaction);
     }
+
+
+    public void clear(){
+        this.statusType=null;
+        this.receipt=null;
+        this.transactionBlock=null;
+        this.transaction=null;
+    }
 }

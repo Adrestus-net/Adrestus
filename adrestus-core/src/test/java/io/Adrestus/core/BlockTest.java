@@ -8,6 +8,7 @@ import io.Adrestus.config.KademliaConfiguration;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedSecurityHeaders;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
+import io.Adrestus.core.Resourses.MemoryTransactionPool;
 import io.Adrestus.core.RingBuffer.handler.transactions.SignatureEventHandler;
 import io.Adrestus.core.RingBuffer.publisher.BlockEventPublisher;
 import io.Adrestus.core.RingBuffer.publisher.TransactionEventPublisher;
@@ -52,6 +53,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -231,6 +233,7 @@ public class BlockTest {
     public void block_test3() throws Exception {
         CachedZoneIndex.getInstance().setZoneIndex(0);
         TransactionEventPublisher publisher = new TransactionEventPublisher(1024);
+        SignatureEventHandler signatureEventHandler=new SignatureEventHandler(SignatureEventHandler.SignatureBehaviorType.SIMPLE_TRANSACTIONS);
         CachedBLSKeyPair.getInstance().setPublicKey(vk1);
         publisher
                 .withAddressSizeEventHandler()
@@ -248,7 +251,7 @@ public class BlockTest {
                 .withZoneEventHandler()
                 .withSecp256k1EventHandler()
                 .withDuplicateEventHandler()
-                .mergeEventsAndPassThen(new SignatureEventHandler(SignatureEventHandler.SignatureBehaviorType.SIMPLE_TRANSACTIONS));
+                .mergeEventsAndPassThen(signatureEventHandler);
         publisher.start();
 
 
@@ -279,7 +282,7 @@ public class BlockTest {
             TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(adddress, new PatriciaTreeNode(1000, 0));
         }
 
-
+        signatureEventHandler.setLatch(new CountDownLatch(size-1));
         for (int i = 0; i < size - 1; i++) {
             Transaction transaction = new RegularTransaction();
             transaction.setFrom(addreses.get(i));
@@ -302,6 +305,8 @@ public class BlockTest {
             await().atMost(1000, TimeUnit.MILLISECONDS);
         }
         publisher.getJobSyncUntilRemainingCapacityZero();
+        signatureEventHandler.getLatch().await();
+        assertEquals(size-1, MemoryTransactionPool.getInstance().getSize());
         publisher.close();
 
 

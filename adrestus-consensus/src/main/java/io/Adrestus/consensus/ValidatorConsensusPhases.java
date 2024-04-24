@@ -830,15 +830,17 @@ public class ValidatorConsensusPhases {
                 this.current = CachedLeaderIndex.getInstance().getTransactionPositionLeader();
                 if (current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).size() - 1) {
                     this.leader_bls = this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), this.current);
-                    this.consensusClient = new ConsensusClient(this.blockIndex.getIpValue(CachedZoneIndex.getInstance().getZoneIndex(), this.leader_bls), clientID);
+                    String LeaderIP = this.blockIndex.getIpValue(CachedZoneIndex.getInstance().getZoneIndex(), this.leader_bls);
+                    this.consensusClient = new ConsensusClient(LeaderIP, clientID);
                     CachedLeaderIndex.getInstance().setTransactionPositionLeader(0);
-                    collector_client = new RpcErasureClient<byte[]>("localhost", ERASURE_SERVER_PORT, ERASURE_CLIENT_TIMEOUT, CachedEventLoop.getInstance().getEventloop());
+                    collector_client = new RpcErasureClient<byte[]>(LeaderIP, ERASURE_SERVER_PORT, ERASURE_CLIENT_TIMEOUT, CachedEventLoop.getInstance().getEventloop());
                     collector_client.connect();
                 } else {
                     this.leader_bls = this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), this.current);
-                    this.consensusClient = new ConsensusClient(this.blockIndex.getIpValue(CachedZoneIndex.getInstance().getZoneIndex(), this.leader_bls), clientID);
+                    String LeaderIP = this.blockIndex.getIpValue(CachedZoneIndex.getInstance().getZoneIndex(), this.leader_bls);
+                    this.consensusClient = new ConsensusClient(LeaderIP, clientID);
                     CachedLeaderIndex.getInstance().setTransactionPositionLeader(current + 1);
-                    collector_client = new RpcErasureClient<byte[]>("localhost", ERASURE_SERVER_PORT, ERASURE_CLIENT_TIMEOUT, CachedEventLoop.getInstance().getEventloop());
+                    collector_client = new RpcErasureClient<byte[]>(LeaderIP, ERASURE_SERVER_PORT, ERASURE_CLIENT_TIMEOUT, CachedEventLoop.getInstance().getEventloop());
                     collector_client.connect();
                 }
 
@@ -868,17 +870,9 @@ public class ValidatorConsensusPhases {
             long Dispersestartstarta = System.currentTimeMillis();
             if (!DEBUG) {
                 try {
-                    consensusClient.send_heartbeat(HEARTBEAT_MESSAGE);
-                    String heartbeat = consensusClient.rec_heartbeat();
-                    if (heartbeat == null) {
-                        cleanup();
-                        LOG.info("DispersePhase: heartbeat message is null");
-                        data.setStatusType(ConsensusStatusType.ABORT);
-                        return;
-                    }
                     long Dispersefinisha = System.currentTimeMillis();
                     long DispersetimeElapseda = Dispersefinisha - Dispersestartstarta;
-                    System.out.println("Validator Dispersea: "+DispersetimeElapseda);
+                    System.out.println("Validator Dispersea: " + DispersetimeElapseda);
                     long Dispersestartstartb = System.currentTimeMillis();
                     byte[] rec_buff = consensusClient.SendRetrieveErasureData(erasure_data.getBytes(StandardCharsets.UTF_8));
                     if (rec_buff == null) {
@@ -889,7 +883,7 @@ public class ValidatorConsensusPhases {
                     }
                     long Dispersefinishb = System.currentTimeMillis();
                     long DispersetimeElapsedb = Dispersefinishb - Dispersestartstartb;
-                    System.out.println("Validator Disperseb: "+DispersetimeElapsedb);
+                    System.out.println("Validator Disperseb: " + DispersetimeElapsedb);
                     long Dispersestartstartc = System.currentTimeMillis();
                     SerializableErasureObject rootObj = serenc_erasure.decode(rec_buff);
                     CachedSerializableErasureObject.getInstance().setSerializableErasureObject(rootObj);
@@ -911,7 +905,7 @@ public class ValidatorConsensusPhases {
                     ArrayList<SerializableErasureObject> recserializableErasureObjects = new ArrayList<>();
                     long Dispersefinishc = System.currentTimeMillis();
                     long DispersetimeElapsedc = Dispersefinishc - Dispersestartstartc;
-                    System.out.println("Validator Dispersec: "+DispersetimeElapsedc);
+                    System.out.println("Validator Dispersec: " + DispersetimeElapsedc);
                     if (list_ip.isEmpty()) {
                         LOG.info("DispersePhase: Erasure connect list is empty");
                     } else {
@@ -978,7 +972,7 @@ public class ValidatorConsensusPhases {
             data.setStatusType(ConsensusStatusType.SUCCESS);
             long Dispersefinish = System.currentTimeMillis();
             long DispersetimeElapsed = Dispersefinish - Dispersestart;
-            System.out.println("Validator Disperse: "+DispersetimeElapsed);
+            System.out.println("Validator Disperse: " + DispersetimeElapsed);
         }
 
         @Override
@@ -1000,7 +994,7 @@ public class ValidatorConsensusPhases {
                     }
                     byte[] receive = this.consensusClient.deque_message();
                     if (receive == null || receive.length <= 0) {
-                        LOG.info("Slow Subscriber is detected");
+                        LOG.info("AnnouncePhase: Slow Subscriber is detected");
                         Optional<byte[]> res = collector_client.getConsensusChunks(ANNOUNCE_MESSAGE);
                         if (res.isEmpty()) {
                             cleanup();
@@ -1052,8 +1046,12 @@ public class ValidatorConsensusPhases {
             }
 
 
+            long Criticalstart = System.currentTimeMillis();
             CachedTransactionBlockEventPublisher.getInstance().publish(this.original_copy);
             CachedTransactionBlockEventPublisher.getInstance().WaitUntilRemainingCapacityZero();
+            long  Criticalfinish = System.currentTimeMillis();
+            long  CriticaltimeElapsed =  Criticalfinish -  Criticalstart;
+            System.out.println("CriticaltimeElapsed " + CriticaltimeElapsed);
             if (this.original_copy.getStatustype().equals(StatusType.ABORT)) {
                 cleanup();
                 LOG.info("AnnouncePhase: Block is not valid marked as ABORT");
@@ -1094,7 +1092,7 @@ public class ValidatorConsensusPhases {
 
             long Announcefinish = System.currentTimeMillis();
             long timeElapsed = Announcefinish - Announcestart;
-            System.out.println("Announce phase "+timeElapsed);
+            System.out.println("Announce phase " + timeElapsed);
 
         }
 
@@ -1108,7 +1106,7 @@ public class ValidatorConsensusPhases {
                 try {
                     byte[] receive = this.consensusClient.deque_message();
                     if (receive == null || receive.length <= 0) {
-                        LOG.info("Slow Subscriber is detected");
+                        LOG.info("PreparePhase: Slow Subscriber is detected");
                         Optional<byte[]> res = collector_client.getConsensusChunks(PREPARE_MESSAGE);
                         if (res.isEmpty()) {
                             cleanup();
@@ -1118,7 +1116,27 @@ public class ValidatorConsensusPhases {
                         } else
                             receive = res.get();
                     }
-                    data = consensus_serialize.decode(receive);
+                    int max_iterate = 2;
+                    int counter = 0;
+                    while (counter < max_iterate) {
+                        data = consensus_serialize.decode(receive);
+                        if (data.getMessageType().equals(ConsensusMessageType.PREPARE))
+                            break;
+                        receive = this.consensusClient.deque_message();
+                        if (receive == null || receive.length <= 0) {
+                            LOG.info("PreparePhase: Slow Subscriber is detected");
+                            Optional<byte[]> res = collector_client.getConsensusChunks(PREPARE_MESSAGE);
+                            if (res.isEmpty()) {
+                                cleanup();
+                                LOG.info("PreparePhase: Leader is not active fail to send message");
+                                data.setStatusType(ConsensusStatusType.ABORT);
+                                return;
+                            } else {
+                                receive = res.get();
+                            }
+                        }
+                        counter++;
+                    }
                     if (!data.getChecksumData().getBlsPublicKey().toRaw().equals(leader_bls.toRaw())) {
                         cleanup();
                         LOG.info("PreparePhase: This is not the valid leader for this round");
@@ -1219,7 +1237,7 @@ public class ValidatorConsensusPhases {
 
             long Preparefinish = System.currentTimeMillis();
             long PreparetimeElapsed = Preparefinish - Preparestart;
-            System.out.println("Validators Prepare "+PreparetimeElapsed);
+            System.out.println("Validators Prepare " + PreparetimeElapsed);
         }
 
         @Override
@@ -1232,7 +1250,7 @@ public class ValidatorConsensusPhases {
                 try {
                     byte[] receive = this.consensusClient.deque_message();
                     if (receive == null || receive.length <= 0) {
-                        LOG.info("Slow Subscriber is detected");
+                        LOG.info("CommitPhase: Slow Subscriber is detected");
                         Optional<byte[]> res = collector_client.getConsensusChunks(COMMITTEE_MESSAGE);
                         if (res.isEmpty()) {
                             cleanup();
@@ -1242,7 +1260,27 @@ public class ValidatorConsensusPhases {
                         } else
                             receive = res.get();
                     }
-                    data = consensus_serialize.decode(receive);
+                    int max_iterate = 3;
+                    int counter = 0;
+                    while (counter < max_iterate) {
+                        data = consensus_serialize.decode(receive);
+                        if (data.getMessageType().equals(ConsensusMessageType.COMMIT))
+                            break;
+                        receive = this.consensusClient.deque_message();
+                        if (receive == null || receive.length <= 0) {
+                            LOG.info("CommitPhase: Slow Subscriber is detected");
+                            Optional<byte[]> res = collector_client.getConsensusChunks(COMMITTEE_MESSAGE);
+                            if (res.isEmpty()) {
+                                cleanup();
+                                LOG.info("CommitPhase: Leader is not active fail to send message");
+                                data.setStatusType(ConsensusStatusType.ABORT);
+                                return;
+                            } else {
+                                receive = res.get();
+                            }
+                        }
+                        counter++;
+                    }
                     if (!data.getChecksumData().getBlsPublicKey().toRaw().equals(leader_bls.toRaw())) {
                         cleanup();
                         LOG.info("CommitPhase: This is not the valid leader for this round");
@@ -1346,13 +1384,16 @@ public class ValidatorConsensusPhases {
             CachedSerializableErasureObject.getInstance().setSerializableErasureObject(null);
             long Commiteefinish = System.currentTimeMillis();
             long timeElapsed = Commiteefinish - Commiteerestart;
-            System.out.println("Calidators commite "+timeElapsed);
+            System.out.println("Calidators commite " + timeElapsed);
             LOG.info("Block is finalized with Success");
             cleanup();
         }
 
         private void cleanup() {
-            collector_client.close();
+            if(collector_client!=null) {
+                collector_client.close();
+                collector_client = null;
+            }
             if (consensusClient != null) {
                 consensusClient.close();
                 consensusClient = null;

@@ -36,6 +36,7 @@ import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -79,7 +80,7 @@ public class ConsensusTransactionBlockTest {
         random.nextBytes(pRnd);
 
         TransactionEventPublisher publisher = new TransactionEventPublisher(1024);
-
+        SignatureEventHandler signatureEventHandler=new SignatureEventHandler(SignatureEventHandler.SignatureBehaviorType.SIMPLE_TRANSACTIONS);
         publisher
                 .withAddressSizeEventHandler()
                 .withAmountEventHandler()
@@ -96,7 +97,7 @@ public class ConsensusTransactionBlockTest {
                 .withZoneEventHandler()
                 .withZoneEventHandler()
                 .withDuplicateEventHandler()
-                .mergeEventsAndPassThen(new SignatureEventHandler(SignatureEventHandler.SignatureBehaviorType.SIMPLE_TRANSACTIONS));
+                .mergeEventsAndPassThen(signatureEventHandler);
         publisher.start();
 
 
@@ -129,6 +130,7 @@ public class ConsensusTransactionBlockTest {
         }
 
 
+        signatureEventHandler.setLatch(new CountDownLatch(size-1));
         for (int i = 0; i < size - 1; i++) {
             Transaction transaction = new RegularTransaction();
             transaction.setFrom(addreses.get(i));
@@ -151,6 +153,7 @@ public class ConsensusTransactionBlockTest {
             await().atMost(100, TimeUnit.MILLISECONDS);
         }
         publisher.getJobSyncUntilRemainingCapacityZero();
+        signatureEventHandler.getLatch().await();
         publisher.close();
 
 

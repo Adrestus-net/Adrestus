@@ -42,6 +42,7 @@ import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * Unit test for simple App.
@@ -99,6 +100,7 @@ public class TransactionStrategyTest {
 
 
         CachedZoneIndex.getInstance().setZoneIndex(0);
+        SignatureEventHandler eventHandler=new SignatureEventHandler(SignatureEventHandler.SignatureBehaviorType.SIMPLE_TRANSACTIONS,new CountDownLatch(end-1));
         TransactionEventPublisher publisher = new TransactionEventPublisher(4096);
         publisher
                 .withAddressSizeEventHandler()
@@ -115,7 +117,7 @@ public class TransactionStrategyTest {
                 .withSameOriginEventHandler()
                 .withZoneEventHandler()
                 .withDuplicateEventHandler()
-                .mergeEventsAndPassThen(new SignatureEventHandler(SignatureEventHandler.SignatureBehaviorType.SIMPLE_TRANSACTIONS));
+                .mergeEventsAndPassThen(eventHandler);
         publisher.start();
 
         for (int i = start; i < end; i++) {
@@ -153,6 +155,8 @@ public class TransactionStrategyTest {
             //publisher.publish(transaction);
         }
         publisher.getJobSyncUntilRemainingCapacityZero();
+        eventHandler.getLatch().await();
+        publisher.close();
         CommitteeBlock committeeBlock = new CommitteeBlock();
         committeeBlock.getHeaderData().setTimestamp("2022-11-18 15:01:29.304");
         committeeBlock.getStructureMap().get(0).put(vk1, "192.168.1.106");

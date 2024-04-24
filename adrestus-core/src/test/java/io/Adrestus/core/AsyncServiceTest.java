@@ -40,6 +40,7 @@ import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 
 public class AsyncServiceTest {
@@ -93,6 +94,7 @@ public class AsyncServiceTest {
 
         CachedZoneIndex.getInstance().setZoneIndex(0);
         TransactionEventPublisher publisher = new TransactionEventPublisher(4096);
+        SignatureEventHandler signatureEventHandler=new SignatureEventHandler(SignatureEventHandler.SignatureBehaviorType.SIMPLE_TRANSACTIONS);
         publisher
                 .withAddressSizeEventHandler()
                 .withAmountEventHandler()
@@ -108,7 +110,7 @@ public class AsyncServiceTest {
                 .withSameOriginEventHandler()
                 .withZoneEventHandler()
                 .withDuplicateEventHandler()
-                .mergeEventsAndPassThen(new SignatureEventHandler(SignatureEventHandler.SignatureBehaviorType.SIMPLE_TRANSACTIONS));
+                .mergeEventsAndPassThen(signatureEventHandler);
         publisher.start();
         ArrayList<String> addreses = new ArrayList<>();
         ArrayList<ECKeyPair> keypair = new ArrayList<>();
@@ -131,6 +133,7 @@ public class AsyncServiceTest {
         List<SerializationUtil.Mapping> listss = new ArrayList<>();
         listss.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         serenc = new SerializationUtil<Transaction>(Transaction.class, listss);
+        signatureEventHandler.setLatch(new CountDownLatch(end-1));
         for (int i = start; i < end - 1; i++) {
             Transaction transaction = new RegularTransaction();
             transaction.setFrom(addreses.get(i));
@@ -153,6 +156,7 @@ public class AsyncServiceTest {
             //publisher.publish(transaction);
         }
         publisher.getJobSyncUntilRemainingCapacityZero();
+        signatureEventHandler.getLatch().await();
         CommitteeBlock committeeBlock = new CommitteeBlock();
         committeeBlock.getHeaderData().setTimestamp("2022-11-18 15:01:29.304");
         committeeBlock.getStructureMap().get(0).put(vk1, "192.168.1.116");

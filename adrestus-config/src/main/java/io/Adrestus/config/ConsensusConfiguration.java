@@ -46,6 +46,6 @@ public class ConsensusConfiguration {
 
     public static final String COMMITTEE_MESSAGE = "2";
 
-    public static final int ERASURE_CLIENT_TIMEOUT=2000;
+    public static final int ERASURE_CLIENT_TIMEOUT=5000;
 
 }

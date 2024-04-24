@@ -49,6 +49,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -84,7 +85,7 @@ public class ReceiptMain {
         list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
         serenc = new SerializationUtil<AbstractBlock>(AbstractBlock.class, list);
         TransactionEventPublisher publisher = new TransactionEventPublisher(1024);
-
+        SignatureEventHandler signatureEventHandler=new SignatureEventHandler(SignatureEventHandler.SignatureBehaviorType.SIMPLE_TRANSACTIONS);
         publisher
                 .withAddressSizeEventHandler()
                 .withAmountEventHandler()
@@ -99,7 +100,7 @@ public class ReceiptMain {
                 .withTimestampEventHandler()
                 .withSameOriginEventHandler()
                 .withDuplicateEventHandler()
-                .mergeEventsAndPassThen(new SignatureEventHandler(SignatureEventHandler.SignatureBehaviorType.SIMPLE_TRANSACTIONS));
+                .mergeEventsAndPassThen(signatureEventHandler);
         publisher.start();
 
         SecureRandom random;
@@ -131,6 +132,7 @@ public class ReceiptMain {
 
 
         int j = 1;
+        signatureEventHandler.setLatch(new CountDownLatch(size-1));
         for (int i = 0; i < size - 1; i++) {
             Transaction transaction = new RegularTransaction();
             transaction.setFrom(addreses.get(i));
@@ -156,6 +158,7 @@ public class ReceiptMain {
             j++;
         }
         publisher.getJobSyncUntilRemainingCapacityZero();
+        signatureEventHandler.getLatch().await();
         publisher.close();
 
 

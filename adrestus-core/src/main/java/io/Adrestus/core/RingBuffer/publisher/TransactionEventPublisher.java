@@ -88,15 +88,7 @@ public class TransactionEventPublisher implements Publisher<Transaction> {
     @Override
     public void getJobSyncUntilRemainingCapacityZero() throws InterruptedException {
         while (disruptor.getRingBuffer().remainingCapacity() != bufferSize) {
-            Thread.sleep(45);
-        }
-        try {
-            executor.shutdown();
-            executor.awaitTermination(1, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            LOG.trace("Executor shutdown interrupted", e);
-        } finally {
-            LOG.trace("Executor shutdown completed.");
+            Thread.sleep(10);
         }
     }
 
@@ -105,9 +97,12 @@ public class TransactionEventPublisher implements Publisher<Transaction> {
         LOG.trace("Shutting down executor...");
         isRunning.set(false);
         try {
+            while (disruptor.getRingBuffer().remainingCapacity() != bufferSize) {
+                Thread.sleep(10);
+            }
+            executor.awaitTermination(5, TimeUnit.SECONDS);
             disruptor.shutdown(5, TimeUnit.SECONDS);
             executor.shutdownNow();
-            executor.awaitTermination(5, TimeUnit.SECONDS);
         } catch (TimeoutException | InterruptedException e) {
             LOG.trace("Executor shutdown interrupted", e);
         } finally {
@@ -195,21 +190,23 @@ public class TransactionEventPublisher implements Publisher<Transaction> {
     public TransactionEventPublisher mergeEvents() {
         TransactionEventHandler[] events = new TransactionEventHandler[group.size()];
         group.toArray(events);
-        disruptor.handleEventsWith(events);
+        disruptor.handleEventsWith(events).then(new TransactionClearingEventHandler());
         return this;
     }
 
     public TransactionEventPublisher mergeEventsAndPassThen(SignatureEventHandler signatureEventHandler) {
         TransactionEventHandler[] events = new TransactionEventHandler[group.size()];
         group.toArray(events);
-        disruptor.handleEventsWith(events).then(signatureEventHandler);
+        signatureEventHandler.setExecutorService(executor);
+        disruptor.handleEventsWith(events).then(signatureEventHandler).then(new TransactionClearingEventHandler());
         return this;
     }
 
     public TransactionEventPublisher AddMergeEventsAndPassThen(SignatureEventHandler signatureEventHandler, TransactionEventHandler... args) {
         TransactionEventHandler[] events = new TransactionEventHandler[group.size()];
         group.toArray(events);
-        disruptor.handleEventsWith(args[0]).then(args[1]).then(events).then(signatureEventHandler);
+        signatureEventHandler.setExecutorService(executor);
+        disruptor.handleEventsWith(args[0]).then(args[1]).then(events).then(signatureEventHandler).then(new TransactionClearingEventHandler());
         return this;
     }
 

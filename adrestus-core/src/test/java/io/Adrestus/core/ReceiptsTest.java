@@ -44,6 +44,7 @@ import org.spongycastle.util.encoders.Hex;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -97,7 +98,7 @@ public class ReceiptsTest {
         list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
         serenc = new SerializationUtil<AbstractBlock>(AbstractBlock.class, list);
         TransactionEventPublisher publisher = new TransactionEventPublisher(1024);
-
+        SignatureEventHandler signatureEventHandler=new SignatureEventHandler(SignatureEventHandler.SignatureBehaviorType.SIMPLE_TRANSACTIONS);
         publisher
                 .withAddressSizeEventHandler()
                 .withAmountEventHandler()
@@ -112,7 +113,7 @@ public class ReceiptsTest {
                 .withTimestampEventHandler()
                 .withSameOriginEventHandler()
                 .withDuplicateEventHandler()
-                .mergeEventsAndPassThen(new SignatureEventHandler(SignatureEventHandler.SignatureBehaviorType.SIMPLE_TRANSACTIONS));
+                .mergeEventsAndPassThen(signatureEventHandler);
         publisher.start();
 
         SecureRandom random;
@@ -144,6 +145,7 @@ public class ReceiptsTest {
 
 
         int j = 1;
+        signatureEventHandler.setLatch(new CountDownLatch(size-1));
         for (int i = 0; i < size - 1; i++) {
             Transaction transaction = new RegularTransaction();
             transaction.setFrom(addreses.get(i));
@@ -169,6 +171,7 @@ public class ReceiptsTest {
             j++;
         }
         publisher.getJobSyncUntilRemainingCapacityZero();
+        signatureEventHandler.getLatch().await();
         publisher.close();
 
 

@@ -45,4 +45,9 @@ public class ReceiptBlockEvent implements Cloneable {
             throw new AssertionError();
         }
     }
+
+    public void clear() {
+        this.receiptBlock.clear();
+        this.receiptBlock = null;
+    }
 }

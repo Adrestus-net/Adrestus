@@ -40,14 +40,14 @@ public class RpcErasureServer<T> implements Runnable {
         this.service = new ChunksService<T>();
     }
 
-    public RpcErasureServer( String host, int port, Eventloop eventloop) {
+    public RpcErasureServer(String host, int port, Eventloop eventloop) {
         this.rpcSerialize = SerializerBuilder.create();
         this.host = host;
         this.port = port;
         this.eventloop = eventloop;
         this.service = new ChunksService<T>();
-        this.inetSocketAddress=null;
-        this.typeParameterClass=null;
+        this.inetSocketAddress = null;
+        this.typeParameterClass = null;
     }
 
     public RpcErasureServer(T typeParameterClass, InetSocketAddress inetSocketAddress, Eventloop eventloop, int serializable_length) {
@@ -115,17 +115,19 @@ public class RpcErasureServer<T> implements Runnable {
             byte[] result;
             try {
                 int rc = 0;
-                while (rc < ConsensusConfiguration.CYCLES && (serializable_length == 0 || CachedConsensusPublisherData.getInstance().getDataAtPosition(Integer.parseInt(request.number)) == null)) {
+
+                while (rc < ConsensusConfiguration.CYCLES && CachedConsensusPublisherData.getInstance().getDataAtPosition(Integer.parseInt(request.number)) == null) {
                     rc++;
                     Thread.sleep(ConsensusConfiguration.HEARTBEAT_INTERVAL);
                 }
-                if (rc == ConsensusConfiguration.CYCLES)
-                    return Promise.of(new ConsensusChunksResponse(null));
                 result = service.downloadConsensusChunks(Integer.parseInt(request.number));
-                if (result == null)
+                if (result == null) {
+                    CachedConsensusPublisherData.getInstance().clear();
                     return Promise.of(new ConsensusChunksResponse(null));
+                }
                 return Promise.of(new ConsensusChunksResponse(result));
             } catch (Exception e) {
+                e.printStackTrace();
                 return Promise.ofException(e);
             }
         };

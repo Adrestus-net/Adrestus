@@ -91,7 +91,7 @@ public class ReceiptEventPublisher implements Publisher<ReceiptBlock> {
     public ReceiptEventPublisher mergeEvents() {
         ReceiptEventHandler[] events = new ReceiptEventHandler[group.size()];
         group.toArray(events);
-        disruptor.handleEventsWith(events).then(new ReceiptInsertEventHandler());
+        disruptor.handleEventsWith(events).then(new ReceiptInsertEventHandler()).then(new ReceiptClearingEventHandler());
         return this;
     }
 
@@ -129,7 +129,7 @@ public class ReceiptEventPublisher implements Publisher<ReceiptBlock> {
     @Override
     public void getJobSyncUntilRemainingCapacityZero() throws InterruptedException {
         while (disruptor.getRingBuffer().remainingCapacity() != bufferSize) {
-            Thread.sleep(100);
+            Thread.sleep(20);
         }
     }
 

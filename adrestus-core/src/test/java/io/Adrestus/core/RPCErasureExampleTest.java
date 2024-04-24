@@ -315,22 +315,13 @@ public class RPCErasureExampleTest {
 
     @Test
     public void test3() {
-        RpcErasureServer example = new RpcErasureServer(new SerializableErasureObject(), "localhost", 7083, eventloop, blocksize);
+        RpcErasureServer<SerializableErasureObject> example = new RpcErasureServer(new SerializableErasureObject(), "localhost", 7083, eventloop, blocksize);
         new Thread(example).start();
-        RpcErasureClient client = new RpcErasureClient<SerializableErasureObject>( "localhost", 7083,4000, eventloop);
+        RpcErasureClient<String> client = new RpcErasureClient<String>( "localhost", 7083,4000, eventloop);
         client.connect();
-        (new Thread() {
-            public void run() {
-                try {
-                    Thread.sleep(400);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-                CachedSerializableErasureObject.getInstance().setSerializableErasureObject(serializableErasureObjects.get(0));
-            }
-        }).start();
-        //#########################################################################################################################
 
+
+        CachedConsensusPublisherData.getInstance().clear();
         CachedConsensusPublisherData.getInstance().storeAtPosition(1,"1".getBytes());
         CachedConsensusPublisherData.getInstance().storeAtPosition(2,"2".getBytes());
         CachedConsensusPublisherData.getInstance().storeAtPosition(0,"0".getBytes());

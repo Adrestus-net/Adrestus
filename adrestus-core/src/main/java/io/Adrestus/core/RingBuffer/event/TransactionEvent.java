@@ -23,4 +23,8 @@ public class TransactionEvent implements Cloneable {
     public Object clone() throws CloneNotSupportedException {
         return super.clone();
     }
+
+    public void clear() {
+        this.transaction = null;
+    }
 }

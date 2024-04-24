@@ -6,7 +6,7 @@ import java.util.ArrayList;
 //store in array 3 messages that organizer publishes to subscriber to help slow subscribers
 public class CachedConsensusPublisherData {
     private static volatile CachedConsensusPublisherData instance;
-    private final ArrayList<byte[]> consensus_retrieval;
+    private ArrayList<byte[]> consensus_retrieval;
 
     private CachedConsensusPublisherData() {
         if (instance != null) {

@@ -108,7 +108,7 @@ public class ConsensusTransaction2Timer {
     private void SaveTransactions(int start, int stop) throws InterruptedException {
         nonce++;
         TransactionEventPublisher publisher = new TransactionEventPublisher(1024);
-
+        SignatureEventHandler signatureEventHandler=new SignatureEventHandler(SignatureEventHandler.SignatureBehaviorType.SIMPLE_TRANSACTIONS,new CountDownLatch(stop+1));
         publisher
                 .withAddressSizeEventHandler()
                 .withAmountEventHandler()
@@ -149,13 +149,14 @@ public class ConsensusTransaction2Timer {
             Thread.sleep(100);
         }
         publisher.getJobSyncUntilRemainingCapacityZero();
+        signatureEventHandler.getLatch().await();
         publisher.close();
     }
 
     private void SaveTransactions2(int start, int stop) throws InterruptedException {
         nonce++;
         TransactionEventPublisher publisher = new TransactionEventPublisher(1024);
-
+        SignatureEventHandler signatureEventHandler=new SignatureEventHandler(SignatureEventHandler.SignatureBehaviorType.SIMPLE_TRANSACTIONS,new CountDownLatch(stop+1));
         publisher
                 .withAddressSizeEventHandler()
                 .withAmountEventHandler()
@@ -171,7 +172,7 @@ public class ConsensusTransaction2Timer {
                 .withSameOriginEventHandler()
                 .withZoneEventHandler()
                 .withDuplicateEventHandler()
-                .mergeEventsAndPassThen(new SignatureEventHandler(SignatureEventHandler.SignatureBehaviorType.SIMPLE_TRANSACTIONS));
+                .mergeEventsAndPassThen(signatureEventHandler);
         publisher.start();
 
         for (int i = start; i <= stop; i++) {
@@ -196,6 +197,7 @@ public class ConsensusTransaction2Timer {
             Thread.sleep(100);
         }
         publisher.getJobSyncUntilRemainingCapacityZero();
+        signatureEventHandler.getLatch().await();
         publisher.close();
     }
 

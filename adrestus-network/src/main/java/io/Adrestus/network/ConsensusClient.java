@@ -38,6 +38,8 @@ public class ConsensusClient {
         this.message_deque = new LinkedBlockingDeque<>();
         this.subscriber = ctx.createSocket(SocketType.SUB);
         this.push = ctx.createSocket(SocketType.PUSH);
+        this.push.setReceiveTimeOut(CONSENSUS_ERASURE_RECEIVE_TIMEOUT);
+        this.push.setSendTimeOut(CONSENSUS_ERASURE_SEND_TIMEOUT);
 
         this.connected = ctx.createSocket(SocketType.REQ);
         this.connected.setReceiveTimeOut(CONSENSUS_CONNECTED_RECEIVE_TIMEOUT);
@@ -51,10 +53,8 @@ public class ConsensusClient {
 
         this.connected.setHWM(1);
         this.connected.setLinger(200);
-        this.connected.setConflate(true);
         this.subscriber.setLinger(200);
         this.subscriber.setHWM(3);
-        this.subscriber.setConflate(true);
 
         this.subscriber.connect("tcp://" + IP + ":" + SUBSCRIBER_PORT);
         this.connected.connect("tcp://" + IP + ":" + CONNECTED_PORT);
@@ -74,6 +74,8 @@ public class ConsensusClient {
         this.message_deque = new LinkedBlockingDeque<>();
         this.subscriber = ctx.createSocket(SocketType.SUB);
         this.push = ctx.createSocket(SocketType.PUSH);
+        this.push.setReceiveTimeOut(CONSENSUS_ERASURE_RECEIVE_TIMEOUT);
+        this.push.setSendTimeOut(CONSENSUS_ERASURE_SEND_TIMEOUT);
 
         this.connected = ctx.createSocket(SocketType.REQ);
         this.connected.setReceiveTimeOut(CONSENSUS_CONNECTED_RECEIVE_TIMEOUT);
@@ -87,10 +89,8 @@ public class ConsensusClient {
 
         this.connected.setHWM(1);
         this.connected.setLinger(200);
-        this.connected.setConflate(true);
         this.subscriber.setLinger(200);
         this.subscriber.setHWM(3);
-        this.subscriber.setConflate(true);
 
         this.subscriber.connect("tcp://" + IP + ":" + SUBSCRIBER_PORT);
         this.connected.connect("tcp://" + IP + ":" + CONNECTED_PORT);
@@ -156,7 +156,7 @@ public class ConsensusClient {
         while (message_deque.isEmpty()) {
             Thread.sleep(50);
         }
-        // System.out.println("take");
+
         return message_deque.pollFirst();
     }
 
@@ -177,15 +177,11 @@ public class ConsensusClient {
                 }
                 if (data != null) {
                     message_deque.add(data);
-                    MESSAGES--;
                 } else {
                     message_deque.add(new byte[0]);
-                    break;
                 }
-                // System.out.println("receive" + MESSAGES);
+                MESSAGES--;
                 MAX_MESSAGES--;
-                // System.out.println("receive" + MESSAGES);
-                // available.release();
             }
         };
         this.executorService.execute(runnableTask);

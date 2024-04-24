@@ -86,25 +86,6 @@ public class ConsensusTransactionTimer {
 
     private void SaveTransactions(int start, int stop) throws InterruptedException {
         nonce++;
-        TransactionEventPublisher publisher = new TransactionEventPublisher(1024);
-
-        publisher
-                .withAddressSizeEventHandler()
-                .withAmountEventHandler()
-                .withDelegateEventHandler()
-                .withDoubleSpendEventHandler()
-                .withHashEventHandler()
-                .withNonceEventHandler()
-                .withReplayEventHandler()
-                .withRewardEventHandler()
-                .withStakingEventHandler()
-                .withTransactionFeeEventHandler()
-                .withTimestampEventHandler()
-                .withSameOriginEventHandler()
-                .withZoneEventHandler()
-                .withDuplicateEventHandler()
-                .mergeEventsAndPassThen(new SignatureEventHandler(SignatureEventHandler.SignatureBehaviorType.SIMPLE_TRANSACTIONS));
-        publisher.start();
 
         for (int i = start; i <= stop; i++) {
             Transaction transaction = new RegularTransaction();
@@ -124,11 +105,8 @@ public class ConsensusTransactionTimer {
             ECDSASignatureData signatureData = ecdsaSign.secp256SignMessage(Hex.decode(transaction.getHash()), keypair.get(i));
             transaction.setSignature(signatureData);
             //MemoryPool.getInstance().add(transaction);
-            publisher.publish(transaction);
-            Thread.sleep(100);
+            MemoryTransactionPool.getInstance().add(transaction);
         }
-        publisher.getJobSyncUntilRemainingCapacityZero();
-        publisher.close();
     }
 
     public void close() {
