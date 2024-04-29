@@ -213,9 +213,6 @@ public class ConsensusServer {
         this.chunksCollector = ctx.createSocket(SocketType.ROUTER);
 
 
-        this.connected.setLinger(200);
-        this.connected.setHWM(1);
-        this.connected.setConflate(true);
         this.publisher.setLinger(200);
         this.publisher.setHWM(3);
         this.publisher.setConflate(true);
@@ -426,14 +423,15 @@ public class ConsensusServer {
         this.publisher.setLinger(0);
         this.collector.setLinger(0);
         this.chunksCollector.setLinger(0);
-        this.connected.setLinger(0);
         this.executorService.shutdownNow().clear();
         if (this.publisher != null)
             this.publisher.close();
         if (this.collector != null)
             this.collector.close();
-        if (this.connected != null)
+        if (this.connected != null) {
+            this.connected.setLinger(0);
             this.connected.close();
+        }
         if (this.chunksCollector != null)
             this.chunksCollector.close();
         if (this.ctx != null) {
