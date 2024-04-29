@@ -315,9 +315,9 @@ public class RPCErasureExampleTest {
 
     @Test
     public void test3() {
-        RpcErasureServer<SerializableErasureObject> example = new RpcErasureServer(new SerializableErasureObject(), "localhost", 7083, eventloop, blocksize);
+        RpcErasureServer<SerializableErasureObject> example = new RpcErasureServer(new SerializableErasureObject(), "localhost", 7084, eventloop, blocksize);
         new Thread(example).start();
-        RpcErasureClient<String> client = new RpcErasureClient<String>("localhost", 7083, 4000, eventloop);
+        RpcErasureClient<String> client = new RpcErasureClient<String>("localhost", 7084, 4000, eventloop);
         client.connect();
 
 
