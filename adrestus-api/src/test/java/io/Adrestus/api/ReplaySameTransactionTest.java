@@ -140,7 +140,7 @@ public class ReplaySameTransactionTest {
     //RUN THIS with consensustransaction Timer 4 support on adrestus protocol
     @Test
     @SneakyThrows
-    public void test(){
+    public void test() {
         Transaction transaction = new RegularTransaction();
         transaction.setFrom(addreses.get(0));
         transaction.setTo(addreses.get(1));
@@ -158,11 +158,11 @@ public class ReplaySameTransactionTest {
         ECDSASignatureData signatureData = ecdsaSign.secp256SignMessage(Hex.decode(transaction.getHash()), keypair.get(0));
         transaction.setSignature(signatureData);
 
-       for(int i=0;i<6;i++){
-           MessageListener messageListener = new MessageListener();
-           Strategy transactionStrategy = new Strategy(new TransactionStrategy(transaction, messageListener));
-           transactionStrategy.SendTransactionSync();
-           Thread.sleep(2500);
-       }
+        for (int i = 0; i < 6; i++) {
+            MessageListener messageListener = new MessageListener();
+            Strategy transactionStrategy = new Strategy(new TransactionStrategy(transaction, messageListener));
+            transactionStrategy.SendTransactionSync();
+            Thread.sleep(2500);
+        }
     }
 }

@@ -233,7 +233,7 @@ public class BlockTest {
     public void block_test3() throws Exception {
         CachedZoneIndex.getInstance().setZoneIndex(0);
         TransactionEventPublisher publisher = new TransactionEventPublisher(1024);
-        SignatureEventHandler signatureEventHandler=new SignatureEventHandler(SignatureEventHandler.SignatureBehaviorType.SIMPLE_TRANSACTIONS);
+        SignatureEventHandler signatureEventHandler = new SignatureEventHandler(SignatureEventHandler.SignatureBehaviorType.SIMPLE_TRANSACTIONS);
         CachedBLSKeyPair.getInstance().setPublicKey(vk1);
         publisher
                 .withAddressSizeEventHandler()
@@ -282,7 +282,7 @@ public class BlockTest {
             TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(adddress, new PatriciaTreeNode(1000, 0));
         }
 
-        signatureEventHandler.setLatch(new CountDownLatch(size-1));
+        signatureEventHandler.setLatch(new CountDownLatch(size - 1));
         for (int i = 0; i < size - 1; i++) {
             Transaction transaction = new RegularTransaction();
             transaction.setFrom(addreses.get(i));
@@ -306,7 +306,7 @@ public class BlockTest {
         }
         publisher.getJobSyncUntilRemainingCapacityZero();
         signatureEventHandler.getLatch().await();
-        assertEquals(size-1, MemoryTransactionPool.getInstance().getSize());
+        assertEquals(size - 1, MemoryTransactionPool.getInstance().getSize());
         publisher.close();
 
 

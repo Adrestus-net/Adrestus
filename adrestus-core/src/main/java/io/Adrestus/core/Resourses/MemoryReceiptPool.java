@@ -78,6 +78,16 @@ public class MemoryReceiptPool implements IMemoryPool<Receipt> {
     }
 
     @Override
+    public int getFromSize(String from) {
+        r.lock();
+        try {
+            return memorypool.size();
+        } finally {
+            r.unlock();
+        }
+    }
+
+    @Override
     public Lock getR() {
         return null;
     }

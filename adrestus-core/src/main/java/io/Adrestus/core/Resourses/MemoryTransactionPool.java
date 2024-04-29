@@ -5,7 +5,6 @@ import io.Adrestus.core.Transaction;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.util.GetTime;
 import io.Adrestus.util.SerializationUtil;
-import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,10 +22,7 @@ public class MemoryTransactionPool implements IMemoryPool<Transaction> {
 
     private static volatile IMemoryPool instance;
 
-    private final List<Transaction> memorypool;
-    private final List<Transaction> addressmemorypool;
-    private final TransactionHashComparator hashComparator;
-    private final TransactionAddressComparator transactionAddressComparator;
+    private final HashMap<String, LinkedHashMap<String, Transaction>> memorypool;
     private final SerializationUtil<Transaction> wrapper;
     private final ReentrantReadWriteLock rwl;
     private final Lock r;
@@ -38,11 +34,8 @@ public class MemoryTransactionPool implements IMemoryPool<Transaction> {
         } else {
             List<SerializationUtil.Mapping> list = new ArrayList<>();
             list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
-            this.memorypool = new ArrayList<Transaction>();
-            this.addressmemorypool = new ArrayList<Transaction>();
+            this.memorypool = new HashMap<String, LinkedHashMap<String, Transaction>>();
             this.wrapper = new SerializationUtil<>(Transaction.class, list);
-            this.hashComparator = new TransactionHashComparator();
-            this.transactionAddressComparator = new TransactionAddressComparator();
             this.rwl = new ReentrantReadWriteLock();
             this.r = rwl.readLock();
             this.w = rwl.writeLock();
@@ -66,7 +59,7 @@ public class MemoryTransactionPool implements IMemoryPool<Transaction> {
     public Stream<Transaction> getAllStream() throws Exception {
         r.lock();
         try {
-            return memorypool.stream();
+            return memorypool.values().stream().map(LinkedHashMap::values).collect(Collectors.toList()).stream().flatMap(Collection::stream);
         } finally {
             r.unlock();
         }
@@ -76,7 +69,7 @@ public class MemoryTransactionPool implements IMemoryPool<Transaction> {
     public List<Transaction> getAll() throws Exception {
         r.lock();
         try {
-            return memorypool;
+            return memorypool.values().stream().map(LinkedHashMap::values).collect(Collectors.toList()).stream().flatMap(Collection::stream).collect(Collectors.toList());
         } finally {
             r.unlock();
         }
@@ -92,24 +85,37 @@ public class MemoryTransactionPool implements IMemoryPool<Transaction> {
         }
     }
 
+    @Override
+    public int getFromSize(String from) {
+        r.lock();
+        try {
+            if (memorypool.containsKey(from))
+                return memorypool.get(from).size();
+            return 0;
+        } finally {
+            r.unlock();
+        }
+    }
+
 
     @Override
     public Optional<Transaction> getObjectByHash(String hash) throws Exception {
         r.lock();
         try {
-            Optional<Transaction> result = memorypool.stream().filter(val -> val.getHash().equals(hash)).findFirst();
-            return result;
+            for (Map.Entry<String, LinkedHashMap<String, Transaction>> from_entry : memorypool.entrySet()) {
+                return Optional.of(from_entry.getValue().get(hash));
+            }
         } finally {
             r.unlock();
         }
+        return Optional.empty();
     }
 
     @Override
     public List<Transaction> getListByZone(int zone) throws Exception {
         r.lock();
         try {
-            List<Transaction> result = memorypool.stream().filter(val -> val.getZoneFrom() == zone).collect(Collectors.toList());
-            return result;
+            return memorypool.values().stream().map(LinkedHashMap::values).collect(Collectors.toList()).stream().flatMap(Collection::stream).filter(val -> val.getZoneFrom() == zone).collect(Collectors.toList());
         } finally {
             r.unlock();
         }
@@ -119,8 +125,7 @@ public class MemoryTransactionPool implements IMemoryPool<Transaction> {
     public List<Transaction> getListNotByZone(int zone) throws Exception {
         r.lock();
         try {
-            List<Transaction> result = memorypool.stream().filter(val -> val.getZoneFrom() != zone).collect(Collectors.toList());
-            return result;
+            return memorypool.values().stream().map(LinkedHashMap::values).collect(Collectors.toList()).stream().flatMap(Collection::stream).filter(val -> val.getZoneFrom() != zone).collect(Collectors.toList());
         } finally {
             r.unlock();
         }
@@ -130,10 +135,20 @@ public class MemoryTransactionPool implements IMemoryPool<Transaction> {
     public boolean add(Transaction transaction) {
         w.lock();
         try {
-            boolean val = memorypool_add(transaction);
-            boolean val1 = addressmemorypool(transaction);
+            if (memorypool.containsKey(transaction.getFrom())) {
+                LinkedHashMap<String, Transaction> hashMap = memorypool.get(transaction.getFrom());
+                if (hashMap.containsKey(transaction.getHash())) {
+                    return true;
+                } else {
+                    hashMap.put(transaction.getHash(), transaction);
+                }
+            } else {
+                LinkedHashMap<String, Transaction> hashMap = new LinkedHashMap<String, Transaction>();
+                hashMap.put(transaction.getHash(), transaction);
+                memorypool.put(transaction.getFrom(), hashMap);
+            }
 
-            return (val && val1) ? true : false;
+            return false;
         } finally {
             w.unlock();
         }
@@ -144,8 +159,7 @@ public class MemoryTransactionPool implements IMemoryPool<Transaction> {
     public void delete(List<Transaction> list_transaction) {
         w.lock();
         try {
-            memorypool.removeAll(list_transaction);
-            addressmemorypool.removeAll(list_transaction);
+            memorypool.keySet().removeAll(list_transaction.stream().map(Transaction::getFrom).collect(Collectors.toList()));
         } finally {
             w.unlock();
         }
@@ -154,18 +168,17 @@ public class MemoryTransactionPool implements IMemoryPool<Transaction> {
     @Override
     public void clear() {
         this.memorypool.clear();
-        this.addressmemorypool.clear();
     }
 
     @Override
     public void delete(Transaction transaction) {
         w.lock();
         try {
-            int index = Collections.binarySearch(memorypool, transaction, hashComparator);
-            int index1 = Collections.binarySearch(addressmemorypool, transaction, transactionAddressComparator);
-            if (index >= 0 && index1 >= 0) {
-                memorypool.remove(index);
-                addressmemorypool.remove(index1);
+            if (memorypool.containsKey(transaction.getFrom())) {
+                LinkedHashMap<String, Transaction> hashMap = memorypool.get(transaction.getFrom());
+                if (hashMap.containsKey(transaction.getHash())) {
+                    hashMap.remove(transaction.getHash());
+                }
             }
         } finally {
             w.unlock();
@@ -176,11 +189,10 @@ public class MemoryTransactionPool implements IMemoryPool<Transaction> {
     public boolean checkAdressExists(Transaction transaction) throws Exception {
         r.lock();
         try {
-            int index = Collections.binarySearch(addressmemorypool, transaction, transactionAddressComparator);
-            if (index >= 0)
+            if (memorypool.containsKey(transaction.getFrom()))
                 return true;
-            else
-                return false;
+
+            return false;
         } finally {
             r.unlock();
         }
@@ -190,11 +202,13 @@ public class MemoryTransactionPool implements IMemoryPool<Transaction> {
     public boolean checkHashExists(Transaction transaction) throws Exception {
         r.lock();
         try {
-            int index = Collections.binarySearch(memorypool, transaction, hashComparator);
-            if (index >= 0)
-                return true;
-            else
-                return false;
+            if (memorypool.containsKey(transaction.getFrom())) {
+                LinkedHashMap<String, Transaction> hashMap = memorypool.get(transaction.getFrom());
+                if (hashMap.containsKey(transaction.getHash())) {
+                    return true;
+                }
+            }
+            return false;
         } finally {
             r.unlock();
         }
@@ -204,23 +218,23 @@ public class MemoryTransactionPool implements IMemoryPool<Transaction> {
     public boolean checkTimestamp(Transaction t2) throws Exception {
         r.lock();
         try {
-            final int[] index = {-1};
-            memorypool.stream().forEach(t1 -> {
-                if (t1.getFrom().equals(t2.getFrom()) && !t1.getHash().equals(t2.getHash())) {
-                    int val2 = Integer.valueOf(t1.getZoneFrom()).compareTo(Integer.valueOf(t2.getZoneFrom()));
+            if (memorypool.containsKey(t2.getFrom())) {
+                LinkedHashMap<String, Transaction> hashMap = memorypool.get(t2.getFrom());
+                List<Transaction> list = hashMap.values().stream().collect(Collectors.toList());
+                Transaction transaction = list.get(list.size() - 1);
+                int val2 = Integer.valueOf(transaction.getZoneFrom()).compareTo(Integer.valueOf(t2.getZoneFrom()));
+                Timestamp time1 = GetTime.GetTimestampFromString(transaction.getTimestamp());
+                Timestamp time2 = GetTime.GetTimestampFromString(t2.getTimestamp());
 
-                    Timestamp time1 = GetTime.GetTimestampFromString(t1.getTimestamp());
-                    Timestamp time2 = GetTime.GetTimestampFromString(t2.getTimestamp());
-
-                    int val3 = time1.compareTo(time2);
-
-                    index[0] = (val2 == 0 && val3 < 0) ? 0 : -1;
-                }
-            });
-            return index[0] >= 0;
+                int val3 = time1.compareTo(time2);
+                if (val2 == 0 && val3 < 0)
+                    return true;
+            }
+            return false;
         } finally {
             r.unlock();
         }
+
     }
 
     @Override
@@ -240,10 +254,6 @@ public class MemoryTransactionPool implements IMemoryPool<Transaction> {
     }
 
 
-    public TransactionHashComparator getHashComparator() {
-        return hashComparator;
-    }
-
     public SerializationUtil<Transaction> getWrapper() {
         return wrapper;
     }
@@ -261,43 +271,4 @@ public class MemoryTransactionPool implements IMemoryPool<Transaction> {
     }
 
 
-    private boolean memorypool_add(Transaction transaction) {
-        int index = Collections.binarySearch(memorypool, transaction, hashComparator);
-        if (index >= 0)
-            return true;
-        else if (index < 0) index = ~index;
-        memorypool.add(index, transaction);
-        return false;
-    }
-
-    private boolean addressmemorypool(Transaction transaction) {
-        int index = Collections.binarySearch(addressmemorypool, transaction, transactionAddressComparator);
-        if (index >= 0)
-            return true;
-        else if (index < 0) index = ~index;
-        addressmemorypool.add(index, transaction);
-        return false;
-    }
-
-
-    private final class TransactionHashComparator implements Comparator<Transaction> {
-        @Override
-        public int compare(Transaction t1, Transaction t2) {
-            return t1.getHash().compareTo(t2.getHash());
-        }
-    }
-
-
-    private final class TransactionAddressComparator implements Comparator<Transaction> {
-        @SneakyThrows
-        @Override
-        public int compare(Transaction t1, Transaction t2) {
-            try {
-                return t1.getFrom().compareTo(t2.getFrom());
-            } catch (Exception e) {
-                LOG.info(e.toString());
-                return 0;
-            }
-        }
-    }
 }

@@ -100,7 +100,7 @@ public class TransactionStrategyTest {
 
 
         CachedZoneIndex.getInstance().setZoneIndex(0);
-        SignatureEventHandler eventHandler=new SignatureEventHandler(SignatureEventHandler.SignatureBehaviorType.SIMPLE_TRANSACTIONS,new CountDownLatch(end-1));
+        SignatureEventHandler eventHandler = new SignatureEventHandler(SignatureEventHandler.SignatureBehaviorType.SIMPLE_TRANSACTIONS, new CountDownLatch(end - 1));
         TransactionEventPublisher publisher = new TransactionEventPublisher(4096);
         publisher
                 .withAddressSizeEventHandler()
@@ -169,8 +169,6 @@ public class TransactionStrategyTest {
         CachedLeaderIndex.getInstance().setCommitteePositionLeader(0);
         CachedZoneIndex.getInstance().setZoneIndex(0);
     }
-
-
 
 
     //I am not sure but this maybe need WorkerTest from protocols tests

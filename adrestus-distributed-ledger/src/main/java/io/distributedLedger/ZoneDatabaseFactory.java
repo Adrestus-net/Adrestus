@@ -24,18 +24,7 @@ public class ZoneDatabaseFactory {
     }
 
     public static RocksDB getDatabaseInstance(PatriciaTreeInstance instance, Options options, String path) {
-        switch (instance) {
-            case PATRICIA_TREE_INSTANCE_0:
-                return DatabasePatriciaTreeZone0.getInstance(options, path).getDB();
-            case PATRICIA_TREE_INSTANCE_1:
-                return DatabasePatriciaTreeZone1.getInstance(options, path).getDB();
-            case PATRICIA_TREE_INSTANCE_2:
-                return DatabasePatriciaTreeZone2.getInstance(options, path).getDB();
-            case PATRICIA_TREE_INSTANCE_3:
-                return DatabasePatriciaTreeZone3.getInstance(options, path).getDB();
-            default:
-                return DatabasePatriciaTreeZone0.getInstance(options, path).getDB();
-        }
+        return DatabasePatriciaTreeZone.getInstance(options, path).getDB();
     }
 
 
@@ -62,22 +51,39 @@ public class ZoneDatabaseFactory {
         }
     }
 
+    public static boolean isDatabaseInstanceClosed(DatabaseInstance instance) {
+        switch (instance) {
+            case COMMITTEE_BLOCK:
+                return DatabaseCommitteeZone.isNull();
+            case ZONE_0_TRANSACTION_BLOCK:
+                return DatabaseTransactionZone0.isNull();
+            case ZONE_1_TRANSACTION_BLOCK:
+                return DatabaseTransactionZone1.isNull();
+            case ZONE_2_TRANSACTION_BLOCK:
+                return DatabaseTransactionZone2.isNull();
+            case ZONE_3_TRANSACTION_BLOCK:
+                return DatabaseTransactionZone3.isNull();
+            default:
+                return DatabaseTransactionZone0.isNull();
+        }
+    }
+
+    public static boolean isPatriciaTreeInstanceClosed(PatriciaTreeInstance instance) {
+        switch (instance) {
+            case PATRICIA_TREE_INSTANCE_0:
+                return DatabasePatriciaTreeZone.isNull();
+            default:
+                return DatabasePatriciaTreeZone.isNull();
+        }
+    }
+
     public static void closeDatabaseInstance(PatriciaTreeInstance instance, Options options, String path) {
         switch (instance) {
             case PATRICIA_TREE_INSTANCE_0:
-                DatabasePatriciaTreeZone0.getInstance(options, path).close(options);
-                break;
-            case PATRICIA_TREE_INSTANCE_1:
-                DatabasePatriciaTreeZone1.getInstance(options, path).close(options);
-                break;
-            case PATRICIA_TREE_INSTANCE_2:
-                DatabasePatriciaTreeZone2.getInstance(options, path).close(options);
-                break;
-            case PATRICIA_TREE_INSTANCE_3:
-                DatabasePatriciaTreeZone3.getInstance(options, path).close(options);
+                DatabasePatriciaTreeZone.getInstance(options, path).close(options);
                 break;
             default:
-                DatabasePatriciaTreeZone0.getInstance(options, path).close(options);
+                DatabasePatriciaTreeZone.getInstance(options, path).close(options);
                 break;
         }
     }

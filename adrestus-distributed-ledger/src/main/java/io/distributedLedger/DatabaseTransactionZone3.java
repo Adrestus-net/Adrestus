@@ -29,6 +29,12 @@ public class DatabaseTransactionZone3 implements IDriver<Options, RocksDB> {
         return result;
     }
 
+    public static boolean isNull() {
+        if (rocksDB == null)
+            return true;
+        return false;
+    }
+
     @SneakyThrows
     private static void load_connection(Options options, String path) {
         if (instance != null) {

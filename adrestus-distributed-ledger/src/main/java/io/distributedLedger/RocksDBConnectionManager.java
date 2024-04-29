@@ -34,7 +34,6 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
 
     private static final boolean enableDbCompression = false;
 
-
     private final DatabaseInstance databaseInstance;
     private final PatriciaTreeInstance patriciaTreeInstance;
     private final SerializationUtil valueMapper;
@@ -125,7 +124,6 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
         setupOptions();
         load_connection();
     }
-
 
     public void chooseDB(File dbFile) {
         this.dbFile = dbFile;

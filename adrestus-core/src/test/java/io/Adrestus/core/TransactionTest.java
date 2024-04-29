@@ -121,7 +121,7 @@ public class TransactionTest {
     public void StressTesting() throws Exception {
         CachedZoneIndex.getInstance().setZoneIndex(0);
         TransactionEventPublisher publisher = new TransactionEventPublisher(1024);
-        SignatureEventHandler signatureEventHandler=new SignatureEventHandler(SignatureEventHandler.SignatureBehaviorType.SIMPLE_TRANSACTIONS);
+        SignatureEventHandler signatureEventHandler = new SignatureEventHandler(SignatureEventHandler.SignatureBehaviorType.SIMPLE_TRANSACTIONS);
         publisher
                 .withAddressSizeEventHandler()
                 .withAmountEventHandler()
@@ -169,7 +169,7 @@ public class TransactionTest {
         }
 
 
-        signatureEventHandler.setLatch(new CountDownLatch(size-1));
+        signatureEventHandler.setLatch(new CountDownLatch(size - 1));
         for (int i = 0; i < size - 1; i++) {
             Transaction transaction = new RegularTransaction();
             transaction.setFrom(addreses.get(i));

@@ -66,10 +66,10 @@ public class ReceiptBlock implements Serializable {
     }
 
 
-    public void clear(){
-        this.statusType=null;
-        this.receipt=null;
-        this.transactionBlock=null;
-        this.transaction=null;
+    public void clear() {
+        this.statusType = null;
+        this.receipt = null;
+        this.transactionBlock = null;
+        this.transaction = null;
     }
 }

@@ -35,6 +35,7 @@ public class TransactionsSignatureEventHandler implements BlockEventHandler<Abst
                 .withTimestampEventHandler()
                 .withZoneEventHandler()
                 .withDuplicateEventHandler()
+                .withSecp256k1EventHandler()
                 .mergeEventsAndPassThen(this.signatureEventHandler);
 
         this.publisher.start();

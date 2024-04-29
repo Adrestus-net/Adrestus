@@ -3,7 +3,7 @@ package io.Adrestus.rpc;
 import io.Adrestus.config.ConsensusConfiguration;
 import io.Adrestus.util.SerializationUtil;
 import io.activej.eventloop.Eventloop;
-import io.activej.promise.Promise;
+import io.activej.promise.Promises;
 import io.activej.rpc.server.RpcRequestHandler;
 import io.activej.rpc.server.RpcServer;
 import io.activej.serializer.SerializerBuilder;
@@ -71,10 +71,13 @@ public class RpcErasureServer<T> implements Runnable {
                     .withListenAddress(inetSocketAddress);
         } else {
             rpcServer = RpcServer.create(eventloop)
-                    .withMessageTypes(ErasureRequest.class, ErasureResponse.class, ConsensusChunksRequest.class, ConsensusChunksResponse.class)
+                    .withMessageTypes(ErasureRequest.class, ErasureResponse.class, ConsensusChunksRequest.class, ConsensusChunksRequest2.class, ConsensusChunksRequest3.class, ConsensusChunksRequest4.class, ConsensusChunksResponse.class)
                     .withSerializerBuilder(this.rpcSerialize)
                     .withHandler(ErasureRequest.class, downloadErasureChunks(service))
-                    .withHandler(ConsensusChunksRequest.class, downloadConsensusChunks(service))
+                    .withHandler(ConsensusChunksRequest.class, downloadAnnounceConsensusChunks(service))
+                    .withHandler(ConsensusChunksRequest2.class, downloadPrepareConsensusChunks(service))
+                    .withHandler(ConsensusChunksRequest3.class, downloadCommitConsensusChunks(service))
+                    .withHandler(ConsensusChunksRequest4.class, downloadVrfAggregateConsensusChunks(service))
                     .withListenAddress(new InetSocketAddress(host, port));
         }
         rpcServer.listen();
@@ -89,48 +92,64 @@ public class RpcErasureServer<T> implements Runnable {
     }
 
     private RpcRequestHandler<ErasureRequest, ErasureResponse> downloadErasureChunks(IChunksService<T> service) throws InterruptedException {
-        return request -> {
-            T result;
-            try {
-                int rc = 0;
-                while (rc < ConsensusConfiguration.CYCLES && (serializable_length == 0 || CachedSerializableErasureObject.getInstance().getSerializableErasureObject() == null)) {
-                    rc++;
-                    Thread.sleep(ConsensusConfiguration.HEARTBEAT_INTERVAL);
-                }
-                if (rc == ConsensusConfiguration.CYCLES)
-                    return Promise.of(new ErasureResponse(null));
-                result = service.downloadErasureChunks();
-                if (result == null)
-                    return Promise.of(new ErasureResponse(null));
-                return Promise.of(new ErasureResponse(this.valueMapper.encode(result, serializable_length)));
-            } catch (Exception e) {
-                return Promise.ofException(e);
-            }
-
-        };
+        return request -> Promises.loop(0,
+                        rc -> rc < ConsensusConfiguration.CYCLES &&
+                                (serializable_length == 0 ||
+                                        CachedSerializableErasureObject.getInstance().getSerializableErasureObject() == null),
+                        rc -> Promises.delay(ConsensusConfiguration.HEARTBEAT_INTERVAL, rc + 1)
+                )
+                .map(rc -> {
+                    if (rc == ConsensusConfiguration.CYCLES)
+                        return new ErasureResponse(null);
+                    T result = service.downloadErasureChunks();
+                    if (result == null)
+                        return new ErasureResponse(null);
+                    return new ErasureResponse(this.valueMapper.encode(result, serializable_length));
+                });
     }
 
-    private RpcRequestHandler<ConsensusChunksRequest, ConsensusChunksResponse> downloadConsensusChunks(IChunksService<T> service) throws InterruptedException {
-        return request -> {
-            byte[] result;
-            try {
-                int rc = 0;
+    private RpcRequestHandler<ConsensusChunksRequest, ConsensusChunksResponse> downloadAnnounceConsensusChunks(IChunksService<T> service) throws InterruptedException {
+        return request -> Promises.loop(0,
+                rc -> rc < ConsensusConfiguration.CYCLES && CachedConsensusPublisherData.getInstance().getDataAtPosition(0) == null,
+                rc -> Promises.delay(ConsensusConfiguration.HEARTBEAT_INTERVAL, rc + 1)).map(rc -> {
+            if (rc == ConsensusConfiguration.CYCLES)
+                return new ConsensusChunksResponse(new byte[1]);
+            byte[] result = service.downloadConsensusChunks(0);
+            return new ConsensusChunksResponse(result);
+        });
+    }
 
-                while (rc < ConsensusConfiguration.CYCLES && CachedConsensusPublisherData.getInstance().getDataAtPosition(Integer.parseInt(request.number)) == null) {
-                    rc++;
-                    Thread.sleep(ConsensusConfiguration.HEARTBEAT_INTERVAL);
-                }
-                result = service.downloadConsensusChunks(Integer.parseInt(request.number));
-                if (result == null) {
-                    CachedConsensusPublisherData.getInstance().clear();
-                    return Promise.of(new ConsensusChunksResponse(null));
-                }
-                return Promise.of(new ConsensusChunksResponse(result));
-            } catch (Exception e) {
-                e.printStackTrace();
-                return Promise.ofException(e);
-            }
-        };
+    private RpcRequestHandler<ConsensusChunksRequest2, ConsensusChunksResponse> downloadPrepareConsensusChunks(IChunksService<T> service) throws InterruptedException {
+        return request -> Promises.loop(0,
+                rc -> rc < ConsensusConfiguration.CYCLES && CachedConsensusPublisherData.getInstance().getDataAtPosition(1) == null,
+                rc -> Promises.delay(ConsensusConfiguration.HEARTBEAT_INTERVAL, rc + 1)).map(rc -> {
+            if (rc == ConsensusConfiguration.CYCLES)
+                return new ConsensusChunksResponse(new byte[1]);
+            byte[] result = service.downloadConsensusChunks(1);
+            return new ConsensusChunksResponse(result);
+        });
+    }
+
+    private RpcRequestHandler<ConsensusChunksRequest3, ConsensusChunksResponse> downloadCommitConsensusChunks(IChunksService<T> service) throws InterruptedException {
+        return request -> Promises.loop(0,
+                rc -> rc < ConsensusConfiguration.CYCLES && CachedConsensusPublisherData.getInstance().getDataAtPosition(2) == null,
+                rc -> Promises.delay(ConsensusConfiguration.HEARTBEAT_INTERVAL, rc + 1)).map(rc -> {
+            if (rc == ConsensusConfiguration.CYCLES)
+                return new ConsensusChunksResponse(new byte[1]);
+            byte[] result = service.downloadConsensusChunks(2);
+            return new ConsensusChunksResponse(result);
+        });
+    }
+
+    private RpcRequestHandler<ConsensusChunksRequest4, ConsensusChunksResponse> downloadVrfAggregateConsensusChunks(IChunksService<T> service) throws InterruptedException {
+        return request -> Promises.loop(0,
+                rc -> rc < ConsensusConfiguration.CYCLES && CachedConsensusPublisherData.getInstance().getDataAtPosition(3) == null,
+                rc -> Promises.delay(ConsensusConfiguration.HEARTBEAT_INTERVAL, rc + 1)).map(rc -> {
+            if (rc == ConsensusConfiguration.CYCLES)
+                return new ConsensusChunksResponse(new byte[1]);
+            byte[] result = service.downloadConsensusChunks(3);
+            return new ConsensusChunksResponse(result);
+        });
     }
 
     @SneakyThrows

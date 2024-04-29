@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Timestamp;
-import java.text.ParseException;
 
 
 public class TimeStampEventHandler implements BlockEventHandler<AbstractBlockEvent>, DisruptorBlockVisitor {
@@ -60,7 +59,7 @@ public class TimeStampEventHandler implements BlockEventHandler<AbstractBlockEve
 //                    return;
 //                }
             }
-        } catch(Exception e) {
+        } catch (Exception e) {
             LOG.info("TransactionBlock timestamp  have not valid form abort");
             transactionBlock.setStatustype(StatusType.ABORT);
             return;

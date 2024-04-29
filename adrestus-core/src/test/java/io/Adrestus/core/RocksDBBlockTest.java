@@ -49,6 +49,27 @@ public class RocksDBBlockTest {
     }
 
     @Test
+    public void Check_DBinstances() {
+        IDatabase<String, AbstractBlock> database = new DatabaseFactory(String.class, AbstractBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.ZONE_1_TRANSACTION_BLOCK);
+        IDatabase<String, AbstractBlock> committe = new DatabaseFactory(String.class, AbstractBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
+        CommitteeBlock committeeBlock = new CommitteeBlock();
+        committeeBlock.setHash("2");
+        committeeBlock.setHeight(2);
+        TransactionBlock prevblock = new TransactionBlock();
+        prevblock.setHash("1");
+        prevblock.setHeight(1);
+        database.save("1", prevblock);
+        committe.save("2", committeeBlock);
+        IDatabase<String, AbstractBlock> databasea = new DatabaseFactory(String.class, AbstractBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.ZONE_1_TRANSACTION_BLOCK);
+        IDatabase<String, AbstractBlock> committea = new DatabaseFactory(String.class, AbstractBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
+        TransactionBlock copy = (TransactionBlock) databasea.findByKey("1").get();
+        CommitteeBlock copy2 = (CommitteeBlock) committea.findByKey("2").get();
+        assertEquals(prevblock, copy);
+        assertEquals(committeeBlock, copy2);
+        database.delete_db();
+    }
+
+    @Test
     public void add_erase3() {
         IDatabase<String, AbstractBlock> database = new DatabaseFactory(String.class, AbstractBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.ZONE_1_TRANSACTION_BLOCK);
         String hash = "Hash";

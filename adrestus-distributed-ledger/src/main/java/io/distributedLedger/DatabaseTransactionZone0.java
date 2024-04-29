@@ -6,6 +6,8 @@ import org.rocksdb.RocksDB;
 
 public class DatabaseTransactionZone0 implements IDriver<Options, RocksDB> {
     private static volatile DatabaseTransactionZone0 instance;
+
+    private static volatile RocksDBConnectionManager rocksDBConnectionManager;
     private static RocksDB rocksDB;
 
     private DatabaseTransactionZone0() {
@@ -34,6 +36,12 @@ public class DatabaseTransactionZone0 implements IDriver<Options, RocksDB> {
         if (instance != null) {
             rocksDB = RocksDB.open(options, path);
         }
+    }
+
+    public static boolean isNull() {
+        if (rocksDB == null)
+            return true;
+        return false;
     }
 
     @Override

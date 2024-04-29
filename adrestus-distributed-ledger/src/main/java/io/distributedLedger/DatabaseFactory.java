@@ -25,11 +25,11 @@ public class DatabaseFactory {
         switch (type) {
             case LEVEL_DB:
                 if (value_type == null)
-                    return (IDatabase) new LevelDBConnectionManager(key, value);
+                    return (IDatabase) LevelDBConnectionManager.getInstance(key, value);
                 else
-                    return (IDatabase) new LevelDBConnectionManager(key, value_type);
+                    return (IDatabase) LevelDBConnectionManager.getInstance(key, value_type);
             case ROCKS_DB:
-                return (IDatabase) new RocksDBConnectionManager(key, value);
+                return (IDatabase) RocksDBCommitteeFactory.getInstance(key, value).getRocksDBConnectionManager();
             default:
                 throw new IllegalArgumentException("Database not supported.");
         }
@@ -40,11 +40,22 @@ public class DatabaseFactory {
         switch (type) {
             case LEVEL_DB:
                 if (value_type == null)
-                    return (IDatabase) new LevelDBConnectionManager(key, value);
+                    return (IDatabase) LevelDBConnectionManager.getInstance(key, value);
                 else
-                    return (IDatabase) new LevelDBConnectionManager(key, value_type);
+                    return (IDatabase) LevelDBConnectionManager.getInstance(key, value_type);
             case ROCKS_DB:
-                return (IDatabase) new RocksDBConnectionManager(key, value, instance);
+                switch (instance) {
+                    case ZONE_0_TRANSACTION_BLOCK:
+                        return (IDatabase) RocksDBTransactionZone0Factory.getInstance(key, value).getRocksDBConnectionManager();
+                    case ZONE_1_TRANSACTION_BLOCK:
+                        return (IDatabase) RocksDBTransactionZone1Factory.getInstance(key, value).getRocksDBConnectionManager();
+                    case ZONE_2_TRANSACTION_BLOCK:
+                        return (IDatabase) RocksDBTransactionZone2Factory.getInstance(key, value).getRocksDBConnectionManager();
+                    case ZONE_3_TRANSACTION_BLOCK:
+                        return (IDatabase) RocksDBTransactionZone3Factory.getInstance(key, value).getRocksDBConnectionManager();
+                    case COMMITTEE_BLOCK:
+                        return (IDatabase) RocksDBCommitteeFactory.getInstance(key, value).getRocksDBConnectionManager();
+                }
             default:
                 throw new IllegalArgumentException("Database not supported.");
         }
@@ -55,11 +66,11 @@ public class DatabaseFactory {
         switch (type) {
             case LEVEL_DB:
                 if (value_type == null)
-                    return (IDatabase) new LevelDBConnectionManager(key, value);
+                    return (IDatabase) LevelDBConnectionManager.getInstance(key, value);
                 else
-                    return (IDatabase) new LevelDBConnectionManager(key, value_type);
+                    return (IDatabase) LevelDBConnectionManager.getInstance(key, value_type);
             case ROCKS_DB:
-                return (IDatabase) new RocksDBConnectionManager(key, value, instance);
+                return (IDatabase) RocksDBPatriciaTreeFactory.getInstance(key, value, instance).getRocksDBConnectionManager();
             default:
                 throw new IllegalArgumentException("Database not supported.");
         }

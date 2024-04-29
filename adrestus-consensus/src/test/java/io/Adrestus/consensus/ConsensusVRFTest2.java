@@ -6,6 +6,7 @@ import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.crypto.bls.model.BLSPrivateKey;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.Adrestus.crypto.bls.model.CachedBLSKeyPair;
+import io.Adrestus.network.CachedEventLoop;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -50,7 +51,7 @@ public class ConsensusVRFTest2 {
         committeeBlock.getStructureMap().get(0).put(vk1, "192.168.1.106");
         committeeBlock.getStructureMap().get(0).put(vk2, "192.168.1.116");
         committeeBlock.getStructureMap().get(0).put(vk3, "192.168.1.110");
-        committeeBlock.getStructureMap().get(0).put(vk4, "192.168.1.112");
+        //committeeBlock.getStructureMap().get(0).put(vk4, "192.168.1.112");
 
         CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
     }
@@ -83,7 +84,8 @@ public class ConsensusVRFTest2 {
         if (hit == 0)
             return;
 
-        CountDownLatch latch = new CountDownLatch(5);
+        CachedEventLoop.getInstance().start();
+        CountDownLatch latch = new CountDownLatch(1000);
         ConsensusVRFTimer c = new ConsensusVRFTimer(latch);
         latch.await();
     }

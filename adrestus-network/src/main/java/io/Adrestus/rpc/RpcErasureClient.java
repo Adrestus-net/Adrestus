@@ -124,7 +124,7 @@ public class RpcErasureClient<T> {
             } else {
                 client = RpcClient.create(eventloop)
                         .withSerializerBuilder(this.rpcSerialize)
-                        .withMessageTypes(ErasureRequest.class, ErasureResponse.class, ConsensusChunksRequest.class, ConsensusChunksResponse.class)
+                        .withMessageTypes(ErasureRequest.class, ErasureResponse.class, ConsensusChunksRequest.class, ConsensusChunksRequest2.class, ConsensusChunksRequest3.class, ConsensusChunksRequest4.class, ConsensusChunksResponse.class)
                         .withStrategy(server(new InetSocketAddress(host, port)))
                         .withKeepAlive(Duration.ofMillis(TIMEOUT))
                         .withConnectTimeout(Duration.ofMillis(TIMEOUT));
@@ -156,8 +156,41 @@ public class RpcErasureClient<T> {
         return lst;
     }
 
-    public Optional<byte[]> getConsensusChunks(String number) {
-        Optional<ConsensusChunksResponse> res = download_consensus_chunks(this.client, number);
+    public Optional<byte[]> getAnnounceConsensusChunks(String number) {
+        Optional<ConsensusChunksResponse> res = download_announce_chunks(this.client, number);
+        if (res.isPresent()) {
+            if (res.get().getConsensus_data() == null)
+                return Optional.empty();
+            else
+                return Optional.of(res.get().getConsensus_data());
+        }
+        return Optional.empty();
+    }
+
+    public Optional<byte[]> getPrepareConsensusChunks(String number) {
+        Optional<ConsensusChunksResponse> res = download_prepare_chunks(this.client, number);
+        if (res.isPresent()) {
+            if (res.get().getConsensus_data() == null)
+                return Optional.empty();
+            else
+                return Optional.of(res.get().getConsensus_data());
+        }
+        return Optional.empty();
+    }
+
+    public Optional<byte[]> getCommitConsensusChunks(String number) {
+        Optional<ConsensusChunksResponse> res = download_committee_chunks(this.client, number);
+        if (res.isPresent()) {
+            if (res.get().getConsensus_data() == null)
+                return Optional.empty();
+            else
+                return Optional.of(res.get().getConsensus_data());
+        }
+        return Optional.empty();
+    }
+
+    public Optional<byte[]> getVrfAggregate_chunks(String number) {
+        Optional<ConsensusChunksResponse> res = download_VrfAggregate_chunks(this.client, number);
         if (res.isPresent()) {
             if (res.get().getConsensus_data() == null)
                 return Optional.empty();
@@ -186,11 +219,65 @@ public class RpcErasureClient<T> {
     }
 
     @SneakyThrows
-    private Optional<ConsensusChunksResponse> download_consensus_chunks(RpcClient rpcClient, String number) {
+    private Optional<ConsensusChunksResponse> download_announce_chunks(RpcClient rpcClient, String number) {
         try {
             ConsensusChunksResponse response = rpcClient.getEventloop().submit(
                             () -> rpcClient
                                     .<ConsensusChunksRequest, ConsensusChunksResponse>sendRequest(new ConsensusChunksRequest(number)))
+                    .get(TIMEOUT, TimeUnit.MILLISECONDS);
+            if (response.getConsensus_data() == null)
+                return Optional.empty();
+
+            return Optional.of(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            LOG.info(e.toString());
+        }
+        return Optional.empty();
+    }
+
+    @SneakyThrows
+    private Optional<ConsensusChunksResponse> download_prepare_chunks(RpcClient rpcClient, String number) {
+        try {
+            ConsensusChunksResponse response = rpcClient.getEventloop().submit(
+                            () -> rpcClient
+                                    .<ConsensusChunksRequest2, ConsensusChunksResponse>sendRequest(new ConsensusChunksRequest2(number)))
+                    .get(TIMEOUT, TimeUnit.MILLISECONDS);
+            if (response.getConsensus_data() == null)
+                return Optional.empty();
+
+            return Optional.of(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            LOG.info(e.toString());
+        }
+        return Optional.empty();
+    }
+
+    @SneakyThrows
+    private Optional<ConsensusChunksResponse> download_committee_chunks(RpcClient rpcClient, String number) {
+        try {
+            ConsensusChunksResponse response = rpcClient.getEventloop().submit(
+                            () -> rpcClient
+                                    .<ConsensusChunksRequest3, ConsensusChunksResponse>sendRequest(new ConsensusChunksRequest3(number)))
+                    .get(TIMEOUT, TimeUnit.MILLISECONDS);
+            if (response.getConsensus_data() == null)
+                return Optional.empty();
+
+            return Optional.of(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            LOG.info(e.toString());
+        }
+        return Optional.empty();
+    }
+
+    @SneakyThrows
+    private Optional<ConsensusChunksResponse> download_VrfAggregate_chunks(RpcClient rpcClient, String number) {
+        try {
+            ConsensusChunksResponse response = rpcClient.getEventloop().submit(
+                            () -> rpcClient
+                                    .<ConsensusChunksRequest4, ConsensusChunksResponse>sendRequest(new ConsensusChunksRequest4(number)))
                     .get(TIMEOUT, TimeUnit.MILLISECONDS);
             if (response.getConsensus_data() == null)
                 return Optional.empty();

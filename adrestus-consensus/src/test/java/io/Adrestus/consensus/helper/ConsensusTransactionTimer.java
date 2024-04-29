@@ -7,8 +7,6 @@ import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedLeaderIndex;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.core.Resourses.MemoryTransactionPool;
-import io.Adrestus.core.RingBuffer.handler.transactions.SignatureEventHandler;
-import io.Adrestus.core.RingBuffer.publisher.TransactionEventPublisher;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.Adrestus.crypto.bls.model.CachedBLSKeyPair;
@@ -127,7 +125,7 @@ public class ConsensusTransactionTimer {
             CachedLeaderIndex.getInstance().setTransactionPositionLeader(current);
             if (target == current) {
                 LOG.info("ORGANIZER State");
-                //chooser();
+                chooser();
                 consensusManager.changeStateTo(ConsensusRoleType.ORGANIZER);
                 var organizerphase = consensusManager.getRole().manufacturePhases(ConsensusType.TRANSACTION_BLOCK);
                 organizerphase.InitialSetup();
@@ -135,7 +133,7 @@ public class ConsensusTransactionTimer {
                 organizerphase.AnnouncePhase(consensusMessage);
                 organizerphase.PreparePhase(consensusMessage);
                 organizerphase.CommitPhase(consensusMessage);
-                if(consensusMessage.getStatusType().equals(ConsensusStatusType.ABORT))
+                if (consensusMessage.getStatusType().equals(ConsensusStatusType.ABORT))
                     throw new IllegalArgumentException("Problem occured");
             } else {
                 LOG.info("VALIDATOR State");
@@ -146,7 +144,7 @@ public class ConsensusTransactionTimer {
                 validatorphase.AnnouncePhase(consensusMessage);
                 validatorphase.PreparePhase(consensusMessage);
                 validatorphase.CommitPhase(consensusMessage);
-                if(consensusMessage.getStatusType().equals(ConsensusStatusType.ABORT))
+                if (consensusMessage.getStatusType().equals(ConsensusStatusType.ABORT))
                     throw new IllegalArgumentException("Problem occured");
             }
             latch.countDown();

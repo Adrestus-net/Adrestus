@@ -4,24 +4,24 @@ import lombok.SneakyThrows;
 import org.rocksdb.Options;
 import org.rocksdb.RocksDB;
 
-public class DatabasePatriciaTreeZone0 implements IDriver<Options, RocksDB> {
-    private static volatile DatabasePatriciaTreeZone0 instance;
+public class DatabasePatriciaTreeZone implements IDriver<Options, RocksDB> {
+    private static volatile DatabasePatriciaTreeZone instance;
     private static RocksDB rocksDB;
 
-    private DatabasePatriciaTreeZone0() {
+    private DatabasePatriciaTreeZone() {
         if (instance != null) {
             throw new IllegalStateException("Already initialized.");
         }
     }
 
-    public static DatabasePatriciaTreeZone0 getInstance(Options options, String path) {
+    public static DatabasePatriciaTreeZone getInstance(Options options, String path) {
 
         var result = instance;
         if (result == null) {
-            synchronized (DatabasePatriciaTreeZone0.class) {
+            synchronized (DatabasePatriciaTreeZone.class) {
                 result = instance;
                 if (result == null) {
-                    instance = result = new DatabasePatriciaTreeZone0();
+                    instance = result = new DatabasePatriciaTreeZone();
                     load_connection(options, path);
                 }
             }
@@ -34,6 +34,12 @@ public class DatabasePatriciaTreeZone0 implements IDriver<Options, RocksDB> {
         if (instance != null) {
             rocksDB = RocksDB.open(options, path);
         }
+    }
+
+    public static boolean isNull() {
+        if (rocksDB == null)
+            return true;
+        return false;
     }
 
     @Override
@@ -51,6 +57,6 @@ public class DatabasePatriciaTreeZone0 implements IDriver<Options, RocksDB> {
     }
 
     public void setRocksDB(RocksDB rocksDB) {
-        DatabasePatriciaTreeZone0.rocksDB = rocksDB;
+        DatabasePatriciaTreeZone.rocksDB = rocksDB;
     }
 }

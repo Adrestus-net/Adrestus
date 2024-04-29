@@ -3,6 +3,7 @@ package io.Adrestus.core;
 import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.config.AdrestusConfiguration;
+import io.Adrestus.core.Resourses.CachedTransactionBlockEventPublisher;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.core.Resourses.MemoryTransactionPool;
 import io.Adrestus.core.RingBuffer.handler.transactions.SignatureEventHandler;
@@ -24,9 +25,12 @@ import io.Adrestus.crypto.mnemonic.Security;
 import io.Adrestus.crypto.mnemonic.WordList;
 import io.Adrestus.util.GetTime;
 import io.Adrestus.util.SerializationUtil;
+import io.distributedLedger.DatabaseFactory;
+import io.distributedLedger.DatabaseType;
+import io.distributedLedger.IDatabase;
+import io.distributedLedger.ZoneDatabaseFactory;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
 import org.spongycastle.util.encoders.Hex;
 
 import java.math.BigInteger;
@@ -37,9 +41,6 @@ import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
-import static org.awaitility.Awaitility.await;
 
 public class DisruptorStressTest {
     private static BLSPrivateKey sk1;
@@ -55,8 +56,8 @@ public class DisruptorStressTest {
     //@Test
     public void TransactionTest() throws NoSuchAlgorithmException, NoSuchProviderException, MnemonicException, InvalidAlgorithmParameterException, InterruptedException {
         CachedZoneIndex.getInstance().setZoneIndex(0);
-        TransactionEventPublisher publisher = new TransactionEventPublisher(10240);
-        SignatureEventHandler signatureEventHandler=new SignatureEventHandler(SignatureEventHandler.SignatureBehaviorType.SIMPLE_TRANSACTIONS);
+        TransactionEventPublisher publisher = new TransactionEventPublisher(100240);
+        SignatureEventHandler signatureEventHandler = new SignatureEventHandler(SignatureEventHandler.SignatureBehaviorType.SIMPLE_TRANSACTIONS);
         CachedBLSKeyPair.getInstance().setPublicKey(vk1);
         publisher
                 .withAddressSizeEventHandler()
@@ -65,8 +66,8 @@ public class DisruptorStressTest {
                 .withDoubleSpendEventHandler()
                 .withHashEventHandler()
                 .withNonceEventHandler()
-                .withReplayEventHandler()
                 .withRewardEventHandler()
+                .withReplayEventHandler()
                 .withStakingEventHandler()
                 .withTransactionFeeEventHandler()
                 .withTimestampEventHandler()
@@ -92,8 +93,8 @@ public class DisruptorStressTest {
         ArrayList<String> addreses = new ArrayList<>();
         ArrayList<ECKeyPair> keypair = new ArrayList<>();
         int version = 0x00;
-        int size = 10;
-        signatureEventHandler.setLatch(new CountDownLatch(size-1));
+        int size = 200000;
+        signatureEventHandler.setLatch(new CountDownLatch(size - 1));
         for (int i = 0; i < size; i++) {
             Mnemonic mnem = new Mnemonic(Security.NORMAL, WordList.ENGLISH);
             char[] mnemonic_sequence = mnem.create();
@@ -122,17 +123,12 @@ public class DisruptorStressTest {
             transaction.setHash(HashUtil.sha256_bytetoString(byf));
             ECDSASignatureData signatureData = ecdsaSign.secp256SignMessage(Hex.decode(transaction.getHash()), keypair.get(i));
             transaction.setSignature(signatureData);
-            //MemoryPool.getInstance().add(transaction);
-            long start = System.currentTimeMillis();
             publisher.publish(transaction);
-            publisher.getJobSyncUntilRemainingCapacityZero();
-            long finish = System.currentTimeMillis();
-            long timeElapsed = finish - start;
-            System.out.println("Time: " + timeElapsed);
-            await().atMost(400, TimeUnit.MILLISECONDS);
         }
-        MemoryTransactionPool.getInstance().clear();
-
+        publisher.getJobSyncUntilRemainingCapacityZero();
+        signatureEventHandler.getLatch().await();
+        publisher.close();
+        System.out.println(MemoryTransactionPool.getInstance().getSize());
     }
 
     //@Test
@@ -158,7 +154,7 @@ public class DisruptorStressTest {
         ArrayList<String> addreses = new ArrayList<>();
         ArrayList<ECKeyPair> keypair = new ArrayList<>();
         int version = 0x00;
-        int size = 10000;
+        int size = 3;
         for (int i = 0; i < size; i++) {
             Mnemonic mnem = new Mnemonic(Security.NORMAL, WordList.ENGLISH);
             char[] mnemonic_sequence = mnem.create();
@@ -189,10 +185,33 @@ public class DisruptorStressTest {
             transaction.setSignature(signatureData);
             list1.add(transaction);
         }
-        transactionBlock.setTransactionList(list1);
-        publisher.publish(transactionBlock);
-        publisher.getJobSyncUntilRemainingCapacityZero();
-        System.out.println(transactionBlock.getTransactionList().size());
-        System.out.println(MemoryTransactionPool.getInstance().getSize());
+        while (true) {
+            long start = System.currentTimeMillis();
+            transactionBlock.setTransactionList(list1);
+            CachedTransactionBlockEventPublisher.getInstance().publish(transactionBlock);
+            CachedTransactionBlockEventPublisher.getInstance().WaitUntilRemainingCapacityZero();
+            long finish = System.currentTimeMillis();
+            long timeElapsed = finish - start;
+            System.out.println(timeElapsed);
+            Thread.sleep(350);
+        }
     }
+
+    //@Test
+    public void SaveBlockTestMeasureTime() {
+
+        int counter = 0;
+        while (true) {
+            long start = System.currentTimeMillis();
+            IDatabase<String, TransactionBlock> transactionBlockIDatabase = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(0));
+            long finish = System.currentTimeMillis();
+            long timeElapsed = finish - start;
+            System.out.println(timeElapsed);
+            TransactionBlock transactionBlock = new TransactionBlock();
+            transactionBlock.setHash(String.valueOf(counter));
+            transactionBlock.setHeight(counter);
+            transactionBlockIDatabase.save(String.valueOf(counter), transactionBlock);
+        }
+    }
+
 }

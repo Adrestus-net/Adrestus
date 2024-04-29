@@ -46,6 +46,8 @@ public class ConsensusConfiguration {
 
     public static final String COMMITTEE_MESSAGE = "2";
 
-    public static final int ERASURE_CLIENT_TIMEOUT=5000;
+    public static final String VRF_AGGREGATE_MESSAGE = "3";
+
+    public static final int ERASURE_CLIENT_TIMEOUT = 5000;
 
 }

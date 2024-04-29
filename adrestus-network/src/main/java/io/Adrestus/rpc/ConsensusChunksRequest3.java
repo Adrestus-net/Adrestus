@@ -5,11 +5,11 @@ import io.activej.serializer.annotations.Serialize;
 
 import java.util.Objects;
 
-public class ConsensusChunksRequest {
+public class ConsensusChunksRequest3 {
     @Serialize
     public final String number;
 
-    public ConsensusChunksRequest(@Deserialize("number") String number) {
+    public ConsensusChunksRequest3(@Deserialize("number") String number) {
         this.number = number;
     }
 
@@ -17,7 +17,7 @@ public class ConsensusChunksRequest {
     public boolean equals(Object object) {
         if (this == object) return true;
         if (object == null || getClass() != object.getClass()) return false;
-        ConsensusChunksRequest that = (ConsensusChunksRequest) object;
+        ConsensusChunksRequest3 that = (ConsensusChunksRequest3) object;
         return Objects.equals(number, that.number);
     }
 
@@ -28,7 +28,7 @@ public class ConsensusChunksRequest {
 
     @Override
     public String toString() {
-        return "ConsensusChunksRequest{" +
+        return "ConsensusChunksRequest3{" +
                 "number='" + number + '\'' +
                 '}';
     }

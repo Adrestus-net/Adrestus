@@ -32,7 +32,7 @@ public class LevelDBConnectionManager<K, V> implements IDatabase<K, V> {
     private static org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(LevelDBConnectionManager.class);
     private String CONNECTION_NAME = "TransactionDatabase";
 
-
+    private static volatile LevelDBConnectionManager instance;
     private final SerializationUtil valueMapper;
     private final SerializationUtil keyMapper;
     private final Class<K> keyClass;
@@ -59,7 +59,7 @@ public class LevelDBConnectionManager<K, V> implements IDatabase<K, V> {
         load_connection();
     }
 
-    public LevelDBConnectionManager(Class<K> keyClass, Type fluentType) {
+    private LevelDBConnectionManager(Class<K> keyClass, Type fluentType) {
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         this.rwl = new ReentrantReadWriteLock();
@@ -79,6 +79,33 @@ public class LevelDBConnectionManager<K, V> implements IDatabase<K, V> {
         load_connection();
     }
 
+    public static <K, V> LevelDBConnectionManager getInstance(Class<K> keyClass, Class<V> valueClass) {
+        var result = instance;
+        if (result == null) {
+            synchronized (LevelDBConnectionManager.class) {
+                result = instance;
+                if (result == null) {
+                    result = new LevelDBConnectionManager(keyClass, valueClass);
+                    instance = result;
+                }
+            }
+        }
+        return result;
+    }
+
+    public static <K, V> LevelDBConnectionManager getInstance(Class<K> keyClass, Type fluentType) {
+        var result = instance;
+        if (result == null) {
+            synchronized (LevelDBConnectionManager.class) {
+                result = instance;
+                if (result == null) {
+                    result = new LevelDBConnectionManager(keyClass, fluentType);
+                    instance = result;
+                }
+            }
+        }
+        return result;
+    }
 
     @Override
     public void setupOptions() {
@@ -315,6 +342,7 @@ public class LevelDBConnectionManager<K, V> implements IDatabase<K, V> {
             level_db.close();
             factory.destroy(dbFile.getParentFile(), options);
             level_db = null;
+            instance = null;
         } catch (NullPointerException exception) {
             LOGGER.error("Exception occurred during delete_db operation. {}", exception.getMessage());
         } catch (final Exception exception) {
@@ -364,6 +392,7 @@ public class LevelDBConnectionManager<K, V> implements IDatabase<K, V> {
         }
         dbFile.delete();
         dbFile.getParentFile().delete();
+        instance = null;
         return dbFile.delete();
     }
 
@@ -557,6 +586,7 @@ public class LevelDBConnectionManager<K, V> implements IDatabase<K, V> {
         w.lock();
         try {
             level_db.close();
+            instance = null;
         } catch (NullPointerException exception) {
             LOGGER.error("Exception occurred during delete_db operation. {}", exception.getMessage());
         } catch (final Exception exception) {

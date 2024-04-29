@@ -12,10 +12,11 @@ public class CachedConsensusPublisherData {
         if (instance != null) {
             throw new IllegalStateException("Already initialized.");
         }
-        this.consensus_retrieval = new ArrayList<>(3);
-        this.consensus_retrieval.add(0,null);
-        this.consensus_retrieval.add(1,null);
-        this.consensus_retrieval.add(2,null);
+        this.consensus_retrieval = new ArrayList<>(4);
+        this.consensus_retrieval.add(0, null);
+        this.consensus_retrieval.add(1, null);
+        this.consensus_retrieval.add(2, null);
+        this.consensus_retrieval.add(3, null);
     }
 
     public static CachedConsensusPublisherData getInstance() {
@@ -38,14 +39,15 @@ public class CachedConsensusPublisherData {
     }
 
     public byte[] getDataAtPosition(int pos) {
-        if (pos > 2)
+        if (pos > 3)
             return null;
         return this.consensus_retrieval.get(pos);
     }
 
     public void clear() {
-        this.consensus_retrieval.set(0,null);
-        this.consensus_retrieval.set(1,null);
-        this.consensus_retrieval.set(2,null);
+        this.consensus_retrieval.set(0, null);
+        this.consensus_retrieval.set(1, null);
+        this.consensus_retrieval.set(2, null);
+        this.consensus_retrieval.set(3, null);
     }
 }

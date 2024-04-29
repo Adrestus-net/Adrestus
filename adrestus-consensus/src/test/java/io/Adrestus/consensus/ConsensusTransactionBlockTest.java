@@ -80,7 +80,7 @@ public class ConsensusTransactionBlockTest {
         random.nextBytes(pRnd);
 
         TransactionEventPublisher publisher = new TransactionEventPublisher(1024);
-        SignatureEventHandler signatureEventHandler=new SignatureEventHandler(SignatureEventHandler.SignatureBehaviorType.SIMPLE_TRANSACTIONS);
+        SignatureEventHandler signatureEventHandler = new SignatureEventHandler(SignatureEventHandler.SignatureBehaviorType.SIMPLE_TRANSACTIONS);
         publisher
                 .withAddressSizeEventHandler()
                 .withAmountEventHandler()
@@ -130,7 +130,7 @@ public class ConsensusTransactionBlockTest {
         }
 
 
-        signatureEventHandler.setLatch(new CountDownLatch(size-1));
+        signatureEventHandler.setLatch(new CountDownLatch(size - 1));
         for (int i = 0; i < size - 1; i++) {
             Transaction transaction = new RegularTransaction();
             transaction.setFrom(addreses.get(i));

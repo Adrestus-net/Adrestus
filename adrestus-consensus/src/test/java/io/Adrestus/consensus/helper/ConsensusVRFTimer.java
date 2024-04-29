@@ -52,6 +52,8 @@ public class ConsensusVRFTimer {
                 supervisorphase.AnnouncePhase(consensusMessage);
                 supervisorphase.PreparePhase(consensusMessage);
                 supervisorphase.CommitPhase(consensusMessage);
+                if (consensusMessage.getStatusType().equals(ConsensusStatusType.ABORT))
+                    throw new IllegalArgumentException("Problem occured");
             } else {
                 LOG.info("VALIDATOR State");
                 consensusManager.changeStateTo(ConsensusRoleType.VALIDATOR);
@@ -61,6 +63,8 @@ public class ConsensusVRFTimer {
                 validatorphase.AnnouncePhase(consensusMessage);
                 validatorphase.PreparePhase(consensusMessage);
                 validatorphase.CommitPhase(consensusMessage);
+                if (consensusMessage.getStatusType().equals(ConsensusStatusType.ABORT))
+                    throw new IllegalArgumentException("Problem occured");
             }
             latch.countDown();
         }

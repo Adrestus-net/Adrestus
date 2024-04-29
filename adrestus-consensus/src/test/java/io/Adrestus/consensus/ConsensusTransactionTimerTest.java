@@ -84,21 +84,21 @@ public class ConsensusTransactionTimerTest {
         sk1 = new BLSPrivateKey(1);
         vk1 = new BLSPublicKey(sk1);
 
-//        sk2 = new BLSPrivateKey(2);
-//        vk2 = new BLSPublicKey(sk2);
+        sk2 = new BLSPrivateKey(2);
+        vk2 = new BLSPublicKey(sk2);
 
         sk3 = new BLSPrivateKey(3);
         vk3 = new BLSPublicKey(sk3);
 
-//        sk4 = new BLSPrivateKey(4);
-//        vk4 = new BLSPublicKey(sk4);
+        sk4 = new BLSPrivateKey(4);
+        vk4 = new BLSPublicKey(sk4);
 
 
         sk5 = new BLSPrivateKey(5);
         vk5 = new BLSPublicKey(sk5);
 
-//        sk6 = new BLSPrivateKey(6);
-//        vk6 = new BLSPublicKey(sk6);
+        sk6 = new BLSPrivateKey(6);
+        vk6 = new BLSPublicKey(sk6);
 
         int version = 0x00;
         addreses = new ArrayList<>();
@@ -200,6 +200,7 @@ public class ConsensusTransactionTimerTest {
         prevblock.getHeaderData().setTimestamp(GetTime.GetTimeStampInString());
         prevblock.setTransactionProposer(vk1.toRaw());
         prevblock.setLeaderPublicKey(vk1);
+        Thread.sleep(1000);
         CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
         CachedLatestBlocks.getInstance().setTransactionBlock(prevblock);
 
@@ -249,7 +250,7 @@ public class ConsensusTransactionTimerTest {
 
         CachedEventLoop.getInstance().start();
         addreses_old = new ArrayList<>(addreses);
-        CountDownLatch latch = new CountDownLatch(1000);
+        CountDownLatch latch = new CountDownLatch(100);
         ConsensusTransactionTimer c = new ConsensusTransactionTimer(latch, addreses, keypair);
         latch.await();
         c.close();

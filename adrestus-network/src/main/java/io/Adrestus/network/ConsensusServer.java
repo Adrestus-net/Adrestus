@@ -84,7 +84,7 @@ public class ConsensusServer {
         this.BlockUntilConnected();
     }
 
-    public ConsensusServer(String IP, CountDownLatch latch,int random) {
+    public ConsensusServer(String IP, CountDownLatch latch, int random) {
         this.executorService = Executors.newSingleThreadExecutor();
         this.message_deque = new LinkedBlockingDeque<>();
         this.peers_not_connected = 0;
@@ -188,14 +188,16 @@ public class ConsensusServer {
         this.publisher.bind("tcp://" + IP + ":" + PUBLISHER_PORT);
         this.collector.bind("tcp://" + IP + ":" + COLLECTOR_PORT);
         this.connected.bind("tcp://" + IP + ":" + CONNECTED_PORT);
-        this.collector.setReceiveTimeOut(CONSENSUS_TIMEOUT);
-        this.publisher.setSendTimeOut(CONSENSUS_TIMEOUT);
 
-        this.connected.setSendTimeOut(CONSENSUS_TIMEOUT);
-        this.connected.setReceiveTimeOut(CONSENSUS_TIMEOUT);
+        this.collector.setReceiveTimeOut(CONSENSUS_COLLECTED_TIMEOUT);
+        this.publisher.setSendTimeOut(CONSENSUS_PUBLISHER_TIMEOUT);
 
-        this.chunksCollector.setSendTimeOut(CONSENSUS_TIMEOUT);
-        this.chunksCollector.setReceiveTimeOut(CONSENSUS_TIMEOUT);
+        this.connected.setSendTimeOut(CONSENSUS_CONNECTED_SEND_TIMEOUT);
+        this.connected.setReceiveTimeOut(CONSENSUS_CONNECTED_RECEIVE_TIMEOUT);
+
+
+        this.chunksCollector.setSendTimeOut(CONSENSUS_CONNECTED_SEND_TIMEOUT);
+        this.chunksCollector.setReceiveTimeOut(CONSENSUS_CONNECTED_RECEIVE_TIMEOUT);
         this.chunksCollector.setSndHWM(0);
     }
 

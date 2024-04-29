@@ -12,6 +12,8 @@ public interface IMemoryPool<T> {
 
     int getSize();
 
+    int getFromSize(String From);
+
     Lock getR();
 
     Lock getW();

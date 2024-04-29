@@ -27,10 +27,8 @@ import io.Adrestus.erasure.code.encoder.SourceBlockEncoder;
 import io.Adrestus.erasure.code.parameters.FECParameterObject;
 import io.Adrestus.erasure.code.parameters.FECParameters;
 import io.Adrestus.erasure.code.parameters.FECParametersPreConditions;
-import io.Adrestus.network.CachedEventLoop;
 import io.Adrestus.network.ConsensusServer;
 import io.Adrestus.rpc.CachedConsensusPublisherData;
-import io.Adrestus.rpc.RpcErasureServer;
 import io.Adrestus.util.GetTime;
 import io.Adrestus.util.SerializationUtil;
 import org.apache.commons.codec.binary.Hex;
@@ -92,7 +90,6 @@ public class OrganizerConsensusPhases {
             this.sizeCalculator = new BlockSizeCalculator();
             this.signatureMapper = new SerializationUtil<Signature>(Signature.class, list);
             this.serenc_erasure = new SerializationUtil<SerializableErasureObject>(SerializableErasureObject.class);
-            CachedConsensusPublisherData.getInstance().clear();
             ErasureServerInstance.getInstance();
         }
 
@@ -102,17 +99,18 @@ public class OrganizerConsensusPhases {
             try {
                 if (!DEBUG) {
                     //this.N = 1;
+                    CachedConsensusPublisherData.getInstance().clear();
                     this.N = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).size();
                     this.F = (this.N - 1) / 3;
                     this.latch = new CountDownLatch(N - 1);
                     this.current = CachedLeaderIndex.getInstance().getTransactionPositionLeader();
                     if (current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).size() - 1) {
                         this.leader_bls = this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), this.current);
-                        this.consensusServer = new ConsensusServer(this.blockIndex.getIpValue(CachedZoneIndex.getInstance().getZoneIndex(), this.leader_bls), latch,0);
+                        this.consensusServer = new ConsensusServer(this.blockIndex.getIpValue(CachedZoneIndex.getInstance().getZoneIndex(), this.leader_bls), latch, 0);
                         CachedLeaderIndex.getInstance().setTransactionPositionLeader(0);
                     } else {
                         this.leader_bls = this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), this.current);
-                        this.consensusServer = new ConsensusServer(this.blockIndex.getIpValue(CachedZoneIndex.getInstance().getZoneIndex(), this.leader_bls), latch,0);
+                        this.consensusServer = new ConsensusServer(this.blockIndex.getIpValue(CachedZoneIndex.getInstance().getZoneIndex(), this.leader_bls), latch, 0);
                         CachedLeaderIndex.getInstance().setTransactionPositionLeader(current + 1);
                     }
                     this.N_COPY = (this.N - 1) - consensusServer.getPeers_not_connected();
@@ -120,7 +118,7 @@ public class OrganizerConsensusPhases {
                     this.consensusServer.receive_handler();
                     long finish = System.currentTimeMillis();
                     long timeElapsed = finish - start;
-                    System.out.println("Organizer construcotr "+timeElapsed);
+                    System.out.println("Organizer construcotr " + timeElapsed);
                 }
             } catch (Exception e) {
                 cleanup();
@@ -241,7 +239,7 @@ public class OrganizerConsensusPhases {
             }
             long Dispersefinish = System.currentTimeMillis();
             long DispersetimeElapsed = Dispersefinish - Dispersestart;
-            System.out.println("Organizer Disperse: "+DispersetimeElapsed);
+            System.out.println("Organizer Disperse: " + DispersetimeElapsed);
         }
 
         @Override
@@ -259,7 +257,7 @@ public class OrganizerConsensusPhases {
             }
             long Announceefinisha = System.currentTimeMillis();
             long AnnounceetimeElapseda = Announceefinisha - Announceestarta;
-            System.out.println("Organizer Announce a "+AnnounceetimeElapseda);
+            System.out.println("Organizer Announce a " + AnnounceetimeElapseda);
             long Announceestartb = System.currentTimeMillis();
             data.setData(new TransactionBlock(
                     original_copy.getHash(),
@@ -280,16 +278,16 @@ public class OrganizerConsensusPhases {
 
             //data.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
             byte[] toSend = consensus_serialize.encode(data);
-            CachedConsensusPublisherData.getInstance().storeAtPosition(0,toSend);
+            CachedConsensusPublisherData.getInstance().storeAtPosition(0, toSend);
             consensusServer.publishMessage(toSend);
 
             long Announceefinishb = System.currentTimeMillis();
             long AnnounceetimeElapsedb = Announceefinishb - Announceestartb;
-            System.out.println("Organizer Announce b "+AnnounceetimeElapsedb);
+            System.out.println("Organizer Announce b " + AnnounceetimeElapsedb);
 
             long Announceefinish = System.currentTimeMillis();
             long AnnounceetimeElapsed = Announceefinish - Announceestart;
-            System.out.println("Organizer Announce "+AnnounceetimeElapsed);
+            System.out.println("Organizer Announce " + AnnounceetimeElapsed);
         }
 
         @Override
@@ -382,11 +380,11 @@ public class OrganizerConsensusPhases {
 
 
             byte[] toSend = consensus_serialize.encode(data);
-            CachedConsensusPublisherData.getInstance().storeAtPosition(1,toSend);
+            CachedConsensusPublisherData.getInstance().storeAtPosition(1, toSend);
             consensusServer.publishMessage(toSend);
             long Preparefinish = System.currentTimeMillis();
             long PreparetimeElapsed = Preparefinish - Preparestart;
-            System.out.println("Organizer Prepare "+PreparetimeElapsed);
+            System.out.println("Organizer Prepare " + PreparetimeElapsed);
         }
 
         @Override
@@ -479,7 +477,7 @@ public class OrganizerConsensusPhases {
             int i = this.N_COPY;
 
             byte[] toSend = consensus_serialize.encode(data);
-            CachedConsensusPublisherData.getInstance().storeAtPosition(2,toSend);
+            CachedConsensusPublisherData.getInstance().storeAtPosition(2, toSend);
             consensusServer.publishMessage(toSend);
 
             this.original_copy.setSignatureData(signatureDataMap);
@@ -491,7 +489,7 @@ public class OrganizerConsensusPhases {
             CachedLatestBlocks.getInstance().getTransactionBlock().setLeaderPublicKey(next_key);
             long Commiteefinish = System.currentTimeMillis();
             long timeElapsed = Commiteefinish - Commiteerestart;
-            System.out.println("Organizer commite "+timeElapsed);
+            System.out.println("Organizer commite " + timeElapsed);
             LOG.info("Block is finalized with Success");
             cleanup();
         }

@@ -36,6 +36,12 @@ public class DatabaseCommitteeZone implements IDriver<Options, RocksDB> {
         }
     }
 
+    public static boolean isNull() {
+        if (rocksDB == null)
+            return true;
+        return false;
+    }
+
     @Override
     public void close(Options options) {
         options.close();

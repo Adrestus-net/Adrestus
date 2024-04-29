@@ -23,6 +23,7 @@ import io.Adrestus.crypto.vdf.engine.VdfEnginePietrzak;
 import io.Adrestus.crypto.vrf.VRFMessage;
 import io.Adrestus.crypto.vrf.engine.VrfEngine2;
 import io.Adrestus.network.ConsensusServer;
+import io.Adrestus.rpc.CachedConsensusPublisherData;
 import io.Adrestus.util.ByteUtil;
 import io.Adrestus.util.SerializationUtil;
 import lombok.SneakyThrows;
@@ -68,6 +69,7 @@ public class SupervisorConsensusPhases {
             list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
             this.data_serialize = new SerializationUtil<VDFMessage>(VDFMessage.class);
             this.consensus_serialize = new SerializationUtil<ConsensusMessage>(fluentType, list);
+            ErasureServerInstance.getInstance();
         }
 
         @Override
@@ -75,6 +77,7 @@ public class SupervisorConsensusPhases {
             if (!DEBUG) {
                 try {
                     //this.N = 1;
+                    CachedConsensusPublisherData.getInstance().clear();
                     this.N = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).size();
                     this.F = (this.N - 1) / 3;
                     this.latch = new CountDownLatch(N - 1);
@@ -110,6 +113,7 @@ public class SupervisorConsensusPhases {
             data.getChecksumData().setSignature(sig);
 
             byte[] toSend = consensus_serialize.encode(data);
+            CachedConsensusPublisherData.getInstance().storeAtPosition(0, toSend);
             consensusServer.publishMessage(toSend);
 
         }
@@ -184,6 +188,7 @@ public class SupervisorConsensusPhases {
 
 
             byte[] toSend = consensus_serialize.encode(data);
+            CachedConsensusPublisherData.getInstance().storeAtPosition(1, toSend);
             consensusServer.publishMessage(toSend);
         }
 
@@ -262,6 +267,7 @@ public class SupervisorConsensusPhases {
             int i = N_COPY;
 
             byte[] toSend = consensus_serialize.encode(data);
+            CachedConsensusPublisherData.getInstance().storeAtPosition(2, toSend);
             consensusServer.publishMessage(toSend);
 
             CachedSecurityHeaders.getInstance().getSecurityHeader().setRnd(data.getData().getVDFSolution());
@@ -299,6 +305,7 @@ public class SupervisorConsensusPhases {
             list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
             this.serialize = new SerializationUtil<VRFMessage>(VRFMessage.class);
             this.consensus_serialize = new SerializationUtil<ConsensusMessage>(fluentType, list);
+            ErasureServerInstance.getInstance();
         }
 
 
@@ -306,6 +313,7 @@ public class SupervisorConsensusPhases {
         public void InitialSetup() {
             try {
                 if (!DEBUG) {
+                    CachedConsensusPublisherData.getInstance().clear();
                     this.N = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).size();
                     this.F = (this.N - 1) / 3;
                     this.latch = new CountDownLatch(N - 1);
@@ -336,6 +344,7 @@ public class SupervisorConsensusPhases {
                 e.printStackTrace();
             }
             byte[] toSend = serialize.encode(message);
+            CachedConsensusPublisherData.getInstance().storeAtPosition(3, toSend);
             consensusServer.publishMessage(toSend);
 
         }
@@ -434,6 +443,7 @@ public class SupervisorConsensusPhases {
             data.getChecksumData().setSignature(sig);
 
             byte[] toSend = consensus_serialize.encode(data);
+            CachedConsensusPublisherData.getInstance().storeAtPosition(0, toSend);
             consensusServer.publishMessage(toSend);
         }
 
@@ -505,6 +515,7 @@ public class SupervisorConsensusPhases {
 
 
             byte[] toSend = consensus_serialize.encode(data);
+            CachedConsensusPublisherData.getInstance().storeAtPosition(1, toSend);
             consensusServer.publishMessage(toSend);
         }
 
@@ -580,18 +591,11 @@ public class SupervisorConsensusPhases {
             int i = N_COPY;
 
             byte[] toSend = consensus_serialize.encode(data);
+            CachedConsensusPublisherData.getInstance().storeAtPosition(2, toSend);
             consensusServer.publishMessage(toSend);
 
             CachedSecurityHeaders.getInstance().getSecurityHeader().setPRnd(data.getData().getPrnd());
 
-            /*while (i > 0) {
-                try {
-                    consensusServer.receiveStringData();
-                } catch (NullPointerException ex) {
-                } finally {
-                    i--;
-                }
-            }*/
 
             LOG.info("VRF is finalized with Success");
             Thread.sleep(100);
@@ -623,12 +627,14 @@ public class SupervisorConsensusPhases {
             this.block_serialize = new SerializationUtil<AbstractBlock>(AbstractBlock.class, list);
             this.consensus_serialize = new SerializationUtil<ConsensusMessage>(fluentType, list);
             this.sizeCalculator = new BlockSizeCalculator();
+            ErasureServerInstance.getInstance();
         }
 
         @Override
         public void InitialSetup() {
             try {
                 if (!DEBUG) {
+                    CachedConsensusPublisherData.getInstance().clear();
                     this.N = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).size();
                     this.F = (this.N - 1) / 3;
                     this.latch = new CountDownLatch(N - 1);
@@ -669,6 +675,7 @@ public class SupervisorConsensusPhases {
 
 
             byte[] toSend = consensus_serialize.encode(block);
+            CachedConsensusPublisherData.getInstance().storeAtPosition(0, toSend);
             consensusServer.publishMessage(toSend);
         }
 
@@ -740,6 +747,7 @@ public class SupervisorConsensusPhases {
 
 
             byte[] toSend = consensus_serialize.encode(block);
+            CachedConsensusPublisherData.getInstance().storeAtPosition(1, toSend);
             consensusServer.publishMessage(toSend);
         }
 
@@ -815,17 +823,9 @@ public class SupervisorConsensusPhases {
             int i = N_COPY;
 
             byte[] toSend = consensus_serialize.encode(block);
+            CachedConsensusPublisherData.getInstance().storeAtPosition(2, toSend);
             consensusServer.publishMessage(toSend);
 
-
-             /*while (i > 0) {
-                try {
-                    consensusServer.receiveStringData();
-                } catch (NullPointerException ex) {
-                } finally {
-                    i--;
-                }
-            }*/
 
             BlockInvent regural_block = (BlockInvent) factory.getBlock(BlockType.REGULAR);
             regural_block.InventCommitteBlock(block.getData());

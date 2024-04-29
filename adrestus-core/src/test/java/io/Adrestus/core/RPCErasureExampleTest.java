@@ -317,26 +317,27 @@ public class RPCErasureExampleTest {
     public void test3() {
         RpcErasureServer<SerializableErasureObject> example = new RpcErasureServer(new SerializableErasureObject(), "localhost", 7083, eventloop, blocksize);
         new Thread(example).start();
-        RpcErasureClient<String> client = new RpcErasureClient<String>( "localhost", 7083,4000, eventloop);
+        RpcErasureClient<String> client = new RpcErasureClient<String>("localhost", 7083, 4000, eventloop);
         client.connect();
 
 
         CachedConsensusPublisherData.getInstance().clear();
-        CachedConsensusPublisherData.getInstance().storeAtPosition(1,"1".getBytes());
-        CachedConsensusPublisherData.getInstance().storeAtPosition(2,"2".getBytes());
-        CachedConsensusPublisherData.getInstance().storeAtPosition(0,"0".getBytes());
-        Optional<byte[]> re0 = client.getConsensusChunks("0");
-        Optional<byte[]> re1 = client.getConsensusChunks("1");
-        Optional<byte[]> re2 = client.getConsensusChunks("2");
-        assertEquals("0",new String(re0.get(),StandardCharsets.UTF_8));
-        assertEquals("1",new String(re1.get(),StandardCharsets.UTF_8));
-        assertEquals("2",new String(re2.get(),StandardCharsets.UTF_8));
+        CachedConsensusPublisherData.getInstance().storeAtPosition(1, "1".getBytes());
+        CachedConsensusPublisherData.getInstance().storeAtPosition(2, "2".getBytes());
+        CachedConsensusPublisherData.getInstance().storeAtPosition(0, "0".getBytes());
+        Optional<byte[]> re0 = client.getAnnounceConsensusChunks("0");
+        Optional<byte[]> re1 = client.getPrepareConsensusChunks("1");
+        Optional<byte[]> re2 = client.getCommitConsensusChunks("2");
+        assertEquals("0", new String(re0.get(), StandardCharsets.UTF_8));
+        assertEquals("1", new String(re1.get(), StandardCharsets.UTF_8));
+        assertEquals("2", new String(re2.get(), StandardCharsets.UTF_8));
 
         client.close();
         example.close();
         example = null;
 
     }
+
     private interface HelloService {
         String hello(String name) throws Exception;
     }

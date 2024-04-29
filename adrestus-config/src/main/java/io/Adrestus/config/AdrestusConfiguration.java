@@ -23,6 +23,6 @@ public class AdrestusConfiguration {
     public static final String SIGN_CURVE = "secp256k1";
 
 
-    public static final int TRANSACTIONS_QUEUE_SIZE = 1024 * 8;
+    public static final int TRANSACTIONS_QUEUE_SIZE = 2048 * 100;
     public static final int BLOCK_QUEUE_SIZE = 1024;
 }
