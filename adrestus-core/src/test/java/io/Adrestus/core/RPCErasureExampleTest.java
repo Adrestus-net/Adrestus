@@ -201,9 +201,9 @@ public class RPCErasureExampleTest {
             toSend.add(serenc_erasure.encode(obj));
         }
 
-        address1 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 8080);
-        address2 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 8081);
-        address3 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 8084);
+        address1 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 6080);
+        address2 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 6081);
+        address3 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 6084);
         Eventloop eventloop = Eventloop.getCurrentEventloop();
         serverOne = RpcServer.create(eventloop)
                 .withMessageTypes(RPCExampleTest.HelloRequest.class, RPCExampleTest.HelloResponse.class)
