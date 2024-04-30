@@ -129,6 +129,7 @@ public class OrganizerConsensusPhases {
 
         @Override
         public void DispersePhase(ConsensusMessage<TransactionBlock> data) throws Exception {
+            this.consensusServer.BlockUntilConnected();
             long Dispersestart = System.currentTimeMillis();
             var regural_block = factory.getBlock(BlockType.REGULAR);
             regural_block.forgeTransactionBlock(data.getData());
@@ -247,7 +248,7 @@ public class OrganizerConsensusPhases {
             long Announceestart = System.currentTimeMillis();
             long Announceestarta = System.currentTimeMillis();
             if (!DEBUG) {
-                this.consensusServer.BlockUntilConnected();
+                //this.consensusServer.BlockUntilConnected();
                 if (this.consensusServer.getPeers_not_connected() > F) {
                     LOG.info("AnnouncePhase: Byzantine network not meet requirements abort " + String.valueOf(this.consensusServer.getPeers_not_connected()));
                     data.setStatusType(ConsensusStatusType.ABORT);

@@ -203,7 +203,7 @@ public class RPCErasureExampleTest {
 
         address1 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 6080);
         address2 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 6081);
-        address3 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 6084);
+        address3 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 6079);
         Eventloop eventloop = Eventloop.getCurrentEventloop();
         serverOne = RpcServer.create(eventloop)
                 .withMessageTypes(RPCExampleTest.HelloRequest.class, RPCExampleTest.HelloResponse.class)

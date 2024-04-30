@@ -133,7 +133,7 @@ public class FullExampleErasureTest {
 
         CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).put(vk1, "192.168.1.106");
         CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).put(vk2, "192.168.1.116");
-        CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).put(vk3, "192.168.1.113");
+        CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).put(vk3, "192.168.1.110");
 
         CachedZoneIndex.getInstance().setZoneIndex(0);
         ECDSASign ecdsaSign = new ECDSASign();

@@ -10,7 +10,7 @@ import java.util.function.Supplier;
 public enum BlockType {
 
     GENESIS(Genesis::new),
-    REGULAR(RegularBlock::new);
+    REGULAR(RegularBlock::getInstance);
 
     private final Supplier<BlockForge> constructor;
 }

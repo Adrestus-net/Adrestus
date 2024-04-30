@@ -31,6 +31,7 @@ import io.distributedLedger.IDatabase;
 import io.distributedLedger.ZoneDatabaseFactory;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.spongycastle.util.encoders.Hex;
 
 import java.math.BigInteger;
@@ -56,7 +57,7 @@ public class DisruptorStressTest {
     //@Test
     public void TransactionTest() throws NoSuchAlgorithmException, NoSuchProviderException, MnemonicException, InvalidAlgorithmParameterException, InterruptedException {
         CachedZoneIndex.getInstance().setZoneIndex(0);
-        TransactionEventPublisher publisher = new TransactionEventPublisher(100240);
+        TransactionEventPublisher publisher = new TransactionEventPublisher(200240);
         SignatureEventHandler signatureEventHandler = new SignatureEventHandler(SignatureEventHandler.SignatureBehaviorType.SIMPLE_TRANSACTIONS);
         CachedBLSKeyPair.getInstance().setPublicKey(vk1);
         publisher

@@ -52,6 +52,8 @@ import static java.util.stream.Collectors.toCollection;
 public class RegularBlock implements BlockForge, BlockInvent {
     private static Logger LOG = LoggerFactory.getLogger(RegularBlock.class);
 
+    private static volatile RegularBlock instance;
+
     private final SerializationUtil<AbstractBlock> encode;
     private final SerializationUtil<Transaction> transaction_encode;
     private final SerializationUtil<Receipt> receipt_encode;
@@ -60,7 +62,10 @@ public class RegularBlock implements BlockForge, BlockInvent {
 
     private final BlockSizeCalculator blockSizeCalculator;
 
-    public RegularBlock() {
+    private RegularBlock() {
+        if (instance != null) {
+            throw new IllegalStateException("Already initialized.");
+        }
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
         list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
@@ -78,6 +83,19 @@ public class RegularBlock implements BlockForge, BlockInvent {
         this.blockSizeCalculator = new BlockSizeCalculator();
     }
 
+    public static RegularBlock getInstance() {
+        var result = instance;
+        if (result == null) {
+            synchronized (RegularBlock.class) {
+                result = instance;
+                if (result == null) {
+                    result = new RegularBlock();
+                    instance = result;
+                }
+            }
+        }
+        return result;
+    }
     @Override
     public void forgeTransactionBlock(TransactionBlock transactionBlock) throws Exception {
         CachedReceiptSemaphore.getInstance().getSemaphore().acquire();

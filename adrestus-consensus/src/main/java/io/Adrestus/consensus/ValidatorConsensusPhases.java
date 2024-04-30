@@ -908,6 +908,7 @@ public class ValidatorConsensusPhases {
                     CachedLeaderIndex.getInstance().setTransactionPositionLeader(0);
                     this.collector_client = new RpcErasureClient<byte[]>(LeaderIP, ERASURE_SERVER_PORT, ERASURE_CLIENT_TIMEOUT, CachedEventLoop.getInstance().getEventloop());
                     this.collector_client.connect();
+                    this.consensusClient.receive_handler();
                 } else {
                     this.leader_bls = this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), this.current);
                     String LeaderIP = this.blockIndex.getIpValue(CachedZoneIndex.getInstance().getZoneIndex(), this.leader_bls);
@@ -915,6 +916,7 @@ public class ValidatorConsensusPhases {
                     CachedLeaderIndex.getInstance().setTransactionPositionLeader(current + 1);
                     this.collector_client = new RpcErasureClient<byte[]>(LeaderIP, ERASURE_SERVER_PORT, ERASURE_CLIENT_TIMEOUT, CachedEventLoop.getInstance().getEventloop());
                     this.collector_client.connect();
+                    this.consensusClient.receive_handler();
                 }
 
             }
@@ -943,6 +945,18 @@ public class ValidatorConsensusPhases {
             long Dispersestartstarta = System.currentTimeMillis();
             if (!DEBUG) {
                 try {
+                    long blockestart = System.currentTimeMillis();
+                    this.consensusClient.send_heartbeat(ConsensusConfiguration.HEARTBEAT_MESSAGE);
+                    String heartbeat = consensusClient.rec_heartbeat();
+                    if (heartbeat == null) {
+                        cleanup();
+                        LOG.info("AnnouncePhase: Heartbeat message is null");
+                        data.setStatusType(ConsensusStatusType.ABORT);
+                        return;
+                    }
+                    long blockfinish = System.currentTimeMillis();
+                    long blocktimeElapsed = blockfinish - blockestart;
+                    System.out.println("Block time "+blocktimeElapsed);
                     long Dispersefinisha = System.currentTimeMillis();
                     long DispersetimeElapseda = Dispersefinisha - Dispersestartstarta;
                     System.out.println("Validator Dispersea: " + DispersetimeElapseda);
@@ -1056,15 +1070,14 @@ public class ValidatorConsensusPhases {
 
             if (!DEBUG) {
                 try {
-                    this.consensusClient.receive_handler();
-                    this.consensusClient.send_heartbeat(ConsensusConfiguration.HEARTBEAT_MESSAGE);
-                    String heartbeat = consensusClient.rec_heartbeat();
-                    if (heartbeat == null) {
-                        cleanup();
-                        LOG.info("AnnouncePhase: Heartbeat message is null");
-                        data.setStatusType(ConsensusStatusType.ABORT);
-                        return;
-                    }
+//                    this.consensusClient.send_heartbeat(ConsensusConfiguration.HEARTBEAT_MESSAGE);
+//                    String heartbeat = consensusClient.rec_heartbeat();
+//                    if (heartbeat == null) {
+//                        cleanup();
+//                        LOG.info("AnnouncePhase: Heartbeat message is null");
+//                        data.setStatusType(ConsensusStatusType.ABORT);
+//                        return;
+//                    }
                     byte[] receive = this.consensusClient.deque_message();
                     if (receive == null || receive.length <= 0) {
                         LOG.info("AnnouncePhase: Slow Subscriber is detected");
