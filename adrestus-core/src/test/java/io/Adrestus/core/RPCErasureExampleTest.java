@@ -272,9 +272,9 @@ public class RPCErasureExampleTest {
     public void test1() {
 
         CachedSerializableErasureObject.getInstance().setSerializableErasureObject(serializableErasureObjects.get(0));
-        RpcErasureServer<SerializableErasureObject> example = new RpcErasureServer<SerializableErasureObject>(new SerializableErasureObject(), "localhost", 7082, eventloop, blocksize);
+        RpcErasureServer<SerializableErasureObject> example = new RpcErasureServer<SerializableErasureObject>(new SerializableErasureObject(), "localhost", 6082, eventloop, blocksize);
         new Thread(example).start();
-        RpcErasureClient<SerializableErasureObject> client = new RpcErasureClient<SerializableErasureObject>(new SerializableErasureObject(), "localhost", 7082, eventloop);
+        RpcErasureClient<SerializableErasureObject> client = new RpcErasureClient<SerializableErasureObject>(new SerializableErasureObject(), "localhost", 6082, eventloop);
         client.connect();
         ArrayList<SerializableErasureObject> serializableErasureObject = (ArrayList<SerializableErasureObject>) client.getErasureChunks(new byte[0]);
 
@@ -288,9 +288,9 @@ public class RPCErasureExampleTest {
 
     @Test
     public void test2() {
-        RpcErasureServer<SerializableErasureObject> example = new RpcErasureServer<SerializableErasureObject>(new SerializableErasureObject(), "localhost", 7083, eventloop, blocksize);
+        RpcErasureServer<SerializableErasureObject> example = new RpcErasureServer<SerializableErasureObject>(new SerializableErasureObject(), "localhost", 6083, eventloop, blocksize);
         new Thread(example).start();
-        RpcErasureClient<SerializableErasureObject> client = new RpcErasureClient<SerializableErasureObject>(new SerializableErasureObject(), "localhost", 7083, eventloop);
+        RpcErasureClient<SerializableErasureObject> client = new RpcErasureClient<SerializableErasureObject>(new SerializableErasureObject(), "localhost", 6083, eventloop);
         client.connect();
         (new Thread() {
             public void run() {
@@ -315,9 +315,9 @@ public class RPCErasureExampleTest {
 
     @Test
     public void test3() {
-        RpcErasureServer<SerializableErasureObject> example = new RpcErasureServer(new SerializableErasureObject(), "localhost", 7084, eventloop, blocksize);
+        RpcErasureServer<SerializableErasureObject> example = new RpcErasureServer(new SerializableErasureObject(), "localhost", 6084, eventloop, blocksize);
         new Thread(example).start();
-        RpcErasureClient<String> client = new RpcErasureClient<String>("localhost", 7084, 4000, eventloop);
+        RpcErasureClient<String> client = new RpcErasureClient<String>("localhost", 6084, 4000, eventloop);
         client.connect();
 
 
