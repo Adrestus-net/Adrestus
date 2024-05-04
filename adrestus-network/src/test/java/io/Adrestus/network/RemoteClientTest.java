@@ -12,13 +12,13 @@ public class RemoteClientTest {
             int i = 0;
 
             public void run() {
-                ConsensusServer server = new ConsensusServer("localhost");
+                ConsensusServer.getInstance("localhost");
                 try {
                     Thread.sleep(100);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                server.publishMessage("HELLO".getBytes(StandardCharsets.UTF_8));
+                ConsensusServer.getInstance("localhost").publishMessage("HELLO".getBytes(StandardCharsets.UTF_8));
 
             }
         }).start();

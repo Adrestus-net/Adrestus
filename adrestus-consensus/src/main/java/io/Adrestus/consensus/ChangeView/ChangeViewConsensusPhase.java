@@ -37,7 +37,6 @@ public abstract class ChangeViewConsensusPhase {
     protected final SerializationUtil<ConsensusMessage> consensus_serialize;
 
     protected ConsensusClient consensusClient;
-    protected ConsensusServer consensusServer;
     protected int N, N_COPY;
     protected int F;
     protected CountDownLatch latch;
@@ -67,7 +66,7 @@ public abstract class ChangeViewConsensusPhase {
         int i = N_COPY;
         while (i > 0) {
             try {
-                String heartbeat = consensusServer.receiveStringData();
+                String heartbeat = ConsensusServer.getInstance().receiveStringData();
                 if (heartbeat.equals(ConsensusConfiguration.HEARTBEAT_MESSAGE))
                     N_COPY--;
             } catch (NullPointerException ex) {
@@ -84,10 +83,6 @@ public abstract class ChangeViewConsensusPhase {
     }
 
     protected void cleanup() {
-        if (consensusServer != null) {
-            consensusServer.close();
-            consensusServer = null;
-        }
         if (consensusClient != null) {
             consensusClient.close();
             consensusClient = null;

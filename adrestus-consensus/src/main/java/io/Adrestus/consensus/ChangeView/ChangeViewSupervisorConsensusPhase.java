@@ -43,11 +43,12 @@ public class ChangeViewSupervisorConsensusPhase extends ChangeViewConsensusPhase
                 this.F = (this.N - 1) / 3;
                 this.latch = new CountDownLatch(N - 1);
                 this.current = CachedLeaderIndex.getInstance().getCommitteePositionLeader();
-                this.leader_bls = this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), this.current);
-                this.consensusServer = new ConsensusServer(this.blockIndex.getIpValue(CachedZoneIndex.getInstance().getZoneIndex(), this.leader_bls), latch, ConsensusConfiguration.CHANGE_VIEW_COLLECTOR_TIMEOUT, ConsensusConfiguration.CHANGE_VIEW_CONNECTED_TIMEOUT);
-                this.N_COPY = (this.N - 1) - consensusServer.getPeers_not_connected();
-                this.consensusServer.setMAX_MESSAGES(this.N_COPY);
-                this.consensusServer.receive_handler();
+//                this.leader_bls = this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), this.current);
+                ConsensusServer.getInstance().setLatch(latch);
+                ConsensusServer.getInstance().BlockUntilConnected();
+                this.N_COPY = (this.N - 1) - ConsensusServer.getInstance().getPeers_not_connected();
+                ConsensusServer.getInstance().setMAX_MESSAGES(this.N_COPY);
+                ConsensusServer.getInstance().receive_handler();
             }
         } catch (Exception e) {
             cleanup();
@@ -61,7 +62,7 @@ public class ChangeViewSupervisorConsensusPhase extends ChangeViewConsensusPhase
         if (!DEBUG) {
             int i = N_COPY;
             while (i > 0) {
-                byte[] receive = consensusServer.receiveData();
+                byte[] receive =  ConsensusServer.getInstance().receiveData();
                 try {
                     if (receive == null) {
                         LOG.info("AnnouncePhase: Null message from validators");
@@ -122,11 +123,11 @@ public class ChangeViewSupervisorConsensusPhase extends ChangeViewConsensusPhase
             Signature sig = BLSSignature.sign(change_view_ser.encode(data.getData()), CachedBLSKeyPair.getInstance().getPrivateKey());
             data.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
 
-            this.N_COPY = (this.N - 1) - consensusServer.getPeers_not_connected();
+            this.N_COPY = (this.N - 1) - ConsensusServer.getInstance().getPeers_not_connected();
 
 
             byte[] toSend = consensus_serialize.encode(data);
-            consensusServer.publishMessage(toSend);
+            ConsensusServer.getInstance().publishMessage(toSend);
         }
     }
 

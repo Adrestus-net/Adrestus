@@ -12,17 +12,17 @@ public class BlockUntilConnectedTest {
 
         CountDownLatch latch = new CountDownLatch(N);
         //server started
-        ConsensusServer Server = new ConsensusServer("192.168.1.106", latch);
+        ConsensusServer.getInstance().setLatch(latch);
 
         latch.await();
-        if (Server.getPeers_not_connected() >= N - F) {
+        if (ConsensusServer.getInstance().getPeers_not_connected() >= N - F) {
             System.out.println("Close with no send");
-            Server.close();
+            ConsensusServer.getInstance().close();
             return;
-        } else if (Server.getPeers_not_connected() < N - F) {
+        } else if (ConsensusServer.getInstance().getPeers_not_connected() < N - F) {
             Thread.sleep(1000);
-            Server.publishMessage("Message".getBytes(StandardCharsets.UTF_8));
-            Server.close();
+            ConsensusServer.getInstance().publishMessage("Message".getBytes(StandardCharsets.UTF_8));
+            ConsensusServer.getInstance().close();
         }
     }
 
@@ -53,15 +53,15 @@ public class BlockUntilConnectedTest {
         Thread.sleep(8000);
 
         //server started
-        ConsensusServer Server = new ConsensusServer("localhost");
+        ConsensusServer.getInstance("localhost");
 
         Thread.sleep(100);
-        Server.publishMessage("Message".getBytes(StandardCharsets.UTF_8));
-        Server.publishMessage("Message".getBytes(StandardCharsets.UTF_8));
-        Server.publishMessage("Message".getBytes(StandardCharsets.UTF_8));
+        ConsensusServer.getInstance("localhost").publishMessage("Message".getBytes(StandardCharsets.UTF_8));
+        ConsensusServer.getInstance("localhost").publishMessage("Message".getBytes(StandardCharsets.UTF_8));
+        ConsensusServer.getInstance("localhost").publishMessage("Message".getBytes(StandardCharsets.UTF_8));
         Thread.sleep(3000);
 
-        Server.close();
+        ConsensusServer.getInstance("localhost").close();
 
     }
 }

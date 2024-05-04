@@ -48,7 +48,7 @@ public class ConsensusServerErasureTest {
 
     @Test
     public void test() throws DecoderException, InterruptedException {
-        ConsensusServer adrestusServer = new ConsensusServer("localhost");
+        ConsensusServer.getInstance("localhost",1);
         final ConsensusClient[] adrestusClient1 = {null};
         (new Thread() {
             public void run() {
@@ -74,7 +74,7 @@ public class ConsensusServerErasureTest {
             }
         }).start();
 
-        String rec = new String(adrestusServer.receiveErasureData(), StandardCharsets.UTF_8);
+        String rec = new String( ConsensusServer.getInstance("localhost",1).receiveErasureData(), StandardCharsets.UTF_8);
         if (rec.equals(""))
             System.out.println("Timeout caught not receiving");
         else {
@@ -87,11 +87,11 @@ public class ConsensusServerErasureTest {
             String strsgn = joiner2.add(Hex.encodeHexString(blsPublicKey.toBytes())).add(splits[1]).toString();
             Boolean signcheck = BLSSignature.verify(bls_sig2, strsgn.getBytes(StandardCharsets.UTF_8), blsPublicKey);
             if (signcheck) {
-                adrestusServer.setErasureMessage("test".getBytes(StandardCharsets.UTF_8), strsgn);
+                ConsensusServer.getInstance("localhost").setErasureMessage("test".getBytes(StandardCharsets.UTF_8), strsgn);
             }
         }
 
-        adrestusServer.close();
+        ConsensusServer.getInstance("localhost").close();
         adrestusClient1[0].close();
     }
 

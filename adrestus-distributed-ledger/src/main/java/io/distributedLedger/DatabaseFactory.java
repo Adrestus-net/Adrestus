@@ -70,7 +70,16 @@ public class DatabaseFactory {
                 else
                     return (IDatabase) LevelDBConnectionManager.getInstance(key, value_type);
             case ROCKS_DB:
-                return (IDatabase) RocksDBPatriciaTreeFactory.getInstance(key, value, instance).getRocksDBConnectionManager();
+                switch (instance) {
+                    case PATRICIA_TREE_INSTANCE_0:
+                        return (IDatabase) RocksDBPatriciaTree0Factory.getInstance(key, value, instance).getRocksDBConnectionManager();
+                    case PATRICIA_TREE_INSTANCE_1:
+                        return (IDatabase) RocksDBPatriciaTree1Factory.getInstance(key, value, instance).getRocksDBConnectionManager();
+                    case PATRICIA_TREE_INSTANCE_2:
+                        return (IDatabase) RocksDBPatriciaTree2Factory.getInstance(key, value, instance).getRocksDBConnectionManager();
+                    case PATRICIA_TREE_INSTANCE_3:
+                        return (IDatabase) RocksDBPatriciaTree3Factory.getInstance(key, value, instance).getRocksDBConnectionManager();
+                }
             default:
                 throw new IllegalArgumentException("Database not supported.");
         }

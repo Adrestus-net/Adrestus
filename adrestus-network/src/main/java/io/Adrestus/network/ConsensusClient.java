@@ -61,7 +61,42 @@ public class ConsensusClient {
         this.erasure.connect("tcp://" + IP + ":" + CHUNKS_COLLECTOR_PORT);
 
         this.subscriber.subscribe(ZMQ.SUBSCRIPTION_ALL);
-        this.subscriber.setReceiveTimeOut(SUBSCRIBER_TIMEOUT);
+        this.subscriber.setReceiveTimeOut(FAST_SUBSCRIBER_TIMEOUT);
+        this.push.connect("tcp://" + IP + ":" + COLLECTOR_PORT);
+
+    }
+
+    public ConsensusClient(String IP,int random) {
+        this.IP = IP;
+        this.executorService = Executors.newSingleThreadExecutor();
+        this.ctx = new ZContext();
+        this.message_deque = new LinkedBlockingDeque<>();
+        this.subscriber = ctx.createSocket(SocketType.SUB);
+        this.push = ctx.createSocket(SocketType.PUSH);
+        this.push.setReceiveTimeOut(CONSENSUS_ERASURE_RECEIVE_TIMEOUT);
+        this.push.setSendTimeOut(CONSENSUS_ERASURE_SEND_TIMEOUT);
+
+        this.connected = ctx.createSocket(SocketType.REQ);
+        this.connected.setReceiveTimeOut(CONSENSUS_CONNECTED_RECEIVE_TIMEOUT);
+        this.connected.setSendTimeOut(CONSENSUS_CONNECTED_SEND_TIMEOUT);
+
+        this.erasure = ctx.createSocket(SocketType.DEALER);
+        this.erasure.setReceiveTimeOut(CONSENSUS_ERASURE_RECEIVE_TIMEOUT);
+        this.erasure.setSendTimeOut(CONSENSUS_ERASURE_SEND_TIMEOUT);
+        this.erasure.setSndHWM(0);
+
+
+        this.connected.setHWM(1);
+        this.connected.setLinger(200);
+        this.subscriber.setLinger(200);
+        this.subscriber.setHWM(3);
+
+        this.subscriber.connect("tcp://" + IP + ":" + SUBSCRIBER_PORT);
+        this.connected.connect("tcp://" + IP + ":" + CONNECTED_PORT);
+        this.erasure.connect("tcp://" + IP + ":" + CHUNKS_COLLECTOR_PORT);
+
+        this.subscriber.subscribe(ZMQ.SUBSCRIPTION_ALL);
+        this.subscriber.setReceiveTimeOut(SLOW_SUBSCRIBER_TIMEOUT);
         this.push.connect("tcp://" + IP + ":" + COLLECTOR_PORT);
 
     }
@@ -97,7 +132,7 @@ public class ConsensusClient {
         this.erasure.connect("tcp://" + IP + ":" + CHUNKS_COLLECTOR_PORT);
 
         this.subscriber.subscribe(ZMQ.SUBSCRIPTION_ALL);
-        this.subscriber.setReceiveTimeOut(SUBSCRIBER_TIMEOUT);
+        this.subscriber.setReceiveTimeOut(FAST_SUBSCRIBER_TIMEOUT);
         this.push.connect("tcp://" + IP + ":" + COLLECTOR_PORT);
 
     }
@@ -213,9 +248,10 @@ public class ConsensusClient {
             this.ctx.destroySocket(this.push);
             this.ctx.destroySocket(this.connected);
             this.ctx.destroySocket(this.erasure);
+            this.ctx.close();
             this.ctx.destroy();
         } catch (AssertionError e) {
-            int g = 3;
+            e.printStackTrace();
         }
     }
 

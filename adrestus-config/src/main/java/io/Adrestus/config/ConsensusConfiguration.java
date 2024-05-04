@@ -7,17 +7,18 @@ public class ConsensusConfiguration {
     public static final long CONSENSUS_TIMER = 2 * 1000;
     public static final int CONSENSUS_TIMEOUT = 22 * 1000;
 
-    public static final int SUBSCRIBER_TIMEOUT = 580;
+    public static final int FAST_SUBSCRIBER_TIMEOUT = 580;
+    public static final int SLOW_SUBSCRIBER_TIMEOUT = 14*1000;
     public final static int HEARTBEAT_INTERVAL = 10;
     public final static int CYCLES = 1100;
     public final static int ERASURE_CYCLES = 1;
-    public static final int CONSENSUS_CONNECTED_RECEIVE_TIMEOUT = 14 * 1000;
+    public static final int CONSENSUS_CONNECTED_RECEIVE_TIMEOUT = 17 * 1000;
     public static final int CONSENSUS_CONNECTED_SEND_TIMEOUT = 22 * 1000;
 
     public static final int CONSENSUS_ERASURE_RECEIVE_TIMEOUT = 17000;
     public static final int CONSENSUS_ERASURE_SEND_TIMEOUT = 17000;
-    public static final int CONSENSUS_COLLECTED_TIMEOUT = 14 * 1000;
-    public static final int CONSENSUS_PUBLISHER_TIMEOUT = 4 * 1000;
+    public static final int CONSENSUS_COLLECTED_TIMEOUT = 17 * 1000;
+    public static final int CONSENSUS_PUBLISHER_TIMEOUT = 17 * 1000;
 
     public static final long CHANGE_VIEW_TIMER = 2 * 1000;
     public static final int CHANGE_VIEW_COLLECTOR_TIMEOUT = 8 * 1000;
@@ -49,5 +50,7 @@ public class ConsensusConfiguration {
     public static final String VRF_AGGREGATE_MESSAGE = "3";
 
     public static final int ERASURE_CLIENT_TIMEOUT = 5000;
+
+    public static final int COMMITTEE_ERASURE_CLIENT_TIMEOUT = 21*1300;
 
 }

@@ -46,6 +46,7 @@ import io.activej.rpc.server.RpcRequestHandler;
 import io.activej.rpc.server.RpcServer;
 import io.activej.serializer.annotations.Deserialize;
 import io.activej.serializer.annotations.Serialize;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.spongycastle.util.encoders.Hex;
@@ -268,6 +269,12 @@ public class RPCErasureExampleTest {
         }
     }
 
+    @AfterAll
+    public static void after() {
+        serverOne.close();
+        serverTwo.close();
+        serverThree.close();
+    }
     @Test
     public void test1() {
 
@@ -315,7 +322,7 @@ public class RPCErasureExampleTest {
 
     @Test
     public void test3() {
-        RpcErasureServer<SerializableErasureObject> example = new RpcErasureServer(new SerializableErasureObject(), "localhost", 6084, eventloop, blocksize);
+        RpcErasureServer example = new RpcErasureServer( new String(),"localhost", 6084, eventloop, blocksize);
         new Thread(example).start();
         RpcErasureClient<String> client = new RpcErasureClient<String>("localhost", 6084, 4000, eventloop);
         client.connect();

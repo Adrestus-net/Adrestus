@@ -294,6 +294,7 @@ public class RpcErasureClient<T> {
         try {
             if (client != null) {
                 client.stopFuture().get(TIMEOUT, TimeUnit.MILLISECONDS);
+                client.stop();
                 client = null;
             }
         } catch (InterruptedException e) {

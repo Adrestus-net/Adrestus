@@ -7,6 +7,7 @@ import io.Adrestus.core.Resourses.CachedSecurityHeaders;
 import io.Adrestus.crypto.bls.model.BLSPrivateKey;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.Adrestus.crypto.bls.model.CachedBLSKeyPair;
+import io.Adrestus.network.CachedEventLoop;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.spongycastle.util.encoders.Hex;
@@ -27,8 +28,6 @@ public class ConsensusVDF2Test {
     private static BLSPrivateKey sk3;
     private static BLSPublicKey vk3;
 
-    private static BLSPrivateKey sk4;
-    private static BLSPublicKey vk4;
 
     @BeforeAll
     public static void setup() throws Exception {
@@ -41,16 +40,12 @@ public class ConsensusVDF2Test {
         sk3 = new BLSPrivateKey(3);
         vk3 = new BLSPublicKey(sk3);
 
-        sk4 = new BLSPrivateKey(4);
-        vk4 = new BLSPublicKey(sk4);
-
         CommitteeBlock committeeBlock = new CommitteeBlock();
         committeeBlock.setDifficulty(113);
         committeeBlock.getHeaderData().setTimestamp("2022-11-18 15:01:29.304");
         committeeBlock.getStructureMap().get(0).put(vk1, "192.168.1.106");
         committeeBlock.getStructureMap().get(0).put(vk2, "192.168.1.116");
         committeeBlock.getStructureMap().get(0).put(vk3, "192.168.1.110");
-        committeeBlock.getStructureMap().get(0).put(vk4, "192.168.1.112");
 
         CachedSecurityHeaders.getInstance().getSecurityHeader().setPRnd(Hex.decode("c1f72aa5bd1e1d53c723b149259b63f759f40d5ab003b547d5c13d45db9a5da8"));
         CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
@@ -73,9 +68,6 @@ public class ConsensusVDF2Test {
                 } else if (vk3.equals(entry.getKey())) {
                     CachedBLSKeyPair.getInstance().setPrivateKey(sk3);
                     CachedBLSKeyPair.getInstance().setPublicKey(vk3);
-                } else if (vk4.equals(entry.getKey())) {
-                    CachedBLSKeyPair.getInstance().setPrivateKey(sk4);
-                    CachedBLSKeyPair.getInstance().setPublicKey(vk4);
                 }
                 hit = 1;
                 break;
@@ -84,7 +76,8 @@ public class ConsensusVDF2Test {
         if (hit == 0)
             return;
 
-        CountDownLatch latch = new CountDownLatch(5);
+        CachedEventLoop.getInstance().start();
+        CountDownLatch latch = new CountDownLatch(10);
         ConsensusVDFTimer c = new ConsensusVDFTimer(latch);
         latch.await();
     }

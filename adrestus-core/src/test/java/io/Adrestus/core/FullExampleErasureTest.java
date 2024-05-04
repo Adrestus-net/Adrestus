@@ -291,12 +291,12 @@ public class FullExampleErasureTest {
             return;
         }
         if (IP.equals(CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).get(vk1))) {
-            ConsensusServer adrestusServer = new ConsensusServer(IP);
+            ConsensusServer.getInstance(IP);
             ArrayList<String> proofs = new ArrayList<>();
             ArrayList<String> existed = new ArrayList<>();
             int count = 1;
             while (count < CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().size() - 1) {
-                String rec = new String(adrestusServer.receiveErasureData(), StandardCharsets.UTF_8);
+                String rec = new String(ConsensusServer.getInstance(IP).receiveErasureData(), StandardCharsets.UTF_8);
                 if (!existed.contains(rec)) {
                     System.out.println(rec);
                     existed.add(rec);
@@ -318,7 +318,7 @@ public class FullExampleErasureTest {
                 Boolean signcheck = BLSSignature.verify(bls_sig2, strsgn.getBytes(StandardCharsets.UTF_8), blsPublicKey);
                 if (signcheck && val) {
                     identities.add(strsgn);
-                    adrestusServer.setErasureMessage(toSend.get(pos), strsgn);
+                    ConsensusServer.getInstance(IP).setErasureMessage(toSend.get(pos), strsgn);
                     pos++;
                 }
             }

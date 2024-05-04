@@ -48,7 +48,6 @@ public class SupervisorConsensusPhases {
     ;
     protected int F;
     protected int current;
-    protected ConsensusServer consensusServer;
     protected BLSPublicKey leader_bls;
 
     protected static class ProposeVDF extends SupervisorConsensusPhases implements BFTConsensusPhase<VDFMessage> {
@@ -82,13 +81,13 @@ public class SupervisorConsensusPhases {
                     this.F = (this.N - 1) / 3;
                     this.latch = new CountDownLatch(N - 1);
                     this.current = CachedLeaderIndex.getInstance().getCommitteePositionLeader();
-                    this.leader_bls = this.blockIndex.getPublicKeyByIndex(0, current);
-                    this.consensusServer = new ConsensusServer(this.blockIndex.getIpValue(0, this.leader_bls), latch);
-                    this.N_COPY = (this.N - 1) - consensusServer.getPeers_not_connected();
-                    this.consensusServer.setMAX_MESSAGES(this.N_COPY * 2);
-                    this.consensusServer.receive_handler();
+//                    this.leader_bls = this.blockIndex.getPublicKeyByIndex(0, current);
+                    ConsensusServer.getInstance().setLatch(latch);
+                    ConsensusServer.getInstance().BlockUntilConnected();
+                    this.N_COPY = (this.N - 1) - ConsensusServer.getInstance().getPeers_not_connected();
+                    ConsensusServer.getInstance().setMAX_MESSAGES(this.N_COPY);
+                    ConsensusServer.getInstance().receive_handler();
                 } catch (Exception e) {
-                    cleanup();
                     throw new IllegalArgumentException("Exception caught " + e.toString());
                 }
             }
@@ -114,7 +113,7 @@ public class SupervisorConsensusPhases {
 
             byte[] toSend = consensus_serialize.encode(data);
             CachedConsensusPublisherData.getInstance().storeAtPosition(0, toSend);
-            consensusServer.publishMessage(toSend);
+            ConsensusServer.getInstance().publishMessage(toSend);
 
         }
 
@@ -127,7 +126,7 @@ public class SupervisorConsensusPhases {
                 int i = N_COPY;
                 while (i > 0) {
                     try {
-                        byte[] receive = consensusServer.receiveData();
+                        byte[] receive = ConsensusServer.getInstance().receiveData();
                         if (receive == null || receive.length <= 0) {
                             LOG.info("PreparePhase: Null message from validators");
                             i--;
@@ -145,7 +144,6 @@ public class SupervisorConsensusPhases {
                     } catch (IllegalArgumentException | StringIndexOutOfBoundsException e) {
                         LOG.info("PreparePhase: Problem at message deserialization");
                     } catch (ArrayIndexOutOfBoundsException e) {
-                        cleanup();
                         LOG.info("PreparePhase: Receiving out of bounds response from organizer");
                     } catch (NullPointerException e) {
                         LOG.info("PreparePhase: Receiving null pointer Exception");
@@ -157,7 +155,6 @@ public class SupervisorConsensusPhases {
                 if (N_COPY > F) {
                     LOG.info("PreparePhase: Byzantine network not meet requirements abort " + String.valueOf(N));
                     data.setStatusType(ConsensusStatusType.ABORT);
-                    cleanup();
                     return;
                 }
             }
@@ -173,7 +170,6 @@ public class SupervisorConsensusPhases {
             if (!verify) {
                 LOG.info("Abort consensus phase BLS multi_signature is invalid during prepare phase");
                 data.setStatusType(ConsensusStatusType.ABORT);
-                cleanup();
                 return;
             }
 
@@ -184,12 +180,12 @@ public class SupervisorConsensusPhases {
             Signature sig = BLSSignature.sign(data_serialize.encode(data.getData()), CachedBLSKeyPair.getInstance().getPrivateKey());
             data.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
 
-            this.N_COPY = (this.N - 1) - consensusServer.getPeers_not_connected();
+            this.N_COPY = (this.N - 1) - ConsensusServer.getInstance().getPeers_not_connected();
 
 
             byte[] toSend = consensus_serialize.encode(data);
             CachedConsensusPublisherData.getInstance().storeAtPosition(1, toSend);
-            consensusServer.publishMessage(toSend);
+            ConsensusServer.getInstance().publishMessage(toSend);
         }
 
 
@@ -203,7 +199,7 @@ public class SupervisorConsensusPhases {
                 data.getSignatures().clear();
                 while (i > 0) {
                     try {
-                        byte[] receive = consensusServer.receiveData();
+                        byte[] receive = ConsensusServer.getInstance().receiveData();
                         if (receive == null || receive.length <= 0) {
                             LOG.info("CommitPhase: Not Receiving from Validators");
                             i--;
@@ -219,13 +215,10 @@ public class SupervisorConsensusPhases {
                             }
                         }
                     } catch (IllegalArgumentException | StringIndexOutOfBoundsException e) {
-                        cleanup();
                         LOG.info("CommitPhase: Problem at message deserialization");
                     } catch (ArrayIndexOutOfBoundsException e) {
-                        cleanup();
                         LOG.info("CommitPhase: Receiving out of bounds response from organizer");
                     } catch (NullPointerException e) {
-                        cleanup();
                         LOG.info("CommitPhase: Receiving null response from organizer");
                     }
                 }
@@ -234,7 +227,6 @@ public class SupervisorConsensusPhases {
                 if (N_COPY > F) {
                     LOG.info("CommitPhase: Byzantine network not meet requirements abort " + String.valueOf(N));
                     data.setStatusType(ConsensusStatusType.ABORT);
-                    cleanup();
                     return;
                 }
             }
@@ -252,7 +244,6 @@ public class SupervisorConsensusPhases {
             if (!verify) {
                 LOG.info("CommitPhase: Abort consensus phase BLS multi_signature is invalid during commit phase");
                 data.setStatusType(ConsensusStatusType.ABORT);
-                cleanup();
                 return;
             }
 
@@ -263,26 +254,28 @@ public class SupervisorConsensusPhases {
             Signature sig = BLSSignature.sign(data_serialize.encode(data.getData()), CachedBLSKeyPair.getInstance().getPrivateKey());
             data.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
 
-            this.N_COPY = (this.N - 1) - consensusServer.getPeers_not_connected();
+            this.N_COPY = (this.N - 1) - ConsensusServer.getInstance().getPeers_not_connected();
             int i = N_COPY;
 
             byte[] toSend = consensus_serialize.encode(data);
             CachedConsensusPublisherData.getInstance().storeAtPosition(2, toSend);
-            consensusServer.publishMessage(toSend);
+            ConsensusServer.getInstance().publishMessage(toSend);
 
+
+
+            ConsensusServer.getInstance().setLatch(new CountDownLatch(N-1));
+            ConsensusServer.getInstance().BlockUntilConnected();
+
+            if (ConsensusServer.getInstance().getLatch().getCount() > F) {
+                LOG.info("CommitPhase: Byzantine network last message not meet requirements abort " + String.valueOf(ConsensusServer.getInstance().getLatch().getCount()));
+                data.setStatusType(ConsensusStatusType.ABORT);
+                return;
+            }
+
+            Thread.sleep(400);
             CachedSecurityHeaders.getInstance().getSecurityHeader().setRnd(data.getData().getVDFSolution());
-
-            /*while (i > 0) {
-                try {
-                    consensusServer.receiveStringData();
-                } catch (NullPointerException ex) {
-                } finally {
-                    i--;
-                }
-            }*/
             LOG.info("VDF is finalized with Success");
-            Thread.sleep(100);
-            cleanup();
+
         }
     }
 
@@ -318,14 +311,14 @@ public class SupervisorConsensusPhases {
                     this.F = (this.N - 1) / 3;
                     this.latch = new CountDownLatch(N - 1);
                     this.current = CachedLeaderIndex.getInstance().getCommitteePositionLeader();
-                    this.leader_bls = this.blockIndex.getPublicKeyByIndex(0, current);
-                    this.consensusServer = new ConsensusServer(this.blockIndex.getIpValue(0, this.leader_bls), latch);
-                    this.N_COPY = (this.N - 1) - consensusServer.getPeers_not_connected();
-                    this.consensusServer.setMAX_MESSAGES(this.N_COPY * 3);
-                    this.consensusServer.receive_handler();
+                    //                    this.leader_bls = this.blockIndex.getPublicKeyByIndex(0, current);
+                    ConsensusServer.getInstance().setLatch(latch);
+                    ConsensusServer.getInstance().BlockUntilConnected();
+                    this.N_COPY = (this.N - 1) - ConsensusServer.getInstance().getPeers_not_connected();
+                    ConsensusServer.getInstance().setMAX_MESSAGES(this.N_COPY);
+                    ConsensusServer.getInstance().receive_handler();
                 }
             } catch (Exception e) {
-                cleanup();
                 throw new IllegalArgumentException("Exception caught " + e.toString());
             }
         }
@@ -345,7 +338,7 @@ public class SupervisorConsensusPhases {
             }
             byte[] toSend = serialize.encode(message);
             CachedConsensusPublisherData.getInstance().storeAtPosition(3, toSend);
-            consensusServer.publishMessage(toSend);
+            ConsensusServer.getInstance().publishMessage(toSend);
 
         }
 
@@ -354,7 +347,7 @@ public class SupervisorConsensusPhases {
             if (!DEBUG) {
                 int i = N_COPY;
                 while (i > 0) {
-                    byte[] receive = consensusServer.receiveData();
+                    byte[] receive = ConsensusServer.getInstance().receiveData();
                     try {
                         if (receive == null || receive.length <= 0) {
                             LOG.info("AggregateVRF: Null message from validator");
@@ -378,7 +371,6 @@ public class SupervisorConsensusPhases {
                 if (N_COPY > F) {
                     LOG.info("AggregateVRF: Byzantine network not meet requirements abort " + String.valueOf(N));
                     message.setType(VRFMessage.vrfMessageType.ABORT);
-                    cleanup();
                     return;
                 }
             }
@@ -387,7 +379,6 @@ public class SupervisorConsensusPhases {
             if (list.isEmpty()) {
                 LOG.info("Validators not produce valid vrf inputs and list is empty");
                 message.setType(VRFMessage.vrfMessageType.ABORT);
-                cleanup();
                 return;
             }
 
@@ -420,7 +411,7 @@ public class SupervisorConsensusPhases {
             }
 
             if (DEBUG) return;
-            this.N_COPY = (this.N - 1) - consensusServer.getPeers_not_connected();
+            this.N_COPY = (this.N - 1) - ConsensusServer.getInstance().getPeers_not_connected();
         }
 
 
@@ -444,7 +435,7 @@ public class SupervisorConsensusPhases {
 
             byte[] toSend = consensus_serialize.encode(data);
             CachedConsensusPublisherData.getInstance().storeAtPosition(0, toSend);
-            consensusServer.publishMessage(toSend);
+            ConsensusServer.getInstance().publishMessage(toSend);
         }
 
         @Override
@@ -454,7 +445,7 @@ public class SupervisorConsensusPhases {
             if (!DEBUG) {
                 int i = N_COPY;
                 while (i > 0) {
-                    byte[] receive = consensusServer.receiveData();
+                    byte[] receive = ConsensusServer.getInstance().receiveData();
                     try {
                         if (receive == null || receive.length <= 0) {
                             LOG.info("PreparePhase: Null message from validators");
@@ -483,7 +474,6 @@ public class SupervisorConsensusPhases {
                 if (N_COPY > F) {
                     LOG.info("PreparePhase: Byzantine network not meet requirements abort " + String.valueOf(N));
                     data.setStatusType(ConsensusStatusType.ABORT);
-                    cleanup();
                     return;
                 }
             }
@@ -500,7 +490,6 @@ public class SupervisorConsensusPhases {
             if (!verify) {
                 LOG.info("Abort consensus phase BLS multi_signature is invalid during prepare phase");
                 data.setStatusType(ConsensusStatusType.ABORT);
-                cleanup();
                 return;
             }
 
@@ -511,12 +500,12 @@ public class SupervisorConsensusPhases {
             Signature sig = BLSSignature.sign(serialize.encode(data.getData()), CachedBLSKeyPair.getInstance().getPrivateKey());
             data.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
 
-            this.N_COPY = (this.N - 1) - consensusServer.getPeers_not_connected();
+            this.N_COPY = (this.N - 1) - ConsensusServer.getInstance().getPeers_not_connected();
 
 
             byte[] toSend = consensus_serialize.encode(data);
             CachedConsensusPublisherData.getInstance().storeAtPosition(1, toSend);
-            consensusServer.publishMessage(toSend);
+            ConsensusServer.getInstance().publishMessage(toSend);
         }
 
 
@@ -529,7 +518,7 @@ public class SupervisorConsensusPhases {
                 int i = N_COPY;
                 data.getSignatures().clear();
                 while (i > 0) {
-                    byte[] receive = consensusServer.receiveData();
+                    byte[] receive = ConsensusServer.getInstance().receiveData();
                     try {
                         if (receive == null || receive.length <= 0) {
                             LOG.info("CommitPhase: Not Receiving from Validators");
@@ -558,7 +547,6 @@ public class SupervisorConsensusPhases {
                 if (N_COPY > F) {
                     LOG.info("CommitPhase: Byzantine network not meet requirements abort " + String.valueOf(N));
                     data.setStatusType(ConsensusStatusType.ABORT);
-                    cleanup();
                     return;
                 }
             }
@@ -576,7 +564,6 @@ public class SupervisorConsensusPhases {
             if (!verify) {
                 LOG.info("Abort consensus phase BLS multi_signature is invalid during commit phase");
                 data.setStatusType(ConsensusStatusType.ABORT);
-                cleanup();
                 return;
             }
 
@@ -587,19 +574,18 @@ public class SupervisorConsensusPhases {
             Signature sig = BLSSignature.sign(serialize.encode(data.getData()), CachedBLSKeyPair.getInstance().getPrivateKey());
             data.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
 
-            this.N_COPY = (this.N - 1) - consensusServer.getPeers_not_connected();
+            this.N_COPY = (this.N - 1) - ConsensusServer.getInstance().getPeers_not_connected();
             int i = N_COPY;
 
             byte[] toSend = consensus_serialize.encode(data);
             CachedConsensusPublisherData.getInstance().storeAtPosition(2, toSend);
-            consensusServer.publishMessage(toSend);
+            ConsensusServer.getInstance().publishMessage(toSend);
 
             CachedSecurityHeaders.getInstance().getSecurityHeader().setPRnd(data.getData().getPrnd());
 
 
             LOG.info("VRF is finalized with Success");
             Thread.sleep(100);
-            cleanup();
         }
 
 
@@ -639,14 +625,14 @@ public class SupervisorConsensusPhases {
                     this.F = (this.N - 1) / 3;
                     this.latch = new CountDownLatch(N - 1);
                     this.current = CachedLeaderIndex.getInstance().getCommitteePositionLeader();
-                    this.leader_bls = this.blockIndex.getPublicKeyByIndex(0, current);
-                    this.consensusServer = new ConsensusServer(this.blockIndex.getIpValue(0, this.leader_bls), latch);
-                    this.N_COPY = (this.N - 1) - consensusServer.getPeers_not_connected();
-                    this.consensusServer.setMAX_MESSAGES(this.N_COPY * 2);
-                    this.consensusServer.receive_handler();
+                    //                    this.leader_bls = this.blockIndex.getPublicKeyByIndex(0, current);
+                    ConsensusServer.getInstance().setLatch(latch);
+                    ConsensusServer.getInstance().BlockUntilConnected();
+                    this.N_COPY = (this.N - 1) - ConsensusServer.getInstance().getPeers_not_connected();
+                    ConsensusServer.getInstance().setMAX_MESSAGES(this.N_COPY);
+                    ConsensusServer.getInstance().receive_handler();
                 }
             } catch (Exception e) {
-                cleanup();
                 throw new IllegalArgumentException("Exception caught " + e.toString());
             }
         }
@@ -676,7 +662,7 @@ public class SupervisorConsensusPhases {
 
             byte[] toSend = consensus_serialize.encode(block);
             CachedConsensusPublisherData.getInstance().storeAtPosition(0, toSend);
-            consensusServer.publishMessage(toSend);
+            ConsensusServer.getInstance().publishMessage(toSend);
         }
 
         @Override
@@ -686,7 +672,7 @@ public class SupervisorConsensusPhases {
             if (!DEBUG) {
                 int i = N_COPY;
                 while (i > 0) {
-                    byte[] receive = consensusServer.receiveData();
+                    byte[] receive = ConsensusServer.getInstance().receiveData();
                     try {
                         if (receive == null || receive.length <= 0) {
                             LOG.info("PreparePhase: Null message from validators");
@@ -715,7 +701,6 @@ public class SupervisorConsensusPhases {
                 if (N_COPY > F) {
                     LOG.info("PreparePhase: Byzantine network not meet requirements abort " + String.valueOf(N_COPY));
                     block.setStatusType(ConsensusStatusType.ABORT);
-                    cleanup();
                     return;
                 }
             }
@@ -732,7 +717,6 @@ public class SupervisorConsensusPhases {
             if (!verify) {
                 LOG.info("Abort consensus phase BLS multi_signature is invalid during prepare phase");
                 block.setStatusType(ConsensusStatusType.ABORT);
-                cleanup();
                 return;
             }
 
@@ -743,12 +727,12 @@ public class SupervisorConsensusPhases {
             Signature sig = BLSSignature.sign(block_serialize.encode(block.getData(), this.sizeCalculator.CommitteeBlockSizeCalculator()), CachedBLSKeyPair.getInstance().getPrivateKey());
             block.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
 
-            this.N_COPY = (this.N - 1) - consensusServer.getPeers_not_connected();
+            this.N_COPY = (this.N - 1) - ConsensusServer.getInstance().getPeers_not_connected();
 
 
             byte[] toSend = consensus_serialize.encode(block);
             CachedConsensusPublisherData.getInstance().storeAtPosition(1, toSend);
-            consensusServer.publishMessage(toSend);
+            ConsensusServer.getInstance().publishMessage(toSend);
         }
 
 
@@ -761,7 +745,7 @@ public class SupervisorConsensusPhases {
                 int i = N_COPY;
                 block.getSignatures().clear();
                 while (i > 0) {
-                    byte[] receive = consensusServer.receiveData();
+                    byte[] receive = ConsensusServer.getInstance().receiveData();
                     try {
                         if (receive == null || receive.length <= 0) {
                             LOG.info("CommitPhase: Not Receiving from Validators");
@@ -790,7 +774,6 @@ public class SupervisorConsensusPhases {
                 if (N_COPY > F) {
                     LOG.info("CommitPhase: Byzantine network not meet requirements abort " + String.valueOf(N_COPY));
                     block.setStatusType(ConsensusStatusType.ABORT);
-                    cleanup();
                     return;
                 }
             }
@@ -807,7 +790,6 @@ public class SupervisorConsensusPhases {
             if (!verify) {
                 LOG.info("CommitPhase: Abort consensus phase BLS multi_signature is invalid during commit phase");
                 block.setStatusType(ConsensusStatusType.ABORT);
-                cleanup();
                 return;
             }
 
@@ -819,27 +801,30 @@ public class SupervisorConsensusPhases {
             Signature sig = BLSSignature.sign(block_serialize.encode(block.getData(), this.sizeCalculator.CommitteeBlockSizeCalculator()), CachedBLSKeyPair.getInstance().getPrivateKey());
             block.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
 
-            this.N_COPY = (this.N - 1) - consensusServer.getPeers_not_connected();
+            this.N_COPY = (this.N - 1) - ConsensusServer.getInstance().getPeers_not_connected();
             int i = N_COPY;
 
             byte[] toSend = consensus_serialize.encode(block);
             CachedConsensusPublisherData.getInstance().storeAtPosition(2, toSend);
-            consensusServer.publishMessage(toSend);
+            ConsensusServer.getInstance().publishMessage(toSend);
 
 
+
+            ConsensusServer.getInstance().setLatch(new CountDownLatch(N-1));
+            ConsensusServer.getInstance().BlockUntilConnected();
+
+            if (ConsensusServer.getInstance().getLatch().getCount() > F) {
+                LOG.info("CommitPhase: Byzantine network last message not meet requirements abort " + String.valueOf(ConsensusServer.getInstance().getLatch().getCount()));
+                block.setStatusType(ConsensusStatusType.ABORT);
+                return;
+            }
             BlockInvent regural_block = (BlockInvent) factory.getBlock(BlockType.REGULAR);
             regural_block.InventCommitteBlock(block.getData());
-            cleanup();
             LOG.info("Committee is finalized with Success");
-            //Thread.sleep(700);
+            Thread.sleep(700);
             //Make sure you give enough time for nodes to sync that not existed or existed
         }
 
 
-    }
-
-    protected void cleanup() {
-        if (consensusServer != null) consensusServer.close();
-        consensusServer = null;
     }
 }

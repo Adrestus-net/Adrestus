@@ -1,32 +1,32 @@
 package io.distributedLedger;
 
-public class RocksDBPatriciaTreeFactory {
-    private static volatile RocksDBPatriciaTreeFactory instance;
+public class RocksDBPatriciaTree1Factory {
+    private static volatile RocksDBPatriciaTree1Factory instance;
 
     private static RocksDBConnectionManager rocksDBConnectionManager;
 
-    private RocksDBPatriciaTreeFactory(Class key, Class value, PatriciaTreeInstance patriciaTreeInstance) {
+    private RocksDBPatriciaTree1Factory(Class key, Class value, PatriciaTreeInstance patriciaTreeInstance) {
         if (instance != null) {
             throw new IllegalStateException("Already initialized.");
         }
         this.rocksDBConnectionManager = new RocksDBConnectionManager<>(key, value, patriciaTreeInstance);
     }
 
-    public static RocksDBPatriciaTreeFactory getInstance(Class key, Class value, PatriciaTreeInstance patriciaTreeInstance) {
+    public static RocksDBPatriciaTree1Factory getInstance(Class key, Class value, PatriciaTreeInstance patriciaTreeInstance) {
         var result = instance;
         if (result == null) {
-            synchronized (RocksDBPatriciaTreeFactory.class) {
+            synchronized (RocksDBPatriciaTree1Factory.class) {
                 result = instance;
                 if (result == null) {
-                    result = new RocksDBPatriciaTreeFactory(key, value, patriciaTreeInstance);
+                    result = new RocksDBPatriciaTree1Factory(key, value, patriciaTreeInstance);
                     instance = result;
                 }
             }
         } else if (rocksDBConnectionManager != null) {
-            synchronized (RocksDBPatriciaTreeFactory.class) {
-                if (ZoneDatabaseFactory.isPatriciaTreeInstanceClosed(PatriciaTreeInstance.PATRICIA_TREE_INSTANCE_0)) {
+            synchronized (RocksDBPatriciaTree1Factory.class) {
+                if (ZoneDatabaseFactory.isPatriciaTreeInstanceClosed(PatriciaTreeInstance.PATRICIA_TREE_INSTANCE_1)) {
                     instance = null;
-                    result = new RocksDBPatriciaTreeFactory(key, value, patriciaTreeInstance);
+                    result = new RocksDBPatriciaTree1Factory(key, value, patriciaTreeInstance);
                     instance = result;
                 }
             }
