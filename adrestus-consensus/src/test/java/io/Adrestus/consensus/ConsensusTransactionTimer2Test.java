@@ -251,6 +251,13 @@ public class ConsensusTransactionTimer2Test {
 
         CachedLatestBlocks.getInstance().setTransactionBlock(prevblock);
 
+        Socket socket1 = new Socket();
+        socket1.connect(new InetSocketAddress("google.com", 80));
+        String IP = socket1.getLocalAddress().getHostAddress();
+        int hit = 0;
+        if (!IP.substring(0, 3).equals("192")) {
+            return;
+        }
 
         RpcAdrestusServer<AbstractBlock> example = new RpcAdrestusServer<AbstractBlock>(new TransactionBlock(), ZoneDatabaseFactory.getZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()), IPFinder.getLocal_address(), ZoneDatabaseFactory.getDatabaseRPCPort(CachedZoneIndex.getInstance().getZoneIndex()), CachedEventLoop.getInstance().getEventloop());
         new Thread(example).start();
