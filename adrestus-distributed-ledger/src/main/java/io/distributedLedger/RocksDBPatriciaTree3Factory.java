@@ -24,7 +24,7 @@ public class RocksDBPatriciaTree3Factory {
             }
         } else if (rocksDBConnectionManager != null) {
             synchronized (RocksDBPatriciaTree3Factory.class) {
-                if (ZoneDatabaseFactory.isPatriciaTreeInstanceClosed(PatriciaTreeInstance.PATRICIA_TREE_INSTANCE_2)) {
+                if (ZoneDatabaseFactory.isPatriciaTreeInstanceClosed(PatriciaTreeInstance.PATRICIA_TREE_INSTANCE_3)) {
                     instance = null;
                     result = new RocksDBPatriciaTree3Factory(key, value, patriciaTreeInstance);
                     instance = result;
