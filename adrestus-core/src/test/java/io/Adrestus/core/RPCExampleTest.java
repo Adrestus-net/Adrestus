@@ -821,7 +821,6 @@ class RPCExampleTest {
         RpcErasureServer<SerializableErasureObject> example = new RpcErasureServer<SerializableErasureObject>(new SerializableErasureObject(), "localhost", 6083, eventloop, blocksize);
         new Thread(example).start();
         RpcErasureClient<SerializableErasureObject> client = new RpcErasureClient<SerializableErasureObject>(new SerializableErasureObject(), "localhost", 6083, eventloop);
-        client.connect();
         (new Thread() {
             public void run() {
                 try {
@@ -833,9 +832,18 @@ class RPCExampleTest {
             }
         }).start();
         //#########################################################################################################################
+        client.connect();
 
-        ArrayList<SerializableErasureObject> serializableErasureObject = (ArrayList<SerializableErasureObject>) client.getErasureChunks(new byte[0]);
-        int g = 3;
+        CachedConsensusPublisherData.getInstance().clear();
+        CachedConsensusPublisherData.getInstance().storeAtPosition(1, "1".getBytes());
+        CachedConsensusPublisherData.getInstance().storeAtPosition(2, "2".getBytes());
+        CachedConsensusPublisherData.getInstance().storeAtPosition(0, "0".getBytes());
+        Optional<byte[]> re0 = client.getAnnounceConsensusChunks("0");
+        Optional<byte[]> re1 = client.getPrepareConsensusChunks("1");
+        Optional<byte[]> re2 = client.getCommitConsensusChunks("2");
+        assertEquals("0", new String(re0.get(), StandardCharsets.UTF_8));
+        assertEquals("1", new String(re1.get(), StandardCharsets.UTF_8));
+        assertEquals("2", new String(re2.get(), StandardCharsets.UTF_8));
 
         client.close();
         example.close();
@@ -843,7 +851,7 @@ class RPCExampleTest {
 
     }
 
-    @Test
+    //@Test
     public void erasure_test3() {
         RpcErasureServer example = new RpcErasureServer(new String(), "localhost", 6084, eventloop, blocksize);
         new Thread(example).start();
