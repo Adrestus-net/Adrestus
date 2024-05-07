@@ -45,7 +45,7 @@
         <tuweni.verison>2.2.0</tuweni.verison>
         <jmh.version>1.34</jmh.version>
         <awaitutility.version>4.2.0</awaitutility.version>
-        <lombok.version>1.18.24</lombok.version>
+        <lombok.version>1.18.32</lombok.version>
         <serializer.version>5.4.3</serializer.version>
         <commons_net.version>3.9.0</commons_net.version>
     </properties>

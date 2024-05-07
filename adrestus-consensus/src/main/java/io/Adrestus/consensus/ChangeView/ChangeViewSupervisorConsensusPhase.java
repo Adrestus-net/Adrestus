@@ -1,7 +1,6 @@
 package io.Adrestus.consensus.ChangeView;
 
 import com.google.common.reflect.TypeToken;
-import io.Adrestus.config.ConsensusConfiguration;
 import io.Adrestus.consensus.ConsensusMessage;
 import io.Adrestus.consensus.ConsensusMessageType;
 import io.Adrestus.consensus.ConsensusStatusType;
@@ -62,7 +61,7 @@ public class ChangeViewSupervisorConsensusPhase extends ChangeViewConsensusPhase
         if (!DEBUG) {
             int i = N_COPY;
             while (i > 0) {
-                byte[] receive =  ConsensusServer.getInstance().receiveData();
+                byte[] receive = ConsensusServer.getInstance().receiveData();
                 try {
                     if (receive == null) {
                         LOG.info("AnnouncePhase: Null message from validators");

@@ -48,7 +48,7 @@ public class ConsensusServerErasureTest {
 
     @Test
     public void test() throws DecoderException, InterruptedException {
-        ConsensusServer.getInstance("localhost",1);
+        ConsensusServer.getInstance("localhost", 1);
         final ConsensusClient[] adrestusClient1 = {null};
         (new Thread() {
             public void run() {
@@ -74,7 +74,7 @@ public class ConsensusServerErasureTest {
             }
         }).start();
 
-        String rec = new String( ConsensusServer.getInstance("localhost",1).receiveErasureData(), StandardCharsets.UTF_8);
+        String rec = new String(ConsensusServer.getInstance("localhost", 1).receiveErasureData(), StandardCharsets.UTF_8);
         if (rec.equals(""))
             System.out.println("Timeout caught not receiving");
         else {

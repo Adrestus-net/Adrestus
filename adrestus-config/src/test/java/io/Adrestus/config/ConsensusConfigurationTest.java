@@ -10,9 +10,9 @@ public class ConsensusConfigurationTest {
         assertEquals(2 * 1000, ConsensusConfiguration.CONSENSUS_COMMITTEE_TIMER);
         assertEquals(2 * 1000, ConsensusConfiguration.CONSENSUS_TIMER);
         assertEquals(22 * 1000, ConsensusConfiguration.CONSENSUS_TIMEOUT);
-        assertEquals(14 * 1000, ConsensusConfiguration.CONSENSUS_CONNECTED_RECEIVE_TIMEOUT);
-        assertEquals(14 * 1000, ConsensusConfiguration.CONSENSUS_COLLECTED_TIMEOUT);
-        assertEquals(4 * 1000, ConsensusConfiguration.CONSENSUS_PUBLISHER_TIMEOUT);
+        assertEquals(17 * 1000, ConsensusConfiguration.CONSENSUS_CONNECTED_RECEIVE_TIMEOUT);
+        assertEquals(17 * 1000, ConsensusConfiguration.CONSENSUS_COLLECTED_TIMEOUT);
+        assertEquals(17 * 1000, ConsensusConfiguration.CONSENSUS_PUBLISHER_TIMEOUT);
 
 
         assertEquals(2 * 1000, ConsensusConfiguration.CHANGE_VIEW_TIMER);

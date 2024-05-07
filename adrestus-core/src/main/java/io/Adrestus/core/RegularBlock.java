@@ -96,6 +96,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
         }
         return result;
     }
+
     @Override
     public void forgeTransactionBlock(TransactionBlock transactionBlock) throws Exception {
         CachedReceiptSemaphore.getInstance().getSemaphore().acquire();

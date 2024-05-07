@@ -4,9 +4,7 @@ import com.google.common.reflect.TypeToken;
 import io.Adrestus.Trie.MerkleNode;
 import io.Adrestus.Trie.MerkleTreeImp;
 import io.Adrestus.core.*;
-import io.Adrestus.core.Resourses.CachedLatestBlocks;
-import io.Adrestus.core.Resourses.CachedLeaderIndex;
-import io.Adrestus.core.Resourses.CachedZoneIndex;
+import io.Adrestus.core.Resourses.*;
 import io.Adrestus.core.Util.BlockSizeCalculator;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.bls.BLS381.ECP;
@@ -149,12 +147,14 @@ public class OrganizerConsensusPhases {
             }
 
             if (proofs.size() < N_COPY - F) {
+                cleanup();
                 LOG.info("DispersePhase: Size of validators are not correct Abort");
                 data.setStatusType(ConsensusStatusType.ABORT);
                 return;
             }
 
             if (N_COPY == 0) {
+                cleanup();
                 LOG.info("DispersePhase: None of validators connected abort");
                 data.setStatusType(ConsensusStatusType.ABORT);
                 return;
@@ -224,6 +224,7 @@ public class OrganizerConsensusPhases {
             }
 
             if (valid < N_COPY - F) {
+                cleanup();
                 LOG.info("DispersePhase: Validators dont send correct header messages abort");
                 data.setStatusType(ConsensusStatusType.ABORT);
                 return;
@@ -244,6 +245,7 @@ public class OrganizerConsensusPhases {
             if (!DEBUG) {
                 //this.consensusServer.BlockUntilConnected();
                 if (ConsensusServer.getInstance().getPeers_not_connected() > F) {
+                    cleanup();
                     LOG.info("AnnouncePhase: Byzantine network not meet requirements abort " + String.valueOf(ConsensusServer.getInstance().getPeers_not_connected()));
                     data.setStatusType(ConsensusStatusType.ABORT);
                     return;
@@ -321,6 +323,7 @@ public class OrganizerConsensusPhases {
 
 
                 if (N_COPY > F) {
+                    cleanup();
                     LOG.info("PreparePhase: Byzantine network not meet requirements abort " + String.valueOf(N_COPY));
                     data.setStatusType(ConsensusStatusType.ABORT);
                     return;
@@ -345,6 +348,7 @@ public class OrganizerConsensusPhases {
             Bytes message = Bytes.wrap(block_serialize.encode(data.getData(), this.sizeCalculator.TransactionBlockSizeCalculator()));
             boolean verify = BLSSignature.fastAggregateVerify(publicKeys, message, aggregatedSignature);
             if (!verify) {
+                cleanup();
                 LOG.info("Abort consensus phase BLS multi_signature is invalid during prepare phase");
                 data.setStatusType(ConsensusStatusType.ABORT);
                 return;
@@ -423,6 +427,7 @@ public class OrganizerConsensusPhases {
 
 
                 if (N_COPY > F) {
+                    cleanup();
                     LOG.info("CommitPhase: Byzantine network not meet requirements abort " + String.valueOf(N_COPY));
                     data.setStatusType(ConsensusStatusType.ABORT);
                     return;
@@ -439,6 +444,7 @@ public class OrganizerConsensusPhases {
             Bytes message = Bytes.wrap(block_serialize.encode(data.getData(), this.sizeCalculator.TransactionBlockSizeCalculator()));
             boolean verify = BLSSignature.fastAggregateVerify(publicKeys, message, aggregatedSignature);
             if (!verify) {
+                cleanup();
                 LOG.info("CommitPhase: Abort consensus phase BLS multi_signature is invalid during commit phase");
                 data.setStatusType(ConsensusStatusType.ABORT);
                 return;
@@ -484,20 +490,8 @@ public class OrganizerConsensusPhases {
         }
     }
 
-      /*  if (current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).size() - 1)
-                data.getData().setLeaderPublicKey(this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), 0));
-            else {
-                data.getData().setLeaderPublicKey(this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), current + 1));
-            }*/
-    // CachedLatestBlocks.getInstance().setTransactionBlock(data.getData());
-
-     /*while (i > 0) {
-                try {
-                    consensusServer.receiveStringData();
-                } catch (NullPointerException ex) {
-                } finally {
-                    i--;
-                }
-            }*/
+    private static void cleanup() {
+        CachedReceiptSemaphore.getInstance().getSemaphore().release();
+    }
 
 }

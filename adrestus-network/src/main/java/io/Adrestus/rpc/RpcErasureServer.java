@@ -8,7 +8,6 @@ import io.activej.rpc.server.RpcRequestHandler;
 import io.activej.rpc.server.RpcServer;
 import io.activej.serializer.SerializerBuilder;
 import lombok.SneakyThrows;
-import org.slf4j.Logger;
 
 import java.net.InetSocketAddress;
 import java.util.concurrent.ExecutionException;

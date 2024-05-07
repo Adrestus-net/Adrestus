@@ -72,9 +72,9 @@ public class ECKeyPaiMeasurementsTest {
     public void Test() throws RunnerException {
         final Options options = new OptionsBuilder()
                 .include(ECKeyPaiMeasurementsTest.class.getSimpleName())
-                .measurementIterations(1)
+                .measurementIterations(3)
                 .forks(0)
-                .warmupIterations(1)
+                .warmupIterations(5)
                 .build();
 
         new Runner(options).run();

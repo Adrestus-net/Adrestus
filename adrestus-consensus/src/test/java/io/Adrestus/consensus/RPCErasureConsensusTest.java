@@ -1,5 +1,6 @@
 package io.Adrestus.consensus;
 
+import io.Adrestus.core.Resourses.ErasureServerInstance;
 import io.Adrestus.network.CachedEventLoop;
 import io.Adrestus.network.IPFinder;
 import io.Adrestus.rpc.CachedConsensusPublisherData;

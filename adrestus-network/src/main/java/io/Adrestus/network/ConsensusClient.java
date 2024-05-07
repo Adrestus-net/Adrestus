@@ -8,6 +8,7 @@ import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
 import org.zeromq.ZMQException;
 
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -24,8 +25,8 @@ public class ConsensusClient {
     private final ZMQ.Socket subscriber;
     private final ZMQ.Socket push;
     private final ZMQ.Socket connected;
-
     private final String IP;
+    private CountDownLatch receive_latch;
     private String Identity;
     private ZMQ.Socket erasure;
     private final LinkedBlockingDeque<byte[]> message_deque;
@@ -33,6 +34,7 @@ public class ConsensusClient {
 
     public ConsensusClient(String IP) {
         this.IP = IP;
+        this.receive_latch = new CountDownLatch(1);
         this.executorService = Executors.newSingleThreadExecutor();
         this.ctx = new ZContext();
         this.message_deque = new LinkedBlockingDeque<>();
@@ -66,8 +68,9 @@ public class ConsensusClient {
 
     }
 
-    public ConsensusClient(String IP,int random) {
+    public ConsensusClient(String IP, int random) {
         this.IP = IP;
+        this.receive_latch = new CountDownLatch(1);
         this.executorService = Executors.newSingleThreadExecutor();
         this.ctx = new ZContext();
         this.message_deque = new LinkedBlockingDeque<>();
@@ -103,6 +106,7 @@ public class ConsensusClient {
 
     public ConsensusClient(String IP, String identity) {
         this.IP = IP;
+        this.receive_latch = new CountDownLatch(1);
         this.Identity = identity;
         this.executorService = Executors.newSingleThreadExecutor();
         this.ctx = new ZContext();
@@ -189,7 +193,8 @@ public class ConsensusClient {
     @SneakyThrows
     public byte[] deque_message() {
         while (message_deque.isEmpty()) {
-            Thread.sleep(50);
+            this.receive_latch.await();
+            this.receive_latch = new CountDownLatch(1);
         }
 
         return message_deque.pollFirst();
@@ -217,6 +222,7 @@ public class ConsensusClient {
                 }
                 MESSAGES--;
                 MAX_MESSAGES--;
+                receive_latch.countDown();
             }
         };
         this.executorService.execute(runnableTask);

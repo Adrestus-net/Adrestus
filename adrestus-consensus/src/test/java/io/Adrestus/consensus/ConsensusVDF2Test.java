@@ -45,7 +45,7 @@ public class ConsensusVDF2Test {
         committeeBlock.getHeaderData().setTimestamp("2022-11-18 15:01:29.304");
         committeeBlock.getStructureMap().get(0).put(vk1, "192.168.1.106");
         committeeBlock.getStructureMap().get(0).put(vk2, "192.168.1.116");
-        committeeBlock.getStructureMap().get(0).put(vk3, "192.168.1.110");
+        committeeBlock.getStructureMap().get(0).put(vk3, "192.168.1.115");
 
         CachedSecurityHeaders.getInstance().getSecurityHeader().setPRnd(Hex.decode("c1f72aa5bd1e1d53c723b149259b63f759f40d5ab003b547d5c13d45db9a5da8"));
         CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
@@ -77,7 +77,7 @@ public class ConsensusVDF2Test {
             return;
 
         CachedEventLoop.getInstance().start();
-        CountDownLatch latch = new CountDownLatch(10);
+        CountDownLatch latch = new CountDownLatch(500);
         ConsensusVDFTimer c = new ConsensusVDFTimer(latch);
         latch.await();
     }

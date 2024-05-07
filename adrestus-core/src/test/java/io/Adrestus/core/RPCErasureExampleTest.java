@@ -275,6 +275,7 @@ public class RPCErasureExampleTest {
         serverTwo.close();
         serverThree.close();
     }
+
     @Test
     public void test1() {
 
@@ -322,7 +323,7 @@ public class RPCErasureExampleTest {
 
     @Test
     public void test3() {
-        RpcErasureServer example = new RpcErasureServer( new String(),"localhost", 6084, eventloop, blocksize);
+        RpcErasureServer example = new RpcErasureServer(new String(), "localhost", 6084, eventloop, blocksize);
         new Thread(example).start();
         RpcErasureClient<String> client = new RpcErasureClient<String>("localhost", 6084, 4000, eventloop);
         client.connect();

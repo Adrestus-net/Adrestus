@@ -8,7 +8,7 @@ public class ConsensusConfiguration {
     public static final int CONSENSUS_TIMEOUT = 22 * 1000;
 
     public static final int FAST_SUBSCRIBER_TIMEOUT = 580;
-    public static final int SLOW_SUBSCRIBER_TIMEOUT = 14*1000;
+    public static final int SLOW_SUBSCRIBER_TIMEOUT = 14 * 1000;
     public final static int HEARTBEAT_INTERVAL = 10;
     public final static int CYCLES = 1100;
     public final static int ERASURE_CYCLES = 1;
@@ -51,6 +51,6 @@ public class ConsensusConfiguration {
 
     public static final int ERASURE_CLIENT_TIMEOUT = 5000;
 
-    public static final int COMMITTEE_ERASURE_CLIENT_TIMEOUT = 21*1300;
+    public static final int COMMITTEE_ERASURE_CLIENT_TIMEOUT = 21 * 1300;
 
 }

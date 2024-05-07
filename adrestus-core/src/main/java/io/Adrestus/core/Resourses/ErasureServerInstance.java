@@ -1,4 +1,4 @@
-package io.Adrestus.consensus;
+package io.Adrestus.core.Resourses;
 
 import io.Adrestus.core.SerializableErasureObject;
 import io.Adrestus.network.CachedEventLoop;

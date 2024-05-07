@@ -41,6 +41,7 @@ public class DatabasePatriciaTreeZone1 implements IDriver<Options, RocksDB> {
             return true;
         return false;
     }
+
     @Override
     public void close(Options options) {
         options.close();

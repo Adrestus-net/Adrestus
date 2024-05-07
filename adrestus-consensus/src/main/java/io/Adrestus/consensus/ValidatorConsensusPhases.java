@@ -1530,6 +1530,7 @@ public class ValidatorConsensusPhases {
         }
 
         private void cleanup() {
+            CachedReceiptSemaphore.getInstance().getSemaphore().release();
             if (collector_client != null) {
                 collector_client.close();
                 collector_client = null;
@@ -1900,6 +1901,7 @@ public class ValidatorConsensusPhases {
         }
 
         private void cleanup() {
+            CachedReceiptSemaphore.getInstance().getSemaphore().release();
             if (collector_client != null) {
                 collector_client.close();
                 collector_client = null;

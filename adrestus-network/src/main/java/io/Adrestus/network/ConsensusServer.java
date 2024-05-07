@@ -37,6 +37,7 @@ public class ConsensusServer {
     private Timer timer;
     private ConnectedTaskTimeout task;
     private CountDownLatch latch;
+    private CountDownLatch receive_latch;
     private int peers_not_connected;
 
     private int MAX_MESSAGES;
@@ -170,6 +171,7 @@ public class ConsensusServer {
         this.executorService = Executors.newSingleThreadExecutor();
         this.message_deque = new LinkedBlockingDeque<>();
         this.IP = IP;
+        this.receive_latch = new CountDownLatch(1);
         this.peers_not_connected = 0;
         this.terminate = false;
         this.ctx = new ZContext();
@@ -208,6 +210,7 @@ public class ConsensusServer {
         this.executorService = Executors.newSingleThreadExecutor();
         this.message_deque = new LinkedBlockingDeque<>();
         this.IP = IP;
+        this.receive_latch = new CountDownLatch(1);
         this.ctx = new ZContext();
         this.publisher = ctx.createSocket(SocketType.PUB);
         this.publisher.setHeartbeatIvl(2);
@@ -234,6 +237,7 @@ public class ConsensusServer {
         this.executorService = Executors.newSingleThreadExecutor();
         this.message_deque = new LinkedBlockingDeque<>();
         this.IP = IPFinder.getLocalIP();
+        this.receive_latch = new CountDownLatch(1);
         this.peers_not_connected = 0;
         this.terminate = false;
         this.ctx = new ZContext();
@@ -365,7 +369,8 @@ public class ConsensusServer {
     @SneakyThrows
     public byte[] receiveData() {
         while (message_deque.isEmpty()) {
-            Thread.sleep(50);
+            this.receive_latch.await();
+            this.receive_latch = new CountDownLatch(1);
         }
         // System.out.println("take");
         return message_deque.pollFirst();
@@ -393,6 +398,7 @@ public class ConsensusServer {
                     message_deque.add(new byte[0]);
                     MAX_MESSAGES--;
                 }
+                this.receive_latch.countDown();
                 // System.out.println("receive" + MESSAGES);
                 // System.out.println("receive" + MESSAGES);
                 // available.release();

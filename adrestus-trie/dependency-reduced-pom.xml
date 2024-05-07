@@ -40,12 +40,13 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.24</version>
+            <version>1.18.32</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
     <properties>
         <maven.compiler.source>1.7</maven.compiler.source>
+        <bloom.version>1.0-SNAPSHOT</bloom.version>
         <crypto.version>1.0-SNAPSHOT</crypto.version>
         <maven.compiler.target>1.7</maven.compiler.target>
         <util.version>1.0-SNAPSHOT</util.version>

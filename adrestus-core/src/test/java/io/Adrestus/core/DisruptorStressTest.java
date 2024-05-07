@@ -31,7 +31,6 @@ import io.distributedLedger.IDatabase;
 import io.distributedLedger.ZoneDatabaseFactory;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
 import org.spongycastle.util.encoders.Hex;
 
 import java.math.BigInteger;
@@ -41,6 +40,8 @@ import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.CountDownLatch;
 
 public class DisruptorStressTest {
@@ -108,7 +109,7 @@ public class DisruptorStressTest {
             TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(adddress, new PatriciaTreeNode(1000, 0));
         }
 
-
+        ArrayList<Transaction> list2 = new ArrayList<>();
         for (int i = 0; i < size - 1; i++) {
             Transaction transaction = new RegularTransaction();
             transaction.setFrom(addreses.get(i));
@@ -124,7 +125,23 @@ public class DisruptorStressTest {
             transaction.setHash(HashUtil.sha256_bytetoString(byf));
             ECDSASignatureData signatureData = ecdsaSign.secp256SignMessage(Hex.decode(transaction.getHash()), keypair.get(i));
             transaction.setSignature(signatureData);
-            publisher.publish(transaction);
+            list2.add(transaction);
+        }
+        for (int i = 0; i < 2; i++) {
+            publisher.publish(list2.get(i));
+        }
+        publisher.getJobSyncUntilRemainingCapacityZero();
+        TimerTask task = new TimerTask() {
+            public void run() {
+                System.out.println("Timer : " + MemoryTransactionPool.getInstance().getSize());
+            }
+        };
+        Timer timer = new Timer("Timer");
+
+        long delay = 2000;
+        timer.scheduleAtFixedRate(task, delay, delay);
+        for (int i = 2; i < list2.size(); i++) {
+            publisher.publish(list2.get(i));
         }
         publisher.getJobSyncUntilRemainingCapacityZero();
         signatureEventHandler.getLatch().await();

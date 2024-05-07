@@ -3,9 +3,7 @@ package io.Adrestus.consensus;
 import com.google.common.reflect.TypeToken;
 import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.core.*;
-import io.Adrestus.core.Resourses.CachedLatestBlocks;
-import io.Adrestus.core.Resourses.CachedLeaderIndex;
-import io.Adrestus.core.Resourses.CachedSecurityHeaders;
+import io.Adrestus.core.Resourses.*;
 import io.Adrestus.core.Util.BlockSizeCalculator;
 import io.Adrestus.crypto.bls.BLS381.ECP;
 import io.Adrestus.crypto.bls.BLS381.ECP2;
@@ -50,6 +48,10 @@ public class SupervisorConsensusPhases {
     protected int current;
     protected BLSPublicKey leader_bls;
 
+    private static void cleanup() {
+        CachedReceiptSemaphore.getInstance().getSemaphore().release();
+    }
+
     protected static class ProposeVDF extends SupervisorConsensusPhases implements BFTConsensusPhase<VDFMessage> {
         private static final Type fluentType = new TypeToken<ConsensusMessage<VDFMessage>>() {
         }.getType();
@@ -85,7 +87,7 @@ public class SupervisorConsensusPhases {
                     ConsensusServer.getInstance().setLatch(latch);
                     ConsensusServer.getInstance().BlockUntilConnected();
                     this.N_COPY = (this.N - 1) - ConsensusServer.getInstance().getPeers_not_connected();
-                    ConsensusServer.getInstance().setMAX_MESSAGES(this.N_COPY);
+                    ConsensusServer.getInstance().setMAX_MESSAGES(this.N_COPY * 2);
                     ConsensusServer.getInstance().receive_handler();
                 } catch (Exception e) {
                     throw new IllegalArgumentException("Exception caught " + e.toString());
@@ -262,8 +264,7 @@ public class SupervisorConsensusPhases {
             ConsensusServer.getInstance().publishMessage(toSend);
 
 
-
-            ConsensusServer.getInstance().setLatch(new CountDownLatch(N-1));
+            ConsensusServer.getInstance().setLatch(new CountDownLatch(N - 1));
             ConsensusServer.getInstance().BlockUntilConnected();
 
             if (ConsensusServer.getInstance().getLatch().getCount() > F) {
@@ -315,7 +316,7 @@ public class SupervisorConsensusPhases {
                     ConsensusServer.getInstance().setLatch(latch);
                     ConsensusServer.getInstance().BlockUntilConnected();
                     this.N_COPY = (this.N - 1) - ConsensusServer.getInstance().getPeers_not_connected();
-                    ConsensusServer.getInstance().setMAX_MESSAGES(this.N_COPY);
+                    ConsensusServer.getInstance().setMAX_MESSAGES(this.N_COPY * 3);
                     ConsensusServer.getInstance().receive_handler();
                 }
             } catch (Exception e) {
@@ -629,10 +630,11 @@ public class SupervisorConsensusPhases {
                     ConsensusServer.getInstance().setLatch(latch);
                     ConsensusServer.getInstance().BlockUntilConnected();
                     this.N_COPY = (this.N - 1) - ConsensusServer.getInstance().getPeers_not_connected();
-                    ConsensusServer.getInstance().setMAX_MESSAGES(this.N_COPY);
+                    ConsensusServer.getInstance().setMAX_MESSAGES(this.N_COPY * 2);
                     ConsensusServer.getInstance().receive_handler();
                 }
             } catch (Exception e) {
+                e.printStackTrace();
                 throw new IllegalArgumentException("Exception caught " + e.toString());
             }
         }
@@ -699,6 +701,7 @@ public class SupervisorConsensusPhases {
 
 
                 if (N_COPY > F) {
+                    cleanup();
                     LOG.info("PreparePhase: Byzantine network not meet requirements abort " + String.valueOf(N_COPY));
                     block.setStatusType(ConsensusStatusType.ABORT);
                     return;
@@ -715,6 +718,7 @@ public class SupervisorConsensusPhases {
             Bytes message = Bytes.wrap(block_serialize.encode(block.getData(), this.sizeCalculator.CommitteeBlockSizeCalculator()));
             boolean verify = BLSSignature.fastAggregateVerify(publicKeys, message, aggregatedSignature);
             if (!verify) {
+                cleanup();
                 LOG.info("Abort consensus phase BLS multi_signature is invalid during prepare phase");
                 block.setStatusType(ConsensusStatusType.ABORT);
                 return;
@@ -772,6 +776,7 @@ public class SupervisorConsensusPhases {
 
 
                 if (N_COPY > F) {
+                    cleanup();
                     LOG.info("CommitPhase: Byzantine network not meet requirements abort " + String.valueOf(N_COPY));
                     block.setStatusType(ConsensusStatusType.ABORT);
                     return;
@@ -788,6 +793,7 @@ public class SupervisorConsensusPhases {
             Bytes message = Bytes.wrap(block_serialize.encode(block.getData(), this.sizeCalculator.CommitteeBlockSizeCalculator()));
             boolean verify = BLSSignature.fastAggregateVerify(publicKeys, message, aggregatedSignature);
             if (!verify) {
+                cleanup();
                 LOG.info("CommitPhase: Abort consensus phase BLS multi_signature is invalid during commit phase");
                 block.setStatusType(ConsensusStatusType.ABORT);
                 return;
@@ -809,11 +815,11 @@ public class SupervisorConsensusPhases {
             ConsensusServer.getInstance().publishMessage(toSend);
 
 
-
-            ConsensusServer.getInstance().setLatch(new CountDownLatch(N-1));
+            ConsensusServer.getInstance().setLatch(new CountDownLatch(N - 1));
             ConsensusServer.getInstance().BlockUntilConnected();
 
             if (ConsensusServer.getInstance().getLatch().getCount() > F) {
+                cleanup();
                 LOG.info("CommitPhase: Byzantine network last message not meet requirements abort " + String.valueOf(ConsensusServer.getInstance().getLatch().getCount()));
                 block.setStatusType(ConsensusStatusType.ABORT);
                 return;
@@ -824,7 +830,6 @@ public class SupervisorConsensusPhases {
             Thread.sleep(700);
             //Make sure you give enough time for nodes to sync that not existed or existed
         }
-
 
     }
 }

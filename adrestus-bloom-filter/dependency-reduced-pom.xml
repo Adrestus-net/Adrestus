@@ -146,15 +146,16 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.24</version>
+            <version>1.18.32</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
     <properties>
         <json.version>20231013</json.version>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <crypto.version>1.0-SNAPSHOT</crypto.version>
         <fastjson2.version>2.0.45</fastjson2.version>
+        <util.version>1.0-SNAPSHOT</util.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <lz4.version>1.8.0</lz4.version>
     </properties>
 </project>

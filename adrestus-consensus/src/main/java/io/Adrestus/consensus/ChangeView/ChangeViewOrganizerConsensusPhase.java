@@ -1,6 +1,5 @@
 package io.Adrestus.consensus.ChangeView;
 
-import io.Adrestus.config.ConsensusConfiguration;
 import io.Adrestus.consensus.ConsensusMessage;
 import io.Adrestus.consensus.ConsensusMessageType;
 import io.Adrestus.consensus.ConsensusStatusType;
