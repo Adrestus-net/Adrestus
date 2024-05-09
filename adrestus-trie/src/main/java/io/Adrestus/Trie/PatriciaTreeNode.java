@@ -14,6 +14,7 @@ public class PatriciaTreeNode implements PatriciaTreeMethods, Serializable, Clon
 
     private double amount;
     private double staking_amount;
+    private double unclaimed_reward;
     private int nonce;
 
     private HashMap<Integer, @SerializeNullable TransactionPointerStorage> transactionCapacities;
@@ -22,6 +23,7 @@ public class PatriciaTreeNode implements PatriciaTreeMethods, Serializable, Clon
     public PatriciaTreeNode(double amount, int nonce) {
         this.amount = amount;
         this.nonce = nonce;
+        this.unclaimed_reward=0;
         this.transactionCapacities = new HashMap<Integer, TransactionPointerStorage>();
         this.receiptCapacities = new HashMap<Integer, ReceiptPointerStorage>();
     }
@@ -30,6 +32,15 @@ public class PatriciaTreeNode implements PatriciaTreeMethods, Serializable, Clon
         this.amount = amount;
         this.nonce = nonce;
         this.staking_amount = staking_amount;
+        this.unclaimed_reward=0;
+        this.transactionCapacities = new HashMap<Integer, TransactionPointerStorage>();
+        this.receiptCapacities = new HashMap<Integer, ReceiptPointerStorage>();
+    }
+    public PatriciaTreeNode(@Deserialize("amount") double amount, @Deserialize("nonce") int nonce, @Deserialize("staking_amount") double staking_amount,@Deserialize("unclaimed_reward") double unclaimed_reward) {
+        this.amount = amount;
+        this.nonce = nonce;
+        this.staking_amount = staking_amount;
+        this.unclaimed_reward=unclaimed_reward;
         this.transactionCapacities = new HashMap<Integer, TransactionPointerStorage>();
         this.receiptCapacities = new HashMap<Integer, ReceiptPointerStorage>();
     }
@@ -68,6 +79,14 @@ public class PatriciaTreeNode implements PatriciaTreeMethods, Serializable, Clon
         this.staking_amount = staking_amount;
     }
 
+    @Serialize
+    public double getUnclaimed_reward() {
+        return unclaimed_reward;
+    }
+
+    public void setUnclaimed_reward(double unclaimed_reward) {
+        this.unclaimed_reward = unclaimed_reward;
+    }
 
     @Serialize
     public HashMap<Integer, TransactionPointerStorage> getTransactionCapacities() {
@@ -136,12 +155,12 @@ public class PatriciaTreeNode implements PatriciaTreeMethods, Serializable, Clon
         if (this == object) return true;
         if (object == null || getClass() != object.getClass()) return false;
         PatriciaTreeNode that = (PatriciaTreeNode) object;
-        return Double.compare(amount, that.amount) == 0 && Double.compare(staking_amount, that.staking_amount) == 0 && nonce == that.nonce && linkedEquals(transactionCapacities, that.transactionCapacities) && linkedEquals2(receiptCapacities, that.receiptCapacities);
+        return Double.compare(unclaimed_reward, that.unclaimed_reward) == 0 &&Double.compare(amount, that.amount) == 0 && Double.compare(staking_amount, that.staking_amount) == 0 && nonce == that.nonce && linkedEquals(transactionCapacities, that.transactionCapacities) && linkedEquals2(receiptCapacities, that.receiptCapacities);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(amount, staking_amount, nonce, transactionCapacities, receiptCapacities);
+        return Objects.hash(amount,unclaimed_reward, staking_amount, nonce, transactionCapacities, receiptCapacities);
     }
 
     @Override
@@ -155,12 +174,12 @@ public class PatriciaTreeNode implements PatriciaTreeMethods, Serializable, Clon
         return "PatriciaTreeNode{" +
                 "amount=" + amount +
                 ", staking_amount=" + staking_amount +
+                ", unclaimed_reward=" + unclaimed_reward +
                 ", nonce=" + nonce +
                 ", transactionCapacities=" + transactionCapacities +
                 ", receiptCapacities=" + receiptCapacities +
                 '}';
     }
-
 
     @Override
     public void addTransactionPosition(String hash, int origin_zone, int height, int position) {

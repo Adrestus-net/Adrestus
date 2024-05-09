@@ -39,6 +39,22 @@ public class BlockEventPublisher implements Publisher<AbstractBlock> {
     }
 
 
+
+    public BlockEventPublisher withLeaderFeeRewardEventHandler() {
+        group.add(new LeaderFeeRewardEventHandler());
+        return this;
+    }
+
+    public BlockEventPublisher withSumFeeRewardEventHandler() {
+        group.add(new SumFeeRewardEventHandler());
+        return this;
+    }
+
+    public BlockEventPublisher withReplayFeeEventHandler() {
+        group.add(new ReplayFeeRewardEventHandler());
+        return this;
+    }
+
     public BlockEventPublisher withDuplicateHandler() {
         group.add(new DuplicateEventHandler());
         return this;

@@ -1,5 +1,6 @@
 package io.Adrestus.core.RingBuffer.handler.transactions;
 
+import io.Adrestus.core.RewardsTransaction;
 import io.Adrestus.core.RingBuffer.event.TransactionEvent;
 import io.Adrestus.core.StatusType;
 import io.Adrestus.core.Transaction;
@@ -16,6 +17,11 @@ public class AddressSizeEventHandler extends TransactionEventHandler {
 
             if (transaction.getStatus().equals(StatusType.BUFFERED) || transaction.getStatus().equals(StatusType.ABORT))
                 return;
+
+
+            if (transaction instanceof RewardsTransaction) {
+                return;
+            }
 
             if (transaction.getFrom().length() != 53 || transaction.getTo().length() != 53) {
                 LOG.info("Transaction addresses is invalid please check again");

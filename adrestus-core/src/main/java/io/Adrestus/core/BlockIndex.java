@@ -31,6 +31,18 @@ public class BlockIndex implements IBlockIndex {
     }
 
     @Override
+    public String getAddressByPublicKey(BLSPublicKey blsPublicKey) {
+        return CachedLatestBlocks
+                .getInstance()
+                .getCommitteeBlock()
+                .getStakingMap()
+                .values()
+                .stream()
+                .filter(val -> val.getAddressData().getValidatorBlSPublicKey().equals(blsPublicKey))
+                .findFirst().get().getAddressData().getAddress();
+    }
+
+    @Override
     public int getIndexFromIP(int zone, String ip) {
         int count = 0;
         for (Map.Entry<BLSPublicKey, String> entry : CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(zone).entrySet()) {

@@ -56,6 +56,24 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
         this.Signature = new ECDSASignatureData();
     }
 
+    public Transaction(TransactionType transactionType, double amount) {
+        this.Hash = "";
+        this.Type = transactionType;
+        this.Status = StatusType.PENDING;
+        this.ZoneFrom = 0;
+        this.ZoneTo = 0;
+        this.BlockNumber = 0;
+        this.timestamp = "";
+        this.From = "";
+        this.To = "";
+        this.Amount = amount;
+        this.AmountWithTransactionFee = 0;
+        this.Nonce = 0;
+        this.XAxis = new BigInteger("0");
+        this.YAxis = new BigInteger("0");
+        this.Signature = new ECDSASignatureData();
+    }
+
     public Transaction(TransactionType type) {
         this.Hash = "";
         this.Type = type;

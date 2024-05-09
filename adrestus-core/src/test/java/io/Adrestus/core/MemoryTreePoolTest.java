@@ -5,6 +5,7 @@ import com.google.common.reflect.TypeToken;
 import io.Adrestus.MemoryTreePool;
 import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.PatriciaTreeNode;
+import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.mapper.MemoryTreePoolSerializer;
 import io.Adrestus.util.SerializationUtil;
 import io.Adrestus.util.bytes.Bytes53;
@@ -32,17 +33,23 @@ public class MemoryTreePoolTest {
     public void store_mempool() throws Exception {
         String address = "ADR-ADL3-VDZK-ZU7H-2BX5-M2H4-S7LF-5SR4-ECQA-EIUJ-CBFK";
         PatriciaTreeNode treeNode = new PatriciaTreeNode(10, 1);
-        TreeFactory.getMemoryTree(1).store(address, treeNode);
-
-        TreeFactory.getMemoryTree(1).store("updated_address", treeNode);
-        System.out.println(TreeFactory.getMemoryTree(0).getRootHash());
         treeNode.setAmount(100);
         treeNode.setNonce(2);
+        PatriciaTreeNode treeNode2 = new PatriciaTreeNode(10, 1);
+        treeNode2.setAmount(100);
+        treeNode2.setNonce(2);
+        TreeFactory.getMemoryTree(1).store(address, treeNode);
+
+        TreeFactory.getMemoryTree(1).store("updated_address", treeNode2);
+        System.out.println(TreeFactory.getMemoryTree(0).getRootHash());
 
 
-        TreeFactory.getMemoryTree(1).deposit(address, treeNode.getAmount(), TreeFactory.getMemoryTree(1));
+        TreeFactory.getMemoryTree(1).deposit(address, 50);
+        TreeFactory.getMemoryTree(1).deposit("updated_address", 20);
         Option<PatriciaTreeNode> copy = TreeFactory.getMemoryTree(1).getByaddress(address);
-        System.out.println(copy.get().toString());
+        Option<PatriciaTreeNode> copy2 = TreeFactory.getMemoryTree(1).getByaddress("updated_address");
+        assertEquals(150, copy.get().getAmount());
+        assertEquals(120, copy2.get().getAmount());
 
         if (copy.isDefined())
             System.out.println(copy.get().toString());
@@ -69,9 +76,26 @@ public class MemoryTreePoolTest {
         PatriciaTreeNode treeNode = new PatriciaTreeNode(10, 1);
         TreeFactory.getMemoryTree(1).store(address, treeNode);
 
-        TreeFactory.getMemoryTree(1).withdraw(address, 1, TreeFactory.getMemoryTree(1));
+        TreeFactory.getMemoryTree(1).withdraw(address, 1);
         System.out.println(TreeFactory.getMemoryTree(1).getByaddress(address).get().getAmount());
         assertEquals(9, TreeFactory.getMemoryTree(1).getByaddress(address).get().getAmount());
+        Option<PatriciaTreeNode> copy = TreeFactory.getMemoryTree(0).getByaddress(address);
+
+        if (copy.isDefined())
+            System.out.println(copy.get().toString());
+
+    }
+
+    @Test
+    public void deposit_withdraw_unclaimed() throws Exception {
+        String address = "ADR-ADL3-VDZK-ZU7H-2BX5-M2H4-S7LF-5SR4-ECQA-EIUJ-CBFK";
+        PatriciaTreeNode treeNode = new PatriciaTreeNode(10, 1);
+        TreeFactory.getMemoryTree(1).store(address, treeNode);
+
+        TreeFactory.getMemoryTree(1).depositUnclaimedReward(address, 10);
+        assertEquals(10,TreeFactory.getMemoryTree(1).getByaddress(address).get().getUnclaimed_reward());
+        TreeFactory.getMemoryTree(1).withdrawUnclaimedReward(address,5);
+        assertEquals(5,TreeFactory.getMemoryTree(1).getByaddress(address).get().getUnclaimed_reward());
         Option<PatriciaTreeNode> copy = TreeFactory.getMemoryTree(0).getByaddress(address);
 
         if (copy.isDefined())
@@ -128,6 +152,69 @@ public class MemoryTreePoolTest {
 
     }
 
+    @Test
+    public void MultiPatriciaTrees() throws Exception {
+        String address = "ADR-ADL3-VDZK-ZU7H-2BX5-M2H4-S7LF-5SR4-ECQA-EIUJ-CBFK";
+        PatriciaTreeNode treeNode = new PatriciaTreeNode(200, 112,0,456);
+        TreeFactory.getMemoryTree(1).store(address, treeNode);
+        String hash=TreeFactory.getMemoryTree(1).getRootHash();
+        MemoryTreePool replica = new MemoryTreePool(((MemoryTreePool) TreeFactory.getMemoryTree(1)));
+        MemoryTreePool replica2 = new MemoryTreePool(((MemoryTreePool) TreeFactory.getMemoryTree(1)));
+        assertEquals(hash,hash);
+        assertEquals(hash,replica.getRootHash());
+        assertEquals(hash,replica2.getRootHash());
+        replica2.withdrawUnclaimedReward(address,10);
+        replica2.withdraw(address,2);
+        replica2.deposit(address,20);
+        replica.withdrawUnclaimedReward(address,10);
+        replica.withdraw(address,2);
+        replica.deposit(address,20);
+        assertEquals(replica,replica2);
+    }
+    @Test
+    public void MultiPatriciaTrees2() throws Exception {
+        String address = "ADR-ADL3-VDZK-ZU7H-2BX5-M2H4-S7LF-5SR4-ECQA-EIUJ-CBFK";
+        PatriciaTreeNode treeNode = new PatriciaTreeNode(200, 112,0,456);
+        TreeFactory.getMemoryTree(1).store(address, treeNode);
+        MemoryTreePool replica = new MemoryTreePool(((MemoryTreePool) TreeFactory.getMemoryTree(1)));
+        MemoryTreePool replica2 = new MemoryTreePool(((MemoryTreePool) TreeFactory.getMemoryTree(1)));
+        replica.depositUnclaimedReward(address,10);
+        replica.withdrawUnclaimedReward(address,2);
+        replica.deposit(address,10);
+        replica.withdraw(address,2);
+        replica2.depositUnclaimedReward(address,10);
+        replica2.withdrawUnclaimedReward(address,2);
+        replica2.deposit(address,10);
+        replica2.withdraw(address,2);
+        assertEquals(456,TreeFactory.getMemoryTree(1).getByaddress(address).get().getUnclaimed_reward());
+        assertEquals(464,replica.getByaddress(address).get().getUnclaimed_reward());
+        assertEquals(464,replica2.getByaddress(address).get().getUnclaimed_reward());
+        assertEquals(replica,replica2);
+    }
+    @Test
+    public void MultiPatriciaTrees3() throws Exception {
+        String address1 = "1";
+        String address2 = "2";
+        String address3 = "2";
+        PatriciaTreeNode treeNode1 = new PatriciaTreeNode(200, 112,0,456);
+        PatriciaTreeNode treeNode2 = new PatriciaTreeNode(200, 112,0,456);
+        PatriciaTreeNode treeNode3 = new PatriciaTreeNode(200, 112,0,456);
+        TreeFactory.getMemoryTree(1).store(address1, treeNode1);
+        TreeFactory.getMemoryTree(2).store(address2, treeNode2);
+        TreeFactory.getMemoryTree(3).store(address3, treeNode3);
+        MemoryTreePool replica = new MemoryTreePool(((MemoryTreePool) TreeFactory.getMemoryTree(1)));
+        MemoryTreePool replica2 = new MemoryTreePool(((MemoryTreePool) TreeFactory.getMemoryTree(1)));
+        replica.deposit(address1,10);
+        replica.deposit(address2,20);
+        replica.deposit(address3,30);
+
+        replica2.deposit(address3,30);
+        replica2.deposit(address2,20);
+        replica2.deposit(address1,10);
+        assertEquals(replica,replica2);
+
+
+    }
     @Test
     public void serialization_tree2() throws Exception {
         String address = "ADR-ADL3-VDZK-ZU7H-2BX5-M2H4-S7LF-5SR4-ECQA-EIUJ-CBFK";

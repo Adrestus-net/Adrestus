@@ -6,6 +6,7 @@ import io.Adrestus.config.SocketConfigOptions;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.core.Resourses.MemoryTransactionPool;
+import io.Adrestus.core.RewardsTransaction;
 import io.Adrestus.core.RingBuffer.event.TransactionEvent;
 import io.Adrestus.core.StatusType;
 import io.Adrestus.core.Transaction;
@@ -17,6 +18,7 @@ import io.distributedLedger.DatabaseFactory;
 import io.distributedLedger.DatabaseType;
 import io.distributedLedger.IDatabase;
 import io.distributedLedger.ZoneDatabaseFactory;
+import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,6 +46,15 @@ public class ZoneEventHandler extends TransactionEventHandler {
             if (transaction.getStatus().equals(StatusType.BUFFERED) || transaction.getStatus().equals(StatusType.ABORT))
                 return;
 
+            if (transaction instanceof RewardsTransaction) {
+                if (CachedZoneIndex.getInstance().getZoneIndex() != transaction.getZoneFrom() || CachedZoneIndex.getInstance().getZoneIndex() != 0) {
+                    LOG.info("Reward Transaction zone should be only in zone 0 abort");
+                    transaction.setStatus(StatusType.ABORT);
+                    SendAsync(transaction);
+                }
+                return;
+            }
+
             if (transaction.getZoneFrom() != CachedZoneIndex.getInstance().getZoneIndex()) {
                 ArrayList<StorageInfo> tosearch;
                 try {
@@ -64,6 +75,7 @@ public class ZoneEventHandler extends TransactionEventHandler {
                     }
                 }
 
+                transaction.setStatus(StatusType.ABORT);
                 SendAsync(transaction);
             }
         } catch (NullPointerException ex) {
@@ -71,18 +83,19 @@ public class ZoneEventHandler extends TransactionEventHandler {
         }
     }
 
+    @SneakyThrows
     private void SendAsync(Transaction transaction) throws InterruptedException {
-        LOG.info("Transaction abort: Transaction is not in the valid zone send async");
-
+        LOG.info("Transaction: is not in the valid zone send async");
+        MemoryTransactionPool.getInstance().delete(transaction);
+        Transaction transactionToSend = (Transaction) transaction.clone();
+        transactionToSend.setStatus(StatusType.PENDING);
         //make sure give enough time for block sync
         Thread.sleep(500);
-        List<String> ips = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(transaction.getZoneFrom()).values().stream().collect(Collectors.toList());
-        var executor = new AsyncService<Long>(ips, transaction_encode.encode(transaction, 1024), SocketConfigOptions.TRANSACTION_PORT);
+        List<String> ips = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(transactionToSend.getZoneFrom()).values().stream().collect(Collectors.toList());
+        var executor = new AsyncService<Long>(ips, transaction_encode.encode(transactionToSend, 1024), SocketConfigOptions.TRANSACTION_PORT);
 
         var asyncResult1 = executor.startProcess(300L);
         final var result1 = executor.endProcess(asyncResult1);
-        transaction.setStatus(StatusType.ABORT);
-        MemoryTransactionPool.getInstance().delete(transaction);
     }
 
 }

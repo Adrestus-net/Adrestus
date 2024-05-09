@@ -51,6 +51,7 @@ import io.activej.serializer.annotations.Serialize;
 import io.distributedLedger.*;
 import org.apache.commons.lang3.SerializationUtils;
 import org.junit.jupiter.api.*;
+import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
 
 import java.io.IOException;
@@ -73,6 +74,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class RPCExampleTest {
+    private static org.slf4j.Logger LOG = LoggerFactory.getLogger(RPCExampleTest.class);
+
     private static final int TIMEOUT = 1500;
     private static RpcServer serverOne, serverTwo, serverThree;
     private static Thread thread;
@@ -90,6 +93,9 @@ class RPCExampleTest {
     private static ArrayList<SerializableErasureObject> serializableErasureObjects = new ArrayList<SerializableErasureObject>();
     private static int blocksize;
 
+    static {
+       //Logger.getRootLogger().setLevel(Level.OFF);
+    }
     @BeforeAll
     public static void setup() throws IOException, MnemonicException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException {
         sk1 = new BLSPrivateKey(1);
@@ -207,7 +213,7 @@ class RPCExampleTest {
     @Test
     @Order(1)
     public void myAtest2() throws Exception {
-
+        LOG.info("Starting up");
         address1 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 8080);
         address2 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 8081);
         address3 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 8084);
@@ -852,8 +858,13 @@ class RPCExampleTest {
     }
 
     //@Test
-    public void erasure_test3() {
+    public void erasure_test3() throws InterruptedException {
         RpcErasureServer example = new RpcErasureServer(new String(), "localhost", 6084, eventloop, blocksize);
+        new Thread(example).start();
+        Thread.sleep(400);
+        example.close();
+        example = null;
+        example = new RpcErasureServer(new String(), "localhost", 6084, eventloop, blocksize);
         new Thread(example).start();
         RpcErasureClient<String> client = new RpcErasureClient<String>("localhost", 6084, 4000, eventloop);
         client.connect();

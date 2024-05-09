@@ -12,13 +12,13 @@ import java.util.Set;
 public interface IMemoryTreePool extends Serializable {
     void store(String address, PatriciaTreeNode patriciaTreeNode);
 
-    void deposit(String address, double amount, IMemoryTreePool instance);
+    void deposit(String address, double amount);
 
-    void withdraw(String address, double amount, IMemoryTreePool instance);
+    void withdraw(String address, double amount);
 
-    void depositReplica(String address, double amount, IMemoryTreePool instance);
+    void depositUnclaimedReward(String address, double amount);
 
-    void withdrawReplica(String address, double amount, IMemoryTreePool instance);
+    void withdrawUnclaimedReward(String address, double amount);
 
     Option<PatriciaTreeNode> getByaddress(String address);
 

@@ -2,6 +2,7 @@ package io.Adrestus.core.RingBuffer.handler.transactions;
 
 import io.Adrestus.core.Resourses.CacheTemporalTransactionPool;
 import io.Adrestus.core.Resourses.MemoryTransactionPool;
+import io.Adrestus.core.RewardsTransaction;
 import io.Adrestus.core.RingBuffer.event.TransactionEvent;
 import io.Adrestus.core.StatusType;
 import io.Adrestus.core.Transaction;
@@ -72,21 +73,26 @@ public class SignatureEventHandler extends TransactionEventHandler {
         }
         if (transaction.getStatus().equals(StatusType.ABORT)) {
             LOG.info("Transaction Marked with status ABORT");
-            if (type.equals(SignatureBehaviorType.BLOCK_TRANSACTIONS))
-                latch.countDown();
+            latch.countDown();
             return;
         }
 
-        FinalizeTask task = new FinalizeTask((Transaction) transaction.clone());
+        FinalizeTask task;
+        if (transaction instanceof RewardsTransaction)
+            task = new FinalizeTask(transaction, ((RewardsTransaction) transaction).getRecipientAddress());
+        else
+            task = new FinalizeTask(transaction, transaction.getFrom());
         executorService.submit(task);
     }
 
 
     private class FinalizeTask implements Runnable {
-        private Transaction transaction;
+        private final Transaction transaction;
+        private final String address;
 
-        public FinalizeTask(Transaction transaction) {
+        public FinalizeTask(Transaction transaction, String address) {
             this.transaction = transaction;
+            this.address=address;
         }
 
         public Transaction getTransaction() {
@@ -100,7 +106,7 @@ public class SignatureEventHandler extends TransactionEventHandler {
             if (!transaction.getXAxis().toString().equals("0") && !transaction.getYAxis().toString().equals("0")) {
                 ECDSASign ecdsaSign = new ECDSASign();
                 BigInteger publicKeyValue = ecdsaSign.recoverPublicKeyValue(transaction.getXAxis(), transaction.getYAxis());
-                boolean verify = ecdsaSign.secp256Verify(HashUtil.sha256(transaction.getHash().getBytes(StandardCharsets.UTF_8)), transaction.getFrom(), publicKeyValue, transaction.getSignature());
+                boolean verify = ecdsaSign.secp256Verify(HashUtil.sha256(transaction.getHash().getBytes(StandardCharsets.UTF_8)),address, publicKeyValue, transaction.getSignature());
                 if (!verify) {
                     LOG.info("Transaction Wallet signature is not valid ABORT");
                     if (type.equals(SignatureBehaviorType.BLOCK_TRANSACTIONS))
@@ -110,7 +116,7 @@ public class SignatureEventHandler extends TransactionEventHandler {
                     return;
                 }
             } else {
-                if (!ecdsaSign.secp256Verify(Hex.decode(transaction.getHash()), transaction.getFrom(), transaction.getSignature())) {
+                if (!ecdsaSign.secp256Verify(Hex.decode(transaction.getHash()), address, transaction.getSignature())) {
                     LOG.info("Transaction signature is not valid ABORT");
                     if (type.equals(SignatureBehaviorType.BLOCK_TRANSACTIONS))
                         latch.countDown();

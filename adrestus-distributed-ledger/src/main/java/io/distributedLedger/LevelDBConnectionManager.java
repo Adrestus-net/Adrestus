@@ -46,6 +46,7 @@ public class LevelDBConnectionManager<K, V> implements IDatabase<K, V> {
     private Options options;
     private DB level_db;
 
+
     private LevelDBConnectionManager(Class<K> keyClass, Class<V> valueClass) {
         this.rwl = new ReentrantReadWriteLock();
         this.r = rwl.readLock();

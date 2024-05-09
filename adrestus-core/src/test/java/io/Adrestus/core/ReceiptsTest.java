@@ -422,7 +422,7 @@ public class ReceiptsTest {
                 .forEach(entry -> {
                     entry.getValue().stream().forEach(receipt -> {
                         Transaction trx = transactionBlock.getTransactionList().get(receipt.getPosition());
-                        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).deposit(trx.getFrom(), trx.getAmount(), TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()));
+                        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).deposit(trx.getFrom(), trx.getAmount());
                         MemoryReceiptPool.getInstance().delete(receipt);
                     });
                 });

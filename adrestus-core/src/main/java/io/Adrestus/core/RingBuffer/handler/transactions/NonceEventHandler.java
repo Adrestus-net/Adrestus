@@ -3,6 +3,7 @@ package io.Adrestus.core.RingBuffer.handler.transactions;
 import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
+import io.Adrestus.core.RewardsTransaction;
 import io.Adrestus.core.RingBuffer.event.TransactionEvent;
 import io.Adrestus.core.StatusType;
 import io.Adrestus.core.Transaction;
@@ -24,7 +25,10 @@ public class NonceEventHandler extends TransactionEventHandler {
             if (transaction.getStatus().equals(StatusType.BUFFERED) || transaction.getStatus().equals(StatusType.ABORT))
                 return;
 
-            patriciaTreeNode = TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(transaction.getFrom()).get();
+            if(transaction instanceof RewardsTransaction)
+                patriciaTreeNode = TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(((RewardsTransaction) transaction).getRecipientAddress()).get();
+            else
+                patriciaTreeNode = TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(transaction.getFrom()).get();
 
         } catch (NoSuchElementException ex) {
             LOG.info("State trie is empty we add address");

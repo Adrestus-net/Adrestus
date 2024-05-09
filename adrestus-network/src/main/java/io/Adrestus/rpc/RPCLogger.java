@@ -4,6 +4,7 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 import org.slf4j.LoggerFactory;
 
+
 public class RPCLogger {
 
     public static void setLevelOff() {
@@ -13,5 +14,6 @@ public class RPCLogger {
         rootLogger.setLevel(ch.qos.logback.classic.Level.OFF);
         rootLogger2.setLevel(ch.qos.logback.classic.Level.OFF);
     }
+
 
 }

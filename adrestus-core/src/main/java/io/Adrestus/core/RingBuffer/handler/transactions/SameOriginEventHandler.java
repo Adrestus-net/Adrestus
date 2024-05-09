@@ -5,6 +5,7 @@ import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.core.Resourses.CacheTemporalTransactionPool;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.core.Resourses.MemoryTransactionPool;
+import io.Adrestus.core.RewardsTransaction;
 import io.Adrestus.core.RingBuffer.event.TransactionEvent;
 import io.Adrestus.core.StatusType;
 import io.Adrestus.core.Transaction;
@@ -27,7 +28,12 @@ public class SameOriginEventHandler extends TransactionEventHandler {
                 CacheTemporalTransactionPool.getInstance().add(transaction);
                 return;
             }
-            PatriciaTreeNode patriciaTreeNode = TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(transaction.getFrom()).get();
+            PatriciaTreeNode patriciaTreeNode;
+            if (transaction instanceof RewardsTransaction) {
+                RewardsTransaction rewardsTransaction = (RewardsTransaction) transaction;
+                patriciaTreeNode = TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(rewardsTransaction.getRecipientAddress()).get();
+            } else
+                patriciaTreeNode = TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(transaction.getFrom()).get();
 
             if (transaction.getNonce() == patriciaTreeNode.getNonce() + 1)
                 return;

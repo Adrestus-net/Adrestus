@@ -7,6 +7,11 @@ import io.activej.serializer.annotations.Serialize;
 public class RewardsTransaction extends Transaction {
     private String RecipientAddress;
 
+
+    public RewardsTransaction() {
+        super();
+    }
+
     public RewardsTransaction(String RecipientAddress) {
         this.RecipientAddress = RecipientAddress;
     }
@@ -16,7 +21,9 @@ public class RewardsTransaction extends Transaction {
         this.RecipientAddress = RecipientAddress;
     }
 
-    public RewardsTransaction() {
+    public RewardsTransaction(TransactionType type, String RecipientAddress, double amount) {
+        super(type, amount);
+        this.RecipientAddress=RecipientAddress;
     }
 
     @Serialize

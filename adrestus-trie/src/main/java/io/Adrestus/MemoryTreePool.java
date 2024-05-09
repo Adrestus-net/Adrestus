@@ -56,52 +56,56 @@ public class MemoryTreePool implements IMemoryTreePool, Cloneable {
 
 
     //be aware that print functionality is  different
+    @SneakyThrows
     @Override
-    public void deposit(String address, double amount, IMemoryTreePool instance) {
+    public void deposit(String address, double amount) {
         w.lock();
         try {
             Bytes key = Bytes.wrap(address.getBytes(StandardCharsets.UTF_8));
-            Option<PatriciaTreeNode> prev = instance.getByaddress(address);
+            Option<PatriciaTreeNode> prev = getByaddress(address);
             if (prev.isEmpty()) {
                 PatriciaTreeNode next = new PatriciaTreeNode(amount, 0, 0);
                 patriciaTreeImp.put(key, next);
             } else {
-                Double new_cash = prev.get().getAmount() + amount;
-                // System.out.println("Deposit "+address+ " "+prev.get().getAmount()+" + "+patriciaTreeNode.getAmount()+" = "+amount);
-                prev.get().setAmount(new_cash);
-                patriciaTreeImp.put(key, prev.get());
+                PatriciaTreeNode patriciaTreeNode = (PatriciaTreeNode) prev.get().clone();
+                Double new_cash = patriciaTreeNode.getAmount() + amount;
+                patriciaTreeNode.setAmount(new_cash);
+                patriciaTreeImp.put(key, patriciaTreeNode);
+            }
+        } finally {
+            w.unlock();
+        }
+    }
+    @SneakyThrows
+    @Override
+    public void depositUnclaimedReward(String address, double amount) {
+        w.lock();
+        try {
+            Bytes key = Bytes.wrap(address.getBytes(StandardCharsets.UTF_8));
+            Option<PatriciaTreeNode> prev = getByaddress(address);
+            if (prev.isEmpty()) {
+                PatriciaTreeNode next = new PatriciaTreeNode(amount, 0, 0);
+                patriciaTreeImp.put(key, next);
+            } else {
+                PatriciaTreeNode patriciaTreeNode = (PatriciaTreeNode) prev.get().clone();
+                Double new_cash = patriciaTreeNode.getUnclaimed_reward() + amount;
+                patriciaTreeNode.setUnclaimed_reward(new_cash);
+                patriciaTreeImp.put(key, patriciaTreeNode);
             }
         } finally {
             w.unlock();
         }
     }
 
-    @SneakyThrows
-    @Override
-    public void depositReplica(String address, double amount, IMemoryTreePool instance) {
-        Bytes key = Bytes.wrap(address.getBytes(StandardCharsets.UTF_8));
-        Option<PatriciaTreeNode> prev = instance.getByaddress(address);
-        if (prev.isEmpty()) {
-            PatriciaTreeNode next = new PatriciaTreeNode(amount, 0, 0);
-            instance.getTrie().put(key, next);
-        } else {
-            PatriciaTreeNode patriciaTreeNode = (PatriciaTreeNode) prev.get().clone();
-            Double new_cash = prev.get().getAmount() + amount;
-            // System.out.println("Deposit "+address+ " "+prev.get().getAmount()+" + "+patriciaTreeNode.getAmount()+" = "+amount);
-            patriciaTreeNode.setAmount(new_cash);
-            patriciaTreeNode.setNonce(prev.get().getNonce());
-            instance.getTrie().put(key, patriciaTreeNode);
-        }
-    }
 
     //be aware that print functionality is  different
     @SneakyThrows
     @Override
-    public void withdraw(String address, double amount, IMemoryTreePool instance) {
+    public void withdraw(String address, double amount) {
         w.lock();
         try {
             Bytes key = Bytes.wrap(address.getBytes(StandardCharsets.UTF_8));
-            Option<PatriciaTreeNode> prev = instance.getByaddress(address);
+            Option<PatriciaTreeNode> prev = getByaddress(address);
             if (prev.isEmpty()) {
                 PatriciaTreeNode next = new PatriciaTreeNode(amount, 0, 0);
                 patriciaTreeImp.put(key, next);
@@ -118,24 +122,28 @@ public class MemoryTreePool implements IMemoryTreePool, Cloneable {
         }
     }
 
-
     @SneakyThrows
     @Override
-    public void withdrawReplica(String address, double amount, IMemoryTreePool instance) {
-        Bytes key = Bytes.wrap(address.getBytes(StandardCharsets.UTF_8));
-        Option<PatriciaTreeNode> prev = instance.getByaddress(address);
-        if (prev.isEmpty()) {
-            PatriciaTreeNode next = new PatriciaTreeNode(amount, 0, 0);
-            instance.getTrie().put(key, next);
-        } else {
-            PatriciaTreeNode patriciaTreeNode = (PatriciaTreeNode) prev.get().clone();
-            Double new_cash = prev.get().getAmount() - amount;
-            //System.out.println("Widraw "+address+ " "+prev.get().getAmount()+" - "+patriciaTreeNode.getAmount()+" = "+amount);
-            patriciaTreeNode.setAmount(new_cash);
-            patriciaTreeNode.setNonce(patriciaTreeNode.getNonce() + 1);
-            instance.getTrie().put(key, patriciaTreeNode);
+    public void withdrawUnclaimedReward(String address, double amount) {
+        w.lock();
+        try {
+            Bytes key = Bytes.wrap(address.getBytes(StandardCharsets.UTF_8));
+            Option<PatriciaTreeNode> prev = getByaddress(address);
+            if (prev.isEmpty()) {
+                PatriciaTreeNode next = new PatriciaTreeNode(amount, 0, 0);
+                patriciaTreeImp.put(key, next);
+            } else {
+                PatriciaTreeNode patriciaTreeNode = (PatriciaTreeNode) prev.get().clone();
+                Double new_cash = prev.get().getUnclaimed_reward() - amount;
+                patriciaTreeNode.setUnclaimed_reward(new_cash);
+                patriciaTreeNode.setNonce(patriciaTreeNode.getNonce() + 1);
+                patriciaTreeImp.put(key, patriciaTreeNode);
+            }
+        } finally {
+            w.unlock();
         }
     }
+
 
     @Override
     public Option<PatriciaTreeNode> getByaddress(String address) {

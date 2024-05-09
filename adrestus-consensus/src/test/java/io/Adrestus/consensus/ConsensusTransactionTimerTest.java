@@ -3,30 +3,38 @@ package io.Adrestus.consensus;
 import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.config.AdrestusConfiguration;
+import io.Adrestus.config.KademliaConfiguration;
 import io.Adrestus.consensus.helper.ConsensusTransactionTimer;
 import io.Adrestus.core.CommitteeBlock;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.core.Transaction;
 import io.Adrestus.core.TransactionBlock;
+import io.Adrestus.crypto.HashUtil;
+import io.Adrestus.crypto.SecurityAuditProofs;
 import io.Adrestus.crypto.WalletAddress;
 import io.Adrestus.crypto.bls.model.BLSPrivateKey;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.Adrestus.crypto.bls.model.CachedBLSKeyPair;
 import io.Adrestus.crypto.elliptic.ECDSASign;
+import io.Adrestus.crypto.elliptic.ECDSASignatureData;
 import io.Adrestus.crypto.elliptic.ECKeyPair;
 import io.Adrestus.crypto.elliptic.Keys;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
+import io.Adrestus.crypto.elliptic.mapper.StakingData;
 import io.Adrestus.crypto.mnemonic.Mnemonic;
 import io.Adrestus.crypto.mnemonic.Security;
 import io.Adrestus.crypto.mnemonic.WordList;
 import io.Adrestus.network.CachedEventLoop;
+import io.Adrestus.p2p.kademlia.common.NettyConnectionInfo;
+import io.Adrestus.p2p.kademlia.repository.KademliaData;
 import io.Adrestus.util.GetTime;
 import io.Adrestus.util.SerializationUtil;
 import io.distributedLedger.DatabaseFactory;
 import io.distributedLedger.DatabaseType;
 import io.distributedLedger.IDatabase;
 import io.distributedLedger.ZoneDatabaseFactory;
+import org.apache.commons.codec.binary.StringUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -67,6 +75,7 @@ public class ConsensusTransactionTimerTest {
 
     private static BLSPrivateKey sk6;
     private static BLSPublicKey vk6;
+    private static KademliaData kad1, kad2, kad3, kad4, kad5, kad6;
 
     @BeforeAll
     public static void construct() throws Exception {
@@ -179,6 +188,13 @@ public class ConsensusTransactionTimerTest {
         keypair.add(ecKeyPair9);
         keypair.add(ecKeyPair10);
 
+        ECDSASignatureData signatureData1 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(adddress1)), ecKeyPair1);
+        ECDSASignatureData signatureData2 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(adddress2)), ecKeyPair2);
+        ECDSASignatureData signatureData3 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(adddress3)), ecKeyPair3);
+        ECDSASignatureData signatureData4 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(adddress4)), ecKeyPair4);
+        ECDSASignatureData signatureData5 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(adddress5)), ecKeyPair5);
+        ECDSASignatureData signatureData6 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(adddress6)), ecKeyPair6);
+
         TreeFactory.getMemoryTree(0).store(adddress1, new PatriciaTreeNode(1000, 0));
         TreeFactory.getMemoryTree(0).store(adddress2, new PatriciaTreeNode(1000, 0));
         TreeFactory.getMemoryTree(0).store(adddress3, new PatriciaTreeNode(1000, 0));
@@ -203,6 +219,14 @@ public class ConsensusTransactionTimerTest {
         Thread.sleep(1000);
         CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
         CachedLatestBlocks.getInstance().setTransactionBlock(prevblock);
+
+        kad1 = new KademliaData(new SecurityAuditProofs(adddress1, vk1, ecKeyPair1.getPublicKey(), signatureData1), new NettyConnectionInfo("192.168.1.106", KademliaConfiguration.PORT));
+        kad2 = new KademliaData(new SecurityAuditProofs(adddress2, vk2, ecKeyPair2.getPublicKey(), signatureData2), new NettyConnectionInfo("192.168.1.115", KademliaConfiguration.PORT));
+        kad3 = new KademliaData(new SecurityAuditProofs(adddress3, vk3, ecKeyPair3.getPublicKey(), signatureData3), new NettyConnectionInfo("192.168.1.116", KademliaConfiguration.PORT));
+
+        CachedLatestBlocks.getInstance().getCommitteeBlock().getStakingMap().put(new StakingData(1, 10.0), kad1);
+        CachedLatestBlocks.getInstance().getCommitteeBlock().getStakingMap().put(new StakingData(2, 11.0), kad2);
+        CachedLatestBlocks.getInstance().getCommitteeBlock().getStakingMap().put(new StakingData(3, 151.0), kad3);
 
         CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).put(vk1, "192.168.1.106");
         //CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).put(vk2, "192.168.1.110");

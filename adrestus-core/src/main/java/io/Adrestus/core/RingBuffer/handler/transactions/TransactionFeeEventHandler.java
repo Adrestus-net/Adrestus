@@ -1,5 +1,6 @@
 package io.Adrestus.core.RingBuffer.handler.transactions;
 
+import io.Adrestus.core.RewardsTransaction;
 import io.Adrestus.core.RingBuffer.event.TransactionEvent;
 import io.Adrestus.core.StatusType;
 import io.Adrestus.core.Transaction;
@@ -17,6 +18,9 @@ public class TransactionFeeEventHandler extends TransactionEventHandler {
             Transaction transaction = transactionEvent.getTransaction();
 
             if (transaction.getStatus().equals(StatusType.BUFFERED) || transaction.getStatus().equals(StatusType.ABORT))
+                return;
+
+            if(transaction instanceof RewardsTransaction)
                 return;
 
             if (transaction.getAmountWithTransactionFee() != ((FEES / PERCENT) * transaction.getAmount())) {

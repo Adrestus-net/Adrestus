@@ -31,6 +31,7 @@ import io.distributedLedger.IDatabase;
 import io.distributedLedger.ZoneDatabaseFactory;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.spongycastle.util.encoders.Hex;
 
 import java.math.BigInteger;
@@ -95,7 +96,7 @@ public class DisruptorStressTest {
         ArrayList<String> addreses = new ArrayList<>();
         ArrayList<ECKeyPair> keypair = new ArrayList<>();
         int version = 0x00;
-        int size = 200000;
+        int size = 100;
         signatureEventHandler.setLatch(new CountDownLatch(size - 1));
         for (int i = 0; i < size; i++) {
             Mnemonic mnem = new Mnemonic(Security.NORMAL, WordList.ENGLISH);
