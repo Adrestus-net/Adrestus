@@ -102,8 +102,7 @@ public class SignatureEventHandler extends TransactionEventHandler implements Tr
 
     @Override
     public void visit(UnclaimedFeeRewardTransaction unclaimedFeeRewardTransaction) {
-        FinalizeTask task = new FinalizeTask(unclaimedFeeRewardTransaction, unclaimedFeeRewardTransaction.getRecipientAddress());
-        executorService.submit(task);
+        latch.countDown();
     }
 
 
@@ -113,7 +112,7 @@ public class SignatureEventHandler extends TransactionEventHandler implements Tr
 
         public FinalizeTask(Transaction transaction, String address) {
             this.transaction = transaction;
-            this.address=address;
+            this.address = address;
         }
 
         public Transaction getTransaction() {
@@ -127,7 +126,7 @@ public class SignatureEventHandler extends TransactionEventHandler implements Tr
             if (!transaction.getXAxis().toString().equals("0") && !transaction.getYAxis().toString().equals("0")) {
                 ECDSASign ecdsaSign = new ECDSASign();
                 BigInteger publicKeyValue = ecdsaSign.recoverPublicKeyValue(transaction.getXAxis(), transaction.getYAxis());
-                boolean verify = ecdsaSign.secp256Verify(HashUtil.sha256(transaction.getHash().getBytes(StandardCharsets.UTF_8)),address, publicKeyValue, transaction.getSignature());
+                boolean verify = ecdsaSign.secp256Verify(HashUtil.sha256(transaction.getHash().getBytes(StandardCharsets.UTF_8)), address, publicKeyValue, transaction.getSignature());
                 if (!verify) {
                     LOG.info("Transaction Wallet signature is not valid ABORT");
                     if (type.equals(SignatureBehaviorType.BLOCK_TRANSACTIONS))

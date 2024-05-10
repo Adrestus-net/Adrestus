@@ -107,12 +107,13 @@ public class TransactionTest {
         ECDSASignatureData signatureData = ecdsaSign.secp256SignMessage(Hex.decode(transaction.getHash()), ecKeyPair);
         transaction.setSignature(signatureData);
 
-        byte[] buffer = ser.encode(transaction,400);
+        byte[] buffer = ser.encode(transaction, 400);
         Transaction copy = ser.decode(buffer);
         System.out.println(copy.toString());
         assertEquals(copy, transaction);
 
     }
+
     @Test
     public void rewards_test() {
 

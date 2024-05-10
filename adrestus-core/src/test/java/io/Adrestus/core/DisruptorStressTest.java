@@ -31,7 +31,6 @@ import io.distributedLedger.IDatabase;
 import io.distributedLedger.ZoneDatabaseFactory;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
 import org.spongycastle.util.encoders.Hex;
 
 import java.math.BigInteger;

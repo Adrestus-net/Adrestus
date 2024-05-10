@@ -5,9 +5,10 @@ import io.Adrestus.IMemoryTreePool;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class TreePoolForgeAbstractBlock implements ITreePoolBlacksmith {
+public class TreePoolConstructBlock implements ITreePoolBlacksmith {
     private static final Map<TransactionType, TransactionTreePoolEntries> map;
-    private static volatile TreePoolForgeAbstractBlock instance;
+    private static volatile TreePoolConstructBlock instance;
+    private Map<TransactionType, List<Transaction>> typedlistGrouped;
 
     static {
         map = new EnumMap<>(TransactionType.class);
@@ -26,19 +27,19 @@ public class TreePoolForgeAbstractBlock implements ITreePoolBlacksmith {
         });
     }
 
-    private TreePoolForgeAbstractBlock() {
+    private TreePoolConstructBlock() {
         if (instance != null) {
             throw new IllegalStateException("Already initialized.");
         }
     }
 
-    public static TreePoolForgeAbstractBlock getInstance() {
+    public static TreePoolConstructBlock getInstance() {
         var result = instance;
         if (result == null) {
-            synchronized (TreePoolForgeAbstractBlock.class) {
+            synchronized (TreePoolConstructBlock.class) {
                 result = instance;
                 if (result == null) {
-                    result = new TreePoolForgeAbstractBlock();
+                    result = new TreePoolConstructBlock();
                     instance = result;
                 }
             }
@@ -47,11 +48,20 @@ public class TreePoolForgeAbstractBlock implements ITreePoolBlacksmith {
     }
 
     @Override
-    public void visitTreePool(TransactionBlock transactionBlock, IMemoryTreePool memoryTreePool) {
-        Map<TransactionType, List<Transaction>> typedlistGrouped = transactionBlock.getTransactionList().stream().collect(Collectors.groupingBy(Transaction::getType));
+    public synchronized void visitForgeTreePool(TransactionBlock transactionBlock, IMemoryTreePool memoryTreePool) {
+        typedlistGrouped = transactionBlock.getTransactionList().stream().collect(Collectors.groupingBy(Transaction::getType));
         typedlistGrouped.keySet().forEach(type -> {
             map.get(type).SetArrayList((ArrayList) typedlistGrouped.get(type));
             map.get(type).ForgeEntriesBuilder(memoryTreePool);
         });
+    }
+
+    @Override
+    public synchronized void visitInventTreePool(TransactionBlock transactionBlock, IMemoryTreePool memoryTreePool) {
+        typedlistGrouped.keySet().forEach(type -> {
+            map.get(type).InventEntriesBuilder(memoryTreePool, transactionBlock.getHeight());
+            map.get(type).Clear();
+        });
+        typedlistGrouped.clear();
     }
 }

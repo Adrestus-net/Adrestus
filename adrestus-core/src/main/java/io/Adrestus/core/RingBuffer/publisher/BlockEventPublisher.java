@@ -39,7 +39,6 @@ public class BlockEventPublisher implements Publisher<AbstractBlock> {
     }
 
 
-
     public BlockEventPublisher withLeaderFeeRewardEventHandler() {
         group.add(new LeaderFeeRewardEventHandler());
         return this;

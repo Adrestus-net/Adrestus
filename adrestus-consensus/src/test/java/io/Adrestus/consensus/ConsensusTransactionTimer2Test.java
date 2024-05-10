@@ -93,6 +93,7 @@ public class ConsensusTransactionTimer2Test {
     private static AsyncTcpSocket socket;
     private static boolean variable = false;
     private static KademliaData kad1, kad2, kad3, kad4, kad5, kad6;
+
     @BeforeAll
     public static void construct() throws Exception {
         List<SerializationUtil.Mapping> list = new ArrayList<>();

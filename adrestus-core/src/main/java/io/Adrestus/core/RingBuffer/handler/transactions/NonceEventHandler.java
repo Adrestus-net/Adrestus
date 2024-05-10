@@ -93,10 +93,5 @@ public class NonceEventHandler extends TransactionEventHandler implements Transa
             unclaimedFeeRewardTransaction.setStatus(StatusType.ABORT);
             return;
         }
-
-        if (patriciaTreeNode.getNonce() + 1 != unclaimedFeeRewardTransaction.getNonce()) {
-            LOG.info("Transaction nonce is not valid");
-            unclaimedFeeRewardTransaction.setStatus(StatusType.ABORT);
-        }
     }
 }

@@ -10,7 +10,6 @@ import io.activej.serializer.annotations.SerializeClass;
 
 import java.io.Serializable;
 import java.math.BigInteger;
-import java.util.Arrays;
 import java.util.Comparator;
 
 
@@ -74,7 +73,7 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
         this.Signature = new ECDSASignatureData();
     }
 
-    public Transaction(TransactionType type,Transaction... children) {
+    public Transaction(TransactionType type, Transaction... children) {
         this.Hash = "";
         this.Type = type;
         this.Status = StatusType.PENDING;

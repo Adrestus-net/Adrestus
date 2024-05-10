@@ -1,6 +1,7 @@
 package io.Adrestus.core.RingBuffer.handler.blocks;
 
 import io.Adrestus.core.BlockIndex;
+import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedLeaderIndex;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.core.RingBuffer.event.AbstractBlockEvent;
@@ -26,7 +27,13 @@ public class LeaderFeeRewardEventHandler implements BlockEventHandler<AbstractBl
             return;
         try {
             UnclaimedFeeRewardTransaction transaction = (UnclaimedFeeRewardTransaction) transactionBlock.getTransactionList().get(0);
-            String address = this.blockIndex.getAddressByPublicKey(this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedLeaderIndex.getInstance().getTransactionPositionLeader()));
+            int index;
+            if (CachedLeaderIndex.getInstance().getTransactionPositionLeader() == 0)
+                index = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).size() - 1;
+            else
+                index = CachedLeaderIndex.getInstance().getTransactionPositionLeader() - 1;
+
+            String address = this.blockIndex.getAddressByPublicKey(this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), index));
             if (!address.equals(transaction.getRecipientAddress())) {
                 LOG.info("Fee Transaction Reward leader address is incorrect abort");
                 transactionBlock.setStatustype(StatusType.ABORT);

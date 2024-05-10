@@ -3,7 +3,6 @@ package io.Adrestus.core;
 import io.Adrestus.IMemoryTreePool;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class UnclaimedFeeRewardTransactionTreePoolEntry implements TransactionTreePoolEntries<UnclaimedFeeRewardTransaction> {
     private ArrayList<UnclaimedFeeRewardTransaction> transactionList;
@@ -19,7 +18,7 @@ public class UnclaimedFeeRewardTransactionTreePoolEntry implements TransactionTr
     }
 
     @Override
-    public void InventEntriesBuilder(IMemoryTreePool memoryTreePool,int blockHeight) {
+    public void InventEntriesBuilder(IMemoryTreePool memoryTreePool, int blockHeight) {
         try {
             UnclaimedFeeRewardTransaction unclaimedFeeRewardTransaction = (UnclaimedFeeRewardTransaction) transactionList.get(0);
             memoryTreePool.depositUnclaimedReward(unclaimedFeeRewardTransaction.getRecipientAddress(), unclaimedFeeRewardTransaction.getAmount());

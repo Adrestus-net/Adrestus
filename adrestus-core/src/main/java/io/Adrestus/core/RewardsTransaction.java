@@ -23,7 +23,7 @@ public class RewardsTransaction extends Transaction {
 
     public RewardsTransaction(TransactionType type, String RecipientAddress, double amount) {
         super(type, amount);
-        this.RecipientAddress=RecipientAddress;
+        this.RecipientAddress = RecipientAddress;
     }
 
     @Override

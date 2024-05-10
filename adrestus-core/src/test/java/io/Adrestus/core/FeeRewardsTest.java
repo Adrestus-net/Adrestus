@@ -266,7 +266,7 @@ public class FeeRewardsTest {
             transaction.setSignature(signatureData);
             arrayList.add(transaction);
         }
-        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(address2, new PatriciaTreeNode(1000, 0,0,100));
+        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(address2, new PatriciaTreeNode(1000, 0, 0, 100));
         RewardsTransaction rewardsTransaction = new RewardsTransaction();
         rewardsTransaction.setType(TransactionType.REWARDS);
         rewardsTransaction.setRecipientAddress(address2);
@@ -310,7 +310,7 @@ public class FeeRewardsTest {
     @SneakyThrows
     @Test
     public void block_publish_fee() throws InterruptedException {
-        CachedLeaderIndex.getInstance().setTransactionPositionLeader(2);
+        CachedLeaderIndex.getInstance().setTransactionPositionLeader(0);
         BlockEventPublisher publisher = new BlockEventPublisher(1024);
 
         TransactionBlock transactionBlock = new TransactionBlock();
@@ -340,7 +340,7 @@ public class FeeRewardsTest {
 //            }
 //        }
         MemoryTreePool replica = new MemoryTreePool(((MemoryTreePool) TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex())));
-        TreePoolForgeAbstractBlock.getInstance().visitTreePool(transactionBlock, replica);
+        TreePoolConstructBlock.getInstance().visitForgeTreePool(transactionBlock, replica);
         transactionBlock.setPatriciaMerkleRoot(replica.getRootHash());
         publisher.withReplayFeeEventHandler().withPatriciaTreeEventHandler().withSumFeeRewardEventHandler().withLeaderFeeRewardEventHandler().mergeEvents();
         publisher.start();

@@ -76,6 +76,7 @@ public class MemoryTreePool implements IMemoryTreePool, Cloneable {
             w.unlock();
         }
     }
+
     @SneakyThrows
     @Override
     public void depositUnclaimedReward(String address, double amount) {

@@ -94,8 +94,9 @@ class RPCExampleTest {
     private static int blocksize;
 
     static {
-       //Logger.getRootLogger().setLevel(Level.OFF);
+        //Logger.getRootLogger().setLevel(Level.OFF);
     }
+
     @BeforeAll
     public static void setup() throws IOException, MnemonicException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException {
         sk1 = new BLSPrivateKey(1);

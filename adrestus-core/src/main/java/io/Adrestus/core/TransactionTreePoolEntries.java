@@ -3,7 +3,6 @@ package io.Adrestus.core;
 import io.Adrestus.IMemoryTreePool;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public interface TransactionTreePoolEntries<T> {
 

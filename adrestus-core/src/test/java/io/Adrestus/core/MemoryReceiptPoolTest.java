@@ -2,7 +2,6 @@ package io.Adrestus.core;
 
 import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.core.Resourses.MemoryReceiptPool;
-import io.Adrestus.core.Resourses.MemoryTransactionPool;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.util.SerializationUtil;
 import org.junit.jupiter.api.BeforeAll;
@@ -108,15 +107,15 @@ public class MemoryReceiptPoolTest {
         MemoryReceiptPool.getInstance().add(receipt5);
         MemoryReceiptPool.getInstance().add(receipt6);
 
-        ArrayList<Receipt>ListByZone= (ArrayList<Receipt>) MemoryReceiptPool.getInstance().getListByZone(CachedZoneIndex.getInstance().getZoneIndex());
-        ArrayList<Receipt>InboundList= (ArrayList<Receipt>) MemoryReceiptPool.getInstance().getInboundList(CachedZoneIndex.getInstance().getZoneIndex());
-        ArrayList<Receipt>OutBoundList= (ArrayList<Receipt>) MemoryReceiptPool.getInstance().getOutBoundList(CachedZoneIndex.getInstance().getZoneIndex());
-        ArrayList<Receipt>ListToDelete= (ArrayList<Receipt>)MemoryReceiptPool.getInstance().getListToDelete(CachedZoneIndex.getInstance().getZoneIndex());
+        ArrayList<Receipt> ListByZone = (ArrayList<Receipt>) MemoryReceiptPool.getInstance().getListByZone(CachedZoneIndex.getInstance().getZoneIndex());
+        ArrayList<Receipt> InboundList = (ArrayList<Receipt>) MemoryReceiptPool.getInstance().getInboundList(CachedZoneIndex.getInstance().getZoneIndex());
+        ArrayList<Receipt> OutBoundList = (ArrayList<Receipt>) MemoryReceiptPool.getInstance().getOutBoundList(CachedZoneIndex.getInstance().getZoneIndex());
+        ArrayList<Receipt> ListToDelete = (ArrayList<Receipt>) MemoryReceiptPool.getInstance().getListToDelete(CachedZoneIndex.getInstance().getZoneIndex());
 
-        assertEquals(2,ListByZone.size());
-        assertEquals(3,InboundList.size());
-        assertEquals(2,OutBoundList.size());
-        assertEquals(1,ListToDelete.size());
+        assertEquals(2, ListByZone.size());
+        assertEquals(3, InboundList.size());
+        assertEquals(2, OutBoundList.size());
+        assertEquals(1, ListToDelete.size());
 
         assertEquals(receipt1, ListByZone.get(0));
         assertEquals(receipt2, ListByZone.get(1));
@@ -131,6 +130,7 @@ public class MemoryReceiptPoolTest {
         assertEquals(receipt6, ListToDelete.get(0));
 
     }
+
     @Test
     //@Order(4)
     public void delete_receipt() throws Exception {

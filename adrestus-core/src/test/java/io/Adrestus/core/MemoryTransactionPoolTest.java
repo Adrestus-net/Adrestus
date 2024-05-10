@@ -201,14 +201,14 @@ public class MemoryTransactionPoolTest {
         MemoryTransactionPool.getInstance().add(transaction6);
         MemoryTransactionPool.getInstance().add(transaction7);
 
-        ArrayList<Transaction>ListByZone= (ArrayList<Transaction>) MemoryTransactionPool.getInstance().getListByZone(CachedZoneIndex.getInstance().getZoneIndex());
-        ArrayList<Transaction>InboundList= (ArrayList<Transaction>) MemoryTransactionPool.getInstance().getInboundList(CachedZoneIndex.getInstance().getZoneIndex());
-        ArrayList<Transaction>OutBoundList= (ArrayList<Transaction>) MemoryTransactionPool.getInstance().getOutBoundList(CachedZoneIndex.getInstance().getZoneIndex());
-        ArrayList<Transaction>ListToDelete= (ArrayList<Transaction>)MemoryTransactionPool.getInstance().getListToDelete(CachedZoneIndex.getInstance().getZoneIndex());
-        assertEquals(4,ListByZone.size());
-        assertEquals(2,InboundList.size());
-        assertEquals(2,OutBoundList.size());
-        assertEquals(1,ListToDelete.size());
+        ArrayList<Transaction> ListByZone = (ArrayList<Transaction>) MemoryTransactionPool.getInstance().getListByZone(CachedZoneIndex.getInstance().getZoneIndex());
+        ArrayList<Transaction> InboundList = (ArrayList<Transaction>) MemoryTransactionPool.getInstance().getInboundList(CachedZoneIndex.getInstance().getZoneIndex());
+        ArrayList<Transaction> OutBoundList = (ArrayList<Transaction>) MemoryTransactionPool.getInstance().getOutBoundList(CachedZoneIndex.getInstance().getZoneIndex());
+        ArrayList<Transaction> ListToDelete = (ArrayList<Transaction>) MemoryTransactionPool.getInstance().getListToDelete(CachedZoneIndex.getInstance().getZoneIndex());
+        assertEquals(4, ListByZone.size());
+        assertEquals(2, InboundList.size());
+        assertEquals(2, OutBoundList.size());
+        assertEquals(1, ListToDelete.size());
 
         assertEquals(transaction1, ListByZone.get(0));
         assertEquals(transaction2, ListByZone.get(1));
@@ -223,6 +223,7 @@ public class MemoryTransactionPoolTest {
 
         assertEquals(transaction7, ListToDelete.get(0));
     }
+
     @Test
     // @Order(3)
     public void mempool_get_by_hash() throws Exception {

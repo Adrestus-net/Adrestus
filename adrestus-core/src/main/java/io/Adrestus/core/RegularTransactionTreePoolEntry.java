@@ -4,8 +4,6 @@ import io.Adrestus.IMemoryTreePool;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class RegularTransactionTreePoolEntry implements TransactionTreePoolEntries<RegularTransaction> {
 
@@ -24,7 +22,7 @@ public class RegularTransactionTreePoolEntry implements TransactionTreePoolEntri
     }
 
     @Override
-    public void InventEntriesBuilder(IMemoryTreePool memoryTreePool,int blockHeight) {
+    public void InventEntriesBuilder(IMemoryTreePool memoryTreePool, int blockHeight) {
         for (int i = 0; i < transactionList.size(); i++) {
             memoryTreePool.getByaddress(transactionList.get(i).getFrom()).get().addTransactionPosition(transactionList.get(i).getHash(), CachedZoneIndex.getInstance().getZoneIndex(), blockHeight, i);
             memoryTreePool.getByaddress(transactionList.get(i).getTo()).get().addTransactionPosition(transactionList.get(i).getHash(), CachedZoneIndex.getInstance().getZoneIndex(), blockHeight, i);

@@ -2,10 +2,13 @@ package io.Adrestus.core.RingBuffer.handler.blocks;
 
 import io.Adrestus.MemoryTreePool;
 import io.Adrestus.TreeFactory;
-import io.Adrestus.core.*;
 import io.Adrestus.core.Resourses.CachedInboundTransactionBlocks;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.core.RingBuffer.event.AbstractBlockEvent;
+import io.Adrestus.core.StatusType;
+import io.Adrestus.core.Transaction;
+import io.Adrestus.core.TransactionBlock;
+import io.Adrestus.core.TreePoolConstructBlock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,7 +21,7 @@ public class PatriciaTreeEventHandler implements BlockEventHandler<AbstractBlock
         MemoryTreePool replica = (MemoryTreePool) ((MemoryTreePool) TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex())).clone();
 
         if (!transactionBlock.getTransactionList().isEmpty()) {
-            TreePoolForgeAbstractBlock.getInstance().visitTreePool(transactionBlock,replica);
+            TreePoolConstructBlock.getInstance().visitForgeTreePool(transactionBlock, replica);
         }
 
         CachedInboundTransactionBlocks.getInstance().generate(transactionBlock.getInbound().getMap_receipts(), transactionBlock.getGeneration());

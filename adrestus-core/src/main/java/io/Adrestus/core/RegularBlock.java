@@ -194,7 +194,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
         // MemoryTreePool S= (MemoryTreePool) TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex());
         MemoryTreePool replica = new MemoryTreePool(((MemoryTreePool) TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex())));
         if (!transactionBlock.getTransactionList().isEmpty()) {
-            TreePoolForgeAbstractBlock.getInstance().visitTreePool(transactionBlock, replica);
+            TreePoolConstructBlock.getInstance().visitForgeTreePool(transactionBlock, replica);
         }
         if (!transactionBlock.getInbound().getMap_receipts().isEmpty())
             transactionBlock
@@ -410,7 +410,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
 
 
         if (!transactionBlock.getTransactionList().isEmpty()) {
-            TreePooInventAbstractBlock.getInstance().visitTreePool(transactionBlock, TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()));
+            TreePoolConstructBlock.getInstance().visitInventTreePool(transactionBlock, TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()));
         }
 
         if (!transactionBlock.getInbound().getMap_receipts().isEmpty())

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.Adrestus.core.RingBuffer.event.TransactionEvent;
 import io.Adrestus.core.StatusType;
 import io.Adrestus.core.Transaction;
+import io.Adrestus.core.UnclaimedFeeRewardTransaction;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.elliptic.ECDSASignatureData;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
@@ -34,6 +35,9 @@ public class HashEventHandler extends TransactionEventHandler {
             Transaction transaction = transactionEvent.getTransaction();
 
             if (transaction.getStatus().equals(StatusType.BUFFERED) || transaction.getStatus().equals(StatusType.ABORT))
+                return;
+
+            if (transaction instanceof UnclaimedFeeRewardTransaction)
                 return;
 
             Transaction cloneable = (Transaction) transaction.clone();
