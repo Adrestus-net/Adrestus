@@ -41,6 +41,11 @@ public class StakingTransaction extends Transaction {
         ValidatorAddress = "";
     }
 
+    @Override
+    public void accept(TransactionUnitVisitor visitor) {
+        visitor.visit(this);
+    }
+
     @Serialize
     public String getName() {
         return Name;

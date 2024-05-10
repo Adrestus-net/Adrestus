@@ -26,6 +26,11 @@ public class RewardsTransaction extends Transaction {
         this.RecipientAddress=RecipientAddress;
     }
 
+    @Override
+    public void accept(TransactionUnitVisitor visitor) {
+        visitor.visit(this);
+    }
+
     @Serialize
     public String getRecipientAddress() {
         return RecipientAddress;

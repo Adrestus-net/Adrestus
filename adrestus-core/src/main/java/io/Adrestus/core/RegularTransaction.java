@@ -26,6 +26,11 @@ public class RegularTransaction extends Transaction {
         super(hash);
     }
 
+    @Override
+    public void accept(TransactionUnitVisitor visitor) {
+        visitor.visit(this);
+    }
+
     public Object clone() throws CloneNotSupportedException {
         return super.clone();
     }

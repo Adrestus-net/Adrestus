@@ -130,6 +130,11 @@ public class PatriciaNodeStorageTest {
         transaction.setFrom("from1");
         Thread.sleep(500);
         transaction.setTimestamp(new Timestamp(System.currentTimeMillis()).toString());
+        RewardsTransaction reward = new RewardsTransaction();
+        reward.setHash("hashREW");
+        reward.setRecipientAddress("from1");
+        Thread.sleep(500);
+        reward.setTimestamp(new Timestamp(System.currentTimeMillis()).toString());
         Transaction transaction2 = new RegularTransaction();
         transaction2.setHash("hash2");
         transaction2.setFrom("from1");
@@ -155,6 +160,7 @@ public class PatriciaNodeStorageTest {
         Thread.sleep(500);
         transaction4.setTimestamp(new Timestamp(System.currentTimeMillis()).toString());
         list.add(transaction);
+        list.add(reward);
         list2.add(transaction2);
         list3.add(transaction3);
         list3.add(transaction3a);
@@ -167,16 +173,19 @@ public class PatriciaNodeStorageTest {
         transactionBlockIDatabase1.save(String.valueOf(transactionBlock2.getHeight()), transactionBlock2);
         transactionBlockIDatabase1.save(String.valueOf(transactionBlock3.getHeight()), transactionBlock3);
         int position = Iterables.indexOf(transactionBlock1.getTransactionList(), u -> u.equals(transaction));
+        int positionre = Iterables.indexOf(transactionBlock1.getTransactionList(), u -> u.equals(reward));
         int position2 = Iterables.indexOf(transactionBlock2.getTransactionList(), u -> u.equals(transaction2));
         int position3 = Iterables.indexOf(transactionBlock3.getTransactionList(), u -> u.equals(transaction3));
         int position3a = Iterables.indexOf(transactionBlock3.getTransactionList(), u -> u.equals(transaction3a));
         TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress("from1").get().addTransactionPosition(transaction.getHash(), CachedZoneIndex.getInstance().getZoneIndex(), transactionBlock1.getHeight(), position);
+        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress("from1").get().addTransactionPosition(reward.getHash(), CachedZoneIndex.getInstance().getZoneIndex(), transactionBlock1.getHeight(), positionre);
         TreeFactory.getMemoryTree(1).getByaddress("from1").get().addTransactionPosition(transaction2.getHash(), 1, transactionBlock2.getHeight(), position2);
         TreeFactory.getMemoryTree(1).getByaddress("from1").get().addTransactionPosition(transaction3.getHash(), 1, transactionBlock3.getHeight(), position3);
         TreeFactory.getMemoryTree(1).getByaddress("from1").get().addTransactionPosition(transaction3a.getHash(), 1, transactionBlock3.getHeight(), position3a);
 
         //Check manually with debug if pass DuplicateEventHandler
         publisher.publish(transaction);
+        publisher.publish(reward);
         publisher.publish(transaction2);
         publisher.getJobSyncUntilRemainingCapacityZero();
         CachedZoneIndex.getInstance().setZoneIndex(1);

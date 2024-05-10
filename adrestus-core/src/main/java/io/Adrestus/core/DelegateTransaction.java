@@ -27,6 +27,11 @@ public class DelegateTransaction extends Transaction {
         ValidatorAddress = "";
     }
 
+    @Override
+    public void accept(TransactionUnitVisitor visitor) {
+        visitor.visit(this);
+    }
+
     @Serialize
     public String getDelegatorAddress() {
         return DelegatorAddress;

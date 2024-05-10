@@ -1,11 +1,21 @@
 package io.Adrestus.core;
 
-public class UnclaimedFeeRewardTransaction extends RewardsTransaction{
+public class UnclaimedFeeRewardTransaction extends RewardsTransaction {
+
+
+    public UnclaimedFeeRewardTransaction() {
+        super();
+    }
 
     public UnclaimedFeeRewardTransaction(TransactionType type, String from, double amount) {
         super(type, from, amount);
     }
 
+
+    @Override
+    public void accept(TransactionUnitVisitor visitor) {
+        visitor.visit(this);
+    }
 
     @Override
     public double getAmountWithTransactionFee() {

@@ -1,11 +1,9 @@
 package io.Adrestus.core.RingBuffer.handler.transactions;
 
+import io.Adrestus.core.*;
 import io.Adrestus.core.Resourses.CacheTemporalTransactionPool;
 import io.Adrestus.core.Resourses.MemoryTransactionPool;
-import io.Adrestus.core.RewardsTransaction;
 import io.Adrestus.core.RingBuffer.event.TransactionEvent;
-import io.Adrestus.core.StatusType;
-import io.Adrestus.core.Transaction;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.elliptic.ECDSASign;
 import lombok.SneakyThrows;
@@ -18,7 +16,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
-public class SignatureEventHandler extends TransactionEventHandler {
+public class SignatureEventHandler extends TransactionEventHandler implements TransactionUnitVisitor {
     private static Logger LOG = LoggerFactory.getLogger(SignatureEventHandler.class);
 
     private final ECDSASign ecdsaSign;
@@ -77,11 +75,34 @@ public class SignatureEventHandler extends TransactionEventHandler {
             return;
         }
 
-        FinalizeTask task;
-        if (transaction instanceof RewardsTransaction)
-            task = new FinalizeTask(transaction, ((RewardsTransaction) transaction).getRecipientAddress());
-        else
-            task = new FinalizeTask(transaction, transaction.getFrom());
+        transaction.accept(this);
+    }
+
+    @Override
+    public void visit(RegularTransaction regularTransaction) {
+        FinalizeTask task = new FinalizeTask(regularTransaction, regularTransaction.getFrom());
+        executorService.submit(task);
+    }
+
+    @Override
+    public void visit(RewardsTransaction rewardsTransaction) {
+        FinalizeTask task = new FinalizeTask(rewardsTransaction, rewardsTransaction.getRecipientAddress());
+        executorService.submit(task);
+    }
+
+    @Override
+    public void visit(StakingTransaction stakingTransaction) {
+
+    }
+
+    @Override
+    public void visit(DelegateTransaction delegateTransaction) {
+
+    }
+
+    @Override
+    public void visit(UnclaimedFeeRewardTransaction unclaimedFeeRewardTransaction) {
+        FinalizeTask task = new FinalizeTask(unclaimedFeeRewardTransaction, unclaimedFeeRewardTransaction.getRecipientAddress());
         executorService.submit(task);
     }
 

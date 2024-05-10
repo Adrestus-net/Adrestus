@@ -10,6 +10,7 @@ import io.activej.serializer.annotations.SerializeClass;
 
 import java.io.Serializable;
 import java.math.BigInteger;
+import java.util.Arrays;
 import java.util.Comparator;
 
 
@@ -18,7 +19,6 @@ import java.util.Comparator;
 @JsonSubTypes({@JsonSubTypes.Type(value = RegularTransaction.class, name = "RegularTransaction"), @JsonSubTypes.Type(value = RewardsTransaction.class, name = "RewardsTransaction"), @JsonSubTypes.Type(value = StakingTransaction.class, name = "StakingTransaction"), @JsonSubTypes.Type(value = DelegateTransaction.class, name = "DelegateTransaction")})
 @JsonPropertyOrder({"transactiontype", "type", "status", "timestamp", "hash", "nonce", "blockNumber", "from", "to", "zoneFrom", "zoneTo", "blockNumber", "amount", "amountWithTransactionFee", "xaxis", "yaxis", "signature"})
 public abstract class Transaction implements Cloneable, Comparable<Transaction>, Comparator<Transaction>, Serializable {
-
 
     protected String Hash;
     protected TransactionType Type;
@@ -74,7 +74,7 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
         this.Signature = new ECDSASignatureData();
     }
 
-    public Transaction(TransactionType type) {
+    public Transaction(TransactionType type,Transaction... children) {
         this.Hash = "";
         this.Type = type;
         this.Status = StatusType.PENDING;
@@ -157,6 +157,10 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
         this.XAxis = XAxis;
         this.YAxis = YAxis;
         this.Signature = signature;
+    }
+
+    public void accept(TransactionUnitVisitor visitor) {
+        this.accept(visitor);
     }
 
     @Serialize
