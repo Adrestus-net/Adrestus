@@ -22,7 +22,11 @@ public interface IMemoryPool<T> {
 
     List<T> getListByZone(int zone) throws Exception;
 
-    List<T> getListNotByZone(int zone) throws Exception;
+    List<T> getOutBoundList(int zone) throws Exception;
+
+    List<T> getInboundList(int zone) throws Exception;
+
+    List<T> getListToDelete(int zone) throws Exception;
 
     boolean add(T Object);
 

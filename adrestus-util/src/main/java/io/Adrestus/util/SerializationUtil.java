@@ -7,6 +7,8 @@ import io.activej.serializer.BinarySerializer;
 import io.activej.serializer.SerializerBuilder;
 import io.activej.serializer.SerializerDef;
 import io.activej.types.scanner.TypeScannerRegistry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -19,7 +21,7 @@ import java.util.List;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class SerializationUtil<T> {
-
+    private static Logger LOG = LoggerFactory.getLogger(SerializationUtil.class);
 
     private static final byte[] END_BYTES = "\r\n".getBytes(UTF_8);
     private Class type;
@@ -169,7 +171,8 @@ public class SerializationUtil<T> {
         try {
             serializer.encode(buffer, 0, value);
         } catch (ArrayIndexOutOfBoundsException ex) {
-            System.out.println("ArrayIndexOutOfBoundsException caught");
+            ex.printStackTrace();
+            LOG.info(ex.toString());
             int index = getIndex((int) (ObjectSizeCalculator.getObjectSize(value)));
             buff_size = size[index + 1];
             buffer = new byte[buff_size];

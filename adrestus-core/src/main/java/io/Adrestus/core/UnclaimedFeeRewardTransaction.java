@@ -17,6 +17,7 @@ public class UnclaimedFeeRewardTransaction extends RewardsTransaction {
         visitor.visit(this);
     }
 
+
     @Override
     public double getAmountWithTransactionFee() {
         return super.getAmountWithTransactionFee();
@@ -41,6 +42,7 @@ public class UnclaimedFeeRewardTransaction extends RewardsTransaction {
     public void setType(TransactionType type) {
         super.setType(type);
     }
+
 
     @Override
     public TransactionType getType() {

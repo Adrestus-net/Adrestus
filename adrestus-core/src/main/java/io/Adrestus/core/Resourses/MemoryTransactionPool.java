@@ -1,6 +1,7 @@
 package io.Adrestus.core.Resourses;
 
 
+import io.Adrestus.core.Receipt;
 import io.Adrestus.core.Transaction;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.util.GetTime;
@@ -112,7 +113,7 @@ public class MemoryTransactionPool implements IMemoryPool<Transaction> {
     }
 
     @Override
-    public List<Transaction> getListByZone(int zone) throws Exception {
+    public List<Transaction> getListByZone(int zone) throws Exception{
         r.lock();
         try {
             return memorypool.values().stream().map(LinkedHashMap::values).collect(Collectors.toList()).stream().flatMap(Collection::stream).filter(val -> val.getZoneFrom() == zone).collect(Collectors.toList());
@@ -122,10 +123,30 @@ public class MemoryTransactionPool implements IMemoryPool<Transaction> {
     }
 
     @Override
-    public List<Transaction> getListNotByZone(int zone) throws Exception {
+    public List<Transaction> getOutBoundList(int zone) throws Exception {
         r.lock();
         try {
-            return memorypool.values().stream().map(LinkedHashMap::values).collect(Collectors.toList()).stream().flatMap(Collection::stream).filter(val -> val.getZoneFrom() != zone).collect(Collectors.toList());
+            return memorypool.values().stream().map(LinkedHashMap::values).collect(Collectors.toList()).stream().flatMap(Collection::stream).filter(val -> val.getZoneFrom() == zone && val.getZoneTo() != zone).collect(Collectors.toList());
+        } finally {
+            r.unlock();
+        }
+    }
+
+    @Override
+    public List<Transaction> getInboundList(int zone) throws Exception {
+        r.lock();
+        try {
+            return memorypool.values().stream().map(LinkedHashMap::values).collect(Collectors.toList()).stream().flatMap(Collection::stream).filter(val -> val.getZoneFrom() != zone && val.getZoneTo()==zone).collect(Collectors.toList());
+        } finally {
+            r.unlock();
+        }
+    }
+
+    @Override
+    public List<Transaction> getListToDelete(int zone) throws Exception {
+        r.lock();
+        try {
+            return memorypool.values().stream().map(LinkedHashMap::values).collect(Collectors.toList()).stream().flatMap(Collection::stream).filter(val -> val.getZoneFrom() != zone && val.getZoneTo() != zone).collect(Collectors.toList());
         } finally {
             r.unlock();
         }

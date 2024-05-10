@@ -1,11 +1,14 @@
 package io.Adrestus.Trie;
 
 import io.Adrestus.crypto.HashUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class MerkleTreeImp implements MerkleTree {
+    private static Logger LOG = LoggerFactory.getLogger(MerkleTreeImp.class);
 
     private MerkleNode root;
     // private ArrayList<MekleeNode> proofs = new ArrayList<MekleeNode>();
@@ -172,7 +175,8 @@ public class MerkleTreeImp implements MerkleTree {
             }
         }
         if (position == -1)
-            System.out.println("problima");
+            LOG.info("Current hash not found in list abort");
+
         ArrayList<MerkleNode> iterate = new ArrayList<MerkleNode>();
         int i = 0;
         while (list.size() > i) {
@@ -222,7 +226,8 @@ public class MerkleTreeImp implements MerkleTree {
             }
         }
         if (position == -1)
-            System.out.println("problima");
+            LOG.info("Current hash not found in list abort");
+
         ArrayList<MerkleNode> iterate = new ArrayList<MerkleNode>();
         int i = 0;
         while (list.size() > i) {

@@ -110,10 +110,10 @@ public class MemoryReceiptPool implements IMemoryPool<Receipt> {
     }
 
     @Override
-    public List<Receipt> getListByZone(int zone) throws Exception {
+    public List<Receipt> getListByZone(int zone) throws Exception{
         r.lock();
         try {
-            List<Receipt> result = memorypool.stream().filter(val -> val.getZoneTo() == zone).collect(Collectors.toList());
+            List<Receipt> result = memorypool.stream().filter(val -> val.getZoneFrom() == zone).collect(Collectors.toList());
             return result;
         } finally {
             r.unlock();
@@ -121,10 +121,32 @@ public class MemoryReceiptPool implements IMemoryPool<Receipt> {
     }
 
     @Override
-    public List<Receipt> getListNotByZone(int zone) throws Exception {
+    public List<Receipt> getOutBoundList(int zone) throws Exception {
         r.lock();
         try {
-            List<Receipt> result = memorypool.stream().filter(val -> val.getZoneTo() != zone).collect(Collectors.toList());
+            List<Receipt> result = memorypool.stream().filter(val -> val.getZoneFrom() == zone && val.getZoneTo() != zone).collect(Collectors.toList());
+            return result;
+        } finally {
+            r.unlock();
+        }
+    }
+
+    @Override
+    public List<Receipt> getInboundList(int zone) throws Exception {
+        r.lock();
+        try {
+            List<Receipt> result = memorypool.stream().filter(val -> val.getZoneFrom() != zone && val.getZoneTo()==zone).collect(Collectors.toList());
+            return result;
+        } finally {
+            r.unlock();
+        }
+    }
+
+    @Override
+    public List<Receipt> getListToDelete(int zone) throws Exception {
+        r.lock();
+        try {
+            List<Receipt> result = memorypool.stream().filter(val -> val.getZoneFrom() != zone && val.getZoneTo() != zone).collect(Collectors.toList());
             return result;
         } finally {
             r.unlock();

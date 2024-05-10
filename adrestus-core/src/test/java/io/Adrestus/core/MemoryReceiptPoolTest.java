@@ -2,6 +2,7 @@ package io.Adrestus.core;
 
 import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.core.Resourses.MemoryReceiptPool;
+import io.Adrestus.core.Resourses.MemoryTransactionPool;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.util.SerializationUtil;
 import org.junit.jupiter.api.BeforeAll;
@@ -83,6 +84,53 @@ public class MemoryReceiptPoolTest {
         MemoryReceiptPool.getInstance().printAll();
     }
 
+    @Test
+    // @Order(3)
+    public void InboundOutboundCheck() throws Exception {
+        MemoryReceiptPool.getInstance().getAll().clear();
+        CachedZoneIndex.getInstance().setZoneIndex(0);
+        Receipt receipt1 = new Receipt(0, 1, new Receipt.ReceiptBlock(1, 1, "as"), 1, null);
+
+        Receipt receipt2 = new Receipt(0, 1, new Receipt.ReceiptBlock(2, 1, "as"), 2, null);
+
+        Receipt receipt3 = new Receipt(2, 0, new Receipt.ReceiptBlock(3, 1, "as"), 3, null);
+
+        Receipt receipt4 = new Receipt(2, 0, new Receipt.ReceiptBlock(4, 1, "as"), 4, null);
+
+        Receipt receipt5 = new Receipt(2, 0, new Receipt.ReceiptBlock(5, 1, "as"), 5, null);
+
+        Receipt receipt6 = new Receipt(3, 3, new Receipt.ReceiptBlock(6, 1, "as"), 6, null);
+
+        MemoryReceiptPool.getInstance().add(receipt1);
+        MemoryReceiptPool.getInstance().add(receipt2);
+        MemoryReceiptPool.getInstance().add(receipt3);
+        MemoryReceiptPool.getInstance().add(receipt4);
+        MemoryReceiptPool.getInstance().add(receipt5);
+        MemoryReceiptPool.getInstance().add(receipt6);
+
+        ArrayList<Receipt>ListByZone= (ArrayList<Receipt>) MemoryReceiptPool.getInstance().getListByZone(CachedZoneIndex.getInstance().getZoneIndex());
+        ArrayList<Receipt>InboundList= (ArrayList<Receipt>) MemoryReceiptPool.getInstance().getInboundList(CachedZoneIndex.getInstance().getZoneIndex());
+        ArrayList<Receipt>OutBoundList= (ArrayList<Receipt>) MemoryReceiptPool.getInstance().getOutBoundList(CachedZoneIndex.getInstance().getZoneIndex());
+        ArrayList<Receipt>ListToDelete= (ArrayList<Receipt>)MemoryReceiptPool.getInstance().getListToDelete(CachedZoneIndex.getInstance().getZoneIndex());
+
+        assertEquals(2,ListByZone.size());
+        assertEquals(3,InboundList.size());
+        assertEquals(2,OutBoundList.size());
+        assertEquals(1,ListToDelete.size());
+
+        assertEquals(receipt1, ListByZone.get(0));
+        assertEquals(receipt2, ListByZone.get(1));
+
+        assertEquals(receipt3, InboundList.get(0));
+        assertEquals(receipt4, InboundList.get(1));
+        assertEquals(receipt5, InboundList.get(2));
+
+        assertEquals(receipt1, OutBoundList.get(0));
+        assertEquals(receipt2, OutBoundList.get(1));
+
+        assertEquals(receipt6, ListToDelete.get(0));
+
+    }
     @Test
     //@Order(4)
     public void delete_receipt() throws Exception {

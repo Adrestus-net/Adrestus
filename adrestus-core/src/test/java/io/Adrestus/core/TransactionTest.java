@@ -16,6 +16,7 @@ import io.Adrestus.crypto.elliptic.ECKeyPair;
 import io.Adrestus.crypto.elliptic.Keys;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.crypto.mnemonic.Mnemonic;
+import io.Adrestus.crypto.mnemonic.MnemonicException;
 import io.Adrestus.crypto.mnemonic.Security;
 import io.Adrestus.crypto.mnemonic.WordList;
 import io.Adrestus.util.GetTime;
@@ -25,6 +26,9 @@ import org.junit.jupiter.api.Test;
 import org.spongycastle.util.encoders.Hex;
 
 import java.math.BigInteger;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
@@ -61,6 +65,65 @@ public class TransactionTest {
         transaction.setAmount(100);
         transaction.setHash("Hash");
         transaction.setType(TransactionType.REGULAR);
+
+        byte[] buffer = ser.encode(transaction);
+        Transaction copy = ser.decode(buffer);
+        System.out.println(copy.toString());
+        assertEquals(copy, transaction);
+
+    }
+
+    @Test
+    public void MinimalTransactionSerialization() throws MnemonicException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException {
+        ECDSASign ecdsaSign = new ECDSASign();
+        Mnemonic mnem = new Mnemonic(Security.NORMAL, WordList.ENGLISH);
+        char[] mnemonic_sequence = mnem.create();
+        char[] passphrase = "p4ssphr4se".toCharArray();
+        byte[] key = mnem.createSeed(mnemonic_sequence, passphrase);
+        ECKeyPair ecKeyPair = Keys.createEcKeyPair(new SecureRandom(key));
+
+        List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
+        SerializationUtil<Transaction> ser = new SerializationUtil<Transaction>(Transaction.class, list);
+        Transaction transaction = new RegularTransaction();
+        transaction.setAmount(1000000);
+        transaction.setHash("Hash");
+        transaction.setType(TransactionType.REGULAR);
+        transaction.setTimestamp(GetTime.GetTimeStampInString());
+        transaction.setStatus(StatusType.PENDING);
+        transaction.setAmountWithTransactionFee(100);
+        transaction.setNonce(10000);
+        transaction.setBlockNumber(1000);
+        transaction.setXAxis(new BigInteger("73885651435926854515264701221164520142160681037984229233067136520784684869519"));
+        transaction.setYAxis(new BigInteger("73885651435926854515264701221164520142160681037984229233067136520784684869519"));
+        transaction.setFrom("ADR-GC2I-WBAW-IKJE-BWFC-ML6T-BNOC-7XOU-IQ74-BJ5L-WP7G");
+        transaction.setTo("ADR-GC2I-WBAW-IKJE-BWFC-ML6T-BNOC-7XOU-IQ74-BJ5L-WP7G");
+        transaction.setZoneFrom(0);
+        transaction.setZoneTo(0);
+        transaction.setType(TransactionType.REGULAR);
+        byte byf[] = ser.encode(transaction);
+        transaction.setHash(HashUtil.sha256_bytetoString(byf));
+
+        ECDSASignatureData signatureData = ecdsaSign.secp256SignMessage(Hex.decode(transaction.getHash()), ecKeyPair);
+        transaction.setSignature(signatureData);
+
+        byte[] buffer = ser.encode(transaction,400);
+        Transaction copy = ser.decode(buffer);
+        System.out.println(copy.toString());
+        assertEquals(copy, transaction);
+
+    }
+    @Test
+    public void rewards_test() {
+
+        List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
+        SerializationUtil<Transaction> ser = new SerializationUtil<Transaction>(Transaction.class, list);
+        UnclaimedFeeRewardTransaction transaction = new UnclaimedFeeRewardTransaction();
+        transaction.setRecipientAddress("From1");
+        transaction.setType(TransactionType.UNCLAIMED_FEE_REWARD);
+        transaction.setHash("Hash");
+        //transaction.setType(TransactionType.REGULAR);
 
         byte[] buffer = ser.encode(transaction);
         Transaction copy = ser.decode(buffer);

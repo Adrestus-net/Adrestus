@@ -103,7 +103,6 @@ public class RegularBlock implements BlockForge, BlockInvent {
 
         MerkleTreeImp tree = new MerkleTreeImp();
         ArrayList<MerkleNode> merkleNodeArrayList = new ArrayList<>();
-        final ArrayList<Transaction> todelete = new ArrayList<>();
         transactionBlock.getHeaderData().setPreviousHash(CachedLatestBlocks.getInstance().getTransactionBlock().getHash());
         transactionBlock.getHeaderData().setVersion(AdrestusConfiguration.version);
         transactionBlock.getHeaderData().setTimestamp(GetTime.GetTimeStampInString());
@@ -114,41 +113,44 @@ public class RegularBlock implements BlockForge, BlockInvent {
         transactionBlock.setZone(CachedZoneIndex.getInstance().getZoneIndex());
         transactionBlock.setTransactionProposer(CachedBLSKeyPair.getInstance().getPublicKey().toRaw());
         transactionBlock.setLeaderPublicKey(CachedBLSKeyPair.getInstance().getPublicKey());
-        transactionBlock.setTransactionList(new ArrayList<>(MemoryTransactionPool.getInstance().getAll()));
-        transactionBlock.getTransactionList().stream().forEach(transaction -> {
+        transactionBlock.setTransactionList(new ArrayList<>(MemoryTransactionPool.getInstance().getListByZone(CachedZoneIndex.getInstance().getZoneIndex())));
+        ArrayList<Transaction> todelete = new ArrayList<>(MemoryTransactionPool.getInstance().getListToDelete(CachedZoneIndex.getInstance().getZoneIndex()));
+        todelete.stream().forEach(transaction -> {
             if (transaction.getZoneFrom() != CachedZoneIndex.getInstance().getZoneIndex()) {
                 List<String> ips = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(transaction.getZoneFrom()).values().stream().collect(Collectors.toList());
                 var executor = new AsyncService<Long>(ips, transaction_encode.encode(transaction, 1024), SocketConfigOptions.TRANSACTION_PORT);
 
                 var asyncResult1 = executor.startProcess(300L);
                 final var result1 = executor.endProcess(asyncResult1);
-                todelete.add(transaction);
                 executor = null;
-            } else {
-                merkleNodeArrayList.add(new MerkleNode(transaction.getHash()));
             }
         });
-        transactionBlock.getTransactionList().removeAll(todelete);
         MemoryTransactionPool.getInstance().delete(todelete);
         todelete.clear();
-        tree.my_generate2(merkleNodeArrayList);
-        transactionBlock.setMerkleRoot(tree.getRootHash());
 
         if (!transactionBlock.getTransactionList().isEmpty()) {
-            double sum = transactionBlock.getTransactionList().parallelStream().filter(val->val.getType().equals(TransactionType.REGULAR)).mapToDouble(Transaction::getAmountWithTransactionFee).sum();
-            transactionBlock.getTransactionList().add(0, new UnclaimedFeeRewardTransaction(TransactionType.UNCLAIMED_FEE_REWARD, this.blockIndex.getAddressByPublicKey(CachedBLSKeyPair.getInstance().getPublicKey()), sum));
+            double sum = transactionBlock.getTransactionList().parallelStream().filter(val -> val.getType().equals(TransactionType.REGULAR)).mapToDouble(Transaction::getAmountWithTransactionFee).sum();
+            try {
+                transactionBlock.getTransactionList().add(0, new UnclaimedFeeRewardTransaction(TransactionType.UNCLAIMED_FEE_REWARD, this.blockIndex.getAddressByPublicKey(CachedBLSKeyPair.getInstance().getPublicKey()), sum));
+            } catch (NoSuchElementException e) {
+                LOG.info("Leader Reward fee not added");
+            }
         }
+
+        transactionBlock.getTransactionList().forEach(transaction -> merkleNodeArrayList.add(new MerkleNode(transaction.getHash())));
+        tree.my_generate2(merkleNodeArrayList);
+        transactionBlock.setMerkleRoot(tree.getRootHash());
 
         //##########OutBound############
         Receipt.ReceiptBlock receiptBlock = new Receipt.ReceiptBlock(transactionBlock.getHeight(), transactionBlock.getGeneration(), transactionBlock.getMerkleRoot());
         ArrayList<Receipt> receiptList = new ArrayList<>();
         for (int i = 0; i < transactionBlock.getTransactionList().size(); i++) {
             Transaction transaction = transactionBlock.getTransactionList().get(i);
-            int index = Collections.binarySearch(transactionBlock.getTransactionList(), transaction);
-            MerkleNode node = new MerkleNode(transaction.getHash());
-            tree.build_proofs2(merkleNodeArrayList, node);
-            if (transaction.getZoneFrom() != transaction.getZoneTo())
-                receiptList.add(new Receipt(transaction.getZoneFrom(), transaction.getZoneTo(), receiptBlock, tree.getMerkleeproofs(), index));
+            if (transaction.getZoneFrom() != transaction.getZoneTo()) {
+                MerkleNode node = new MerkleNode(transaction.getHash());
+                tree.build_proofs2(merkleNodeArrayList, node);
+                receiptList.add(new Receipt(transaction.getZoneFrom(), transaction.getZoneTo(), receiptBlock, tree.getMerkleeproofs(), i));
+            }
         }
 
         Map<Integer, Map<Receipt.ReceiptBlock, List<Receipt>>> outbound = receiptList
@@ -160,9 +162,9 @@ public class RegularBlock implements BlockForge, BlockInvent {
         //##########OutBound############
 
 
-        //##########InBound############
+        //##########InBound plus send outbound to the correct zone############
         if (!MemoryReceiptPool.getInstance().getAll().isEmpty()) {
-            List<Receipt> receiptList1 = MemoryReceiptPool.getInstance().getListNotByZone(CachedZoneIndex.getInstance().getZoneIndex());
+            List<Receipt> receiptList1 = MemoryReceiptPool.getInstance().getOutBoundList(CachedZoneIndex.getInstance().getZoneIndex());
             if (!receiptList1.isEmpty()) {
                 Map<Integer, List<Receipt>> receiptListGrouped = receiptList1.stream().collect(Collectors.groupingBy(w -> w.getZoneTo()));
                 for (Map.Entry<Integer, List<Receipt>> entry : receiptListGrouped.entrySet()) {
@@ -179,7 +181,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
                     }
                 }
             }
-            Map<Integer, Map<Receipt.ReceiptBlock, List<Receipt>>> inbound_map = (new ArrayList<Receipt>((ArrayList<Receipt>) MemoryReceiptPool.getInstance().getAll()))
+            Map<Integer, Map<Receipt.ReceiptBlock, List<Receipt>>> inbound_map = (new ArrayList<Receipt>((ArrayList<Receipt>) MemoryReceiptPool.getInstance().getInboundList(CachedZoneIndex.getInstance().getZoneIndex())))
                     .stream()
                     .collect(Collectors.groupingBy(Receipt::getZoneFrom, Collectors.groupingBy(Receipt::getReceiptBlock)));
             InboundRelay inboundRelay = new InboundRelay(inbound_map);

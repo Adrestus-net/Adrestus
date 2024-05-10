@@ -1,5 +1,6 @@
 package io.Adrestus.core;
 
+import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.core.Resourses.MemoryTransactionPool;
 import io.Adrestus.util.GetTime;
 import org.junit.jupiter.api.MethodOrderer;
@@ -144,6 +145,84 @@ public class MemoryTransactionPoolTest {
         //MemoryPool.getInstance().printAll();
     }
 
+
+    @Test
+    // @Order(3)
+    public void InboundOutboundCheck() throws Exception {
+        CachedZoneIndex.getInstance().setZoneIndex(0);
+        MemoryTransactionPool.getInstance().clear();
+        Transaction transaction1 = new RegularTransaction();
+        transaction1.setFrom("1");
+        transaction1.setHash("1");
+        transaction1.setZoneFrom(0);
+        transaction1.setZoneTo(0);
+
+        Transaction transaction2 = new RegularTransaction();
+        transaction2.setFrom("2");
+        transaction2.setHash("2");
+        transaction2.setZoneFrom(0);
+        transaction2.setZoneTo(0);
+
+        Transaction transaction3 = new RegularTransaction();
+        transaction3.setFrom("3");
+        transaction3.setHash("3");
+        transaction3.setZoneFrom(0);
+        transaction3.setZoneTo(1);
+
+
+        Transaction transaction4 = new RegularTransaction();
+        transaction4.setFrom("4");
+        transaction4.setHash("4");
+        transaction4.setZoneFrom(0);
+        transaction4.setZoneTo(1);
+
+        Transaction transaction5 = new RegularTransaction();
+        transaction5.setFrom("5");
+        transaction5.setHash("5");
+        transaction5.setZoneFrom(2);
+        transaction5.setZoneTo(0);
+
+        Transaction transaction6 = new RegularTransaction();
+        transaction6.setFrom("6");
+        transaction6.setHash("6");
+        transaction6.setZoneFrom(2);
+        transaction6.setZoneTo(0);
+
+        Transaction transaction7 = new RegularTransaction();
+        transaction7.setFrom("7");
+        transaction7.setHash("7");
+        transaction7.setZoneFrom(3);
+        transaction7.setZoneTo(3);
+        MemoryTransactionPool.getInstance().add(transaction1);
+        MemoryTransactionPool.getInstance().add(transaction2);
+        MemoryTransactionPool.getInstance().add(transaction3);
+        MemoryTransactionPool.getInstance().add(transaction4);
+        MemoryTransactionPool.getInstance().add(transaction5);
+        MemoryTransactionPool.getInstance().add(transaction6);
+        MemoryTransactionPool.getInstance().add(transaction7);
+
+        ArrayList<Transaction>ListByZone= (ArrayList<Transaction>) MemoryTransactionPool.getInstance().getListByZone(CachedZoneIndex.getInstance().getZoneIndex());
+        ArrayList<Transaction>InboundList= (ArrayList<Transaction>) MemoryTransactionPool.getInstance().getInboundList(CachedZoneIndex.getInstance().getZoneIndex());
+        ArrayList<Transaction>OutBoundList= (ArrayList<Transaction>) MemoryTransactionPool.getInstance().getOutBoundList(CachedZoneIndex.getInstance().getZoneIndex());
+        ArrayList<Transaction>ListToDelete= (ArrayList<Transaction>)MemoryTransactionPool.getInstance().getListToDelete(CachedZoneIndex.getInstance().getZoneIndex());
+        assertEquals(4,ListByZone.size());
+        assertEquals(2,InboundList.size());
+        assertEquals(2,OutBoundList.size());
+        assertEquals(1,ListToDelete.size());
+
+        assertEquals(transaction1, ListByZone.get(0));
+        assertEquals(transaction2, ListByZone.get(1));
+        assertEquals(transaction3, ListByZone.get(2));
+        assertEquals(transaction4, ListByZone.get(3));
+
+        assertEquals(transaction5, InboundList.get(0));
+        assertEquals(transaction6, InboundList.get(1));
+
+        assertEquals(transaction3, OutBoundList.get(0));
+        assertEquals(transaction4, OutBoundList.get(1));
+
+        assertEquals(transaction7, ListToDelete.get(0));
+    }
     @Test
     // @Order(3)
     public void mempool_get_by_hash() throws Exception {
