@@ -25,11 +25,10 @@ public class TransactionsSignatureEventHandler implements BlockEventHandler<Abst
         this.publisher = new TransactionEventPublisher(AdrestusConfiguration.TRANSACTIONS_QUEUE_SIZE);
         this.publisher
                 .withAddressSizeEventHandler()
+                .withTypeEventHandler()
                 .withAmountEventHandler()
-                .withDelegateEventHandler()
                 .withHashEventHandler()
                 .withNonceEventHandler()
-                .withRewardEventHandler()
                 .withStakingEventHandler()
                 .withTransactionFeeEventHandler()
                 .withTimestampEventHandler()

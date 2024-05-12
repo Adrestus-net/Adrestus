@@ -1,6 +1,7 @@
 package io.Adrestus.core.RingBuffer.handler.transactions;
 
 import io.Adrestus.TreeFactory;
+import io.Adrestus.Trie.PatriciaTreeTransactionType;
 import io.Adrestus.core.*;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.core.RingBuffer.event.TransactionEvent;
@@ -42,7 +43,7 @@ public class TimestampEventHandler extends TransactionEventHandler implements Tr
     public void visit(RegularTransaction regularTransaction) {
         HashMap<Integer, HashSet<Integer>> mapsearch;
         try {
-            mapsearch = TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(regularTransaction.getFrom()).get().retrieveAllTransactionsByOriginZone(CachedZoneIndex.getInstance().getZoneIndex());
+            mapsearch = TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(regularTransaction.getFrom()).get().retrieveAllTransactionsByOriginZone(PatriciaTreeTransactionType.REGULAR,CachedZoneIndex.getInstance().getZoneIndex());
         } catch (NoSuchElementException e) {
             return;
         }
@@ -96,7 +97,7 @@ public class TimestampEventHandler extends TransactionEventHandler implements Tr
     public void visit(RewardsTransaction rewardsTransaction) {
         HashMap<Integer, HashSet<Integer>> mapsearch;
         try {
-            mapsearch = TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(rewardsTransaction.getRecipientAddress()).get().retrieveAllTransactionsByOriginZone(CachedZoneIndex.getInstance().getZoneIndex());
+            mapsearch = TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(rewardsTransaction.getRecipientAddress()).get().retrieveAllTransactionsByOriginZone(PatriciaTreeTransactionType.REWARDS,CachedZoneIndex.getInstance().getZoneIndex());
         } catch (NoSuchElementException e) {
             return;
         }
@@ -148,7 +149,56 @@ public class TimestampEventHandler extends TransactionEventHandler implements Tr
 
     @Override
     public void visit(StakingTransaction stakingTransaction) {
+        HashMap<Integer, HashSet<Integer>> mapsearch;
+        try {
+            mapsearch = TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(stakingTransaction.getValidatorAddress()).get().retrieveAllTransactionsByOriginZone(PatriciaTreeTransactionType.STAKING,CachedZoneIndex.getInstance().getZoneIndex());
+        } catch (NoSuchElementException e) {
+            return;
+        }
 
+        if (mapsearch.isEmpty())
+            return;
+        Integer max = Collections.max(mapsearch.keySet(), new Comparator<Integer>() {
+            @Override
+            public int compare(Integer o1, Integer o2) {
+                return Integer.compare(o1, o2);
+            }
+        });
+
+        ArrayList<Transaction> results = new ArrayList<>();
+        IDatabase<String, TransactionBlock> transactionBlockIDatabase = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
+        mapsearch.get(max).forEach(value -> {
+            try {
+                Transaction trx = transactionBlockIDatabase.findByKey(String.valueOf(max)).get().getTransactionList().get(value);
+                if (trx.getFrom().equals(stakingTransaction.getValidatorAddress())) {
+                    results.add(trx);
+                }
+            } catch (NoSuchElementException e) {
+            } catch (IndexOutOfBoundsException e) {
+            }
+        });
+
+        if (results.isEmpty())
+            return;
+
+        Collections.sort(results, new Comparator<Transaction>() {
+            @SneakyThrows
+            @Override
+            public int compare(Transaction u1, Transaction u2) {
+                return GetTime.GetTimestampFromString(u2.getTimestamp()).compareTo(GetTime.GetTimestampFromString(u1.getTimestamp()));
+            }
+        });
+        Timestamp old = GetTime.GetTimestampFromString(results.get(0).getTimestamp());
+        Timestamp current = GetTime.GetTimestampFromString(stakingTransaction.getTimestamp());
+        Timestamp check = GetTime.GetTimeStampWithDelay();
+        if (current.before(old)) {
+            LOG.info("Transaction abort: Transaction timestamp is not a valid timestamp");
+            stakingTransaction.setStatus(StatusType.ABORT);
+        }
+        if (check.before(old)) {
+            LOG.info("Transaction abort: Transaction timestamp is not older than one minute delay");
+            stakingTransaction.setStatus(StatusType.ABORT);
+        }
     }
 
     @Override

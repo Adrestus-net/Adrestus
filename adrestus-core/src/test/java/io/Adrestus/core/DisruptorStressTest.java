@@ -63,12 +63,11 @@ public class DisruptorStressTest {
         CachedBLSKeyPair.getInstance().setPublicKey(vk1);
         publisher
                 .withAddressSizeEventHandler()
+                .withTypeEventHandler()
                 .withAmountEventHandler()
-                .withDelegateEventHandler()
                 .withDoubleSpendEventHandler()
                 .withHashEventHandler()
                 .withNonceEventHandler()
-                .withRewardEventHandler()
                 .withReplayEventHandler()
                 .withStakingEventHandler()
                 .withTransactionFeeEventHandler()

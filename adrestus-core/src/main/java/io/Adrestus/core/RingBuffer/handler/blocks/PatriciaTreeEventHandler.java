@@ -2,6 +2,7 @@ package io.Adrestus.core.RingBuffer.handler.blocks;
 
 import io.Adrestus.MemoryTreePool;
 import io.Adrestus.TreeFactory;
+import io.Adrestus.Trie.PatriciaTreeTransactionType;
 import io.Adrestus.core.Resourses.CachedInboundTransactionBlocks;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.core.RingBuffer.event.AbstractBlockEvent;
@@ -36,7 +37,7 @@ public class PatriciaTreeEventHandler implements BlockEventHandler<AbstractBlock
                         entry.getValue().stream().forEach(receipt -> {
                             TransactionBlock block = CachedInboundTransactionBlocks.getInstance().retrieve(receipt.getZoneFrom(), receipt.getReceiptBlock().getHeight());
                             Transaction trx = block.getTransactionList().get(receipt.getPosition());
-                            replica.deposit(trx.getFrom(), trx.getAmount());
+                            replica.deposit(PatriciaTreeTransactionType.REGULAR,trx.getFrom(), trx.getAmount());
                         });
 
                     });

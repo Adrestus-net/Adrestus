@@ -84,7 +84,25 @@ public class AmountEventHandler extends TransactionEventHandler implements Trans
 
     @Override
     public void visit(StakingTransaction stakingTransaction) {
+        PatriciaTreeNode patriciaTreeNode = null;
+        try {
+            patriciaTreeNode = TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(stakingTransaction.getValidatorAddress()).get();
 
+        } catch (NoSuchElementException ex) {
+            LOG.info("State trie is empty we add address");
+            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(stakingTransaction.getValidatorAddress(), new PatriciaTreeNode(0, 0));
+            patriciaTreeNode = TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(stakingTransaction.getValidatorAddress()).get();
+        } catch (NullPointerException ex) {
+            LOG.info("Transaction is empty");
+            stakingTransaction.setStatus(StatusType.ABORT);
+            return;
+        }
+
+        if (stakingTransaction.getAmount() > patriciaTreeNode.getAmount()) {
+            LOG.info("Staking Transaction amount is not sufficient");
+            stakingTransaction.setStatus(StatusType.ABORT);
+            return;
+        }
     }
 
     @Override

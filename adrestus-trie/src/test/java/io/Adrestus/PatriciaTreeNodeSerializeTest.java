@@ -2,6 +2,7 @@ package io.Adrestus;
 
 import com.google.common.reflect.TypeToken;
 import io.Adrestus.Trie.PatriciaTreeNode;
+import io.Adrestus.Trie.PatriciaTreeTransactionType;
 import io.Adrestus.Trie.StorageInfo;
 import io.Adrestus.bloom_filter.BloomFilter;
 import io.Adrestus.bloom_filter.mapper.BloomFilterSerializer;
@@ -24,13 +25,13 @@ public class PatriciaTreeNodeSerializeTest {
         list.add(new SerializationUtil.Mapping(BloomFilter.class, ctx -> new BloomFilterSerializer()));
         SerializationUtil<PatriciaTreeNode> ser = new SerializationUtil<PatriciaTreeNode>(fluentType, list);
         PatriciaTreeNode patriciaTreeNode = new PatriciaTreeNode(23, 2, 31);
-        patriciaTreeNode.addTransactionPosition("1", 0, 1, 2);
-        patriciaTreeNode.addTransactionPosition("2", 0, 1, 3);
-        patriciaTreeNode.addTransactionPosition("3", 0, 1, 4);
+        patriciaTreeNode.addTransactionPosition(PatriciaTreeTransactionType.REGULAR,"1", 0, 1, 2);
+        patriciaTreeNode.addTransactionPosition(PatriciaTreeTransactionType.REGULAR,"2", 0, 1, 3);
+        patriciaTreeNode.addTransactionPosition(PatriciaTreeTransactionType.REGULAR,"3", 0, 1, 4);
 
-        patriciaTreeNode.addTransactionPosition("4", 0, 2, 1);
-        patriciaTreeNode.addTransactionPosition("5", 0, 2, 2);
-        patriciaTreeNode.addTransactionPosition("6", 0, 2, 3);
+        patriciaTreeNode.addTransactionPosition(PatriciaTreeTransactionType.REGULAR,"4", 0, 2, 1);
+        patriciaTreeNode.addTransactionPosition(PatriciaTreeTransactionType.REGULAR,"5", 0, 2, 2);
+        patriciaTreeNode.addTransactionPosition(PatriciaTreeTransactionType.REGULAR,"6", 0, 2, 3);
 
 
         patriciaTreeNode.addReceiptPosition("1", 0, 1, 1, 2, 0);
@@ -48,7 +49,7 @@ public class PatriciaTreeNodeSerializeTest {
         StorageInfo trx = new StorageInfo(0, 2, 3);
         StorageInfo rcp = new StorageInfo(0, 2, 2, 1, 0);
 
-        StorageInfo trx1 = copy.retrieveTransactionInfoByHash("6").get(0);
+        StorageInfo trx1 = copy.retrieveTransactionInfoByHash(PatriciaTreeTransactionType.REGULAR,"6").get(0);
         StorageInfo rcp1 = copy.retrieveReceiptInfoByHash("4").get(0);
 
         assertEquals(trx, trx1);

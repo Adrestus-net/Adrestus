@@ -286,8 +286,8 @@ public class ConsensusTransactionTimerTest {
         }
 
         //be aware that print functionality is  different
-        assertEquals(980, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(0)).get().getAmount());
-        assertEquals(998, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(1)).get().getAmount());
+        assertEquals(992.1, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(0)).get().getAmount());
+        assertEquals(988, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(1)).get().getAmount());
         assertEquals(998, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(2)).get().getAmount());
         assertEquals(998, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(3)).get().getAmount());
         assertEquals(1012, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(4)).get().getAmount());
@@ -306,6 +306,7 @@ public class ConsensusTransactionTimerTest {
         publisher
                 .withAddressSizeEventHandler()
                 .withAmountEventHandler()
+                .WithTypeEventHandler()
                 .withDelegateEventHandler()
                 .withDoubleSpendEventHandler()
                 .withHashEventHandler()

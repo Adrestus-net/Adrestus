@@ -53,7 +53,7 @@ public class SameOriginEventHandler extends TransactionEventHandler implements T
 
     @Override
     public void visit(StakingTransaction stakingTransaction) {
-
+        patriciaTreeNode = TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(stakingTransaction.getValidatorAddress()).get();
     }
 
     @Override

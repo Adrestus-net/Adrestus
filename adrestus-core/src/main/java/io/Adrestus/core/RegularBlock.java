@@ -6,6 +6,7 @@ import io.Adrestus.MemoryTreePool;
 import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.MerkleNode;
 import io.Adrestus.Trie.MerkleTreeImp;
+import io.Adrestus.Trie.PatriciaTreeTransactionType;
 import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.config.SocketConfigOptions;
 import io.Adrestus.core.Resourses.*;
@@ -207,7 +208,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
                         entry.getValue().stream().forEach(receipt -> {
                             TransactionBlock block = CachedInboundTransactionBlocks.getInstance().retrieve(receipt.getZoneFrom(), receipt.getReceiptBlock().getHeight());
                             Transaction trx = block.getTransactionList().get(receipt.getPosition());
-                            replica.deposit(trx.getFrom(), trx.getAmount());
+                            replica.deposit(PatriciaTreeTransactionType.REGULAR,trx.getFrom(), trx.getAmount());
                         });
 
                     });
@@ -427,7 +428,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
                                     Transaction trx = block.getTransactionList().get(receipt.getPosition());
                                     String rcphash = HashUtil.sha256_bytetoString(this.receipt_encode.encode(receipt));
                                     TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(trx.getTo()).get().addReceiptPosition(rcphash, CachedZoneIndex.getInstance().getZoneIndex(), transactionBlock.getHeight(), receipt.getZoneFrom(), receipt.getReceiptBlock().getHeight(), i);
-                                    TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).deposit(trx.getTo(), trx.getAmount());
+                                    TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).deposit(PatriciaTreeTransactionType.REGULAR,trx.getTo(), trx.getAmount());
                                     MemoryReceiptPool.getInstance().delete(receipt);
                                 }
                             }));

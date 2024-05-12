@@ -1,6 +1,7 @@
 package io.Adrestus.core.RingBuffer.handler.transactions;
 
 import io.Adrestus.TreeFactory;
+import io.Adrestus.Trie.PatriciaTreeTransactionType;
 import io.Adrestus.Trie.StorageInfo;
 import io.Adrestus.config.SocketConfigOptions;
 import io.Adrestus.core.*;
@@ -71,7 +72,7 @@ public class ZoneEventHandler extends TransactionEventHandler implements Transac
         if (regularTransaction.getZoneFrom() != CachedZoneIndex.getInstance().getZoneIndex()) {
             ArrayList<StorageInfo> tosearch;
             try {
-                tosearch = (ArrayList<StorageInfo>) TreeFactory.getMemoryTree(regularTransaction.getZoneFrom()).getByaddress(regularTransaction.getFrom()).get().retrieveTransactionInfoByHash(regularTransaction.getHash());
+                tosearch = (ArrayList<StorageInfo>) TreeFactory.getMemoryTree(regularTransaction.getZoneFrom()).getByaddress(regularTransaction.getFrom()).get().retrieveTransactionInfoByHash(PatriciaTreeTransactionType.REGULAR,regularTransaction.getHash());
             } catch (NoSuchElementException e) {
                 return;
             }
@@ -113,7 +114,15 @@ public class ZoneEventHandler extends TransactionEventHandler implements Transac
 
     @Override
     public void visit(StakingTransaction stakingTransaction) {
-
+        if (CachedZoneIndex.getInstance().getZoneIndex() != stakingTransaction.getZoneFrom() || CachedZoneIndex.getInstance().getZoneIndex() != 0) {
+            LOG.info("Reward Transaction zone should be only in zone 0 abort");
+            stakingTransaction.setStatus(StatusType.ABORT);
+            try {
+                SendAsync(stakingTransaction);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override

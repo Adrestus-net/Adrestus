@@ -4,6 +4,7 @@ import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.MerkleNode;
 import io.Adrestus.Trie.MerkleTreeImp;
 import io.Adrestus.Trie.PatriciaTreeNode;
+import io.Adrestus.Trie.PatriciaTreeTransactionType;
 import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
@@ -101,13 +102,12 @@ public class ReceiptsTest {
         SignatureEventHandler signatureEventHandler = new SignatureEventHandler(SignatureEventHandler.SignatureBehaviorType.SIMPLE_TRANSACTIONS);
         publisher
                 .withAddressSizeEventHandler()
+                .withTypeEventHandler()
                 .withAmountEventHandler()
-                .withDelegateEventHandler()
                 .withDoubleSpendEventHandler()
                 .withHashEventHandler()
                 .withNonceEventHandler()
                 .withReplayEventHandler()
-                .withRewardEventHandler()
                 .withStakingEventHandler()
                 .withTransactionFeeEventHandler()
                 .withTimestampEventHandler()
@@ -391,11 +391,10 @@ public class ReceiptsTest {
 
         for (int i = 0; i < transactionBlock.getTransactionList().size(); i++) {
             Transaction transaction = transactionBlock.getTransactionList().get(i);
-            int index = Collections.binarySearch(transactionBlock.getTransactionList(), transactionBlock.getTransactionList().get(i));
             MerkleNode node = new MerkleNode(transaction.getHash());
             tree.build_proofs2(merkleNodeArrayList, node);
             if (CachedZoneIndex.getInstance().getZoneIndex() == transaction.getZoneTo())
-                MemoryReceiptPool.getInstance().add(new Receipt(transaction.getZoneFrom(), transaction.getZoneTo(), receiptBlock, tree.getMerkleeproofs(), index));
+                MemoryReceiptPool.getInstance().add(new Receipt(transaction.getZoneFrom(), transaction.getZoneTo(), receiptBlock, tree.getMerkleeproofs(), i));
         }
 
         Map<Integer, Map<Receipt.ReceiptBlock, List<Receipt>>> map = ((ArrayList<Receipt>) MemoryReceiptPool.getInstance().getAll())
@@ -422,7 +421,7 @@ public class ReceiptsTest {
                 .forEach(entry -> {
                     entry.getValue().stream().forEach(receipt -> {
                         Transaction trx = transactionBlock.getTransactionList().get(receipt.getPosition());
-                        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).deposit(trx.getFrom(), trx.getAmount());
+                        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).deposit(PatriciaTreeTransactionType.REGULAR,trx.getFrom(), trx.getAmount());
                         MemoryReceiptPool.getInstance().delete(receipt);
                     });
                 });

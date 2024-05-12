@@ -15,30 +15,32 @@ public class StakingTransaction extends Transaction {
 
     public StakingTransaction(String hash, TransactionType type, StatusType status, int zoneFrom, int zoneTo, String timestamp, int blockNumber, String from, String to, double amount, double transactionFee, int nonce, ECDSASignatureData signature, String name, String details, String website, String identity, double commissionRate, String validatorAddress) {
         super(hash, type, status, zoneFrom, zoneTo, timestamp, blockNumber, from, to, amount, transactionFee, nonce, signature);
-        Name = name;
-        Details = details;
-        Website = website;
-        Identity = identity;
-        CommissionRate = commissionRate;
-        ValidatorAddress = validatorAddress;
+        this.Name = name;
+        this.Details = details;
+        this.Website = website;
+        this.Identity = identity;
+        this.CommissionRate = commissionRate;
+        this.ValidatorAddress = validatorAddress;
     }
 
     public StakingTransaction(String name, String details, String website, String identity, double commissionRate, String validatorAddress) {
-        Name = name;
-        Details = details;
-        Website = website;
-        Identity = identity;
-        CommissionRate = commissionRate;
-        ValidatorAddress = validatorAddress;
+        super();
+        this.Name = name;
+        this.Details = details;
+        this.Website = website;
+        this.Identity = identity;
+        this.CommissionRate = commissionRate;
+        this.ValidatorAddress = validatorAddress;
     }
 
     public StakingTransaction() {
-        Name = "";
-        Details = "";
-        Website = "";
-        Identity = "";
-        CommissionRate = 0;
-        ValidatorAddress = "";
+        super();
+        this.Name = "";
+        this.Details = "";
+        this.Website = "";
+        this.Identity = "";
+        this.CommissionRate = 0;
+        this.ValidatorAddress = "";
     }
 
     @Override
@@ -106,7 +108,7 @@ public class StakingTransaction extends Transaction {
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
         StakingTransaction that = (StakingTransaction) o;
-        return Double.compare(that.CommissionRate, CommissionRate) == 0 && Objects.equals(Name, that.Name) && Objects.equals(Details, that.Details) && Objects.equals(Website, that.Website) && Objects.equals(Identity, that.Identity) && Objects.equals(ValidatorAddress, that.ValidatorAddress);
+        return Double.compare(CommissionRate, that.CommissionRate) == 0 && Objects.equals(Name, that.Name) && Objects.equals(Details, that.Details) && Objects.equals(Website, that.Website) && Objects.equals(Identity, that.Identity) && Objects.equals(ValidatorAddress, that.ValidatorAddress);
     }
 
     @Override

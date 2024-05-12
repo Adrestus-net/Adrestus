@@ -116,6 +116,11 @@ public class TransactionEventPublisher implements Publisher<Transaction> {
         return this;
     }
 
+    public TransactionEventPublisher withTypeEventHandler() {
+        group.add(new TypeEventHandler());
+        return this;
+    }
+
     public TransactionEventPublisher withAddressSizeEventHandler() {
         group.add(new AddressSizeEventHandler());
         return this;
@@ -141,11 +146,6 @@ public class TransactionEventPublisher implements Publisher<Transaction> {
         return this;
     }
 
-    public TransactionEventPublisher withDelegateEventHandler() {
-        group.add(new DelegateEventHandler());
-        return this;
-    }
-
     public TransactionEventPublisher withDoubleSpendEventHandler() {
         group.add(new DoubleSpendEventHandler());
         return this;
@@ -164,11 +164,6 @@ public class TransactionEventPublisher implements Publisher<Transaction> {
 
     public TransactionEventPublisher withReplayEventHandler() {
         group.add(new ReplayEventHandler());
-        return this;
-    }
-
-    public TransactionEventPublisher withRewardEventHandler() {
-        group.add(new RewardEventHandler());
         return this;
     }
 

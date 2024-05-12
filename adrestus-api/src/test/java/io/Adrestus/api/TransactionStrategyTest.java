@@ -104,13 +104,13 @@ public class TransactionStrategyTest {
         TransactionEventPublisher publisher = new TransactionEventPublisher(4096);
         publisher
                 .withAddressSizeEventHandler()
+                .withTypeEventHandler()
                 .withAmountEventHandler()
-                .withDelegateEventHandler()
+                .withTypeEventHandler()
                 .withDoubleSpendEventHandler()
                 .withHashEventHandler()
                 .withNonceEventHandler()
                 .withReplayEventHandler()
-                .withRewardEventHandler()
                 .withStakingEventHandler()
                 .withTransactionFeeEventHandler()
                 .withTimestampEventHandler()

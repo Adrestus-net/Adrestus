@@ -40,6 +40,10 @@ public class AddressSizeEventHandler extends TransactionEventHandler implements 
 
     @Override
     public void visit(StakingTransaction stakingTransaction) {
+        if (stakingTransaction.getValidatorAddress().length() != 53) {
+            LOG.info("Transaction addresses is invalid please check again");
+            stakingTransaction.setStatus(StatusType.ABORT);
+        }
 
     }
 

@@ -84,12 +84,11 @@ public class ConsensusTransactionBlockTest {
         publisher
                 .withAddressSizeEventHandler()
                 .withAmountEventHandler()
-                .withDelegateEventHandler()
+                .withTypeEventHandler()
                 .withDoubleSpendEventHandler()
                 .withHashEventHandler()
                 .withNonceEventHandler()
                 .withReplayEventHandler()
-                .withRewardEventHandler()
                 .withStakingEventHandler()
                 .withTransactionFeeEventHandler()
                 .withTimestampEventHandler()

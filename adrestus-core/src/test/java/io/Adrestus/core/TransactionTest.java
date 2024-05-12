@@ -188,13 +188,12 @@ public class TransactionTest {
         SignatureEventHandler signatureEventHandler = new SignatureEventHandler(SignatureEventHandler.SignatureBehaviorType.SIMPLE_TRANSACTIONS);
         publisher
                 .withAddressSizeEventHandler()
+                .withTypeEventHandler()
                 .withAmountEventHandler()
-                .withDelegateEventHandler()
                 .withDoubleSpendEventHandler()
                 .withHashEventHandler()
                 .withNonceEventHandler()
                 .withReplayEventHandler()
-                .withRewardEventHandler()
                 .withStakingEventHandler()
                 .withTransactionFeeEventHandler()
                 .withTimestampEventHandler()

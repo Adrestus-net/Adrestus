@@ -5,6 +5,7 @@ import com.google.common.reflect.TypeToken;
 import io.Adrestus.MemoryTreePool;
 import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.PatriciaTreeNode;
+import io.Adrestus.Trie.PatriciaTreeTransactionType;
 import io.Adrestus.mapper.MemoryTreePoolSerializer;
 import io.Adrestus.util.SerializationUtil;
 import io.Adrestus.util.bytes.Bytes53;
@@ -43,8 +44,8 @@ public class MemoryTreePoolTest {
         System.out.println(TreeFactory.getMemoryTree(0).getRootHash());
 
 
-        TreeFactory.getMemoryTree(1).deposit(address, 50);
-        TreeFactory.getMemoryTree(1).deposit("updated_address", 20);
+        TreeFactory.getMemoryTree(1).deposit(PatriciaTreeTransactionType.REGULAR,address, 50);
+        TreeFactory.getMemoryTree(1).deposit(PatriciaTreeTransactionType.REGULAR,"updated_address", 20);
         Option<PatriciaTreeNode> copy = TreeFactory.getMemoryTree(1).getByaddress(address);
         Option<PatriciaTreeNode> copy2 = TreeFactory.getMemoryTree(1).getByaddress("updated_address");
         assertEquals(150, copy.get().getAmount());
@@ -75,7 +76,7 @@ public class MemoryTreePoolTest {
         PatriciaTreeNode treeNode = new PatriciaTreeNode(10, 1);
         TreeFactory.getMemoryTree(1).store(address, treeNode);
 
-        TreeFactory.getMemoryTree(1).withdraw(address, 1);
+        TreeFactory.getMemoryTree(1).withdraw(PatriciaTreeTransactionType.REGULAR,address, 1);
         System.out.println(TreeFactory.getMemoryTree(1).getByaddress(address).get().getAmount());
         assertEquals(9, TreeFactory.getMemoryTree(1).getByaddress(address).get().getAmount());
         Option<PatriciaTreeNode> copy = TreeFactory.getMemoryTree(0).getByaddress(address);
@@ -91,9 +92,9 @@ public class MemoryTreePoolTest {
         PatriciaTreeNode treeNode = new PatriciaTreeNode(10, 1);
         TreeFactory.getMemoryTree(1).store(address, treeNode);
 
-        TreeFactory.getMemoryTree(1).depositUnclaimedReward(address, 10);
+        TreeFactory.getMemoryTree(1).deposit(PatriciaTreeTransactionType.UNCLAIMED_FEE_REWARD,address, 10);
         assertEquals(10, TreeFactory.getMemoryTree(1).getByaddress(address).get().getUnclaimed_reward());
-        TreeFactory.getMemoryTree(1).withdrawUnclaimedReward(address, 5);
+        TreeFactory.getMemoryTree(1).withdraw(PatriciaTreeTransactionType.UNCLAIMED_FEE_REWARD,address, 5);
         assertEquals(5, TreeFactory.getMemoryTree(1).getByaddress(address).get().getUnclaimed_reward());
         Option<PatriciaTreeNode> copy = TreeFactory.getMemoryTree(0).getByaddress(address);
 
@@ -162,12 +163,12 @@ public class MemoryTreePoolTest {
         assertEquals(hash, hash);
         assertEquals(hash, replica.getRootHash());
         assertEquals(hash, replica2.getRootHash());
-        replica2.withdrawUnclaimedReward(address, 10);
-        replica2.withdraw(address, 2);
-        replica2.deposit(address, 20);
-        replica.withdrawUnclaimedReward(address, 10);
-        replica.withdraw(address, 2);
-        replica.deposit(address, 20);
+        replica2.withdraw(PatriciaTreeTransactionType.UNCLAIMED_FEE_REWARD,address, 10);
+        replica2.withdraw(PatriciaTreeTransactionType.REGULAR,address, 2);
+        replica2.deposit(PatriciaTreeTransactionType.REGULAR,address, 20);
+        replica.withdraw(PatriciaTreeTransactionType.UNCLAIMED_FEE_REWARD,address, 10);
+        replica.withdraw(PatriciaTreeTransactionType.REGULAR,address, 2);
+        replica.deposit(PatriciaTreeTransactionType.REGULAR,address, 20);
         assertEquals(replica, replica2);
     }
 
@@ -178,14 +179,14 @@ public class MemoryTreePoolTest {
         TreeFactory.getMemoryTree(1).store(address, treeNode);
         MemoryTreePool replica = new MemoryTreePool(((MemoryTreePool) TreeFactory.getMemoryTree(1)));
         MemoryTreePool replica2 = new MemoryTreePool(((MemoryTreePool) TreeFactory.getMemoryTree(1)));
-        replica.depositUnclaimedReward(address, 10);
-        replica.withdrawUnclaimedReward(address, 2);
-        replica.deposit(address, 10);
-        replica.withdraw(address, 2);
-        replica2.depositUnclaimedReward(address, 10);
-        replica2.withdrawUnclaimedReward(address, 2);
-        replica2.deposit(address, 10);
-        replica2.withdraw(address, 2);
+        replica.deposit(PatriciaTreeTransactionType.UNCLAIMED_FEE_REWARD,address, 10);
+        replica.withdraw(PatriciaTreeTransactionType.UNCLAIMED_FEE_REWARD,address, 2);
+        replica.deposit(PatriciaTreeTransactionType.REGULAR,address, 10);
+        replica.withdraw(PatriciaTreeTransactionType.REGULAR,address, 2);
+        replica2.deposit(PatriciaTreeTransactionType.UNCLAIMED_FEE_REWARD,address, 10);
+        replica2.withdraw(PatriciaTreeTransactionType.UNCLAIMED_FEE_REWARD,address, 2);
+        replica2.deposit(PatriciaTreeTransactionType.REGULAR,address, 10);
+        replica2.withdraw(PatriciaTreeTransactionType.REGULAR,address, 2);
         assertEquals(456, TreeFactory.getMemoryTree(1).getByaddress(address).get().getUnclaimed_reward());
         assertEquals(464, replica.getByaddress(address).get().getUnclaimed_reward());
         assertEquals(464, replica2.getByaddress(address).get().getUnclaimed_reward());
@@ -205,13 +206,13 @@ public class MemoryTreePoolTest {
         TreeFactory.getMemoryTree(3).store(address3, treeNode3);
         MemoryTreePool replica = new MemoryTreePool(((MemoryTreePool) TreeFactory.getMemoryTree(1)));
         MemoryTreePool replica2 = new MemoryTreePool(((MemoryTreePool) TreeFactory.getMemoryTree(1)));
-        replica.deposit(address1, 10);
-        replica.deposit(address2, 20);
-        replica.deposit(address3, 30);
+        replica.deposit(PatriciaTreeTransactionType.REGULAR,address1, 10);
+        replica.deposit(PatriciaTreeTransactionType.REGULAR,address2, 20);
+        replica.deposit(PatriciaTreeTransactionType.REGULAR,address3, 30);
 
-        replica2.deposit(address3, 30);
-        replica2.deposit(address2, 20);
-        replica2.deposit(address1, 10);
+        replica2.deposit(PatriciaTreeTransactionType.REGULAR,address3, 30);
+        replica2.deposit(PatriciaTreeTransactionType.REGULAR,address2, 20);
+        replica2.deposit(PatriciaTreeTransactionType.REGULAR,address1, 10);
         assertEquals(replica, replica2);
 
 

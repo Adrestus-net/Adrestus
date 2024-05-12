@@ -16,7 +16,7 @@ public class MerkleTreeTest {
     private static MerkleTreeImp tree;
 
     @BeforeAll
-    private static void setUp() throws Exception {
+    public static void setUp() throws Exception {
         tree = new MerkleTreeImp();
     }
 

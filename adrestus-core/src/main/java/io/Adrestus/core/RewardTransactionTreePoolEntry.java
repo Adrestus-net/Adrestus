@@ -1,6 +1,7 @@
 package io.Adrestus.core;
 
 import io.Adrestus.IMemoryTreePool;
+import io.Adrestus.Trie.PatriciaTreeTransactionType;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
 
 import java.util.ArrayList;
@@ -13,8 +14,8 @@ public class RewardTransactionTreePoolEntry implements TransactionTreePoolEntrie
     public void ForgeEntriesBuilder(IMemoryTreePool memoryTreePool) {
         transactionList.forEach(transaction -> {
             if ((transaction.getZoneFrom() == CachedZoneIndex.getInstance().getZoneIndex()) && (transaction.getZoneTo() == CachedZoneIndex.getInstance().getZoneIndex()) && CachedZoneIndex.getInstance().getZoneIndex() == 0) {
-                memoryTreePool.withdrawUnclaimedReward(((RewardsTransaction) transaction).getRecipientAddress(), transaction.getAmount());
-                memoryTreePool.deposit(((RewardsTransaction) transaction).getRecipientAddress(), transaction.getAmount());
+                memoryTreePool.withdraw(PatriciaTreeTransactionType.REWARDS,transaction.getRecipientAddress(), transaction.getAmount());
+                memoryTreePool.deposit(PatriciaTreeTransactionType.REGULAR,transaction.getRecipientAddress(), transaction.getAmount());
             } else
                 throw new IllegalArgumentException("Reward Forge transaction error");
         });
@@ -23,10 +24,11 @@ public class RewardTransactionTreePoolEntry implements TransactionTreePoolEntrie
     @Override
     public void InventEntriesBuilder(IMemoryTreePool memoryTreePool, int blockHeight) {
         for (int i = 0; i < transactionList.size(); i++) {
-            memoryTreePool.getByaddress(transactionList.get(i).getRecipientAddress()).get().addTransactionPosition(transactionList.get(i).getHash(), CachedZoneIndex.getInstance().getZoneIndex(), blockHeight, i);
-            if ((transactionList.get(i).getZoneFrom() == transactionList.get(i).getZoneTo()) && (CachedZoneIndex.getInstance().getZoneIndex() == 0)) {
-                memoryTreePool.withdrawUnclaimedReward(transactionList.get(i).getRecipientAddress(), transactionList.get(i).getAmount());
-                memoryTreePool.deposit(transactionList.get(i).getRecipientAddress(), transactionList.get(i).getAmount());
+            RewardsTransaction transaction = transactionList.get(i);
+            memoryTreePool.getByaddress(transaction.getRecipientAddress()).get().addTransactionPosition(PatriciaTreeTransactionType.REWARDS,transaction.getHash(), CachedZoneIndex.getInstance().getZoneIndex(), blockHeight, i);
+            if ((transaction.getZoneFrom() == transaction.getZoneTo()) && (CachedZoneIndex.getInstance().getZoneIndex() == 0)) {
+                memoryTreePool.withdraw(PatriciaTreeTransactionType.REWARDS,transaction.getRecipientAddress(), transaction.getAmount());
+                memoryTreePool.deposit(PatriciaTreeTransactionType.REGULAR,transaction.getRecipientAddress(), transaction.getAmount());
             } else
                 throw new IllegalArgumentException("Reward Invent transaction error");
         }

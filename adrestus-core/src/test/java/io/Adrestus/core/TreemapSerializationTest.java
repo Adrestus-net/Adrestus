@@ -5,6 +5,7 @@ import io.Adrestus.IMemoryTreePool;
 import io.Adrestus.MemoryTreePool;
 import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.PatriciaTreeNode;
+import io.Adrestus.Trie.PatriciaTreeTransactionType;
 import io.Adrestus.Trie.StorageInfo;
 import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.config.KademliaConfiguration;
@@ -243,7 +244,7 @@ public class TreemapSerializationTest {
 
         String address = "ADR-ADL3-VDZK-ZU7H-2BX5-M2H4-S7LF-5SR4-ECQA-EIUJ-CBFK";
         PatriciaTreeNode treeNode = new PatriciaTreeNode(2, 1);
-        treeNode.addTransactionPosition("1", 0, 1, 1);
+        treeNode.addTransactionPosition(PatriciaTreeTransactionType.REGULAR,"1", 0, 1, 1);
         TreeFactory.getMemoryTree(1).store(address, treeNode);
         MemoryTreePool m = (MemoryTreePool) TreeFactory.getMemoryTree(1);
 
@@ -259,7 +260,7 @@ public class TreemapSerializationTest {
 
         //copy.store(address, treeNode);
         Option<PatriciaTreeNode> pat = copy.getByaddress(address);
-        assertEquals(new StorageInfo(0, 1, 1), pat.get().retrieveTransactionInfoByHash("1").get(0));
+        assertEquals(new StorageInfo(0, 1, 1), pat.get().retrieveTransactionInfoByHash(PatriciaTreeTransactionType.REGULAR,"1").get(0));
         assertEquals(treeNode, pat.get());
         assertNotEquals(m, copy);
 

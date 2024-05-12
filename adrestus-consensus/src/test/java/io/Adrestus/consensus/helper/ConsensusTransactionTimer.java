@@ -1,5 +1,6 @@
 package io.Adrestus.consensus.helper;
 
+import io.Adrestus.TreeFactory;
 import io.Adrestus.config.ConsensusConfiguration;
 import io.Adrestus.consensus.*;
 import io.Adrestus.core.*;
@@ -82,28 +83,51 @@ public class ConsensusTransactionTimer {
 
     }
 
+    @SneakyThrows
     private void SaveTransactions(int start, int stop) throws InterruptedException {
         nonce++;
 
         for (int i = start; i <= stop; i++) {
-            Transaction transaction = new RegularTransaction();
-            transaction.setFrom(addreses.get(i));
-            transaction.setTo(addreses.get(i + 1));
-            transaction.setStatus(StatusType.PENDING);
-            transaction.setTimestamp(GetTime.GetTimeStampInString());
-            Thread.sleep(10);
-            transaction.setZoneFrom(CachedZoneIndex.getInstance().getZoneIndex());
-            transaction.setZoneTo(CachedZoneIndex.getInstance().getZoneIndex());
-            transaction.setAmount(i + 10);
-            transaction.setAmountWithTransactionFee(transaction.getAmount() * (10.0 / 100.0));
-            transaction.setNonce(nonce);
-            byte byf[] = serenc.encode(transaction, 1024);
-            transaction.setHash(HashUtil.sha256_bytetoString(byf));
+            if(i==0 && TreeFactory.getMemoryTree(0).getByaddress(addreses.get(0)).get().getUnclaimed_reward()>0){
+                RewardsTransaction rewardsTransaction = new RewardsTransaction();
+                rewardsTransaction.setRecipientAddress(addreses.get(0));
+                rewardsTransaction.setTo("");
+                rewardsTransaction.setStatus(StatusType.PENDING);
+                rewardsTransaction.setType(TransactionType.REWARDS);
+                rewardsTransaction.setTimestamp(GetTime.GetTimeStampInString());
+                rewardsTransaction.setZoneFrom(0);
+                rewardsTransaction.setZoneTo(0);
+                rewardsTransaction.setAmount(TreeFactory.getMemoryTree(0).getByaddress(addreses.get(0)).get().getUnclaimed_reward());
+                rewardsTransaction.setAmountWithTransactionFee(0);
+                rewardsTransaction.setNonce(nonce);
+                byte byf[] = serenc.encode(rewardsTransaction, 1024);
+                rewardsTransaction.setHash(HashUtil.sha256_bytetoString(byf));
 
-            ECDSASignatureData signatureData = ecdsaSign.secp256SignMessage(Hex.decode(transaction.getHash()), keypair.get(i));
-            transaction.setSignature(signatureData);
-            //MemoryPool.getInstance().add(transaction);
-            MemoryTransactionPool.getInstance().add(transaction);
+                ECDSASignatureData signatureData = ecdsaSign.secp256SignMessage(Hex.decode(rewardsTransaction.getHash()), keypair.get(0));
+                rewardsTransaction.setSignature(signatureData);
+                //MemoryPool.getInstance().add(transaction);
+                MemoryTransactionPool.getInstance().add(rewardsTransaction);
+            }
+            else {
+                Transaction transaction = new RegularTransaction();
+                transaction.setFrom(addreses.get(i));
+                transaction.setTo(addreses.get(i + 1));
+                transaction.setStatus(StatusType.PENDING);
+                transaction.setTimestamp(GetTime.GetTimeStampInString());
+                Thread.sleep(10);
+                transaction.setZoneFrom(CachedZoneIndex.getInstance().getZoneIndex());
+                transaction.setZoneTo(CachedZoneIndex.getInstance().getZoneIndex());
+                transaction.setAmount(i + 10);
+                transaction.setAmountWithTransactionFee(transaction.getAmount() * (10.0 / 100.0));
+                transaction.setNonce(nonce);
+                byte byf[] = serenc.encode(transaction, 1024);
+                transaction.setHash(HashUtil.sha256_bytetoString(byf));
+
+                ECDSASignatureData signatureData = ecdsaSign.secp256SignMessage(Hex.decode(transaction.getHash()), keypair.get(i));
+                transaction.setSignature(signatureData);
+                //MemoryPool.getInstance().add(transaction);
+                MemoryTransactionPool.getInstance().add(transaction);
+            }
         }
     }
 

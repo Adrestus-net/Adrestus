@@ -92,7 +92,8 @@ public class SignatureEventHandler extends TransactionEventHandler implements Tr
 
     @Override
     public void visit(StakingTransaction stakingTransaction) {
-
+        FinalizeTask task = new FinalizeTask(stakingTransaction, stakingTransaction.getValidatorAddress());
+        executorService.submit(task);
     }
 
     @Override

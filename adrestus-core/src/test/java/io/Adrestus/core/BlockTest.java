@@ -237,13 +237,13 @@ public class BlockTest {
         CachedBLSKeyPair.getInstance().setPublicKey(vk1);
         publisher
                 .withAddressSizeEventHandler()
+                .withTypeEventHandler()
+                .withTypeEventHandler()
                 .withAmountEventHandler()
-                .withDelegateEventHandler()
                 .withDoubleSpendEventHandler()
                 .withHashEventHandler()
                 .withNonceEventHandler()
                 .withReplayEventHandler()
-                .withRewardEventHandler()
                 .withStakingEventHandler()
                 .withTransactionFeeEventHandler()
                 .withTimestampEventHandler()

@@ -1,6 +1,7 @@
 package io.Adrestus.core;
 
 import io.Adrestus.IMemoryTreePool;
+import io.Adrestus.Trie.PatriciaTreeTransactionType;
 
 import java.util.ArrayList;
 
@@ -11,7 +12,7 @@ public class UnclaimedFeeRewardTransactionTreePoolEntry implements TransactionTr
     public void ForgeEntriesBuilder(IMemoryTreePool memoryTreePool) {
         try {
             UnclaimedFeeRewardTransaction unclaimedFeeRewardTransaction = (UnclaimedFeeRewardTransaction) transactionList.get(0);
-            memoryTreePool.depositUnclaimedReward(unclaimedFeeRewardTransaction.getRecipientAddress(), unclaimedFeeRewardTransaction.getAmount());
+            memoryTreePool.deposit(PatriciaTreeTransactionType.UNCLAIMED_FEE_REWARD,unclaimedFeeRewardTransaction.getRecipientAddress(), unclaimedFeeRewardTransaction.getAmount());
         } catch (ClassCastException e) {
             e.printStackTrace();
         }
@@ -21,7 +22,7 @@ public class UnclaimedFeeRewardTransactionTreePoolEntry implements TransactionTr
     public void InventEntriesBuilder(IMemoryTreePool memoryTreePool, int blockHeight) {
         try {
             UnclaimedFeeRewardTransaction unclaimedFeeRewardTransaction = (UnclaimedFeeRewardTransaction) transactionList.get(0);
-            memoryTreePool.depositUnclaimedReward(unclaimedFeeRewardTransaction.getRecipientAddress(), unclaimedFeeRewardTransaction.getAmount());
+            memoryTreePool.deposit(PatriciaTreeTransactionType.UNCLAIMED_FEE_REWARD,unclaimedFeeRewardTransaction.getRecipientAddress(), unclaimedFeeRewardTransaction.getAmount());
         } catch (ClassCastException e) {
             e.printStackTrace();
         }

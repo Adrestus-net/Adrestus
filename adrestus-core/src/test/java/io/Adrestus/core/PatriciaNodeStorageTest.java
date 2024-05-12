@@ -3,6 +3,7 @@ package io.Adrestus.core;
 import com.google.common.collect.Iterables;
 import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.PatriciaTreeNode;
+import io.Adrestus.Trie.PatriciaTreeTransactionType;
 import io.Adrestus.Trie.StorageInfo;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.core.RingBuffer.publisher.ReceiptEventPublisher;
@@ -177,11 +178,12 @@ public class PatriciaNodeStorageTest {
         int position2 = Iterables.indexOf(transactionBlock2.getTransactionList(), u -> u.equals(transaction2));
         int position3 = Iterables.indexOf(transactionBlock3.getTransactionList(), u -> u.equals(transaction3));
         int position3a = Iterables.indexOf(transactionBlock3.getTransactionList(), u -> u.equals(transaction3a));
-        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress("from1").get().addTransactionPosition(transaction.getHash(), CachedZoneIndex.getInstance().getZoneIndex(), transactionBlock1.getHeight(), position);
-        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress("from1").get().addTransactionPosition(reward.getHash(), CachedZoneIndex.getInstance().getZoneIndex(), transactionBlock1.getHeight(), positionre);
-        TreeFactory.getMemoryTree(1).getByaddress("from1").get().addTransactionPosition(transaction2.getHash(), 1, transactionBlock2.getHeight(), position2);
-        TreeFactory.getMemoryTree(1).getByaddress("from1").get().addTransactionPosition(transaction3.getHash(), 1, transactionBlock3.getHeight(), position3);
-        TreeFactory.getMemoryTree(1).getByaddress("from1").get().addTransactionPosition(transaction3a.getHash(), 1, transactionBlock3.getHeight(), position3a);
+        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress("from1").get().addTransactionPosition(PatriciaTreeTransactionType.REGULAR,transaction.getHash(), CachedZoneIndex.getInstance().getZoneIndex(), transactionBlock1.getHeight(), position);
+        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress("from1").get().addTransactionPosition(PatriciaTreeTransactionType.REWARDS,reward.getHash(), CachedZoneIndex.getInstance().getZoneIndex(), transactionBlock1.getHeight(), positionre);
+        TreeFactory.getMemoryTree(1).getByaddress("from1").get().addTransactionPosition(PatriciaTreeTransactionType.REWARDS,reward.getHash(), 1, transactionBlock1.getHeight(), positionre);
+        TreeFactory.getMemoryTree(1).getByaddress("from1").get().addTransactionPosition(PatriciaTreeTransactionType.REGULAR,transaction2.getHash(), 1, transactionBlock2.getHeight(), position2);
+        TreeFactory.getMemoryTree(1).getByaddress("from1").get().addTransactionPosition(PatriciaTreeTransactionType.REGULAR,transaction3.getHash(), 1, transactionBlock3.getHeight(), position3);
+        TreeFactory.getMemoryTree(1).getByaddress("from1").get().addTransactionPosition(PatriciaTreeTransactionType.REGULAR,transaction3a.getHash(), 1, transactionBlock3.getHeight(), position3a);
 
         //Check manually with debug if pass DuplicateEventHandler
         publisher.publish(transaction);
@@ -205,14 +207,14 @@ public class PatriciaNodeStorageTest {
         StorageInfo s5 = new StorageInfo(0, 5, 4);
         StorageInfo s6 = new StorageInfo(0, 5, 5);
         StorageInfo s7 = new StorageInfo(1, 5, 6);
-        TreeFactory.getMemoryTree(0).getByaddress("From1a").get().addTransactionPosition("1", s1.getOrigin_zone(), s1.getBlockHeight(), s1.getPosition());
-        TreeFactory.getMemoryTree(0).getByaddress("From1a").get().addTransactionPosition("2", s2.getOrigin_zone(), s2.getBlockHeight(), s2.getPosition());
-        TreeFactory.getMemoryTree(0).getByaddress("From1a").get().addTransactionPosition("3", s3.getOrigin_zone(), s3.getBlockHeight(), s3.getPosition());
-        TreeFactory.getMemoryTree(0).getByaddress("From1a").get().addTransactionPosition("4", s4.getOrigin_zone(), s4.getBlockHeight(), s4.getPosition());
-        TreeFactory.getMemoryTree(0).getByaddress("From1a").get().addTransactionPosition("5", s5.getOrigin_zone(), s5.getBlockHeight(), s5.getPosition());
-        TreeFactory.getMemoryTree(0).getByaddress("From1a").get().addTransactionPosition("6", s6.getOrigin_zone(), s6.getBlockHeight(), s6.getPosition());
-        TreeFactory.getMemoryTree(0).getByaddress("From1a").get().addTransactionPosition("7", s7.getOrigin_zone(), s7.getBlockHeight(), s7.getPosition());
-        StorageInfo res = TreeFactory.getMemoryTree(0).getByaddress("From1a").get().findLatestStorageInfo(0).get();
+        TreeFactory.getMemoryTree(0).getByaddress("From1a").get().addTransactionPosition(PatriciaTreeTransactionType.REGULAR,"1", s1.getOrigin_zone(), s1.getBlockHeight(), s1.getPosition());
+        TreeFactory.getMemoryTree(0).getByaddress("From1a").get().addTransactionPosition(PatriciaTreeTransactionType.REGULAR,"2", s2.getOrigin_zone(), s2.getBlockHeight(), s2.getPosition());
+        TreeFactory.getMemoryTree(0).getByaddress("From1a").get().addTransactionPosition(PatriciaTreeTransactionType.REGULAR,"3", s3.getOrigin_zone(), s3.getBlockHeight(), s3.getPosition());
+        TreeFactory.getMemoryTree(0).getByaddress("From1a").get().addTransactionPosition(PatriciaTreeTransactionType.REGULAR,"4", s4.getOrigin_zone(), s4.getBlockHeight(), s4.getPosition());
+        TreeFactory.getMemoryTree(0).getByaddress("From1a").get().addTransactionPosition(PatriciaTreeTransactionType.REGULAR,"5", s5.getOrigin_zone(), s5.getBlockHeight(), s5.getPosition());
+        TreeFactory.getMemoryTree(0).getByaddress("From1a").get().addTransactionPosition(PatriciaTreeTransactionType.REGULAR,"6", s6.getOrigin_zone(), s6.getBlockHeight(), s6.getPosition());
+        TreeFactory.getMemoryTree(0).getByaddress("From1a").get().addTransactionPosition(PatriciaTreeTransactionType.REGULAR,"7", s7.getOrigin_zone(), s7.getBlockHeight(), s7.getPosition());
+        StorageInfo res = TreeFactory.getMemoryTree(0).getByaddress("From1a").get().findLatestStorageInfo(PatriciaTreeTransactionType.REGULAR,0).get();
         assertEquals(2, res.getPositions().size());
         int s = 3;
     }
@@ -255,7 +257,7 @@ public class PatriciaNodeStorageTest {
             //1-->origin_zone
             //1-->height
             //2-->position
-            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(trx.getFrom()).get().addTransactionPosition(trx.getHash(), trx.getZoneFrom(), transactionBlock1.getHeight(), position);
+            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(trx.getFrom()).get().addTransactionPosition(PatriciaTreeTransactionType.REGULAR,trx.getHash(), trx.getZoneFrom(), transactionBlock1.getHeight(), position);
         });
 
         transactionBlockIDatabase.save(String.valueOf(transactionBlock1.getHeight()), transactionBlock1);
@@ -282,7 +284,7 @@ public class PatriciaNodeStorageTest {
             //1-->origin_zone
             //1-->height
             //2-->position
-            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(trx.getFrom()).get().addTransactionPosition(trx.getHash(), trx.getZoneFrom(), transactionBlock2.getHeight(), position);
+            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(trx.getFrom()).get().addTransactionPosition(PatriciaTreeTransactionType.REGULAR,trx.getHash(), trx.getZoneFrom(), transactionBlock2.getHeight(), position);
         });
         transactionBlockIDatabase.save(String.valueOf(transactionBlock2.getHeight()), transactionBlock2);
 
@@ -308,7 +310,7 @@ public class PatriciaNodeStorageTest {
             //1-->origin_zone
             //1-->height
             //2-->position
-            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(trx.getFrom()).get().addTransactionPosition(trx.getHash(), trx.getZoneFrom(), transactionBlock3.getHeight(), position);
+            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(trx.getFrom()).get().addTransactionPosition(PatriciaTreeTransactionType.REGULAR,trx.getHash(), trx.getZoneFrom(), transactionBlock3.getHeight(), position);
         });
         transactionBlockIDatabase.save(String.valueOf(transactionBlock3.getHeight()), transactionBlock3);
 
@@ -334,7 +336,7 @@ public class PatriciaNodeStorageTest {
             //1-->origin_zone
             //1-->height
             //2-->position
-            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(trx.getFrom()).get().addTransactionPosition(trx.getHash(), trx.getZoneFrom(), transactionBlock4.getHeight(), position);
+            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(trx.getFrom()).get().addTransactionPosition(PatriciaTreeTransactionType.REGULAR,trx.getHash(), trx.getZoneFrom(), transactionBlock4.getHeight(), position);
         });
 
         transactionBlockIDatabase.save(String.valueOf(transactionBlock4.getHeight()), transactionBlock4);
@@ -365,21 +367,21 @@ public class PatriciaNodeStorageTest {
             //1-->origin_zone
             //1-->height
             //2-->position
-            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(trx.getFrom()).get().addTransactionPosition(trx.getHash(), trx.getZoneFrom(), transactionBlock5.getHeight(), position);
+            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(trx.getFrom()).get().addTransactionPosition(PatriciaTreeTransactionType.REGULAR,trx.getHash(), trx.getZoneFrom(), transactionBlock5.getHeight(), position);
         });
 
         transactionBlockIDatabase.save(String.valueOf(transactionBlock5.getHeight()), transactionBlock4);
 
         PatriciaTreeNode pat = TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress("From1a").get();
-        assertEquals(2, pat.getTransactionCapacities().size());
-        assertEquals(5, pat.getTransactionCapacities().get(CachedZoneIndex.getInstance().getZoneIndex()).getPositions().size());
-        assertEquals(1, pat.getTransactionCapacities().get(CachedZoneIndex.getInstance().getZoneIndex()).getPositions().get(1).size());
-        assertEquals(3, pat.getTransactionCapacities().get(CachedZoneIndex.getInstance().getZoneIndex()).getPositions().get(4).size());
-        assertEquals(2, pat.getTransactionCapacities().get(1).getPositions().get(5).size());
+        assertEquals(2, pat.getCapacities(PatriciaTreeTransactionType.REGULAR).size());
+        assertEquals(5, pat.getCapacities(PatriciaTreeTransactionType.REGULAR).get(CachedZoneIndex.getInstance().getZoneIndex()).getPositions().size());
+        assertEquals(1, pat.getCapacities(PatriciaTreeTransactionType.REGULAR).get(CachedZoneIndex.getInstance().getZoneIndex()).getPositions().get(1).size());
+        assertEquals(3, pat.getCapacities(PatriciaTreeTransactionType.REGULAR).get(CachedZoneIndex.getInstance().getZoneIndex()).getPositions().get(4).size());
+        assertEquals(2, pat.getCapacities(PatriciaTreeTransactionType.REGULAR).get(1).getPositions().get(5).size());
         String hash1 = "1d";
         String hash2 = "1c";
-        List<StorageInfo> s1 = pat.retrieveTransactionInfoByHash(hash1);
-        List<StorageInfo> s2 = pat.retrieveTransactionInfoByHash(hash2);
+        List<StorageInfo> s1 = pat.retrieveTransactionInfoByHash(PatriciaTreeTransactionType.REGULAR,hash1);
+        List<StorageInfo> s2 = pat.retrieveTransactionInfoByHash(PatriciaTreeTransactionType.REGULAR,hash2);
         assertEquals(hash1, transactionBlockIDatabase.findByKey(String.valueOf(s1.get(0).getBlockHeight())).get().getTransactionList().get(s1.get(0).getPosition()).getHash());
         assertEquals(hash2, transactionBlockIDatabase.findByKey(String.valueOf(s2.get(0).getBlockHeight())).get().getTransactionList().get(s2.get(0).getPosition()).getHash());
         int g3 = 2;
@@ -461,17 +463,17 @@ public class PatriciaNodeStorageTest {
             transactionBlockIDatabase.findByKey(String.valueOf(random.getBlockHeight())).get().getInbound().getMap_receipts().get(random.getZone()).entrySet().stream().filter(entry -> entry.getKey().getHeight() == random.getReceiptBlockHeight()).findFirst().get().getValue().get(random.getPosition());
         } catch (NoSuchElementException e) {
         }
-        assertEquals(1, pat.getReceiptCapacities().size());
-        assertEquals(2, pat.getReceiptCapacities().get(0).getPositions().get(3).get(0).size());
-        assertEquals(1, pat.getReceiptCapacities().get(0).getPositions().get(3).get(2).size());
-        assertEquals(1, pat.getReceiptCapacities().get(0).getPositions().get(3).get(3).size());
-        assertEquals(1, pat.getReceiptCapacities().get(0).getPositions().get(3).get(4).size());
+        assertEquals(1, pat.getCapacities().size());
+        assertEquals(2, pat.getCapacities().get(0).getPositions().get(3).get(0).size());
+        assertEquals(1, pat.getCapacities().get(0).getPositions().get(3).get(2).size());
+        assertEquals(1, pat.getCapacities().get(0).getPositions().get(3).get(3).size());
+        assertEquals(1, pat.getCapacities().get(0).getPositions().get(3).get(4).size());
         //0-->originzone
         //3-->blockheight
         //2-->zone
         //3-->receiptblockheight
         //size()->positions_receipt
-        assertEquals(2, pat.getReceiptCapacities().get(0).getPositions().get(3).get(2).get(3).size());
+        assertEquals(2, pat.getCapacities().get(0).getPositions().get(3).get(2).get(3).size());
 
         TransactionBlock transactionBlock2 = new TransactionBlock();
         transactionBlock2.setHeight(2);

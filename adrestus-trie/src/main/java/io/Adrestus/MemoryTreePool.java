@@ -2,6 +2,7 @@ package io.Adrestus;
 
 import com.google.common.base.Objects;
 import io.Adrestus.Trie.PatriciaTreeNode;
+import io.Adrestus.Trie.PatriciaTreeTransactionType;
 import io.Adrestus.Trie.optimize64_trie.MerklePatriciaTrie;
 import io.Adrestus.util.bytes.Bytes;
 import io.Adrestus.util.bytes.Bytes53;
@@ -13,6 +14,9 @@ import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.SerializationUtils;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.EnumMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -27,12 +31,13 @@ public class MemoryTreePool implements IMemoryTreePool, Cloneable {
     private Lock r = rwl.readLock();
     private Lock w = rwl.writeLock();
 
-    private String height;
+    private final Map<PatriciaTreeTransactionType, TransactionStorage> transactionsMap;
 
     public MemoryTreePool() {
         this.valueSerializer = value -> (value != null) ? Bytes.wrap(SerializationUtils.serialize(value)) : null;
-        //this.valueSerializer=null;
         this.patriciaTreeImp = new MerklePatriciaTrie<Bytes, PatriciaTreeNode>(valueSerializer);
+        this.transactionsMap = new EnumMap<>(PatriciaTreeTransactionType.class);
+        this.Init();
     }
 
     public MemoryTreePool(MemoryTreePool memoryTreePool) throws CloneNotSupportedException {
@@ -41,6 +46,27 @@ public class MemoryTreePool implements IMemoryTreePool, Cloneable {
         this.rwl = memoryTreePool.rwl;
         this.r = memoryTreePool.r;
         this.w = memoryTreePool.w;
+        this.transactionsMap = new EnumMap<>(PatriciaTreeTransactionType.class);
+        this.Init();
+    }
+
+    private void Init() {
+        Arrays.stream(PatriciaTreeTransactionType.values()).forEach(type -> {
+            switch (type) {
+                case REGULAR:
+                    this.transactionsMap.put(type, new RegularTransactionStorage());
+                    break;
+                case STAKING:
+                    this.transactionsMap.put(type, new StakingTransactionStorage());
+                    break;
+                case REWARDS:
+                    this.transactionsMap.put(type, new RewardTransactionStorage());
+                    break;
+                case UNCLAIMED_FEE_REWARD:
+                    this.transactionsMap.put(type, new UnclaimedTransactionStorage());
+                    break;
+            }
+        });
     }
 
     @Override
@@ -58,41 +84,10 @@ public class MemoryTreePool implements IMemoryTreePool, Cloneable {
     //be aware that print functionality is  different
     @SneakyThrows
     @Override
-    public void deposit(String address, double amount) {
+    public void deposit(PatriciaTreeTransactionType type, String address, double amount) {
         w.lock();
         try {
-            Bytes key = Bytes.wrap(address.getBytes(StandardCharsets.UTF_8));
-            Option<PatriciaTreeNode> prev = getByaddress(address);
-            if (prev.isEmpty()) {
-                PatriciaTreeNode next = new PatriciaTreeNode(amount, 0, 0);
-                patriciaTreeImp.put(key, next);
-            } else {
-                PatriciaTreeNode patriciaTreeNode = (PatriciaTreeNode) prev.get().clone();
-                Double new_cash = patriciaTreeNode.getAmount() + amount;
-                patriciaTreeNode.setAmount(new_cash);
-                patriciaTreeImp.put(key, patriciaTreeNode);
-            }
-        } finally {
-            w.unlock();
-        }
-    }
-
-    @SneakyThrows
-    @Override
-    public void depositUnclaimedReward(String address, double amount) {
-        w.lock();
-        try {
-            Bytes key = Bytes.wrap(address.getBytes(StandardCharsets.UTF_8));
-            Option<PatriciaTreeNode> prev = getByaddress(address);
-            if (prev.isEmpty()) {
-                PatriciaTreeNode next = new PatriciaTreeNode(amount, 0, 0);
-                patriciaTreeImp.put(key, next);
-            } else {
-                PatriciaTreeNode patriciaTreeNode = (PatriciaTreeNode) prev.get().clone();
-                Double new_cash = patriciaTreeNode.getUnclaimed_reward() + amount;
-                patriciaTreeNode.setUnclaimed_reward(new_cash);
-                patriciaTreeImp.put(key, patriciaTreeNode);
-            }
+            this.transactionsMap.get(type).deposit(this.patriciaTreeImp, address, amount);
         } finally {
             w.unlock();
         }
@@ -102,44 +97,10 @@ public class MemoryTreePool implements IMemoryTreePool, Cloneable {
     //be aware that print functionality is  different
     @SneakyThrows
     @Override
-    public void withdraw(String address, double amount) {
+    public void withdraw(PatriciaTreeTransactionType type, String address, double amount) {
         w.lock();
         try {
-            Bytes key = Bytes.wrap(address.getBytes(StandardCharsets.UTF_8));
-            Option<PatriciaTreeNode> prev = getByaddress(address);
-            if (prev.isEmpty()) {
-                PatriciaTreeNode next = new PatriciaTreeNode(amount, 0, 0);
-                patriciaTreeImp.put(key, next);
-            } else {
-                PatriciaTreeNode patriciaTreeNode = (PatriciaTreeNode) prev.get().clone();
-                Double new_cash = prev.get().getAmount() - amount;
-                //System.out.println("Widraw "+address+ " "+prev.get().getAmount()+" - "+patriciaTreeNode.getAmount()+" = "+amount);
-                patriciaTreeNode.setAmount(new_cash);
-                patriciaTreeNode.setNonce(patriciaTreeNode.getNonce() + 1);
-                patriciaTreeImp.put(key, patriciaTreeNode);
-            }
-        } finally {
-            w.unlock();
-        }
-    }
-
-    @SneakyThrows
-    @Override
-    public void withdrawUnclaimedReward(String address, double amount) {
-        w.lock();
-        try {
-            Bytes key = Bytes.wrap(address.getBytes(StandardCharsets.UTF_8));
-            Option<PatriciaTreeNode> prev = getByaddress(address);
-            if (prev.isEmpty()) {
-                PatriciaTreeNode next = new PatriciaTreeNode(amount, 0, 0);
-                patriciaTreeImp.put(key, next);
-            } else {
-                PatriciaTreeNode patriciaTreeNode = (PatriciaTreeNode) prev.get().clone();
-                Double new_cash = prev.get().getUnclaimed_reward() - amount;
-                patriciaTreeNode.setUnclaimed_reward(new_cash);
-                patriciaTreeNode.setNonce(patriciaTreeNode.getNonce() + 1);
-                patriciaTreeImp.put(key, patriciaTreeNode);
-            }
+            this.transactionsMap.get(type).withdraw(this.patriciaTreeImp, address, amount);
         } finally {
             w.unlock();
         }

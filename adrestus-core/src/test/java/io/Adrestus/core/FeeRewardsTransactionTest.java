@@ -4,6 +4,7 @@ import com.google.common.reflect.TypeToken;
 import io.Adrestus.MemoryTreePool;
 import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.PatriciaTreeNode;
+import io.Adrestus.Trie.PatriciaTreeTransactionType;
 import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.config.ConsensusConfiguration;
 import io.Adrestus.config.KademliaConfiguration;
@@ -52,7 +53,7 @@ import java.util.concurrent.CountDownLatch;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class FeeRewardsTest {
+public class FeeRewardsTransactionTest {
 
     private static BLSPrivateKey sk1;
     private static BLSPublicKey vk1;
@@ -354,18 +355,17 @@ public class FeeRewardsTest {
     public void reward_transaction() throws InterruptedException {
         CachedZoneIndex.getInstance().setZoneIndex(0);
         TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(address1, new PatriciaTreeNode(1000, 0));
-        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).depositUnclaimedReward(address1, 100);
+        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).deposit(PatriciaTreeTransactionType.UNCLAIMED_FEE_REWARD,address1, 100);
         TransactionEventPublisher publisher = new TransactionEventPublisher(100);
         SignatureEventHandler signatureEventHandler = new SignatureEventHandler(SignatureEventHandler.SignatureBehaviorType.SIMPLE_TRANSACTIONS);
         CachedBLSKeyPair.getInstance().setPublicKey(vk1);
         publisher
                 .withAddressSizeEventHandler()
+                .withTypeEventHandler()
                 .withAmountEventHandler()
-                .withDelegateEventHandler()
                 .withDoubleSpendEventHandler()
                 .withHashEventHandler()
                 .withNonceEventHandler()
-                .withRewardEventHandler()
                 .withReplayEventHandler()
                 .withStakingEventHandler()
                 .withTransactionFeeEventHandler()

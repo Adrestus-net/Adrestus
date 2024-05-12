@@ -178,7 +178,7 @@ public class InBoundEventHandler implements BlockEventHandler<AbstractBlockEvent
         transactionBlock.getTransactionList().forEach(val -> merkleNodeArrayList.add(new MerkleNode(val.getHash())));
         outer_tree.my_generate2(merkleNodeArrayList);
         boolean bool3 = StringUtils.equals(transactionBlock.getMerkleRoot(), outer_tree.GenerateRoot(receipt.getProofs()));
-        boolean bool5 = StringUtils.equals(receiptBlock.getOutboundMerkleRoot(), outer_tree.getRootHash());
+        boolean bool5 = StringUtils.equals(receiptBlock.getOutboundMerkleRoot(), outer_tree.GenerateRoot(receipt.getProofs()));
         int val3 = Integer.compare(index, receipt.getPosition());
         int val4 = Integer.compare(transactionBlock.getHeight(), receiptBlock.getHeight());
         int val5 = Integer.compare(transactionBlock.getGeneration(), receiptBlock.getGeneration());

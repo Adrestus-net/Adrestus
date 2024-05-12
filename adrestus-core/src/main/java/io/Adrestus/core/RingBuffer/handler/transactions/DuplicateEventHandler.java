@@ -1,6 +1,7 @@
 package io.Adrestus.core.RingBuffer.handler.transactions;
 
 import io.Adrestus.TreeFactory;
+import io.Adrestus.Trie.PatriciaTreeTransactionType;
 import io.Adrestus.Trie.StorageInfo;
 import io.Adrestus.core.*;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
@@ -33,7 +34,7 @@ public class DuplicateEventHandler extends TransactionEventHandler implements Tr
         try {
             ArrayList<StorageInfo> tosearch;
             try {
-                tosearch = (ArrayList<StorageInfo>) TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(regularTransaction.getFrom()).get().retrieveTransactionInfoByHash(regularTransaction.getHash());
+                tosearch = (ArrayList<StorageInfo>) TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(regularTransaction.getFrom()).get().retrieveTransactionInfoByHash(PatriciaTreeTransactionType.REGULAR,regularTransaction.getHash());
             } catch (NoSuchElementException e) {
                 return;
             }
@@ -61,7 +62,7 @@ public class DuplicateEventHandler extends TransactionEventHandler implements Tr
         try {
             ArrayList<StorageInfo> tosearch;
             try {
-                tosearch = (ArrayList<StorageInfo>) TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(rewardsTransaction.getRecipientAddress()).get().retrieveTransactionInfoByHash(rewardsTransaction.getHash());
+                tosearch = (ArrayList<StorageInfo>) TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(rewardsTransaction.getRecipientAddress()).get().retrieveTransactionInfoByHash(PatriciaTreeTransactionType.REWARDS,rewardsTransaction.getHash());
             } catch (NoSuchElementException e) {
                 return;
             }
@@ -86,7 +87,30 @@ public class DuplicateEventHandler extends TransactionEventHandler implements Tr
 
     @Override
     public void visit(StakingTransaction stakingTransaction) {
+        try {
+            ArrayList<StorageInfo> tosearch;
+            try {
+                tosearch = (ArrayList<StorageInfo>) TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(stakingTransaction.getValidatorAddress()).get().retrieveTransactionInfoByHash(PatriciaTreeTransactionType.STAKING,stakingTransaction.getHash());
+            } catch (NoSuchElementException e) {
+                return;
+            }
+            for (int i = 0; i < tosearch.size(); i++) {
+                IDatabase<String, TransactionBlock> transactionBlockIDatabase = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
+                try {
+                    Transaction trx = transactionBlockIDatabase.findByKey(String.valueOf(tosearch.get(i).getBlockHeight())).get().getTransactionList().get(tosearch.get(i).getPosition());
+                    if (trx.equals(stakingTransaction)) {
+                        stakingTransaction.setStatus(StatusType.BUFFERED);
+                        return;
+                    }
+                } catch (NoSuchElementException e) {
+                } catch (IndexOutOfBoundsException e) {
 
+                }
+            }
+
+        } catch (NullPointerException ex) {
+            LOG.info("Transaction is empty");
+        }
     }
 
     @Override
