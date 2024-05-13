@@ -14,10 +14,10 @@ public class RegularTransactionTreePoolEntry implements TransactionTreePoolEntri
     public void ForgeEntriesBuilder(IMemoryTreePool memoryTreePool) {
         transactionList.forEach(transaction -> {
             if ((transaction.getZoneFrom() == CachedZoneIndex.getInstance().getZoneIndex()) && (transaction.getZoneTo() == CachedZoneIndex.getInstance().getZoneIndex())) {
-                memoryTreePool.withdraw(PatriciaTreeTransactionType.REGULAR,transaction.getFrom(), transaction.getAmount());
-                memoryTreePool.deposit(PatriciaTreeTransactionType.REGULAR,transaction.getTo(), transaction.getAmount());
+                memoryTreePool.withdraw(PatriciaTreeTransactionType.REGULAR,transaction.getFrom(), transaction.getAmount(),transaction.getAmountWithTransactionFee());
+                memoryTreePool.deposit(PatriciaTreeTransactionType.REGULAR,transaction.getTo(), transaction.getAmount(),transaction.getAmountWithTransactionFee());
             } else {
-                memoryTreePool.withdraw(PatriciaTreeTransactionType.REGULAR,transaction.getFrom(), transaction.getAmount());
+                memoryTreePool.withdraw(PatriciaTreeTransactionType.REGULAR,transaction.getFrom(), transaction.getAmount(),transaction.getAmountWithTransactionFee());
             }
         });
     }
@@ -29,10 +29,10 @@ public class RegularTransactionTreePoolEntry implements TransactionTreePoolEntri
             memoryTreePool.getByaddress(transaction.getFrom()).get().addTransactionPosition(PatriciaTreeTransactionType.valueOf(transaction.getType().toString()), transaction.getHash(), CachedZoneIndex.getInstance().getZoneIndex(), blockHeight, i);
             memoryTreePool.getByaddress(transaction.getTo()).get().addTransactionPosition(PatriciaTreeTransactionType.valueOf(transaction.getType().toString()), transaction.getHash(), CachedZoneIndex.getInstance().getZoneIndex(), blockHeight, i);
             if ((transaction.getZoneFrom() == CachedZoneIndex.getInstance().getZoneIndex()) && (transaction.getZoneTo() == CachedZoneIndex.getInstance().getZoneIndex())) {
-                memoryTreePool.withdraw(PatriciaTreeTransactionType.REGULAR,transaction.getFrom(), transaction.getAmount());
-                memoryTreePool.deposit(PatriciaTreeTransactionType.REGULAR,transaction.getTo(), transaction.getAmount());
+                memoryTreePool.withdraw(PatriciaTreeTransactionType.REGULAR,transaction.getFrom(), transaction.getAmount(),transaction.getAmountWithTransactionFee());
+                memoryTreePool.deposit(PatriciaTreeTransactionType.REGULAR,transaction.getTo(), transaction.getAmount(),transaction.getAmountWithTransactionFee());
             } else {
-                memoryTreePool.withdraw(PatriciaTreeTransactionType.REGULAR,transaction.getFrom(), transaction.getAmount());
+                memoryTreePool.withdraw(PatriciaTreeTransactionType.REGULAR,transaction.getFrom(), transaction.getAmount(),transaction.getAmountWithTransactionFee());
             }
         }
     }

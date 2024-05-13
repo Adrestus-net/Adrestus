@@ -14,8 +14,8 @@ public class RewardTransactionTreePoolEntry implements TransactionTreePoolEntrie
     public void ForgeEntriesBuilder(IMemoryTreePool memoryTreePool) {
         transactionList.forEach(transaction -> {
             if ((transaction.getZoneFrom() == CachedZoneIndex.getInstance().getZoneIndex()) && (transaction.getZoneTo() == CachedZoneIndex.getInstance().getZoneIndex()) && CachedZoneIndex.getInstance().getZoneIndex() == 0) {
-                memoryTreePool.withdraw(PatriciaTreeTransactionType.REWARDS,transaction.getRecipientAddress(), transaction.getAmount());
-                memoryTreePool.deposit(PatriciaTreeTransactionType.REGULAR,transaction.getRecipientAddress(), transaction.getAmount());
+                memoryTreePool.withdraw(PatriciaTreeTransactionType.REWARDS,transaction.getRecipientAddress(), transaction.getAmount(),transaction.getAmountWithTransactionFee());
+                memoryTreePool.deposit(PatriciaTreeTransactionType.REWARDS,transaction.getRecipientAddress(), transaction.getAmount(),transaction.getAmountWithTransactionFee());
             } else
                 throw new IllegalArgumentException("Reward Forge transaction error");
         });
@@ -27,8 +27,8 @@ public class RewardTransactionTreePoolEntry implements TransactionTreePoolEntrie
             RewardsTransaction transaction = transactionList.get(i);
             memoryTreePool.getByaddress(transaction.getRecipientAddress()).get().addTransactionPosition(PatriciaTreeTransactionType.REWARDS,transaction.getHash(), CachedZoneIndex.getInstance().getZoneIndex(), blockHeight, i);
             if ((transaction.getZoneFrom() == transaction.getZoneTo()) && (CachedZoneIndex.getInstance().getZoneIndex() == 0)) {
-                memoryTreePool.withdraw(PatriciaTreeTransactionType.REWARDS,transaction.getRecipientAddress(), transaction.getAmount());
-                memoryTreePool.deposit(PatriciaTreeTransactionType.REGULAR,transaction.getRecipientAddress(), transaction.getAmount());
+                memoryTreePool.withdraw(PatriciaTreeTransactionType.REWARDS,transaction.getRecipientAddress(), transaction.getAmount(),transaction.getAmountWithTransactionFee());
+                memoryTreePool.deposit(PatriciaTreeTransactionType.REWARDS,transaction.getRecipientAddress(), transaction.getAmount(),transaction.getAmountWithTransactionFee());
             } else
                 throw new IllegalArgumentException("Reward Invent transaction error");
         }

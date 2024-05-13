@@ -98,12 +98,25 @@ public class SignatureEventHandler extends TransactionEventHandler implements Tr
 
     @Override
     public void visit(DelegateTransaction delegateTransaction) {
-
+        FinalizeTask task = new FinalizeTask(delegateTransaction, delegateTransaction.getDelegatorAddress());
+        executorService.submit(task);
     }
 
     @Override
     public void visit(UnclaimedFeeRewardTransaction unclaimedFeeRewardTransaction) {
         latch.countDown();
+    }
+
+    @Override
+    public void visit(UnDelegateTransaction unDelegateTransaction) {
+        FinalizeTask task = new FinalizeTask(unDelegateTransaction, unDelegateTransaction.getDelegatorAddress());
+        executorService.submit(task);
+    }
+
+    @Override
+    public void visit(UnstakingTransaction unstakingTransaction) {
+        FinalizeTask task = new FinalizeTask(unstakingTransaction, unstakingTransaction.getValidatorAddress());
+        executorService.submit(task);
     }
 
 
@@ -130,8 +143,7 @@ public class SignatureEventHandler extends TransactionEventHandler implements Tr
                 boolean verify = ecdsaSign.secp256Verify(HashUtil.sha256(transaction.getHash().getBytes(StandardCharsets.UTF_8)), address, publicKeyValue, transaction.getSignature());
                 if (!verify) {
                     LOG.info("Transaction Wallet signature is not valid ABORT");
-                    if (type.equals(SignatureBehaviorType.BLOCK_TRANSACTIONS))
-                        latch.countDown();
+                    latch.countDown();
                     transaction.setStatus(StatusType.ABORT);
                     MemoryTransactionPool.getInstance().delete(transaction);
                     return;
@@ -139,8 +151,7 @@ public class SignatureEventHandler extends TransactionEventHandler implements Tr
             } else {
                 if (!ecdsaSign.secp256Verify(Hex.decode(transaction.getHash()), address, transaction.getSignature())) {
                     LOG.info("Transaction signature is not valid ABORT");
-                    if (type.equals(SignatureBehaviorType.BLOCK_TRANSACTIONS))
-                        latch.countDown();
+                    latch.countDown();
                     transaction.setStatus(StatusType.ABORT);
                     MemoryTransactionPool.getInstance().delete(transaction);
                     return;

@@ -172,7 +172,7 @@ public class TransactionTest {
         // BinarySerializer<DelegateTransaction> serenc = SerializerBuilder.create().build(DelegateTransaction.class);
         Transaction delegateTransaction = new DelegateTransaction();
         delegateTransaction.setAmount(100);
-        delegateTransaction.setType(TransactionType.DELEGATING);
+        delegateTransaction.setType(TransactionType.DELEGATE);
         byte[] buffer = serenc.encode(delegateTransaction);
 
         Transaction copys = serenc.decode(buffer);
@@ -192,6 +192,7 @@ public class TransactionTest {
                 .withAmountEventHandler()
                 .withDoubleSpendEventHandler()
                 .withHashEventHandler()
+                .withDelegateEventHandler()
                 .withNonceEventHandler()
                 .withReplayEventHandler()
                 .withStakingEventHandler()

@@ -59,6 +59,15 @@ public class MemoryTreePool implements IMemoryTreePool, Cloneable {
                 case STAKING:
                     this.transactionsMap.put(type, new StakingTransactionStorage());
                     break;
+                case DELEGATE:
+                    this.transactionsMap.put(type, new DelegateTransactionStorage());
+                    break;
+                case UNSTAKING:
+                    this.transactionsMap.put(type, new UnStakingTransactionStorage());
+                    break;
+                case UNDELEGATE:
+                    this.transactionsMap.put(type, new UnDelegateTransactionStorage());
+                    break;
                 case REWARDS:
                     this.transactionsMap.put(type, new RewardTransactionStorage());
                     break;
@@ -84,10 +93,10 @@ public class MemoryTreePool implements IMemoryTreePool, Cloneable {
     //be aware that print functionality is  different
     @SneakyThrows
     @Override
-    public void deposit(PatriciaTreeTransactionType type, String address, double amount) {
+    public void deposit(PatriciaTreeTransactionType type, String address, double amount,double fees) {
         w.lock();
         try {
-            this.transactionsMap.get(type).deposit(this.patriciaTreeImp, address, amount);
+            this.transactionsMap.get(type).deposit(this.patriciaTreeImp, address, amount,fees);
         } finally {
             w.unlock();
         }
@@ -97,10 +106,10 @@ public class MemoryTreePool implements IMemoryTreePool, Cloneable {
     //be aware that print functionality is  different
     @SneakyThrows
     @Override
-    public void withdraw(PatriciaTreeTransactionType type, String address, double amount) {
+    public void withdraw(PatriciaTreeTransactionType type, String address, double amount,double fees) {
         w.lock();
         try {
-            this.transactionsMap.get(type).withdraw(this.patriciaTreeImp, address, amount);
+            this.transactionsMap.get(type).withdraw(this.patriciaTreeImp, address, amount,fees);
         } finally {
             w.unlock();
         }

@@ -133,6 +133,7 @@ public class PatriciaNodeStorageTest {
         transaction.setTimestamp(new Timestamp(System.currentTimeMillis()).toString());
         RewardsTransaction reward = new RewardsTransaction();
         reward.setHash("hashREW");
+        reward.setType(TransactionType.REWARDS);
         reward.setRecipientAddress("from1");
         Thread.sleep(500);
         reward.setTimestamp(new Timestamp(System.currentTimeMillis()).toString());
@@ -215,8 +216,10 @@ public class PatriciaNodeStorageTest {
         TreeFactory.getMemoryTree(0).getByaddress("From1a").get().addTransactionPosition(PatriciaTreeTransactionType.REGULAR,"6", s6.getOrigin_zone(), s6.getBlockHeight(), s6.getPosition());
         TreeFactory.getMemoryTree(0).getByaddress("From1a").get().addTransactionPosition(PatriciaTreeTransactionType.REGULAR,"7", s7.getOrigin_zone(), s7.getBlockHeight(), s7.getPosition());
         StorageInfo res = TreeFactory.getMemoryTree(0).getByaddress("From1a").get().findLatestStorageInfo(PatriciaTreeTransactionType.REGULAR,0).get();
+        HashMap<Integer,HashSet<Integer>>map=TreeFactory.getMemoryTree(0).getByaddress("From1a").get().retrieveAllTransactionsByOriginZone(PatriciaTreeTransactionType.REGULAR,0);
         assertEquals(2, res.getPositions().size());
-        int s = 3;
+        assertEquals(5, map.size());
+        assertEquals(2, map.get(5).size());
     }
 
     @Test

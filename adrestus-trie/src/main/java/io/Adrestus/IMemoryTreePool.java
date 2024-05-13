@@ -13,9 +13,9 @@ import java.util.Set;
 public interface IMemoryTreePool extends Serializable {
     void store(String address, PatriciaTreeNode patriciaTreeNode);
 
-    void deposit(PatriciaTreeTransactionType type,String address, double amount);
+    void deposit(PatriciaTreeTransactionType type, String address, double amount, double fees);
 
-    void withdraw(PatriciaTreeTransactionType type,String address, double amount);
+    void withdraw(PatriciaTreeTransactionType type, String address, double amount, double fees);
 
     Option<PatriciaTreeNode> getByaddress(String address);
 

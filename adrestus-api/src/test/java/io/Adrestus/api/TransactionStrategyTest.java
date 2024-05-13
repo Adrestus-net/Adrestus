@@ -109,6 +109,7 @@ public class TransactionStrategyTest {
                 .withTypeEventHandler()
                 .withDoubleSpendEventHandler()
                 .withHashEventHandler()
+                .withDelegateEventHandler()
                 .withNonceEventHandler()
                 .withReplayEventHandler()
                 .withStakingEventHandler()

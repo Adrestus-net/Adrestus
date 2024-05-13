@@ -30,6 +30,7 @@ public class RingBufferTest {
                 .withAmountEventHandler()
                 .withDoubleSpendEventHandler()
                 .withHashEventHandler()
+                .withDelegateEventHandler()
                 .withNonceEventHandler()
                 .withReplayEventHandler()
                 .withStakingEventHandler()

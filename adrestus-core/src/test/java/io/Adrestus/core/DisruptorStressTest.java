@@ -67,6 +67,7 @@ public class DisruptorStressTest {
                 .withAmountEventHandler()
                 .withDoubleSpendEventHandler()
                 .withHashEventHandler()
+                .withDelegateEventHandler()
                 .withNonceEventHandler()
                 .withReplayEventHandler()
                 .withStakingEventHandler()

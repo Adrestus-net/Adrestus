@@ -12,7 +12,7 @@ public class UnclaimedFeeRewardTransactionTreePoolEntry implements TransactionTr
     public void ForgeEntriesBuilder(IMemoryTreePool memoryTreePool) {
         try {
             UnclaimedFeeRewardTransaction unclaimedFeeRewardTransaction = (UnclaimedFeeRewardTransaction) transactionList.get(0);
-            memoryTreePool.deposit(PatriciaTreeTransactionType.UNCLAIMED_FEE_REWARD,unclaimedFeeRewardTransaction.getRecipientAddress(), unclaimedFeeRewardTransaction.getAmount());
+            memoryTreePool.deposit(PatriciaTreeTransactionType.UNCLAIMED_FEE_REWARD,unclaimedFeeRewardTransaction.getRecipientAddress(), unclaimedFeeRewardTransaction.getAmount(),unclaimedFeeRewardTransaction.getAmountWithTransactionFee());
         } catch (ClassCastException e) {
             e.printStackTrace();
         }
@@ -22,7 +22,7 @@ public class UnclaimedFeeRewardTransactionTreePoolEntry implements TransactionTr
     public void InventEntriesBuilder(IMemoryTreePool memoryTreePool, int blockHeight) {
         try {
             UnclaimedFeeRewardTransaction unclaimedFeeRewardTransaction = (UnclaimedFeeRewardTransaction) transactionList.get(0);
-            memoryTreePool.deposit(PatriciaTreeTransactionType.UNCLAIMED_FEE_REWARD,unclaimedFeeRewardTransaction.getRecipientAddress(), unclaimedFeeRewardTransaction.getAmount());
+            memoryTreePool.deposit(PatriciaTreeTransactionType.UNCLAIMED_FEE_REWARD,unclaimedFeeRewardTransaction.getRecipientAddress(), unclaimedFeeRewardTransaction.getAmount(),unclaimedFeeRewardTransaction.getAmountWithTransactionFee());
         } catch (ClassCastException e) {
             e.printStackTrace();
         }

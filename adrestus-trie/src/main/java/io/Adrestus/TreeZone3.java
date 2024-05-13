@@ -34,4 +34,10 @@ public class TreeZone3 implements ITreeZone {
     public void setTree(MemoryTreePool iMemoryTreePool) {
         this.memoryTreePool = iMemoryTreePool;
     }
+
+    @Override
+    public void clear() {
+        this.memoryTreePool=null;
+        instance=null;
+    }
 }

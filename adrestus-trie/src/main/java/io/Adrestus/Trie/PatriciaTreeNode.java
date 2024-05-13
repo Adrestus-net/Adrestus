@@ -4,7 +4,6 @@ import io.activej.serializer.annotations.Deserialize;
 import io.activej.serializer.annotations.Serialize;
 import io.activej.serializer.annotations.SerializeNullable;
 
-import java.io.PipedReader;
 import java.io.Serializable;
 import java.util.*;
 
@@ -81,6 +80,15 @@ public class PatriciaTreeNode implements PatriciaTreeTransactionBlackSmith, Patr
                     break;
                 case STAKING:
                     this.transactionsMap.put(type, new PatriciaTreeStakingTransaction());
+                    break;
+                case DELEGATE:
+                    this.transactionsMap.put(type, new PatriciaTreeDelegateTransaction());
+                    break;
+                case UNDELEGATE:
+                    this.transactionsMap.put(type, new PatriciaTreeUnDelegateTransaction());
+                    break;
+                case UNSTAKING:
+                    this.transactionsMap.put(type, new PatriciaTreeUnstakingTransaction());
                     break;
                 case REWARDS:
                     this.transactionsMap.put(type, new PatriciaTreeRewardsTransaction());

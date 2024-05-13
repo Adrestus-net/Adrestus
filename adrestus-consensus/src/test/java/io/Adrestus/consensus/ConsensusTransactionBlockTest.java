@@ -87,6 +87,7 @@ public class ConsensusTransactionBlockTest {
                 .withTypeEventHandler()
                 .withDoubleSpendEventHandler()
                 .withHashEventHandler()
+                .withDelegateEventHandler()
                 .withNonceEventHandler()
                 .withReplayEventHandler()
                 .withStakingEventHandler()

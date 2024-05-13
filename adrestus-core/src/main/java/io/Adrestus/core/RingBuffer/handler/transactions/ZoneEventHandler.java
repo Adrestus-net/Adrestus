@@ -115,7 +115,7 @@ public class ZoneEventHandler extends TransactionEventHandler implements Transac
     @Override
     public void visit(StakingTransaction stakingTransaction) {
         if (CachedZoneIndex.getInstance().getZoneIndex() != stakingTransaction.getZoneFrom() || CachedZoneIndex.getInstance().getZoneIndex() != 0) {
-            LOG.info("Reward Transaction zone should be only in zone 0 abort");
+            LOG.info("StakingTransaction zone should be only in zone 0 abort");
             stakingTransaction.setStatus(StatusType.ABORT);
             try {
                 SendAsync(stakingTransaction);
@@ -127,11 +127,45 @@ public class ZoneEventHandler extends TransactionEventHandler implements Transac
 
     @Override
     public void visit(DelegateTransaction delegateTransaction) {
-
+        if (CachedZoneIndex.getInstance().getZoneIndex() != delegateTransaction.getZoneFrom() || CachedZoneIndex.getInstance().getZoneIndex() != 0) {
+            LOG.info("DelegateTransaction zone should be only in zone 0 abort");
+           delegateTransaction.setStatus(StatusType.ABORT);
+            try {
+                SendAsync(delegateTransaction);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override
     public void visit(UnclaimedFeeRewardTransaction unclaimedFeeRewardTransaction) {
 
+    }
+
+    @Override
+    public void visit(UnDelegateTransaction unDelegateTransaction) {
+        if (CachedZoneIndex.getInstance().getZoneIndex() != unDelegateTransaction.getZoneFrom() || CachedZoneIndex.getInstance().getZoneIndex() != 0) {
+            LOG.info("UndelegatingTransaction zone should be only in zone 0 abort");
+            unDelegateTransaction.setStatus(StatusType.ABORT);
+            try {
+                SendAsync(unDelegateTransaction);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Override
+    public void visit(UnstakingTransaction unstakingTransaction) {
+        if (CachedZoneIndex.getInstance().getZoneIndex() != unstakingTransaction.getZoneFrom() || CachedZoneIndex.getInstance().getZoneIndex() != 0) {
+            LOG.info("UnstakingTransaction zone should be only in zone 0 abort");
+            unstakingTransaction.setStatus(StatusType.ABORT);
+            try {
+                SendAsync(unstakingTransaction);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

@@ -58,11 +58,21 @@ public class SameOriginEventHandler extends TransactionEventHandler implements T
 
     @Override
     public void visit(DelegateTransaction delegateTransaction) {
-
+        patriciaTreeNode = TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(delegateTransaction.getDelegatorAddress()).get();
     }
 
     @Override
     public void visit(UnclaimedFeeRewardTransaction unclaimedFeeRewardTransaction) {
         patriciaTreeNode = TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(unclaimedFeeRewardTransaction.getRecipientAddress()).get();
+    }
+
+    @Override
+    public void visit(UnDelegateTransaction unDelegateTransaction) {
+        patriciaTreeNode = TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(unDelegateTransaction.getDelegatorAddress()).get();
+    }
+
+    @Override
+    public void visit(UnstakingTransaction unstakingTransaction) {
+        patriciaTreeNode = TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(unstakingTransaction.getValidatorAddress()).get();
     }
 }

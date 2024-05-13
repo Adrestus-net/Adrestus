@@ -11,4 +11,8 @@ public interface TransactionUnitVisitor {
     void visit(DelegateTransaction delegateTransaction);
 
     void visit(UnclaimedFeeRewardTransaction unclaimedFeeRewardTransaction);
+
+    void visit(UnDelegateTransaction unDelegateTransaction);
+
+    void visit(UnstakingTransaction unstakingTransaction);
 }

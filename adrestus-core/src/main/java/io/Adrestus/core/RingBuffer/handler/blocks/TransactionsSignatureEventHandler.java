@@ -28,6 +28,7 @@ public class TransactionsSignatureEventHandler implements BlockEventHandler<Abst
                 .withTypeEventHandler()
                 .withAmountEventHandler()
                 .withHashEventHandler()
+                .withDelegateEventHandler()
                 .withNonceEventHandler()
                 .withStakingEventHandler()
                 .withTransactionFeeEventHandler()

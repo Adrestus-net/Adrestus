@@ -25,7 +25,7 @@ public class AddressSizeEventHandler extends TransactionEventHandler implements 
     @Override
     public void visit(RegularTransaction regularTransaction) {
         if (regularTransaction.getFrom().length() != 53 || regularTransaction.getTo().length() != 53) {
-            LOG.info("Transaction addresses is invalid please check again");
+            LOG.info("RegularTransaction addresses is invalid please check again");
             regularTransaction.setStatus(StatusType.ABORT);
         }
     }
@@ -33,7 +33,7 @@ public class AddressSizeEventHandler extends TransactionEventHandler implements 
     @Override
     public void visit(RewardsTransaction rewardsTransaction) {
         if (rewardsTransaction.getRecipientAddress().length() != 53) {
-            LOG.info("Transaction addresses is invalid please check again");
+            LOG.info("RewardsTransaction addresses is invalid please check again");
             rewardsTransaction.setStatus(StatusType.ABORT);
         }
     }
@@ -41,7 +41,7 @@ public class AddressSizeEventHandler extends TransactionEventHandler implements 
     @Override
     public void visit(StakingTransaction stakingTransaction) {
         if (stakingTransaction.getValidatorAddress().length() != 53) {
-            LOG.info("Transaction addresses is invalid please check again");
+            LOG.info("StakingTransaction addresses is invalid please check again");
             stakingTransaction.setStatus(StatusType.ABORT);
         }
 
@@ -49,14 +49,33 @@ public class AddressSizeEventHandler extends TransactionEventHandler implements 
 
     @Override
     public void visit(DelegateTransaction delegateTransaction) {
-
+        if (delegateTransaction.getValidatorAddress().length() != 53 || delegateTransaction.getDelegatorAddress().length() != 53) {
+            LOG.info("DelegateTransaction addresses is invalid please check again");
+            delegateTransaction.setStatus(StatusType.ABORT);
+        }
     }
 
     @Override
     public void visit(UnclaimedFeeRewardTransaction unclaimedFeeRewardTransaction) {
         if (unclaimedFeeRewardTransaction.getRecipientAddress().length() != 53) {
-            LOG.info("Transaction addresses is invalid please check again");
+            LOG.info("UnclaimedFeeRewardTransaction addresses is invalid please check again");
             unclaimedFeeRewardTransaction.setStatus(StatusType.ABORT);
+        }
+    }
+
+    @Override
+    public void visit(UnDelegateTransaction unDelegateTransaction) {
+        if (unDelegateTransaction.getValidatorAddress().length() != 53 || unDelegateTransaction.getDelegatorAddress().length() != 53) {
+            LOG.info("DelegateTransaction addresses is invalid please check again");
+            unDelegateTransaction.setStatus(StatusType.ABORT);
+        }
+    }
+
+    @Override
+    public void visit(UnstakingTransaction unstakingTransaction) {
+        if (unstakingTransaction.getValidatorAddress().length() != 53) {
+            LOG.info("StakingTransaction addresses is invalid please check again");
+            unstakingTransaction.setStatus(StatusType.ABORT);
         }
     }
 }

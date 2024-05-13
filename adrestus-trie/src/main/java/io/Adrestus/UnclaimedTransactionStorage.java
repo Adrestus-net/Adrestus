@@ -9,7 +9,7 @@ import java.nio.charset.StandardCharsets;
 
 public class UnclaimedTransactionStorage implements TransactionStorage {
     @Override
-    public void deposit(MerklePatriciaTrie<Bytes, PatriciaTreeNode> patriciaTreeImp, String address, double amount) throws CloneNotSupportedException {
+    public void deposit(MerklePatriciaTrie<Bytes, PatriciaTreeNode> patriciaTreeImp, String address, double amount,double fees) throws CloneNotSupportedException {
         Bytes key = Bytes.wrap(address.getBytes(StandardCharsets.UTF_8));
         Option<PatriciaTreeNode> prev = patriciaTreeImp.get(key);
         if (prev.isEmpty()) {
@@ -24,7 +24,7 @@ public class UnclaimedTransactionStorage implements TransactionStorage {
     }
 
     @Override
-    public void withdraw(MerklePatriciaTrie<Bytes, PatriciaTreeNode> patriciaTreeImp, String address, double amount) throws CloneNotSupportedException {
+    public void withdraw(MerklePatriciaTrie<Bytes, PatriciaTreeNode> patriciaTreeImp, String address, double amount,double fees) throws CloneNotSupportedException {
         Bytes key = Bytes.wrap(address.getBytes(StandardCharsets.UTF_8));
         Option<PatriciaTreeNode> prev = patriciaTreeImp.get(key);
         if (prev.isEmpty()) {

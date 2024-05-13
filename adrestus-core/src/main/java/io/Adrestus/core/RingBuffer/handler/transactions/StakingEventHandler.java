@@ -73,4 +73,14 @@ public class StakingEventHandler extends TransactionEventHandler implements Tran
     public void visit(UnclaimedFeeRewardTransaction unclaimedFeeRewardTransaction) {
 
     }
+
+    @Override
+    public void visit(UnDelegateTransaction unDelegateTransaction) {
+
+    }
+
+    @Override
+    public void visit(UnstakingTransaction unstakingTransaction) {
+
+    }
 }

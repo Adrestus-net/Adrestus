@@ -40,16 +40,38 @@ public class TransactionFeeEventHandler extends TransactionEventHandler implemen
 
     @Override
     public void visit(StakingTransaction stakingTransaction) {
-
+        if (stakingTransaction.getAmountWithTransactionFee() != ((FEES / PERCENT) * stakingTransaction.getAmount())) {
+            LOG.info("Transaction fee calculator is incorrect");
+            stakingTransaction.setStatus(StatusType.ABORT);
+        }
     }
 
     @Override
     public void visit(DelegateTransaction delegateTransaction) {
-
+        if (delegateTransaction.getAmountWithTransactionFee() != ((FEES / PERCENT) * delegateTransaction.getAmount())) {
+            LOG.info("Transaction fee calculator is incorrect");
+            delegateTransaction.setStatus(StatusType.ABORT);
+        }
     }
 
     @Override
     public void visit(UnclaimedFeeRewardTransaction unclaimedFeeRewardTransaction) {
 
+    }
+
+    @Override
+    public void visit(UnDelegateTransaction unDelegateTransaction) {
+        if (unDelegateTransaction.getAmountWithTransactionFee() != ((FEES / PERCENT) * unDelegateTransaction.getAmount())) {
+            LOG.info("Transaction fee calculator is incorrect");
+            unDelegateTransaction.setStatus(StatusType.ABORT);
+        }
+    }
+
+    @Override
+    public void visit(UnstakingTransaction unstakingTransaction) {
+        if (unstakingTransaction.getAmountWithTransactionFee() != ((FEES / PERCENT) * unstakingTransaction.getAmount())) {
+            LOG.info("Transaction fee calculator is incorrect");
+            unstakingTransaction.setStatus(StatusType.ABORT);
+        }
     }
 }

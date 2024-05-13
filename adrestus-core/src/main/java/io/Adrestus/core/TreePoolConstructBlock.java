@@ -20,6 +20,18 @@ public class TreePoolConstructBlock implements ITreePoolBlacksmith {
                 case REWARDS:
                     map.put(type, new RewardTransactionTreePoolEntry());
                     break;
+                case STAKING:
+                    map.put(type, new StakingTransactionTreePoolEntry());
+                    break;
+                case UNSTAKING:
+                    map.put(type, new UnStakingTransactionTreePoolEntry());
+                    break;
+                case DELEGATE:
+                    map.put(type, new DelegateTransactionTreePoolEntry());
+                    break;
+                case UNDELEGATE:
+                    map.put(type, new UnDelegateTransactionTreePoolEntry());
+                    break;
                 case UNCLAIMED_FEE_REWARD:
                     map.put(type, new UnclaimedFeeRewardTransactionTreePoolEntry());
                     break;

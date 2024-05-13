@@ -2,7 +2,9 @@ package io.Adrestus;
 
 public interface ITreeZone {
 
-    public IMemoryTreePool getTree();
+    IMemoryTreePool getTree();
 
-    public void setTree(MemoryTreePool iMemoryTreePool);
+    void setTree(MemoryTreePool iMemoryTreePool);
+
+    void clear();
 }

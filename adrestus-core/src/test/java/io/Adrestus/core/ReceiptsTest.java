@@ -106,6 +106,7 @@ public class ReceiptsTest {
                 .withAmountEventHandler()
                 .withDoubleSpendEventHandler()
                 .withHashEventHandler()
+                .withDelegateEventHandler()
                 .withNonceEventHandler()
                 .withReplayEventHandler()
                 .withStakingEventHandler()
@@ -421,7 +422,7 @@ public class ReceiptsTest {
                 .forEach(entry -> {
                     entry.getValue().stream().forEach(receipt -> {
                         Transaction trx = transactionBlock.getTransactionList().get(receipt.getPosition());
-                        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).deposit(PatriciaTreeTransactionType.REGULAR,trx.getFrom(), trx.getAmount());
+                        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).deposit(PatriciaTreeTransactionType.REGULAR,trx.getFrom(), trx.getAmount(),trx.getAmountWithTransactionFee());
                         MemoryReceiptPool.getInstance().delete(receipt);
                     });
                 });

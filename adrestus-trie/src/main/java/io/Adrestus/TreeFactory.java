@@ -42,4 +42,24 @@ public class TreeFactory {
                 break;
         }
     }
+
+    public static void ClearMemoryTree(int zone) {
+        switch (zone) {
+            case 0:
+                TreeZone0.getInstance().clear();
+                break;
+            case 1:
+                TreeZone1.getInstance().clear();
+                break;
+            case 2:
+                TreeZone2.getInstance().clear();
+                break;
+            case 3:
+                TreeZone3.getInstance().clear();
+                break;
+            default:
+                TreeZone0.getInstance().clear();
+                break;
+        }
+    }
 }
