@@ -17,7 +17,7 @@ public class RegularTransactionStorage implements TransactionStorage {
             patriciaTreeImp.put(key, next);
         } else {
             PatriciaTreeNode patriciaTreeNode = (PatriciaTreeNode) prev.get().clone();
-            Double new_cash = patriciaTreeNode.getAmount() - (amount+fees);
+            Double new_cash = patriciaTreeNode.getAmount() + (amount-fees);
             patriciaTreeNode.setAmount(new_cash);
             patriciaTreeImp.put(key, patriciaTreeNode);
         }

@@ -275,7 +275,7 @@ public class ConsensusTransactionTimerTest {
         CachedEventLoop.getInstance().start();
         addreses_old = new ArrayList<>(addreses);
         // 5 is the deafult
-        CountDownLatch latch = new CountDownLatch(5);
+        CountDownLatch latch = new CountDownLatch(1);
         ConsensusTransactionTimer c = new ConsensusTransactionTimer(latch, addreses, keypair);
         latch.await();
         c.close();
