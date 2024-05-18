@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -91,7 +92,7 @@ public class StressBLSTest {
     }
 
     @Test
-    public void test2() throws DecoderException {
+    public void test2() throws DecoderException, ParseException {
         List<SerializationUtil.Mapping> encodlist = new ArrayList<>();
         encodlist.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
         encodlist.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));

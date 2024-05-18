@@ -4,6 +4,7 @@ import lombok.SneakyThrows;
 import org.apache.commons.net.ntp.TimeStamp;
 
 import java.sql.Timestamp;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
@@ -49,8 +50,7 @@ public class GetTime {
         return updatedTimestamp;
     }
 
-    @SneakyThrows
-    public static Timestamp GetTimestampFromString(String parseDate) {
+    public static Timestamp GetTimestampFromString(String parseDate) throws ParseException {
         SimpleDateFormat sdf = new SimpleDateFormat(FORMAT_STRING);
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
         Date parsedDate = sdf.parse(parseDate);

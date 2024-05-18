@@ -68,6 +68,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
 import java.sql.Timestamp;
+import java.text.ParseException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -283,7 +284,7 @@ public class FullExampleErasureTest {
     }
 
     @Test
-    public void test() throws IOException, DecoderException, InterruptedException {
+    public void test() throws IOException, DecoderException, InterruptedException, ParseException {
         Socket socket = new Socket();
         socket.connect(new InetSocketAddress("google.com", 80));
         String IP = socket.getLocalAddress().getHostAddress();

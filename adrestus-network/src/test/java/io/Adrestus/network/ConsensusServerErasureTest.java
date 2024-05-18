@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
@@ -47,7 +48,7 @@ public class ConsensusServerErasureTest {
     }
 
     @Test
-    public void test() throws DecoderException, InterruptedException {
+    public void test() throws DecoderException, InterruptedException, ParseException {
         ConsensusServer.getInstance("localhost", 1);
         final ConsensusClient[] adrestusClient1 = {null};
         (new Thread() {

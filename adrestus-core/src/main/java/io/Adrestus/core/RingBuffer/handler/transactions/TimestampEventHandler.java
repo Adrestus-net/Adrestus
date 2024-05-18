@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Timestamp;
+import java.text.ParseException;
 import java.util.*;
 
 public class TimestampEventHandler extends TransactionEventHandler implements TransactionUnitVisitor {
@@ -35,6 +36,9 @@ public class TimestampEventHandler extends TransactionEventHandler implements Tr
 
         transaction.accept(this);
 
+        if(transaction.getType().equals(TransactionType.UNCLAIMED_FEE_REWARD))
+            return;
+
         if (results.isEmpty())
             return;
 
@@ -45,18 +49,26 @@ public class TimestampEventHandler extends TransactionEventHandler implements Tr
                 return GetTime.GetTimestampFromString(u2.getTimestamp()).compareTo(GetTime.GetTimestampFromString(u1.getTimestamp()));
             }
         });
-        Timestamp old = GetTime.GetTimestampFromString(results.get(0).getTimestamp());
-        Timestamp current = GetTime.GetTimestampFromString(transaction.getTimestamp());
-        Timestamp check = GetTime.GetTimeStampWithDelay();
-        if (current.before(old) || current.equals(old)) {
-            Optional.of("Transaction abort: Transaction timestamp is not a valid timestamp").ifPresent(val -> {
-                LOG.info(val);
-                transaction.infos(val);
-            });
-            transaction.setStatus(StatusType.ABORT);
-        }
-        if (check.before(old) || check.equals(old)) {
-            Optional.of("Transaction abort: Transaction timestamp is not older than one minute delay").ifPresent(val -> {
+        try {
+            Timestamp old = GetTime.GetTimestampFromString(results.get(0).getTimestamp());
+            Timestamp current = GetTime.GetTimestampFromString(transaction.getTimestamp());
+            Timestamp check = GetTime.GetTimeStampWithDelay();
+            if (current.before(old) || current.equals(old)) {
+                Optional.of("Transaction abort: Transaction timestamp is not a valid timestamp").ifPresent(val -> {
+                    LOG.info(val);
+                    transaction.infos(val);
+                });
+                transaction.setStatus(StatusType.ABORT);
+            }
+            if (check.before(old) || check.equals(old)) {
+                Optional.of("Transaction abort: Transaction timestamp is not older than one minute delay").ifPresent(val -> {
+                    LOG.info(val);
+                    transaction.infos(val);
+                });
+                transaction.setStatus(StatusType.ABORT);
+            }
+        }catch (ParseException e){
+            Optional.of("Transaction abort: Transaction timestamp is not set abort").ifPresent(val -> {
                 LOG.info(val);
                 transaction.infos(val);
             });
