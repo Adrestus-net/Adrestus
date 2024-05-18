@@ -17,8 +17,8 @@ public class RewardTransactionStorage implements TransactionStorage {
             patriciaTreeImp.put(key, next);
         } else {
             PatriciaTreeNode patriciaTreeNode = (PatriciaTreeNode) prev.get().clone();
-            Double new_cash = patriciaTreeNode.getUnclaimed_reward() + amount;
-            patriciaTreeNode.setUnclaimed_reward(new_cash);
+            Double new_cash = patriciaTreeNode.getAmount() + amount;
+            patriciaTreeNode.setAmount(new_cash);
             patriciaTreeImp.put(key, patriciaTreeNode);
         }
     }
