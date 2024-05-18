@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 public class StakingEventHandler extends TransactionEventHandler implements TransactionUnitVisitor {
     private static Logger LOG = LoggerFactory.getLogger(StakingEventHandler.class);
@@ -50,14 +51,20 @@ public class StakingEventHandler extends TransactionEventHandler implements Tran
             TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(stakingTransaction.getValidatorAddress(), new PatriciaTreeNode(0, 0));
             stakingInfo = TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(stakingTransaction.getValidatorAddress()).get().getStakingInfo();
         } catch (NullPointerException ex) {
-            LOG.info("Transaction is empty");
+            Optional.of("Staking Transaction is empty").ifPresent(val -> {
+                LOG.info(val);
+                stakingTransaction.infos(val);
+            });
             stakingTransaction.setStatus(StatusType.ABORT);
             return;
         }
 
         if(stakingInfo.getDetails().isEmpty() || stakingInfo.getIdentity().isEmpty() || stakingInfo.getName().isEmpty() ||stakingInfo.getWebsite().isEmpty() || stakingInfo.getCommissionRate()==0) {
             if (stakingTransaction.getDetails().isEmpty() || stakingTransaction.getIdentity().isEmpty() || stakingTransaction.getName().isEmpty() || stakingTransaction.getWebsite().isEmpty() || stakingTransaction.getCommissionRate() == 0) {
-                LOG.info("Staking Transaction information is incorrect please add them before make make transaction abort");
+                Optional.of("Staking Transaction information is incorrect please add them before make make transaction abort").ifPresent(val -> {
+                    LOG.info(val);
+                    stakingTransaction.infos(val);
+                });
                 stakingTransaction.setStatus(StatusType.ABORT);
                 return;
             }

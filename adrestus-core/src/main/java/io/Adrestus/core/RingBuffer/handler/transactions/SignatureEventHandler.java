@@ -13,6 +13,7 @@ import org.spongycastle.util.encoders.Hex;
 
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
+import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
@@ -70,7 +71,10 @@ public class SignatureEventHandler extends TransactionEventHandler implements Tr
             return;
         }
         if (transaction.getStatus().equals(StatusType.ABORT)) {
-            LOG.info("Transaction Marked with status ABORT");
+            Optional.of("Transaction Marked with status ABORT").ifPresent(val -> {
+                LOG.info(val);
+                transaction.infos(val);
+            });
             latch.countDown();
             return;
         }
@@ -142,7 +146,10 @@ public class SignatureEventHandler extends TransactionEventHandler implements Tr
                 BigInteger publicKeyValue = ecdsaSign.recoverPublicKeyValue(transaction.getXAxis(), transaction.getYAxis());
                 boolean verify = ecdsaSign.secp256Verify(HashUtil.sha256(transaction.getHash().getBytes(StandardCharsets.UTF_8)), address, publicKeyValue, transaction.getSignature());
                 if (!verify) {
-                    LOG.info("Transaction Wallet signature is not valid ABORT");
+                    Optional.of("Transaction Wallet signature is not valid ABORT").ifPresent(val -> {
+                        LOG.info(val);
+                        transaction.infos(val);
+                    });
                     latch.countDown();
                     transaction.setStatus(StatusType.ABORT);
                     MemoryTransactionPool.getInstance().delete(transaction);
@@ -150,7 +157,10 @@ public class SignatureEventHandler extends TransactionEventHandler implements Tr
                 }
             } else {
                 if (!ecdsaSign.secp256Verify(Hex.decode(transaction.getHash()), address, transaction.getSignature())) {
-                    LOG.info("Transaction signature is not valid ABORT");
+                    Optional.of("Transaction signature is not valid ABORT").ifPresent(val -> {
+                        LOG.info(val);
+                        transaction.infos(val);
+                    });
                     latch.countDown();
                     transaction.setStatus(StatusType.ABORT);
                     MemoryTransactionPool.getInstance().delete(transaction);

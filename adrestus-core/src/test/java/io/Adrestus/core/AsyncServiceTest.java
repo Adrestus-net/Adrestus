@@ -43,6 +43,8 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 public class AsyncServiceTest {
 
     private static BLSPrivateKey sk1;
@@ -134,6 +136,13 @@ public class AsyncServiceTest {
         List<SerializationUtil.Mapping> listss = new ArrayList<>();
         listss.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         serenc = new SerializationUtil<Transaction>(Transaction.class, listss);
+        ArrayList<String>mesages = new ArrayList<>();
+        TransactionCallback transactionCallback = new TransactionCallback() {
+            @Override
+            public void call(String value) {
+                mesages.add(value);
+            }
+        };
         signatureEventHandler.setLatch(new CountDownLatch(end - 1));
         for (int i = start; i < end - 1; i++) {
             Transaction transaction = new RegularTransaction();
@@ -145,6 +154,7 @@ public class AsyncServiceTest {
             transaction.setZoneTo(0);
             transaction.setAmount(100);
             transaction.setAmountWithTransactionFee(transaction.getAmount() * (10.0 / 100.0));
+            transaction.setTransactionCallback(transactionCallback);
             transaction.setNonce(1);
 
             byte byf[] = serenc.encode(transaction, 1024);
@@ -158,6 +168,7 @@ public class AsyncServiceTest {
         }
         publisher.getJobSyncUntilRemainingCapacityZero();
         signatureEventHandler.getLatch().await();
+        assertTrue(mesages.isEmpty());
         CommitteeBlock committeeBlock = new CommitteeBlock();
         committeeBlock.getHeaderData().setTimestamp("2022-11-18 15:01:29.304");
         committeeBlock.getStructureMap().get(0).put(vk1, "192.168.1.116");

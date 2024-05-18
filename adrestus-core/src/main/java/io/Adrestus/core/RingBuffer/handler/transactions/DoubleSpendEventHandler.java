@@ -7,6 +7,8 @@ import io.Adrestus.core.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Optional;
+
 public class DoubleSpendEventHandler extends TransactionEventHandler {
     private static Logger LOG = LoggerFactory.getLogger(DoubleSpendEventHandler.class);
 
@@ -19,7 +21,10 @@ public class DoubleSpendEventHandler extends TransactionEventHandler {
                 return;
 
             if (MemoryTransactionPool.getInstance().checkHashExists(transaction)) {
-                LOG.info("Transaction abort Hash already exist in MemoryPool");
+                Optional.of("Transaction abort Hash already exist in MemoryPool").ifPresent(val -> {
+                    LOG.info(val);
+                    transaction.infos(val);
+                });
                 transaction.setStatus(StatusType.ABORT);
             }
         } catch (NullPointerException ex) {

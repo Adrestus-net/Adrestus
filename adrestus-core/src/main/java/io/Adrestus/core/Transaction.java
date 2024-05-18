@@ -7,15 +7,16 @@ import com.google.common.base.Objects;
 import io.Adrestus.crypto.elliptic.ECDSASignatureData;
 import io.activej.serializer.annotations.Serialize;
 import io.activej.serializer.annotations.SerializeClass;
+import io.activej.serializer.annotations.SerializeNullable;
 
 import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.Comparator;
 
 
-@SerializeClass(subclasses = {RegularTransaction.class, RewardsTransaction.class, StakingTransaction.class, DelegateTransaction.class, UnclaimedFeeRewardTransaction.class, UnDelegateTransaction.class,UnstakingTransaction.class})
+@SerializeClass(subclasses = {RegularTransaction.class, RewardsTransaction.class, StakingTransaction.class, DelegateTransaction.class, UnclaimedFeeRewardTransaction.class, UnDelegateTransaction.class, UnstakingTransaction.class})
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "transactiontype")
-@JsonSubTypes({@JsonSubTypes.Type(value = RegularTransaction.class, name = "RegularTransaction"), @JsonSubTypes.Type(value = RewardsTransaction.class, name = "RewardsTransaction"), @JsonSubTypes.Type(value = StakingTransaction.class, name = "StakingTransaction"), @JsonSubTypes.Type(value = DelegateTransaction.class, name = "DelegateTransaction"), @JsonSubTypes.Type(value = UnclaimedFeeRewardTransaction.class, name = "UnclaimedFeeRewardTransaction"),@JsonSubTypes.Type(value = UnDelegateTransaction.class, name = "UnDelegateTransaction"),@JsonSubTypes.Type(value = UnstakingTransaction.class, name = "UnstakingTransaction")})
+@JsonSubTypes({@JsonSubTypes.Type(value = RegularTransaction.class, name = "RegularTransaction"), @JsonSubTypes.Type(value = RewardsTransaction.class, name = "RewardsTransaction"), @JsonSubTypes.Type(value = StakingTransaction.class, name = "StakingTransaction"), @JsonSubTypes.Type(value = DelegateTransaction.class, name = "DelegateTransaction"), @JsonSubTypes.Type(value = UnclaimedFeeRewardTransaction.class, name = "UnclaimedFeeRewardTransaction"), @JsonSubTypes.Type(value = UnDelegateTransaction.class, name = "UnDelegateTransaction"), @JsonSubTypes.Type(value = UnstakingTransaction.class, name = "UnstakingTransaction")})
 @JsonPropertyOrder({"transactiontype", "type", "status", "timestamp", "hash", "nonce", "blockNumber", "from", "to", "zoneFrom", "zoneTo", "blockNumber", "amount", "amountWithTransactionFee", "xaxis", "yaxis", "signature"})
 public abstract class Transaction implements Cloneable, Comparable<Transaction>, Comparator<Transaction>, Serializable {
 
@@ -36,6 +37,8 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
     protected BigInteger YAxis;
     protected ECDSASignatureData Signature;
 
+    protected TransactionCallback transactionCallback;
+
 
     public Transaction() {
         this.Hash = "";
@@ -53,6 +56,7 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
         this.XAxis = new BigInteger("0");
         this.YAxis = new BigInteger("0");
         this.Signature = new ECDSASignatureData();
+        this.transactionCallback = null;
     }
 
     public Transaction(TransactionType transactionType, double amount) {
@@ -71,6 +75,7 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
         this.XAxis = new BigInteger("0");
         this.YAxis = new BigInteger("0");
         this.Signature = new ECDSASignatureData();
+        this.transactionCallback = null;
     }
 
     public Transaction(TransactionType type, Transaction... children) {
@@ -89,6 +94,7 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
         this.XAxis = new BigInteger("0");
         this.YAxis = new BigInteger("0");
         this.Signature = new ECDSASignatureData();
+        this.transactionCallback = null;
     }
 
     public Transaction(String hash) {
@@ -107,6 +113,7 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
         this.XAxis = new BigInteger("0");
         this.YAxis = new BigInteger("0");
         this.Signature = new ECDSASignatureData();
+        this.transactionCallback = null;
     }
 
     public Transaction(String hash, TransactionType type, StatusType status, int zoneFrom, int zoneTo, String timestamp, int blockNumber, String from, String to, double amount, double AmountWithTransactionFee, int nonce, ECDSASignatureData signature) {
@@ -123,6 +130,7 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
         this.AmountWithTransactionFee = AmountWithTransactionFee;
         this.Nonce = nonce;
         this.Signature = signature;
+        this.transactionCallback = null;
     }
 
     public Transaction(String hash, TransactionType type, StatusType status, int zoneFrom, int zoneTo, String timestamp, String from, String to, double amount, double AmountWithTransactionFee, int nonce, ECDSASignatureData signature) {
@@ -138,6 +146,7 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
         this.AmountWithTransactionFee = AmountWithTransactionFee;
         this.Nonce = nonce;
         this.Signature = signature;
+        this.transactionCallback = null;
     }
 
     public Transaction(String hash, TransactionType type, StatusType status, int zoneFrom, int zoneTo, String timestamp, int blockNumber, String from, String to, double amount, double amountWithTransactionFee, int nonce, BigInteger XAxis, BigInteger YAxis, ECDSASignatureData signature) {
@@ -156,6 +165,7 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
         this.XAxis = XAxis;
         this.YAxis = YAxis;
         this.Signature = signature;
+        this.transactionCallback = null;
     }
 
     public void accept(TransactionUnitVisitor visitor) {
@@ -295,6 +305,23 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
 
     public void setYAxis(BigInteger YAxis) {
         this.YAxis = YAxis;
+    }
+
+
+    @Serialize
+    @SerializeNullable
+    public TransactionCallback getTransactionCallback() {
+        return transactionCallback;
+    }
+
+    public void setTransactionCallback(TransactionCallback transactionCallback) {
+        this.transactionCallback = transactionCallback;
+    }
+
+    public void infos(String value) {
+        if(this.transactionCallback==null)
+            return;
+        this.transactionCallback.call(value);
     }
 
     @Override

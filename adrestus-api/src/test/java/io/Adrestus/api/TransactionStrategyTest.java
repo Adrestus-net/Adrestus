@@ -5,16 +5,13 @@ import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.config.KademliaConfiguration;
-import io.Adrestus.core.CommitteeBlock;
-import io.Adrestus.core.RegularTransaction;
+import io.Adrestus.core.*;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedLeaderIndex;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.core.Resourses.MemoryTransactionPool;
 import io.Adrestus.core.RingBuffer.handler.transactions.SignatureEventHandler;
 import io.Adrestus.core.RingBuffer.publisher.TransactionEventPublisher;
-import io.Adrestus.core.StatusType;
-import io.Adrestus.core.Transaction;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.SecurityAuditProofs;
 import io.Adrestus.crypto.WalletAddress;
@@ -43,6 +40,8 @@ import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Unit test for simple App.
@@ -100,6 +99,13 @@ public class TransactionStrategyTest {
 
 
         CachedZoneIndex.getInstance().setZoneIndex(0);
+        ArrayList<String>mesages = new ArrayList<>();
+        TransactionCallback transactionCallback = new TransactionCallback() {
+            @Override
+            public void call(String value) {
+                mesages.add(value);
+            }
+        };
         SignatureEventHandler eventHandler = new SignatureEventHandler(SignatureEventHandler.SignatureBehaviorType.SIMPLE_TRANSACTIONS, new CountDownLatch(end - 1));
         TransactionEventPublisher publisher = new TransactionEventPublisher(4096);
         publisher
@@ -144,6 +150,7 @@ public class TransactionStrategyTest {
             transaction.setZoneTo(0);
             transaction.setAmount(100);
             transaction.setAmountWithTransactionFee(transaction.getAmount() * (10.0 / 100.0));
+            transaction.setTransactionCallback(transactionCallback);
             transaction.setNonce(1);
 
             byte byf[] = serenc.encode(transaction, 1024);
@@ -157,6 +164,7 @@ public class TransactionStrategyTest {
         }
         publisher.getJobSyncUntilRemainingCapacityZero();
         eventHandler.getLatch().await();
+        assertTrue(mesages.isEmpty());
         publisher.close();
         CommitteeBlock committeeBlock = new CommitteeBlock();
         committeeBlock.getHeaderData().setTimestamp("2022-11-18 15:01:29.304");

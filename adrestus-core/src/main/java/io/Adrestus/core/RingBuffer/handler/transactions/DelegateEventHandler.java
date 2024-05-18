@@ -59,8 +59,11 @@ public class DelegateEventHandler extends TransactionEventHandler implements Tra
         IDatabase<String, TransactionBlock> transactionBlockIDatabase = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
         String res = this.findFingerprint(unDelegateTransaction);
         if (res.isEmpty()) {
-            LOG.info("UnDelegateTransaction fails because delegator has not delegate to any validator");
-            unDelegateTransaction.setStatus(StatusType.BUFFERED);
+            Optional.of("UnDelegateTransaction fails because delegator has not delegate to any validator").ifPresent(val -> {
+                LOG.info(val);
+                unDelegateTransaction.infos(val);
+            });
+            unDelegateTransaction.setStatus(StatusType.ABORT);
             return;
         }
         ArrayList<StorageInfo> tosearch = (ArrayList<StorageInfo>) TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(unDelegateTransaction.getValidatorAddress()).get().retrieveTransactionInfoByHash(PatriciaTreeTransactionType.DELEGATE, res);
@@ -74,8 +77,11 @@ public class DelegateEventHandler extends TransactionEventHandler implements Tra
             } catch (IndexOutOfBoundsException e) {
             }
         }
-        LOG.info("UnDelegate Transaction failed because delegating transaction has not been found on the validator list");
-        unDelegateTransaction.setStatus(StatusType.BUFFERED);
+        Optional.of("UnDelegate Transaction failed because delegating transaction has not been found on the validator list").ifPresent(val -> {
+            LOG.info(val);
+            unDelegateTransaction.infos(val);
+        });
+        unDelegateTransaction.setStatus(StatusType.ABORT);
         return;
     }
 

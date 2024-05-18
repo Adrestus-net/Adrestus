@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 public class AmountEventHandler extends TransactionEventHandler implements TransactionUnitVisitor {
     private static Logger LOG = LoggerFactory.getLogger(AmountEventHandler.class);
@@ -34,7 +35,10 @@ public class AmountEventHandler extends TransactionEventHandler implements Trans
             LOG.info("State trie is empty we add getTo address");
             TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(regularTransaction.getTo(), new PatriciaTreeNode(0, 0));
         } catch (NullPointerException ex) {
-            LOG.info("RegularTransaction To is empty");
+            Optional.of("RegularTransaction To is empty").ifPresent(val -> {
+                LOG.info(val);
+                regularTransaction.infos(val);
+            });
             regularTransaction.setStatus(StatusType.ABORT);
             return;
         }
@@ -48,13 +52,19 @@ public class AmountEventHandler extends TransactionEventHandler implements Trans
             TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(regularTransaction.getFrom(), new PatriciaTreeNode(0, 0));
             patriciaTreeNode = TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(regularTransaction.getFrom()).get();
         } catch (NullPointerException ex) {
-            LOG.info("RegularTransaction from is empty");
+            Optional.of("RegularTransaction from is empty").ifPresent(val -> {
+                LOG.info(val);
+                regularTransaction.infos(val);
+            });
             regularTransaction.setStatus(StatusType.ABORT);
             return;
         }
 
         if (regularTransaction.getAmount() > patriciaTreeNode.getAmount()) {
-            LOG.info("RegularTransaction amount is not sufficient");
+            Optional.of("RegularTransaction amount is not sufficient").ifPresent(val -> {
+                LOG.info(val);
+                regularTransaction.infos(val);
+            });
             regularTransaction.setStatus(StatusType.ABORT);
             return;
         }
@@ -71,13 +81,19 @@ public class AmountEventHandler extends TransactionEventHandler implements Trans
             TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(rewardsTransaction.getRecipientAddress(), new PatriciaTreeNode(0, 0));
             patriciaTreeNode = TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(rewardsTransaction.getRecipientAddress()).get();
         } catch (NullPointerException ex) {
-            LOG.info("RewardsTransaction is empty");
+            Optional.of("RewardsTransaction is empty").ifPresent(val -> {
+                LOG.info(val);
+                rewardsTransaction.infos(val);
+            });
             rewardsTransaction.setStatus(StatusType.ABORT);
             return;
         }
 
         if (rewardsTransaction.getAmount() > patriciaTreeNode.getUnclaimed_reward()) {
-            LOG.info("RewardsTransaction Claimed reward is not sufficient");
+            Optional.of("RewardsTransaction Claimed reward is not sufficient").ifPresent(val -> {
+                LOG.info(val);
+                rewardsTransaction.infos(val);
+            });
             rewardsTransaction.setStatus(StatusType.ABORT);
             return;
         }
@@ -95,13 +111,19 @@ public class AmountEventHandler extends TransactionEventHandler implements Trans
             TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(stakingTransaction.getValidatorAddress(), new PatriciaTreeNode(0, 0));
             patriciaTreeNode = TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(stakingTransaction.getValidatorAddress()).get();
         } catch (NullPointerException ex) {
-            LOG.info("StakingTransaction is empty");
+            Optional.of("StakingTransaction is empty").ifPresent(val -> {
+                LOG.info(val);
+               stakingTransaction.infos(val);
+            });
             stakingTransaction.setStatus(StatusType.ABORT);
             return;
         }
 
         if (stakingTransaction.getAmount() > patriciaTreeNode.getAmount()) {
-            LOG.info("StakingTransaction amount is not sufficient");
+            Optional.of("StakingTransaction amount is not sufficient").ifPresent(val -> {
+                LOG.info(val);
+                stakingTransaction.infos(val);
+            });
             stakingTransaction.setStatus(StatusType.ABORT);
             return;
         }
@@ -117,7 +139,10 @@ public class AmountEventHandler extends TransactionEventHandler implements Trans
             LOG.info("State trie is empty we add getValidatorAddress address");
             TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(delegateTransaction.getValidatorAddress(), new PatriciaTreeNode(0, 0));
         } catch (NullPointerException ex) {
-            LOG.info("DelegateTransaction is empty");
+            Optional.of("DelegateTransaction ValidatorAddress is empty").ifPresent(val -> {
+                LOG.info(val);
+                delegateTransaction.infos(val);
+            });
             delegateTransaction.setStatus(StatusType.ABORT);
             return;
         }
@@ -131,13 +156,19 @@ public class AmountEventHandler extends TransactionEventHandler implements Trans
             TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(delegateTransaction.getDelegatorAddress(), new PatriciaTreeNode(0, 0));
             patriciaTreeNode = TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(delegateTransaction.getDelegatorAddress()).get();
         } catch (NullPointerException ex) {
-            LOG.info("DelegateTransaction DelegatorAddress is empty");
+            Optional.of("DelegateTransaction DelegatorAddress is empty").ifPresent(val -> {
+                LOG.info(val);
+                delegateTransaction.infos(val);
+            });
             delegateTransaction.setStatus(StatusType.ABORT);
             return;
         }
 
         if (delegateTransaction.getAmount() > patriciaTreeNode.getAmount()) {
-            LOG.info("Transaction amount is not sufficient");
+            Optional.of("DelegateTransaction amount is not sufficient").ifPresent(val -> {
+                LOG.info(val);
+                delegateTransaction.infos(val);
+            });
             delegateTransaction.setStatus(StatusType.ABORT);
             return;
         }
@@ -154,7 +185,10 @@ public class AmountEventHandler extends TransactionEventHandler implements Trans
             TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(unclaimedFeeRewardTransaction.getRecipientAddress(), new PatriciaTreeNode(0, 0));
             patriciaTreeNode = TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(unclaimedFeeRewardTransaction.getRecipientAddress()).get();
         } catch (NullPointerException ex) {
-            LOG.info("UnclaimedFeeRewardTransaction is empty");
+            Optional.of("UnclaimedFeeRewardTransaction is empty").ifPresent(val -> {
+                LOG.info(val);
+                unclaimedFeeRewardTransaction.infos(val);
+            });
             unclaimedFeeRewardTransaction.setStatus(StatusType.ABORT);
             return;
         }
@@ -172,7 +206,10 @@ public class AmountEventHandler extends TransactionEventHandler implements Trans
             TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(unDelegateTransaction.getValidatorAddress(), new PatriciaTreeNode(0, 0));
             patriciaTreeNode = TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(unDelegateTransaction.getValidatorAddress()).get();
         } catch (NullPointerException ex) {
-            LOG.info("UndelegatingTransaction is empty");
+            Optional.of("UndelegatingTransaction ValidatorAddress is empty").ifPresent(val -> {
+                LOG.info(val);
+                unDelegateTransaction.infos(val);
+            });
             unDelegateTransaction.setStatus(StatusType.ABORT);
             return;
         }
@@ -184,13 +221,19 @@ public class AmountEventHandler extends TransactionEventHandler implements Trans
             LOG.info("UndelegatingTransaction State trie is empty we add get DelegatorAddress");
             TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(unDelegateTransaction.getDelegatorAddress(), new PatriciaTreeNode(0, 0));
         } catch (NullPointerException ex) {
-            LOG.info("UndelegatingTransaction DelegatorAddress is empty");
+            Optional.of("UndelegatingTransaction DelegatorAddress is empty").ifPresent(val -> {
+                LOG.info(val);
+                unDelegateTransaction.infos(val);
+            });
             unDelegateTransaction.setStatus(StatusType.ABORT);
             return;
         }
 
         if (unDelegateTransaction.getAmount() > patriciaTreeNode.getStaking_amount()) {
-            LOG.info("UndelegatingTransaction amount is not sufficient");
+            Optional.of("UndelegatingTransaction amount is not sufficient").ifPresent(val -> {
+                LOG.info(val);
+                unDelegateTransaction.infos(val);
+            });
             unDelegateTransaction.setStatus(StatusType.ABORT);
             return;
         }
@@ -203,17 +246,26 @@ public class AmountEventHandler extends TransactionEventHandler implements Trans
             patriciaTreeNode = TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(unstakingTransaction.getValidatorAddress()).get();
 
         } catch (NoSuchElementException ex) {
-            LOG.info("UnstakingTransaction State trie is empty abort");
+            Optional.of("UnstakingTransaction State trie is empty abort").ifPresent(val -> {
+                LOG.info(val);
+                unstakingTransaction.infos(val);
+            });
             unstakingTransaction.setStatus(StatusType.ABORT);
             return;
         } catch (NullPointerException ex) {
-            LOG.info("UnstakingTransaction is empty");
+            Optional.of("UnstakingTransaction is empty").ifPresent(val -> {
+                LOG.info(val);
+                unstakingTransaction.infos(val);
+            });
             unstakingTransaction.setStatus(StatusType.ABORT);
             return;
         }
 
         if (unstakingTransaction.getAmount() > patriciaTreeNode.getStaking_amount()) {
-            LOG.info("UnstakingTransaction amount is not sufficient");
+            Optional.of("UnstakingTransaction amount is not sufficient").ifPresent(val -> {
+                LOG.info(val);
+                unstakingTransaction.infos(val);
+            });
             unstakingTransaction.setStatus(StatusType.ABORT);
             return;
         }

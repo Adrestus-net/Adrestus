@@ -49,11 +49,17 @@ public class TimestampEventHandler extends TransactionEventHandler implements Tr
         Timestamp current = GetTime.GetTimestampFromString(transaction.getTimestamp());
         Timestamp check = GetTime.GetTimeStampWithDelay();
         if (current.before(old) || current.equals(old)) {
-            LOG.info("Transaction abort: Transaction timestamp is not a valid timestamp");
+            Optional.of("Transaction abort: Transaction timestamp is not a valid timestamp").ifPresent(val -> {
+                LOG.info(val);
+                transaction.infos(val);
+            });
             transaction.setStatus(StatusType.ABORT);
         }
         if (check.before(old) || check.equals(old)) {
-            LOG.info("Transaction abort: Transaction timestamp is not older than one minute delay");
+            Optional.of("Transaction abort: Transaction timestamp is not older than one minute delay").ifPresent(val -> {
+                LOG.info(val);
+                transaction.infos(val);
+            });
             transaction.setStatus(StatusType.ABORT);
         }
 

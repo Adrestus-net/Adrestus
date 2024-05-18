@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class HashEventHandler extends TransactionEventHandler {
     private static Logger LOG = LoggerFactory.getLogger(HashEventHandler.class);
@@ -43,7 +44,10 @@ public class HashEventHandler extends TransactionEventHandler {
             Transaction cloneable = (Transaction) transaction.clone();
 
             if (transaction.getHash().length() != 64) {
-                LOG.info("Transaction hashes length is not valid");
+                Optional.of("Transaction hashes length is not valid").ifPresent(val -> {
+                    LOG.info(val);
+                    transaction.infos(val);
+                });
                 transaction.setStatus(StatusType.ABORT);
             }
 
@@ -56,7 +60,10 @@ public class HashEventHandler extends TransactionEventHandler {
                 String result_hash = HashUtil.sha256_bytetoString(toHash);
 
                 if (!result_hash.equals(transaction.getHash())) {
-                    LOG.info("Transaction hashes does not match");
+                    Optional.of("Transaction hashes does not match").ifPresent(val -> {
+                        LOG.info(val);
+                        transaction.infos(val);
+                    });
                     transaction.setStatus(StatusType.ABORT);
                 }
             } else {
@@ -64,7 +71,10 @@ public class HashEventHandler extends TransactionEventHandler {
                 String result_hash = HashUtil.sha256(jsonDataString);
 
                 if (!result_hash.equals(transaction.getHash())) {
-                    LOG.info("Transaction hashes does not match");
+                    Optional.of("Transaction hashes does not match").ifPresent(val -> {
+                        LOG.info(val);
+                        transaction.infos(val);
+                    });
                     transaction.setStatus(StatusType.ABORT);
                 }
 

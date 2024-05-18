@@ -1,14 +1,14 @@
 package io.Adrestus.core;
 
 import com.google.common.primitives.Ints;
+import io.Adrestus.MemoryTreePool;
 import io.Adrestus.TreeFactory;
+import io.Adrestus.Trie.MerkleNode;
+import io.Adrestus.Trie.MerkleTreeImp;
 import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.config.KademliaConfiguration;
-import io.Adrestus.core.Resourses.CachedLatestBlocks;
-import io.Adrestus.core.Resourses.CachedSecurityHeaders;
-import io.Adrestus.core.Resourses.CachedZoneIndex;
-import io.Adrestus.core.Resourses.MemoryTransactionPool;
+import io.Adrestus.core.Resourses.*;
 import io.Adrestus.core.RingBuffer.handler.transactions.SignatureEventHandler;
 import io.Adrestus.core.RingBuffer.publisher.BlockEventPublisher;
 import io.Adrestus.core.RingBuffer.publisher.TransactionEventPublisher;
@@ -49,21 +49,21 @@ import org.spongycastle.util.encoders.Hex;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BlockTest {
-    public static ArrayList<String> addreses;
-    private static ArrayList<ECKeyPair> keypair;
+    private static ArrayList<String> addreses = new ArrayList<>();
+    private static ArrayList<ECKeyPair> keypair = new ArrayList<>();
+    private static ArrayList<Transaction>transactions=new ArrayList<>();
     private static SerializationUtil<AbstractBlock> serenc;
+    private static SerializationUtil<Transaction> trx_serence;
     private static ECDSASign ecdsaSign = new ECDSASign();
     private static BLSPrivateKey sk1;
     private static BLSPublicKey vk1;
@@ -94,7 +94,12 @@ public class BlockTest {
     private static BLSPublicKey vk9;
 
     private static BlockSizeCalculator sizeCalculator;
-
+    private static KademliaData kad1, kad2, kad3, kad4, kad5, kad6;
+    private static ECDSASignatureData signatureData1,signatureData2,signatureData3;
+    private static TransactionCallback transactionCallback;
+    private static ArrayList<String>mesages = new ArrayList<>();
+    private static int version = 0x00;
+    private static int size = 5;
     public static void delete_test() {
         IDatabase<String, TransactionBlock> transaction_block1 = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.ZONE_0_TRANSACTION_BLOCK);
         IDatabase<String, TransactionBlock> transaction_block2 = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.ZONE_1_TRANSACTION_BLOCK);
@@ -170,6 +175,63 @@ public class BlockTest {
 
         sk8 = new BLSPrivateKey(8);
         vk8 = new BLSPublicKey(sk8);
+
+        SecureRandom random;
+        String mnemonic_code = "fd8cee9c1a3f3f57ab51b25740b24341ae093c8f697fde4df948050d3acd1700f6379d716104d2159e4912509c40ac81714d833e93b822e5ba0fadd68d5568a2";
+        random = SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
+        random.setSeed(Hex.decode(mnemonic_code));
+
+        ECDSASign ecdsaSign = new ECDSASign();
+
+        List<SerializationUtil.Mapping> list2 = new ArrayList<>();
+        list2.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
+        trx_serence = new SerializationUtil<Transaction>(Transaction.class, list2);
+
+        for (int i = 0; i < size; i++) {
+            Mnemonic mnem = new Mnemonic(Security.NORMAL, WordList.ENGLISH);
+            char[] mnemonic_sequence = mnem.create();
+            char[] passphrase = "p4ssphr4se".toCharArray();
+            byte[] key = mnem.createSeed(mnemonic_sequence, passphrase);
+            ECKeyPair ecKeyPair = Keys.createEcKeyPair(new SecureRandom(key));
+            String adddress = WalletAddress.generate_address((byte) version, ecKeyPair.getPublicKey());
+            addreses.add(adddress);
+            keypair.add(ecKeyPair);
+            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(adddress, new PatriciaTreeNode(1000, 0));
+        }
+
+         signatureData1 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(addreses.get(0))), keypair.get(0));
+         signatureData2 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(addreses.get(1))),keypair.get(1));
+         signatureData3 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(addreses.get(2))), keypair.get(2));
+
+         transactionCallback = new TransactionCallback() {
+            @Override
+            public void call(String value) {
+                mesages.add(value);
+            }
+        };
+
+        for (int i = 0; i < size - 1; i++) {
+            Transaction transaction = new RegularTransaction();
+            transaction.setFrom(addreses.get(i));
+            transaction.setTo(addreses.get(i + 1));
+            transaction.setStatus(StatusType.PENDING);
+            transaction.setTimestamp(GetTime.GetTimeStampInString());
+            transaction.setZoneFrom(0);
+            transaction.setZoneTo(0);
+            transaction.setAmount(100);
+            transaction.setAmountWithTransactionFee(transaction.getAmount() * (10.0 / 100.0));
+            transaction.setNonce(1);
+            transaction.setTransactionCallback(transactionCallback);
+            byte byf[] = trx_serence.encode(transaction);
+            transaction.setHash(HashUtil.sha256_bytetoString(byf));
+            await().atMost(500, TimeUnit.MILLISECONDS);
+
+            ECDSASignatureData signatureData = ecdsaSign.secp256SignMessage(Hex.decode(transaction.getHash()), keypair.get(i));
+            transaction.setSignature(signatureData);
+            //MemoryPool.getInstance().add(transaction);
+            transactions.add(transaction);
+        }
+
     }
 
     @Test
@@ -256,58 +318,15 @@ public class BlockTest {
         publisher.start();
 
 
-        SecureRandom random;
-        String mnemonic_code = "fd8cee9c1a3f3f57ab51b25740b24341ae093c8f697fde4df948050d3acd1700f6379d716104d2159e4912509c40ac81714d833e93b822e5ba0fadd68d5568a2";
-        random = SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
-        random.setSeed(Hex.decode(mnemonic_code));
-
-        ECDSASign ecdsaSign = new ECDSASign();
-
-        List<SerializationUtil.Mapping> list = new ArrayList<>();
-        list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
-        SerializationUtil<Transaction> serenc = new SerializationUtil<Transaction>(Transaction.class, list);
-
-        ArrayList<String> addreses = new ArrayList<>();
-        ArrayList<ECKeyPair> keypair = new ArrayList<>();
-        int version = 0x00;
-        int size = 5;
-        for (int i = 0; i < size; i++) {
-            Mnemonic mnem = new Mnemonic(Security.NORMAL, WordList.ENGLISH);
-            char[] mnemonic_sequence = mnem.create();
-            char[] passphrase = "p4ssphr4se".toCharArray();
-            byte[] key = mnem.createSeed(mnemonic_sequence, passphrase);
-            ECKeyPair ecKeyPair = Keys.createEcKeyPair(new SecureRandom(key));
-            String adddress = WalletAddress.generate_address((byte) version, ecKeyPair.getPublicKey());
-            addreses.add(adddress);
-            keypair.add(ecKeyPair);
-            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(adddress, new PatriciaTreeNode(1000, 0));
-        }
-
         signatureEventHandler.setLatch(new CountDownLatch(size - 1));
-        for (int i = 0; i < size - 1; i++) {
-            Transaction transaction = new RegularTransaction();
-            transaction.setFrom(addreses.get(i));
-            transaction.setTo(addreses.get(i + 1));
-            transaction.setStatus(StatusType.PENDING);
-            transaction.setTimestamp(GetTime.GetTimeStampInString());
-            transaction.setZoneFrom(0);
-            transaction.setZoneTo(0);
-            transaction.setAmount(100);
-            transaction.setAmountWithTransactionFee(transaction.getAmount() * (10.0 / 100.0));
-            transaction.setNonce(1);
-            byte byf[] = serenc.encode(transaction);
-            transaction.setHash(HashUtil.sha256_bytetoString(byf));
-            await().atMost(500, TimeUnit.MILLISECONDS);
-
-            ECDSASignatureData signatureData = ecdsaSign.secp256SignMessage(Hex.decode(transaction.getHash()), keypair.get(i));
-            transaction.setSignature(signatureData);
-            //MemoryPool.getInstance().add(transaction);
-            publisher.publish(transaction);
+        for (int i = 0; i < transactions.size(); i++) {
+            publisher.publish(transactions.get(i));
             await().atMost(1000, TimeUnit.MILLISECONDS);
         }
         publisher.getJobSyncUntilRemainingCapacityZero();
         signatureEventHandler.getLatch().await();
         assertEquals(size - 1, MemoryTransactionPool.getInstance().getSize());
+        assertTrue(mesages.isEmpty());
         publisher.close();
 
 
@@ -319,6 +338,118 @@ public class BlockTest {
 
     }
 
+    @Test
+    public void transaction_block_test() throws Exception {
+        CachedBLSKeyPair.getInstance().setPrivateKey(sk1);
+        CachedBLSKeyPair.getInstance().setPublicKey(vk1);
+        CommitteeBlock committeeBlock = new CommitteeBlock();
+        committeeBlock.setGeneration(1);
+        committeeBlock.setViewID(1);
+        CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
+
+        kad1 = new KademliaData(new SecurityAuditProofs(addreses.get(0), vk1, keypair.get(0).getPublicKey(), signatureData1), new NettyConnectionInfo("192.168.1.106", KademliaConfiguration.PORT));
+        kad2 = new KademliaData(new SecurityAuditProofs(addreses.get(1), vk2, keypair.get(1).getPublicKey(), signatureData2), new NettyConnectionInfo("192.168.1.115", KademliaConfiguration.PORT));
+        kad3 = new KademliaData(new SecurityAuditProofs(addreses.get(2), vk3, keypair.get(2).getPublicKey(), signatureData3), new NettyConnectionInfo("192.168.1.116", KademliaConfiguration.PORT));
+
+        CachedLatestBlocks.getInstance().getCommitteeBlock().getStakingMap().put(new StakingData(1, 10.0), kad1);
+        CachedLatestBlocks.getInstance().getCommitteeBlock().getStakingMap().put(new StakingData(2, 11.0), kad2);
+        CachedLatestBlocks.getInstance().getCommitteeBlock().getStakingMap().put(new StakingData(3, 151.0), kad3);
+
+        CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).put(vk1, "192.168.1.106");
+        //CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).put(vk2, "192.168.1.110");
+        CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).put(vk2, "192.168.1.115");
+        // CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).put(vk4, "192.168.1.115");
+        CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).put(vk3, "192.168.1.116");
+
+        CachedLeaderIndex.getInstance().setTransactionPositionLeader(1);
+
+        BlockEventPublisher publisher = new BlockEventPublisher(AdrestusConfiguration.BLOCK_QUEUE_SIZE);
+        publisher
+                .withDuplicateHandler()
+                .withGenerationHandler()
+                .withHashHandler()
+                .withHeaderEventHandler()
+                .withHeightEventHandler()
+                .withViewIDEventHandler()
+                .withTimestampEventHandler()
+                .withTransactionMerkleeEventHandler()
+                .withInBoundEventHandler()
+                .withOutBoundEventHandler()
+                .withPatriciaTreeEventHandler()
+                .withLeaderFeeRewardEventHandler()
+                .withReplayFeeEventHandler()
+                .withSumFeeRewardEventHandler()
+                .mergeEventsAndPassVerifySig();
+
+        publisher.start();
+
+        TransactionBlock prevblock = new TransactionBlock();
+        prevblock.setHeight(1);
+        prevblock.setHash("hash");
+        prevblock.getHeaderData().setTimestamp(GetTime.GetTimeStampInString());
+        Thread.sleep(1000);
+        prevblock.setTransactionProposer(vk1.toRaw());
+        prevblock.setLeaderPublicKey(vk1);
+        CachedLatestBlocks.getInstance().setTransactionBlock(prevblock);
+
+        TransactionBlock transactionBlock = new TransactionBlock();
+        MerkleTreeImp tree = new MerkleTreeImp();
+        ArrayList<MerkleNode> merkleNodeArrayList = new ArrayList<>();
+        transactionBlock.getHeaderData().setPreviousHash(CachedLatestBlocks.getInstance().getTransactionBlock().getHash());
+        transactionBlock.getHeaderData().setVersion(AdrestusConfiguration.version);
+        transactionBlock.getHeaderData().setTimestamp(GetTime.GetTimeStampInString());
+        transactionBlock.setStatustype(StatusType.PENDING);
+        transactionBlock.setHeight(CachedLatestBlocks.getInstance().getTransactionBlock().getHeight() + 1);
+        transactionBlock.setGeneration(CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration());
+        transactionBlock.setViewID(CachedLatestBlocks.getInstance().getTransactionBlock().getViewID() + 1);
+        transactionBlock.setZone(CachedZoneIndex.getInstance().getZoneIndex());
+        transactionBlock.setTransactionProposer(CachedBLSKeyPair.getInstance().getPublicKey().toRaw());
+        transactionBlock.setLeaderPublicKey(CachedBLSKeyPair.getInstance().getPublicKey());
+        transactionBlock.setTransactionList(transactions);
+
+        BlockIndex blockIndex = new BlockIndex();
+        if (!transactionBlock.getTransactionList().isEmpty()) {
+            double sum = transactionBlock.getTransactionList().parallelStream().filter(val -> !val.getType().equals(TransactionType.UNCLAIMED_FEE_REWARD)).mapToDouble(Transaction::getAmountWithTransactionFee).sum();
+            try {
+                transactionBlock.getTransactionList().add(0, new UnclaimedFeeRewardTransaction(TransactionType.UNCLAIMED_FEE_REWARD, blockIndex.getAddressByPublicKey(CachedBLSKeyPair.getInstance().getPublicKey()), sum));
+            } catch (NoSuchElementException e) {
+            }
+        }
+
+        transactionBlock.getTransactionList().forEach(transaction -> merkleNodeArrayList.add(new MerkleNode(transaction.getHash())));
+        tree.my_generate2(merkleNodeArrayList);
+        transactionBlock.setMerkleRoot(tree.getRootHash());
+
+        ArrayList<Receipt> receiptList = new ArrayList<>();
+        Map<Integer, Map<Receipt.ReceiptBlock, List<Receipt>>> outbound = receiptList
+                .stream()
+                .collect(Collectors.groupingBy(Receipt::getZoneTo, Collectors.groupingBy(Receipt::getReceiptBlock)));
+
+        OutBoundRelay outBoundRelay = new OutBoundRelay(outbound);
+        transactionBlock.setOutbound(outBoundRelay);
+
+        Map<Integer, Map<Receipt.ReceiptBlock, List<Receipt>>> inbound_map = receiptList
+                .stream()
+                .collect(Collectors.groupingBy(Receipt::getZoneFrom, Collectors.groupingBy(Receipt::getReceiptBlock)));
+        InboundRelay inboundRelay = new InboundRelay(inbound_map);
+        transactionBlock.setInbound(inboundRelay);
+
+        MemoryTreePool replica = new MemoryTreePool(((MemoryTreePool) TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex())));
+        if (!transactionBlock.getTransactionList().isEmpty()) {
+            TreePoolConstructBlock.getInstance().visitForgeTreePool(transactionBlock, replica);
+        }
+
+        transactionBlock.setPatriciaMerkleRoot(replica.getRootHash());
+        BlockSizeCalculator blockSizeCalculator = new BlockSizeCalculator();
+        blockSizeCalculator.setTransactionBlock(transactionBlock);
+        byte[] tohash = serenc.encode(transactionBlock, blockSizeCalculator.TransactionBlockSizeCalculator());
+        transactionBlock.setHash(HashUtil.sha256_bytetoString(tohash));
+        publisher.publish(transactionBlock);
+        publisher.getJobSyncUntilRemainingCapacityZero();
+        publisher.close();
+
+
+    }
     @Test
     public void commit_block_test() throws Exception {
         sk1 = new BLSPrivateKey(1);

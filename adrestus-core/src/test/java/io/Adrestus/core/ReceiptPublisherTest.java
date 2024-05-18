@@ -48,6 +48,7 @@ import java.util.TreeMap;
 import java.util.concurrent.CountDownLatch;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ReceiptPublisherTest {
     private static BLSPrivateKey sk1;
@@ -137,6 +138,13 @@ public class ReceiptPublisherTest {
 
         int j = 1;
         signatureEventHandler.setLatch(new CountDownLatch(size - 1));
+        ArrayList<String>mesages = new ArrayList<>();
+        TransactionCallback transactionCallback = new TransactionCallback() {
+            @Override
+            public void call(String value) {
+                mesages.add(value);
+            }
+        };
         for (int i = 0; i < size - 1; i++) {
             Transaction transaction = new RegularTransaction();
             transaction.setFrom(addreses.get(i));
@@ -148,6 +156,7 @@ public class ReceiptPublisherTest {
             transaction.setAmount(i);
             transaction.setAmountWithTransactionFee(transaction.getAmount() * (10.0 / 100.0));
             transaction.setNonce(1);
+            transaction.setTransactionCallback(transactionCallback);
             byte byf[] = enc.encode(transaction);
             transaction.setHash(HashUtil.sha256_bytetoString(byf));
             //  await().atMost(500, TimeUnit.MILLISECONDS);
@@ -163,6 +172,7 @@ public class ReceiptPublisherTest {
         }
         publisher.getJobSyncUntilRemainingCapacityZero();
         signatureEventHandler.getLatch().await();
+        assertTrue(mesages.isEmpty());
         publisher.close();
 
 

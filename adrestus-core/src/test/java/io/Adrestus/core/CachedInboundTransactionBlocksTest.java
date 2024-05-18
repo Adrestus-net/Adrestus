@@ -57,6 +57,7 @@ public class CachedInboundTransactionBlocksTest {
         CachedInboundTransactionBlocks.getInstance().prepare(outBoundRelay1.getMap_receipts());
         CachedInboundTransactionBlocks.getInstance().prepare(outBoundRelay2.getMap_receipts());
         CachedInboundTransactionBlocks.getInstance().prepare(outBoundRelay3.getMap_receipts());
+        //Map<zonefrom, HashMap<generation, HashSet<blockheight>>>
         Map<Integer, HashMap<Integer, HashSet<String>>> integerHashSetMap = CachedInboundTransactionBlocks.getInstance().getBlock_retrieval();
         assertEquals(1, integerHashSetMap.get(0).get(1).size());
         assertEquals(1, integerHashSetMap.get(1).get(6).size());

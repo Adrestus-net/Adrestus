@@ -18,8 +18,12 @@ import java.util.stream.Collectors;
 
 public class CachedInboundTransactionBlocks {
     private static volatile CachedInboundTransactionBlocks instance;
+
+   //<receipt.getZoneFrom(), HashMap<receipt.getReceiptBlock().getHeight(), TransactionBlock>>
     private ConcurrentMap<Integer, HashMap<Integer, TransactionBlock>> transactionBlockHashMap;
 
+
+    //Map<zonefrom, HashMap<generation, HashSet<blockheight>>>
     private Map<Integer, HashMap<Integer, HashSet<String>>> block_retrieval;
 
     private CachedInboundTransactionBlocks() {
@@ -211,8 +215,7 @@ public class CachedInboundTransactionBlocks {
                         } else {
                             height_list = new HashSet<>();
                         }
-                        if (!contains(entry.getKey(), entry2.getKey().getHeight()))
-                            height_list.add(String.valueOf(entry2.getKey().getHeight()));
+                        height_list.add(String.valueOf(entry2.getKey().getHeight()));
                     }
                     gen_list.put(entry2.getKey().getGeneration(), height_list);
                 }
@@ -227,8 +230,7 @@ public class CachedInboundTransactionBlocks {
                         } else {
                             height_list = new HashSet<>();
                         }
-                        if (!contains(entry.getKey(), entry2.getKey().getHeight()))
-                            height_list.add(String.valueOf(entry2.getKey().getHeight()));
+                        height_list.add(String.valueOf(entry2.getKey().getHeight()));
                     }
                     gen_list.put(entry2.getKey().getGeneration(), height_list);
                 }

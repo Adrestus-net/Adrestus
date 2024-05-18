@@ -7,6 +7,8 @@ import io.Adrestus.core.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Optional;
+
 public class ReplayEventHandler extends TransactionEventHandler {
     private static Logger LOG = LoggerFactory.getLogger(ReplayEventHandler.class);
 
@@ -20,7 +22,10 @@ public class ReplayEventHandler extends TransactionEventHandler {
 
 
             if (MemoryTransactionPool.getInstance().checkTimestamp(transaction)) {
-                LOG.info("Transaction abort Transaction with older timestamp exists for this source address");
+                Optional.of("Transaction abort Transaction with older timestamp exists for this source address").ifPresent(val -> {
+                    LOG.info(val);
+                    transaction.infos(val);
+                });
                 transaction.setStatus(StatusType.ABORT);
             }
         } catch (NullPointerException ex) {

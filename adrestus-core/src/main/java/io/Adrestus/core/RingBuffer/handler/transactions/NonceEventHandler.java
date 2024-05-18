@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 public class NonceEventHandler extends TransactionEventHandler implements TransactionUnitVisitor {
     private static Logger LOG = LoggerFactory.getLogger(NonceEventHandler.class);
@@ -33,13 +34,19 @@ public class NonceEventHandler extends TransactionEventHandler implements Transa
             TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(regularTransaction.getFrom(), new PatriciaTreeNode(0, 0));
             patriciaTreeNode = TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(regularTransaction.getFrom()).get();
         } catch (NullPointerException ex) {
-            LOG.info("RegularTransaction is empty");
+            Optional.of("RegularTransaction is empty").ifPresent(val -> {
+                LOG.info(val);
+                regularTransaction.infos(val);
+            });
             regularTransaction.setStatus(StatusType.ABORT);
             return;
         }
 
         if (patriciaTreeNode.getNonce() + 1 != regularTransaction.getNonce()) {
-            LOG.info("RegularTransaction nonce is not valid");
+            Optional.of("RegularTransaction nonce is not valid").ifPresent(val -> {
+                LOG.info(val);
+                regularTransaction.infos(val);
+            });
             regularTransaction.setStatus(StatusType.ABORT);
         }
     }
@@ -56,13 +63,19 @@ public class NonceEventHandler extends TransactionEventHandler implements Transa
             TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(rewardsTransaction.getRecipientAddress(), new PatriciaTreeNode(0, 0));
             patriciaTreeNode = TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(rewardsTransaction.getRecipientAddress()).get();
         } catch (NullPointerException ex) {
-            LOG.info("RewardsTransaction is empty");
+            Optional.of("RewardsTransaction is empty").ifPresent(val -> {
+                LOG.info(val);
+                rewardsTransaction.infos(val);
+            });
             rewardsTransaction.setStatus(StatusType.ABORT);
             return;
         }
 
         if (patriciaTreeNode.getNonce() + 1 != rewardsTransaction.getNonce()) {
-            LOG.info("RewardsTransaction nonce is not valid");
+            Optional.of("RewardsTransaction nonce is not valid").ifPresent(val -> {
+                LOG.info(val);
+                rewardsTransaction.infos(val);
+            });
             rewardsTransaction.setStatus(StatusType.ABORT);
         }
     }
@@ -79,13 +92,19 @@ public class NonceEventHandler extends TransactionEventHandler implements Transa
             TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(stakingTransaction.getValidatorAddress(), new PatriciaTreeNode(0, 0));
             patriciaTreeNode = TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(stakingTransaction.getValidatorAddress()).get();
         } catch (NullPointerException ex) {
-            LOG.info("StakingTransaction is empty");
+            Optional.of("StakingTransaction is empty").ifPresent(val -> {
+                LOG.info(val);
+                stakingTransaction.infos(val);
+            });
             stakingTransaction.setStatus(StatusType.ABORT);
             return;
         }
 
         if (patriciaTreeNode.getNonce() + 1 != stakingTransaction.getNonce()) {
-            LOG.info("StakingTransaction nonce is not valid");
+            Optional.of("StakingTransaction nonce is not valid").ifPresent(val -> {
+                LOG.info(val);
+                stakingTransaction.infos(val);
+            });
             stakingTransaction.setStatus(StatusType.ABORT);
         }
     }
@@ -102,13 +121,19 @@ public class NonceEventHandler extends TransactionEventHandler implements Transa
             TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(delegateTransaction.getDelegatorAddress(), new PatriciaTreeNode(0, 0));
             patriciaTreeNode = TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(delegateTransaction.getDelegatorAddress()).get();
         } catch (NullPointerException ex) {
-            LOG.info("DelegateTransaction is empty");
+            Optional.of("DelegateTransaction is empty").ifPresent(val -> {
+                LOG.info(val);
+                delegateTransaction.infos(val);
+            });
             delegateTransaction.setStatus(StatusType.ABORT);
             return;
         }
 
         if (patriciaTreeNode.getNonce() + 1 != delegateTransaction.getNonce()) {
-            LOG.info("DelegateTransaction nonce is not valid");
+            Optional.of("DelegateTransaction nonce is not valid").ifPresent(val -> {
+                LOG.info(val);
+                delegateTransaction.infos(val);
+            });
             delegateTransaction.setStatus(StatusType.ABORT);
         }
     }
@@ -125,7 +150,10 @@ public class NonceEventHandler extends TransactionEventHandler implements Transa
             TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(unclaimedFeeRewardTransaction.getRecipientAddress(), new PatriciaTreeNode(0, 0));
             patriciaTreeNode = TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(unclaimedFeeRewardTransaction.getRecipientAddress()).get();
         } catch (NullPointerException ex) {
-            LOG.info("UnclaimedFeeRewardTransaction is empty");
+            Optional.of("UnclaimedFeeRewardTransaction is empty").ifPresent(val -> {
+                LOG.info(val);
+                unclaimedFeeRewardTransaction.infos(val);
+            });
             unclaimedFeeRewardTransaction.setStatus(StatusType.ABORT);
             return;
         }
@@ -139,17 +167,26 @@ public class NonceEventHandler extends TransactionEventHandler implements Transa
             patriciaTreeNode = TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(unDelegateTransaction.getDelegatorAddress()).get();
 
         } catch (NoSuchElementException ex) {
-            LOG.info("State trie UndelegatingTransaction is empty abort");
+            Optional.of("State trie UndelegatingTransaction is empty abort").ifPresent(val -> {
+                LOG.info(val);
+                unDelegateTransaction.infos(val);
+            });
             unDelegateTransaction.setStatus(StatusType.ABORT);
             return;
         } catch (NullPointerException ex) {
-            LOG.info("UndelegatingTransaction is empty");
+            Optional.of("UndelegatingTransaction is empty").ifPresent(val -> {
+                LOG.info(val);
+                unDelegateTransaction.infos(val);
+            });
             unDelegateTransaction.setStatus(StatusType.ABORT);
             return;
         }
 
         if (patriciaTreeNode.getNonce() + 1 != unDelegateTransaction.getNonce()) {
-            LOG.info("DelegateTransaction nonce is not valid");
+            Optional.of("DelegateTransaction nonce is not valid").ifPresent(val -> {
+                LOG.info(val);
+                unDelegateTransaction.infos(val);
+            });
             unDelegateTransaction.setStatus(StatusType.ABORT);
         }
     }
@@ -162,16 +199,25 @@ public class NonceEventHandler extends TransactionEventHandler implements Transa
             patriciaTreeNode = TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(unstakingTransaction.getValidatorAddress()).get();
 
         } catch (NoSuchElementException ex) {
-            LOG.info("State trie UnstakingTransaction is empty abort");
+            Optional.of("State trie UnstakingTransaction is empty abort").ifPresent(val -> {
+                LOG.info(val);
+                unstakingTransaction.infos(val);
+            });
             unstakingTransaction.setStatus(StatusType.ABORT);
         } catch (NullPointerException ex) {
-            LOG.info("UnstakingTransaction is empty");
+            Optional.of("UnstakingTransaction is empty").ifPresent(val -> {
+                LOG.info(val);
+                unstakingTransaction.infos(val);
+            });
             unstakingTransaction.setStatus(StatusType.ABORT);
             return;
         }
 
         if (patriciaTreeNode.getNonce() + 1 != unstakingTransaction.getNonce()) {
-            LOG.info("StakingTransaction nonce is not valid");
+            Optional.of("UnstakingTransaction nonce is not valid").ifPresent(val -> {
+                LOG.info(val);
+                unstakingTransaction.infos(val);
+            });
             unstakingTransaction.setStatus(StatusType.ABORT);
         }
     }

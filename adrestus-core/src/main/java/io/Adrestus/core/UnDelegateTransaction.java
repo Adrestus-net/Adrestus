@@ -36,6 +36,14 @@ public class UnDelegateTransaction extends DelegateTransaction{
         return super.getValidatorAddress();
     }
 
+
+    @Override
+    public void infos(String value) {
+        if(this.transactionCallback==null)
+            return;
+        this.transactionCallback.call(value);
+    }
+
     @Override
     public boolean equals(Object o) {
         return super.equals(o);

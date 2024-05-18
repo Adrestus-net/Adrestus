@@ -103,6 +103,13 @@ public class StakingTransaction extends Transaction {
     }
 
     @Override
+    public void infos(String value) {
+        if(this.transactionCallback==null)
+            return;
+        this.transactionCallback.call(value);
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;

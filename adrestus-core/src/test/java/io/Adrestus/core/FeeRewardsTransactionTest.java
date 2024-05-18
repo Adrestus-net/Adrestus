@@ -52,6 +52,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class FeeRewardsTransactionTest {
 
@@ -380,6 +381,13 @@ public class FeeRewardsTransactionTest {
         publisher.start();
 
 
+        ArrayList<String>mesages = new ArrayList<>();
+        TransactionCallback transactionCallback = new TransactionCallback() {
+            @Override
+            public void call(String value) {
+                mesages.add(value);
+            }
+        };
         signatureEventHandler.setLatch(new CountDownLatch(1));
         RewardsTransaction rewardsTransaction = new RewardsTransaction();
         rewardsTransaction.setRecipientAddress(address1);
@@ -393,12 +401,14 @@ public class FeeRewardsTransactionTest {
         rewardsTransaction.setAmountWithTransactionFee((double) (100 * 10) /100);
         rewardsTransaction.setAmountWithTransactionFee(0);
         rewardsTransaction.setNonce(1);
+        rewardsTransaction.setTransactionCallback(transactionCallback);
         byte byf[] = serenc.encode(rewardsTransaction);
         rewardsTransaction.setHash(HashUtil.sha256_bytetoString(byf));
         ECDSASignatureData signatureData = ecdsaSign.secp256SignMessage(Hex.decode(rewardsTransaction.getHash()), ecKeyPair1);
         rewardsTransaction.setSignature(signatureData);
         publisher.publish(rewardsTransaction);
         signatureEventHandler.getLatch().await();
+        assertTrue(mesages.isEmpty());
         publisher.getJobSyncUntilRemainingCapacityZero();
         publisher.close();
     }

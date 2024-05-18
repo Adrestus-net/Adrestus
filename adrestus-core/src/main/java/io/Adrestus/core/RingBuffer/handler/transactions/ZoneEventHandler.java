@@ -24,6 +24,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class ZoneEventHandler extends TransactionEventHandler implements TransactionUnitVisitor {
@@ -101,7 +102,10 @@ public class ZoneEventHandler extends TransactionEventHandler implements Transac
     @Override
     public void visit(RewardsTransaction rewardsTransaction) {
         if (CachedZoneIndex.getInstance().getZoneIndex() != rewardsTransaction.getZoneFrom() || CachedZoneIndex.getInstance().getZoneIndex() != 0) {
-            LOG.info("Reward Transaction zone should be only in zone 0 abort");
+            Optional.of("Reward Transaction zone should be only in zone 0 abort").ifPresent(val -> {
+                LOG.info(val);
+                rewardsTransaction.infos(val);
+            });
             rewardsTransaction.setStatus(StatusType.ABORT);
             try {
                 SendAsync(rewardsTransaction);
@@ -115,7 +119,10 @@ public class ZoneEventHandler extends TransactionEventHandler implements Transac
     @Override
     public void visit(StakingTransaction stakingTransaction) {
         if (CachedZoneIndex.getInstance().getZoneIndex() != stakingTransaction.getZoneFrom() || CachedZoneIndex.getInstance().getZoneIndex() != 0) {
-            LOG.info("StakingTransaction zone should be only in zone 0 abort");
+            Optional.of("StakingTransaction zone should be only in zone 0 abort").ifPresent(val -> {
+                LOG.info(val);
+                stakingTransaction.infos(val);
+            });
             stakingTransaction.setStatus(StatusType.ABORT);
             try {
                 SendAsync(stakingTransaction);
@@ -128,7 +135,10 @@ public class ZoneEventHandler extends TransactionEventHandler implements Transac
     @Override
     public void visit(DelegateTransaction delegateTransaction) {
         if (CachedZoneIndex.getInstance().getZoneIndex() != delegateTransaction.getZoneFrom() || CachedZoneIndex.getInstance().getZoneIndex() != 0) {
-            LOG.info("DelegateTransaction zone should be only in zone 0 abort");
+            Optional.of("DelegateTransaction zone should be only in zone 0 abort").ifPresent(val -> {
+                LOG.info(val);
+                delegateTransaction.infos(val);
+            });
            delegateTransaction.setStatus(StatusType.ABORT);
             try {
                 SendAsync(delegateTransaction);
@@ -146,7 +156,10 @@ public class ZoneEventHandler extends TransactionEventHandler implements Transac
     @Override
     public void visit(UnDelegateTransaction unDelegateTransaction) {
         if (CachedZoneIndex.getInstance().getZoneIndex() != unDelegateTransaction.getZoneFrom() || CachedZoneIndex.getInstance().getZoneIndex() != 0) {
-            LOG.info("UndelegatingTransaction zone should be only in zone 0 abort");
+            Optional.of("UndelegatingTransaction zone should be only in zone 0 abort").ifPresent(val -> {
+                LOG.info(val);
+                unDelegateTransaction.infos(val);
+            });
             unDelegateTransaction.setStatus(StatusType.ABORT);
             try {
                 SendAsync(unDelegateTransaction);
@@ -159,7 +172,10 @@ public class ZoneEventHandler extends TransactionEventHandler implements Transac
     @Override
     public void visit(UnstakingTransaction unstakingTransaction) {
         if (CachedZoneIndex.getInstance().getZoneIndex() != unstakingTransaction.getZoneFrom() || CachedZoneIndex.getInstance().getZoneIndex() != 0) {
-            LOG.info("UnstakingTransaction zone should be only in zone 0 abort");
+            Optional.of("UnstakingTransaction zone should be only in zone 0 abort").ifPresent(val -> {
+                LOG.info(val);
+                unstakingTransaction.infos(val);
+            });
             unstakingTransaction.setStatus(StatusType.ABORT);
             try {
                 SendAsync(unstakingTransaction);
