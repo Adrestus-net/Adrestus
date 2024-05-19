@@ -74,19 +74,19 @@ public class ConsensusTransaction2Timer {
         ArrayList<BLSPublicKey> keyList = new ArrayList<BLSPublicKey>(CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(activeZone).keySet());
         if (activeZone == 0) {
             if (CachedBLSKeyPair.getInstance().getPublicKey().equals(keyList.get(0))) {
-                SaveTransactions(activeZone,6, 6);
+                SaveTransactions(activeZone, 6, 6);
             } else if (CachedBLSKeyPair.getInstance().getPublicKey().equals(keyList.get(1))) {
-                SaveTransactions(activeZone,7, 7);
+                SaveTransactions(activeZone, 7, 7);
             } else if (CachedBLSKeyPair.getInstance().getPublicKey().equals(keyList.get(2))) {
-                SaveTransactions(activeZone,8, 8);
+                SaveTransactions(activeZone, 8, 8);
             }
         } else if (activeZone == 1) {
             if (CachedBLSKeyPair.getInstance().getPublicKey().equals(keyList.get(0))) {
-                SaveTransactions(activeZone,0, 1);
+                SaveTransactions(activeZone, 0, 1);
             } else if (CachedBLSKeyPair.getInstance().getPublicKey().equals(keyList.get(1))) {
-                SaveTransactions(activeZone,2, 3);
+                SaveTransactions(activeZone, 2, 3);
             } else if (CachedBLSKeyPair.getInstance().getPublicKey().equals(keyList.get(2))) {
-                SaveTransactions(activeZone,4, 5);
+                SaveTransactions(activeZone, 4, 5);
             }
         }
        /* if (CachedBLSKeyPair.getInstance().getPublicKey().equals(keyList.get(0))) {
@@ -105,28 +105,8 @@ public class ConsensusTransaction2Timer {
 
     }
 
-    private void SaveTransactions(int active_zone,int start, int stop) throws InterruptedException {
+    private void SaveTransactions(int active_zone, int start, int stop) throws InterruptedException {
         nonce++;
-        TransactionEventPublisher publisher = new TransactionEventPublisher(1024);
-        SignatureEventHandler signatureEventHandler = new SignatureEventHandler(SignatureEventHandler.SignatureBehaviorType.SIMPLE_TRANSACTIONS, new CountDownLatch(stop + 1));
-        publisher
-                .withAddressSizeEventHandler()
-                .withAmountEventHandler()
-                .withTypeEventHandler()
-                .withDoubleSpendEventHandler()
-                .withHashEventHandler()
-                .withDelegateEventHandler()
-                .withNonceEventHandler()
-                .withReplayEventHandler()
-                .withStakingEventHandler()
-                .withTransactionFeeEventHandler()
-                .withTimestampEventHandler()
-                .withSameOriginEventHandler()
-                .withZoneEventHandler()
-                .withDuplicateEventHandler()
-                .mergeEventsAndPassThen(new SignatureEventHandler(SignatureEventHandler.SignatureBehaviorType.SIMPLE_TRANSACTIONS));
-        publisher.start();
-
         for (int i = start; i <= stop; i++) {
             Transaction transaction = new RegularTransaction();
             transaction.setFrom(addreses.get(i));
@@ -145,13 +125,9 @@ public class ConsensusTransaction2Timer {
 
             ECDSASignatureData signatureData = ecdsaSign.secp256SignMessage(Hex.decode(transaction.getHash()), keypair.get(i));
             transaction.setSignature(signatureData);
-            //MemoryPool.getInstance().add(transaction);
-            publisher.publish(transaction);
+            MemoryTransactionPool.getInstance().add(transaction);
             Thread.sleep(100);
         }
-        publisher.getJobSyncUntilRemainingCapacityZero();
-        signatureEventHandler.getLatch().await();
-        publisher.close();
     }
 
     private void SaveTransactions2(int start, int stop) throws InterruptedException {
