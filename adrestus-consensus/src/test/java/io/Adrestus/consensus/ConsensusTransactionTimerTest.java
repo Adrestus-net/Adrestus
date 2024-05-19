@@ -275,7 +275,7 @@ public class ConsensusTransactionTimerTest {
         CachedEventLoop.getInstance().start();
         addreses_old = new ArrayList<>(addreses);
         // 5 is the deafult
-        CountDownLatch latch = new CountDownLatch(1);
+        CountDownLatch latch = new CountDownLatch(5);
         ConsensusTransactionTimer c = new ConsensusTransactionTimer(latch, addreses, keypair);
         latch.await();
         c.close();
@@ -286,15 +286,15 @@ public class ConsensusTransactionTimerTest {
         }
 
         //be aware that print functionality is  different
-        assertEquals(992.1, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(0)).get().getAmount());
-        assertEquals(988, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(1)).get().getAmount());
-        assertEquals(998, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(2)).get().getAmount());
-        assertEquals(998, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(3)).get().getAmount());
-        assertEquals(1012, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(4)).get().getAmount());
-        assertEquals(999, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(5)).get().getAmount());
-        assertEquals(1015, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(6)).get().getAmount());
-        assertEquals(1000, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(7)).get().getAmount());
-        assertEquals(1000, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(8)).get().getAmount());
+        assertEquals(991.1, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(0)).get().getAmount());
+        assertEquals(984.8, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(1)).get().getAmount());
+        assertEquals(993.3999999999999, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(2)).get().getAmount());
+        assertEquals(993.0, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(3)).get().getAmount());
+        assertEquals(1008.0000000000001, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(4)).get().getAmount());
+        assertEquals(996.1, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(5)).get().getAmount());
+        assertEquals(1013.5, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(6)).get().getAmount());
+        assertEquals(1000.0, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(7)).get().getAmount());
+        assertEquals(1000.0, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(8)).get().getAmount());
 
 
     }

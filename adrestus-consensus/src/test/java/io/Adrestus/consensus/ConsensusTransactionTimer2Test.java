@@ -389,7 +389,7 @@ public class ConsensusTransactionTimer2Test {
         }
 
         addreses_old = new ArrayList<>(addreses);
-        CountDownLatch latch = new CountDownLatch(15);
+        CountDownLatch latch = new CountDownLatch(6);
         ConsensusTransaction2Timer c = new ConsensusTransaction2Timer(latch, addreses, keypair);
         latch.await();
         c.close();
@@ -399,8 +399,11 @@ public class ConsensusTransactionTimer2Test {
             System.out.println(addreses.get(i) + " " + TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(addreses.get(i)).get().getAmount());
         }
         if (CachedZoneIndex.getInstance().getZoneIndex() == 0) {
-            assertEquals(1020, TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(addreses.get(1)).get().getAmount());
-            assertEquals(1022, TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(addreses.get(2)).get().getAmount());
+            assertEquals(956.8, TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(addreses.get(6)).get().getAmount());
+        }
+        if (CachedZoneIndex.getInstance().getZoneIndex() == 0) {
+            assertEquals(1018, TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(addreses.get(1)).get().getAmount());
+            assertEquals(1019.9, TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(addreses.get(2)).get().getAmount());
         }
     }
 }

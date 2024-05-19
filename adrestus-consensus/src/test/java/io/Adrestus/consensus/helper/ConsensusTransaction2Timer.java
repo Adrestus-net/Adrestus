@@ -74,19 +74,19 @@ public class ConsensusTransaction2Timer {
         ArrayList<BLSPublicKey> keyList = new ArrayList<BLSPublicKey>(CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(activeZone).keySet());
         if (activeZone == 0) {
             if (CachedBLSKeyPair.getInstance().getPublicKey().equals(keyList.get(0))) {
-                SaveTransactions(6, 6);
+                SaveTransactions(activeZone,6, 6);
             } else if (CachedBLSKeyPair.getInstance().getPublicKey().equals(keyList.get(1))) {
-                SaveTransactions(7, 7);
+                SaveTransactions(activeZone,7, 7);
             } else if (CachedBLSKeyPair.getInstance().getPublicKey().equals(keyList.get(2))) {
-                SaveTransactions(8, 8);
+                SaveTransactions(activeZone,8, 8);
             }
         } else if (activeZone == 1) {
             if (CachedBLSKeyPair.getInstance().getPublicKey().equals(keyList.get(0))) {
-                SaveTransactions(0, 1);
+                SaveTransactions(activeZone,0, 1);
             } else if (CachedBLSKeyPair.getInstance().getPublicKey().equals(keyList.get(1))) {
-                SaveTransactions(2, 3);
+                SaveTransactions(activeZone,2, 3);
             } else if (CachedBLSKeyPair.getInstance().getPublicKey().equals(keyList.get(2))) {
-                SaveTransactions(4, 5);
+                SaveTransactions(activeZone,4, 5);
             }
         }
        /* if (CachedBLSKeyPair.getInstance().getPublicKey().equals(keyList.get(0))) {
@@ -105,7 +105,7 @@ public class ConsensusTransaction2Timer {
 
     }
 
-    private void SaveTransactions(int start, int stop) throws InterruptedException {
+    private void SaveTransactions(int active_zone,int start, int stop) throws InterruptedException {
         nonce++;
         TransactionEventPublisher publisher = new TransactionEventPublisher(1024);
         SignatureEventHandler signatureEventHandler = new SignatureEventHandler(SignatureEventHandler.SignatureBehaviorType.SIMPLE_TRANSACTIONS, new CountDownLatch(stop + 1));
@@ -135,6 +135,7 @@ public class ConsensusTransaction2Timer {
             transaction.setTimestamp(GetTime.GetTimeStampInString());
             Thread.sleep(10);
             transaction.setZoneFrom(CachedZoneIndex.getInstance().getZoneIndex());
+            transaction.setZoneFrom(active_zone);
             transaction.setZoneTo(0);
             transaction.setAmount(i + 10);
             transaction.setAmountWithTransactionFee(transaction.getAmount() * (10.0 / 100.0));
