@@ -95,6 +95,7 @@ public class ConsensusTransactionTimer2Test {
     @BeforeAll
     public static void construct() throws Exception {
         delete_test();
+        IDatabase<String, CommitteeBlock> commit = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         serenc = new SerializationUtil<Transaction>(Transaction.class, list);
@@ -259,6 +260,7 @@ public class ConsensusTransactionTimer2Test {
         CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).put(vk6, "192.168.1.115");
 
 
+        commit.save(String.valueOf( CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration()), CachedLatestBlocks.getInstance().getCommitteeBlock());
         CachedZoneIndex.getInstance().setZoneIndexInternalIP();
 
 
@@ -382,6 +384,11 @@ public class ConsensusTransactionTimer2Test {
         }
 
         addreses_old = new ArrayList<>(addreses);
+        //add latch 6 for zone 1
+        //add latch 9 for validators on zone 0
+        if(CachedZoneIndex.getInstance().getZoneIndex()==0){
+            Thread.sleep(3000);
+        }
         CountDownLatch latch = new CountDownLatch(6);
         ConsensusTransaction2Timer c = new ConsensusTransaction2Timer(latch, addreses, keypair);
         latch.await();

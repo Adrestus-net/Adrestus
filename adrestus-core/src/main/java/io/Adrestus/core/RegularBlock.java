@@ -434,16 +434,18 @@ public class RegularBlock implements BlockForge, BlockInvent {
                             }));
 
         if (!transactionBlock.getOutbound().getMap_receipts().isEmpty()) {
-            for (Map.Entry<Integer, LinkedHashMap<Receipt.ReceiptBlock, List<Receipt>>> entry : transactionBlock.getOutbound().getMap_receipts().entrySet()) {
-                List<String> ReceiptIPWorkers = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(entry.getKey()).values().stream().collect(Collectors.toList());
-                List<byte[]> toSendReceipt = new ArrayList<>();
-                for (Map.Entry<Receipt.ReceiptBlock, List<Receipt>> entry2 : entry.getValue().entrySet()) {
-                    entry2.getValue().forEach(receipt -> toSendReceipt.add(receipt_encode.encode(receipt, 1024)));
+            (new Thread(() -> {
+                for (Map.Entry<Integer, LinkedHashMap<Receipt.ReceiptBlock, List<Receipt>>> entry : transactionBlock.getOutbound().getMap_receipts().entrySet()) {
+                    List<String> ReceiptIPWorkers = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(entry.getKey()).values().stream().collect(Collectors.toList());
+                    List<byte[]> toSendReceipt = new ArrayList<>();
+                    for (Map.Entry<Receipt.ReceiptBlock, List<Receipt>> entry2 : entry.getValue().entrySet()) {
+                        entry2.getValue().forEach(receipt -> toSendReceipt.add(receipt_encode.encode(receipt, 1024)));
+                    }
+                    var executor = new AsyncService<Long>(ReceiptIPWorkers, toSendReceipt, SocketConfigOptions.RECEIPT_PORT);
+                    var asyncResult = executor.startListProcess(300L);
+                    var result = executor.endProcess(asyncResult);
                 }
-                var executor = new AsyncService<Long>(ReceiptIPWorkers, toSendReceipt, SocketConfigOptions.RECEIPT_PORT);
-                var asyncResult = executor.startListProcess(300L);
-                var result = executor.endProcess(asyncResult);
-            }
+            })).start();
         }
         tree_database.save(String.valueOf(CachedZoneIndex.getInstance().getZoneIndex()), patricia_tree_wrapper.encode_special(TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()), SerializationUtils.serialize(TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex())).length));
         CachedLatestBlocks.getInstance().setTransactionBlock(transactionBlock);

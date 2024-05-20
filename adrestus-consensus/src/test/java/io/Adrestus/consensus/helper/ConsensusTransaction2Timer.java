@@ -110,7 +110,6 @@ public class ConsensusTransaction2Timer {
             transaction.setTo(addreses.get(i + 1));
             transaction.setStatus(StatusType.PENDING);
             transaction.setTimestamp(GetTime.GetTimeStampInString());
-            Thread.sleep(10);
             transaction.setZoneFrom(CachedZoneIndex.getInstance().getZoneIndex());
             transaction.setZoneTo(0);
             transaction.setAmount(i + 10);
