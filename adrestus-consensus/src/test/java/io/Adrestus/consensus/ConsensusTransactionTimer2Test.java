@@ -11,7 +11,7 @@ import io.Adrestus.core.*;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedReceiptSemaphore;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
-import io.Adrestus.core.Resourses.MemoryReceiptPool;
+import io.Adrestus.core.RingBuffer.publisher.ReceiptEventPublisher;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.SecurityAuditProofs;
 import io.Adrestus.crypto.WalletAddress;
@@ -33,6 +33,7 @@ import io.Adrestus.network.TCPTransactionConsumer;
 import io.Adrestus.network.TransactionChannelHandler;
 import io.Adrestus.p2p.kademlia.common.NettyConnectionInfo;
 import io.Adrestus.p2p.kademlia.repository.KademliaData;
+import io.Adrestus.rpc.RpcAdrestusClient;
 import io.Adrestus.rpc.RpcAdrestusServer;
 import io.Adrestus.util.GetTime;
 import io.Adrestus.util.SerializationUtil;
@@ -48,13 +49,16 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
+import java.util.stream.Collectors;
 
 import static io.activej.eventloop.Eventloop.getCurrentEventloop;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -91,6 +95,7 @@ public class ConsensusTransactionTimer2Test {
     private static AsyncTcpSocket socket;
     private static boolean variable = false;
     private static KademliaData kad1, kad2, kad3, kad4, kad5, kad6;
+    private static ReceiptEventPublisher publisher;
 
     @BeforeAll
     public static void construct() throws Exception {
@@ -100,6 +105,20 @@ public class ConsensusTransactionTimer2Test {
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         serenc = new SerializationUtil<Transaction>(Transaction.class, list);
         recep = new SerializationUtil<Receipt>(Receipt.class, list);
+
+        publisher = new ReceiptEventPublisher(1024);
+        publisher.
+                withGenerationEventHandler().
+                withHeightEventHandler().
+                withOutboundMerkleEventHandler().
+                withZoneEventHandler().
+                withReplayEventHandler().
+                withEmptyEventHandler().
+                withPublicKeyEventHandler()
+                .withSignatureEventHandler()
+                .withZoneFromEventHandler()
+                .mergeEvents();
+        publisher.start();
 
         blockIndex = new BlockIndex();
         sk1 = new BLSPrivateKey(1);
@@ -260,7 +279,7 @@ public class ConsensusTransactionTimer2Test {
         CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).put(vk6, "192.168.1.115");
 
 
-        commit.save(String.valueOf( CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration()), CachedLatestBlocks.getInstance().getCommitteeBlock());
+        commit.save(String.valueOf(CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration()), CachedLatestBlocks.getInstance().getCommitteeBlock());
         CachedZoneIndex.getInstance().setZoneIndexInternalIP();
 
 
@@ -288,10 +307,53 @@ public class ConsensusTransactionTimer2Test {
 
         TCPTransactionConsumer<byte[]> callback = x -> {
             Receipt receipt = recep.decode(x);
-            if (receipt.getReceiptBlock() != null)
-                MemoryReceiptPool.getInstance().add(receipt);
-            //  System.out.println(MemoryReceiptPool.getInstance().getAll().size());
-            return "";
+            CachedReceiptSemaphore.getInstance().getSemaphore().acquire();
+            if (receipt.getReceiptBlock() == null) {
+                CachedReceiptSemaphore.getInstance().getSemaphore().release();
+                return "";
+            }
+            List<String> ips = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(receipt.getZoneFrom()).values().stream().collect(Collectors.toList());
+            ips.remove(IPFinder.getLocalIP());
+            int RPCTransactionZonePort = ZoneDatabaseFactory.getDatabaseRPCPort(receipt.getZoneFrom());
+            ArrayList<InetSocketAddress> toConnectTransaction = new ArrayList<>();
+            ips.stream().forEach(ip -> {
+                try {
+                    toConnectTransaction.add(new InetSocketAddress(InetAddress.getByName(ip), RPCTransactionZonePort));
+                } catch (UnknownHostException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+            RpcAdrestusClient client = null;
+            try {
+                client = new RpcAdrestusClient(new TransactionBlock(), toConnectTransaction, CachedEventLoop.getInstance().getEventloop());
+                client.connect();
+
+                ArrayList<String> to_search = new ArrayList<>();
+                to_search.add(String.valueOf(receipt.getReceiptBlock().getHeight()));
+
+                List<TransactionBlock> currentblock = client.getBlock(to_search);
+                if (currentblock.isEmpty()) {
+                    CachedReceiptSemaphore.getInstance().getSemaphore().release();
+                    return "";
+                }
+
+                int index = receipt.getPosition();
+                Transaction trx = currentblock.get(currentblock.size() - 1).getTransactionList().get(index);
+
+                ReceiptBlock receiptBlock1 = new ReceiptBlock(StatusType.PENDING, receipt, currentblock.get(currentblock.size() - 1), trx);
+
+
+                publisher.publish(receiptBlock1);
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                if (client != null) {
+                    client.close();
+                    client = null;
+                }
+                CachedReceiptSemaphore.getInstance().getSemaphore().release();
+                return "";
+            }
         };
 
         TransactionChannelHandler transactionChannelHandler = new TransactionChannelHandler<byte[]>(IPFinder.getLocal_address());
@@ -386,20 +448,21 @@ public class ConsensusTransactionTimer2Test {
         addreses_old = new ArrayList<>(addreses);
         //add latch 6 for zone 1
         //add latch 9 for validators on zone 0
-        if(CachedZoneIndex.getInstance().getZoneIndex()==0){
-            Thread.sleep(3000);
+        if (CachedZoneIndex.getInstance().getZoneIndex() == 0) {
+            Thread.sleep(4300);
         }
         CountDownLatch latch = new CountDownLatch(6);
         ConsensusTransaction2Timer c = new ConsensusTransaction2Timer(latch, addreses, keypair);
         latch.await();
         c.close();
+        Thread.sleep(6300);
         variable = true;
 
         for (int i = 0; i < addreses.size() - 1; i++) {
             System.out.println(addreses.get(i) + " " + TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(addreses.get(i)).get().getAmount());
         }
         if (CachedZoneIndex.getInstance().getZoneIndex() == 0) {
-            assertEquals(947.1999999999999, TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(addreses.get(6)).get().getAmount());
+            assertEquals(974.1999999999999, TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(addreses.get(6)).get().getAmount());
         }
         if (CachedZoneIndex.getInstance().getZoneIndex() == 0) {
             assertEquals(1018, TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(addreses.get(1)).get().getAmount());

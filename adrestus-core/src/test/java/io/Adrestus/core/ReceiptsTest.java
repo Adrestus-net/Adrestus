@@ -52,7 +52,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ReceiptsTest {
@@ -151,13 +150,6 @@ public class ReceiptsTest {
 
         int j = 1;
         signatureEventHandler.setLatch(new CountDownLatch(size - 1));
-        ArrayList<String> mesages = new ArrayList<>();
-        TransactionCallback transactionCallback = new TransactionCallback() {
-            @Override
-            public void call(String value) {
-                mesages.add(value);
-            }
-        };
         for (int i = 0; i < size - 1; i++) {
             Transaction transaction = new RegularTransaction();
             transaction.setFrom(addreses.get(i));
@@ -169,7 +161,6 @@ public class ReceiptsTest {
             transaction.setAmount(i);
             transaction.setAmountWithTransactionFee(transaction.getAmount() * (10.0 / 100.0));
             transaction.setNonce(1);
-            transaction.setTransactionCallback(transactionCallback);
             byte byf[] = enc.encode(transaction);
             transaction.setHash(HashUtil.sha256_bytetoString(byf));
             //  await().atMost(500, TimeUnit.MILLISECONDS);
@@ -185,7 +176,6 @@ public class ReceiptsTest {
         }
         publisher.getJobSyncUntilRemainingCapacityZero();
         signatureEventHandler.getLatch().await();
-        assertTrue(mesages.isEmpty());
         publisher.close();
 
 

@@ -87,7 +87,7 @@ public class PatriciaNodeStorageTest {
 
         ReceiptBlock receiptBlock = new ReceiptBlock();
         Transaction a = new RegularTransaction();
-        a.setFrom("From1a");
+        a.setTo("From1a");
         receiptBlock.setReceipt(receipt1);
         receiptBlock.setTransaction(a);
         publisher.publish(receiptBlock);

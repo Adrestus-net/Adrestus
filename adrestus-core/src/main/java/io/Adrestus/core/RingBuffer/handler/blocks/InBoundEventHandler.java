@@ -28,7 +28,7 @@ public class InBoundEventHandler implements BlockEventHandler<AbstractBlockEvent
     private static Logger LOG = LoggerFactory.getLogger(InBoundEventHandler.class);
     private final IBlockIndex blockIndex;
 
-    private TransactionBlock transactionBlock;
+    private TransactionBlock transactionBlock, transactionBlockClonable;
     private CommitteeBlock committeeBlock;
     private LinkedHashMap<Integer, LinkedHashMap<Receipt.ReceiptBlock, List<Receipt>>> inner_receipts;
     private AtomicInteger atomicInteger;
@@ -41,11 +41,12 @@ public class InBoundEventHandler implements BlockEventHandler<AbstractBlockEvent
     @SneakyThrows
     @Override
     public void onEvent(AbstractBlockEvent blockEvent, long l, boolean b) throws InterruptedException {
-        transactionBlock = (TransactionBlock) blockEvent.getBlock().clone();
+        transactionBlock = (TransactionBlock) blockEvent.getBlock();
+        transactionBlockClonable = (TransactionBlock) blockEvent.getBlock().clone();
         committeeBlock = CachedLatestBlocks.getInstance().getCommitteeBlock();
-        inner_receipts = transactionBlock.getInbound().getMap_receipts();
+        inner_receipts = transactionBlockClonable.getInbound().getMap_receipts();
 
-        if (transactionBlock.getInbound().getMap_receipts().isEmpty())
+        if (transactionBlockClonable.getInbound().getMap_receipts().isEmpty())
             return;
 
         if (inner_receipts.size() > 3) {
@@ -62,7 +63,7 @@ public class InBoundEventHandler implements BlockEventHandler<AbstractBlockEvent
             }
         })));
 
-        Collections.sort(transactionBlock.getTransactionList());
+        Collections.sort(transactionBlockClonable.getTransactionList());
         Set<Integer> keyset = inner_receipts.keySet();
 
 
@@ -110,7 +111,7 @@ public class InBoundEventHandler implements BlockEventHandler<AbstractBlockEvent
                 receiptZoneIndex = inner_receipts.keySet().stream().findFirst().get();
                 String IP = "";
                 for (Integer BlockZoneIndex : committeeBlock.getStructureMap().keySet()) {
-                    if (BlockZoneIndex == receiptZoneIndex) {
+                    if (Objects.equals(BlockZoneIndex, receiptZoneIndex)) {
 
                         //Fill in the list with auto increment positions of Linkdhasamp ip where zone index belong
                         List<Integer> searchable_list = IntStream

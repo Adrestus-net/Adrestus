@@ -1,5 +1,6 @@
 package io.Adrestus.core;
 
+import io.Adrestus.Trie.MerkleProofs;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.core.Resourses.MemoryReceiptPool;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
@@ -33,6 +34,20 @@ public class MemoryReceiptPoolTest {
         int count = (int) MemoryReceiptPool.getInstance().getAllStream().count();
         MemoryReceiptPool.getInstance().add(receipt);
         MemoryReceiptPool.getInstance().add(receipt);
+        assertEquals(count + 1, MemoryReceiptPool.getInstance().getAllStream().count());
+        assertNotEquals(count + 2, MemoryReceiptPool.getInstance().getAllStream().count());
+    }
+
+    @Test
+    //@Order(1)
+    public void chek_duplicate2() throws Exception {
+        MemoryReceiptPool.getInstance().getAll().clear();
+
+        Receipt receipt = new Receipt(0, 1, new Receipt.ReceiptBlock(1, 1, "as"), 1, null);
+        Receipt receipt1 = new Receipt(0, 1, new Receipt.ReceiptBlock(1, 1, "as"), 1, new MerkleProofs());
+        int count = (int) MemoryReceiptPool.getInstance().getAllStream().count();
+        MemoryReceiptPool.getInstance().add(receipt);
+        MemoryReceiptPool.getInstance().add(receipt1);
         assertEquals(count + 1, MemoryReceiptPool.getInstance().getAllStream().count());
         assertNotEquals(count + 2, MemoryReceiptPool.getInstance().getAllStream().count());
     }

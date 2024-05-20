@@ -23,9 +23,10 @@ public class OutBoundEventHandler implements BlockEventHandler<AbstractBlockEven
 
     @Override
     public void onEvent(AbstractBlockEvent blockEvent, long l, boolean b) throws Exception {
-        TransactionBlock transactionBlock = (TransactionBlock) blockEvent.getBlock().clone();
-        final LinkedHashMap<Integer, LinkedHashMap<Receipt.ReceiptBlock, List<Receipt>>> outer_receipts = transactionBlock.getOutbound().getMap_receipts();
-        if (transactionBlock.getOutbound().getMap_receipts().isEmpty())
+        TransactionBlock transactionBlock = (TransactionBlock) blockEvent.getBlock();
+        TransactionBlock transactionBlockclonable = (TransactionBlock) blockEvent.getBlock().clone();
+        final LinkedHashMap<Integer, LinkedHashMap<Receipt.ReceiptBlock, List<Receipt>>> outer_receipts = transactionBlockclonable.getOutbound().getMap_receipts();
+        if (transactionBlockclonable.getOutbound().getMap_receipts().isEmpty())
             return;
 
         if (outer_receipts.size() > 3) {
@@ -41,7 +42,7 @@ public class OutBoundEventHandler implements BlockEventHandler<AbstractBlockEven
             }
         })));
 
-        Collections.sort(transactionBlock.getTransactionList());
+        Collections.sort(transactionBlockclonable.getTransactionList());
         ExecutorService service = Executors.newFixedThreadPool(3);
         Set<Integer> keyset = outer_receipts.keySet();
 
@@ -53,8 +54,8 @@ public class OutBoundEventHandler implements BlockEventHandler<AbstractBlockEven
             service.submit(() -> {
                 for (Map.Entry<Receipt.ReceiptBlock, List<Receipt>> entry : zone_1.entrySet()) {
                     entry.getValue().stream().forEach(receipt -> {
-                        Transaction transaction = transactionBlock.getTransactionList().get(receipt.getPosition());
-                        boolean check = PreconditionsChecks(receipt, entry.getKey(), transactionBlock, transaction, receipt.getPosition());
+                        Transaction transaction = transactionBlockclonable.getTransactionList().get(receipt.getPosition());
+                        boolean check = PreconditionsChecks(receipt, entry.getKey(), transactionBlockclonable, transaction, receipt.getPosition());
                         if (!check)
                             atomicInteger.decrementAndGet();
                     });
@@ -69,8 +70,8 @@ public class OutBoundEventHandler implements BlockEventHandler<AbstractBlockEven
             service.submit(() -> {
                 for (Map.Entry<Receipt.ReceiptBlock, List<Receipt>> entry : zone_2.entrySet()) {
                     entry.getValue().stream().forEach(receipt -> {
-                        Transaction transaction = transactionBlock.getTransactionList().get(receipt.getPosition());
-                        boolean check = PreconditionsChecks(receipt, entry.getKey(), transactionBlock, transaction, receipt.getPosition());
+                        Transaction transaction = transactionBlockclonable.getTransactionList().get(receipt.getPosition());
+                        boolean check = PreconditionsChecks(receipt, entry.getKey(), transactionBlockclonable, transaction, receipt.getPosition());
                         if (!check)
                             atomicInteger.decrementAndGet();
                     });
@@ -85,8 +86,8 @@ public class OutBoundEventHandler implements BlockEventHandler<AbstractBlockEven
             service.submit(() -> {
                 for (Map.Entry<Receipt.ReceiptBlock, List<Receipt>> entry : zone_3.entrySet()) {
                     entry.getValue().stream().forEach(receipt -> {
-                        Transaction transaction = transactionBlock.getTransactionList().get(receipt.getPosition());
-                        boolean check = PreconditionsChecks(receipt, entry.getKey(), transactionBlock, transaction, receipt.getPosition());
+                        Transaction transaction = transactionBlockclonable.getTransactionList().get(receipt.getPosition());
+                        boolean check = PreconditionsChecks(receipt, entry.getKey(), transactionBlockclonable, transaction, receipt.getPosition());
                         if (!check)
                             atomicInteger.decrementAndGet();
                     });
