@@ -1,5 +1,6 @@
 package io.Adrestus.Trie;
 
+import io.activej.serializer.annotations.Serialize;
 import io.activej.serializer.annotations.SerializeNullable;
 
 import java.io.Serializable;
@@ -12,5 +13,8 @@ public interface PatriciaTreeReceiptMethods extends Serializable {
 
     List<StorageInfo> retrieveReceiptInfoByHash(String hash);
 
-    HashMap<Integer, @SerializeNullable ReceiptPointerStorage> getCapacities();
+    @Serialize
+    HashMap<Integer, @SerializeNullable ReceiptPointerStorage> getReceiptCapacities();
+
+    void SetReceiptCapacities(HashMap<Integer, @SerializeNullable ReceiptPointerStorage> receiptCapacities);
 }

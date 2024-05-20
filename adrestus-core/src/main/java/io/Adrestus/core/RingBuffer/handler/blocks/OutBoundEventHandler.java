@@ -23,7 +23,7 @@ public class OutBoundEventHandler implements BlockEventHandler<AbstractBlockEven
 
     @Override
     public void onEvent(AbstractBlockEvent blockEvent, long l, boolean b) throws Exception {
-        TransactionBlock transactionBlock = (TransactionBlock) blockEvent.getBlock();
+        TransactionBlock transactionBlock = (TransactionBlock) blockEvent.getBlock().clone();
         final LinkedHashMap<Integer, LinkedHashMap<Receipt.ReceiptBlock, List<Receipt>>> outer_receipts = transactionBlock.getOutbound().getMap_receipts();
         if (transactionBlock.getOutbound().getMap_receipts().isEmpty())
             return;
@@ -104,27 +104,6 @@ public class OutBoundEventHandler implements BlockEventHandler<AbstractBlockEven
             transactionBlock.setStatustype(StatusType.ABORT);
             return;
         }
-      /*  for (int i = 0; i < transactionBlock.getOutbound().getReceipt_list().size(); i++) {
-            //int index = Collections.binarySearch(transactionBlock.getTransactionList(), transactionBlock.getOutbound().getOutbound().get(i).);
-        }
-        ExecutorService service = Executors.newFixedThreadPool(2);
-        CountDownLatch latch=new CountDownLatch(1);
-        service.submit(()->{
-            try {
-                latch.await();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        });
-
-        service.submit(()->{
-            LinkedHashMap<BLSPublicKey,String> map= CachedLatestBlocks
-                    .getInstance()
-                    .getCommitteeBlock()
-                    .getStructureMap()
-                    .get(CachedZoneIndex.getInstance().getZoneIndex());
-            latch.countDown();
-        });*/
     }
 
     public boolean PreconditionsChecks(final Receipt receipt, final Receipt.ReceiptBlock receiptBlock, final TransactionBlock transactionBlock, Transaction transaction, int index) {

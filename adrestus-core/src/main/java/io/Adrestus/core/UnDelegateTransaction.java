@@ -2,7 +2,7 @@ package io.Adrestus.core;
 
 import io.Adrestus.crypto.elliptic.ECDSASignatureData;
 
-public class UnDelegateTransaction extends DelegateTransaction{
+public class UnDelegateTransaction extends DelegateTransaction {
 
     public UnDelegateTransaction(String delegatorAddress, String validatorAddress) {
         super(delegatorAddress, validatorAddress);
@@ -39,7 +39,7 @@ public class UnDelegateTransaction extends DelegateTransaction{
 
     @Override
     public void infos(String value) {
-        if(this.transactionCallback==null)
+        if (this.transactionCallback == null)
             return;
         this.transactionCallback.call(value);
     }

@@ -13,8 +13,8 @@ public class UnStakingTransactionTreePoolEntry implements TransactionTreePoolEnt
     @Override
     public void ForgeEntriesBuilder(IMemoryTreePool memoryTreePool) {
         stakingList.forEach(transaction -> {
-            memoryTreePool.withdraw(PatriciaTreeTransactionType.UNSTAKING,transaction.getValidatorAddress(), transaction.getAmount(),transaction.getAmountWithTransactionFee());
-            memoryTreePool.deposit(PatriciaTreeTransactionType.UNSTAKING,transaction.getValidatorAddress(), transaction.getAmount(),transaction.getAmountWithTransactionFee());
+            memoryTreePool.withdraw(PatriciaTreeTransactionType.UNSTAKING, transaction.getValidatorAddress(), transaction.getAmount(), transaction.getAmountWithTransactionFee());
+            memoryTreePool.deposit(PatriciaTreeTransactionType.UNSTAKING, transaction.getValidatorAddress(), transaction.getAmount(), transaction.getAmountWithTransactionFee());
         });
     }
 
@@ -23,8 +23,8 @@ public class UnStakingTransactionTreePoolEntry implements TransactionTreePoolEnt
         for (int i = 0; i < stakingList.size(); i++) {
             StakingTransaction transaction = stakingList.get(i);
             memoryTreePool.getByaddress(transaction.getValidatorAddress()).get().addTransactionPosition(PatriciaTreeTransactionType.valueOf(transaction.getType().toString()), transaction.getHash(), CachedZoneIndex.getInstance().getZoneIndex(), blockHeight, i);
-            memoryTreePool.withdraw(PatriciaTreeTransactionType.UNSTAKING,transaction.getValidatorAddress(), transaction.getAmount(),transaction.getAmountWithTransactionFee());
-            memoryTreePool.deposit(PatriciaTreeTransactionType.UNSTAKING,transaction.getValidatorAddress(), transaction.getAmount(),transaction.getAmountWithTransactionFee());
+            memoryTreePool.withdraw(PatriciaTreeTransactionType.UNSTAKING, transaction.getValidatorAddress(), transaction.getAmount(), transaction.getAmountWithTransactionFee());
+            memoryTreePool.deposit(PatriciaTreeTransactionType.UNSTAKING, transaction.getValidatorAddress(), transaction.getAmount(), transaction.getAmountWithTransactionFee());
         }
     }
 

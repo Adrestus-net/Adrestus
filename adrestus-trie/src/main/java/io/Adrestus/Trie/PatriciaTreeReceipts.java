@@ -70,8 +70,13 @@ public class PatriciaTreeReceipts implements PatriciaTreeReceiptMethods, Seriali
 
     @Serialize
     @Override
-    public HashMap<Integer, @SerializeNullable ReceiptPointerStorage> getCapacities() {
+    public HashMap<Integer, @SerializeNullable ReceiptPointerStorage> getReceiptCapacities() {
         return receiptCapacities;
+    }
+
+    @Override
+    public void SetReceiptCapacities(HashMap<Integer, @SerializeNullable ReceiptPointerStorage> receiptCapacities) {
+        this.receiptCapacities = receiptCapacities;
     }
 
     public static boolean linkedEquals(HashMap<Integer, ReceiptPointerStorage> left, HashMap<Integer, ReceiptPointerStorage> right) {

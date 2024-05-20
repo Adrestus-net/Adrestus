@@ -177,8 +177,8 @@ public class BlockSync implements IBlockSync {
                             toSave.put(String.valueOf(val.getHeight()), val);
                             for (int i = 0; i < val.getTransactionList().size(); i++) {
                                 Transaction transaction = val.getTransactionList().get(i);
-                                TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(transaction.getFrom()).get().addTransactionPosition(PatriciaTreeTransactionType.valueOf(transaction.getType().toString()),transaction.getHash(), CachedZoneIndex.getInstance().getZoneIndex(), val.getHeight(), i);
-                                TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(transaction.getTo()).get().addTransactionPosition(PatriciaTreeTransactionType.valueOf(transaction.getType().toString()),transaction.getHash(), CachedZoneIndex.getInstance().getZoneIndex(), val.getHeight(), i);
+                                TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(transaction.getFrom()).get().addTransactionPosition(PatriciaTreeTransactionType.valueOf(transaction.getType().toString()), transaction.getHash(), CachedZoneIndex.getInstance().getZoneIndex(), val.getHeight(), i);
+                                TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(transaction.getTo()).get().addTransactionPosition(PatriciaTreeTransactionType.valueOf(transaction.getType().toString()), transaction.getHash(), CachedZoneIndex.getInstance().getZoneIndex(), val.getHeight(), i);
                             }
                         });
                     }
@@ -208,8 +208,8 @@ public class BlockSync implements IBlockSync {
                             toSave.put(String.valueOf(val.getHeight()), val);
                             for (int i = 0; i < val.getTransactionList().size(); i++) {
                                 Transaction transaction = val.getTransactionList().get(i);
-                                TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(transaction.getFrom()).get().addTransactionPosition(PatriciaTreeTransactionType.valueOf(transaction.getType().toString()),transaction.getHash(), CachedZoneIndex.getInstance().getZoneIndex(), val.getHeight(), i);
-                                TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(transaction.getTo()).get().addTransactionPosition(PatriciaTreeTransactionType.valueOf(transaction.getType().toString()),transaction.getHash(), CachedZoneIndex.getInstance().getZoneIndex(), val.getHeight(), i);
+                                TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(transaction.getFrom()).get().addTransactionPosition(PatriciaTreeTransactionType.valueOf(transaction.getType().toString()), transaction.getHash(), CachedZoneIndex.getInstance().getZoneIndex(), val.getHeight(), i);
+                                TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(transaction.getTo()).get().addTransactionPosition(PatriciaTreeTransactionType.valueOf(transaction.getType().toString()), transaction.getHash(), CachedZoneIndex.getInstance().getZoneIndex(), val.getHeight(), i);
                             }
                         });
                     }
@@ -337,8 +337,8 @@ public class BlockSync implements IBlockSync {
                                     toSave.put(String.valueOf(val.getHeight()), val);
                                     for (int i = 0; i < val.getTransactionList().size(); i++) {
                                         Transaction transaction = val.getTransactionList().get(i);
-                                        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(transaction.getFrom()).get().addTransactionPosition(PatriciaTreeTransactionType.valueOf(transaction.getType().toString()),transaction.getHash(), CachedZoneIndex.getInstance().getZoneIndex(), val.getHeight(), i);
-                                        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(transaction.getTo()).get().addTransactionPosition(PatriciaTreeTransactionType.valueOf(transaction.getType().toString()),transaction.getHash(), CachedZoneIndex.getInstance().getZoneIndex(), val.getHeight(), i);
+                                        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(transaction.getFrom()).get().addTransactionPosition(PatriciaTreeTransactionType.valueOf(transaction.getType().toString()), transaction.getHash(), CachedZoneIndex.getInstance().getZoneIndex(), val.getHeight(), i);
+                                        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(transaction.getTo()).get().addTransactionPosition(PatriciaTreeTransactionType.valueOf(transaction.getType().toString()), transaction.getHash(), CachedZoneIndex.getInstance().getZoneIndex(), val.getHeight(), i);
                                     }
                                 });
                             }
@@ -370,8 +370,8 @@ public class BlockSync implements IBlockSync {
                                     toSave.put(String.valueOf(val.getHeight()), val);
                                     for (int i = 0; i < val.getTransactionList().size(); i++) {
                                         Transaction transaction = val.getTransactionList().get(i);
-                                        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(transaction.getFrom()).get().addTransactionPosition(PatriciaTreeTransactionType.valueOf(transaction.getType().toString()),transaction.getHash(), CachedZoneIndex.getInstance().getZoneIndex(), val.getHeight(), i);
-                                        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(transaction.getTo()).get().addTransactionPosition(PatriciaTreeTransactionType.valueOf(transaction.getType().toString()),transaction.getHash(), CachedZoneIndex.getInstance().getZoneIndex(), val.getHeight(), i);
+                                        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(transaction.getFrom()).get().addTransactionPosition(PatriciaTreeTransactionType.valueOf(transaction.getType().toString()), transaction.getHash(), CachedZoneIndex.getInstance().getZoneIndex(), val.getHeight(), i);
+                                        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(transaction.getTo()).get().addTransactionPosition(PatriciaTreeTransactionType.valueOf(transaction.getType().toString()), transaction.getHash(), CachedZoneIndex.getInstance().getZoneIndex(), val.getHeight(), i);
                                     }
                                 });
                             }
@@ -573,8 +573,8 @@ public class BlockSync implements IBlockSync {
                             toSave.put(String.valueOf(val.getHeight()), val);
                             for (int i = 0; i < val.getTransactionList().size(); i++) {
                                 Transaction transaction = val.getTransactionList().get(i);
-                                TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(transaction.getFrom()).get().addTransactionPosition(PatriciaTreeTransactionType.valueOf(transaction.getType().toString()),transaction.getHash(), CachedZoneIndex.getInstance().getZoneIndex(), val.getHeight(), i);
-                                TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(transaction.getTo()).get().addTransactionPosition(PatriciaTreeTransactionType.valueOf(transaction.getType().toString()),transaction.getHash(), CachedZoneIndex.getInstance().getZoneIndex(), val.getHeight(), i);
+                                TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(transaction.getFrom()).get().addTransactionPosition(PatriciaTreeTransactionType.valueOf(transaction.getType().toString()), transaction.getHash(), CachedZoneIndex.getInstance().getZoneIndex(), val.getHeight(), i);
+                                TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(transaction.getTo()).get().addTransactionPosition(PatriciaTreeTransactionType.valueOf(transaction.getType().toString()), transaction.getHash(), CachedZoneIndex.getInstance().getZoneIndex(), val.getHeight(), i);
                             }
                         });
                     }
@@ -606,8 +606,8 @@ public class BlockSync implements IBlockSync {
                             toSave.put(String.valueOf(val.getHeight()), val);
                             for (int i = 0; i < val.getTransactionList().size(); i++) {
                                 Transaction transaction = val.getTransactionList().get(i);
-                                TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(transaction.getFrom()).get().addTransactionPosition(PatriciaTreeTransactionType.valueOf(transaction.getType().toString()),transaction.getHash(), CachedZoneIndex.getInstance().getZoneIndex(), val.getHeight(), i);
-                                TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(transaction.getTo()).get().addTransactionPosition(PatriciaTreeTransactionType.valueOf(transaction.getType().toString()),transaction.getHash(), CachedZoneIndex.getInstance().getZoneIndex(), val.getHeight(), i);
+                                TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(transaction.getFrom()).get().addTransactionPosition(PatriciaTreeTransactionType.valueOf(transaction.getType().toString()), transaction.getHash(), CachedZoneIndex.getInstance().getZoneIndex(), val.getHeight(), i);
+                                TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(transaction.getTo()).get().addTransactionPosition(PatriciaTreeTransactionType.valueOf(transaction.getType().toString()), transaction.getHash(), CachedZoneIndex.getInstance().getZoneIndex(), val.getHeight(), i);
                             }
                         });
                     }

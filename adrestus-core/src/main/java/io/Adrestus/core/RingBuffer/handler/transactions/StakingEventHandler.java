@@ -59,7 +59,7 @@ public class StakingEventHandler extends TransactionEventHandler implements Tran
             return;
         }
 
-        if(stakingInfo.getDetails().isEmpty() || stakingInfo.getIdentity().isEmpty() || stakingInfo.getName().isEmpty() ||stakingInfo.getWebsite().isEmpty() || stakingInfo.getCommissionRate()==0) {
+        if (stakingInfo.getDetails().isEmpty() || stakingInfo.getIdentity().isEmpty() || stakingInfo.getName().isEmpty() || stakingInfo.getWebsite().isEmpty() || stakingInfo.getCommissionRate() == 0) {
             if (stakingTransaction.getDetails().isEmpty() || stakingTransaction.getIdentity().isEmpty() || stakingTransaction.getName().isEmpty() || stakingTransaction.getWebsite().isEmpty() || stakingTransaction.getCommissionRate() == 0) {
                 Optional.of("Staking Transaction information is incorrect please add them before make make transaction abort").ifPresent(val -> {
                     LOG.info(val);

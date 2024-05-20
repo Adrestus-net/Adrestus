@@ -37,7 +37,7 @@ public class TreeZone3 implements ITreeZone {
 
     @Override
     public void clear() {
-        this.memoryTreePool=null;
-        instance=null;
+        this.memoryTreePool = null;
+        instance = null;
     }
 }

@@ -1,10 +1,7 @@
 package io.Adrestus.consensus.helper;
 
 import io.Adrestus.config.ConsensusConfiguration;
-import io.Adrestus.consensus.ConsensusManager;
-import io.Adrestus.consensus.ConsensusMessage;
-import io.Adrestus.consensus.ConsensusRoleType;
-import io.Adrestus.consensus.ConsensusType;
+import io.Adrestus.consensus.*;
 import io.Adrestus.core.*;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedLeaderIndex;
@@ -74,19 +71,19 @@ public class ConsensusTransaction2Timer {
         ArrayList<BLSPublicKey> keyList = new ArrayList<BLSPublicKey>(CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(activeZone).keySet());
         if (activeZone == 0) {
             if (CachedBLSKeyPair.getInstance().getPublicKey().equals(keyList.get(0))) {
-                SaveTransactions(activeZone, 6, 6);
+                SaveTransactions(6, 6);
             } else if (CachedBLSKeyPair.getInstance().getPublicKey().equals(keyList.get(1))) {
-                SaveTransactions(activeZone, 7, 7);
+                SaveTransactions(7, 7);
             } else if (CachedBLSKeyPair.getInstance().getPublicKey().equals(keyList.get(2))) {
-                SaveTransactions(activeZone, 8, 8);
+                SaveTransactions(8, 8);
             }
         } else if (activeZone == 1) {
             if (CachedBLSKeyPair.getInstance().getPublicKey().equals(keyList.get(0))) {
-                SaveTransactions(activeZone, 0, 1);
+                SaveTransactions(0, 1);
             } else if (CachedBLSKeyPair.getInstance().getPublicKey().equals(keyList.get(1))) {
-                SaveTransactions(activeZone, 2, 3);
+                SaveTransactions(2, 3);
             } else if (CachedBLSKeyPair.getInstance().getPublicKey().equals(keyList.get(2))) {
-                SaveTransactions(activeZone, 4, 5);
+                SaveTransactions(4, 5);
             }
         }
        /* if (CachedBLSKeyPair.getInstance().getPublicKey().equals(keyList.get(0))) {
@@ -105,7 +102,7 @@ public class ConsensusTransaction2Timer {
 
     }
 
-    private void SaveTransactions(int active_zone, int start, int stop) throws InterruptedException {
+    private void SaveTransactions(int start, int stop) throws InterruptedException {
         nonce++;
         for (int i = start; i <= stop; i++) {
             Transaction transaction = new RegularTransaction();
@@ -115,7 +112,6 @@ public class ConsensusTransaction2Timer {
             transaction.setTimestamp(GetTime.GetTimeStampInString());
             Thread.sleep(10);
             transaction.setZoneFrom(CachedZoneIndex.getInstance().getZoneIndex());
-            transaction.setZoneFrom(active_zone);
             transaction.setZoneTo(0);
             transaction.setAmount(i + 10);
             transaction.setAmountWithTransactionFee(transaction.getAmount() * (10.0 / 100.0));
@@ -203,6 +199,8 @@ public class ConsensusTransaction2Timer {
                 organizerphase.AnnouncePhase(consensusMessage);
                 organizerphase.PreparePhase(consensusMessage);
                 organizerphase.CommitPhase(consensusMessage);
+                if (consensusMessage.getStatusType().equals(ConsensusStatusType.ABORT))
+                    throw new IllegalArgumentException("Problem occured");
             } else {
                 LOG.info("VALIDATOR State");
                 consensusManager.changeStateTo(ConsensusRoleType.VALIDATOR);
@@ -212,6 +210,8 @@ public class ConsensusTransaction2Timer {
                 validatorphase.AnnouncePhase(consensusMessage);
                 validatorphase.PreparePhase(consensusMessage);
                 validatorphase.CommitPhase(consensusMessage);
+                if (consensusMessage.getStatusType().equals(ConsensusStatusType.ABORT))
+                    throw new IllegalArgumentException("Problem occured");
             }
             latch.countDown();
             MemoryTransactionPool.getInstance().clear();

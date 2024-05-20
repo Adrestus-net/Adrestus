@@ -73,7 +73,7 @@ public class ZoneEventHandler extends TransactionEventHandler implements Transac
         if (regularTransaction.getZoneFrom() != CachedZoneIndex.getInstance().getZoneIndex()) {
             ArrayList<StorageInfo> tosearch;
             try {
-                tosearch = (ArrayList<StorageInfo>) TreeFactory.getMemoryTree(regularTransaction.getZoneFrom()).getByaddress(regularTransaction.getFrom()).get().retrieveTransactionInfoByHash(PatriciaTreeTransactionType.REGULAR,regularTransaction.getHash());
+                tosearch = (ArrayList<StorageInfo>) TreeFactory.getMemoryTree(regularTransaction.getZoneFrom()).getByaddress(regularTransaction.getFrom()).get().retrieveTransactionInfoByHash(PatriciaTreeTransactionType.REGULAR, regularTransaction.getHash());
             } catch (NoSuchElementException e) {
                 return;
             }
@@ -139,7 +139,7 @@ public class ZoneEventHandler extends TransactionEventHandler implements Transac
                 LOG.info(val);
                 delegateTransaction.infos(val);
             });
-           delegateTransaction.setStatus(StatusType.ABORT);
+            delegateTransaction.setStatus(StatusType.ABORT);
             try {
                 SendAsync(delegateTransaction);
             } catch (Exception e) {

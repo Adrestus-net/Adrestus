@@ -99,7 +99,7 @@ public class TransactionStrategyTest {
 
 
         CachedZoneIndex.getInstance().setZoneIndex(0);
-        ArrayList<String>mesages = new ArrayList<>();
+        ArrayList<String> mesages = new ArrayList<>();
         TransactionCallback transactionCallback = new TransactionCallback() {
             @Override
             public void call(String value) {

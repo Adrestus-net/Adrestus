@@ -44,7 +44,10 @@ import org.spongycastle.util.encoders.Hex;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 
@@ -148,7 +151,7 @@ public class ReceiptsTest {
 
         int j = 1;
         signatureEventHandler.setLatch(new CountDownLatch(size - 1));
-        ArrayList<String>mesages = new ArrayList<>();
+        ArrayList<String> mesages = new ArrayList<>();
         TransactionCallback transactionCallback = new TransactionCallback() {
             @Override
             public void call(String value) {
@@ -432,7 +435,7 @@ public class ReceiptsTest {
                 .forEach(entry -> {
                     entry.getValue().stream().forEach(receipt -> {
                         Transaction trx = transactionBlock.getTransactionList().get(receipt.getPosition());
-                        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).deposit(PatriciaTreeTransactionType.REGULAR,trx.getFrom(), trx.getAmount(),trx.getAmountWithTransactionFee());
+                        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).deposit(PatriciaTreeTransactionType.REGULAR, trx.getFrom(), trx.getAmount(), trx.getAmountWithTransactionFee());
                         MemoryReceiptPool.getInstance().delete(receipt);
                     });
                 });

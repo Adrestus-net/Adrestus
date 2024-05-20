@@ -13,8 +13,8 @@ public class UnDelegateTransactionTreePoolEntry implements TransactionTreePoolEn
     @Override
     public void ForgeEntriesBuilder(IMemoryTreePool memoryTreePool) {
         undelegateList.forEach(transaction -> {
-            memoryTreePool.withdraw(PatriciaTreeTransactionType.UNDELEGATE,transaction.getValidatorAddress(), transaction.getAmount(),transaction.getAmountWithTransactionFee());
-            memoryTreePool.deposit(PatriciaTreeTransactionType.UNDELEGATE,transaction.getDelegatorAddress(),  transaction.getAmount(),transaction.getAmountWithTransactionFee());
+            memoryTreePool.withdraw(PatriciaTreeTransactionType.UNDELEGATE, transaction.getValidatorAddress(), transaction.getAmount(), transaction.getAmountWithTransactionFee());
+            memoryTreePool.deposit(PatriciaTreeTransactionType.UNDELEGATE, transaction.getDelegatorAddress(), transaction.getAmount(), transaction.getAmountWithTransactionFee());
         });
     }
 
@@ -24,8 +24,8 @@ public class UnDelegateTransactionTreePoolEntry implements TransactionTreePoolEn
             UnDelegateTransaction transaction = undelegateList.get(i);
             memoryTreePool.getByaddress(transaction.getDelegatorAddress()).get().addTransactionPosition(PatriciaTreeTransactionType.valueOf(transaction.getType().toString()), transaction.getHash(), CachedZoneIndex.getInstance().getZoneIndex(), blockHeight, i);
             memoryTreePool.getByaddress(transaction.getValidatorAddress()).get().addTransactionPosition(PatriciaTreeTransactionType.valueOf(transaction.getType().toString()), transaction.getHash(), CachedZoneIndex.getInstance().getZoneIndex(), blockHeight, i);
-            memoryTreePool.withdraw(PatriciaTreeTransactionType.UNDELEGATE,transaction.getValidatorAddress(), transaction.getAmount(),transaction.getAmountWithTransactionFee());
-            memoryTreePool.deposit(PatriciaTreeTransactionType.UNDELEGATE,transaction.getDelegatorAddress(), transaction.getAmount(),transaction.getAmountWithTransactionFee());
+            memoryTreePool.withdraw(PatriciaTreeTransactionType.UNDELEGATE, transaction.getValidatorAddress(), transaction.getAmount(), transaction.getAmountWithTransactionFee());
+            memoryTreePool.deposit(PatriciaTreeTransactionType.UNDELEGATE, transaction.getDelegatorAddress(), transaction.getAmount(), transaction.getAmountWithTransactionFee());
         }
     }
 

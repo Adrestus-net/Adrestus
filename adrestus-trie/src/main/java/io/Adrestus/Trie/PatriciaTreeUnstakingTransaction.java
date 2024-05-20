@@ -9,7 +9,7 @@ public class PatriciaTreeUnstakingTransaction implements PatriciaTreeTransaction
     private HashMap<Integer, @SerializeNullable TransactionPointerStorage> unstakingCapacities;
 
     public PatriciaTreeUnstakingTransaction() {
-        this.unstakingCapacities = new HashMap<Integer,TransactionPointerStorage>();
+        this.unstakingCapacities = new HashMap<Integer, TransactionPointerStorage>();
     }
 
     @Override
@@ -38,7 +38,7 @@ public class PatriciaTreeUnstakingTransaction implements PatriciaTreeTransaction
         if (this.unstakingCapacities.isEmpty())
             return new ArrayList<>(result);
 
-        for (Map.Entry<Integer,TransactionPointerStorage> entry : this.unstakingCapacities.entrySet()) {
+        for (Map.Entry<Integer, TransactionPointerStorage> entry : this.unstakingCapacities.entrySet()) {
             TransactionPointerStorage pointerStorage = entry.getValue();
             pointerStorage.getPositions().forEach((blockheight, value) -> value.forEach(pos -> {
                 if (pointerStorage.getFilter().contains(String.join("", hash, String.valueOf(entry.getKey()), String.valueOf(blockheight), String.valueOf(pos)))) {
@@ -66,7 +66,7 @@ public class PatriciaTreeUnstakingTransaction implements PatriciaTreeTransaction
         if (unstakingCapacities.isEmpty())
             return Optional.empty();
         int max = -1;
-        for (Map.Entry<Integer,TransactionPointerStorage> entry : unstakingCapacities.entrySet()) {
+        for (Map.Entry<Integer, TransactionPointerStorage> entry : unstakingCapacities.entrySet()) {
             if (entry.getKey() == zone) {
                 for (Map.Entry<Integer, HashSet<Integer>> entry2 : entry.getValue().getPositions().entrySet()) {
                     if (entry2.getKey() > max) {
@@ -78,13 +78,18 @@ public class PatriciaTreeUnstakingTransaction implements PatriciaTreeTransaction
         if (max == -1)
             return Optional.empty();
 
-        return Optional.of(new StorageInfo(max,unstakingCapacities.get(zone).getPositions().get(max)));
+        return Optional.of(new StorageInfo(max, unstakingCapacities.get(zone).getPositions().get(max)));
     }
 
     @Serialize
     @Override
     public HashMap<Integer, @SerializeNullable TransactionPointerStorage> getCapacities() {
         return unstakingCapacities;
+    }
+
+    @Override
+    public void setCapacities(HashMap<Integer, @SerializeNullable TransactionPointerStorage> capacities) {
+        this.unstakingCapacities = capacities;
     }
 
     private static boolean linkedEquals(HashMap<Integer, TransactionPointerStorage> left, HashMap<Integer, TransactionPointerStorage> right) {

@@ -13,8 +13,8 @@ public class StakingTransactionTreePoolEntry implements TransactionTreePoolEntri
     @Override
     public void ForgeEntriesBuilder(IMemoryTreePool memoryTreePool) {
         stakingList.forEach(transaction -> {
-            memoryTreePool.withdraw(PatriciaTreeTransactionType.STAKING,transaction.getValidatorAddress(), transaction.getAmount(),transaction.getAmountWithTransactionFee());
-            memoryTreePool.deposit(PatriciaTreeTransactionType.STAKING,transaction.getValidatorAddress(), transaction.getAmount(),transaction.getAmountWithTransactionFee());
+            memoryTreePool.withdraw(PatriciaTreeTransactionType.STAKING, transaction.getValidatorAddress(), transaction.getAmount(), transaction.getAmountWithTransactionFee());
+            memoryTreePool.deposit(PatriciaTreeTransactionType.STAKING, transaction.getValidatorAddress(), transaction.getAmount(), transaction.getAmountWithTransactionFee());
         });
     }
 
@@ -23,8 +23,8 @@ public class StakingTransactionTreePoolEntry implements TransactionTreePoolEntri
         for (int i = 0; i < stakingList.size(); i++) {
             StakingTransaction transaction = stakingList.get(i);
             memoryTreePool.getByaddress(transaction.getValidatorAddress()).get().addTransactionPosition(PatriciaTreeTransactionType.valueOf(transaction.getType().toString()), transaction.getHash(), CachedZoneIndex.getInstance().getZoneIndex(), blockHeight, i);
-            memoryTreePool.withdraw(PatriciaTreeTransactionType.STAKING,transaction.getValidatorAddress(), transaction.getAmount(),transaction.getAmountWithTransactionFee());
-            memoryTreePool.deposit(PatriciaTreeTransactionType.STAKING,transaction.getValidatorAddress(), transaction.getAmount(),transaction.getAmountWithTransactionFee());
+            memoryTreePool.withdraw(PatriciaTreeTransactionType.STAKING, transaction.getValidatorAddress(), transaction.getAmount(), transaction.getAmountWithTransactionFee());
+            memoryTreePool.deposit(PatriciaTreeTransactionType.STAKING, transaction.getValidatorAddress(), transaction.getAmount(), transaction.getAmountWithTransactionFee());
         }
     }
 

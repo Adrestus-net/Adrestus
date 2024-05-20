@@ -3,14 +3,13 @@ package io.Adrestus.Trie;
 import io.activej.serializer.annotations.Serialize;
 import io.activej.serializer.annotations.SerializeNullable;
 
-import java.io.Serializable;
 import java.util.*;
 
 public class PatriciaTreeRewardsTransaction implements PatriciaTreeTransactionMethods {
     private HashMap<Integer, @SerializeNullable TransactionPointerStorage> rewardsCapacities;
 
     public PatriciaTreeRewardsTransaction() {
-        this.rewardsCapacities = new HashMap<Integer,TransactionPointerStorage>();
+        this.rewardsCapacities = new HashMap<Integer, TransactionPointerStorage>();
     }
 
     @Override
@@ -39,7 +38,7 @@ public class PatriciaTreeRewardsTransaction implements PatriciaTreeTransactionMe
         if (this.rewardsCapacities.isEmpty())
             return new ArrayList<>(result);
 
-        for (Map.Entry<Integer,TransactionPointerStorage> entry : this.rewardsCapacities.entrySet()) {
+        for (Map.Entry<Integer, TransactionPointerStorage> entry : this.rewardsCapacities.entrySet()) {
             TransactionPointerStorage pointerStorage = entry.getValue();
             pointerStorage.getPositions().forEach((blockheight, value) -> value.forEach(pos -> {
                 if (pointerStorage.getFilter().contains(String.join("", hash, String.valueOf(entry.getKey()), String.valueOf(blockheight), String.valueOf(pos)))) {
@@ -67,7 +66,7 @@ public class PatriciaTreeRewardsTransaction implements PatriciaTreeTransactionMe
         if (rewardsCapacities.isEmpty())
             return Optional.empty();
         int max = -1;
-        for (Map.Entry<Integer,TransactionPointerStorage> entry : rewardsCapacities.entrySet()) {
+        for (Map.Entry<Integer, TransactionPointerStorage> entry : rewardsCapacities.entrySet()) {
             if (entry.getKey() == zone) {
                 for (Map.Entry<Integer, HashSet<Integer>> entry2 : entry.getValue().getPositions().entrySet()) {
                     if (entry2.getKey() > max) {
@@ -79,13 +78,18 @@ public class PatriciaTreeRewardsTransaction implements PatriciaTreeTransactionMe
         if (max == -1)
             return Optional.empty();
 
-        return Optional.of(new StorageInfo(max,rewardsCapacities.get(zone).getPositions().get(max)));
+        return Optional.of(new StorageInfo(max, rewardsCapacities.get(zone).getPositions().get(max)));
     }
 
     @Serialize
     @Override
     public HashMap<Integer, @SerializeNullable TransactionPointerStorage> getCapacities() {
         return rewardsCapacities;
+    }
+
+    @Override
+    public void setCapacities(HashMap<Integer, @SerializeNullable TransactionPointerStorage> capacities) {
+        this.rewardsCapacities = capacities;
     }
 
     private static boolean linkedEquals(HashMap<Integer, TransactionPointerStorage> left, HashMap<Integer, TransactionPointerStorage> right) {

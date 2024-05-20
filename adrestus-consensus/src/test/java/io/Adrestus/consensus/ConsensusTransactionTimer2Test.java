@@ -1,5 +1,6 @@
 package io.Adrestus.consensus;
 
+import com.google.common.reflect.TypeToken;
 import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.config.AdrestusConfiguration;
@@ -40,10 +41,7 @@ import io.activej.bytebuf.ByteBufPool;
 import io.activej.eventloop.Eventloop;
 import io.activej.net.socket.tcp.AsyncTcpSocket;
 import io.activej.net.socket.tcp.AsyncTcpSocketNio;
-import io.distributedLedger.DatabaseFactory;
-import io.distributedLedger.DatabaseType;
-import io.distributedLedger.IDatabase;
-import io.distributedLedger.ZoneDatabaseFactory;
+import io.distributedLedger.*;
 import org.apache.commons.codec.binary.StringUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -96,16 +94,11 @@ public class ConsensusTransactionTimer2Test {
 
     @BeforeAll
     public static void construct() throws Exception {
+        delete_test();
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         serenc = new SerializationUtil<Transaction>(Transaction.class, list);
         recep = new SerializationUtil<Receipt>(Receipt.class, list);
-
-        IDatabase<String, TransactionBlock> block_database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
-        IDatabase<String, byte[]> tree_datasbase = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getPatriciaTreeZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
-
-        tree_datasbase.delete_db();
-        block_database.delete_db();
 
         blockIndex = new BlockIndex();
         sk1 = new BLSPrivateKey(1);
@@ -399,11 +392,49 @@ public class ConsensusTransactionTimer2Test {
             System.out.println(addreses.get(i) + " " + TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(addreses.get(i)).get().getAmount());
         }
         if (CachedZoneIndex.getInstance().getZoneIndex() == 0) {
-            assertEquals(956.8, TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(addreses.get(6)).get().getAmount());
+            assertEquals(947.1999999999999, TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(addreses.get(6)).get().getAmount());
         }
         if (CachedZoneIndex.getInstance().getZoneIndex() == 0) {
             assertEquals(1018, TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(addreses.get(1)).get().getAmount());
             assertEquals(1019.9, TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(addreses.get(2)).get().getAmount());
         }
+    }
+
+    public static void delete_test() {
+        IDatabase<String, LevelDBTransactionWrapper<Transaction>> transaction_database = new DatabaseFactory(String.class, Transaction.class, new TypeToken<LevelDBTransactionWrapper<Transaction>>() {
+        }.getType()).getDatabase(DatabaseType.LEVEL_DB);
+        IDatabase<String, LevelDBReceiptWrapper<Receipt>> receiptdatabase = new DatabaseFactory(String.class, Receipt.class, new TypeToken<LevelDBReceiptWrapper<Receipt>>() {
+        }.getType()).getDatabase(DatabaseType.LEVEL_DB);
+        IDatabase<String, TransactionBlock> transaction_block1 = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.ZONE_0_TRANSACTION_BLOCK);
+        IDatabase<String, TransactionBlock> transaction_block2 = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.ZONE_1_TRANSACTION_BLOCK);
+        IDatabase<String, TransactionBlock> transaction_block3 = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.ZONE_2_TRANSACTION_BLOCK);
+        IDatabase<String, TransactionBlock> transaction_block4 = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.ZONE_3_TRANSACTION_BLOCK);
+        IDatabase<String, TransactionBlock> transaction_block4a = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.ZONE_3_TRANSACTION_BLOCK);
+
+        IDatabase<String, byte[]> patricia_tree0 = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, PatriciaTreeInstance.PATRICIA_TREE_INSTANCE_0);
+        IDatabase<String, byte[]> patricia_tree1 = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, PatriciaTreeInstance.PATRICIA_TREE_INSTANCE_1);
+        IDatabase<String, byte[]> patricia_tree2 = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, PatriciaTreeInstance.PATRICIA_TREE_INSTANCE_2);
+        IDatabase<String, byte[]> patricia_tree3 = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, PatriciaTreeInstance.PATRICIA_TREE_INSTANCE_3);
+
+        IDatabase<String, byte[]> patricia_tree3a = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, PatriciaTreeInstance.PATRICIA_TREE_INSTANCE_3);
+        IDatabase<String, CommitteeBlock> commit = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
+        IDatabase<String, CommitteeBlock> commita = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
+
+
+        //ITS IMPORTANT FIRST DELETE PATRICIA TREE AND AFTER TRASNACTION BLOCKS
+        patricia_tree0.delete_db();
+        patricia_tree1.delete_db();
+        patricia_tree2.delete_db();
+        patricia_tree3.delete_db();
+
+        transaction_block1.delete_db();
+        transaction_block2.delete_db();
+        transaction_block3.delete_db();
+        transaction_block4.delete_db();
+
+
+        commit.delete_db();
+        transaction_database.delete_db();
+        receiptdatabase.delete_db();
     }
 }

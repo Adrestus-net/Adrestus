@@ -87,6 +87,11 @@ public class PatriciaTreeRegularTransaction implements PatriciaTreeTransactionMe
         return regularCapacities;
     }
 
+    @Override
+    public void setCapacities(HashMap<Integer, @SerializeNullable TransactionPointerStorage> capacities) {
+        this.regularCapacities = capacities;
+    }
+
     private static boolean linkedEquals(HashMap<Integer, TransactionPointerStorage> left, HashMap<Integer, TransactionPointerStorage> right) {
         if (left.size() != right.size())
             return false;

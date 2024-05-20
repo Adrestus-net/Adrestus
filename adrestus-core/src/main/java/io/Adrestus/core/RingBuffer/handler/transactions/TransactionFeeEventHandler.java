@@ -32,7 +32,7 @@ public class TransactionFeeEventHandler extends TransactionEventHandler implemen
         if (regularTransaction.getAmountWithTransactionFee() != ((FEES / PERCENT) * regularTransaction.getAmount())) {
             Optional.of("RegularTransaction fee calculator is incorrect").ifPresent(val -> {
                 LOG.info(val);
-               regularTransaction.infos(val);
+                regularTransaction.infos(val);
             });
             regularTransaction.setStatus(StatusType.ABORT);
         }

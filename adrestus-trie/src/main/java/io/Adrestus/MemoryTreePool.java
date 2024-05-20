@@ -93,10 +93,10 @@ public class MemoryTreePool implements IMemoryTreePool, Cloneable {
     //be aware that print functionality is  different
     @SneakyThrows
     @Override
-    public void deposit(PatriciaTreeTransactionType type, String address, double amount,double fees) {
+    public void deposit(PatriciaTreeTransactionType type, String address, double amount, double fees) {
         w.lock();
         try {
-            this.transactionsMap.get(type).deposit(this.patriciaTreeImp, address, amount,fees);
+            this.transactionsMap.get(type).deposit(this.patriciaTreeImp, address, amount, fees);
         } finally {
             w.unlock();
         }
@@ -106,10 +106,10 @@ public class MemoryTreePool implements IMemoryTreePool, Cloneable {
     //be aware that print functionality is  different
     @SneakyThrows
     @Override
-    public void withdraw(PatriciaTreeTransactionType type, String address, double amount,double fees) {
+    public void withdraw(PatriciaTreeTransactionType type, String address, double amount, double fees) {
         w.lock();
         try {
-            this.transactionsMap.get(type).withdraw(this.patriciaTreeImp, address, amount,fees);
+            this.transactionsMap.get(type).withdraw(this.patriciaTreeImp, address, amount, fees);
         } finally {
             w.unlock();
         }

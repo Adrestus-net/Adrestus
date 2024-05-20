@@ -138,7 +138,7 @@ public class ReceiptPublisherTest {
 
         int j = 1;
         signatureEventHandler.setLatch(new CountDownLatch(size - 1));
-        ArrayList<String>mesages = new ArrayList<>();
+        ArrayList<String> mesages = new ArrayList<>();
         TransactionCallback transactionCallback = new TransactionCallback() {
             @Override
             public void call(String value) {

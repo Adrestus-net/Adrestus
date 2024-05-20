@@ -11,6 +11,7 @@ import io.Adrestus.crypto.bls.model.CachedBLSKeyPair;
 import io.Adrestus.network.CachedEventLoop;
 import io.Adrestus.rpc.RpcAdrestusClient;
 import io.distributedLedger.ZoneDatabaseFactory;
+import lombok.SneakyThrows;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,9 +38,10 @@ public class InBoundEventHandler implements BlockEventHandler<AbstractBlockEvent
         this.blockIndex = new BlockIndex();
     }
 
+    @SneakyThrows
     @Override
     public void onEvent(AbstractBlockEvent blockEvent, long l, boolean b) throws InterruptedException {
-        transactionBlock = (TransactionBlock) blockEvent.getBlock();
+        transactionBlock = (TransactionBlock) blockEvent.getBlock().clone();
         committeeBlock = CachedLatestBlocks.getInstance().getCommitteeBlock();
         inner_receipts = transactionBlock.getInbound().getMap_receipts();
 

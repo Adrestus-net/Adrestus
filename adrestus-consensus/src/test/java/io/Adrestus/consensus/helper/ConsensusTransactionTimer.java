@@ -88,7 +88,7 @@ public class ConsensusTransactionTimer {
         nonce++;
 
         for (int i = start; i <= stop; i++) {
-            if(i==0 && TreeFactory.getMemoryTree(0).getByaddress(addreses.get(0)).get().getUnclaimed_reward()>0){
+            if (i == 0 && TreeFactory.getMemoryTree(0).getByaddress(addreses.get(0)).get().getUnclaimed_reward() > 0) {
                 RewardsTransaction rewardsTransaction = new RewardsTransaction();
                 rewardsTransaction.setRecipientAddress(addreses.get(0));
                 rewardsTransaction.setTo("");
@@ -107,8 +107,7 @@ public class ConsensusTransactionTimer {
                 rewardsTransaction.setSignature(signatureData);
                 //MemoryPool.getInstance().add(transaction);
                 MemoryTransactionPool.getInstance().add(rewardsTransaction);
-            }
-            else {
+            } else {
                 Transaction transaction = new RegularTransaction();
                 transaction.setFrom(addreses.get(i));
                 transaction.setTo(addreses.get(i + 1));

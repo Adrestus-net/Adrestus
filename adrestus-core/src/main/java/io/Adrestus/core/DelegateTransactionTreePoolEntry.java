@@ -13,8 +13,8 @@ public class DelegateTransactionTreePoolEntry implements TransactionTreePoolEntr
     @Override
     public void ForgeEntriesBuilder(IMemoryTreePool memoryTreePool) {
         delegateList.forEach(transaction -> {
-            memoryTreePool.withdraw(PatriciaTreeTransactionType.DELEGATE,transaction.getDelegatorAddress(), transaction.getAmount(),transaction.getAmountWithTransactionFee());
-            memoryTreePool.deposit(PatriciaTreeTransactionType.DELEGATE,transaction.getValidatorAddress(), transaction.getAmount(),transaction.getAmountWithTransactionFee());
+            memoryTreePool.withdraw(PatriciaTreeTransactionType.DELEGATE, transaction.getDelegatorAddress(), transaction.getAmount(), transaction.getAmountWithTransactionFee());
+            memoryTreePool.deposit(PatriciaTreeTransactionType.DELEGATE, transaction.getValidatorAddress(), transaction.getAmount(), transaction.getAmountWithTransactionFee());
         });
     }
 
@@ -24,8 +24,8 @@ public class DelegateTransactionTreePoolEntry implements TransactionTreePoolEntr
             DelegateTransaction transaction = delegateList.get(i);
             memoryTreePool.getByaddress(transaction.getDelegatorAddress()).get().addTransactionPosition(PatriciaTreeTransactionType.valueOf(transaction.getType().toString()), transaction.getHash(), CachedZoneIndex.getInstance().getZoneIndex(), blockHeight, i);
             memoryTreePool.getByaddress(transaction.getValidatorAddress()).get().addTransactionPosition(PatriciaTreeTransactionType.valueOf(transaction.getType().toString()), transaction.getHash(), CachedZoneIndex.getInstance().getZoneIndex(), blockHeight, i);
-            memoryTreePool.withdraw(PatriciaTreeTransactionType.DELEGATE,transaction.getDelegatorAddress(), transaction.getAmount(),transaction.getAmountWithTransactionFee());
-            memoryTreePool.deposit(PatriciaTreeTransactionType.DELEGATE,transaction.getValidatorAddress(), transaction.getAmount(),transaction.getAmountWithTransactionFee());
+            memoryTreePool.withdraw(PatriciaTreeTransactionType.DELEGATE, transaction.getDelegatorAddress(), transaction.getAmount(), transaction.getAmountWithTransactionFee());
+            memoryTreePool.deposit(PatriciaTreeTransactionType.DELEGATE, transaction.getValidatorAddress(), transaction.getAmount(), transaction.getAmountWithTransactionFee());
         }
     }
 

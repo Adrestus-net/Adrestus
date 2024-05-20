@@ -319,7 +319,7 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
     }
 
     public void infos(String value) {
-        if(this.transactionCallback==null)
+        if (this.transactionCallback == null)
             return;
         this.transactionCallback.call(value);
     }
@@ -339,7 +339,7 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Transaction that = (Transaction) o;
-        return ZoneFrom == that.ZoneFrom && ZoneTo == that.ZoneTo && BlockNumber == that.BlockNumber && Double.compare(that.Amount, Amount) == 0 && Double.compare(that.AmountWithTransactionFee, AmountWithTransactionFee) == 0 && Nonce == that.Nonce && Objects.equal(Hash, that.Hash) && Type == that.Type && Objects.equal(timestamp, that.timestamp) && Objects.equal(From, that.From) && Objects.equal(To, that.To) && Objects.equal(XAxis, that.XAxis) && Objects.equal(YAxis, that.YAxis) && Objects.equal(Signature, that.Signature);
+        return ZoneFrom == that.ZoneFrom && ZoneTo == that.ZoneTo && BlockNumber == that.BlockNumber && Double.compare(that.Amount, Amount) == 0 && Double.compare(that.AmountWithTransactionFee, AmountWithTransactionFee) == 0 && Nonce == that.Nonce && Objects.equal(Hash, that.Hash) && Type == that.Type && Objects.equal(timestamp, that.timestamp) && Objects.equal(From, that.From) && Objects.equal(To, that.To) && Objects.equal(XAxis, that.XAxis) && Objects.equal(YAxis, that.YAxis) && Objects.equal(Signature, that.Signature) && Objects.equal(transactionCallback, that.transactionCallback);
     }
 
     @Override

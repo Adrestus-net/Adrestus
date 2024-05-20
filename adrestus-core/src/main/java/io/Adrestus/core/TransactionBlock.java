@@ -23,6 +23,7 @@ public class TransactionBlock extends AbstractBlock implements BlockFactory, Dis
     private String MerkleRoot;
     private String PatriciaMerkleRoot;
 
+
     public TransactionBlock(String previousHash, int height, int Generation, int zone, List<Transaction> transactionList, String transactionProposer) {
         super(previousHash, height, Generation);
         this.Zone = zone;
@@ -203,6 +204,7 @@ public class TransactionBlock extends AbstractBlock implements BlockFactory, Dis
 
             return copy;
         } catch (Exception e) {
+            e.printStackTrace();
             throw new RuntimeException(e);
         }
     }

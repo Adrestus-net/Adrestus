@@ -46,8 +46,7 @@ public class DuplicateEventHandler extends TransactionEventHandler implements Tr
             }
         } catch (NullPointerException ex) {
             LOG.info("Transaction is empty");
-        }
-        finally {
+        } finally {
             this.tosearch.clear();
         }
     }

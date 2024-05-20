@@ -87,10 +87,11 @@ public class TreePoolConstructBlockTest {
         TreePoolConstructBlock.getInstance().visitForgeTreePool(transactionBlock, replica);
         TreePoolConstructBlock.getInstance().visitInventTreePool(transactionBlock, TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()));
         assertEquals(replica.getRootHash(), TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getRootHash());
-        assertEquals(1027,TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(address2).get().getAmount());
+        assertEquals(1027, TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(address2).get().getAmount());
         assertEquals(967, TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(address).get().getAmount());
         TreeFactory.ClearMemoryTree(CachedZoneIndex.getInstance().getZoneIndex());
     }
+
     @SneakyThrows
     @Test
     public void staking_transaction2() {
@@ -123,10 +124,11 @@ public class TreePoolConstructBlockTest {
         TreePoolConstructBlock.getInstance().visitForgeTreePool(transactionBlock, replica);
         TreePoolConstructBlock.getInstance().visitInventTreePool(transactionBlock, TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()));
         assertEquals(replica.getRootHash(), TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getRootHash());
-        assertEquals(27,TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(address).get().getStaking_amount());
+        assertEquals(27, TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(address).get().getStaking_amount());
         assertEquals(967, TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(address).get().getAmount());
         TreeFactory.ClearMemoryTree(CachedZoneIndex.getInstance().getZoneIndex());
     }
+
     @SneakyThrows
     @Test
     public void delegate_transaction2() {
@@ -164,7 +166,7 @@ public class TreePoolConstructBlockTest {
         TreePoolConstructBlock.getInstance().visitForgeTreePool(transactionBlock, replica);
         TreePoolConstructBlock.getInstance().visitInventTreePool(transactionBlock, TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()));
         assertEquals(replica.getRootHash(), TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getRootHash());
-        assertEquals(27,TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(address4).get().getStaking_amount());
+        assertEquals(27, TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(address4).get().getStaking_amount());
         assertEquals(989, TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(address).get().getAmount());
         assertEquals(989, TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(address2).get().getAmount());
         assertEquals(989, TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(address3).get().getAmount());
@@ -174,7 +176,7 @@ public class TreePoolConstructBlockTest {
     @SneakyThrows
     @Test
     public void Unstaking_transaction2() {
-        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(address, new PatriciaTreeNode(0, 1000,1000));
+        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(address, new PatriciaTreeNode(0, 1000, 1000));
         ArrayList<Transaction> list = new ArrayList<>();
         UnstakingTransaction transaction1 = new UnstakingTransaction();
         transaction1.setValidatorAddress(address);
@@ -202,7 +204,7 @@ public class TreePoolConstructBlockTest {
         TreePoolConstructBlock.getInstance().visitForgeTreePool(transactionBlock, replica);
         TreePoolConstructBlock.getInstance().visitInventTreePool(transactionBlock, TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()));
         assertEquals(replica.getRootHash(), TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getRootHash());
-        assertEquals(967,TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(address).get().getStaking_amount());
+        assertEquals(967, TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(address).get().getStaking_amount());
         assertEquals(27, TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(address).get().getAmount());
         TreeFactory.ClearMemoryTree(CachedZoneIndex.getInstance().getZoneIndex());
     }
@@ -213,7 +215,7 @@ public class TreePoolConstructBlockTest {
         TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(address, new PatriciaTreeNode(0, 0));
         TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(address2, new PatriciaTreeNode(0, 0));
         TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(address3, new PatriciaTreeNode(0, 0));
-        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(address4, new PatriciaTreeNode(0, 0,1000,0));
+        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(address4, new PatriciaTreeNode(0, 0, 1000, 0));
         ArrayList<Transaction> list = new ArrayList<>();
         UnDelegateTransaction transaction1 = new UnDelegateTransaction();
         transaction1.setDelegatorAddress(address);
@@ -244,7 +246,7 @@ public class TreePoolConstructBlockTest {
         TreePoolConstructBlock.getInstance().visitForgeTreePool(transactionBlock, replica);
         TreePoolConstructBlock.getInstance().visitInventTreePool(transactionBlock, TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()));
         assertEquals(replica.getRootHash(), TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getRootHash());
-        assertEquals(970,TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(address4).get().getStaking_amount());
+        assertEquals(970, TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(address4).get().getStaking_amount());
         assertEquals(9, TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(address).get().getAmount());
         assertEquals(9, TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(address2).get().getAmount());
         assertEquals(9, TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(address3).get().getAmount());
@@ -254,7 +256,7 @@ public class TreePoolConstructBlockTest {
     @SneakyThrows
     @Test
     public void UnClaimedReward_transaction() {
-        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(address, new PatriciaTreeNode(0, 0,0,1000));
+        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(address, new PatriciaTreeNode(0, 0, 0, 1000));
         ArrayList<Transaction> list = new ArrayList<>();
         UnclaimedFeeRewardTransaction transaction1 = new UnclaimedFeeRewardTransaction();
         transaction1.setRecipientAddress(address);
@@ -269,14 +271,14 @@ public class TreePoolConstructBlockTest {
         TreePoolConstructBlock.getInstance().visitForgeTreePool(transactionBlock, replica);
         TreePoolConstructBlock.getInstance().visitInventTreePool(transactionBlock, TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()));
         assertEquals(replica.getRootHash(), TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getRootHash());
-        assertEquals(1010,TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(address).get().getUnclaimed_reward());
+        assertEquals(1010, TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(address).get().getUnclaimed_reward());
         TreeFactory.ClearMemoryTree(CachedZoneIndex.getInstance().getZoneIndex());
     }
 
     @SneakyThrows
     @Test
     public void reward_transaction() {
-        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(address, new PatriciaTreeNode(0, 0,0,1000));
+        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(address, new PatriciaTreeNode(0, 0, 0, 1000));
         ArrayList<Transaction> list = new ArrayList<>();
         RewardsTransaction reward = new RewardsTransaction();
         reward.setRecipientAddress(address);
@@ -291,8 +293,8 @@ public class TreePoolConstructBlockTest {
         TreePoolConstructBlock.getInstance().visitForgeTreePool(transactionBlock, replica);
         TreePoolConstructBlock.getInstance().visitInventTreePool(transactionBlock, TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()));
         assertEquals(replica.getRootHash(), TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getRootHash());
-        assertEquals(990,TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(address).get().getUnclaimed_reward());
-        assertEquals(10,TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(address).get().getAmount());
+        assertEquals(990, TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(address).get().getUnclaimed_reward());
+        assertEquals(10, TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(address).get().getAmount());
         TreeFactory.ClearMemoryTree(CachedZoneIndex.getInstance().getZoneIndex());
     }
 

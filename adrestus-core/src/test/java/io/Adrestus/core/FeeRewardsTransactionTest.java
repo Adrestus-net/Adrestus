@@ -278,7 +278,7 @@ public class FeeRewardsTransactionTest {
         rewardsTransaction.setZoneFrom(0);
         rewardsTransaction.setZoneTo(0);
         rewardsTransaction.setAmount(100);
-        rewardsTransaction.setAmountWithTransactionFee((double) (100 * 10) /100);
+        rewardsTransaction.setAmountWithTransactionFee((double) (100 * 10) / 100);
         rewardsTransaction.setNonce(1);
         byte byf[] = serenc.encode(rewardsTransaction);
         rewardsTransaction.setHash(HashUtil.sha256_bytetoString(byf));
@@ -357,7 +357,7 @@ public class FeeRewardsTransactionTest {
     public void reward_transaction() throws InterruptedException {
         CachedZoneIndex.getInstance().setZoneIndex(0);
         TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(address1, new PatriciaTreeNode(1000, 0));
-        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).deposit(PatriciaTreeTransactionType.UNCLAIMED_FEE_REWARD,address1, 100,1);
+        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).deposit(PatriciaTreeTransactionType.UNCLAIMED_FEE_REWARD, address1, 100, 1);
         TransactionEventPublisher publisher = new TransactionEventPublisher(100);
         SignatureEventHandler signatureEventHandler = new SignatureEventHandler(SignatureEventHandler.SignatureBehaviorType.SIMPLE_TRANSACTIONS);
         CachedBLSKeyPair.getInstance().setPublicKey(vk1);
@@ -381,7 +381,7 @@ public class FeeRewardsTransactionTest {
         publisher.start();
 
 
-        ArrayList<String>mesages = new ArrayList<>();
+        ArrayList<String> mesages = new ArrayList<>();
         TransactionCallback transactionCallback = new TransactionCallback() {
             @Override
             public void call(String value) {
@@ -398,7 +398,7 @@ public class FeeRewardsTransactionTest {
         rewardsTransaction.setZoneFrom(0);
         rewardsTransaction.setZoneTo(0);
         rewardsTransaction.setAmount(100);
-        rewardsTransaction.setAmountWithTransactionFee((double) (100 * 10) /100);
+        rewardsTransaction.setAmountWithTransactionFee((double) (100 * 10) / 100);
         rewardsTransaction.setAmountWithTransactionFee(0);
         rewardsTransaction.setNonce(1);
         rewardsTransaction.setTransactionCallback(transactionCallback);

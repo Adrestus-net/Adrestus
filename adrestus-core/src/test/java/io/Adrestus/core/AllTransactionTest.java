@@ -79,8 +79,8 @@ public class AllTransactionTest {
         address1 = WalletAddress.generate_address((byte) version, ecKeyPair1.getPublicKey());
         address2 = WalletAddress.generate_address((byte) version, ecKeyPair2.getPublicKey());
 
-        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(address1, new PatriciaTreeNode(100,0,100,100));
-        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(address2, new PatriciaTreeNode(100,0,100,100));
+        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(address1, new PatriciaTreeNode(100, 0, 100, 100));
+        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(address2, new PatriciaTreeNode(100, 0, 100, 100));
         CachedZoneIndex.getInstance().setZoneIndex(0);
         publisher = new TransactionEventPublisher(100);
         signatureEventHandler = new SignatureEventHandler(SignatureEventHandler.SignatureBehaviorType.SIMPLE_TRANSACTIONS);
@@ -112,7 +112,7 @@ public class AllTransactionTest {
     @Test
     public void rewards_test() throws InterruptedException {
         MemoryTransactionPool.getInstance().clear();
-        ArrayList<String>mesages = new ArrayList<>();
+        ArrayList<String> mesages = new ArrayList<>();
         TransactionCallback transactionCallback = new TransactionCallback() {
             @Override
             public void call(String value) {
@@ -129,10 +129,10 @@ public class AllTransactionTest {
         rewardsTransaction.setZoneFrom(0);
         rewardsTransaction.setZoneTo(0);
         rewardsTransaction.setAmount(100);
-        rewardsTransaction.setAmountWithTransactionFee((double) (100 * 10) /100);
+        rewardsTransaction.setAmountWithTransactionFee((double) (100 * 10) / 100);
         rewardsTransaction.setNonce(1);
         rewardsTransaction.setTransactionCallback(transactionCallback);
-        byte byf[] = serenc.encode(rewardsTransaction,1024);
+        byte byf[] = serenc.encode(rewardsTransaction, 1024);
         rewardsTransaction.setHash(HashUtil.sha256_bytetoString(byf));
         ECDSASignatureData signatureData = ecdsaSign.secp256SignMessage(Hex.decode(rewardsTransaction.getHash()), ecKeyPair1);
         rewardsTransaction.setSignature(signatureData);
@@ -147,14 +147,14 @@ public class AllTransactionTest {
     public void staking_test() throws InterruptedException {
         MemoryTransactionPool.getInstance().clear();
         signatureEventHandler.setLatch(new CountDownLatch(1));
-        ArrayList<String>mesages = new ArrayList<>();
+        ArrayList<String> mesages = new ArrayList<>();
         TransactionCallback transactionCallback = new TransactionCallback() {
             @Override
             public void call(String value) {
                 mesages.add(value);
             }
         };
-        StakingTransaction stakingTransaction  = new StakingTransaction();
+        StakingTransaction stakingTransaction = new StakingTransaction();
         stakingTransaction.setValidatorAddress(address1);
         stakingTransaction.setType(TransactionType.STAKING);
         stakingTransaction.setStatus(StatusType.PENDING);
@@ -167,10 +167,10 @@ public class AllTransactionTest {
         stakingTransaction.setZoneFrom(0);
         stakingTransaction.setZoneTo(0);
         stakingTransaction.setAmount(100);
-        stakingTransaction.setAmountWithTransactionFee((double) (100 * 10) /100);
+        stakingTransaction.setAmountWithTransactionFee((double) (100 * 10) / 100);
         stakingTransaction.setNonce(1);
         stakingTransaction.setTransactionCallback(transactionCallback);
-        byte byf[] = serenc.encode(stakingTransaction,1024);
+        byte byf[] = serenc.encode(stakingTransaction, 1024);
         stakingTransaction.setHash(HashUtil.sha256_bytetoString(byf));
         ECDSASignatureData signatureData = ecdsaSign.secp256SignMessage(Hex.decode(stakingTransaction.getHash()), ecKeyPair1);
         stakingTransaction.setSignature(signatureData);
@@ -184,7 +184,7 @@ public class AllTransactionTest {
     @Test
     public void un_staking_test() throws InterruptedException {
         MemoryTransactionPool.getInstance().clear();
-        ArrayList<String>mesages = new ArrayList<>();
+        ArrayList<String> mesages = new ArrayList<>();
         TransactionCallback transactionCallback = new TransactionCallback() {
             @Override
             public void call(String value) {
@@ -192,7 +192,7 @@ public class AllTransactionTest {
             }
         };
         signatureEventHandler.setLatch(new CountDownLatch(1));
-        UnstakingTransaction unstakingTransaction  = new UnstakingTransaction();
+        UnstakingTransaction unstakingTransaction = new UnstakingTransaction();
         unstakingTransaction.setValidatorAddress(address1);
         unstakingTransaction.setType(TransactionType.UNSTAKING);
         unstakingTransaction.setStatus(StatusType.PENDING);
@@ -205,10 +205,10 @@ public class AllTransactionTest {
         unstakingTransaction.setZoneFrom(0);
         unstakingTransaction.setZoneTo(0);
         unstakingTransaction.setAmount(100);
-        unstakingTransaction.setAmountWithTransactionFee((double) (100 * 10) /100);
+        unstakingTransaction.setAmountWithTransactionFee((double) (100 * 10) / 100);
         unstakingTransaction.setNonce(1);
         unstakingTransaction.setTransactionCallback(transactionCallback);
-        byte byf[] = serenc.encode(unstakingTransaction,1024);
+        byte byf[] = serenc.encode(unstakingTransaction, 1024);
         unstakingTransaction.setHash(HashUtil.sha256_bytetoString(byf));
         ECDSASignatureData signatureData = ecdsaSign.secp256SignMessage(Hex.decode(unstakingTransaction.getHash()), ecKeyPair1);
         unstakingTransaction.setSignature(signatureData);
@@ -222,14 +222,14 @@ public class AllTransactionTest {
     public void delegate_test() throws InterruptedException {
         MemoryTransactionPool.getInstance().clear();
         signatureEventHandler.setLatch(new CountDownLatch(1));
-        ArrayList<String>mesages = new ArrayList<>();
+        ArrayList<String> mesages = new ArrayList<>();
         TransactionCallback transactionCallback = new TransactionCallback() {
             @Override
             public void call(String value) {
                 mesages.add(value);
             }
         };
-        DelegateTransaction delegateTransaction  = new DelegateTransaction();
+        DelegateTransaction delegateTransaction = new DelegateTransaction();
         delegateTransaction.setDelegatorAddress(address1);
         delegateTransaction.setValidatorAddress(address2);
         delegateTransaction.setType(TransactionType.DELEGATE);
@@ -238,10 +238,10 @@ public class AllTransactionTest {
         delegateTransaction.setZoneFrom(0);
         delegateTransaction.setZoneTo(0);
         delegateTransaction.setAmount(100);
-        delegateTransaction.setAmountWithTransactionFee((double) (100 * 10) /100);
+        delegateTransaction.setAmountWithTransactionFee((double) (100 * 10) / 100);
         delegateTransaction.setNonce(1);
         delegateTransaction.setTransactionCallback(transactionCallback);
-        byte byf[] = serenc.encode(delegateTransaction,1024);
+        byte byf[] = serenc.encode(delegateTransaction, 1024);
         delegateTransaction.setHash(HashUtil.sha256_bytetoString(byf));
         ECDSASignatureData signatureData = ecdsaSign.secp256SignMessage(Hex.decode(delegateTransaction.getHash()), ecKeyPair1);
         delegateTransaction.setSignature(signatureData);
@@ -268,10 +268,10 @@ public class AllTransactionTest {
         transactionBlock1.setTransactionList(list);
         int position = Iterables.indexOf(transactionBlock1.getTransactionList(), u -> u.equals(delegateTransaction));
         transactionBlockIDatabase.save(String.valueOf(transactionBlock1.getHeight()), transactionBlock1);
-        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(address1).get().addTransactionPosition(PatriciaTreeTransactionType.DELEGATE,delegateTransaction.getHash(), 0, transactionBlock1.getHeight(), position);
-        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(address2).get().addTransactionPosition(PatriciaTreeTransactionType.DELEGATE,delegateTransaction.getHash(), 0, transactionBlock1.getHeight(), position);
+        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(address1).get().addTransactionPosition(PatriciaTreeTransactionType.DELEGATE, delegateTransaction.getHash(), 0, transactionBlock1.getHeight(), position);
+        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(address2).get().addTransactionPosition(PatriciaTreeTransactionType.DELEGATE, delegateTransaction.getHash(), 0, transactionBlock1.getHeight(), position);
         signatureEventHandler.setLatch(new CountDownLatch(1));
-        ArrayList<String>mesages = new ArrayList<>();
+        ArrayList<String> mesages = new ArrayList<>();
         TransactionCallback transactionCallback = new TransactionCallback() {
             @Override
             public void call(String value) {
@@ -287,10 +287,10 @@ public class AllTransactionTest {
         unDelegateTransaction.setZoneFrom(0);
         unDelegateTransaction.setZoneTo(0);
         unDelegateTransaction.setAmount(100);
-        unDelegateTransaction.setAmountWithTransactionFee((double) (100 * 10) /100);
+        unDelegateTransaction.setAmountWithTransactionFee((double) (100 * 10) / 100);
         unDelegateTransaction.setTransactionCallback(transactionCallback);
         unDelegateTransaction.setNonce(1);
-        byte byf[] = serenc.encode(unDelegateTransaction,1024);
+        byte byf[] = serenc.encode(unDelegateTransaction, 1024);
         unDelegateTransaction.setHash(HashUtil.sha256_bytetoString(byf));
         ECDSASignatureData signatureData = ecdsaSign.secp256SignMessage(Hex.decode(unDelegateTransaction.getHash()), ecKeyPair1);
         unDelegateTransaction.setSignature(signatureData);
@@ -308,18 +308,18 @@ public class AllTransactionTest {
         transactionBlock.setHash("Hash1");
         transactionBlock.setHeight(1);
         ArrayList<Transaction> list = new ArrayList<>();
-        String time1=GetTime.GetTimeStampInString();
+        String time1 = GetTime.GetTimeStampInString();
         Thread.sleep(500);
-        String time2=GetTime.GetTimeStampInString();
+        String time2 = GetTime.GetTimeStampInString();
         signatureEventHandler.setLatch(new CountDownLatch(1));
-        ArrayList<String>mesages = new ArrayList<>();
+        ArrayList<String> mesages = new ArrayList<>();
         TransactionCallback transactionCallback = new TransactionCallback() {
             @Override
             public void call(String value) {
                 mesages.add(value);
             }
         };
-        DelegateTransaction delegateTransaction  = new DelegateTransaction();
+        DelegateTransaction delegateTransaction = new DelegateTransaction();
         delegateTransaction.setDelegatorAddress(address1);
         delegateTransaction.setValidatorAddress(address2);
         delegateTransaction.setType(TransactionType.DELEGATE);
@@ -328,19 +328,19 @@ public class AllTransactionTest {
         delegateTransaction.setZoneFrom(0);
         delegateTransaction.setZoneTo(0);
         delegateTransaction.setAmount(100);
-        delegateTransaction.setAmountWithTransactionFee((double) (100 * 10) /100);
+        delegateTransaction.setAmountWithTransactionFee((double) (100 * 10) / 100);
         delegateTransaction.setNonce(1);
-        byte byf[] = serenc.encode(delegateTransaction,1024);
+        byte byf[] = serenc.encode(delegateTransaction, 1024);
         delegateTransaction.setHash(HashUtil.sha256_bytetoString(byf));
         ECDSASignatureData signatureData = ecdsaSign.secp256SignMessage(Hex.decode(delegateTransaction.getHash()), ecKeyPair1);
         delegateTransaction.setSignature(signatureData);
         list.add(delegateTransaction);
         transactionBlock.setTransactionList(list);
-        transactionBlockIDatabase.save(String.valueOf(transactionBlock.getHeight()),transactionBlock);
+        transactionBlockIDatabase.save(String.valueOf(transactionBlock.getHeight()), transactionBlock);
         int position = Iterables.indexOf(transactionBlock.getTransactionList(), u -> u.equals(delegateTransaction));
-        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(address1).get().addTransactionPosition(PatriciaTreeTransactionType.DELEGATE,delegateTransaction.getHash(), CachedZoneIndex.getInstance().getZoneIndex(), transactionBlock.getHeight(), position);
+        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(address1).get().addTransactionPosition(PatriciaTreeTransactionType.DELEGATE, delegateTransaction.getHash(), CachedZoneIndex.getInstance().getZoneIndex(), transactionBlock.getHeight(), position);
 
-        DelegateTransaction delegateTransaction2  = new DelegateTransaction();
+        DelegateTransaction delegateTransaction2 = new DelegateTransaction();
         delegateTransaction2.setDelegatorAddress(address1);
         delegateTransaction2.setValidatorAddress(address2);
         delegateTransaction2.setType(TransactionType.DELEGATE);
@@ -349,10 +349,10 @@ public class AllTransactionTest {
         delegateTransaction2.setZoneFrom(0);
         delegateTransaction2.setZoneTo(0);
         delegateTransaction2.setAmount(10);
-        delegateTransaction2.setAmountWithTransactionFee((double) (10 * 10) /100);
+        delegateTransaction2.setAmountWithTransactionFee((double) (10 * 10) / 100);
         delegateTransaction2.setNonce(1);
         delegateTransaction2.setTransactionCallback(transactionCallback);
-        byte byf1[] = serenc.encode(delegateTransaction2,1024);
+        byte byf1[] = serenc.encode(delegateTransaction2, 1024);
         delegateTransaction2.setHash(HashUtil.sha256_bytetoString(byf1));
         ECDSASignatureData signatureData2 = ecdsaSign.secp256SignMessage(Hex.decode(delegateTransaction2.getHash()), ecKeyPair1);
         delegateTransaction2.setSignature(signatureData2);
@@ -360,14 +360,15 @@ public class AllTransactionTest {
         publisher.publish(delegateTransaction2);
         signatureEventHandler.getLatch().await();
         publisher.getJobSyncUntilRemainingCapacityZero();
-        assertEquals(2,mesages.size());
+        assertEquals(2, mesages.size());
 
     }
+
     @Test
     public void jsut_test() {
-        Transaction trx=new RegularTransaction();
+        Transaction trx = new RegularTransaction();
         trx.setType(TransactionType.REGULAR);
         PatriciaTreeTransactionType patriciaTreeTransactionType = PatriciaTreeTransactionType.valueOf(trx.getType().toString());
-        assertEquals(PatriciaTreeTransactionType.REGULAR,patriciaTreeTransactionType);
+        assertEquals(PatriciaTreeTransactionType.REGULAR, patriciaTreeTransactionType);
     }
 }

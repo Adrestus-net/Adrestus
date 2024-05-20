@@ -14,27 +14,27 @@ public class PatriciaTreeNode implements PatriciaTreeTransactionBlackSmith, Patr
     private double unclaimed_reward;
     private int nonce;
     private StakingInfo stakingInfo;
-    private final Map<PatriciaTreeTransactionType, PatriciaTreeTransactionMethods> transactionsMap;
-    private final PatriciaTreeReceiptMethods patriciaTreeReceiptMethods;
+    private Map<PatriciaTreeTransactionType, @SerializeNullable PatriciaTreeTransactionMethods> transactionsMap;
+    private PatriciaTreeReceiptMethods patriciaTreeReceiptMethods;
 
     public PatriciaTreeNode(double amount, int nonce) {
         this.amount = amount;
         this.nonce = nonce;
-        this.staking_amount=0;
+        this.staking_amount = 0;
         this.unclaimed_reward = 0;
-        this.stakingInfo=new StakingInfo();
-        this.patriciaTreeReceiptMethods=new PatriciaTreeReceipts();
+        this.stakingInfo = new StakingInfo();
+        this.patriciaTreeReceiptMethods = new PatriciaTreeReceipts();
         this.transactionsMap = new EnumMap<>(PatriciaTreeTransactionType.class);
         this.Init();
     }
 
-    public PatriciaTreeNode(@Deserialize("amount") double amount, @Deserialize("nonce") int nonce, @Deserialize("staking_amount") double staking_amount) {
+    public PatriciaTreeNode(double amount, int nonce, double staking_amount) {
         this.amount = amount;
         this.nonce = nonce;
         this.staking_amount = staking_amount;
         this.unclaimed_reward = 0;
-        this.stakingInfo=new StakingInfo();
-        this.patriciaTreeReceiptMethods=new PatriciaTreeReceipts();
+        this.stakingInfo = new StakingInfo();
+        this.patriciaTreeReceiptMethods = new PatriciaTreeReceipts();
         this.transactionsMap = new EnumMap<>(PatriciaTreeTransactionType.class);
         this.Init();
     }
@@ -44,8 +44,8 @@ public class PatriciaTreeNode implements PatriciaTreeTransactionBlackSmith, Patr
         this.nonce = nonce;
         this.staking_amount = staking_amount;
         this.unclaimed_reward = unclaimed_reward;
-        this.stakingInfo=new StakingInfo();
-        this.patriciaTreeReceiptMethods=new PatriciaTreeReceipts();
+        this.stakingInfo = new StakingInfo();
+        this.patriciaTreeReceiptMethods = new PatriciaTreeReceipts();
         this.transactionsMap = new EnumMap<>(PatriciaTreeTransactionType.class);
         this.Init();
     }
@@ -53,21 +53,21 @@ public class PatriciaTreeNode implements PatriciaTreeTransactionBlackSmith, Patr
     public PatriciaTreeNode(double amount) {
         this.amount = amount;
         this.nonce = 0;
-        this.staking_amount=0;
+        this.staking_amount = 0;
         this.unclaimed_reward = 0;
-        this.stakingInfo=new StakingInfo();
-        this.patriciaTreeReceiptMethods=new PatriciaTreeReceipts();
+        this.stakingInfo = new StakingInfo();
+        this.patriciaTreeReceiptMethods = new PatriciaTreeReceipts();
         this.transactionsMap = new EnumMap<>(PatriciaTreeTransactionType.class);
         this.Init();
     }
 
     public PatriciaTreeNode() {
-        this.amount =0;
+        this.amount = 0;
         this.nonce = 0;
-        this.staking_amount=0;
+        this.staking_amount = 0;
         this.unclaimed_reward = 0;
-        this.stakingInfo=new StakingInfo();
-        this.patriciaTreeReceiptMethods=new PatriciaTreeReceipts();
+        this.stakingInfo = new StakingInfo();
+        this.patriciaTreeReceiptMethods = new PatriciaTreeReceipts();
         this.transactionsMap = new EnumMap<>(PatriciaTreeTransactionType.class);
         this.Init();
     }
@@ -98,13 +98,13 @@ public class PatriciaTreeNode implements PatriciaTreeTransactionBlackSmith, Patr
     }
 
     @Override
-    public void addReceiptPosition(String hash, int origin_zone, int height, int blockheight, int position, int zone) {
-       this.patriciaTreeReceiptMethods.addReceiptPosition(hash, origin_zone, height, blockheight, position, zone);
+    public void addReceiptPosition(String hash, int origin_zone, int blockHeight, int zone, int receiptBlockHeight, int position) {
+        this.patriciaTreeReceiptMethods.addReceiptPosition(hash, origin_zone, blockHeight, zone, receiptBlockHeight, position);
     }
 
     @Override
     public List<StorageInfo> retrieveReceiptInfoByHash(String hash) {
-        return  this.patriciaTreeReceiptMethods.retrieveReceiptInfoByHash(hash);
+        return this.patriciaTreeReceiptMethods.retrieveReceiptInfoByHash(hash);
     }
 
     @Override
@@ -114,7 +114,7 @@ public class PatriciaTreeNode implements PatriciaTreeTransactionBlackSmith, Patr
 
     @Override
     public List<StorageInfo> retrieveTransactionInfoByHash(PatriciaTreeTransactionType type, String hash) {
-       return this.transactionsMap.get(type).retrieveTransactionInfoByHash(hash);
+        return this.transactionsMap.get(type).retrieveTransactionInfoByHash(hash);
     }
 
     @Override
@@ -128,13 +128,27 @@ public class PatriciaTreeNode implements PatriciaTreeTransactionBlackSmith, Patr
     }
 
     @Override
-    public HashMap<Integer, @SerializeNullable TransactionPointerStorage> getCapacities(PatriciaTreeTransactionType type){
+    public HashMap<Integer, @SerializeNullable TransactionPointerStorage> getTransactionCapacities(PatriciaTreeTransactionType type) {
         return this.transactionsMap.get(type).getCapacities();
     }
+
     @Override
-    public HashMap<Integer, @SerializeNullable ReceiptPointerStorage> getCapacities() {
-        return this.patriciaTreeReceiptMethods.getCapacities();
+    public void setTransactionCapacities(PatriciaTreeTransactionType type, HashMap<Integer, @SerializeNullable TransactionPointerStorage> capacities) {
+        this.transactionsMap.get(type).setCapacities(capacities);
     }
+
+
+    @Override
+    @Serialize
+    public HashMap<Integer, @SerializeNullable ReceiptPointerStorage> getReceiptCapacities() {
+        return this.patriciaTreeReceiptMethods.getReceiptCapacities();
+    }
+
+    @Override
+    public void setReceiptCapacities(HashMap<Integer, @SerializeNullable ReceiptPointerStorage> capacities) {
+        this.patriciaTreeReceiptMethods.SetReceiptCapacities(capacities);
+    }
+
     @Serialize
     public double getAmount() {
         return amount;
@@ -171,14 +185,16 @@ public class PatriciaTreeNode implements PatriciaTreeTransactionBlackSmith, Patr
         this.unclaimed_reward = unclaimed_reward;
     }
 
+    @Override
     @Serialize
     public Map<PatriciaTreeTransactionType, PatriciaTreeTransactionMethods> getTransactionsMap() {
         return transactionsMap;
     }
 
-    @Serialize
-    public PatriciaTreeReceiptMethods getPatriciaTreeReceiptMethods() {
-        return patriciaTreeReceiptMethods;
+
+    @Override
+    public void setTransactionsMap(Map<PatriciaTreeTransactionType, PatriciaTreeTransactionMethods> transactionsMap) {
+        this.transactionsMap = transactionsMap;
     }
 
     @Override
@@ -196,12 +212,44 @@ public class PatriciaTreeNode implements PatriciaTreeTransactionBlackSmith, Patr
         this.stakingInfo = stakingInfo;
     }
 
+    private static boolean linkedEquals(Map<PatriciaTreeTransactionType, PatriciaTreeTransactionMethods> left, Map<PatriciaTreeTransactionType, PatriciaTreeTransactionMethods> right) {
+        if (left.size() != right.size())
+            return false;
+
+        for (int i = 0; i < left.size(); i++) {
+            Iterator<Map.Entry<PatriciaTreeTransactionType, PatriciaTreeTransactionMethods>> leftItr = left.entrySet().iterator();
+            Iterator<Map.Entry<PatriciaTreeTransactionType, PatriciaTreeTransactionMethods>> rightItr = right.entrySet().iterator();
+
+            while (leftItr.hasNext() && rightItr.hasNext()) {
+                Map.Entry<PatriciaTreeTransactionType, PatriciaTreeTransactionMethods> leftEntry = leftItr.next();
+                Map.Entry<PatriciaTreeTransactionType, PatriciaTreeTransactionMethods> rightEntry = rightItr.next();
+                if (!leftEntry.getKey().equals(rightEntry.getKey()))
+                    return false;
+                Iterator<Map.Entry<Integer, @SerializeNullable TransactionPointerStorage>> leftmap = leftEntry.getValue().getCapacities().entrySet().iterator();
+                Iterator<Map.Entry<Integer, @SerializeNullable TransactionPointerStorage>> rightmap = rightEntry.getValue().getCapacities().entrySet().iterator();
+
+                while (rightmap.hasNext() && leftmap.hasNext()) {
+                    Map.Entry<Integer, @SerializeNullable TransactionPointerStorage> leftside = leftmap.next();
+                    Map.Entry<Integer, @SerializeNullable TransactionPointerStorage> rightside = rightmap.next();
+                    if (!leftside.getKey().equals(rightside.getKey()))
+                        return false;
+                    if (!leftside.getValue().equals(rightside.getValue()))
+                        return false;
+                }
+            }
+            return !(leftItr.hasNext() || rightItr.hasNext());
+        }
+        return true;
+    }
+
+    //NEVER DELETE THIS FUNCTION ELSE BLOCK HASH EVENT HANDLER WILL HAVE PROBLEM with  EQUALS FUNCTIONALITY
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         PatriciaTreeNode that = (PatriciaTreeNode) o;
-        return Double.compare(amount, that.amount) == 0 && Double.compare(staking_amount, that.staking_amount) == 0 && Double.compare(unclaimed_reward, that.unclaimed_reward) == 0 && nonce == that.nonce && Objects.equals(stakingInfo, that.stakingInfo) && Objects.equals(transactionsMap, that.transactionsMap) && Objects.equals(patriciaTreeReceiptMethods, that.patriciaTreeReceiptMethods);
+//        Stream.of(that.transactionsMap.keySet()).map()
+        return Double.compare(amount, that.amount) == 0 && Double.compare(staking_amount, that.staking_amount) == 0 && Double.compare(unclaimed_reward, that.unclaimed_reward) == 0 && nonce == that.nonce && Objects.equals(stakingInfo, that.stakingInfo) && linkedEquals(transactionsMap, that.transactionsMap) && Objects.equals(patriciaTreeReceiptMethods, that.patriciaTreeReceiptMethods);
     }
 
     @Override

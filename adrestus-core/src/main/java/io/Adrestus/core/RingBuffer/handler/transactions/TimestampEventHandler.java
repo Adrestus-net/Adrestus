@@ -36,7 +36,7 @@ public class TimestampEventHandler extends TransactionEventHandler implements Tr
 
         transaction.accept(this);
 
-        if(transaction.getType().equals(TransactionType.UNCLAIMED_FEE_REWARD))
+        if (transaction.getType().equals(TransactionType.UNCLAIMED_FEE_REWARD))
             return;
 
         if (results.isEmpty())
@@ -67,7 +67,7 @@ public class TimestampEventHandler extends TransactionEventHandler implements Tr
                 });
                 transaction.setStatus(StatusType.ABORT);
             }
-        }catch (ParseException e){
+        } catch (ParseException e) {
             Optional.of("Transaction abort: Transaction timestamp is not set abort").ifPresent(val -> {
                 LOG.info(val);
                 transaction.infos(val);

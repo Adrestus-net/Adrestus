@@ -45,7 +45,7 @@ public class RewardsTransaction extends Transaction {
 
     @Override
     public void infos(String value) {
-        if(this.transactionCallback==null)
+        if (this.transactionCallback == null)
             return;
         this.transactionCallback.call(value);
     }

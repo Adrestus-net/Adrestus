@@ -136,7 +136,7 @@ public class AsyncServiceTest {
         List<SerializationUtil.Mapping> listss = new ArrayList<>();
         listss.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         serenc = new SerializationUtil<Transaction>(Transaction.class, listss);
-        ArrayList<String>mesages = new ArrayList<>();
+        ArrayList<String> mesages = new ArrayList<>();
         TransactionCallback transactionCallback = new TransactionCallback() {
             @Override
             public void call(String value) {

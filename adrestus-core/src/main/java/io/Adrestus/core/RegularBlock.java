@@ -208,7 +208,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
                         entry.getValue().stream().forEach(receipt -> {
                             TransactionBlock block = CachedInboundTransactionBlocks.getInstance().retrieve(receipt.getZoneFrom(), receipt.getReceiptBlock().getHeight());
                             Transaction trx = block.getTransactionList().get(receipt.getPosition());
-                            replica.deposit(PatriciaTreeTransactionType.REGULAR,trx.getFrom(), trx.getAmount(),trx.getAmountWithTransactionFee());
+                            replica.deposit(PatriciaTreeTransactionType.REGULAR, trx.getFrom(), trx.getAmount(), trx.getAmountWithTransactionFee());
                         });
 
                     });
@@ -428,7 +428,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
                                     Transaction trx = block.getTransactionList().get(receipt.getPosition());
                                     String rcphash = HashUtil.sha256_bytetoString(this.receipt_encode.encode(receipt));
                                     TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(trx.getTo()).get().addReceiptPosition(rcphash, CachedZoneIndex.getInstance().getZoneIndex(), transactionBlock.getHeight(), receipt.getZoneFrom(), receipt.getReceiptBlock().getHeight(), i);
-                                    TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).deposit(PatriciaTreeTransactionType.REGULAR,trx.getTo(), trx.getAmount(),trx.getAmountWithTransactionFee());
+                                    TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).deposit(PatriciaTreeTransactionType.REGULAR, trx.getTo(), trx.getAmount(), trx.getAmountWithTransactionFee());
                                     MemoryReceiptPool.getInstance().delete(receipt);
                                 }
                             }));

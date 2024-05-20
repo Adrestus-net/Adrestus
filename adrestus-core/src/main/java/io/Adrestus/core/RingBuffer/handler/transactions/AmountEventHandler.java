@@ -113,7 +113,7 @@ public class AmountEventHandler extends TransactionEventHandler implements Trans
         } catch (NullPointerException ex) {
             Optional.of("StakingTransaction is empty").ifPresent(val -> {
                 LOG.info(val);
-               stakingTransaction.infos(val);
+                stakingTransaction.infos(val);
             });
             stakingTransaction.setStatus(StatusType.ABORT);
             return;

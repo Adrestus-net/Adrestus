@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 public class CachedInboundTransactionBlocks {
     private static volatile CachedInboundTransactionBlocks instance;
 
-   //<receipt.getZoneFrom(), HashMap<receipt.getReceiptBlock().getHeight(), TransactionBlock>>
+    //<receipt.getZoneFrom(), HashMap<receipt.getReceiptBlock().getHeight(), TransactionBlock>>
     private ConcurrentMap<Integer, HashMap<Integer, TransactionBlock>> transactionBlockHashMap;
 
 
@@ -64,36 +64,54 @@ public class CachedInboundTransactionBlocks {
                 throw new IllegalArgumentException("Cannot find commit block for this generation");
             }
             List<String> ips = committeeBlock.get().getStructureMap().get(entry.getKey()).values().stream().collect(Collectors.toList());
-            ips.remove(IPFinder.getLocalIP());
-
-            int RPCTransactionZonePort = ZoneDatabaseFactory.getDatabaseRPCPort(entry.getKey());
-            ArrayList<InetSocketAddress> toConnectTransaction = new ArrayList<>();
-            ips.stream().forEach(ip -> {
-                try {
-                    toConnectTransaction.add(new InetSocketAddress(InetAddress.getByName(ip), RPCTransactionZonePort));
-                } catch (UnknownHostException e) {
-                    throw new RuntimeException(e);
-                }
-            });
-
-            RpcAdrestusClient client = null;
-            try {
-                client = new RpcAdrestusClient(new TransactionBlock(), toConnectTransaction, CachedEventLoop.getInstance().getEventloop());
-                client.connect();
-
-
-                List<TransactionBlock> currentblock = client.getBlock(entry.getValue().stream().collect(Collectors.toList()));
+            if (ips.contains(IPFinder.getLocalIP())) {
+                IDatabase<String, TransactionBlock> block_database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(entry.getKey()));
+                List<TransactionBlock> currentblock = block_database.findByListKey(entry.getValue().stream().collect(Collectors.toList()));
                 if (!currentblock.isEmpty()) {
-                    HashMap<Integer, TransactionBlock> current = new HashMap<>();
+                    HashMap<Integer, TransactionBlock> current;
+                    if (this.transactionBlockHashMap.containsKey(entry.getKey())) {
+                        current = this.transactionBlockHashMap.get(entry.getKey());
+                    } else {
+                        current = new HashMap<>();
+                    }
                     currentblock.stream().forEach(val -> current.put(val.getHeight(), val));
                     this.transactionBlockHashMap.put(entry.getKey(), current);
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
-            } finally {
-                if (client != null) {
-                    client.close();
-                    client = null;
+            } else {
+                int RPCTransactionZonePort = ZoneDatabaseFactory.getDatabaseRPCPort(entry.getKey());
+                ArrayList<InetSocketAddress> toConnectTransaction = new ArrayList<>();
+                ips.stream().forEach(ip -> {
+                    try {
+                        toConnectTransaction.add(new InetSocketAddress(InetAddress.getByName(ip), RPCTransactionZonePort));
+                    } catch (UnknownHostException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
+
+                RpcAdrestusClient client = null;
+                try {
+                    client = new RpcAdrestusClient(new TransactionBlock(), toConnectTransaction, CachedEventLoop.getInstance().getEventloop());
+                    client.connect();
+
+
+                    List<TransactionBlock> currentblock = client.getBlock(entry.getValue().stream().collect(Collectors.toList()));
+                    if (!currentblock.isEmpty()) {
+                        HashMap<Integer, TransactionBlock> current;
+                        if (this.transactionBlockHashMap.containsKey(entry.getKey())) {
+                            current = this.transactionBlockHashMap.get(entry.getKey());
+                        } else {
+                            current = new HashMap<>();
+                        }
+                        currentblock.stream().forEach(val -> current.put(val.getHeight(), val));
+                        this.transactionBlockHashMap.put(entry.getKey(), current);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    if (client != null) {
+                        client.close();
+                        client = null;
+                    }
                 }
             }
         }
