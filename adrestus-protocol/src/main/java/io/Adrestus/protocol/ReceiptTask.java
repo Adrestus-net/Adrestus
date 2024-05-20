@@ -49,7 +49,6 @@ public class ReceiptTask extends AdrestusTask {
     public void execute() {
         while (!runner) {
             try {
-                CachedReceiptSemaphore.getInstance().getSemaphore().acquire();
                 if (transactionBlockPrev != CachedLatestBlocks.getInstance().getTransactionBlock()) {
                     TransactionBlock transactionBlock = CachedLatestBlocks.getInstance().getTransactionBlock();
                     if (!transactionBlock.getOutbound().getMap_receipts().isEmpty()) {
@@ -93,7 +92,6 @@ public class ReceiptTask extends AdrestusTask {
                         }
                     }
                 }
-                CachedReceiptSemaphore.getInstance().getSemaphore().release();
                 Thread.sleep(500);
             } catch (Exception e) {
                 LOG.info("Receipt Exception caught", e.toString());

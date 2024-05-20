@@ -307,9 +307,7 @@ public class ConsensusTransactionTimer2Test {
 
         TCPTransactionConsumer<byte[]> callback = x -> {
             Receipt receipt = recep.decode(x);
-            CachedReceiptSemaphore.getInstance().getSemaphore().acquire();
             if (receipt.getReceiptBlock() == null) {
-                CachedReceiptSemaphore.getInstance().getSemaphore().release();
                 return "";
             }
             List<String> ips = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(receipt.getZoneFrom()).values().stream().collect(Collectors.toList());
@@ -333,7 +331,6 @@ public class ConsensusTransactionTimer2Test {
 
                 List<TransactionBlock> currentblock = client.getBlock(to_search);
                 if (currentblock.isEmpty()) {
-                    CachedReceiptSemaphore.getInstance().getSemaphore().release();
                     return "";
                 }
 
@@ -351,7 +348,6 @@ public class ConsensusTransactionTimer2Test {
                     client.close();
                     client = null;
                 }
-                CachedReceiptSemaphore.getInstance().getSemaphore().release();
                 return "";
             }
         };
@@ -363,7 +359,6 @@ public class ConsensusTransactionTimer2Test {
                 Eventloop eventloop = Eventloop.create().withCurrentThread();
                 while (!variable) {
                     try {
-                        CachedReceiptSemaphore.getInstance().getSemaphore().acquire();
                         if (!CachedLatestBlocks.getInstance().getTransactionBlock().getOutbound().getMap_receipts().isEmpty()) {
                             CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).values().forEach(ip -> {
                                 eventloop.connect(new InetSocketAddress(ip, SocketConfigOptions.TRANSACTION_PORT), (socketChannel, e) -> {
@@ -397,7 +392,6 @@ public class ConsensusTransactionTimer2Test {
                             });
                             eventloop.run();
                         }
-                        CachedReceiptSemaphore.getInstance().getSemaphore().release();
                         Thread.sleep(500);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
@@ -451,7 +445,7 @@ public class ConsensusTransactionTimer2Test {
         if (CachedZoneIndex.getInstance().getZoneIndex() == 0) {
             Thread.sleep(4300);
         }
-        CountDownLatch latch = new CountDownLatch(6);
+        CountDownLatch latch = new CountDownLatch(2);
         ConsensusTransaction2Timer c = new ConsensusTransaction2Timer(latch, addreses, keypair);
         latch.await();
         c.close();

@@ -49,7 +49,6 @@ public class SupervisorConsensusPhases {
     protected BLSPublicKey leader_bls;
 
     private static void cleanup() {
-        CachedReceiptSemaphore.getInstance().getSemaphore().release();
     }
 
     protected static class ProposeVDF extends SupervisorConsensusPhases implements BFTConsensusPhase<VDFMessage> {

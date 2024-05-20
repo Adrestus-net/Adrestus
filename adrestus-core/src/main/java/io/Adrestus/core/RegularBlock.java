@@ -100,8 +100,6 @@ public class RegularBlock implements BlockForge, BlockInvent {
 
     @Override
     public void forgeTransactionBlock(TransactionBlock transactionBlock) throws Exception {
-        CachedReceiptSemaphore.getInstance().getSemaphore().acquire();
-
         MerkleTreeImp tree = new MerkleTreeImp();
         ArrayList<MerkleNode> merkleNodeArrayList = new ArrayList<>();
         transactionBlock.getHeaderData().setPreviousHash(CachedLatestBlocks.getInstance().getTransactionBlock().getHash());
@@ -225,8 +223,6 @@ public class RegularBlock implements BlockForge, BlockInvent {
     @SneakyThrows
     @Override
     public void forgeCommitteBlock(CommitteeBlock committeeBlock) {
-        CachedReceiptSemaphore.getInstance().getSemaphore().acquire();
-
         IDatabase<String, CommitteeBlock> database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
 
         if (CachedKademliaNodes.getInstance().getDhtBootstrapNode() != null) {
@@ -499,8 +495,6 @@ public class RegularBlock implements BlockForge, BlockInvent {
             }
         }*/
         CachedInboundTransactionBlocks.getInstance().clear();
-        CachedReceiptSemaphore.getInstance().getSemaphore().release();
-
     }
 
 
@@ -522,7 +516,6 @@ public class RegularBlock implements BlockForge, BlockInvent {
             CachedLeaderIndex.getInstance().setTransactionPositionLeader(0);
             committeeBlock.setStatustype(StatusType.SUCCES);
             database.save(String.valueOf(committeeBlock.getGeneration()), committeeBlock);
-            CachedReceiptSemaphore.getInstance().getSemaphore().release();
             return;
         }
         //sync blocks from zone of previous validators for both transaction and patricia tree blocks
@@ -628,8 +621,6 @@ public class RegularBlock implements BlockForge, BlockInvent {
         committeeBlock.setStatustype(StatusType.SUCCES);
         database.save(String.valueOf(committeeBlock.getGeneration()), committeeBlock);
 
-
-        CachedReceiptSemaphore.getInstance().getSemaphore().release();
     }
 
 }

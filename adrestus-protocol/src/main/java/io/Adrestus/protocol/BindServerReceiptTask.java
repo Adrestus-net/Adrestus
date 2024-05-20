@@ -56,10 +56,8 @@ public class BindServerReceiptTask extends AdrestusTask {
 
     public void callBackReceive() {
         this.receive = x -> {
-            CachedReceiptSemaphore.getInstance().getSemaphore().acquire();
             Receipt receipt = recep.decode(x);
             if (receipt.getReceiptBlock() == null) {
-                CachedReceiptSemaphore.getInstance().getSemaphore().release();
                 return "";
             }
             List<String> ips = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(receipt.getZoneFrom()).values().stream().collect(Collectors.toList());
@@ -83,7 +81,6 @@ public class BindServerReceiptTask extends AdrestusTask {
 
                 List<TransactionBlock> currentblock = client.getBlock(to_search);
                 if (currentblock.isEmpty()) {
-                    CachedReceiptSemaphore.getInstance().getSemaphore().release();
                     return "";
                 }
 
@@ -101,7 +98,6 @@ public class BindServerReceiptTask extends AdrestusTask {
                     client.close();
                     client = null;
                 }
-                CachedReceiptSemaphore.getInstance().getSemaphore().release();
                 return "";
             }
         };

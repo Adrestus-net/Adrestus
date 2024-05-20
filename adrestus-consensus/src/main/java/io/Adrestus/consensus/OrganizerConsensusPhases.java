@@ -491,7 +491,6 @@ public class OrganizerConsensusPhases {
     }
 
     private static void cleanup() {
-        CachedReceiptSemaphore.getInstance().getSemaphore().release();
     }
 
 }

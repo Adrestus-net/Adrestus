@@ -84,7 +84,6 @@ public class ConsensusCommitteeTest {
 
     @BeforeAll
     public static void setup() throws Exception {
-        CachedReceiptSemaphore.getInstance().getSemaphore().release();
         IDatabase<String, CommitteeBlock> db = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
         db.delete_db();
         IDatabase<String, CommitteeBlock> database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);

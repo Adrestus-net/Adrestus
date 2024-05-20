@@ -60,7 +60,6 @@ public class ConsensusTransactionBlockTest {
     @BeforeAll
     public static void pre_setup() {
         delete();
-        CachedReceiptSemaphore.getInstance().getSemaphore().release();
         CachedZoneIndex.getInstance().setZoneIndex(1);
         TransactionBlock prevblock = new TransactionBlock();
         CommitteeBlock committeeBlock = new CommitteeBlock();
