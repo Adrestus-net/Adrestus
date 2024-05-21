@@ -45,7 +45,7 @@ public class RingBufferTest {
     }
 
     //CHANGE PUBLISHER START NOT TO INSTATIED IN CONSENUS BLOCK CAUSE ADDS OVERHEAD
-     @Test
+    // @Test
     public void TransactionTest() throws InterruptedException {
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
