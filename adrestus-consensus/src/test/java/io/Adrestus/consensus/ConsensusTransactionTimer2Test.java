@@ -1,9 +1,12 @@
 package io.Adrestus.consensus;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.common.reflect.TypeToken;
 import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.config.AdrestusConfiguration;
+import io.Adrestus.config.CacheConfigurationTest;
 import io.Adrestus.config.KademliaConfiguration;
 import io.Adrestus.config.SocketConfigOptions;
 import io.Adrestus.consensus.helper.ConsensusTransaction2Timer;
@@ -58,6 +61,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static io.activej.eventloop.Eventloop.getCurrentEventloop;
@@ -96,6 +100,7 @@ public class ConsensusTransactionTimer2Test {
     private static boolean variable = false;
     private static KademliaData kad1, kad2, kad3, kad4, kad5, kad6;
     private static ReceiptEventPublisher publisher;
+    private static Cache<Integer, TransactionBlock> receiptloadingCache;
 
     @BeforeAll
     public static void construct() throws Exception {
@@ -105,7 +110,12 @@ public class ConsensusTransactionTimer2Test {
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         serenc = new SerializationUtil<Transaction>(Transaction.class, list);
         recep = new SerializationUtil<Receipt>(Receipt.class, list);
-
+        receiptloadingCache = Caffeine.newBuilder()
+                .initialCapacity(CacheConfigurationTest.INITIAL_CAPACITY)
+                .maximumSize(CacheConfigurationTest.MAXIMUM_SIZE)
+                .expireAfterWrite(CacheConfigurationTest.EXPIRATION_MINUTES, TimeUnit.MINUTES)
+                .expireAfterAccess(CacheConfigurationTest.EXPIRATION_MINUTES, TimeUnit.MINUTES)
+                .build();
         publisher = new ReceiptEventPublisher(1024);
         publisher.
                 withGenerationEventHandler().
@@ -313,46 +323,54 @@ public class ConsensusTransactionTimer2Test {
             if (receipt.getReceiptBlock() == null) {
                 return "";
             }
-            List<String> ips = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(receipt.getZoneFrom()).values().stream().collect(Collectors.toList());
-            ips.remove(IPFinder.getLocalIP());
-            int RPCTransactionZonePort = ZoneDatabaseFactory.getDatabaseRPCPort(receipt.getZoneFrom());
-            ArrayList<InetSocketAddress> toConnectTransaction = new ArrayList<>();
-            ips.stream().forEach(ip -> {
-                try {
-                    toConnectTransaction.add(new InetSocketAddress(InetAddress.getByName(ip), RPCTransactionZonePort));
-                } catch (UnknownHostException e) {
-                    throw new RuntimeException(e);
-                }
-            });
-            RpcAdrestusClient client = null;
-            try {
-                client = new RpcAdrestusClient(new TransactionBlock(), toConnectTransaction, CachedEventLoop.getInstance().getEventloop());
-                client.connect();
-
-                ArrayList<String> to_search = new ArrayList<>();
-                to_search.add(String.valueOf(receipt.getReceiptBlock().getHeight()));
-
-                List<TransactionBlock> currentblock = client.getBlock(to_search);
-                if (currentblock.isEmpty()) {
-                    return "";
-                }
-
-                int index = receipt.getPosition();
-                Transaction trx = currentblock.get(currentblock.size() - 1).getTransactionList().get(index);
-
-                ReceiptBlock receiptBlock1 = new ReceiptBlock(StatusType.PENDING, receipt, currentblock.get(currentblock.size() - 1), trx);
-
-
+            TransactionBlock transactionBlock = receiptloadingCache.getIfPresent(receipt.getReceiptBlock().getHeight());
+            if (transactionBlock != null) {
+                Transaction trx = transactionBlock.getTransactionList().get(receipt.getPosition());
+                ReceiptBlock receiptBlock1 = new ReceiptBlock(StatusType.PENDING, receipt,transactionBlock, trx);
                 publisher.publish(receiptBlock1);
-            } catch (Exception e) {
-                e.printStackTrace();
-            } finally {
-                if (client != null) {
-                    client.close();
-                    client = null;
-                }
-                return "";
             }
+            else {
+                List<String> ips = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(receipt.getZoneFrom()).values().stream().collect(Collectors.toList());
+                ips.remove(IPFinder.getLocalIP());
+                int RPCTransactionZonePort = ZoneDatabaseFactory.getDatabaseRPCPort(receipt.getZoneFrom());
+                ArrayList<InetSocketAddress> toConnectTransaction = new ArrayList<>();
+                ips.stream().forEach(ip -> {
+                    try {
+                        toConnectTransaction.add(new InetSocketAddress(InetAddress.getByName(ip), RPCTransactionZonePort));
+                    } catch (UnknownHostException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
+                RpcAdrestusClient client = null;
+                try {
+                    client = new RpcAdrestusClient(new TransactionBlock(), toConnectTransaction, CachedEventLoop.getInstance().getEventloop());
+                    client.connect();
+
+                    ArrayList<String> to_search = new ArrayList<>();
+                    to_search.add(String.valueOf(receipt.getReceiptBlock().getHeight()));
+
+                    List<TransactionBlock> currentblock = client.getBlock(to_search);
+                    if (currentblock.isEmpty()) {
+                        return "";
+                    }
+
+                    int index = receipt.getPosition();
+                    Transaction trx = currentblock.get(currentblock.size() - 1).getTransactionList().get(index);
+
+                    ReceiptBlock receiptBlock1 = new ReceiptBlock(StatusType.PENDING, receipt, currentblock.get(currentblock.size() - 1), trx);
+                    receiptloadingCache.put(currentblock.get(currentblock.size() - 1).getHeight(), currentblock.get(currentblock.size() - 1));
+
+                    publisher.publish(receiptBlock1);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    if (client != null) {
+                        client.close();
+                        client = null;
+                    }
+                }
+            }
+            return "";
         };
 
         TransactionChannelHandler transactionChannelHandler = new TransactionChannelHandler<byte[]>(IPFinder.getLocal_address());
@@ -454,7 +472,7 @@ public class ConsensusTransactionTimer2Test {
         latch.await();
         c.close();
         if(CachedZoneIndex.getInstance().getZoneIndex() == 1) {
-            Thread.sleep(6300);
+            Thread.sleep(9300);
         }
         variable = true;
 

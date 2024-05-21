@@ -162,7 +162,7 @@ public class InBoundEventHandler implements BlockEventHandler<AbstractBlockEvent
                 CachedInboundTransactionBlocks.getInstance().store(zoneIndex, trxtosave);
             } catch (IllegalArgumentException e) {
                 bError = true;
-                if (my_pos == committeeBlock.getStructureMap().get(receiptZoneIndex).size() - 1) {
+                if (my_pos == committeeBlock.getStructureMap().get(receiptZoneIndex).size() - 1) {.
                     my_pos = 0;
                 } else {
                     my_pos = my_pos + 1;
