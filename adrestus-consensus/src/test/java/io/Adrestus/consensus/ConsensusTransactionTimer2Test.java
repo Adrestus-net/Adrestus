@@ -306,6 +306,9 @@ public class ConsensusTransactionTimer2Test {
         CachedEventLoop.getInstance().start();
 
         TCPTransactionConsumer<byte[]> callback = x -> {
+            if(CachedZoneIndex.getInstance().getZoneIndex() == 1) {
+                return "";
+            }
             Receipt receipt = recep.decode(x);
             if (receipt.getReceiptBlock() == null) {
                 return "";
@@ -445,11 +448,14 @@ public class ConsensusTransactionTimer2Test {
         if (CachedZoneIndex.getInstance().getZoneIndex() == 0) {
             Thread.sleep(4300);
         }
-        CountDownLatch latch = new CountDownLatch(2);
+        //first run 245,507,113,116,984,106 last 3 digits ip
+        CountDownLatch latch = new CountDownLatch(6);
         ConsensusTransaction2Timer c = new ConsensusTransaction2Timer(latch, addreses, keypair);
         latch.await();
         c.close();
-        Thread.sleep(6300);
+        if(CachedZoneIndex.getInstance().getZoneIndex() == 1) {
+            Thread.sleep(6300);
+        }
         variable = true;
 
         for (int i = 0; i < addreses.size() - 1; i++) {
@@ -459,8 +465,8 @@ public class ConsensusTransactionTimer2Test {
             assertEquals(974.1999999999999, TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(addreses.get(6)).get().getAmount());
         }
         if (CachedZoneIndex.getInstance().getZoneIndex() == 0) {
-            assertEquals(1018, TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(addreses.get(1)).get().getAmount());
-            assertEquals(1019.9, TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(addreses.get(2)).get().getAmount());
+            assertEquals(1027, TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(addreses.get(1)).get().getAmount());
+            assertEquals(1029.7, TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(addreses.get(2)).get().getAmount());
         }
     }
 

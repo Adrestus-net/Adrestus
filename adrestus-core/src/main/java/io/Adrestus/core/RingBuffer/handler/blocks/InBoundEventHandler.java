@@ -7,6 +7,7 @@ import io.Adrestus.core.Resourses.CachedInboundTransactionBlocks;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.core.RingBuffer.event.AbstractBlockEvent;
+import io.Adrestus.core.RingBuffer.publisher.ReceiptEventPublisher;
 import io.Adrestus.crypto.bls.model.CachedBLSKeyPair;
 import io.Adrestus.network.CachedEventLoop;
 import io.Adrestus.rpc.RpcAdrestusClient;
@@ -27,6 +28,7 @@ import java.util.stream.IntStream;
 public class InBoundEventHandler implements BlockEventHandler<AbstractBlockEvent> {
     private static Logger LOG = LoggerFactory.getLogger(InBoundEventHandler.class);
     private final IBlockIndex blockIndex;
+    private final ReceiptEventPublisher publisher;
 
     private TransactionBlock transactionBlock, transactionBlockClonable;
     private CommitteeBlock committeeBlock;
@@ -35,6 +37,19 @@ public class InBoundEventHandler implements BlockEventHandler<AbstractBlockEvent
     private CountDownLatch latch;
 
     public InBoundEventHandler() {
+        this.publisher = new ReceiptEventPublisher(1024);
+        this.publisher.
+                withGenerationEventHandler().
+                withHeightEventHandler().
+                withOutboundMerkleEventHandler().
+                withZoneEventHandler().
+                withReplayEventHandler().
+                withEmptyEventHandler().
+                withPublicKeyEventHandler()
+                .withSignatureEventHandler()
+                .withZoneFromEventHandler()
+                .mergeEventsWithNoInsert();
+        this.publisher.start();
         this.blockIndex = new BlockIndex();
     }
 
@@ -175,6 +190,7 @@ public class InBoundEventHandler implements BlockEventHandler<AbstractBlockEvent
         }
     }
 
+    @SneakyThrows
     public boolean PreConditionsChecks(final Receipt receipt, final Receipt.ReceiptBlock receiptBlock, final TransactionBlock transactionBlock, Transaction transaction, int index) {
         final MerkleTreeImp outer_tree = new MerkleTreeImp();
         final ArrayList<MerkleNode> merkleNodeArrayList = new ArrayList<>();
@@ -186,6 +202,15 @@ public class InBoundEventHandler implements BlockEventHandler<AbstractBlockEvent
         int val4 = Integer.compare(transactionBlock.getHeight(), receiptBlock.getHeight());
         int val5 = Integer.compare(transactionBlock.getGeneration(), receiptBlock.getGeneration());
         int val6 = Integer.compare(receipt.getZoneTo(), CachedZoneIndex.getInstance().getZoneIndex());
+
+        ReceiptBlock rcpBlock = new ReceiptBlock(StatusType.PENDING, receipt, transactionBlock, transaction);
+        publisher.publish(rcpBlock);
+        publisher.getJobSyncUntilRemainingCapacityZero();
+
+        if (rcpBlock.getStatusType().equals(StatusType.ABORT)) {
+            LOG.info("Receipt has errors aborted");
+            return false;
+        }
 
         if (val3 == 0 && val4 == 0.0 && val5 == 0 && val6 == 0 && bool3 && bool5)
             return true;

@@ -47,7 +47,7 @@ public class ReceiptBlockEvent implements Cloneable {
     }
 
     public void clear() {
-        this.receiptBlock.clear();
+//        this.receiptBlock.clear();
         this.receiptBlock = null;
     }
 }

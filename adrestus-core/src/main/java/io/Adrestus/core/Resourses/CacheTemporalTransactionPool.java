@@ -4,6 +4,7 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.PatriciaTreeNode;
+import io.Adrestus.config.CacheConfigurationTest;
 import io.Adrestus.core.StatusType;
 import io.Adrestus.core.Transaction;
 import lombok.SneakyThrows;
@@ -15,11 +16,6 @@ import java.util.Optional;
 import java.util.concurrent.*;
 
 public class CacheTemporalTransactionPool implements ICacheTemporalTransactionPool {
-    private static final int MAXIMUM_SIZE = 10000;
-    private static final int INITIAL_CAPACITY = 1000;
-    private static final int EXPIRATION_MINUTES = 5;
-
-    private static final int PERIOD = 500;
 
     private Cache<String, List<Transaction>> loadingCache;
 
@@ -32,10 +28,10 @@ public class CacheTemporalTransactionPool implements ICacheTemporalTransactionPo
         }
         this.scheduler = Executors.newScheduledThreadPool(1);
         this.loadingCache = Caffeine.newBuilder()
-                .initialCapacity(INITIAL_CAPACITY)
-                .maximumSize(MAXIMUM_SIZE)
-                .expireAfterWrite(EXPIRATION_MINUTES, TimeUnit.MINUTES)
-                .expireAfterAccess(EXPIRATION_MINUTES, TimeUnit.MINUTES)
+                .initialCapacity(CacheConfigurationTest.INITIAL_CAPACITY)
+                .maximumSize(CacheConfigurationTest.MAXIMUM_SIZE)
+                .expireAfterWrite(CacheConfigurationTest.EXPIRATION_MINUTES, TimeUnit.MINUTES)
+                .expireAfterAccess(CacheConfigurationTest.EXPIRATION_MINUTES, TimeUnit.MINUTES)
                 .build();
     }
 
