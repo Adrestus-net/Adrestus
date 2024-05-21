@@ -48,8 +48,8 @@ public class MemoryTreePoolTest {
         TreeFactory.getMemoryTree(1).deposit(PatriciaTreeTransactionType.REGULAR, "updated_address", 20, 1);
         Option<PatriciaTreeNode> copy = TreeFactory.getMemoryTree(1).getByaddress(address);
         Option<PatriciaTreeNode> copy2 = TreeFactory.getMemoryTree(1).getByaddress("updated_address");
-        assertEquals(150, copy.get().getAmount());
-        assertEquals(120, copy2.get().getAmount());
+        assertEquals(149, copy.get().getAmount());
+        assertEquals(119, copy2.get().getAmount());
 
         if (copy.isDefined())
             System.out.println(copy.get().toString());

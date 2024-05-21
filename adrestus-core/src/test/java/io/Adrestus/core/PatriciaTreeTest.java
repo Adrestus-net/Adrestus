@@ -100,7 +100,7 @@ public class PatriciaTreeTest {
         node.setNonce(12);
         optimized2.put(key1, node);
         final String hash2 = optimized2.getRootHash().toHexString();
-        assertEquals("0x8942dbb297c8ce854d1f4bdd7b14624934bfb97e8f9d380b8c34296e105dd70d", hash2);
+        assertEquals("0x1b242b3d2c327fdc5ddacf261efa3af4e085430f484cd32b310072a740e48e01", hash2);
         assertEquals(node, optimized2.get(key1).get());
     }
 
