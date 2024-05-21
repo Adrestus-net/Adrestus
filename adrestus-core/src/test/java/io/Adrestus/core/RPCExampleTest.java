@@ -811,6 +811,16 @@ class RPCExampleTest {
         CachedSerializableErasureObject.getInstance().setSerializableErasureObject(serializableErasureObjects.get(0));
         RpcErasureServer<SerializableErasureObject> example = new RpcErasureServer<SerializableErasureObject>(new SerializableErasureObject(), "localhost", 6082, eventloop, blocksize);
         new Thread(example).start();
+        (new Thread() {
+            public void run() {
+                try {
+                    Thread.sleep(900);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                CachedSerializableErasureObject.getInstance().setSerializableErasureObject(serializableErasureObjects.get(0));
+            }
+        }).start();
         RpcErasureClient<SerializableErasureObject> client = new RpcErasureClient<SerializableErasureObject>(new SerializableErasureObject(), "localhost", 6082, eventloop);
         client.connect();
         ArrayList<SerializableErasureObject> serializableErasureObject = (ArrayList<SerializableErasureObject>) client.getErasureChunks(new byte[0]);
@@ -831,7 +841,7 @@ class RPCExampleTest {
         (new Thread() {
             public void run() {
                 try {
-                    Thread.sleep(400);
+                    Thread.sleep(900);
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
@@ -858,15 +868,20 @@ class RPCExampleTest {
 
     }
 
-    //@Test
+    @Test
     public void erasure_test3() throws InterruptedException {
         RpcErasureServer example = new RpcErasureServer(new String(), "localhost", 6084, eventloop, blocksize);
         new Thread(example).start();
-        Thread.sleep(400);
-        example.close();
-        example = null;
-        example = new RpcErasureServer(new String(), "localhost", 6084, eventloop, blocksize);
-        new Thread(example).start();
+        (new Thread() {
+            public void run() {
+                try {
+                    Thread.sleep(900);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                CachedSerializableErasureObject.getInstance().setSerializableErasureObject(serializableErasureObjects.get(0));
+            }
+        }).start();
         RpcErasureClient<String> client = new RpcErasureClient<String>("localhost", 6084, 4000, eventloop);
         client.connect();
 
