@@ -100,6 +100,7 @@ public class ReceiptMain {
                 .withTimestampEventHandler()
                 .withSameOriginEventHandler()
                 .withDuplicateEventHandler()
+                .withMinimumStakingEventHandler()
                 .mergeEventsAndPassThen(signatureEventHandler);
         publisher.start();
 

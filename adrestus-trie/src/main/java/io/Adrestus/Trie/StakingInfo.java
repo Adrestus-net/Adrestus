@@ -5,7 +5,7 @@ import io.activej.serializer.annotations.Serialize;
 import java.io.Serializable;
 import java.util.Objects;
 
-public class StakingInfo implements Serializable {
+public class StakingInfo implements Serializable, Cloneable {
     private String Name;
     private String Details;
     private String Website;
@@ -96,5 +96,9 @@ public class StakingInfo implements Serializable {
                 ", Identity='" + Identity + '\'' +
                 ", CommissionRate=" + CommissionRate +
                 '}';
+    }
+
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
     }
 }

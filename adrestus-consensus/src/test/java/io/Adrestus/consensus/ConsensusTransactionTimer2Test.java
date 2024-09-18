@@ -294,10 +294,10 @@ public class ConsensusTransactionTimer2Test {
 
 
         if (CachedZoneIndex.getInstance().getZoneIndex() == 1) {
-            prevblock.setTransactionProposer(vk1.toRaw());
+            prevblock.setBlockProposer(vk1.toRaw());
             prevblock.setLeaderPublicKey(vk1);
         } else {
-            prevblock.setTransactionProposer(vk5.toRaw());
+            prevblock.setBlockProposer(vk5.toRaw());
             prevblock.setLeaderPublicKey(vk5);
         }
 

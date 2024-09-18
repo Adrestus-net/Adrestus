@@ -130,7 +130,7 @@ public class ChangeViewOrganizerConsensusPhase extends ChangeViewConsensusPhase 
 
         CachedLatestBlocks.getInstance().getTransactionBlock().setLeaderPublicKey(this.leader_bls);
         CachedLatestBlocks.getInstance().getTransactionBlock().setViewID(data.getData().getViewID());
-        CachedLatestBlocks.getInstance().getTransactionBlock().setTransactionProposer(this.leader_bls.toRaw());
+        CachedLatestBlocks.getInstance().getTransactionBlock().setBlockProposer(this.leader_bls.toRaw());
         LOG.info("Change View is finalized with Success");
     }
 }

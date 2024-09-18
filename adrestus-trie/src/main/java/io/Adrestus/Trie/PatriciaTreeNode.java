@@ -11,11 +11,13 @@ public class PatriciaTreeNode implements PatriciaTreeTransactionBlackSmith, Patr
 
     private double amount;
     private double staking_amount;
+    private double private_staking_amount;
     private double unclaimed_reward;
     private int nonce;
     private StakingInfo stakingInfo;
     private Map<PatriciaTreeTransactionType, @SerializeNullable PatriciaTreeTransactionMethods> transactionsMap;
     private PatriciaTreeReceiptMethods patriciaTreeReceiptMethods;
+    private Map<String, Double> delegation;
 
     public PatriciaTreeNode(double amount, int nonce) {
         this.amount = amount;
@@ -25,6 +27,7 @@ public class PatriciaTreeNode implements PatriciaTreeTransactionBlackSmith, Patr
         this.stakingInfo = new StakingInfo();
         this.patriciaTreeReceiptMethods = new PatriciaTreeReceipts();
         this.transactionsMap = new EnumMap<>(PatriciaTreeTransactionType.class);
+        this.delegation = new HashMap<>();
         this.Init();
     }
 
@@ -36,6 +39,20 @@ public class PatriciaTreeNode implements PatriciaTreeTransactionBlackSmith, Patr
         this.stakingInfo = new StakingInfo();
         this.patriciaTreeReceiptMethods = new PatriciaTreeReceipts();
         this.transactionsMap = new EnumMap<>(PatriciaTreeTransactionType.class);
+        this.delegation = new HashMap<>();
+        this.Init();
+    }
+    public PatriciaTreeNode(double amount, int nonce, double staking_amount,double private_staking_amount,double unclaimed_reward) {
+        this.amount = amount;
+        this.nonce = nonce;
+        this.staking_amount = staking_amount;
+        this.private_staking_amount=private_staking_amount;
+        this.unclaimed_reward = unclaimed_reward;
+        this.unclaimed_reward = 0;
+        this.stakingInfo = new StakingInfo();
+        this.patriciaTreeReceiptMethods = new PatriciaTreeReceipts();
+        this.transactionsMap = new EnumMap<>(PatriciaTreeTransactionType.class);
+        this.delegation = new HashMap<>();
         this.Init();
     }
 
@@ -47,6 +64,7 @@ public class PatriciaTreeNode implements PatriciaTreeTransactionBlackSmith, Patr
         this.stakingInfo = new StakingInfo();
         this.patriciaTreeReceiptMethods = new PatriciaTreeReceipts();
         this.transactionsMap = new EnumMap<>(PatriciaTreeTransactionType.class);
+        this.delegation = new HashMap<>();
         this.Init();
     }
 
@@ -58,6 +76,7 @@ public class PatriciaTreeNode implements PatriciaTreeTransactionBlackSmith, Patr
         this.stakingInfo = new StakingInfo();
         this.patriciaTreeReceiptMethods = new PatriciaTreeReceipts();
         this.transactionsMap = new EnumMap<>(PatriciaTreeTransactionType.class);
+        this.delegation = new HashMap<>();
         this.Init();
     }
 
@@ -69,6 +88,7 @@ public class PatriciaTreeNode implements PatriciaTreeTransactionBlackSmith, Patr
         this.stakingInfo = new StakingInfo();
         this.patriciaTreeReceiptMethods = new PatriciaTreeReceipts();
         this.transactionsMap = new EnumMap<>(PatriciaTreeTransactionType.class);
+        this.delegation = new HashMap<>();
         this.Init();
     }
 
@@ -197,6 +217,30 @@ public class PatriciaTreeNode implements PatriciaTreeTransactionBlackSmith, Patr
         this.transactionsMap = transactionsMap;
     }
 
+    public PatriciaTreeReceiptMethods getPatriciaTreeReceiptMethods() {
+        return patriciaTreeReceiptMethods;
+    }
+
+    public void setPatriciaTreeReceiptMethods(PatriciaTreeReceiptMethods patriciaTreeReceiptMethods) {
+        this.patriciaTreeReceiptMethods = patriciaTreeReceiptMethods;
+    }
+
+    public Map<String, Double> getDelegation() {
+        return delegation;
+    }
+
+    public void setDelegation(Map<String, Double> delegation) {
+        this.delegation = delegation;
+    }
+
+    public double getPrivate_staking_amount() {
+        return private_staking_amount;
+    }
+
+    public void setPrivate_staking_amount(double private_staking_amount) {
+        this.private_staking_amount = private_staking_amount;
+    }
+
     @Override
     public Object clone() throws CloneNotSupportedException {
         return super.clone();
@@ -249,12 +293,12 @@ public class PatriciaTreeNode implements PatriciaTreeTransactionBlackSmith, Patr
         if (o == null || getClass() != o.getClass()) return false;
         PatriciaTreeNode that = (PatriciaTreeNode) o;
 //        Stream.of(that.transactionsMap.keySet()).map()
-        return Double.compare(amount, that.amount) == 0 && Double.compare(staking_amount, that.staking_amount) == 0 && Double.compare(unclaimed_reward, that.unclaimed_reward) == 0 && nonce == that.nonce && Objects.equals(stakingInfo, that.stakingInfo) && linkedEquals(transactionsMap, that.transactionsMap) && Objects.equals(patriciaTreeReceiptMethods, that.patriciaTreeReceiptMethods);
+        return Double.compare(amount, that.amount) == 0 && Double.compare(private_staking_amount, that.private_staking_amount) == 0 &&Double.compare(staking_amount, that.staking_amount) == 0 && Double.compare(unclaimed_reward, that.unclaimed_reward) == 0 && nonce == that.nonce && Objects.equals(stakingInfo, that.stakingInfo) && linkedEquals(transactionsMap, that.transactionsMap) && Objects.equals(patriciaTreeReceiptMethods, that.patriciaTreeReceiptMethods) && Objects.equals(delegation, that.delegation);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(amount, staking_amount, unclaimed_reward, nonce, stakingInfo, transactionsMap, patriciaTreeReceiptMethods);
+        return Objects.hash(amount, staking_amount, unclaimed_reward, nonce, stakingInfo, transactionsMap, patriciaTreeReceiptMethods, delegation,private_staking_amount);
     }
 
     @Override
@@ -262,11 +306,14 @@ public class PatriciaTreeNode implements PatriciaTreeTransactionBlackSmith, Patr
         return "PatriciaTreeNode{" +
                 "amount=" + amount +
                 ", staking_amount=" + staking_amount +
+                ", private_staking_amount=" + private_staking_amount +
                 ", unclaimed_reward=" + unclaimed_reward +
                 ", nonce=" + nonce +
                 ", stakingInfo=" + stakingInfo +
                 ", transactionsMap=" + transactionsMap +
                 ", patriciaTreeReceiptMethods=" + patriciaTreeReceiptMethods +
+                ", delegation=" + delegation +
                 '}';
     }
 }
+

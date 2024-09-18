@@ -7,10 +7,7 @@ import io.Adrestus.crypto.bls.constants.Constants;
 import io.Adrestus.crypto.bls.utils.CommonUtils;
 import org.apache.tuweni.bytes.Bytes;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -23,6 +20,14 @@ public class BLSSignature {
         System.arraycopy(Constants.MESSAGE_DOMAIN_PREFIX, 0, tmp, 0, Constants.MESSAGE_DOMAIN_PREFIX.length);
         System.arraycopy(msg, 0, tmp, Constants.MESSAGE_DOMAIN_PREFIX.length, msg.length);
         return new G2Point(HashUtil.Shake256(tmp));
+    }
+
+
+    public static String GetMessageHashAsBase64String(byte[] msg) {
+        byte[] tmp = new byte[Constants.MESSAGE_DOMAIN_PREFIX.length + msg.length];
+        System.arraycopy(Constants.MESSAGE_DOMAIN_PREFIX, 0, tmp, 0, Constants.MESSAGE_DOMAIN_PREFIX.length);
+        System.arraycopy(msg, 0, tmp, Constants.MESSAGE_DOMAIN_PREFIX.length, msg.length);
+        return Base64.getEncoder().encodeToString(HashUtil.Shake256(tmp));
     }
 
     public static Signature sign(byte[] msg, BLSPrivateKey sigKey) {
@@ -54,6 +59,17 @@ public class BLSSignature {
         }
         G2Point hashPoint = hashMessage(msg);
         G1Point g = new G1Point(HashUtil.Shake256(param));
+        g.neg();
+        GTPoint gt = GTPoint.ate2Pairing(publicKey.getPoint(), hashPoint, g, sig.getPoint());
+        return gt.value.isunity();
+    }
+
+    public static boolean verify(Signature sig, String msg, BLSPublicKey publicKey) {
+        if (sig.getPoint().getValue().is_infinity()) {
+            return false;
+        }
+        G2Point hashPoint = new G2Point(Base64.getDecoder().decode(msg));
+        G1Point g = new G1Point(ECP.generator());
         g.neg();
         GTPoint gt = GTPoint.ate2Pairing(publicKey.getPoint(), hashPoint, g, sig.getPoint());
         return gt.value.isunity();

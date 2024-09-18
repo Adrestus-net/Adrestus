@@ -319,7 +319,7 @@ public class BootstrapConsensusTest {
         prevblock.setHeight(1);
         prevblock.setHash("hash");
         prevblock.getHeaderData().setTimestamp(GetTime.GetTimeStampInString());
-        prevblock.setTransactionProposer(vk1.toRaw());
+        prevblock.setBlockProposer(vk1.toRaw());
         prevblock.setLeaderPublicKey(vk1);
         CachedLatestBlocks.getInstance().setTransactionBlock(prevblock);
 

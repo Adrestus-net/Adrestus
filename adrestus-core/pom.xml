@@ -22,6 +22,7 @@
         <util.version>1.0-SNAPSHOT</util.version>
         <trie.version>1.0-SNAPSHOT</trie.version>
         <network.version>1.0-SNAPSHOT</network.version>
+        <config.version>1.0-SNAPSHOT</config.version>
         <ledger.version>1.0-SNAPSHOT</ledger.version>
         <crypto.version>1.0-SNAPSHOT</crypto.version>
         <erasure-code.version>1.0-SNAPSHOT</erasure-code.version>
@@ -44,6 +45,11 @@
         </repository>
     </repositories>
     <dependencies>
+        <dependency>
+            <groupId>io.Adrestus.v1</groupId>
+            <artifactId>adrestus-config</artifactId>
+            <version>${config.version}</version>
+        </dependency>
         <dependency>
             <groupId>io.Adrestus.v1</groupId>
             <artifactId>adrestus-util</artifactId>
@@ -184,6 +190,15 @@
                 </dependencies>
             </plugin>
         </plugins>
+        <resources>
+            <resource>
+                <directory>src/resources</directory>
+                <includes>
+                    <include>**/*.dll</include>
+                    <include>**/*.so</include>
+                </includes>
+            </resource>
+        </resources>
     </build>
 </project>
         <!---mvn archetype:generate -DgroupId=io.Adrestus.v1 -DpackageName=serializer -DarchetypeArtifactId=adrestus-util-serializer -DarchetypeVersion=1.4 -DinteractiveMode=false -->

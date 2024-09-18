@@ -361,8 +361,9 @@ public class OrganizerConsensusPhases {
             //##############################################################
             int pos = 0;
             for (BLSPublicKey blsPublicKey : publicKeys) {
-                BLSSignatureData BLSSignatureData = new BLSSignatureData(blsPublicKey);
+                BLSSignatureData BLSSignatureData = new BLSSignatureData();
                 BLSSignatureData.getSignature()[0] = signature.get(pos);
+                BLSSignatureData.getMessageHash()[0] = BLSSignature.GetMessageHashAsBase64String(message.toArray());
                 signatureDataMap.put(blsPublicKey, BLSSignatureData);
                 pos++;
             }
@@ -460,6 +461,7 @@ public class OrganizerConsensusPhases {
             for (BLSPublicKey blsPublicKey : publicKeys) {
                 BLSSignatureData BLSSignatureData = signatureDataMap.get(blsPublicKey);
                 BLSSignatureData.getSignature()[1] = signature.get(pos);
+                BLSSignatureData.getMessageHash()[1] = BLSSignature.GetMessageHashAsBase64String(message.toArray());
                 signatureDataMap.put(blsPublicKey, BLSSignatureData);
                 pos++;
             }
@@ -481,7 +483,7 @@ public class OrganizerConsensusPhases {
             regural_block.InventTransactionBlock(this.original_copy);
 
             BLSPublicKey next_key = blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedLeaderIndex.getInstance().getTransactionPositionLeader());
-            CachedLatestBlocks.getInstance().getTransactionBlock().setTransactionProposer(next_key.toRaw());
+            CachedLatestBlocks.getInstance().getTransactionBlock().setBlockProposer(next_key.toRaw());
             CachedLatestBlocks.getInstance().getTransactionBlock().setLeaderPublicKey(next_key);
             long Commiteefinish = System.currentTimeMillis();
             long timeElapsed = Commiteefinish - Commiteerestart;

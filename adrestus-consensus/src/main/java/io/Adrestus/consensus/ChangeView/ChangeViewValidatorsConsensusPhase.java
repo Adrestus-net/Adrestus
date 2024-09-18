@@ -143,7 +143,7 @@ public class ChangeViewValidatorsConsensusPhase extends ChangeViewConsensusPhase
             consensusClient.send_heartbeat(HEARTBEAT_MESSAGE);
             CachedLatestBlocks.getInstance().getTransactionBlock().setLeaderPublicKey(this.leader_bls);
             CachedLatestBlocks.getInstance().getTransactionBlock().setViewID(data.getData().getViewID());
-            CachedLatestBlocks.getInstance().getTransactionBlock().setTransactionProposer(this.leader_bls.toRaw());
+            CachedLatestBlocks.getInstance().getTransactionBlock().setBlockProposer(this.leader_bls.toRaw());
             cleanup();
             LOG.info("Change View is finalized with Success");
         }

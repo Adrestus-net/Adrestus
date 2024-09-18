@@ -40,6 +40,7 @@ public class RingBufferTest {
                 .withZoneEventHandler()
                 .withSecp256k1EventHandler()
                 .withDuplicateEventHandler()
+                .withMinimumStakingEventHandler()
                 .mergeEvents();
         publisher.start();
     }

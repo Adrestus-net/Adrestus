@@ -2,12 +2,15 @@ package io.Adrestus;
 
 import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.Trie.PatriciaTreeTransactionType;
+import io.Adrestus.Trie.StakingInfo;
 import io.Adrestus.Trie.optimize64_trie.MerklePatriciaTrie;
 import io.Adrestus.util.bytes.Bytes;
 import io.Adrestus.util.bytes.Bytes53;
 import io.vavr.control.Option;
+import org.apache.commons.codec.DecoderException;
 
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
 import java.util.Set;
 
 public interface IMemoryTreePool extends Serializable {
@@ -17,7 +20,12 @@ public interface IMemoryTreePool extends Serializable {
 
     void withdraw(PatriciaTreeTransactionType type, String address, double amount, double fees);
 
-    Option<PatriciaTreeNode> getByaddress(String address);
+
+    void setStakingInfos(String address, StakingInfo stakingInfo);
+
+    Option<PatriciaTreeNode> getByaddress(String address) ;
+
+    String BytesToHexStringAddress(Bytes bytes);
 
     String getRootHash() throws Exception;
 

@@ -53,7 +53,7 @@ test-miniblocks-memp2p-v:
 test-miniblocks-v:
 	go test -count=1 -v --run=TestShouldProcessBlocksInMultiShardArchitecture ./integrationTests/multiShard/block/
 
-test-agario-join-reward:
+test-agario-join-request:
 	go test -count=1 -v --run=TestShouldProcessBlocksWithScTxsJoinAndReward ./integrationTests/singleShard/block/
 
 test-miniblocks-sc-v:

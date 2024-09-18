@@ -144,6 +144,7 @@ public class ConsensusTransaction2Timer {
                 .withSameOriginEventHandler()
                 .withZoneEventHandler()
                 .withDuplicateEventHandler()
+                .withMinimumStakingEventHandler()
                 .mergeEventsAndPassThen(signatureEventHandler);
         publisher.start();
 

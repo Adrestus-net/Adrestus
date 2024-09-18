@@ -124,6 +124,7 @@ public class TransactionStrategyTest {
                 .withSameOriginEventHandler()
                 .withZoneEventHandler()
                 .withDuplicateEventHandler()
+                .withMinimumStakingEventHandler()
                 .mergeEventsAndPassThen(eventHandler);
         publisher.start();
 

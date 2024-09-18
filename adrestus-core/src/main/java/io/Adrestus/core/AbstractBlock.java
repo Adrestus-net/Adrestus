@@ -20,7 +20,9 @@ public abstract class AbstractBlock extends Object implements BlockFactory, Disr
     private int Size;
     private int Height;
     private int Generation;
-    protected int ViewID;
+    private int ViewID;
+    private String BlockProposer;
+    private BLSPublicKey LeaderPublicKey;
     private Map<BLSPublicKey, BLSSignatureData> signatureData;
 
 
@@ -31,14 +33,18 @@ public abstract class AbstractBlock extends Object implements BlockFactory, Disr
         this.Height = height;
         this.Generation = generation;
         this.ViewID = viewID;
+        this.LeaderPublicKey = new BLSPublicKey();
         this.signatureData = new HashMap<BLSPublicKey, BLSSignatureData>();
+        this.BlockProposer = "";
     }
 
-    public AbstractBlock(String previousHash, int height, int generation) {
+    public AbstractBlock(String previousHash, int height, int generation,String blockProposer) {
         this.header = new Header(previousHash);
         this.Height = height;
         this.Generation = generation;
+        this.LeaderPublicKey = new BLSPublicKey();
         this.signatureData = new HashMap<BLSPublicKey, BLSSignatureData>();
+        this.BlockProposer = blockProposer;
     }
 
     public AbstractBlock(String Hash, String previousHash, int size, int height, String timestamp) {
@@ -46,7 +52,9 @@ public abstract class AbstractBlock extends Object implements BlockFactory, Disr
         this.header = new Header(previousHash, timestamp);
         this.Size = size;
         this.Height = height;
+        this.LeaderPublicKey = new BLSPublicKey();
         this.signatureData = new HashMap<BLSPublicKey, BLSSignatureData>();
+        this.BlockProposer = "";
     }
 
     public AbstractBlock(String Hash, String previousHash, int size, int height, int generation, int viewID, String timestamp) {
@@ -58,6 +66,8 @@ public abstract class AbstractBlock extends Object implements BlockFactory, Disr
         this.ViewID = viewID;
         this.signatureData = new HashMap<BLSPublicKey, BLSSignatureData>();
         this.Statustype = StatusType.PENDING;
+        this.LeaderPublicKey = new BLSPublicKey();
+        this.BlockProposer = "";
     }
 
     public AbstractBlock() {
@@ -69,6 +79,8 @@ public abstract class AbstractBlock extends Object implements BlockFactory, Disr
         this.Generation = 0;
         this.ViewID = 0;
         this.signatureData = new HashMap<BLSPublicKey, BLSSignatureData>();
+        this.LeaderPublicKey = new BLSPublicKey();
+        this.BlockProposer = "";
     }
 
     @Serialize
@@ -157,17 +169,34 @@ public abstract class AbstractBlock extends Object implements BlockFactory, Disr
         this.signatureData = signatureData;
     }
 
+
+    public String getBlockProposer() {
+        return BlockProposer;
+    }
+
+    public void setBlockProposer(String blockProposer) {
+        BlockProposer = blockProposer;
+    }
+
+    public BLSPublicKey getLeaderPublicKey() {
+        return LeaderPublicKey;
+    }
+
+    public void setLeaderPublicKey(BLSPublicKey leaderPublicKey) {
+        LeaderPublicKey = leaderPublicKey;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        AbstractBlock block = (AbstractBlock) o;
-        return Size == block.Size && Height == block.Height && Generation == block.Generation && ViewID == block.ViewID && Objects.equal(header, block.header) && Statustype == block.Statustype && Objects.equal(Hash, block.Hash) && Objects.equal(signatureData, block.signatureData);
+        AbstractBlock that = (AbstractBlock) o;
+        return Size == that.Size && Height == that.Height && Generation == that.Generation && ViewID == that.ViewID && java.util.Objects.equals(header, that.header) && Statustype == that.Statustype && java.util.Objects.equals(Hash, that.Hash) && java.util.Objects.equals(BlockProposer, that.BlockProposer) && java.util.Objects.equals(LeaderPublicKey, that.LeaderPublicKey) && java.util.Objects.equals(signatureData, that.signatureData);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(header, Statustype, Hash, Size, Height, Generation, ViewID, signatureData);
+        return java.util.Objects.hash(header, Statustype, Hash, Size, Height, Generation, ViewID, BlockProposer, LeaderPublicKey, signatureData);
     }
 
     @Override
@@ -180,6 +209,8 @@ public abstract class AbstractBlock extends Object implements BlockFactory, Disr
                 ", Height=" + Height +
                 ", Generation=" + Generation +
                 ", ViewID=" + ViewID +
+                ", TransactionProposer='" + BlockProposer + '\'' +
+                ", LeaderPublicKey=" + LeaderPublicKey +
                 ", signatureData=" + signatureData +
                 '}';
     }

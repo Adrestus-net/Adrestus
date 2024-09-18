@@ -110,7 +110,10 @@ public class TransactionEventPublisher implements Publisher<Transaction> {
         }
     }
 
-
+    public TransactionEventPublisher withMinimumStakingEventHandler() {
+        group.add(new MinimumStakingEventHandler());
+        return this;
+    }
     public TransactionEventPublisher withDelegateEventHandler() {
         group.add(new DelegateEventHandler());
         return this;

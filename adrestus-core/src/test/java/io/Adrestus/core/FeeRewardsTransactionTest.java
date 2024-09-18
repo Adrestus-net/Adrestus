@@ -377,6 +377,7 @@ public class FeeRewardsTransactionTest {
                 .withZoneEventHandler()
                 .withSecp256k1EventHandler()
                 .withDuplicateEventHandler()
+                .withMinimumStakingEventHandler()
                 .mergeEventsAndPassThen(signatureEventHandler);
         publisher.start();
 

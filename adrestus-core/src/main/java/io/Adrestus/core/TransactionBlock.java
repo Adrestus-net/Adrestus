@@ -1,6 +1,5 @@
 package io.Adrestus.core;
 
-import com.google.common.base.Objects;
 import io.Adrestus.core.RingBuffer.handler.blocks.DisruptorBlock;
 import io.Adrestus.core.RingBuffer.handler.blocks.DisruptorBlockVisitor;
 import io.Adrestus.crypto.bls.BLSSignatureData;
@@ -11,6 +10,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class TransactionBlock extends AbstractBlock implements BlockFactory, DisruptorBlock, Serializable {
     private int Zone;
@@ -18,54 +18,45 @@ public class TransactionBlock extends AbstractBlock implements BlockFactory, Dis
     private List<StakingTransaction> StakingTransactionList;
     private InboundRelay Inbound;
     private OutBoundRelay Outbound;
-    private String TransactionProposer;
-    private BLSPublicKey LeaderPublicKey;
     private String MerkleRoot;
     private String PatriciaMerkleRoot;
 
 
-    public TransactionBlock(String previousHash, int height, int Generation, int zone, List<Transaction> transactionList, String transactionProposer) {
-        super(previousHash, height, Generation);
+    public TransactionBlock(String previousHash, int height, int Generation, int zone, List<Transaction> transactionList, String blockProposer) {
+        super(previousHash, height, Generation,blockProposer);
         this.Zone = zone;
         this.TransactionList = transactionList;
-        this.TransactionProposer = transactionProposer;
     }
 
     public TransactionBlock(String hash, String previousHash, int size, int height, String timestamp) {
         super(hash, previousHash, size, height, timestamp);
-        this.LeaderPublicKey = new BLSPublicKey();
         this.Zone = 0;
         this.TransactionList = new ArrayList<>();
         this.StakingTransactionList = new ArrayList<>();
         this.Inbound = new InboundRelay();
         this.Outbound = new OutBoundRelay();
-        this.TransactionProposer = "";
         this.MerkleRoot = "";
         this.PatriciaMerkleRoot = "";
     }
 
     public TransactionBlock(String hash, String previousHash, int size, int height, int generation, int viewID, String timestamp, int zone) {
         super(hash, previousHash, size, height, generation, viewID, timestamp);
-        this.LeaderPublicKey = new BLSPublicKey();
         this.Zone = zone;
         this.TransactionList = new ArrayList<>();
         this.StakingTransactionList = new ArrayList<>();
         this.Inbound = new InboundRelay();
         this.Outbound = new OutBoundRelay();
-        this.TransactionProposer = "";
         this.MerkleRoot = "";
         this.PatriciaMerkleRoot = "";
     }
 
     public TransactionBlock() {
         super();
-        this.LeaderPublicKey = new BLSPublicKey();
         this.Zone = 0;
         this.TransactionList = new ArrayList<>();
         this.StakingTransactionList = new ArrayList<>();
         this.Inbound = new InboundRelay();
         this.Outbound = new OutBoundRelay();
-        this.TransactionProposer = "";
         this.MerkleRoot = "";
         this.PatriciaMerkleRoot = "";
     }
@@ -131,12 +122,12 @@ public class TransactionBlock extends AbstractBlock implements BlockFactory, Dis
     }
 
     @Serialize
-    public String getTransactionProposer() {
-        return TransactionProposer;
+    public String getBlockProposer() {
+        return super.getBlockProposer();
     }
 
-    public void setTransactionProposer(String transactionProposer) {
-        TransactionProposer = transactionProposer;
+    public void setBlockProposer(String blockProposer) {
+        super.setBlockProposer(blockProposer);
     }
 
     @Serialize
@@ -150,11 +141,11 @@ public class TransactionBlock extends AbstractBlock implements BlockFactory, Dis
 
     @Serialize
     public BLSPublicKey getLeaderPublicKey() {
-        return LeaderPublicKey;
+        return super.getLeaderPublicKey();
     }
 
     public void setLeaderPublicKey(BLSPublicKey leaderPublicKey) {
-        LeaderPublicKey = leaderPublicKey;
+        super.setLeaderPublicKey(leaderPublicKey);
     }
 
     @Serialize
@@ -182,12 +173,12 @@ public class TransactionBlock extends AbstractBlock implements BlockFactory, Dis
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
         TransactionBlock that = (TransactionBlock) o;
-        return Zone == that.Zone && Objects.equal(TransactionList, that.TransactionList) && Objects.equal(StakingTransactionList, that.StakingTransactionList) && Objects.equal(Inbound, that.Inbound) && Objects.equal(Outbound, that.Outbound) && Objects.equal(TransactionProposer, that.TransactionProposer) && Objects.equal(LeaderPublicKey, that.LeaderPublicKey) && Objects.equal(MerkleRoot, that.MerkleRoot) && Objects.equal(PatriciaMerkleRoot, that.PatriciaMerkleRoot);
+        return Zone == that.Zone && Objects.equals(TransactionList, that.TransactionList) && Objects.equals(StakingTransactionList, that.StakingTransactionList) && Objects.equals(Inbound, that.Inbound) && Objects.equals(Outbound, that.Outbound) && Objects.equals(MerkleRoot, that.MerkleRoot) && Objects.equals(PatriciaMerkleRoot, that.PatriciaMerkleRoot);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(super.hashCode(), Zone, TransactionList, StakingTransactionList, Inbound, Outbound, TransactionProposer, LeaderPublicKey, MerkleRoot, PatriciaMerkleRoot);
+        return Objects.hash(super.hashCode(), Zone, TransactionList, StakingTransactionList, Inbound, Outbound, MerkleRoot, PatriciaMerkleRoot);
     }
 
     @Override
@@ -217,8 +208,6 @@ public class TransactionBlock extends AbstractBlock implements BlockFactory, Dis
                 ", StakingTransactionList=" + StakingTransactionList +
                 ", Inbound=" + Inbound +
                 ", Outbound=" + Outbound +
-                ", TransactionProposer='" + TransactionProposer + '\'' +
-                ", LeaderPublicKey=" + LeaderPublicKey +
                 ", MerkleRoot='" + MerkleRoot + '\'' +
                 ", PatriciaMerkleRoot='" + PatriciaMerkleRoot + '\'' +
                 '}';

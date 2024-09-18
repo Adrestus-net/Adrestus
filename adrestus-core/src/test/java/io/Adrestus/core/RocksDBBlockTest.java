@@ -391,6 +391,7 @@ public class RocksDBBlockTest {
         database.saveAll(map);
 
         Map<String, TransactionBlock> map_returned = database.findBetweenRange("hash1");
+        assertEquals(map,map_returned);
         Optional<String> firstKey = map_returned.keySet().stream().findFirst();
         assertEquals("hash1", firstKey.get());
         database.delete_db();

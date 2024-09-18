@@ -113,6 +113,7 @@ public class AsyncServiceTest {
                 .withSameOriginEventHandler()
                 .withZoneEventHandler()
                 .withDuplicateEventHandler()
+                .withMinimumStakingEventHandler()
                 .mergeEventsAndPassThen(signatureEventHandler);
         publisher.start();
         ArrayList<String> addreses = new ArrayList<>();

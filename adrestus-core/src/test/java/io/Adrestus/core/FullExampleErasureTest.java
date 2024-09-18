@@ -194,7 +194,7 @@ public class FullExampleErasureTest {
         transactionBlock.setViewID(1);
         transactionBlock.setZone(CachedZoneIndex.getInstance().getZoneIndex());
         transactionBlock.setLeaderPublicKey(vk1);
-        transactionBlock.setTransactionProposer(vk1.toRaw());
+        transactionBlock.setBlockProposer(vk1.toRaw());
         transactionBlock.setTransactionList(transactions);
         transactionBlock.setHash("hash10");
         transactionBlock.setSize(1);

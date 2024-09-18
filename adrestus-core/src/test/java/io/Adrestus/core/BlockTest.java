@@ -336,6 +336,7 @@ public class BlockTest {
                 .withZoneEventHandler()
                 .withSecp256k1EventHandler()
                 .withDuplicateEventHandler()
+                .withMinimumStakingEventHandler()
                 .mergeEventsAndPassThen(signatureEventHandler);
         publisher.start();
 
@@ -411,7 +412,7 @@ public class BlockTest {
         prevblock.setHash("hash");
         prevblock.getHeaderData().setTimestamp(GetTime.GetTimeStampInString());
         Thread.sleep(1000);
-        prevblock.setTransactionProposer(vk1.toRaw());
+        prevblock.setBlockProposer(vk1.toRaw());
         prevblock.setLeaderPublicKey(vk1);
         CachedLatestBlocks.getInstance().setTransactionBlock(prevblock);
 
@@ -436,7 +437,7 @@ public class BlockTest {
             transactionBlock.setGeneration(CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration());
             transactionBlock.setViewID(CachedLatestBlocks.getInstance().getTransactionBlock().getViewID() + 1);
             transactionBlock.setZone(CachedZoneIndex.getInstance().getZoneIndex());
-            transactionBlock.setTransactionProposer(CachedBLSKeyPair.getInstance().getPublicKey().toRaw());
+            transactionBlock.setBlockProposer(CachedBLSKeyPair.getInstance().getPublicKey().toRaw());
             transactionBlock.setLeaderPublicKey(CachedBLSKeyPair.getInstance().getPublicKey());
             transactionBlock.setTransactionList((List<Transaction>) transactions.clone());
 
@@ -549,7 +550,7 @@ public class BlockTest {
         prevblock.setHash("hash");
         prevblock.getHeaderData().setTimestamp(GetTime.GetTimeStampInString());
         Thread.sleep(1000);
-        prevblock.setTransactionProposer(vk1.toRaw());
+        prevblock.setBlockProposer(vk1.toRaw());
         prevblock.setLeaderPublicKey(vk1);
         CachedLatestBlocks.getInstance().setTransactionBlock(prevblock);
         int count = 0;
@@ -565,7 +566,7 @@ public class BlockTest {
             transactionBlock.setGeneration(CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration());
             transactionBlock.setViewID(CachedLatestBlocks.getInstance().getTransactionBlock().getViewID() + 1);
             transactionBlock.setZone(CachedZoneIndex.getInstance().getZoneIndex());
-            transactionBlock.setTransactionProposer(CachedBLSKeyPair.getInstance().getPublicKey().toRaw());
+            transactionBlock.setBlockProposer(CachedBLSKeyPair.getInstance().getPublicKey().toRaw());
             transactionBlock.setLeaderPublicKey(CachedBLSKeyPair.getInstance().getPublicKey());
             transactionBlock.setTransactionList((List<Transaction>) outer_transactions.clone());
 

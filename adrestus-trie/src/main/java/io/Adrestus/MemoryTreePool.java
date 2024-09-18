@@ -3,6 +3,7 @@ package io.Adrestus;
 import com.google.common.base.Objects;
 import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.Trie.PatriciaTreeTransactionType;
+import io.Adrestus.Trie.StakingInfo;
 import io.Adrestus.Trie.optimize64_trie.MerklePatriciaTrie;
 import io.Adrestus.util.bytes.Bytes;
 import io.Adrestus.util.bytes.Bytes53;
@@ -13,6 +14,7 @@ import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.SerializationUtils;
 
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.EnumMap;
@@ -115,6 +117,15 @@ public class MemoryTreePool implements IMemoryTreePool, Cloneable {
         }
     }
 
+    @SneakyThrows
+    @Override
+    public void setStakingInfos(String address, StakingInfo stakingInfo) {
+        Bytes key = Bytes.wrap(address.getBytes(StandardCharsets.UTF_8));
+        PatriciaTreeNode prev = (PatriciaTreeNode) patriciaTreeImp.get(key).get().clone();
+        prev.setStakingInfo((StakingInfo) stakingInfo.clone());
+        patriciaTreeImp.put(key, prev);
+    }
+
 
     @Override
     public Option<PatriciaTreeNode> getByaddress(String address) {
@@ -122,6 +133,22 @@ public class MemoryTreePool implements IMemoryTreePool, Cloneable {
         try {
             Bytes key = Bytes.wrap(address.getBytes(StandardCharsets.UTF_8));
             return patriciaTreeImp.get(key);
+        } finally {
+            r.unlock();
+        }
+    }
+
+    @Override
+    public String BytesToHexStringAddress(Bytes key) {
+        r.lock();
+        try {
+            String hexString = key.toUnprefixedHexString();
+            byte[] bytes = Hex.decodeHex(hexString.toCharArray());
+            return new String(bytes, "UTF-8");
+        } catch (DecoderException e) {
+            throw new RuntimeException(e);
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
         } finally {
             r.unlock();
         }

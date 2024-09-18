@@ -1354,8 +1354,9 @@ public class ValidatorConsensusPhases {
             //##############################################################
             int pos = 0;
             for (BLSPublicKey blsPublicKey : publicKeys) {
-                BLSSignatureData BLSSignatureData = new BLSSignatureData(blsPublicKey);
+                BLSSignatureData BLSSignatureData = new BLSSignatureData();
                 BLSSignatureData.getSignature()[0] = signature.get(pos);
+                BLSSignatureData.getMessageHash()[0] = BLSSignature.GetMessageHashAsBase64String(toVerify.toArray());
                 signatureDataMap.put(blsPublicKey, BLSSignatureData);
                 pos++;
             }
@@ -1502,6 +1503,7 @@ public class ValidatorConsensusPhases {
             for (BLSPublicKey blsPublicKey : publicKeys) {
                 BLSSignatureData BLSSignatureData = signatureDataMap.get(blsPublicKey);
                 BLSSignatureData.getSignature()[1] = signature.get(pos);
+                BLSSignatureData.getMessageHash()[1] = BLSSignature.GetMessageHashAsBase64String(toVerify.toArray());
                 signatureDataMap.put(blsPublicKey, BLSSignatureData);
                 pos++;
             }
@@ -1516,7 +1518,7 @@ public class ValidatorConsensusPhases {
             this.original_copy.setSignatureData(signatureDataMap);
             BlockInvent regural_block = (BlockInvent) factory.getBlock(BlockType.REGULAR);
             BLSPublicKey next_key = blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedLeaderIndex.getInstance().getTransactionPositionLeader());
-            this.original_copy.setTransactionProposer(next_key.toRaw());
+            this.original_copy.setBlockProposer(next_key.toRaw());
             this.original_copy.setLeaderPublicKey(next_key);
             regural_block.InventTransactionBlock(this.original_copy);
             // consensusClient.send_heartbeat(HEARTBEAT_MESSAGE);
@@ -1888,6 +1890,7 @@ public class ValidatorConsensusPhases {
                 return;
             }
 
+            CachedStartHeightRewards.getInstance().setRewardsCommitteeEnabled(false);
             BlockInvent regural_block = (BlockInvent) factory.getBlock(BlockType.REGULAR);
             regural_block.InventCommitteBlock(block.getData());
             //commit save to db

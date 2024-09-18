@@ -117,6 +117,7 @@ public class ReceiptsTest {
                 .withTimestampEventHandler()
                 .withSameOriginEventHandler()
                 .withDuplicateEventHandler()
+                .withMinimumStakingEventHandler()
                 .mergeEventsAndPassThen(signatureEventHandler);
         publisher.start();
 

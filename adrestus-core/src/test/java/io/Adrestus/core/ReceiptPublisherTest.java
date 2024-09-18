@@ -105,6 +105,7 @@ public class ReceiptPublisherTest {
                 .withTimestampEventHandler()
                 .withSameOriginEventHandler()
                 .withDuplicateEventHandler()
+                .withMinimumStakingEventHandler()
                 .mergeEventsAndPassThen(signatureEventHandler);
         publisher.start();
 

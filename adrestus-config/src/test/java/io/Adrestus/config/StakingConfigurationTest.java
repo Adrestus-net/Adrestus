@@ -8,6 +8,7 @@ public class StakingConfigurationTest {
 
     @Test
     public void test() {
-        assertEquals(1000, StakingConfiguration.MINIMUM_STAKING);
+        assertEquals(100, StakingConfiguration.MINIMUM_STAKING);
+        assertEquals(0.85, StakingConfiguration.C);
     }
 }

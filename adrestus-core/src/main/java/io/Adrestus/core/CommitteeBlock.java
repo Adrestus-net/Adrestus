@@ -20,7 +20,7 @@ public class CommitteeBlock extends AbstractBlock implements BlockFactory, Disru
     private int difficulty;
 
     public CommitteeBlock(String previousHash, int height, int Generation, int[] committeeProposer, String VRF, String VDF, int difficulty) {
-        super(previousHash, height, Generation);
+        super(previousHash, height, Generation,"");
         this.CommitteeProposer = committeeProposer;
         this.VRF = VRF;
         this.VDF = VDF;
@@ -80,6 +80,22 @@ public class CommitteeBlock extends AbstractBlock implements BlockFactory, Disru
     }
 
     @Serialize
+    public String getBlockProposer() {
+        return super.getBlockProposer();
+    }
+
+    public void setBlockProposer(String blockProposer) {
+        super.setBlockProposer(blockProposer);
+    }
+
+    public BLSPublicKey getLeaderPublicKey() {
+        return super.getLeaderPublicKey();
+    }
+
+    public void setLeaderPublicKey(BLSPublicKey leaderPublicKey) {
+        super.setLeaderPublicKey(leaderPublicKey);
+    }
+    @Serialize
     public String getVRF() {
         return VRF;
     }
@@ -127,13 +143,14 @@ public class CommitteeBlock extends AbstractBlock implements BlockFactory, Disru
 
     @Override
     public int getViewID() {
-        return ViewID;
+        return super.getViewID();
     }
 
     @Override
     public void setViewID(int viewID) {
-        ViewID = viewID;
+        super.setViewID(viewID);
     }
+
 
 
     //NEVER DELETE THIS ONLY CHANGE INSIDE
@@ -166,19 +183,18 @@ public class CommitteeBlock extends AbstractBlock implements BlockFactory, Disru
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(super.hashCode(), CommitteeProposer, VRF, VDF, StakingMap, StructureMap, difficulty);
+        return java.util.Objects.hash(super.hashCode(), Arrays.hashCode(CommitteeProposer), VRF, VDF, StakingMap, StructureMap, difficulty);
     }
 
     @Override
     public String toString() {
-        return super.toString() +
-                "CommitteeBlock{" +
-                "CommitteeProposer='" + CommitteeProposer + '\'' +
+        return "CommitteeBlock{" +
+                "CommitteeProposer=" + Arrays.toString(CommitteeProposer) +
                 ", VRF='" + VRF + '\'' +
                 ", VDF='" + VDF + '\'' +
                 ", StakingMap=" + StakingMap +
                 ", StructureMap=" + StructureMap +
-                ", Difficulty=" + difficulty +
+                ", difficulty=" + difficulty +
                 '}';
     }
 

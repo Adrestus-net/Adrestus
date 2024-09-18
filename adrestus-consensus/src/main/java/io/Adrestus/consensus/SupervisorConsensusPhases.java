@@ -823,6 +823,7 @@ public class SupervisorConsensusPhases {
                 block.setStatusType(ConsensusStatusType.ABORT);
                 return;
             }
+            CachedStartHeightRewards.getInstance().setRewardsCommitteeEnabled(false);
             BlockInvent regural_block = (BlockInvent) factory.getBlock(BlockType.REGULAR);
             regural_block.InventCommitteBlock(block.getData());
             LOG.info("Committee is finalized with Success");

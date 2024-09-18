@@ -110,7 +110,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
         transactionBlock.setGeneration(CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration());
         transactionBlock.setViewID(CachedLatestBlocks.getInstance().getTransactionBlock().getViewID() + 1);
         transactionBlock.setZone(CachedZoneIndex.getInstance().getZoneIndex());
-        transactionBlock.setTransactionProposer(CachedBLSKeyPair.getInstance().getPublicKey().toRaw());
+        transactionBlock.setBlockProposer(CachedBLSKeyPair.getInstance().getPublicKey().toRaw());
         transactionBlock.setLeaderPublicKey(CachedBLSKeyPair.getInstance().getPublicKey());
         transactionBlock.setTransactionList(new ArrayList<>(MemoryTransactionPool.getInstance().getListByZone(CachedZoneIndex.getInstance().getZoneIndex())));
         ArrayList<Transaction> todelete = new ArrayList<>(MemoryTransactionPool.getInstance().getListToDelete(CachedZoneIndex.getInstance().getZoneIndex()));
