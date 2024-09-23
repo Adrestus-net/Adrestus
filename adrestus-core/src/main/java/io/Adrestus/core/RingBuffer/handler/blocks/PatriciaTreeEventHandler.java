@@ -3,8 +3,13 @@ package io.Adrestus.core.RingBuffer.handler.blocks;
 import io.Adrestus.MemoryTreePool;
 import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.PatriciaTreeTransactionType;
+import io.Adrestus.config.RewardConfiguration;
 import io.Adrestus.core.Resourses.CachedInboundTransactionBlocks;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
+import io.Adrestus.core.RewardMechanism.CachedRewardMapData;
+import io.Adrestus.core.RewardMechanism.Request;
+import io.Adrestus.core.RewardMechanism.RequestType;
+import io.Adrestus.core.RewardMechanism.RewardChainBuilder;
 import io.Adrestus.core.RingBuffer.event.AbstractBlockEvent;
 import io.Adrestus.core.StatusType;
 import io.Adrestus.core.Transaction;
@@ -26,7 +31,7 @@ public class PatriciaTreeEventHandler implements BlockEventHandler<AbstractBlock
         }
 
         CachedInboundTransactionBlocks.getInstance().generate(transactionBlock.getInbound().getMap_receipts(), transactionBlock.getGeneration());
-        if (!transactionBlock.getInbound().getMap_receipts().isEmpty())
+        if (!transactionBlock.getInbound().getMap_receipts().isEmpty()) {
             transactionBlock
                     .getInbound()
                     .getMap_receipts()
@@ -41,6 +46,17 @@ public class PatriciaTreeEventHandler implements BlockEventHandler<AbstractBlock
                         });
 
                     });
+        }
+
+        if(CachedZoneIndex.getInstance().getZoneIndex()==0 && transactionBlock.getHeight()% RewardConfiguration.BLOCK_REWARD_HEIGHT ==0) {
+            RewardChainBuilder rewardChainBuilder = new RewardChainBuilder();
+            rewardChainBuilder.makeRequest(new Request(RequestType.EFFECTIVE_STAKE, "EFFECTIVE_STAKE"));
+            rewardChainBuilder.makeRequest(new Request(RequestType.EFFECTIVE_STAKE_RATIO, "EFFECTIVE_STAKE_RATIO"));
+            rewardChainBuilder.makeRequest(new Request(RequestType.DELEGATE_WEIGHTS_CALCULATOR, "DELEGATE_WEIGHTS_CALCULATOR"));
+            rewardChainBuilder.makeRequest(new Request(RequestType.VALIDATOR_REWARD_CALCULATOR, "VALIDATOR_REWARD_CALCULATOR"));
+            rewardChainBuilder.makeRequest(new Request(RequestType.DELEGATE_REWARD_CALCULATOR, "DELEGATE_REWARD_CALCULATOR"));
+            rewardChainBuilder.makeRequest(new Request(RequestType.REWARD_STORAGE_CALCULATOR, "REWARD_STORAGE_CALCULATOR", replica));
+        }
 
         if (!replica.getRootHash().equals(transactionBlock.getPatriciaMerkleRoot())) {
             LOG.info("Patricia Merkle root is invalid abort");

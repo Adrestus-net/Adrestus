@@ -1,5 +1,6 @@
 package io.Adrestus.core;
 
+import io.Adrestus.MemoryTreePool;
 import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.config.AdrestusConfiguration;
@@ -29,6 +30,7 @@ import io.distributedLedger.DatabaseFactory;
 import io.distributedLedger.DatabaseType;
 import io.distributedLedger.IDatabase;
 import io.distributedLedger.ZoneDatabaseFactory;
+import lombok.SneakyThrows;
 import org.apache.commons.codec.binary.StringUtils;
 import org.apache.tuweni.bytes.Bytes;
 import org.junit.jupiter.api.Test;
@@ -56,6 +58,7 @@ public class RewardsTest {
     private static BLSPublicKey vk3;
     private static ECDSASign ecdsaSign = new ECDSASign();
     private static ECKeyPair ecKeyPair1, ecKeyPair2, ecKeyPair3;
+    @SneakyThrows
     @Test
     public void test() throws CloneNotSupportedException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException, MnemonicException {
         IDatabase<String, TransactionBlock> transactionBlockIDatabase = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(0));
@@ -194,6 +197,8 @@ public class RewardsTest {
         TreeFactory.getMemoryTree(0).getByaddress(address1).get().getDelegation().put(address4,200.0);
         TreeFactory.getMemoryTree(0).getByaddress(address1).get().getDelegation().put(address5,200.0);
         TreeFactory.getMemoryTree(0).store(address0, treeNode0);
+
+        MemoryTreePool cloned_tree = (MemoryTreePool) TreeFactory.getMemoryTree(0).clone();
         RewardChainBuilder king = new RewardChainBuilder();
         king.makeRequest(new Request(RequestType.EFFECTIVE_STAKE, "EFFECTIVE_STAKE"));
         king.makeRequest(new Request(RequestType.EFFECTIVE_STAKE_RATIO, "EFFECTIVE_STAKE_RATIO"));
@@ -201,6 +206,15 @@ public class RewardsTest {
         king.makeRequest(new Request(RequestType.VALIDATOR_REWARD_CALCULATOR, "VALIDATOR_REWARD_CALCULATOR"));
         king.makeRequest(new Request(RequestType.DELEGATE_REWARD_CALCULATOR, "DELEGATE_REWARD_CALCULATOR"));
         king.makeRequest(new Request(RequestType.REWARD_STORAGE_CALCULATOR, "REWARD_STORAGE_CALCULATOR",TreeFactory.getMemoryTree(0)));
+        CachedRewardMapData.getInstance().clearInstance();
+
+        RewardChainBuilder king2 = new RewardChainBuilder();
+        king2.makeRequest(new Request(RequestType.EFFECTIVE_STAKE, "EFFECTIVE_STAKE"));
+        king2.makeRequest(new Request(RequestType.EFFECTIVE_STAKE_RATIO, "EFFECTIVE_STAKE_RATIO"));
+        king2.makeRequest(new Request(RequestType.DELEGATE_WEIGHTS_CALCULATOR, "DELEGATE_WEIGHTS_CALCULATOR"));
+        king2.makeRequest(new Request(RequestType.VALIDATOR_REWARD_CALCULATOR, "VALIDATOR_REWARD_CALCULATOR"));
+        king2.makeRequest(new Request(RequestType.DELEGATE_REWARD_CALCULATOR, "DELEGATE_REWARD_CALCULATOR"));
+        king2.makeRequest(new Request(RequestType.REWARD_STORAGE_CALCULATOR, "REWARD_STORAGE_CALCULATOR",cloned_tree));
 
         Map<String,RewardObject> maps=CachedRewardMapData.getInstance().getEffective_stakes_map();
 
@@ -246,6 +260,8 @@ public class RewardsTest {
         assertEquals(4.295454545454547,TreeFactory.getMemoryTree(0).getByaddress(address5).get().getUnclaimed_reward());
         assertEquals(4.295454545454547,TreeFactory.getMemoryTree(0).getByaddress(address3).get().getUnclaimed_reward());
         assertEquals(4.295454545454547,TreeFactory.getMemoryTree(0).getByaddress(address4).get().getUnclaimed_reward());
+
+        assertEquals(cloned_tree.getRootHash(), TreeFactory.getMemoryTree(0).getRootHash());
 
         CachedRewardMapData.getInstance().clearInstance();
         transactionBlockIDatabase.delete_db();

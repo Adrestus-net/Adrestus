@@ -48,7 +48,6 @@ public class PatriciaTreeNode implements PatriciaTreeTransactionBlackSmith, Patr
         this.staking_amount = staking_amount;
         this.private_staking_amount=private_staking_amount;
         this.unclaimed_reward = unclaimed_reward;
-        this.unclaimed_reward = 0;
         this.stakingInfo = new StakingInfo();
         this.patriciaTreeReceiptMethods = new PatriciaTreeReceipts();
         this.transactionsMap = new EnumMap<>(PatriciaTreeTransactionType.class);
@@ -292,7 +291,7 @@ public class PatriciaTreeNode implements PatriciaTreeTransactionBlackSmith, Patr
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         PatriciaTreeNode that = (PatriciaTreeNode) o;
-//        Stream.of(that.transactionsMap.keySet()).map()
+//      Stream.of(that.transactionsMap.keySet()).map()
         return Double.compare(amount, that.amount) == 0 && Double.compare(private_staking_amount, that.private_staking_amount) == 0 &&Double.compare(staking_amount, that.staking_amount) == 0 && Double.compare(unclaimed_reward, that.unclaimed_reward) == 0 && nonce == that.nonce && Objects.equals(stakingInfo, that.stakingInfo) && linkedEquals(transactionsMap, that.transactionsMap) && Objects.equals(patriciaTreeReceiptMethods, that.patriciaTreeReceiptMethods) && Objects.equals(delegation, that.delegation);
     }
 

@@ -28,6 +28,10 @@ public class RewardStorageCalculator implements RewardHandler {
     @Override
     public void handle(Request req) {
         req.markHandled();
+
+        if(CachedRewardMapData.getInstance().getEffective_stakes_map().isEmpty())
+            return;
+
         Multimap<String, DelegateObject> delegate_rewards = ArrayListMultimap.create();
         for (Map.Entry<String, RewardObject> entry : CachedRewardMapData.getInstance().getEffective_stakes_map().entrySet()) {
             req.getMemoryTreePool().deposit(PatriciaTreeTransactionType.UNCLAIMED_FEE_REWARD,entry.getKey(),entry.getValue().getReal_reward(),0);
