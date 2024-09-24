@@ -381,7 +381,6 @@ public class RocksDBBlockTest {
         transactionBlock6.setHash("hash6");
 
         Map<String, TransactionBlock> map = new HashMap<>();
-        map.put("hash1", transactionBlock1);
         map.put("hash2", transactionBlock2);
         map.put("hash3", transactionBlock3);
         map.put("hash4", transactionBlock4);
@@ -390,10 +389,11 @@ public class RocksDBBlockTest {
 
         database.saveAll(map);
 
-        Map<String, TransactionBlock> map_returned = database.findBetweenRange("hash1");
+        Map<String, TransactionBlock> map_returned = database.findBetweenRange("hash2");
         assertEquals(map,map_returned);
         Optional<String> firstKey = map_returned.keySet().stream().findFirst();
-        assertEquals("hash1", firstKey.get());
+        assertEquals("hash2", firstKey.get());
+        assertEquals(5,map_returned.size());
         database.delete_db();
     }
 
@@ -437,6 +437,66 @@ public class RocksDBBlockTest {
 
         Map<String, TransactionBlock> map_returned = database.findBetweenRange("hash145");
         assertEquals(0, map_returned.size());
+        database.delete_db();
+    }
+
+    @Test
+    public void seek_between_range() {
+        IDatabase<String, TransactionBlock> database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.ZONE_1_TRANSACTION_BLOCK);
+        String hash = "Hash";
+        TransactionBlock transactionBlock1 = new TransactionBlock();
+        transactionBlock1.setHeight(1);
+        transactionBlock1.setHash("hash1");
+
+        TransactionBlock transactionBlock2 = new TransactionBlock();
+        transactionBlock2.setHeight(2);
+        transactionBlock2.setHash("hash2");
+
+        TransactionBlock transactionBlock3 = new TransactionBlock();
+        transactionBlock3.setHeight(3);
+        transactionBlock3.setHash("hash3");
+
+        TransactionBlock transactionBlock4 = new TransactionBlock();
+        transactionBlock4.setHeight(4);
+        transactionBlock4.setHash("hash4");
+
+        TransactionBlock transactionBlock5 = new TransactionBlock();
+        transactionBlock5.setHeight(5);
+        transactionBlock5.setHash("hash5");
+
+        TransactionBlock transactionBlock6 = new TransactionBlock();
+        transactionBlock6.setHeight(6);
+        transactionBlock6.setHash("hash6");
+
+        Map<String, TransactionBlock> map = new HashMap<>();
+        map.put("hash1", transactionBlock1);
+        map.put("hash2", transactionBlock2);
+        map.put("hash3", transactionBlock3);
+        map.put("hash4", transactionBlock4);
+        map.put("hash5", transactionBlock5);
+        map.put("hash6", transactionBlock6);
+
+        Map<String, TransactionBlock> map2 = new HashMap<>();
+        map2.put("hash3", transactionBlock3);
+        map2.put("hash4", transactionBlock4);
+        map2.put("hash5", transactionBlock5);
+        map2.put("hash6", transactionBlock6);
+
+        Map<String, TransactionBlock> map3 = new HashMap<>();
+        map3.put("hash3", transactionBlock3);
+        map3.put("hash4", transactionBlock4);
+        map3.put("hash5", transactionBlock5);
+        map3.put("hash6", transactionBlock6);
+
+        database.saveAll(map);
+
+        Map<String, TransactionBlock> map_returned = database.seekBetweenRange(3,database.seekLast().get().getHeight());
+        Map<String, TransactionBlock> map_returned3 = database.findBetweenRange("hash3");
+        assertEquals(map3,map_returned3);
+        assertEquals(map2,map_returned);
+        Optional<String> firstKey = map_returned.keySet().stream().findFirst();
+        assertEquals("hash3", firstKey.get());
+        assertEquals(4,map_returned.size());
         database.delete_db();
     }
 

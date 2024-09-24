@@ -35,7 +35,7 @@ public class ValidatorRewardCalculator implements RewardHandler {
         req.markHandled();
         TreeMap<StakingData, KademliaData> stakingMap = CachedLatestBlocks.getInstance().getCommitteeBlock().getStakingMap();
         IDatabase<String, TransactionBlock> transactionBlockIDatabase = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(0));
-        Map<String, TransactionBlock> transactionBlockMap = transactionBlockIDatabase.seekBetweenRange(CachedStartHeightRewards.getInstance().getHeight(), transactionBlockIDatabase.seekLast().get().getHeight());
+        Map<String, TransactionBlock> transactionBlockMap = transactionBlockIDatabase.findBetweenRange(String.valueOf(CachedStartHeightRewards.getInstance().getHeight()));
         stakingMap.values().stream().forEach(data -> {
             for (Map.Entry<String, TransactionBlock> entry : transactionBlockMap.entrySet()) {
                 Map<BLSPublicKey, BLSSignatureData> bls_map = entry.getValue().getSignatureData();

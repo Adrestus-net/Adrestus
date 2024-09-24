@@ -1,8 +1,10 @@
 package io.Adrestus.consensus;
 
 import com.google.common.reflect.TypeToken;
+import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.MerkleNode;
 import io.Adrestus.Trie.MerkleTreeImp;
+import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.core.*;
 import io.Adrestus.core.Resourses.*;
 import io.Adrestus.core.Util.BlockSizeCalculator;

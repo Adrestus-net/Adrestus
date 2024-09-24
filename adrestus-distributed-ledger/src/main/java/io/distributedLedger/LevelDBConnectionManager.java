@@ -474,12 +474,18 @@ public class LevelDBConnectionManager<K, V> implements IDatabase<K, V> {
         try {
             final DBIterator iterator = level_db.iterator();
             iterator.seekToFirst();
+            int counter = 1;
             while (iterator.hasNext() && start <= finish) {
-                byte[] serializedKey = iterator.peekNext().getKey();
-                byte[] serializedValue = iterator.peekNext().getValue();
-                hashmap.put(keyMapper.decode(serializedKey), valueMapper.decode(serializedValue));
-                iterator.next();
-                start++;
+                if (counter < start) {
+                    iterator.next();
+                } else {
+                    byte[] serializedKey = iterator.peekNext().getKey();
+                    byte[] serializedValue = iterator.peekNext().getValue();
+                    hashmap.put(keyMapper.decode(serializedKey), valueMapper.decode(serializedValue));
+                    iterator.next();
+                    start++;
+                }
+                counter++;
             }
         } catch (final SerializationException exception) {
             LOGGER.error("Serialization exception occurred during findByKey operation. {}", exception.getMessage());

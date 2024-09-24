@@ -530,12 +530,19 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
         try {
             final RocksIterator iterator = rocksDB.newIterator();
             iterator.seekToFirst();
+            int counter=1;
             while (iterator.isValid() && start <= finish) {
-                byte[] serializedKey = iterator.key();
-                byte[] serializedValue = iterator.value();
-                hashmap.put(keyMapper.decode(serializedKey), valueMapper.decode(serializedValue));
-                iterator.next();
-                start++;
+                if(counter<start){
+                    iterator.next();
+                }
+                else {
+                    byte[] serializedKey = iterator.key();
+                    byte[] serializedValue = iterator.value();
+                    hashmap.put(keyMapper.decode(serializedKey), valueMapper.decode(serializedValue));
+                    iterator.next();
+                    start++;
+                }
+                counter++;
             }
         } catch (final SerializationException exception) {
             LOGGER.error("Serialization exception occurred during findByKey operation. {}", exception.getMessage());
