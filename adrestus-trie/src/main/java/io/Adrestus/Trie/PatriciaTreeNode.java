@@ -23,6 +23,7 @@ public class PatriciaTreeNode implements PatriciaTreeTransactionBlackSmith, Patr
         this.amount = amount;
         this.nonce = nonce;
         this.staking_amount = 0;
+        this.private_staking_amount=0;
         this.unclaimed_reward = 0;
         this.stakingInfo = new StakingInfo();
         this.patriciaTreeReceiptMethods = new PatriciaTreeReceipts();
@@ -36,6 +37,7 @@ public class PatriciaTreeNode implements PatriciaTreeTransactionBlackSmith, Patr
         this.nonce = nonce;
         this.staking_amount = staking_amount;
         this.unclaimed_reward = 0;
+        this.private_staking_amount=0;
         this.stakingInfo = new StakingInfo();
         this.patriciaTreeReceiptMethods = new PatriciaTreeReceipts();
         this.transactionsMap = new EnumMap<>(PatriciaTreeTransactionType.class);
@@ -55,11 +57,12 @@ public class PatriciaTreeNode implements PatriciaTreeTransactionBlackSmith, Patr
         this.Init();
     }
 
-    public PatriciaTreeNode(@Deserialize("amount") double amount, @Deserialize("nonce") int nonce, @Deserialize("staking_amount") double staking_amount, @Deserialize("unclaimed_reward") double unclaimed_reward) {
+    public PatriciaTreeNode(double amount,int nonce,double staking_amount,double private_staking_amount) {
         this.amount = amount;
         this.nonce = nonce;
         this.staking_amount = staking_amount;
-        this.unclaimed_reward = unclaimed_reward;
+        this.private_staking_amount=private_staking_amount;
+        this.unclaimed_reward = 0;
         this.stakingInfo = new StakingInfo();
         this.patriciaTreeReceiptMethods = new PatriciaTreeReceipts();
         this.transactionsMap = new EnumMap<>(PatriciaTreeTransactionType.class);
@@ -72,6 +75,7 @@ public class PatriciaTreeNode implements PatriciaTreeTransactionBlackSmith, Patr
         this.nonce = 0;
         this.staking_amount = 0;
         this.unclaimed_reward = 0;
+        this.private_staking_amount=0;
         this.stakingInfo = new StakingInfo();
         this.patriciaTreeReceiptMethods = new PatriciaTreeReceipts();
         this.transactionsMap = new EnumMap<>(PatriciaTreeTransactionType.class);
@@ -84,6 +88,7 @@ public class PatriciaTreeNode implements PatriciaTreeTransactionBlackSmith, Patr
         this.nonce = 0;
         this.staking_amount = 0;
         this.unclaimed_reward = 0;
+        this.private_staking_amount=0;
         this.stakingInfo = new StakingInfo();
         this.patriciaTreeReceiptMethods = new PatriciaTreeReceipts();
         this.transactionsMap = new EnumMap<>(PatriciaTreeTransactionType.class);
@@ -224,6 +229,8 @@ public class PatriciaTreeNode implements PatriciaTreeTransactionBlackSmith, Patr
         this.patriciaTreeReceiptMethods = patriciaTreeReceiptMethods;
     }
 
+
+    @Serialize
     public Map<String, Double> getDelegation() {
         return delegation;
     }
@@ -232,6 +239,7 @@ public class PatriciaTreeNode implements PatriciaTreeTransactionBlackSmith, Patr
         this.delegation = delegation;
     }
 
+    @Serialize
     public double getPrivate_staking_amount() {
         return private_staking_amount;
     }
@@ -253,6 +261,16 @@ public class PatriciaTreeNode implements PatriciaTreeTransactionBlackSmith, Patr
 
     public void setStakingInfo(StakingInfo stakingInfo) {
         this.stakingInfo = stakingInfo;
+    }
+
+
+    private static boolean MapAreEqual(Map<String, Double> first,Map<String, Double> second){
+        if (first.size() != second.size()) {
+            return false;
+        }
+
+        return first.entrySet().stream()
+                .allMatch(e -> e.getValue().equals(second.get(e.getKey())));
     }
 
     private static boolean linkedEquals(Map<PatriciaTreeTransactionType, PatriciaTreeTransactionMethods> left, Map<PatriciaTreeTransactionType, PatriciaTreeTransactionMethods> right) {
@@ -292,12 +310,12 @@ public class PatriciaTreeNode implements PatriciaTreeTransactionBlackSmith, Patr
         if (o == null || getClass() != o.getClass()) return false;
         PatriciaTreeNode that = (PatriciaTreeNode) o;
 //      Stream.of(that.transactionsMap.keySet()).map()
-        return Double.compare(amount, that.amount) == 0 && Double.compare(private_staking_amount, that.private_staking_amount) == 0 &&Double.compare(staking_amount, that.staking_amount) == 0 && Double.compare(unclaimed_reward, that.unclaimed_reward) == 0 && nonce == that.nonce && Objects.equals(stakingInfo, that.stakingInfo) && linkedEquals(transactionsMap, that.transactionsMap) && Objects.equals(patriciaTreeReceiptMethods, that.patriciaTreeReceiptMethods) && Objects.equals(delegation, that.delegation);
+        return Double.compare(amount, that.amount) == 0 && Double.compare(private_staking_amount, that.private_staking_amount) == 0 &&Double.compare(staking_amount, that.staking_amount) == 0 && Double.compare(unclaimed_reward, that.unclaimed_reward) == 0 && nonce == that.nonce && Objects.equals(stakingInfo, that.stakingInfo) && linkedEquals(transactionsMap, that.transactionsMap) && Objects.equals(patriciaTreeReceiptMethods, that.patriciaTreeReceiptMethods) && MapAreEqual(delegation, that.delegation);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(amount, staking_amount, unclaimed_reward, nonce, stakingInfo, transactionsMap, patriciaTreeReceiptMethods, delegation,private_staking_amount);
+        return Objects.hash(amount, staking_amount, private_staking_amount, unclaimed_reward, nonce, stakingInfo, transactionsMap, patriciaTreeReceiptMethods, delegation);
     }
 
     @Override

@@ -34,33 +34,31 @@ public class ValidatorRewardCalculator implements RewardHandler {
     public void handle(Request req) {
         req.markHandled();
         TreeMap<StakingData, KademliaData> stakingMap = CachedLatestBlocks.getInstance().getCommitteeBlock().getStakingMap();
+        IDatabase<String, TransactionBlock> transactionBlockIDatabase = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(0));
+        Map<String, TransactionBlock> transactionBlockMap = transactionBlockIDatabase.seekBetweenRange(CachedStartHeightRewards.getInstance().getHeight(), transactionBlockIDatabase.seekLast().get().getHeight());
         stakingMap.values().stream().forEach(data -> {
-            int block_participated = 0;
-            int leader_participated = 0;
-            IDatabase<String, TransactionBlock> transactionBlockIDatabase = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(0));
-            Map<String, TransactionBlock> transactionBlockMap = transactionBlockIDatabase.seekBetweenRange(CachedStartHeightRewards.getInstance().getHeight(), transactionBlockIDatabase.seekLast().get().getHeight());
             for (Map.Entry<String, TransactionBlock> entry : transactionBlockMap.entrySet()) {
                 Map<BLSPublicKey, BLSSignatureData> bls_map = entry.getValue().getSignatureData();
-                for (Map.Entry<BLSPublicKey, BLSSignatureData> bls_map_entry : bls_map.entrySet()) {
-                    if (data.getAddressData().getValidatorBlSPublicKey().equals(bls_map_entry.getKey())) {
+                BLSSignatureData blsSignatureDataEntry = bls_map.get(data.getAddressData().getValidatorBlSPublicKey());
+                if (blsSignatureDataEntry != null) {
 
-                        boolean flag = false;
-                        for (int i = 0; i < 2; i++) {
-                            if (!BLSSignature.verify(bls_map_entry.getValue().getSignature()[0], bls_map_entry.getValue().getMessageHash()[0], bls_map_entry.getKey()))
-                                flag = true;
-                        }
-                        if (flag)
-                            continue;
-                        block_participated++;
-                        if (data.getAddressData().getValidatorBlSPublicKey().equals(entry.getValue().getLeaderPublicKey()))
-                            leader_participated++;
+                    boolean flag = false;
+                    for (int i = 0; i < 2; i++) {
+                        if (!BLSSignature.verify(blsSignatureDataEntry.getSignature()[i], blsSignatureDataEntry.getMessageHash()[i], data.getAddressData().getValidatorBlSPublicKey()))
+                            flag = true;
                     }
+
+                    if (!flag) {
+                        CachedRewardMapData.getInstance().getEffective_stakes_map().get(data.getAddressData().getAddress()).setBlock_participation(CachedRewardMapData.getInstance().getEffective_stakes_map().get(data.getAddressData().getAddress()).getBlock_participation() + 1);
+                    }
+                }
+                else if(data.getAddressData().getValidatorBlSPublicKey().equals(entry.getValue().getLeaderPublicKey())){
+                    CachedRewardMapData.getInstance().getEffective_stakes_map().get(data.getAddressData().getAddress()).setBlock_participation(CachedRewardMapData.getInstance().getEffective_stakes_map().get(data.getAddressData().getAddress()).getBlock_participation() + 1);
+                    CachedRewardMapData.getInstance().getEffective_stakes_map().get(data.getAddressData().getAddress()).setTransactions_leader_participation(CachedRewardMapData.getInstance().getEffective_stakes_map().get(data.getAddressData().getAddress()).getTransactions_leader_participation() + 1);
                 }
             }
             if (CachedLatestBlocks.getInstance().getCommitteeBlock().getLeaderPublicKey().equals(data.getAddressData().getValidatorBlSPublicKey()) && !CachedStartHeightRewards.getInstance().isRewardsCommitteeEnabled())
                 CachedRewardMapData.getInstance().getEffective_stakes_map().get(data.getAddressData().getAddress()).setCommittee_leader_participation(true);
-            CachedRewardMapData.getInstance().getEffective_stakes_map().get(data.getAddressData().getAddress()).setBlock_participation(block_participated);
-            CachedRewardMapData.getInstance().getEffective_stakes_map().get(data.getAddressData().getAddress()).setTransactions_leader_participation(leader_participated);
         });
 
 

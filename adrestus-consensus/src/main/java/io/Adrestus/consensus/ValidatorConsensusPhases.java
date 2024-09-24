@@ -1517,10 +1517,10 @@ public class ValidatorConsensusPhases {
             //commit save to db
             this.original_copy.setSignatureData(signatureDataMap);
             BlockInvent regural_block = (BlockInvent) factory.getBlock(BlockType.REGULAR);
-            BLSPublicKey next_key = blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedLeaderIndex.getInstance().getTransactionPositionLeader());
-            this.original_copy.setBlockProposer(next_key.toRaw());
-            this.original_copy.setLeaderPublicKey(next_key);
             regural_block.InventTransactionBlock(this.original_copy);
+            BLSPublicKey next_key = blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedLeaderIndex.getInstance().getTransactionPositionLeader());
+            CachedLatestBlocks.getInstance().getTransactionBlock().setBlockProposer(next_key.toRaw());
+            CachedLatestBlocks.getInstance().getTransactionBlock().setLeaderPublicKey(next_key);
             // consensusClient.send_heartbeat(HEARTBEAT_MESSAGE);
             CachedSerializableErasureObject.getInstance().setSerializableErasureObject(null);
             long Commiteefinish = System.currentTimeMillis();

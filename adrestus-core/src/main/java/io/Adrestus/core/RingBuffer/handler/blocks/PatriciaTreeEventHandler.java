@@ -6,10 +6,7 @@ import io.Adrestus.Trie.PatriciaTreeTransactionType;
 import io.Adrestus.config.RewardConfiguration;
 import io.Adrestus.core.Resourses.CachedInboundTransactionBlocks;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
-import io.Adrestus.core.RewardMechanism.CachedRewardMapData;
-import io.Adrestus.core.RewardMechanism.Request;
-import io.Adrestus.core.RewardMechanism.RequestType;
-import io.Adrestus.core.RewardMechanism.RewardChainBuilder;
+import io.Adrestus.core.RewardMechanism.*;
 import io.Adrestus.core.RingBuffer.event.AbstractBlockEvent;
 import io.Adrestus.core.StatusType;
 import io.Adrestus.core.Transaction;
@@ -18,13 +15,15 @@ import io.Adrestus.core.TreePoolConstructBlock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Map;
+
 public class PatriciaTreeEventHandler implements BlockEventHandler<AbstractBlockEvent> {
     private static Logger LOG = LoggerFactory.getLogger(PatriciaTreeEventHandler.class);
 
     @Override
     public void onEvent(AbstractBlockEvent blockEvent, long l, boolean b) throws Exception {
         TransactionBlock transactionBlock = (TransactionBlock) blockEvent.getBlock();
-        MemoryTreePool replica = (MemoryTreePool) ((MemoryTreePool) TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex())).clone();
+        MemoryTreePool replica = (MemoryTreePool) TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).clone();
 
         if (!transactionBlock.getTransactionList().isEmpty()) {
             TreePoolConstructBlock.getInstance().visitForgeTreePool(transactionBlock, replica);

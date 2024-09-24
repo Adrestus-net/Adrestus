@@ -5,13 +5,7 @@ import com.google.common.collect.Multimap;
 import io.Adrestus.Trie.PatriciaTreeTransactionType;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import static java.util.stream.Collectors.groupingBy;
 
 public class RewardStorageCalculator implements RewardHandler {
 
@@ -29,14 +23,11 @@ public class RewardStorageCalculator implements RewardHandler {
     public void handle(Request req) {
         req.markHandled();
 
-        if(CachedRewardMapData.getInstance().getEffective_stakes_map().isEmpty())
-            return;
-
         Multimap<String, DelegateObject> delegate_rewards = ArrayListMultimap.create();
         for (Map.Entry<String, RewardObject> entry : CachedRewardMapData.getInstance().getEffective_stakes_map().entrySet()) {
-            req.getMemoryTreePool().deposit(PatriciaTreeTransactionType.UNCLAIMED_FEE_REWARD,entry.getKey(),entry.getValue().getReal_reward(),0);
-            for (Map.Entry<String,  DelegateObject> entry2 : entry.getValue().getDelegate_stake().entrySet()) {
-                delegate_rewards.put(entry2.getKey(),entry2.getValue());
+            req.getMemoryTreePool().deposit(PatriciaTreeTransactionType.UNCLAIMED_FEE_REWARD, entry.getKey(), entry.getValue().getReal_reward(), 0);
+            for (Map.Entry<String, DelegateObject> entry2 : entry.getValue().getDelegate_stake().entrySet()) {
+                delegate_rewards.put(entry2.getKey(), entry2.getValue());
             }
         }
 
@@ -46,10 +37,10 @@ public class RewardStorageCalculator implements RewardHandler {
                     .map(DelegateObject::getReward)
                     .mapToDouble(Double::doubleValue)
                     .sum();
-            req.getMemoryTreePool().deposit(PatriciaTreeTransactionType.UNCLAIMED_FEE_REWARD,entry.getKey(),sum,0);
+            req.getMemoryTreePool().deposit(PatriciaTreeTransactionType.UNCLAIMED_FEE_REWARD, entry.getKey(), sum, 0);
         }
         delegate_rewards.clear();
-        delegate_rewards=null;
+        delegate_rewards = null;
     }
 
     @Override

@@ -7,14 +7,17 @@ import io.Adrestus.config.KademliaConfiguration;
 import io.Adrestus.consensus.helper.ConsensusTransactionTimer;
 import io.Adrestus.core.CommitteeBlock;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
+import io.Adrestus.core.Resourses.CachedStartHeightRewards;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.core.Transaction;
 import io.Adrestus.core.TransactionBlock;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.SecurityAuditProofs;
 import io.Adrestus.crypto.WalletAddress;
+import io.Adrestus.crypto.bls.BLSSignatureData;
 import io.Adrestus.crypto.bls.model.BLSPrivateKey;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
+import io.Adrestus.crypto.bls.model.BLSSignature;
 import io.Adrestus.crypto.bls.model.CachedBLSKeyPair;
 import io.Adrestus.crypto.elliptic.ECDSASign;
 import io.Adrestus.crypto.elliptic.ECDSASignatureData;
@@ -35,6 +38,7 @@ import io.distributedLedger.DatabaseType;
 import io.distributedLedger.IDatabase;
 import io.distributedLedger.ZoneDatabaseFactory;
 import org.apache.commons.codec.binary.StringUtils;
+import org.apache.tuweni.bytes.Bytes;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -47,6 +51,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ConsensusTransactionTimerTest {
@@ -79,17 +84,17 @@ public class ConsensusTransactionTimerTest {
 
     @BeforeAll
     public static void construct() throws Exception {
-
+        CachedZoneIndex.getInstance().setZoneIndex(0);
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         serenc = new SerializationUtil<Transaction>(Transaction.class, list);
         IDatabase<String, TransactionBlock> block_database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
-        IDatabase<String, byte[]> tree_datasbase = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getPatriciaTreeZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
-
-        tree_datasbase.delete_db();
         block_database.delete_db();
+        block_database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
+        IDatabase<String, byte[]> tree_datasbase = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getPatriciaTreeZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
+        tree_datasbase.delete_db();
+        tree_datasbase = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getPatriciaTreeZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
 
-        CachedZoneIndex.getInstance().setZoneIndex(1);
         sk1 = new BLSPrivateKey(1);
         vk1 = new BLSPublicKey(sk1);
 
@@ -195,9 +200,9 @@ public class ConsensusTransactionTimerTest {
         ECDSASignatureData signatureData5 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(adddress5)), ecKeyPair5);
         ECDSASignatureData signatureData6 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(adddress6)), ecKeyPair6);
 
-        TreeFactory.getMemoryTree(0).store(adddress1, new PatriciaTreeNode(1000, 0));
-        TreeFactory.getMemoryTree(0).store(adddress2, new PatriciaTreeNode(1000, 0));
-        TreeFactory.getMemoryTree(0).store(adddress3, new PatriciaTreeNode(1000, 0));
+        TreeFactory.getMemoryTree(0).store(adddress1, new PatriciaTreeNode(1000, 0,100,40));
+        TreeFactory.getMemoryTree(0).store(adddress2, new PatriciaTreeNode(1000, 0,200,30));
+        TreeFactory.getMemoryTree(0).store(adddress3, new PatriciaTreeNode(1000, 0,300,20));
         TreeFactory.getMemoryTree(0).store(adddress4, new PatriciaTreeNode(1000, 0));
         TreeFactory.getMemoryTree(0).store(adddress5, new PatriciaTreeNode(1000, 0));
         TreeFactory.getMemoryTree(0).store(adddress6, new PatriciaTreeNode(1000, 0));
@@ -216,17 +221,41 @@ public class ConsensusTransactionTimerTest {
         prevblock.getHeaderData().setTimestamp(GetTime.GetTimeStampInString());
         prevblock.setBlockProposer(vk1.toRaw());
         prevblock.setLeaderPublicKey(vk1);
+
+        Bytes message2 = Bytes.wrap("Hello, world Block 2".getBytes(UTF_8));
+        BLSSignatureData BLSSignatureData2a = new BLSSignatureData();
+        BLSSignatureData BLSSignatureData3a = new BLSSignatureData();
+
+        BLSSignatureData2a.getSignature()[0] = BLSSignature.sign(message2.toArray(), sk2);
+        BLSSignatureData2a.getSignature()[1] = BLSSignature.sign(message2.toArray(), sk2);
+        BLSSignatureData3a.getSignature()[0] = BLSSignature.sign(message2.toArray(), sk3);
+        BLSSignatureData3a.getSignature()[1] = BLSSignature.sign(message2.toArray(), sk3);
+
+        BLSSignatureData2a.getMessageHash()[0] = BLSSignature.GetMessageHashAsBase64String(message2.toArray());
+        BLSSignatureData2a.getMessageHash()[1] = BLSSignature.GetMessageHashAsBase64String(message2.toArray());
+        BLSSignatureData3a.getMessageHash()[0] = BLSSignature.GetMessageHashAsBase64String(message2.toArray());
+        BLSSignatureData3a.getMessageHash()[1] = BLSSignature.GetMessageHashAsBase64String(message2.toArray());
+
+
+        prevblock.getSignatureData().put(vk2, BLSSignatureData2a);
+        prevblock.getSignatureData().put(vk3, BLSSignatureData3a);
+
         Thread.sleep(1000);
+        CachedStartHeightRewards.getInstance().setHeight(1);
         CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
         CachedLatestBlocks.getInstance().setTransactionBlock(prevblock);
+        block_database.save(String.valueOf(prevblock.getHeight()), prevblock);
 
         kad1 = new KademliaData(new SecurityAuditProofs(adddress1, vk1, ecKeyPair1.getPublicKey(), signatureData1), new NettyConnectionInfo("192.168.1.106", KademliaConfiguration.PORT));
         kad2 = new KademliaData(new SecurityAuditProofs(adddress2, vk2, ecKeyPair2.getPublicKey(), signatureData2), new NettyConnectionInfo("192.168.1.115", KademliaConfiguration.PORT));
         kad3 = new KademliaData(new SecurityAuditProofs(adddress3, vk3, ecKeyPair3.getPublicKey(), signatureData3), new NettyConnectionInfo("192.168.1.116", KademliaConfiguration.PORT));
 
-        CachedLatestBlocks.getInstance().getCommitteeBlock().getStakingMap().put(new StakingData(1, 100.0), kad1);
+        System.out.println("ADRESS: "+adddress1+"KEY1  "+vk1.toString());
+        System.out.println("ADRESS: "+adddress2+"KEY2  "+vk2.toString());
+        System.out.println("ADRESS: "+adddress3+"KEY3  "+vk3.toString());
+        CachedLatestBlocks.getInstance().getCommitteeBlock().getStakingMap().put(new StakingData(1, 100.0), kad3);
         CachedLatestBlocks.getInstance().getCommitteeBlock().getStakingMap().put(new StakingData(2, 200.0), kad2);
-        CachedLatestBlocks.getInstance().getCommitteeBlock().getStakingMap().put(new StakingData(3, 300.0), kad3);
+        CachedLatestBlocks.getInstance().getCommitteeBlock().getStakingMap().put(new StakingData(3, 300.0), kad1);
 
         CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).put(vk1, "192.168.1.106");
         //CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).put(vk2, "192.168.1.110");
@@ -295,6 +324,7 @@ public class ConsensusTransactionTimerTest {
         assertEquals(1013.5, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(6)).get().getAmount());
         assertEquals(1000.0, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(7)).get().getAmount());
         assertEquals(1000.0, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(8)).get().getAmount());
+
 
 
     }

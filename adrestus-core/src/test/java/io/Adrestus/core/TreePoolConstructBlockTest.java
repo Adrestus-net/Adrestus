@@ -51,6 +51,33 @@ public class TreePoolConstructBlockTest {
         assertEquals(replica.getRootHash(), TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getRootHash());
         TreeFactory.ClearMemoryTree(CachedZoneIndex.getInstance().getZoneIndex());
     }
+    @SneakyThrows
+    @Test
+    public void regular_transaction1a() {
+        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(address, new PatriciaTreeNode(1000, 0,34,4,0));
+        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(address2, new PatriciaTreeNode(1000, 0,45,5,0));
+        ArrayList<Transaction> list = new ArrayList<>();
+        Transaction transaction1 = new RegularTransaction();
+        transaction1.setFrom(address);
+        transaction1.setType(TransactionType.REGULAR);
+        transaction1.setTo(address2);
+        transaction1.setAmount(10);
+        transaction1.setAmountWithTransactionFee(1);
+        RewardsTransaction rewardsTransaction = new RewardsTransaction();
+        rewardsTransaction.setRecipientAddress(address);
+        rewardsTransaction.setType(TransactionType.REWARDS);
+        list.add(transaction1);
+        list.add(rewardsTransaction);
+        TransactionBlock transactionBlock = new TransactionBlock();
+        transactionBlock.setHash("hash");
+        transactionBlock.setTransactionList(list);
+        transactionBlock.setHeight(1);
+        MemoryTreePool replica = new MemoryTreePool(((MemoryTreePool) TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex())));
+        TreePoolConstructBlock.getInstance().visitForgeTreePool(transactionBlock, replica);
+        TreePoolConstructBlock.getInstance().visitInventTreePool(transactionBlock, TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()));
+        assertEquals(replica.getRootHash(), TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getRootHash());
+        TreeFactory.ClearMemoryTree(CachedZoneIndex.getInstance().getZoneIndex());
+    }
 
     @SneakyThrows
     @Test
