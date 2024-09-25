@@ -129,20 +129,26 @@ public class RewardsTest {
         transactionBlock1.setHeight(1);
         transactionBlock1.setGeneration(1);
         Bytes message = Bytes.wrap("Hello, world Block 1".getBytes(UTF_8));
+        BLSSignatureData BLSSignatureData1 = new BLSSignatureData();
         BLSSignatureData BLSSignatureData2 = new BLSSignatureData();
         BLSSignatureData BLSSignatureData3 = new BLSSignatureData();
+        BLSSignatureData1.getSignature()[0] = BLSSignature.sign(message.toArray(), sk1);
+        BLSSignatureData1.getSignature()[1] = BLSSignature.sign(message.toArray(), sk1);
         BLSSignatureData2.getSignature()[0] = BLSSignature.sign(message.toArray(), sk2);
         BLSSignatureData2.getSignature()[1] = BLSSignature.sign(message.toArray(), sk2);
         BLSSignatureData3.getSignature()[0] = BLSSignature.sign(message.toArray(), sk3);
         BLSSignatureData3.getSignature()[1] = BLSSignature.sign(message.toArray(), sk3);
 
+        BLSSignatureData1.getMessageHash()[0] = BLSSignature.GetMessageHashAsBase64String(message.toArray());
+        BLSSignatureData1.getMessageHash()[1] = BLSSignature.GetMessageHashAsBase64String(message.toArray());
         BLSSignatureData2.getMessageHash()[0] = BLSSignature.GetMessageHashAsBase64String(message.toArray());
         BLSSignatureData2.getMessageHash()[1] = BLSSignature.GetMessageHashAsBase64String(message.toArray());
         BLSSignatureData3.getMessageHash()[0] = BLSSignature.GetMessageHashAsBase64String(message.toArray());
         BLSSignatureData3.getMessageHash()[1] = BLSSignature.GetMessageHashAsBase64String(message.toArray());
 
+        transactionBlock1.getSignatureData().put(vk1, BLSSignatureData1);
         transactionBlock1.getSignatureData().put(vk2, BLSSignatureData2);
-        transactionBlock1.getSignatureData().put(vk2, BLSSignatureData2);
+        transactionBlock1.getSignatureData().put(vk3, BLSSignatureData3);
         transactionBlock1.setLeaderPublicKey(vk1);
         transactionBlock1.setBlockProposer(vk1.toRaw());
         TransactionBlock transactionBlock2 = new TransactionBlock();
@@ -236,8 +242,8 @@ public class RewardsTest {
 
         assertEquals(120,CachedRewardMapData.getInstance().getEffective_stakes_map().get(address0).getEffective_stake());
         assertEquals(0.13636363636363635,CachedRewardMapData.getInstance().getEffective_stakes_map().get(address0).getEffective_stake_ratio());
-        assertEquals(0.859090909090909,CachedRewardMapData.getInstance().getEffective_stakes_map().get(address0).getUnreal_reward());
-        assertEquals(0.07159090909090908,CachedRewardMapData.getInstance().getEffective_stakes_map().get(address0).getReal_reward());
+        assertEquals(1.718181818181818,CachedRewardMapData.getInstance().getEffective_stakes_map().get(address0).getUnreal_reward());
+        assertEquals(0.14318181818181816,CachedRewardMapData.getInstance().getEffective_stakes_map().get(address0).getReal_reward());
 
 
         //not stakers delegators here
@@ -252,7 +258,7 @@ public class RewardsTest {
         //treemap asserts stakers
         assertEquals(0.8694,TreeFactory.getMemoryTree(0).getByaddress(address).get().getUnclaimed_reward());
         assertEquals(0.42954545454545456,TreeFactory.getMemoryTree(0).getByaddress(address1).get().getUnclaimed_reward());
-        assertEquals(0.07159090909090908,TreeFactory.getMemoryTree(0).getByaddress(address0).get().getUnclaimed_reward());
+        assertEquals(0.14318181818181816,TreeFactory.getMemoryTree(0).getByaddress(address0).get().getUnclaimed_reward());
 
         //treemap asserts delegators
         assertEquals(4.295454545454547,TreeFactory.getMemoryTree(0).getByaddress(address2).get().getUnclaimed_reward());

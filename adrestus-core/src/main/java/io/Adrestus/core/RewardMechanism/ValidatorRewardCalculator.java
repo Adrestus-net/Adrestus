@@ -50,16 +50,16 @@ public class ValidatorRewardCalculator implements RewardHandler {
 
                     if (!flag) {
                         CachedRewardMapData.getInstance().getEffective_stakes_map().get(data.getAddressData().getAddress()).setBlock_participation(CachedRewardMapData.getInstance().getEffective_stakes_map().get(data.getAddressData().getAddress()).getBlock_participation() + 1);
+                        if(data.getAddressData().getValidatorBlSPublicKey().equals(entry.getValue().getLeaderPublicKey())){
+                            CachedRewardMapData.getInstance().getEffective_stakes_map().get(data.getAddressData().getAddress()).setTransactions_leader_participation(CachedRewardMapData.getInstance().getEffective_stakes_map().get(data.getAddressData().getAddress()).getTransactions_leader_participation() + 1);
+                        }
                     }
-                }
-                else if(data.getAddressData().getValidatorBlSPublicKey().equals(entry.getValue().getLeaderPublicKey())){
-                    CachedRewardMapData.getInstance().getEffective_stakes_map().get(data.getAddressData().getAddress()).setBlock_participation(CachedRewardMapData.getInstance().getEffective_stakes_map().get(data.getAddressData().getAddress()).getBlock_participation() + 1);
-                    CachedRewardMapData.getInstance().getEffective_stakes_map().get(data.getAddressData().getAddress()).setTransactions_leader_participation(CachedRewardMapData.getInstance().getEffective_stakes_map().get(data.getAddressData().getAddress()).getTransactions_leader_participation() + 1);
                 }
             }
             if (CachedLatestBlocks.getInstance().getCommitteeBlock().getLeaderPublicKey().equals(data.getAddressData().getValidatorBlSPublicKey()) && !CachedStartHeightRewards.getInstance().isRewardsCommitteeEnabled())
                 CachedRewardMapData.getInstance().getEffective_stakes_map().get(data.getAddressData().getAddress()).setCommittee_leader_participation(true);
         });
+
 
 
         for (Map.Entry<String, RewardObject> entry : CachedRewardMapData.getInstance().getEffective_stakes_map().entrySet()) {

@@ -1353,10 +1353,11 @@ public class ValidatorConsensusPhases {
 
             //##############################################################
             int pos = 0;
+            String messageHashAsBase64String = BLSSignature.GetMessageHashAsBase64String(toVerify.toArray());
             for (BLSPublicKey blsPublicKey : publicKeys) {
                 BLSSignatureData BLSSignatureData = new BLSSignatureData();
                 BLSSignatureData.getSignature()[0] = signature.get(pos);
-                BLSSignatureData.getMessageHash()[0] = BLSSignature.GetMessageHashAsBase64String(toVerify.toArray());
+                BLSSignatureData.getMessageHash()[0] = messageHashAsBase64String;
                 signatureDataMap.put(blsPublicKey, BLSSignatureData);
                 pos++;
             }
@@ -1500,10 +1501,11 @@ public class ValidatorConsensusPhases {
 
             //##############################################################
             int pos = 0;
+            String messageHashAsBase64String = BLSSignature.GetMessageHashAsBase64String(toVerify.toArray());
             for (BLSPublicKey blsPublicKey : publicKeys) {
                 BLSSignatureData BLSSignatureData = signatureDataMap.get(blsPublicKey);
                 BLSSignatureData.getSignature()[1] = signature.get(pos);
-                BLSSignatureData.getMessageHash()[1] = BLSSignature.GetMessageHashAsBase64String(toVerify.toArray());
+                BLSSignatureData.getMessageHash()[1] = messageHashAsBase64String;
                 signatureDataMap.put(blsPublicKey, BLSSignatureData);
                 pos++;
             }

@@ -1,12 +1,13 @@
 package io.Adrestus.consensus;
 
 import com.google.common.reflect.TypeToken;
-import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.MerkleNode;
 import io.Adrestus.Trie.MerkleTreeImp;
-import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.core.*;
-import io.Adrestus.core.Resourses.*;
+import io.Adrestus.core.Resourses.CachedLatestBlocks;
+import io.Adrestus.core.Resourses.CachedLeaderIndex;
+import io.Adrestus.core.Resourses.CachedZoneIndex;
+import io.Adrestus.core.Resourses.ErasureServerInstance;
 import io.Adrestus.core.Util.BlockSizeCalculator;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.bls.BLS381.ECP;
@@ -362,13 +363,19 @@ public class OrganizerConsensusPhases {
 
             //##############################################################
             int pos = 0;
+            String messageHashAsBase64String = BLSSignature.GetMessageHashAsBase64String(message.toArray());
             for (BLSPublicKey blsPublicKey : publicKeys) {
                 BLSSignatureData BLSSignatureData = new BLSSignatureData();
                 BLSSignatureData.getSignature()[0] = signature.get(pos);
-                BLSSignatureData.getMessageHash()[0] = BLSSignature.GetMessageHashAsBase64String(message.toArray());
+                BLSSignatureData.getMessageHash()[0] = messageHashAsBase64String;
                 signatureDataMap.put(blsPublicKey, BLSSignatureData);
                 pos++;
             }
+            BLSSignatureData BLSLeaderSignatureData = new BLSSignatureData();
+            BLSLeaderSignatureData.getSignature()[0] = BLSSignature.sign(message.toArray(), CachedBLSKeyPair.getInstance().getPrivateKey());
+            BLSLeaderSignatureData.getMessageHash()[0] = messageHashAsBase64String;
+            signatureDataMap.put(CachedBLSKeyPair.getInstance().getPublicKey(), BLSLeaderSignatureData);
+
             //##############################################################
 
             this.sizeCalculator.setTransactionBlock(data.getData());
@@ -460,13 +467,20 @@ public class OrganizerConsensusPhases {
 
             //##############################################################
             int pos = 0;
+            String messageHashAsBase64String = BLSSignature.GetMessageHashAsBase64String(message.toArray());
             for (BLSPublicKey blsPublicKey : publicKeys) {
                 BLSSignatureData BLSSignatureData = signatureDataMap.get(blsPublicKey);
                 BLSSignatureData.getSignature()[1] = signature.get(pos);
-                BLSSignatureData.getMessageHash()[1] = BLSSignature.GetMessageHashAsBase64String(message.toArray());
+                BLSSignatureData.getMessageHash()[1] = messageHashAsBase64String;
                 signatureDataMap.put(blsPublicKey, BLSSignatureData);
                 pos++;
             }
+
+            BLSSignatureData BLSLeaderSignatureData = signatureDataMap.get(CachedBLSKeyPair.getInstance().getPublicKey());
+            BLSLeaderSignatureData.getSignature()[1] = BLSSignature.sign(message.toArray(), CachedBLSKeyPair.getInstance().getPrivateKey());
+            BLSLeaderSignatureData.getMessageHash()[1] = BLSSignature.GetMessageHashAsBase64String(message.toArray());
+            signatureDataMap.put(CachedBLSKeyPair.getInstance().getPublicKey(), BLSLeaderSignatureData);
+
             //##############################################################
 
             this.sizeCalculator.setTransactionBlock(data.getData());
