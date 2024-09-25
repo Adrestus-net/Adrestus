@@ -223,20 +223,27 @@ public class ConsensusTransactionTimerTest {
         prevblock.setLeaderPublicKey(vk1);
 
         Bytes message2 = Bytes.wrap("Hello, world Block 2".getBytes(UTF_8));
+        BLSSignatureData BLSSignatureData1a = new BLSSignatureData();
         BLSSignatureData BLSSignatureData2a = new BLSSignatureData();
         BLSSignatureData BLSSignatureData3a = new BLSSignatureData();
 
+
+        BLSSignatureData1a.getSignature()[0] = BLSSignature.sign(message2.toArray(), sk1);
+        BLSSignatureData1a.getSignature()[1] = BLSSignature.sign(message2.toArray(), sk1);
         BLSSignatureData2a.getSignature()[0] = BLSSignature.sign(message2.toArray(), sk2);
         BLSSignatureData2a.getSignature()[1] = BLSSignature.sign(message2.toArray(), sk2);
         BLSSignatureData3a.getSignature()[0] = BLSSignature.sign(message2.toArray(), sk3);
         BLSSignatureData3a.getSignature()[1] = BLSSignature.sign(message2.toArray(), sk3);
 
+        BLSSignatureData1a.getMessageHash()[0] = BLSSignature.GetMessageHashAsBase64String(message2.toArray());
+        BLSSignatureData1a.getMessageHash()[1] = BLSSignature.GetMessageHashAsBase64String(message2.toArray());
         BLSSignatureData2a.getMessageHash()[0] = BLSSignature.GetMessageHashAsBase64String(message2.toArray());
         BLSSignatureData2a.getMessageHash()[1] = BLSSignature.GetMessageHashAsBase64String(message2.toArray());
         BLSSignatureData3a.getMessageHash()[0] = BLSSignature.GetMessageHashAsBase64String(message2.toArray());
         BLSSignatureData3a.getMessageHash()[1] = BLSSignature.GetMessageHashAsBase64String(message2.toArray());
 
 
+        prevblock.getSignatureData().put(vk1, BLSSignatureData1a);
         prevblock.getSignatureData().put(vk2, BLSSignatureData2a);
         prevblock.getSignatureData().put(vk3, BLSSignatureData3a);
 

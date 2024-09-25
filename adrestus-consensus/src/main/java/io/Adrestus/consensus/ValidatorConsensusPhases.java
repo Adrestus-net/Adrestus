@@ -1352,15 +1352,18 @@ public class ValidatorConsensusPhases {
             }
 
             //##############################################################
-            int pos = 0;
             String messageHashAsBase64String = BLSSignature.GetMessageHashAsBase64String(toVerify.toArray());
-            for (BLSPublicKey blsPublicKey : publicKeys) {
+            for(int i=0;i<publicKeys.size();i++) {
                 BLSSignatureData BLSSignatureData = new BLSSignatureData();
-                BLSSignatureData.getSignature()[0] = signature.get(pos);
+                BLSSignatureData.getSignature()[0] = signature.get(i);
                 BLSSignatureData.getMessageHash()[0] = messageHashAsBase64String;
-                signatureDataMap.put(blsPublicKey, BLSSignatureData);
-                pos++;
+                signatureDataMap.put(publicKeys.get(i), BLSSignatureData);
             }
+
+            BLSSignatureData BLSLeaderSignatureData = new BLSSignatureData();
+            BLSLeaderSignatureData.getSignature()[0] = data.getChecksumData().getSignature();
+            BLSLeaderSignatureData.getMessageHash()[0] = messageHashAsBase64String;
+            signatureDataMap.put(data.getChecksumData().getBlsPublicKey(), BLSLeaderSignatureData);
             //##############################################################
 
 
@@ -1500,15 +1503,19 @@ public class ValidatorConsensusPhases {
 
 
             //##############################################################
-            int pos = 0;
             String messageHashAsBase64String = BLSSignature.GetMessageHashAsBase64String(toVerify.toArray());
-            for (BLSPublicKey blsPublicKey : publicKeys) {
-                BLSSignatureData BLSSignatureData = signatureDataMap.get(blsPublicKey);
-                BLSSignatureData.getSignature()[1] = signature.get(pos);
+            for(int i=0;i<publicKeys.size();i++) {
+                BLSSignatureData BLSSignatureData = signatureDataMap.get(publicKeys.get(i));
+                BLSSignatureData.getSignature()[1] = signature.get(i);
                 BLSSignatureData.getMessageHash()[1] = messageHashAsBase64String;
-                signatureDataMap.put(blsPublicKey, BLSSignatureData);
-                pos++;
+                signatureDataMap.put(publicKeys.get(i), BLSSignatureData);
             }
+
+            BLSSignatureData BLSLeaderSignatureData = signatureDataMap.get(data.getChecksumData().getBlsPublicKey());
+            BLSLeaderSignatureData.getSignature()[1] = data.getChecksumData().getSignature();
+            BLSLeaderSignatureData.getMessageHash()[1] = messageHashAsBase64String;
+            signatureDataMap.put(CachedBLSKeyPair.getInstance().getPublicKey(), BLSLeaderSignatureData);
+
             //##############################################################
            /* if (current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).size() - 1)
                 data.getData().setLeaderPublicKey(this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), 0));

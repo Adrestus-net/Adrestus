@@ -38,12 +38,16 @@ public class BLSTest {
     public void single_signature_with_entropy() {
         BLSPrivateKey sk = new BLSPrivateKey(42);
         BLSPublicKey vk = new BLSPublicKey(sk, params);
+        BLSPrivateKey sk2 = new BLSPrivateKey(43);
+        BLSPublicKey vk2 = new BLSPublicKey(sk, params);
         System.out.println(Hex.toHexString(sk.toBytes()));
         System.out.println(Hex.toHexString(vk.toBytes()));
 
         byte[] msg = "Test_Message".getBytes();
         Signature bls_sig = BLSSignature.sign(msg, sk);
+        Signature bls_sig2 = BLSSignature.sign(msg, sk2);
         assertEquals(true, BLSSignature.verify(bls_sig, msg, vk, params));
+        assertEquals(true, BLSSignature.verify(bls_sig2, msg, vk2, params));
     }
 
     @Test

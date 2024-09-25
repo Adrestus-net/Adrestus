@@ -275,6 +275,11 @@ public class OrganizerConsensusPhases {
             data.getChecksumData().setBlsPublicKey(CachedBLSKeyPair.getInstance().getPublicKey());
             data.getChecksumData().setSignature(sig);
 
+            BLSSignatureData BLSLeaderSignatureData = new BLSSignatureData();
+            BLSLeaderSignatureData.getSignature()[0] = BLSSignature.sign(message, CachedBLSKeyPair.getInstance().getPrivateKey());
+            BLSLeaderSignatureData.getMessageHash()[0] = BLSSignature.GetMessageHashAsBase64String(message);
+            signatureDataMap.put(CachedBLSKeyPair.getInstance().getPublicKey(), BLSLeaderSignatureData);
+
             //data.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
             byte[] toSend = consensus_serialize.encode(data);
             CachedConsensusPublisherData.getInstance().storeAtPosition(0, toSend);
@@ -362,25 +367,25 @@ public class OrganizerConsensusPhases {
                 return;
 
             //##############################################################
-            int pos = 0;
             String messageHashAsBase64String = BLSSignature.GetMessageHashAsBase64String(message.toArray());
-            for (BLSPublicKey blsPublicKey : publicKeys) {
+            for(int i=0;i<publicKeys.size();i++) {
                 BLSSignatureData BLSSignatureData = new BLSSignatureData();
-                BLSSignatureData.getSignature()[0] = signature.get(pos);
+                BLSSignatureData.getSignature()[0] = signature.get(i);
                 BLSSignatureData.getMessageHash()[0] = messageHashAsBase64String;
-                signatureDataMap.put(blsPublicKey, BLSSignatureData);
-                pos++;
+                signatureDataMap.put(publicKeys.get(i), BLSSignatureData);
             }
-            BLSSignatureData BLSLeaderSignatureData = new BLSSignatureData();
-            BLSLeaderSignatureData.getSignature()[0] = BLSSignature.sign(message.toArray(), CachedBLSKeyPair.getInstance().getPrivateKey());
-            BLSLeaderSignatureData.getMessageHash()[0] = messageHashAsBase64String;
-            signatureDataMap.put(CachedBLSKeyPair.getInstance().getPublicKey(), BLSLeaderSignatureData);
 
             //##############################################################
 
             this.sizeCalculator.setTransactionBlock(data.getData());
-            Signature sig = BLSSignature.sign(block_serialize.encode(data.getData(), this.sizeCalculator.TransactionBlockSizeCalculator()), CachedBLSKeyPair.getInstance().getPrivateKey());
+            byte[] toSign = block_serialize.encode(data.getData(), this.sizeCalculator.TransactionBlockSizeCalculator());
+            Signature sig = BLSSignature.sign(toSign, CachedBLSKeyPair.getInstance().getPrivateKey());
             data.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
+
+            BLSSignatureData BLSLeaderSignatureData = signatureDataMap.get(CachedBLSKeyPair.getInstance().getPublicKey());
+            BLSLeaderSignatureData.getSignature()[1] = BLSSignature.sign(toSign, CachedBLSKeyPair.getInstance().getPrivateKey());
+            BLSLeaderSignatureData.getMessageHash()[1] = BLSSignature.GetMessageHashAsBase64String(toSign);
+            signatureDataMap.put(CachedBLSKeyPair.getInstance().getPublicKey(), BLSLeaderSignatureData);
 
             this.N_COPY = (this.N - 1) - ConsensusServer.getInstance().getPeers_not_connected();
 
@@ -466,20 +471,13 @@ public class OrganizerConsensusPhases {
                 return;
 
             //##############################################################
-            int pos = 0;
             String messageHashAsBase64String = BLSSignature.GetMessageHashAsBase64String(message.toArray());
-            for (BLSPublicKey blsPublicKey : publicKeys) {
-                BLSSignatureData BLSSignatureData = signatureDataMap.get(blsPublicKey);
-                BLSSignatureData.getSignature()[1] = signature.get(pos);
+            for(int i=0;i<publicKeys.size();i++) {
+                BLSSignatureData BLSSignatureData = signatureDataMap.get(publicKeys.get(i));
+                BLSSignatureData.getSignature()[1] = signature.get(i);
                 BLSSignatureData.getMessageHash()[1] = messageHashAsBase64String;
-                signatureDataMap.put(blsPublicKey, BLSSignatureData);
-                pos++;
+                signatureDataMap.put(publicKeys.get(i), BLSSignatureData);
             }
-
-            BLSSignatureData BLSLeaderSignatureData = signatureDataMap.get(CachedBLSKeyPair.getInstance().getPublicKey());
-            BLSLeaderSignatureData.getSignature()[1] = BLSSignature.sign(message.toArray(), CachedBLSKeyPair.getInstance().getPrivateKey());
-            BLSLeaderSignatureData.getMessageHash()[1] = BLSSignature.GetMessageHashAsBase64String(message.toArray());
-            signatureDataMap.put(CachedBLSKeyPair.getInstance().getPublicKey(), BLSLeaderSignatureData);
 
             //##############################################################
 
