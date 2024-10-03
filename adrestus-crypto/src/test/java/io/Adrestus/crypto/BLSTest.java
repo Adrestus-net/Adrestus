@@ -39,7 +39,7 @@ public class BLSTest {
         BLSPrivateKey sk = new BLSPrivateKey(42);
         BLSPublicKey vk = new BLSPublicKey(sk, params);
         BLSPrivateKey sk2 = new BLSPrivateKey(43);
-        BLSPublicKey vk2 = new BLSPublicKey(sk, params);
+        BLSPublicKey vk2 = new BLSPublicKey(sk2, params);
         System.out.println(Hex.toHexString(sk.toBytes()));
         System.out.println(Hex.toHexString(vk.toBytes()));
 

@@ -6,5 +6,4 @@ public interface ITreeZone {
 
     void setTree(MemoryTreePool iMemoryTreePool);
 
-    void clear();
 }

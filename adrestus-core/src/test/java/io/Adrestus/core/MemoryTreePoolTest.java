@@ -177,7 +177,7 @@ public class MemoryTreePoolTest {
     @Test
     public void MultiPatriciaTrees2() throws Exception {
         String address = "ADR-ADL3-VDZK-ZU7H-2BX5-M2H4-S7LF-5SR4-ECQA-EIUJ-CBFK";
-        PatriciaTreeNode treeNode = new PatriciaTreeNode(200, 112, 0, 456);
+        PatriciaTreeNode treeNode = new PatriciaTreeNode(200, 112, 0, 456,456);
         TreeFactory.getMemoryTree(1).store(address, treeNode);
         MemoryTreePool replica = new MemoryTreePool(((MemoryTreePool) TreeFactory.getMemoryTree(1)));
         MemoryTreePool replica2 = new MemoryTreePool(((MemoryTreePool) TreeFactory.getMemoryTree(1)));

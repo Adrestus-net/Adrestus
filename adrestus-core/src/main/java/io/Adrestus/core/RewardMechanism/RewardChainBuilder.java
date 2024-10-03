@@ -12,7 +12,7 @@ public class RewardChainBuilder {
     }
 
     private void buildChain() {
-        handlers = Arrays.asList(new EffectiveStakeCalculator(),new EffectiveStakeRatioCalculator(),new DelegateWeightsCalculator(),new ValidatorRewardCalculator(),new DelegateRewardsCalculator(),new RewardStorageCalculator());
+        handlers = Arrays.asList(new EffectiveStakeCalculator(),new EffectiveStakeRatioCalculator(),new DelegateWeightsCalculator(),new ValidatorRewardCalculator(),new DelegateRewardsCalculator(),new RewardPrecisionCalculator(),new RewardStorageCalculator());
     }
 
     public void makeRequest(Request req) {
