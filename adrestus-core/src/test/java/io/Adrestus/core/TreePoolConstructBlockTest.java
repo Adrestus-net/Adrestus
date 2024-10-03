@@ -283,7 +283,7 @@ public class TreePoolConstructBlockTest {
     @SneakyThrows
     @Test
     public void UnClaimedReward_transaction() {
-        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(address, new PatriciaTreeNode(1000, 0, 0, 1000,10));
+        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(address, new PatriciaTreeNode(0, 0, 0, 1000,1000));
         ArrayList<Transaction> list = new ArrayList<>();
         UnclaimedFeeRewardTransaction transaction1 = new UnclaimedFeeRewardTransaction();
         transaction1.setRecipientAddress(address);
@@ -305,7 +305,7 @@ public class TreePoolConstructBlockTest {
     @SneakyThrows
     @Test
     public void reward_transaction() {
-        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(address, new PatriciaTreeNode(1000, 0, 0, 1000,10));
+        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(address, new PatriciaTreeNode(0, 0, 0, 1000,1000));
         ArrayList<Transaction> list = new ArrayList<>();
         RewardsTransaction reward = new RewardsTransaction();
         reward.setRecipientAddress(address);
