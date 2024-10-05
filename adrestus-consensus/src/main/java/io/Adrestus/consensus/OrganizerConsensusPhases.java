@@ -63,7 +63,7 @@ public class OrganizerConsensusPhases {
         private final SerializationUtil<SerializableErasureObject> serenc_erasure;
         private final boolean DEBUG;
         private final IBlockIndex blockIndex;
-        private final Map<BLSPublicKey, BLSSignatureData> signatureDataMap;
+        private final TreeMap<BLSPublicKey, BLSSignatureData> signatureDataMap;
 
         private final BlockSizeCalculator sizeCalculator;
         private CountDownLatch latch;
@@ -86,7 +86,7 @@ public class OrganizerConsensusPhases {
             list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
             this.block_serialize = new SerializationUtil<AbstractBlock>(AbstractBlock.class, list);
             this.consensus_serialize = new SerializationUtil<ConsensusMessage>(fluentType, list);
-            this.signatureDataMap = new HashMap<BLSPublicKey, BLSSignatureData>();
+            this.signatureDataMap = new TreeMap<BLSPublicKey, BLSSignatureData>();
             this.sizeCalculator = new BlockSizeCalculator();
             this.signatureMapper = new SerializationUtil<Signature>(Signature.class, list);
             this.serenc_erasure = new SerializationUtil<SerializableErasureObject>(SerializableErasureObject.class);
@@ -315,7 +315,8 @@ public class OrganizerConsensusPhases {
                                 LOG.info("PreparePhase: Validator does not exist on consensus... Ignore");
                                 // i--;
                             } else {
-                                data.getSignatures().add(received.getChecksumData());
+                                data.getSignatures().put(received.getChecksumData().getBlsPublicKey(),new BLSSignatureData());
+                                data.getSignatures().get(received.getChecksumData().getBlsPublicKey()).getSignature()[0]=received.getChecksumData().getSignature();
                                 N_COPY--;
                                 i--;
                             }
@@ -347,8 +348,8 @@ public class OrganizerConsensusPhases {
                     original_copy.getZone()));
             data.setMessageType(ConsensusMessageType.PREPARE);
 
-            List<BLSPublicKey> publicKeys = data.getSignatures().stream().map(ConsensusMessage.ChecksumData::getBlsPublicKey).collect(Collectors.toList());
-            List<Signature> signature = data.getSignatures().stream().map(ConsensusMessage.ChecksumData::getSignature).collect(Collectors.toList());
+            List<BLSPublicKey> publicKeys = new ArrayList<>(data.getSignatures().keySet());
+            List<Signature> signature = data.getSignatures().values().stream().map(BLSSignatureData::getSignature).map(r->r[0]).collect(Collectors.toList());
 
             Signature aggregatedSignature = BLSSignature.aggregate(signature);
 
@@ -368,7 +369,7 @@ public class OrganizerConsensusPhases {
 
             //##############################################################
             String messageHashAsBase64String = BLSSignature.GetMessageHashAsBase64String(message.toArray());
-            for(int i=0;i<publicKeys.size();i++) {
+            for (int i = 0; i < publicKeys.size(); i++) {
                 BLSSignatureData BLSSignatureData = new BLSSignatureData();
                 BLSSignatureData.getSignature()[0] = signature.get(i);
                 BLSSignatureData.getMessageHash()[0] = messageHashAsBase64String;
@@ -406,7 +407,6 @@ public class OrganizerConsensusPhases {
 
             if (!DEBUG) {
                 int i = N_COPY;
-                data.getSignatures().clear();
                 while (i > 0) {
                     byte[] receive = ConsensusServer.getInstance().receiveData();
                     try {
@@ -426,7 +426,7 @@ public class OrganizerConsensusPhases {
                                 LOG.info("CommitPhase: Validator does not exist on consensus... Ignore");
                                 //i--;
                             } else {
-                                data.getSignatures().add(received.getChecksumData());
+                                data.getSignatures().get(received.getChecksumData().getBlsPublicKey()).getSignature()[1]=received.getChecksumData().getSignature();
                                 N_COPY--;
                                 i--;
                             }
@@ -450,8 +450,8 @@ public class OrganizerConsensusPhases {
             }
             data.setMessageType(ConsensusMessageType.COMMIT);
 
-            List<BLSPublicKey> publicKeys = data.getSignatures().stream().map(ConsensusMessage.ChecksumData::getBlsPublicKey).collect(Collectors.toList());
-            List<Signature> signature = data.getSignatures().stream().map(ConsensusMessage.ChecksumData::getSignature).collect(Collectors.toList());
+            List<BLSPublicKey> publicKeys = new ArrayList<>(data.getSignatures().keySet());
+            List<Signature> signature = data.getSignatures().values().stream().map(BLSSignatureData::getSignature).map(r->r[1]).collect(Collectors.toList());
 
 
             Signature aggregatedSignature = BLSSignature.aggregate(signature);
@@ -472,7 +472,7 @@ public class OrganizerConsensusPhases {
 
             //##############################################################
             String messageHashAsBase64String = BLSSignature.GetMessageHashAsBase64String(message.toArray());
-            for(int i=0;i<publicKeys.size();i++) {
+            for (int i = 0; i < publicKeys.size(); i++) {
                 BLSSignatureData BLSSignatureData = signatureDataMap.get(publicKeys.get(i));
                 BLSSignatureData.getSignature()[1] = signature.get(i);
                 BLSSignatureData.getMessageHash()[1] = messageHashAsBase64String;

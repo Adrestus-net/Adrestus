@@ -1,21 +1,22 @@
 package io.Adrestus.core.RewardMechanism;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
 public class RewardObject {
 
-    private double effective_stake;
-    private double effective_stake_ratio;
+    private BigDecimal effective_stake;
+    private BigDecimal effective_stake_ratio;
     private int block_participation;
     private int transactions_leader_participation;
     private boolean committee_leader_participation;
-    private double unreal_reward;
-    private double real_reward;
+    private BigDecimal unreal_reward;
+    private BigDecimal real_reward;
     private Map<String, DelegateObject> delegate_stake;
 
-    public RewardObject(double effective_stake, double effective_stake_ratio) {
+    public RewardObject(BigDecimal effective_stake, BigDecimal effective_stake_ratio) {
         this.effective_stake = effective_stake;
         this.effective_stake_ratio = effective_stake_ratio;
         this.delegate_stake = new HashMap<String, DelegateObject>();
@@ -24,7 +25,7 @@ public class RewardObject {
         this.committee_leader_participation = false;
     }
 
-    public RewardObject(double effective_stake, Map<String, DelegateObject> delegate_stake, double real_reward, double unreal_reward, int block_participation, double effective_stake_ratio) {
+    public RewardObject(BigDecimal effective_stake, Map<String, DelegateObject> delegate_stake, BigDecimal real_reward, BigDecimal unreal_reward, int block_participation, BigDecimal effective_stake_ratio) {
         this.effective_stake = effective_stake;
         this.delegate_stake = delegate_stake;
         this.real_reward = real_reward;
@@ -35,19 +36,19 @@ public class RewardObject {
         this.committee_leader_participation = false;
     }
 
-    public double getEffective_stake() {
+    public BigDecimal getEffective_stake() {
         return effective_stake;
     }
 
-    public void setEffective_stake(double effective_stake) {
+    public void setEffective_stake(BigDecimal effective_stake) {
         this.effective_stake = effective_stake;
     }
 
-    public double getEffective_stake_ratio() {
+    public BigDecimal getEffective_stake_ratio() {
         return effective_stake_ratio;
     }
 
-    public void setEffective_stake_ratio(double effective_stake_ratio) {
+    public void setEffective_stake_ratio(BigDecimal effective_stake_ratio) {
         this.effective_stake_ratio = effective_stake_ratio;
     }
 
@@ -60,19 +61,19 @@ public class RewardObject {
     }
 
 
-    public double getReal_reward() {
+    public BigDecimal getReal_reward() {
         return real_reward;
     }
 
-    public void setReal_reward(double real_reward) {
+    public void setReal_reward(BigDecimal real_reward) {
         this.real_reward = real_reward;
     }
 
-    public double getUnreal_reward() {
+    public BigDecimal getUnreal_reward() {
         return unreal_reward;
     }
 
-    public void setUnreal_reward(double unreal_reward) {
+    public void setUnreal_reward(BigDecimal unreal_reward) {
         this.unreal_reward = unreal_reward;
     }
 
@@ -105,7 +106,7 @@ public class RewardObject {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         RewardObject that = (RewardObject) o;
-        return Double.compare(effective_stake, that.effective_stake) == 0 && Double.compare(effective_stake_ratio, that.effective_stake_ratio) == 0 && block_participation == that.block_participation && transactions_leader_participation == that.transactions_leader_participation && committee_leader_participation == that.committee_leader_participation && Double.compare(unreal_reward, that.unreal_reward) == 0 && Double.compare(real_reward, that.real_reward) == 0 && Objects.equals(delegate_stake, that.delegate_stake);
+        return block_participation == that.block_participation && transactions_leader_participation == that.transactions_leader_participation && committee_leader_participation == that.committee_leader_participation && Objects.equals(effective_stake, that.effective_stake) && Objects.equals(effective_stake_ratio, that.effective_stake_ratio) && Objects.equals(unreal_reward, that.unreal_reward) && Objects.equals(real_reward, that.real_reward) && Objects.equals(delegate_stake, that.delegate_stake);
     }
 
     @Override

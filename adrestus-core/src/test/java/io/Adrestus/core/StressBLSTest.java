@@ -6,6 +6,7 @@ import io.Adrestus.crypto.bls.mapper.ECP2mapper;
 import io.Adrestus.crypto.bls.mapper.ECPmapper;
 import io.Adrestus.crypto.bls.model.*;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
+import io.Adrestus.crypto.elliptic.mapper.CustomSerializerTreeMap;
 import io.Adrestus.util.GetTime;
 import io.Adrestus.util.SerializationUtil;
 import org.apache.commons.codec.DecoderException;
@@ -18,10 +19,7 @@ import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.StringJoiner;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -42,6 +40,7 @@ public class StressBLSTest {
     public void Test() {
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
+        list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
         SerializationUtil<TransactionBlock> ser = new SerializationUtil<TransactionBlock>(TransactionBlock.class, list);
         sk1 = new BLSPrivateKey(1);
         vk1 = new BLSPublicKey(sk1);

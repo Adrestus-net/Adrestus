@@ -18,6 +18,7 @@ import io.Adrestus.crypto.SecurityAuditProofs;
 import io.Adrestus.crypto.WalletAddress;
 import io.Adrestus.crypto.bls.BLS381.ECP;
 import io.Adrestus.crypto.bls.BLS381.ECP2;
+import io.Adrestus.crypto.bls.BLSSignatureData;
 import io.Adrestus.crypto.bls.mapper.ECP2mapper;
 import io.Adrestus.crypto.bls.mapper.ECPmapper;
 import io.Adrestus.crypto.bls.model.BLSPrivateKey;
@@ -299,7 +300,9 @@ public class BlockTest {
     public void transaction_block() {
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
+        list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
         SerializationUtil<TransactionBlock> encode = new SerializationUtil<TransactionBlock>(TransactionBlock.class, list);
+
         //byte[] buffer = new byte[200];
         // BinarySerializer<DelegateTransaction> serenc = SerializerBuilder.create().build(DelegateTransaction.class);
         TransactionBlock block = new TransactionBlock();

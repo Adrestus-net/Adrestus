@@ -2,6 +2,7 @@ package io.Adrestus.core.RewardMechanism;
 
 import io.Adrestus.config.RewardConfiguration;
 
+import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.Map;
@@ -22,27 +23,29 @@ public class RewardPrecisionCalculator implements RewardHandler {
 
     @Override
     public int getPriority() {
-        return 5;
+        return 6;
     }
 
     @Override
     public void handle(Request req) {
         req.markHandled();
+        Map<String,RewardObject> maps=CachedRewardMapData.getInstance().getEffective_stakes_map();
         CachedRewardMapData.getInstance().getEffective_stakes_map().values().forEach(RewardPrecisionCalculator::applyPrecision);
     }
 
     private static RewardObject applyPrecision(RewardObject rewardObject) {
-        rewardObject.setEffective_stake(Double.parseDouble(reward_format.format(rewardObject.getEffective_stake())));
-        rewardObject.setEffective_stake_ratio(Double.parseDouble(reward_format.format(rewardObject.getEffective_stake_ratio())));
-        rewardObject.setUnreal_reward(Double.parseDouble(reward_format.format(rewardObject.getUnreal_reward())));
-        rewardObject.setReal_reward(Double.parseDouble(reward_format.format(rewardObject.getReal_reward())));
+
+        rewardObject.setEffective_stake(rewardObject.getEffective_stake().setScale(RewardConfiguration.DECIMAL_PRECISION, RoundingMode.HALF_UP));
+        rewardObject.setEffective_stake_ratio(rewardObject.getEffective_stake_ratio().setScale(RewardConfiguration.DECIMAL_PRECISION, RoundingMode.HALF_UP));
+        rewardObject.setUnreal_reward(rewardObject.getUnreal_reward().setScale(RewardConfiguration.DECIMAL_PRECISION, RoundingMode.HALF_UP));
+        rewardObject.setReal_reward(rewardObject.getReal_reward().setScale(RewardConfiguration.DECIMAL_PRECISION, RoundingMode.HALF_UP));
         rewardObject.getDelegate_stake().values().forEach(RewardPrecisionCalculator::applyPrecision);
         return rewardObject;
     }
 
     private static DelegateObject applyPrecision(DelegateObject delegateObject) {
-        delegateObject.setReward(Double.parseDouble(reward_format.format(delegateObject.getReward())));
-        delegateObject.setWeights(Double.parseDouble(reward_format.format(delegateObject.getWeights())));
+        delegateObject.setReward(delegateObject.getReward().setScale(RewardConfiguration.DECIMAL_PRECISION, RoundingMode.HALF_UP));
+        delegateObject.setWeights(delegateObject.getWeights().setScale(RewardConfiguration.DECIMAL_PRECISION, RoundingMode.HALF_UP));
         return delegateObject;
     }
 

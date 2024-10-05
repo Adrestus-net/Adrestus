@@ -1,6 +1,7 @@
 package io.Adrestus.consensus;
 
 import com.google.common.base.Objects;
+import io.Adrestus.crypto.bls.BLSSignatureData;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.Adrestus.crypto.bls.model.Signature;
 import io.activej.serializer.annotations.Deserialize;
@@ -8,18 +9,19 @@ import io.activej.serializer.annotations.Serialize;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ConsensusMessage<T> implements Serializable {
     private ConsensusMessageType messageType;
     private ConsensusStatusType statusType;
     private T data;
     private ChecksumData checksumData;
-    private List<ChecksumData> signatures;
-
+    private Map<BLSPublicKey, BLSSignatureData> signatures;
 
     public ConsensusMessage(@Deserialize("data") T data) {
-        this.signatures = new ArrayList<>();
+        this.signatures = new HashMap<>();
         this.checksumData = new ChecksumData();
         this.messageType = ConsensusMessageType.ANNOUNCE;
         this.statusType = ConsensusStatusType.PENDING;
@@ -51,11 +53,11 @@ public class ConsensusMessage<T> implements Serializable {
     }
 
     @Serialize
-    public List<ChecksumData> getSignatures() {
+    public Map<BLSPublicKey, BLSSignatureData> getSignatures() {
         return signatures;
     }
 
-    public void setSignatures(List<ChecksumData> signatures) {
+    public void setSignatures(Map<BLSPublicKey, BLSSignatureData> signatures) {
         this.signatures = signatures;
     }
 

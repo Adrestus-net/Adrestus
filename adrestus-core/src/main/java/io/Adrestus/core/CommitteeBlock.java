@@ -3,6 +3,7 @@ package io.Adrestus.core;
 import com.google.common.base.Objects;
 import io.Adrestus.core.RingBuffer.handler.blocks.DisruptorBlock;
 import io.Adrestus.core.RingBuffer.handler.blocks.DisruptorBlockVisitor;
+import io.Adrestus.crypto.bls.BLSSignatureData;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.Adrestus.crypto.elliptic.mapper.StakingData;
 import io.Adrestus.p2p.kademlia.repository.KademliaData;
@@ -152,6 +153,15 @@ public class CommitteeBlock extends AbstractBlock implements BlockFactory, Disru
     }
 
 
+    @Override
+    public TreeMap<BLSPublicKey, BLSSignatureData> getSignatureData() {
+        return super.getSignatureData();
+    }
+
+    @Override
+    public void setSignatureData(TreeMap<BLSPublicKey, BLSSignatureData> signatureData) {
+        super.setSignatureData(signatureData);
+    }
 
     //NEVER DELETE THIS ONLY CHANGE INSIDE
     @Override
@@ -183,7 +193,7 @@ public class CommitteeBlock extends AbstractBlock implements BlockFactory, Disru
 
     @Override
     public int hashCode() {
-        return java.util.Objects.hash(super.hashCode(), Arrays.hashCode(CommitteeProposer), VRF, VDF, StakingMap, StructureMap, difficulty);
+        return java.util.Objects.hash(super.hashCode(), Arrays.hashCode(CommitteeProposer), VRF, VDF, StakingMap, StructureMap,super.getSignatureData(), difficulty);
     }
 
     @Override

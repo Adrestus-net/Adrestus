@@ -7,10 +7,7 @@ import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.activej.serializer.annotations.Serialize;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 public class TransactionBlock extends AbstractBlock implements BlockFactory, DisruptorBlock, Serializable {
     private int Zone;
@@ -158,12 +155,12 @@ public class TransactionBlock extends AbstractBlock implements BlockFactory, Dis
     }
 
     @Override
-    public Map<BLSPublicKey, BLSSignatureData> getSignatureData() {
+    public TreeMap<BLSPublicKey, BLSSignatureData> getSignatureData() {
         return super.getSignatureData();
     }
 
     @Override
-    public void setSignatureData(Map<BLSPublicKey, BLSSignatureData> signatureData) {
+    public void setSignatureData(TreeMap<BLSPublicKey, BLSSignatureData> signatureData) {
         super.setSignatureData(signatureData);
     }
 

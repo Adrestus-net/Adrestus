@@ -243,35 +243,35 @@ public class RewardsTest {
         assertNotNull(CachedRewardMapData.getInstance().getEffective_stakes_map().get(address));
         assertNotNull(CachedRewardMapData.getInstance().getEffective_stakes_map().get(address1));
 
-        assertEquals(490,CachedRewardMapData.getInstance().getEffective_stakes_map().get(address).getEffective_stake());
-        assertEquals(0.556818,CachedRewardMapData.getInstance().getEffective_stakes_map().get(address).getEffective_stake_ratio());
-        assertEquals(7.015909,CachedRewardMapData.getInstance().getEffective_stakes_map().get(address).getUnreal_reward());
+        assertEquals(BigDecimal.valueOf(490.000000).setScale(RewardConfiguration.DECIMAL_PRECISION,RewardConfiguration.ROUNDING),CachedRewardMapData.getInstance().getEffective_stakes_map().get(address).getEffective_stake());
+        assertEquals(BigDecimal.valueOf(0.556818),CachedRewardMapData.getInstance().getEffective_stakes_map().get(address).getEffective_stake_ratio());
+        assertEquals(BigDecimal.valueOf(7.015907),CachedRewardMapData.getInstance().getEffective_stakes_map().get(address).getUnreal_reward());
 
         //it has some divergent cause it caclulates leader transaction/committe block rewards its normal
-        assertEquals(0.8694,CachedRewardMapData.getInstance().getEffective_stakes_map().get(address).getReal_reward());
+        assertEquals(BigDecimal.valueOf(0.869397),CachedRewardMapData.getInstance().getEffective_stakes_map().get(address).getReal_reward());
 
-        assertEquals(270,CachedRewardMapData.getInstance().getEffective_stakes_map().get(address1).getEffective_stake());
-        assertEquals(0.306818,CachedRewardMapData.getInstance().getEffective_stakes_map().get(address1).getEffective_stake_ratio());
-        assertEquals(3.865909,CachedRewardMapData.getInstance().getEffective_stakes_map().get(address1).getUnreal_reward());
-        assertEquals(0.429545,CachedRewardMapData.getInstance().getEffective_stakes_map().get(address1).getReal_reward());
+        assertEquals(BigDecimal.valueOf(270.000000).setScale(RewardConfiguration.DECIMAL_PRECISION,RewardConfiguration.ROUNDING),CachedRewardMapData.getInstance().getEffective_stakes_map().get(address1).getEffective_stake());
+        assertEquals(BigDecimal.valueOf(0.306818),CachedRewardMapData.getInstance().getEffective_stakes_map().get(address1).getEffective_stake_ratio());
+        assertEquals(BigDecimal.valueOf(3.865907),CachedRewardMapData.getInstance().getEffective_stakes_map().get(address1).getUnreal_reward());
+        assertEquals(BigDecimal.valueOf(0.429545),CachedRewardMapData.getInstance().getEffective_stakes_map().get(address1).getReal_reward());
 
-        assertEquals(120,CachedRewardMapData.getInstance().getEffective_stakes_map().get(address0).getEffective_stake());
-        assertEquals(0.136363,CachedRewardMapData.getInstance().getEffective_stakes_map().get(address0).getEffective_stake_ratio());
-        assertEquals(1.718181,CachedRewardMapData.getInstance().getEffective_stakes_map().get(address0).getUnreal_reward());
-        assertEquals(0.143181,CachedRewardMapData.getInstance().getEffective_stakes_map().get(address0).getReal_reward());
+        assertEquals(BigDecimal.valueOf(120.000000).setScale(RewardConfiguration.DECIMAL_PRECISION,RewardConfiguration.ROUNDING),CachedRewardMapData.getInstance().getEffective_stakes_map().get(address0).getEffective_stake());
+        assertEquals(BigDecimal.valueOf(0.136363),CachedRewardMapData.getInstance().getEffective_stakes_map().get(address0).getEffective_stake_ratio());
+        assertEquals(BigDecimal.valueOf(1.718174),CachedRewardMapData.getInstance().getEffective_stakes_map().get(address0).getUnreal_reward());
+        assertEquals(BigDecimal.valueOf(0.143181),CachedRewardMapData.getInstance().getEffective_stakes_map().get(address0).getReal_reward());
 
 
         //not stakers delegators here
-        assertEquals(0.204081,CachedRewardMapData.getInstance().getEffective_stakes_map().get(address).getDelegate_stake().get(address2).getWeights());
-        assertEquals(0.204081,CachedRewardMapData.getInstance().getEffective_stakes_map().get(address).getDelegate_stake().get(address4).getWeights());
+        assertEquals(BigDecimal.valueOf(0.204082),CachedRewardMapData.getInstance().getEffective_stakes_map().get(address).getDelegate_stake().get(address2).getWeights());
+        assertEquals(BigDecimal.valueOf(0.204082),CachedRewardMapData.getInstance().getEffective_stakes_map().get(address).getDelegate_stake().get(address4).getWeights());
 
 
-        assertEquals(0.740740,CachedRewardMapData.getInstance().getEffective_stakes_map().get(address1).getDelegate_stake().get(address2).getWeights());
-        assertEquals(0.740740,CachedRewardMapData.getInstance().getEffective_stakes_map().get(address1).getDelegate_stake().get(address3).getWeights());
-        assertEquals(0.740740,CachedRewardMapData.getInstance().getEffective_stakes_map().get(address1).getDelegate_stake().get(address4).getWeights());
+        assertEquals(BigDecimal.valueOf(0.740741),CachedRewardMapData.getInstance().getEffective_stakes_map().get(address1).getDelegate_stake().get(address2).getWeights());
+        assertEquals(BigDecimal.valueOf(0.740741),CachedRewardMapData.getInstance().getEffective_stakes_map().get(address1).getDelegate_stake().get(address3).getWeights());
+        assertEquals(BigDecimal.valueOf(0.740741),CachedRewardMapData.getInstance().getEffective_stakes_map().get(address1).getDelegate_stake().get(address4).getWeights());
 
         //treemap asserts stakers
-        assertEquals(0.8694,TreeFactory.getMemoryTree(0).getByaddress(address).get().getUnclaimed_reward());
+        assertEquals(0.869397,TreeFactory.getMemoryTree(0).getByaddress(address).get().getUnclaimed_reward());
         assertEquals(0.429545,TreeFactory.getMemoryTree(0).getByaddress(address1).get().getUnclaimed_reward());
         assertEquals(0.143181,TreeFactory.getMemoryTree(0).getByaddress(address0).get().getUnclaimed_reward());
 
@@ -583,7 +583,7 @@ public class RewardsTest {
 
 
         Map<String,RewardObject> maps=CachedRewardMapData.getInstance().getEffective_stakes_map();
-        assertEquals(0.429545,maps.get(address1).getReal_reward());
+        assertEquals(BigDecimal.valueOf(0.429545),maps.get(address1).getReal_reward());
         transactionBlockIDatabase.delete_db();
     }
 }

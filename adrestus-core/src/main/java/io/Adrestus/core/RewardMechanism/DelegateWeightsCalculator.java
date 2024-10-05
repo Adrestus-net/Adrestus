@@ -5,6 +5,7 @@ import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.crypto.elliptic.mapper.StakingData;
 import io.Adrestus.p2p.kademlia.repository.KademliaData;
 
+import java.math.BigDecimal;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -28,7 +29,7 @@ public class DelegateWeightsCalculator implements RewardHandler {
             double validator_stake = TreeFactory.getMemoryTree(0).getByaddress(validator_address).get().getStaking_amount();
             Map<String, Double> delegation = TreeFactory.getMemoryTree(0).getByaddress(data.getAddressData().getAddress()).get().getDelegation();
             for (Map.Entry<String, Double> entry : delegation.entrySet()) {
-                CachedRewardMapData.getInstance().getEffective_stakes_map().get(validator_address).getDelegate_stake().put(entry.getKey(),new DelegateObject(entry.getValue()/validator_stake,0));
+                CachedRewardMapData.getInstance().getEffective_stakes_map().get(validator_address).getDelegate_stake().put(entry.getKey(),new DelegateObject(new BigDecimal(entry.getValue()/validator_stake),BigDecimal.ZERO));
             }
         });
     }

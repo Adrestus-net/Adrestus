@@ -278,8 +278,8 @@ public class ValidatorConsensusPhases {
                 return;
             }
 
-            List<BLSPublicKey> publicKeys = data.getSignatures().stream().map(ConsensusMessage.ChecksumData::getBlsPublicKey).collect(Collectors.toList());
-            List<Signature> signature = data.getSignatures().stream().map(ConsensusMessage.ChecksumData::getSignature).collect(Collectors.toList());
+            List<BLSPublicKey> publicKeys = new ArrayList<>(data.getSignatures().keySet());
+            List<Signature> signature = data.getSignatures().values().stream().map(BLSSignatureData::getSignature).map(r->r[0]).collect(Collectors.toList());
 
 
             Signature aggregatedSignature = BLSSignature.aggregate(signature);
@@ -386,8 +386,8 @@ public class ValidatorConsensusPhases {
                 return;
             }
 
-            List<BLSPublicKey> publicKeys = data.getSignatures().stream().map(ConsensusMessage.ChecksumData::getBlsPublicKey).collect(Collectors.toList());
-            List<Signature> signature = data.getSignatures().stream().map(ConsensusMessage.ChecksumData::getSignature).collect(Collectors.toList());
+            List<BLSPublicKey> publicKeys = new ArrayList<>(data.getSignatures().keySet());
+            List<Signature> signature = data.getSignatures().values().stream().map(BLSSignatureData::getSignature).map(r->r[1]).collect(Collectors.toList());
 
 
             Signature aggregatedSignature = BLSSignature.aggregate(signature);
@@ -396,7 +396,7 @@ public class ValidatorConsensusPhases {
             boolean verify = BLSSignature.fastAggregateVerify(publicKeys, toVerify, aggregatedSignature);
             if (!verify) {
                 cleanup();
-                LOG.info("Abort consensus phase BLS multi_signature is invalid in prepare phase");
+                LOG.info("Abort consensus phase BLS multi_signature is invalid in commit phase");
                 data.setStatusType(ConsensusStatusType.ABORT);
                 return;
             }
@@ -773,8 +773,8 @@ public class ValidatorConsensusPhases {
                 data.setStatusType(ConsensusStatusType.ABORT);
                 return;
             }
-            List<BLSPublicKey> publicKeys = data.getSignatures().stream().map(ConsensusMessage.ChecksumData::getBlsPublicKey).collect(Collectors.toList());
-            List<Signature> signature = data.getSignatures().stream().map(ConsensusMessage.ChecksumData::getSignature).collect(Collectors.toList());
+            List<BLSPublicKey> publicKeys = new ArrayList<>(data.getSignatures().keySet());
+            List<Signature> signature = data.getSignatures().values().stream().map(BLSSignatureData::getSignature).map(r->r[0]).collect(Collectors.toList());
 
             Signature aggregatedSignature = BLSSignature.aggregate(signature);
             Bytes toVerify = Bytes.wrap(serialize.encode(data.getData()));
@@ -886,8 +886,8 @@ public class ValidatorConsensusPhases {
                 return;
             }
 
-            List<BLSPublicKey> publicKeys = data.getSignatures().stream().map(ConsensusMessage.ChecksumData::getBlsPublicKey).collect(Collectors.toList());
-            List<Signature> signature = data.getSignatures().stream().map(ConsensusMessage.ChecksumData::getSignature).collect(Collectors.toList());
+            List<BLSPublicKey> publicKeys = new ArrayList<>(data.getSignatures().keySet());
+            List<Signature> signature = data.getSignatures().values().stream().map(BLSSignatureData::getSignature).map(r->r[1]).collect(Collectors.toList());
 
 
             Signature aggregatedSignature = BLSSignature.aggregate(signature);
@@ -939,7 +939,7 @@ public class ValidatorConsensusPhases {
         private final SerializationUtil<Signature> signatureMapper;
         private final SerializationUtil<SerializableErasureObject> serenc_erasure;
         private final DefaultFactory factory;
-        private final Map<BLSPublicKey, BLSSignatureData> signatureDataMap;
+        private final TreeMap<BLSPublicKey, BLSSignatureData> signatureDataMap;
         private final BlockSizeCalculator sizeCalculator;
 
         private RpcErasureClient<byte[]> collector_client;
@@ -958,7 +958,7 @@ public class ValidatorConsensusPhases {
             list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
             this.block_serialize = new SerializationUtil<AbstractBlock>(AbstractBlock.class, list);
             this.consensus_serialize = new SerializationUtil<ConsensusMessage>(fluentType, list);
-            this.signatureDataMap = new HashMap<BLSPublicKey, BLSSignatureData>();
+            this.signatureDataMap = new TreeMap<BLSPublicKey, BLSSignatureData>();
             this.sizeCalculator = new BlockSizeCalculator();
             this.signatureMapper = new SerializationUtil<Signature>(Signature.class, list);
             this.serenc_erasure = new SerializationUtil<SerializableErasureObject>(SerializableErasureObject.class);
@@ -1335,8 +1335,8 @@ public class ValidatorConsensusPhases {
                 return;
             }
 
-            List<BLSPublicKey> publicKeys = data.getSignatures().stream().map(ConsensusMessage.ChecksumData::getBlsPublicKey).collect(Collectors.toList());
-            List<Signature> signature = data.getSignatures().stream().map(ConsensusMessage.ChecksumData::getSignature).collect(Collectors.toList());
+            List<BLSPublicKey> publicKeys = new ArrayList<>(data.getSignatures().keySet());
+            List<Signature> signature = data.getSignatures().values().stream().map(BLSSignatureData::getSignature).map(r->r[0]).collect(Collectors.toList());
 
 
             Signature aggregatedSignature = BLSSignature.aggregate(signature);
@@ -1480,8 +1480,8 @@ public class ValidatorConsensusPhases {
                 return;
             }
 
-            List<BLSPublicKey> publicKeys = data.getSignatures().stream().map(ConsensusMessage.ChecksumData::getBlsPublicKey).collect(Collectors.toList());
-            List<Signature> signature = data.getSignatures().stream().map(ConsensusMessage.ChecksumData::getSignature).collect(Collectors.toList());
+            List<BLSPublicKey> publicKeys = new ArrayList<>(data.getSignatures().keySet());
+            List<Signature> signature = data.getSignatures().values().stream().map(BLSSignatureData::getSignature).map(r->r[1]).collect(Collectors.toList());
 
 
             Signature aggregatedSignature = BLSSignature.aggregate(signature);
@@ -1766,8 +1766,8 @@ public class ValidatorConsensusPhases {
                 block.setStatusType(ConsensusStatusType.ABORT);
                 return;
             }
-            List<BLSPublicKey> publicKeys = block.getSignatures().stream().map(ConsensusMessage.ChecksumData::getBlsPublicKey).collect(Collectors.toList());
-            List<Signature> signature = block.getSignatures().stream().map(ConsensusMessage.ChecksumData::getSignature).collect(Collectors.toList());
+            List<BLSPublicKey> publicKeys = new ArrayList<>(block.getSignatures().keySet());
+            List<Signature> signature = block.getSignatures().values().stream().map(BLSSignatureData::getSignature).map(r->r[0]).collect(Collectors.toList());
 
 
             Signature aggregatedSignature = BLSSignature.aggregate(signature);
@@ -1873,8 +1873,8 @@ public class ValidatorConsensusPhases {
                 return;
             }
 
-            List<BLSPublicKey> publicKeys = block.getSignatures().stream().map(ConsensusMessage.ChecksumData::getBlsPublicKey).collect(Collectors.toList());
-            List<Signature> signature = block.getSignatures().stream().map(ConsensusMessage.ChecksumData::getSignature).collect(Collectors.toList());
+            List<BLSPublicKey> publicKeys = new ArrayList<>(block.getSignatures().keySet());
+            List<Signature> signature = block.getSignatures().values().stream().map(BLSSignatureData::getSignature).map(r->r[1]).collect(Collectors.toList());
 
 
             Signature aggregatedSignature = BLSSignature.aggregate(signature);

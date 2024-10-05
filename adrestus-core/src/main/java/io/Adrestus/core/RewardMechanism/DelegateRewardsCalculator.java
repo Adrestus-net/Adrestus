@@ -19,7 +19,7 @@ public class DelegateRewardsCalculator implements RewardHandler {
         req.markHandled();
         for (Map.Entry<String, RewardObject> validator : CachedRewardMapData.getInstance().getEffective_stakes_map().entrySet()) {
             for (Map.Entry<String, DelegateObject> delegator : validator.getValue().getDelegate_stake().entrySet()) {
-                delegator.getValue().setReward(delegator.getValue().getWeights() * validator.getValue().getUnreal_reward());
+                delegator.getValue().setReward(delegator.getValue().getWeights().multiply(validator.getValue().getUnreal_reward()));
             }
         }
     }

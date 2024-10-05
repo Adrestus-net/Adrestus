@@ -1,29 +1,30 @@
 package io.Adrestus.core.RewardMechanism;
 
+import java.math.BigDecimal;
 import java.util.Objects;
 
 public class DelegateObject {
-    private double weights;
-    private double reward;
+    private BigDecimal weights;
+    private BigDecimal reward;
 
-    public DelegateObject(double weights, double reward) {
+    public DelegateObject(BigDecimal weights, BigDecimal reward) {
         this.weights = weights;
         this.reward = reward;
     }
 
-    public double getWeights() {
+    public BigDecimal getWeights() {
         return weights;
     }
 
-    public void setWeights(double weights) {
+    public void setWeights(BigDecimal weights) {
         this.weights = weights;
     }
 
-    public double getReward() {
+    public BigDecimal getReward() {
         return reward;
     }
 
-    public void setReward(double reward) {
+    public void setReward(BigDecimal reward) {
         this.reward = reward;
     }
 
@@ -33,7 +34,7 @@ public class DelegateObject {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         DelegateObject that = (DelegateObject) o;
-        return Double.compare(weights, that.weights) == 0 && Double.compare(reward, that.reward) == 0;
+        return Objects.equals(weights, that.weights) && Objects.equals(reward, that.reward);
     }
 
     @Override

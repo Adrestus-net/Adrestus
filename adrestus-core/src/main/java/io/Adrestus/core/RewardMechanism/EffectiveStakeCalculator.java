@@ -3,8 +3,10 @@ package io.Adrestus.core.RewardMechanism;
 import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.config.StakingConfiguration;
+import io.Adrestus.util.CustomBigDecimal;
 import io.Adrestus.util.bytes.Bytes53;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -37,7 +39,7 @@ public class EffectiveStakeCalculator implements RewardHandler {
             PatriciaTreeNode patriciaTreeNode=TreeFactory.getMemoryTree(0).getByaddress(address).get();
             if(patriciaTreeNode.getStaking_amount()>0){
                double effective_stake=Math.max(Math.min((1+StakingConfiguration.C)*total_stake/stake_counter,patriciaTreeNode.getStaking_amount()),(1-StakingConfiguration.C)*total_stake/stake_counter);
-                CachedRewardMapData.getInstance().getEffective_stakes_map().put(address,new RewardObject(effective_stake,0));
+               CachedRewardMapData.getInstance().getEffective_stakes_map().put(address,new RewardObject(CustomBigDecimal.valueOf(effective_stake),BigDecimal.ZERO));
             }
         }
     }
