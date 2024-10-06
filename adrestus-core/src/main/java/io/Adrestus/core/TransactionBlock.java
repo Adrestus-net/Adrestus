@@ -170,6 +170,15 @@ public class TransactionBlock extends AbstractBlock implements BlockFactory, Dis
     }
 
     @Override
+    public HashMap<BLSPublicKey, BLSSignatureData> getLeaderSignatureData() {
+        return super.getLeaderSignatureData();
+    }
+
+    public void setLeaderSignatureData(HashMap<BLSPublicKey, BLSSignatureData> leaderSignatureData) {
+        super.setLeaderSignatureData(leaderSignatureData);
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;

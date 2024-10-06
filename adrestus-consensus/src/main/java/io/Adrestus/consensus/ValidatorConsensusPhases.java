@@ -5,6 +5,7 @@ import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.core.*;
 import io.Adrestus.core.Resourses.*;
 import io.Adrestus.core.Util.BlockSizeCalculator;
+import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.bls.BLS381.ECP;
 import io.Adrestus.crypto.bls.BLS381.ECP2;
 import io.Adrestus.crypto.bls.BLSSignatureData;
@@ -941,8 +942,8 @@ public class ValidatorConsensusPhases {
         private final SerializationUtil<Signature> signatureMapper;
         private final SerializationUtil<SerializableErasureObject> serenc_erasure;
         private final DefaultFactory factory;
-        private final TreeMap<BLSPublicKey, BLSSignatureData> signatureDataMap;
         private final BlockSizeCalculator sizeCalculator;
+        private final String Shake256Hash[];
 
         private RpcErasureClient<byte[]> collector_client;
 
@@ -960,10 +961,10 @@ public class ValidatorConsensusPhases {
             list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
             this.block_serialize = new SerializationUtil<AbstractBlock>(AbstractBlock.class, list);
             this.consensus_serialize = new SerializationUtil<ConsensusMessage>(fluentType, list);
-            this.signatureDataMap = new TreeMap<BLSPublicKey, BLSSignatureData>(new SortSignatureMapByBlsPublicKey());
             this.sizeCalculator = new BlockSizeCalculator();
             this.signatureMapper = new SerializationUtil<Signature>(Signature.class, list);
             this.serenc_erasure = new SerializationUtil<SerializableErasureObject>(SerializableErasureObject.class);
+            this.Shake256Hash=new String[3];
             ErasureServerInstance.getInstance();
         }
 
@@ -1123,6 +1124,7 @@ public class ValidatorConsensusPhases {
             if (data.getStatusType().equals(ConsensusStatusType.ABORT))
                 return;
 
+            byte[] bytesBlock = null;
             if (!DEBUG) {
                 try {
 //                    this.consensusClient.send_heartbeat(ConsensusConfiguration.HEARTBEAT_MESSAGE);
@@ -1161,15 +1163,23 @@ public class ValidatorConsensusPhases {
                         data.setStatusType(ConsensusStatusType.ABORT);
                         return;
                     } else {
-                        this.sizeCalculator.setTransactionBlock(data.getData());
-                        byte[] message = block_serialize.encode(data.getData(), this.sizeCalculator.TransactionBlockSizeCalculator());
-                        boolean verify = BLSSignature.verify(data.getChecksumData().getSignature(), message, data.getChecksumData().getBlsPublicKey());
+                        this.sizeCalculator.setTransactionBlock(this.original_copy);
+                        bytesBlock = block_serialize.encode(this.original_copy, this.sizeCalculator.TransactionBlockSizeCalculator());
+                        String hash = HashUtil.sha256_bytetoString(bytesBlock);
+                        if (!hash.equals(data.getHash())) {
+                            cleanup();
+                            LOG.info("AnnouncePhase: Abort consensus phase BLS leader hash is invalid according to block");
+                            data.setStatusType(ConsensusStatusType.ABORT);
+                            return;
+                        }
+                        boolean verify = BLSSignature.verify(data.getChecksumData().getSignature(), bytesBlock, data.getChecksumData().getBlsPublicKey());
                         if (!verify) {
                             cleanup();
                             LOG.info("AnnouncePhase: Abort consensus phase BLS leader signature is invalid during announce phase");
                             data.setStatusType(ConsensusStatusType.ABORT);
                             return;
                         }
+
                     }
                 } catch (IllegalArgumentException | StringIndexOutOfBoundsException e) {
                     cleanup();
@@ -1210,30 +1220,25 @@ public class ValidatorConsensusPhases {
                 data.setStatusType(ConsensusStatusType.ABORT);
                 return;
             }
-            boolean bool1 = StringUtils.equals(original_copy.getHash(), data.getData().getHash());
-            boolean bool2 = StringUtils.equals(original_copy.getHeaderData().getPreviousHash(), data.getData().getHeaderData().getPreviousHash());
-            boolean bool3 = StringUtils.equals(original_copy.getHeaderData().getTimestamp(), data.getData().getHeaderData().getTimestamp());
-            int val1 = Integer.compare(original_copy.getHeight(), data.getData().getHeight());
-            int val2 = Integer.compare(original_copy.getViewID(), data.getData().getViewID());
-            int val3 = Integer.compare(original_copy.getZone(), data.getData().getZone());
+            data.setStatusType(ConsensusStatusType.SUCCESS);
+            data.setData(null);
 
-            if (val1 != 0 || val2 != 0 || val3 != 0 && !bool1 || !bool2 || !bool3) {
+            if (bytesBlock == null) {
                 cleanup();
-                LOG.info("AnnouncePhase: Original Block is not same with Header Data Block Abort");
+                LOG.info("AnnouncePhase: failed  to receive correct bytes block: Abort");
                 data.setStatusType(ConsensusStatusType.ABORT);
                 return;
             }
-            data.setStatusType(ConsensusStatusType.SUCCESS);
-            data.setData(new TransactionBlock(
-                    original_copy.getHash(),
-                    original_copy.getHeaderData().getPreviousHash(),
-                    original_copy.getSize(), original_copy.getHeight(),
-                    original_copy.getZone(), original_copy.getViewID(),
-                    original_copy.getHeaderData().getTimestamp(),
-                    original_copy.getZone()));
 
-            this.sizeCalculator.setTransactionBlock(data.getData());
-            Signature sig = BLSSignature.sign(block_serialize.encode(data.getData(), this.sizeCalculator.TransactionBlockSizeCalculator()), CachedBLSKeyPair.getInstance().getPrivateKey());
+            BLSSignatureData BLSLeaderSignatureData = new BLSSignatureData(3);
+            BLSLeaderSignatureData.getSignature()[0] = new Signature(data.getChecksumData().getSignature().getPoint());
+            BLSLeaderSignatureData.getMessageHash()[0] = BLSSignature.GetMessageHashAsBase64String(bytesBlock);
+            this.original_copy.getLeaderSignatureData().put(CachedBLSKeyPair.getInstance().getPublicKey(), BLSLeaderSignatureData);
+
+            this.sizeCalculator.setTransactionBlock(original_copy);
+            byte[] message = block_serialize.encode(original_copy, this.sizeCalculator.TransactionBlockSizeCalculator());
+            Shake256Hash[0]=BLSSignature.GetMessageHashAsBase64String(message);
+            Signature sig = BLSSignature.sign(message, CachedBLSKeyPair.getInstance().getPrivateKey());
             data.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
 
             if (DEBUG)
@@ -1254,6 +1259,7 @@ public class ValidatorConsensusPhases {
             if (data.getStatusType().equals(ConsensusStatusType.ABORT))
                 return;
 
+            byte[] bytesBlock = null;
             if (!DEBUG) {
                 try {
                     byte[] receive;
@@ -1290,9 +1296,25 @@ public class ValidatorConsensusPhases {
                         data.setStatusType(ConsensusStatusType.ABORT);
                         return;
                     } else {
-                        this.sizeCalculator.setTransactionBlock(data.getData());
-                        byte[] message = block_serialize.encode(data.getData(), this.sizeCalculator.TransactionBlockSizeCalculator());
-                        boolean verify = BLSSignature.verify(data.getChecksumData().getSignature(), message, data.getChecksumData().getBlsPublicKey());
+                        //##############################################################
+                        //##############################################################
+                        String messageHashAsBase64String = Shake256Hash[0];
+                        for (Map.Entry<BLSPublicKey, BLSSignatureData> entry : data.getSignatures().entrySet()) {
+                            BLSSignatureData BLSSignatureData = new BLSSignatureData();
+                            BLSSignatureData.getSignature()[0] = new Signature(entry.getValue().getSignature()[0].getPoint());
+                            BLSSignatureData.getMessageHash()[0] = messageHashAsBase64String;
+                            this.original_copy.getSignatureData().put(entry.getKey(), BLSSignatureData);
+                        }
+                        this.sizeCalculator.setTransactionBlock(this.original_copy);
+                        bytesBlock = block_serialize.encode(this.original_copy, this.sizeCalculator.TransactionBlockSizeCalculator());
+                        String hash = HashUtil.sha256_bytetoString(bytesBlock);
+                        if (!hash.equals(data.getHash())) {
+                            cleanup();
+                            LOG.info("PreparePhase: Abort consensus phase BLS leader hash is invalid according to block");
+                            data.setStatusType(ConsensusStatusType.ABORT);
+                            return;
+                        }
+                        boolean verify = BLSSignature.verify(data.getChecksumData().getSignature(), bytesBlock, data.getChecksumData().getBlsPublicKey());
                         if (!verify) {
                             cleanup();
                             LOG.info("PreparePhase: Abort consensus phase BLS leader signature is invalid during prepare phase");
@@ -1325,16 +1347,10 @@ public class ValidatorConsensusPhases {
                 data.setStatusType(ConsensusStatusType.ABORT);
                 return;
             }
-            boolean bool1 = StringUtils.equals(original_copy.getHash(), data.getData().getHash());
-            boolean bool2 = StringUtils.equals(original_copy.getHeaderData().getPreviousHash(), data.getData().getHeaderData().getPreviousHash());
-            boolean bool3 = StringUtils.equals(original_copy.getHeaderData().getTimestamp(), data.getData().getHeaderData().getTimestamp());
-            int val1 = Integer.compare(original_copy.getHeight(), data.getData().getHeight());
-            int val2 = Integer.compare(original_copy.getViewID(), data.getData().getViewID());
-            int val3 = Integer.compare(original_copy.getZone(), data.getData().getZone());
 
-            if (val1 != 0 || val2 != 0 || val3 != 0 && !bool1 || !bool2 || !bool3) {
+            if (bytesBlock == null) {
                 cleanup();
-                LOG.info("PreparePhase: Original Block is not same with Header Data Block Abort");
+                LOG.info("PreparePhase: failed  to receive correct bytes block: Abort");
                 data.setStatusType(ConsensusStatusType.ABORT);
                 return;
             }
@@ -1345,8 +1361,7 @@ public class ValidatorConsensusPhases {
 
             Signature aggregatedSignature = BLSSignature.aggregate(signature);
 
-            this.sizeCalculator.setTransactionBlock(data.getData());
-            Bytes toVerify = Bytes.wrap(block_serialize.encode(data.getData(), this.sizeCalculator.TransactionBlockSizeCalculator()));
+            Bytes toVerify = Bytes.wrap(bytesBlock);
             boolean verify = BLSSignature.fastAggregateVerify(publicKeys, toVerify, aggregatedSignature);
             if (!verify) {
                 cleanup();
@@ -1355,27 +1370,21 @@ public class ValidatorConsensusPhases {
                 return;
             }
 
-            //##############################################################
-            String messageHashAsBase64String = BLSSignature.GetMessageHashAsBase64String(toVerify.toArray());
-            for (Map.Entry<BLSPublicKey, BLSSignatureData> entry : data.getSignatures().entrySet()) {
-                BLSSignatureData BLSSignatureData = entry.getValue();
-                BLSSignatureData.getMessageHash()[0] = messageHashAsBase64String;
-                signatureDataMap.put(entry.getKey(), BLSSignatureData);
-            }
 
-            BLSSignatureData BLSLeaderSignatureData = new BLSSignatureData();
-            BLSLeaderSignatureData.getSignature()[0]=new Signature(data.getChecksumData().getSignature().getPoint());
-            BLSLeaderSignatureData.getMessageHash()[0] = messageHashAsBase64String;
-            signatureDataMap.put(data.getChecksumData().getBlsPublicKey(), BLSLeaderSignatureData);
-            //##############################################################
 
+            BLSSignatureData BLSLeaderSignatureData = this.original_copy.getLeaderSignatureData().get(data.getChecksumData().getBlsPublicKey());
+            BLSLeaderSignatureData.getSignature()[1] = new Signature(data.getChecksumData().getSignature().getPoint());
+            BLSLeaderSignatureData.getMessageHash()[1] = BLSSignature.GetMessageHashAsBase64String(bytesBlock);
+            this.original_copy.getLeaderSignatureData().put(data.getChecksumData().getBlsPublicKey(), BLSLeaderSignatureData);
 
             // data.clear();
             data.setStatusType(ConsensusStatusType.SUCCESS);
 
 
-            this.sizeCalculator.setTransactionBlock(data.getData());
-            byte[] message = block_serialize.encode(data.getData(), this.sizeCalculator.TransactionBlockSizeCalculator());
+            this.sizeCalculator.setTransactionBlock(original_copy);
+            byte[] message = block_serialize.encode(original_copy, this.sizeCalculator.TransactionBlockSizeCalculator());
+            data.setHash(HashUtil.sha256_bytetoString(message));
+            Shake256Hash[1]=BLSSignature.GetMessageHashAsBase64String(message);
             Signature sig = BLSSignature.sign(message, CachedBLSKeyPair.getInstance().getPrivateKey());
             data.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
 
@@ -1397,6 +1406,7 @@ public class ValidatorConsensusPhases {
             if (data.getStatusType().equals(ConsensusStatusType.ABORT))
                 return;
 
+            byte[] bytesBlock = null;
             if (!DEBUG) {
                 try {
                     byte[] receive;
@@ -1434,9 +1444,23 @@ public class ValidatorConsensusPhases {
                         data.setStatusType(ConsensusStatusType.ABORT);
                         return;
                     } else {
-                        this.sizeCalculator.setTransactionBlock(data.getData());
-                        byte[] message = block_serialize.encode(data.getData(), this.sizeCalculator.TransactionBlockSizeCalculator());
-                        boolean verify = BLSSignature.verify(data.getChecksumData().getSignature(), message, data.getChecksumData().getBlsPublicKey());
+                        String messageHashAsBase64String = Shake256Hash[1];
+                        for (Map.Entry<BLSPublicKey, BLSSignatureData> entry : data.getSignatures().entrySet()) {
+                            BLSSignatureData BLSSignatureData = new BLSSignatureData();
+                            BLSSignatureData.getSignature()[1] = new Signature(entry.getValue().getSignature()[1].getPoint());
+                            BLSSignatureData.getMessageHash()[1] = messageHashAsBase64String;
+                            this.original_copy.getSignatureData().put(entry.getKey(), BLSSignatureData);
+                        }
+                        this.sizeCalculator.setTransactionBlock(this.original_copy);
+                        bytesBlock = block_serialize.encode(this.original_copy, this.sizeCalculator.TransactionBlockSizeCalculator());
+                        String hash = HashUtil.sha256_bytetoString(bytesBlock);
+                        if (!hash.equals(data.getHash())) {
+                            cleanup();
+                            LOG.info("PreparePhase: Abort consensus phase BLS leader hash is invalid according to block");
+                            data.setStatusType(ConsensusStatusType.ABORT);
+                            return;
+                        }
+                        boolean verify = BLSSignature.verify(data.getChecksumData().getSignature(), bytesBlock, data.getChecksumData().getBlsPublicKey());
                         if (!verify) {
                             cleanup();
                             LOG.info("CommitPhase: Abort consensus phase BLS leader signature is invalid during commit phase");
@@ -1469,16 +1493,9 @@ public class ValidatorConsensusPhases {
                 return;
             }
 
-            boolean bool1 = StringUtils.equals(original_copy.getHash(), data.getData().getHash());
-            boolean bool2 = StringUtils.equals(original_copy.getHeaderData().getPreviousHash(), data.getData().getHeaderData().getPreviousHash());
-            boolean bool3 = StringUtils.equals(original_copy.getHeaderData().getTimestamp(), data.getData().getHeaderData().getTimestamp());
-            int val1 = Integer.compare(original_copy.getHeight(), data.getData().getHeight());
-            int val2 = Integer.compare(original_copy.getViewID(), data.getData().getViewID());
-            int val3 = Integer.compare(original_copy.getZone(), data.getData().getZone());
-
-            if (val1 != 0 || val2 != 0 || val3 != 0 && !bool1 || !bool2 || !bool3) {
+            if (bytesBlock == null) {
                 cleanup();
-                LOG.info("CommitPhase: Original Block is not same with Header Data Block Abort");
+                LOG.info("CommitPhase: failed  to receive correct bytes block: Abort");
                 data.setStatusType(ConsensusStatusType.ABORT);
                 return;
             }
@@ -1489,9 +1506,7 @@ public class ValidatorConsensusPhases {
 
             Signature aggregatedSignature = BLSSignature.aggregate(signature);
 
-            this.sizeCalculator.setTransactionBlock(data.getData());
-            byte[] message = block_serialize.encode(data.getData(), this.sizeCalculator.TransactionBlockSizeCalculator());
-            Bytes toVerify = Bytes.wrap(message);
+            Bytes toVerify = Bytes.wrap(bytesBlock);
             boolean verify = BLSSignature.fastAggregateVerify(publicKeys, toVerify, aggregatedSignature);
             if (!verify) {
                 cleanup();
@@ -1505,18 +1520,10 @@ public class ValidatorConsensusPhases {
                 return;
 
 
-            //##############################################################
-            String messageHashAsBase64String = BLSSignature.GetMessageHashAsBase64String(toVerify.toArray());
-            for (Map.Entry<BLSPublicKey, BLSSignatureData> entry : data.getSignatures().entrySet()) {
-                BLSSignatureData BLSSignatureData = entry.getValue();
-                BLSSignatureData.getMessageHash()[1] = messageHashAsBase64String;
-                signatureDataMap.put(entry.getKey(), BLSSignatureData);
-            }
-
-            BLSSignatureData BLSLeaderSignatureData = signatureDataMap.get(data.getChecksumData().getBlsPublicKey());
-            BLSLeaderSignatureData.getSignature()[1] = new Signature(data.getChecksumData().getSignature().getPoint());
-            BLSLeaderSignatureData.getMessageHash()[1] = messageHashAsBase64String;
-            signatureDataMap.put(data.getChecksumData().getBlsPublicKey(), BLSLeaderSignatureData);
+            BLSSignatureData BLSLeaderSignatureData = this.original_copy.getLeaderSignatureData().get(CachedBLSKeyPair.getInstance().getPublicKey());
+            BLSLeaderSignatureData.getSignature()[2] = new Signature(data.getChecksumData().getSignature().getPoint());
+            BLSLeaderSignatureData.getMessageHash()[2] = BLSSignature.GetMessageHashAsBase64String(bytesBlock);
+            this.original_copy.getLeaderSignatureData().put(CachedBLSKeyPair.getInstance().getPublicKey(), BLSLeaderSignatureData);
 
             //##############################################################
            /* if (current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).size() - 1)
@@ -1526,7 +1533,6 @@ public class ValidatorConsensusPhases {
             }*/
             //CachedLatestBlocks.getInstance().setTransactionBlock(data.getData());
             //commit save to db
-            this.original_copy.setSignatureData(signatureDataMap);
             BlockInvent regural_block = (BlockInvent) factory.getBlock(BlockType.REGULAR);
             regural_block.InventTransactionBlock(this.original_copy);
             BLSPublicKey next_key = blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedLeaderIndex.getInstance().getTransactionPositionLeader());

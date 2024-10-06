@@ -15,6 +15,7 @@ import io.Adrestus.crypto.bls.mapper.ECP2mapper;
 import io.Adrestus.crypto.bls.mapper.ECPmapper;
 import io.Adrestus.crypto.bls.model.BLSPrivateKey;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
+import io.Adrestus.crypto.bls.model.BLSSignature;
 import io.Adrestus.crypto.elliptic.ECDSASign;
 import io.Adrestus.crypto.elliptic.ECDSASignatureData;
 import io.Adrestus.crypto.elliptic.ECKeyPair;
@@ -36,6 +37,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
@@ -239,4 +241,80 @@ public class SerializableBlockTest {
         assertEquals("adasdas", final_block.get(vk3).getMessageHash()[0]);
     }
 
+    @Test
+    public void HashSignatureSerializationTest() {
+        HashMap<BLSPublicKey, BLSSignatureData> hashMap = new HashMap<BLSPublicKey, BLSSignatureData>();
+        BLSSignatureData blsSignatureData1 = new BLSSignatureData();
+        blsSignatureData1.getSignature()[0]= BLSSignature.sign("0".getBytes(StandardCharsets.UTF_8), sk1);
+        blsSignatureData1.getSignature()[1]= BLSSignature.sign("1".getBytes(StandardCharsets.UTF_8), sk1);
+        blsSignatureData1.getMessageHash()[0] = "0";
+        blsSignatureData1.getMessageHash()[1] = "1";
+        BLSSignatureData blsSignatureData2 = new BLSSignatureData();
+        blsSignatureData2.getSignature()[0]= BLSSignature.sign("0".getBytes(StandardCharsets.UTF_8), sk2);
+        blsSignatureData2.getSignature()[1]= BLSSignature.sign("1".getBytes(StandardCharsets.UTF_8), sk2);
+        blsSignatureData2.getMessageHash()[0] = "0";
+        blsSignatureData2.getMessageHash()[1] = "1";
+        BLSSignatureData blsSignatureData3 = new BLSSignatureData();
+        blsSignatureData3.getSignature()[0]= BLSSignature.sign("0".getBytes(StandardCharsets.UTF_8), sk3);
+        blsSignatureData3.getSignature()[1]= BLSSignature.sign("1".getBytes(StandardCharsets.UTF_8), sk3);
+        blsSignatureData3.getMessageHash()[0] = "0";
+        blsSignatureData3.getMessageHash()[1] = "1";
+        BLSSignatureData blsSignatureData4 = new BLSSignatureData();
+        blsSignatureData4.getSignature()[0]= BLSSignature.sign("0".getBytes(StandardCharsets.UTF_8), sk4);
+        blsSignatureData4.getSignature()[1]= BLSSignature.sign("1".getBytes(StandardCharsets.UTF_8), sk4);
+        blsSignatureData4.getMessageHash()[0] = "0";
+        blsSignatureData4.getMessageHash()[1] = "1";
+        hashMap.put(vk1, blsSignatureData1);
+        hashMap.put(vk2, blsSignatureData2);
+        hashMap.put(vk3, blsSignatureData3);
+        hashMap.put(vk4, blsSignatureData4);
+
+        TransactionBlock block = new TransactionBlock();
+        block.setHash("1");
+        block.setHeight(1);
+        block.AddAllSignatureData(hashMap);
+
+        BlockSizeCalculator blockSizeCalculator = new BlockSizeCalculator();
+        blockSizeCalculator.setTransactionBlock(block);
+        byte [] data= serenc.encode(block, blockSizeCalculator.TransactionBlockSizeCalculator());
+        String hash1=HashUtil.sha256_bytetoString(data);
+
+        HashMap<BLSPublicKey, BLSSignatureData> hashMap1 = new HashMap<BLSPublicKey, BLSSignatureData>();
+        BLSSignatureData blsSignatureData1a = new BLSSignatureData();
+        blsSignatureData1a.getSignature()[0]= BLSSignature.sign("0".getBytes(StandardCharsets.UTF_8), sk1);
+        blsSignatureData1a.getSignature()[1]= BLSSignature.sign("1".getBytes(StandardCharsets.UTF_8), sk1);
+        blsSignatureData1a.getMessageHash()[0] = "0";
+        blsSignatureData1a.getMessageHash()[1] = "1";
+        BLSSignatureData blsSignatureData2a = new BLSSignatureData();
+        blsSignatureData2a.getSignature()[0]= BLSSignature.sign("0".getBytes(StandardCharsets.UTF_8), sk2);
+        blsSignatureData2a.getSignature()[1]= BLSSignature.sign("1".getBytes(StandardCharsets.UTF_8), sk2);
+        blsSignatureData2a.getMessageHash()[0] = "0";
+        blsSignatureData2a.getMessageHash()[1] = "1";
+        BLSSignatureData blsSignatureData3a = new BLSSignatureData();
+        blsSignatureData3a.getSignature()[0]= BLSSignature.sign("0".getBytes(StandardCharsets.UTF_8), sk3);
+        blsSignatureData3a.getSignature()[1]= BLSSignature.sign("1".getBytes(StandardCharsets.UTF_8), sk3);
+        blsSignatureData3a.getMessageHash()[0] = "0";
+        blsSignatureData3a.getMessageHash()[1] = "1";
+        BLSSignatureData blsSignatureData4a = new BLSSignatureData();
+        blsSignatureData4a.getSignature()[0]= BLSSignature.sign("0".getBytes(StandardCharsets.UTF_8), sk4);
+        blsSignatureData4a.getSignature()[1]= BLSSignature.sign("1".getBytes(StandardCharsets.UTF_8), sk4);
+        blsSignatureData4a.getMessageHash()[0] = "0";
+        blsSignatureData4a.getMessageHash()[1] = "1";
+        hashMap1.put(vk1, blsSignatureData1a);
+        hashMap1.put(vk2, blsSignatureData2a);
+        hashMap1.put(vk3, blsSignatureData3a);
+        hashMap1.put(vk4, blsSignatureData4a);
+
+        TransactionBlock blocka = new TransactionBlock();
+        blocka.setHash("1");
+        blocka.setHeight(1);
+        blocka.AddAllSignatureData(hashMap1);
+
+        assertEquals(block,blocka);
+        BlockSizeCalculator blockSizeCalculatora = new BlockSizeCalculator();
+        blockSizeCalculatora.setTransactionBlock(blocka);
+        byte [] dataa= serenc.encode(blocka, blockSizeCalculatora.TransactionBlockSizeCalculator());
+        String hash2=HashUtil.sha256_bytetoString(dataa);
+        assertEquals(hash1, hash2);
+    }
 }

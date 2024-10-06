@@ -169,6 +169,15 @@ public class CommitteeBlock extends AbstractBlock implements BlockFactory, Disru
         super.AddAllSignatureData(signatureData);
     }
 
+    @Override
+    public HashMap<BLSPublicKey, BLSSignatureData> getLeaderSignatureData() {
+        return super.getLeaderSignatureData();
+    }
+
+    public void setLeaderSignatureData(HashMap<BLSPublicKey, BLSSignatureData> leaderSignatureData) {
+        super.setLeaderSignatureData(leaderSignatureData);
+    }
+
     //NEVER DELETE THIS ONLY CHANGE INSIDE
     @Override
     public boolean equals(Object o) {

@@ -16,6 +16,7 @@ public class ConsensusMessage<T> implements Serializable {
     private ConsensusMessageType messageType;
     private ConsensusStatusType statusType;
     private T data;
+    private String hash;
     private ChecksumData checksumData;
     private Map<BLSPublicKey, BLSSignatureData> signatures;
 
@@ -25,13 +26,8 @@ public class ConsensusMessage<T> implements Serializable {
         this.messageType = ConsensusMessageType.ANNOUNCE;
         this.statusType = ConsensusStatusType.PENDING;
         this.data = data;
+        this.hash = "";
     }
-
-    /*public ConsensusMessage() {
-        this.checksumData=new ChecksumData();
-        this.type=ConsensusMessageType.ANNOUNCE;
-        this.signatures = new ArrayList<>();
-    }*/
 
     @Serialize
     public T getData() {
@@ -78,6 +74,16 @@ public class ConsensusMessage<T> implements Serializable {
         this.statusType = statusType;
     }
 
+
+    @Serialize
+    public String getHash() {
+        return hash;
+    }
+
+    public void setHash(String hash) {
+        this.hash = hash;
+    }
+
     public void clear() {
         this.signatures.clear();
     }
@@ -87,12 +93,12 @@ public class ConsensusMessage<T> implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ConsensusMessage<?> that = (ConsensusMessage<?>) o;
-        return messageType == that.messageType && statusType == that.statusType && Objects.equal(data, that.data) && Objects.equal(checksumData, that.checksumData) && Objects.equal(signatures, that.signatures);
+        return messageType == that.messageType && statusType == that.statusType && java.util.Objects.equals(data, that.data) && java.util.Objects.equals(hash, that.hash) && java.util.Objects.equals(checksumData, that.checksumData) && java.util.Objects.equals(signatures, that.signatures);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(messageType, statusType, data, checksumData, signatures);
+        return Objects.hashCode(messageType, statusType, data, checksumData, signatures,hash);
     }
 
     @Override
@@ -101,6 +107,7 @@ public class ConsensusMessage<T> implements Serializable {
                 "messageType=" + messageType +
                 ", statusType=" + statusType +
                 ", data=" + data +
+                ", hash='" + hash + '\'' +
                 ", checksumData=" + checksumData +
                 ", signatures=" + signatures +
                 '}';

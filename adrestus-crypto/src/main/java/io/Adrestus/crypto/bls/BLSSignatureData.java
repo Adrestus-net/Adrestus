@@ -13,6 +13,11 @@ public class BLSSignatureData implements Serializable {
     private String[] messageHash;
 
 
+    public BLSSignatureData(int size) {
+        this.signature = new Signature[size];
+        this.messageHash = new String[size];
+    }
+
     public BLSSignatureData() {
         this.signature = new Signature[2];
         this.messageHash = new String[2];
