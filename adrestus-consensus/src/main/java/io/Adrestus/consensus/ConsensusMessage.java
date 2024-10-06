@@ -9,7 +9,6 @@ import io.activej.serializer.annotations.Deserialize;
 import io.activej.serializer.annotations.Serialize;
 
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -18,10 +17,10 @@ public class ConsensusMessage<T> implements Serializable {
     private ConsensusStatusType statusType;
     private T data;
     private ChecksumData checksumData;
-    private TreeMap<BLSPublicKey, BLSSignatureData> signatures;
+    private Map<BLSPublicKey, BLSSignatureData> signatures;
 
     public ConsensusMessage(@Deserialize("data") T data) {
-        this.signatures =  new TreeMap<BLSPublicKey, BLSSignatureData>(new SortSignatureMapByBlsPublicKey());
+        this.signatures = new TreeMap<BLSPublicKey, BLSSignatureData>(new SortSignatureMapByBlsPublicKey());
         this.checksumData = new ChecksumData();
         this.messageType = ConsensusMessageType.ANNOUNCE;
         this.statusType = ConsensusStatusType.PENDING;
@@ -53,11 +52,11 @@ public class ConsensusMessage<T> implements Serializable {
     }
 
     @Serialize
-    public TreeMap<BLSPublicKey, BLSSignatureData> getSignatures() {
+    public Map<BLSPublicKey, BLSSignatureData> getSignatures() {
         return signatures;
     }
 
-    public void setSignatures(TreeMap<BLSPublicKey, BLSSignatureData> signatures) {
+    public void setSignatures(Map<BLSPublicKey, BLSSignatureData> signatures) {
         this.signatures = signatures;
     }
 
@@ -107,7 +106,7 @@ public class ConsensusMessage<T> implements Serializable {
                 '}';
     }
 
-    public static class ChecksumData implements Serializable {
+    public static class ChecksumData implements Serializable, Cloneable {
         private Signature signature;
         private BLSPublicKey blsPublicKey;
 
@@ -152,6 +151,10 @@ public class ConsensusMessage<T> implements Serializable {
             return Objects.hashCode(signature, blsPublicKey);
         }
 
+        @Override
+        protected Object clone() throws CloneNotSupportedException {
+            return super.clone();
+        }
 
         @Override
         public String toString() {

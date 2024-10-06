@@ -1,5 +1,6 @@
 package io.Adrestus.consensus;
 
+import com.google.common.reflect.TypeToken;
 import io.Adrestus.core.*;
 import io.Adrestus.core.Util.BlockSizeCalculator;
 import io.Adrestus.crypto.bls.BLS381.ECP;
@@ -10,6 +11,7 @@ import io.Adrestus.crypto.bls.mapper.ECPmapper;
 import io.Adrestus.crypto.bls.model.BLSPrivateKey;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.Adrestus.crypto.bls.model.BLSSignature;
+import io.Adrestus.crypto.bls.model.Signature;
 import io.Adrestus.crypto.elliptic.ECDSASign;
 import io.Adrestus.crypto.elliptic.ECDSASignatureData;
 import io.Adrestus.crypto.elliptic.ECKeyPair;
@@ -25,6 +27,7 @@ import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Type;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -35,6 +38,9 @@ import java.util.TreeMap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class SerializableBlockTest {
+    private static final Type fluentType = new TypeToken<ConsensusMessage<TransactionBlock>>() {
+    }.getType();
+
     private static SerializationUtil<AbstractBlock> serenc;
     private static BLSPrivateKey sk1;
     private static BLSPublicKey vk1;
@@ -65,7 +71,7 @@ public class SerializableBlockTest {
     private static BLSPublicKey vk9;
 
     private static BlockSizeCalculator sizeCalculator;
-
+    private static SerializationUtil<ConsensusMessage> consensus_serialize;
 
     @SneakyThrows
     @BeforeAll
@@ -126,5 +132,42 @@ public class SerializableBlockTest {
         assertEquals(block, copy);
         System.out.println(copy.toString());
         database.delete_db();
+    }
+
+    @Test
+    public void SerializeConsensusMessage() throws CloneNotSupportedException {
+        List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
+        list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
+        list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
+        list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
+        this.consensus_serialize = new SerializationUtil<ConsensusMessage>(fluentType, list);
+
+        TreeMap<BLSPublicKey, BLSSignatureData> signatureData = new TreeMap<BLSPublicKey, BLSSignatureData>(new SortSignatureMapByBlsPublicKey());
+        BLSSignatureData blsSignatureData1 = new BLSSignatureData();
+        blsSignatureData1.getSignature()[0]= BLSSignature.sign("toSign".getBytes(StandardCharsets.UTF_8), sk1);
+        BLSSignatureData blsSignatureData2 = new BLSSignatureData();
+        BLSSignatureData blsSignatureData3 = new BLSSignatureData();
+        BLSSignatureData blsSignatureData4 = new BLSSignatureData();
+        signatureData.put(vk3, blsSignatureData1);
+        signatureData.put(vk4, blsSignatureData2);
+        signatureData.put(vk1, blsSignatureData3);
+        signatureData.put(vk2, blsSignatureData4);
+        TransactionBlock block = new TransactionBlock();
+        block.setHash("1");
+        block.setHeight(1);
+        block.setSignatureData(signatureData);
+        ConsensusMessage<TransactionBlock> consensusMessage = new ConsensusMessage<>(block);
+        consensusMessage.getChecksumData().setBlsPublicKey(vk1);
+        consensusMessage.getChecksumData().setSignature(BLSSignature.sign("toSign".getBytes(StandardCharsets.UTF_8), sk1));
+        byte[] hash=consensus_serialize.encode(consensusMessage);
+        ConsensusMessage<TransactionBlock> replica=this.consensus_serialize.decode(hash);
+        assertEquals(consensusMessage, replica);
+        BLSSignatureData blsSignatureData6 = new BLSSignatureData();
+        blsSignatureData6.getSignature()[0]= new Signature(replica.getChecksumData().getSignature().getPoint());
+        consensusMessage.getSignatures().put(vk1, blsSignatureData6);
+        byte[] hash2=this.consensus_serialize.encode(consensusMessage);
+        ConsensusMessage<TransactionBlock> clone=this.consensus_serialize.decode(hash2);
+        assertEquals(consensusMessage, clone);
     }
 }

@@ -1364,7 +1364,7 @@ public class ValidatorConsensusPhases {
             }
 
             BLSSignatureData BLSLeaderSignatureData = new BLSSignatureData();
-            BLSLeaderSignatureData.getSignature()[0]=data.getChecksumData().getSignature();
+            BLSLeaderSignatureData.getSignature()[0]=new Signature(data.getChecksumData().getSignature().getPoint());
             BLSLeaderSignatureData.getMessageHash()[0] = messageHashAsBase64String;
             signatureDataMap.put(data.getChecksumData().getBlsPublicKey(), BLSLeaderSignatureData);
             //##############################################################
@@ -1514,7 +1514,7 @@ public class ValidatorConsensusPhases {
             }
 
             BLSSignatureData BLSLeaderSignatureData = signatureDataMap.get(data.getChecksumData().getBlsPublicKey());
-            BLSLeaderSignatureData.getSignature()[1] = data.getChecksumData().getSignature();
+            BLSLeaderSignatureData.getSignature()[1] = new Signature(data.getChecksumData().getSignature().getPoint());
             BLSLeaderSignatureData.getMessageHash()[1] = messageHashAsBase64String;
             signatureDataMap.put(data.getChecksumData().getBlsPublicKey(), BLSLeaderSignatureData);
 
