@@ -63,7 +63,7 @@ public class OrganizerConsensusPhases {
         private final SerializationUtil<SerializableErasureObject> serenc_erasure;
         private final boolean DEBUG;
         private final IBlockIndex blockIndex;
-        private final TreeMap<BLSPublicKey, BLSSignatureData> signatureDataMap;
+        private final HashMap<BLSPublicKey, BLSSignatureData> signatureDataMap;
 
         private final BlockSizeCalculator sizeCalculator;
         private CountDownLatch latch;
@@ -86,7 +86,7 @@ public class OrganizerConsensusPhases {
             list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
             this.block_serialize = new SerializationUtil<AbstractBlock>(AbstractBlock.class, list);
             this.consensus_serialize = new SerializationUtil<ConsensusMessage>(fluentType, list);
-            this.signatureDataMap = new TreeMap<BLSPublicKey, BLSSignatureData>();
+            this.signatureDataMap = new HashMap<BLSPublicKey, BLSSignatureData>();
             this.sizeCalculator = new BlockSizeCalculator();
             this.signatureMapper = new SerializationUtil<Signature>(Signature.class, list);
             this.serenc_erasure = new SerializationUtil<SerializableErasureObject>(SerializableErasureObject.class);
@@ -369,11 +369,10 @@ public class OrganizerConsensusPhases {
 
             //##############################################################
             String messageHashAsBase64String = BLSSignature.GetMessageHashAsBase64String(message.toArray());
-            for (int i = 0; i < publicKeys.size(); i++) {
-                BLSSignatureData BLSSignatureData = new BLSSignatureData();
-                BLSSignatureData.getSignature()[0] = signature.get(i);
+            for (Map.Entry<BLSPublicKey,BLSSignatureData> entry : data.getSignatures().entrySet()){
+                BLSSignatureData BLSSignatureData=entry.getValue();
                 BLSSignatureData.getMessageHash()[0] = messageHashAsBase64String;
-                signatureDataMap.put(publicKeys.get(i), BLSSignatureData);
+                signatureDataMap.put(entry.getKey(), BLSSignatureData);
             }
 
             //##############################################################
@@ -472,11 +471,10 @@ public class OrganizerConsensusPhases {
 
             //##############################################################
             String messageHashAsBase64String = BLSSignature.GetMessageHashAsBase64String(message.toArray());
-            for (int i = 0; i < publicKeys.size(); i++) {
-                BLSSignatureData BLSSignatureData = signatureDataMap.get(publicKeys.get(i));
-                BLSSignatureData.getSignature()[1] = signature.get(i);
+            for (Map.Entry<BLSPublicKey,BLSSignatureData> entry : data.getSignatures().entrySet()){
+                BLSSignatureData BLSSignatureData=entry.getValue();
                 BLSSignatureData.getMessageHash()[1] = messageHashAsBase64String;
-                signatureDataMap.put(publicKeys.get(i), BLSSignatureData);
+                signatureDataMap.put(entry.getKey(), BLSSignatureData);
             }
 
             //##############################################################
@@ -492,7 +490,7 @@ public class OrganizerConsensusPhases {
             CachedConsensusPublisherData.getInstance().storeAtPosition(2, toSend);
             ConsensusServer.getInstance().publishMessage(toSend);
 
-            this.original_copy.setSignatureData(signatureDataMap);
+            this.original_copy.AddAllSignatureData(signatureDataMap);
             BlockInvent regural_block = (BlockInvent) factory.getBlock(BlockType.REGULAR);
             regural_block.InventTransactionBlock(this.original_copy);
 

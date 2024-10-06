@@ -42,6 +42,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
@@ -211,4 +212,33 @@ public class SerializableBlockTest {
         CommitteeBlock newblock = (CommitteeBlock) serenc.decode(tohash);
         assertEquals(committeeBlock,newblock);
     }
+
+    @Test
+    public void HashmapTest(){
+        HashMap<BLSPublicKey, BLSSignatureData> hashMap = new HashMap<BLSPublicKey, BLSSignatureData>();
+        BLSSignatureData blsSignatureData1=new BLSSignatureData();
+        BLSSignatureData blsSignatureData2=new BLSSignatureData();
+        BLSSignatureData blsSignatureData3=new BLSSignatureData();
+        BLSSignatureData blsSignatureData4=new BLSSignatureData();
+        hashMap.put(vk3, blsSignatureData1);
+        hashMap.put(vk4, blsSignatureData2);
+        hashMap.put(vk1, blsSignatureData3);
+        hashMap.put(vk2, blsSignatureData4);
+        AbstractBlock block=new TransactionBlock();
+        block.AddAllSignatureData(hashMap);
+        blsSignatureData1.getMessageHash()[0]="adasdas";
+        hashMap.put(vk3, blsSignatureData1);
+        block.AddAllSignatureData(hashMap);
+        TreeMap<BLSPublicKey, BLSSignatureData> final_block=block.getSignatureData();
+        System.out.println(vk1.getPoint().toString());
+        System.out.println(vk2.getPoint().toString());
+        System.out.println(vk3.getPoint().toString());
+        System.out.println(vk4.getPoint().toString());
+        assertEquals(vk3,final_block.keySet().toArray()[0]);
+        assertEquals(vk1,final_block.keySet().toArray()[1]);
+        assertEquals(vk4,final_block.keySet().toArray()[2]);
+        assertEquals(vk2,final_block.keySet().toArray()[3]);
+        assertEquals("adasdas",final_block.get(vk3).getMessageHash()[0]);
+    }
+
 }

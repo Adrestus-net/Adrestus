@@ -9,6 +9,7 @@ import io.activej.serializer.annotations.SerializeClass;
 
 import java.io.Serializable;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.TreeMap;
 
 @SerializeClass(subclasses = {CommitteeBlock.class, TransactionBlock.class})
@@ -166,6 +167,10 @@ public abstract class AbstractBlock extends Object implements BlockFactory, Disr
 
     public void setSignatureData(TreeMap<BLSPublicKey, BLSSignatureData> signatureData) {
         this.signatureData = signatureData;
+    }
+
+    public void AddAllSignatureData(HashMap<BLSPublicKey, BLSSignatureData> signatureData) {
+        this.signatureData.putAll(signatureData);
     }
 
     public String getBlockProposer() {

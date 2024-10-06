@@ -165,6 +165,11 @@ public class TransactionBlock extends AbstractBlock implements BlockFactory, Dis
     }
 
     @Override
+    public void AddAllSignatureData(HashMap<BLSPublicKey, BLSSignatureData> signatureData) {
+        super.AddAllSignatureData(signatureData);
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
