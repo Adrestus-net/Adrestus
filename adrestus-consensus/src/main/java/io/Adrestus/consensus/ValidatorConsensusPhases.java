@@ -941,7 +941,7 @@ public class ValidatorConsensusPhases {
         private final SerializationUtil<Signature> signatureMapper;
         private final SerializationUtil<SerializableErasureObject> serenc_erasure;
         private final DefaultFactory factory;
-        private final HashMap<BLSPublicKey, BLSSignatureData> signatureDataMap;
+        private final TreeMap<BLSPublicKey, BLSSignatureData> signatureDataMap;
         private final BlockSizeCalculator sizeCalculator;
 
         private RpcErasureClient<byte[]> collector_client;
@@ -960,7 +960,7 @@ public class ValidatorConsensusPhases {
             list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
             this.block_serialize = new SerializationUtil<AbstractBlock>(AbstractBlock.class, list);
             this.consensus_serialize = new SerializationUtil<ConsensusMessage>(fluentType, list);
-            this.signatureDataMap = new HashMap<BLSPublicKey, BLSSignatureData>();
+            this.signatureDataMap = new TreeMap<BLSPublicKey, BLSSignatureData>(new SortSignatureMapByBlsPublicKey());
             this.sizeCalculator = new BlockSizeCalculator();
             this.signatureMapper = new SerializationUtil<Signature>(Signature.class, list);
             this.serenc_erasure = new SerializationUtil<SerializableErasureObject>(SerializableErasureObject.class);
@@ -1363,7 +1363,8 @@ public class ValidatorConsensusPhases {
                 signatureDataMap.put(entry.getKey(), BLSSignatureData);
             }
 
-            BLSSignatureData BLSLeaderSignatureData = data.getSignatures().get(data.getChecksumData().getBlsPublicKey());
+            BLSSignatureData BLSLeaderSignatureData = new BLSSignatureData();
+            BLSLeaderSignatureData.getSignature()[0]=data.getChecksumData().getSignature();
             BLSLeaderSignatureData.getMessageHash()[0] = messageHashAsBase64String;
             signatureDataMap.put(data.getChecksumData().getBlsPublicKey(), BLSLeaderSignatureData);
             //##############################################################
@@ -1512,7 +1513,8 @@ public class ValidatorConsensusPhases {
                 signatureDataMap.put(entry.getKey(), BLSSignatureData);
             }
 
-            BLSSignatureData BLSLeaderSignatureData = data.getSignatures().get(data.getChecksumData().getBlsPublicKey());
+            BLSSignatureData BLSLeaderSignatureData = signatureDataMap.get(data.getChecksumData().getBlsPublicKey());
+            BLSLeaderSignatureData.getSignature()[1] = data.getChecksumData().getSignature();
             BLSLeaderSignatureData.getMessageHash()[1] = messageHashAsBase64String;
             signatureDataMap.put(data.getChecksumData().getBlsPublicKey(), BLSLeaderSignatureData);
 
@@ -1524,7 +1526,7 @@ public class ValidatorConsensusPhases {
             }*/
             //CachedLatestBlocks.getInstance().setTransactionBlock(data.getData());
             //commit save to db
-            this.original_copy.AddAllSignatureData(signatureDataMap);
+            this.original_copy.setSignatureData(signatureDataMap);
             BlockInvent regural_block = (BlockInvent) factory.getBlock(BlockType.REGULAR);
             regural_block.InventTransactionBlock(this.original_copy);
             BLSPublicKey next_key = blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedLeaderIndex.getInstance().getTransactionPositionLeader());

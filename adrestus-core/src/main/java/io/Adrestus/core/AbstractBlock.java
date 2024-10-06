@@ -35,7 +35,7 @@ public abstract class AbstractBlock extends Object implements BlockFactory, Disr
         this.ViewID = viewID;
         this.LeaderPublicKey = new BLSPublicKey();
         this.BlockProposer = "";
-        this.signatureData = new TreeMap<BLSPublicKey, BLSSignatureData>(new SortbyBlsPublicKey());
+        this.signatureData = new TreeMap<BLSPublicKey, BLSSignatureData>(new SortSignatureMapByBlsPublicKey());
     }
 
     public AbstractBlock(String previousHash, int height, int generation, String blockProposer) {
@@ -44,7 +44,7 @@ public abstract class AbstractBlock extends Object implements BlockFactory, Disr
         this.Generation = generation;
         this.LeaderPublicKey = new BLSPublicKey();
         this.BlockProposer = blockProposer;
-        this.signatureData = new TreeMap<BLSPublicKey, BLSSignatureData>(new SortbyBlsPublicKey());
+        this.signatureData = new TreeMap<BLSPublicKey, BLSSignatureData>(new SortSignatureMapByBlsPublicKey());
     }
 
     public AbstractBlock(String Hash, String previousHash, int size, int height, String timestamp) {
@@ -54,7 +54,7 @@ public abstract class AbstractBlock extends Object implements BlockFactory, Disr
         this.Height = height;
         this.LeaderPublicKey = new BLSPublicKey();
         this.BlockProposer = "";
-        this.signatureData = new TreeMap<BLSPublicKey, BLSSignatureData>(new SortbyBlsPublicKey());
+        this.signatureData = new TreeMap<BLSPublicKey, BLSSignatureData>(new SortSignatureMapByBlsPublicKey());
     }
 
     public AbstractBlock(String Hash, String previousHash, int size, int height, int generation, int viewID, String timestamp) {
@@ -67,7 +67,7 @@ public abstract class AbstractBlock extends Object implements BlockFactory, Disr
         this.Statustype = StatusType.PENDING;
         this.LeaderPublicKey = new BLSPublicKey();
         this.BlockProposer = "";
-        this.signatureData = new TreeMap<BLSPublicKey, BLSSignatureData>(new SortbyBlsPublicKey());
+        this.signatureData = new TreeMap<BLSPublicKey, BLSSignatureData>(new SortSignatureMapByBlsPublicKey());
     }
 
     public AbstractBlock() {
@@ -80,7 +80,7 @@ public abstract class AbstractBlock extends Object implements BlockFactory, Disr
         this.ViewID = 0;
         this.LeaderPublicKey = new BLSPublicKey();
         this.BlockProposer = "";
-        this.signatureData = new TreeMap<BLSPublicKey, BLSSignatureData>(new SortbyBlsPublicKey());
+        this.signatureData = new TreeMap<BLSPublicKey, BLSSignatureData>(new SortSignatureMapByBlsPublicKey());
     }
 
     @Serialize
@@ -219,11 +219,6 @@ public abstract class AbstractBlock extends Object implements BlockFactory, Disr
     }
 
 
-    private static final class SortbyBlsPublicKey implements Comparator<BLSPublicKey>, Serializable {
-        public int compare(BLSPublicKey o1, BLSPublicKey o2) {
-            return o1.toRaw().compareTo(o2.toRaw());
-        }
-    }
 
     public static class Header implements Serializable {
         private int Version;

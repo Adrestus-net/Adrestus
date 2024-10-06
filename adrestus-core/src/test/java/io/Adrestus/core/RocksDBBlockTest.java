@@ -4,11 +4,19 @@ import com.google.common.reflect.TypeToken;
 import io.Adrestus.MemoryTreePool;
 import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.PatriciaTreeNode;
+import io.Adrestus.core.Util.BlockSizeCalculator;
 import io.Adrestus.crypto.bls.BLS381.ECP;
 import io.Adrestus.crypto.bls.BLS381.ECP2;
+import io.Adrestus.crypto.bls.BLSSignatureData;
 import io.Adrestus.crypto.bls.mapper.ECP2mapper;
 import io.Adrestus.crypto.bls.mapper.ECPmapper;
+import io.Adrestus.crypto.bls.model.BLSPrivateKey;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
+import io.Adrestus.crypto.bls.model.BLSSignature;
+import io.Adrestus.crypto.bls.model.CachedBLSKeyPair;
+import io.Adrestus.crypto.elliptic.ECDSASign;
+import io.Adrestus.crypto.elliptic.ECDSASignatureData;
+import io.Adrestus.crypto.elliptic.ECKeyPair;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.crypto.elliptic.mapper.CustomSerializerTreeMap;
 import io.Adrestus.crypto.elliptic.mapper.StakingData;
@@ -17,11 +25,14 @@ import io.Adrestus.p2p.kademlia.repository.KademliaData;
 import io.Adrestus.util.SerializationUtil;
 import io.distributedLedger.*;
 import io.vavr.control.Option;
+import lombok.SneakyThrows;
 import org.apache.commons.lang3.SerializationUtils;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Type;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -29,8 +40,113 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 public class RocksDBBlockTest {
+    private static ArrayList<String> addreses = new ArrayList<>();
+    private static ArrayList<ECKeyPair> keypair = new ArrayList<>();
+    private static ArrayList<Transaction> transactions = new ArrayList<>();
+    private static ArrayList<Transaction> outer_transactions = new ArrayList<>();
+    private static SerializationUtil<AbstractBlock> serenc;
+    private static SerializationUtil<Transaction> trx_serence;
+    private static ECDSASign ecdsaSign = new ECDSASign();
+    private static BLSPrivateKey sk1;
+    private static BLSPublicKey vk1;
+
+    private static BLSPrivateKey sk2;
+    private static BLSPublicKey vk2;
+
+    private static BLSPrivateKey sk3;
+    private static BLSPublicKey vk3;
+
+    private static BLSPrivateKey sk4;
+    private static BLSPublicKey vk4;
 
 
+    private static BLSPrivateKey sk5;
+    private static BLSPublicKey vk5;
+
+    private static BLSPrivateKey sk6;
+    private static BLSPublicKey vk6;
+
+    private static BLSPrivateKey sk7;
+    private static BLSPublicKey vk7;
+
+    private static BLSPrivateKey sk8;
+    private static BLSPublicKey vk8;
+
+    private static BLSPrivateKey sk9;
+    private static BLSPublicKey vk9;
+
+    private static BlockSizeCalculator sizeCalculator;
+    private static KademliaData kad1, kad2, kad3, kad4, kad5, kad6;
+    private static ECDSASignatureData signatureData1, signatureData2, signatureData3;
+    private static TransactionCallback transactionCallback;
+    private static ArrayList<String> mesages = new ArrayList<>();
+    private static int version = 0x00;
+    private static int size = 5;
+    private static ECKeyPair ecKeyPair1, ecKeyPair2, ecKeyPair3;
+    private static String address1, address2, address3;
+
+
+    @SneakyThrows
+    @BeforeAll
+    public static void setup() {
+        sizeCalculator = new BlockSizeCalculator();
+        List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
+        list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
+        list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
+        list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
+        serenc = new SerializationUtil<AbstractBlock>(AbstractBlock.class, list);
+
+        sk1 = new BLSPrivateKey(1);
+        vk1 = new BLSPublicKey(sk1);
+
+        sk2 = new BLSPrivateKey(2);
+        vk2 = new BLSPublicKey(sk2);
+
+        sk3 = new BLSPrivateKey(3);
+        vk3 = new BLSPublicKey(sk3);
+
+        sk4 = new BLSPrivateKey(4);
+        vk4 = new BLSPublicKey(sk4);
+
+
+        sk5 = new BLSPrivateKey(5);
+        vk5 = new BLSPublicKey(sk5);
+
+        sk6 = new BLSPrivateKey(6);
+        vk6 = new BLSPublicKey(sk6);
+
+        sk7 = new BLSPrivateKey(7);
+        vk7 = new BLSPublicKey(sk7);
+
+        sk8 = new BLSPrivateKey(8);
+        vk8 = new BLSPublicKey(sk8);
+    }
+
+    @Test
+    public void SerializeBlockDatabase() {
+        IDatabase<String, TransactionBlock> database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.ZONE_1_TRANSACTION_BLOCK);
+
+        HashMap<BLSPublicKey, BLSSignatureData> hashMap = new HashMap<BLSPublicKey, BLSSignatureData>();
+        BLSSignatureData blsSignatureData1 = new BLSSignatureData();
+        blsSignatureData1.getSignature()[0]= BLSSignature.sign("toSign".getBytes(StandardCharsets.UTF_8), sk1);
+        BLSSignatureData blsSignatureData2 = new BLSSignatureData();
+        BLSSignatureData blsSignatureData3 = new BLSSignatureData();
+        BLSSignatureData blsSignatureData4 = new BLSSignatureData();
+        hashMap.put(vk3, blsSignatureData1);
+        hashMap.put(vk4, blsSignatureData2);
+        hashMap.put(vk1, blsSignatureData3);
+        hashMap.put(vk2, blsSignatureData4);
+        AbstractBlock block = new TransactionBlock();
+        block.setHash("1");
+        block.setHeight(1);
+        block.AddAllSignatureData(hashMap);
+        database.save(String.valueOf(block.getHeight()),block);
+        TransactionBlock copy = (TransactionBlock) database.findByKey("1").get();
+        assertEquals(block, copy);
+        System.out.println(copy.toString());
+        database.delete_db();
+    }
     @Test
     public void add_get2() {
         IDatabase<String, AbstractBlock> database = new DatabaseFactory(String.class, AbstractBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.ZONE_1_TRANSACTION_BLOCK);

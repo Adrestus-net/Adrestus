@@ -63,7 +63,7 @@ public class OrganizerConsensusPhases {
         private final SerializationUtil<SerializableErasureObject> serenc_erasure;
         private final boolean DEBUG;
         private final IBlockIndex blockIndex;
-        private final HashMap<BLSPublicKey, BLSSignatureData> signatureDataMap;
+        private final TreeMap<BLSPublicKey, BLSSignatureData> signatureDataMap;
 
         private final BlockSizeCalculator sizeCalculator;
         private CountDownLatch latch;
@@ -86,7 +86,7 @@ public class OrganizerConsensusPhases {
             list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
             this.block_serialize = new SerializationUtil<AbstractBlock>(AbstractBlock.class, list);
             this.consensus_serialize = new SerializationUtil<ConsensusMessage>(fluentType, list);
-            this.signatureDataMap = new HashMap<BLSPublicKey, BLSSignatureData>();
+            this.signatureDataMap = new TreeMap<BLSPublicKey, BLSSignatureData>(new SortSignatureMapByBlsPublicKey());
             this.sizeCalculator = new BlockSizeCalculator();
             this.signatureMapper = new SerializationUtil<Signature>(Signature.class, list);
             this.serenc_erasure = new SerializationUtil<SerializableErasureObject>(SerializableErasureObject.class);
@@ -276,7 +276,7 @@ public class OrganizerConsensusPhases {
             data.getChecksumData().setSignature(sig);
 
             BLSSignatureData BLSLeaderSignatureData = new BLSSignatureData();
-            BLSLeaderSignatureData.getSignature()[0] = BLSSignature.sign(message, CachedBLSKeyPair.getInstance().getPrivateKey());
+            BLSLeaderSignatureData.getSignature()[0] = sig;
             BLSLeaderSignatureData.getMessageHash()[0] = BLSSignature.GetMessageHashAsBase64String(message);
             signatureDataMap.put(CachedBLSKeyPair.getInstance().getPublicKey(), BLSLeaderSignatureData);
 
@@ -383,7 +383,7 @@ public class OrganizerConsensusPhases {
             data.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
 
             BLSSignatureData BLSLeaderSignatureData = signatureDataMap.get(CachedBLSKeyPair.getInstance().getPublicKey());
-            BLSLeaderSignatureData.getSignature()[1] = BLSSignature.sign(toSign, CachedBLSKeyPair.getInstance().getPrivateKey());
+            BLSLeaderSignatureData.getSignature()[1] = sig;
             BLSLeaderSignatureData.getMessageHash()[1] = BLSSignature.GetMessageHashAsBase64String(toSign);
             signatureDataMap.put(CachedBLSKeyPair.getInstance().getPublicKey(), BLSLeaderSignatureData);
 
@@ -490,7 +490,7 @@ public class OrganizerConsensusPhases {
             CachedConsensusPublisherData.getInstance().storeAtPosition(2, toSend);
             ConsensusServer.getInstance().publishMessage(toSend);
 
-            this.original_copy.AddAllSignatureData(signatureDataMap);
+            this.original_copy.setSignatureData(signatureDataMap);
             BlockInvent regural_block = (BlockInvent) factory.getBlock(BlockType.REGULAR);
             regural_block.InventTransactionBlock(this.original_copy);
 
