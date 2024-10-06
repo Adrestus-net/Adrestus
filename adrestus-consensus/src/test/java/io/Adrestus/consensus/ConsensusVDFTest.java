@@ -2,6 +2,7 @@ package io.Adrestus.consensus;
 
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedSecurityHeaders;
+import io.Adrestus.core.SortSignatureMapByBlsPublicKey;
 import io.Adrestus.crypto.bls.BLSSignatureData;
 import io.Adrestus.crypto.bls.model.BLSPrivateKey;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
@@ -12,6 +13,7 @@ import org.junit.jupiter.api.Test;
 
 import java.security.SecureRandom;
 import java.util.HashMap;
+import java.util.TreeMap;
 
 public class ConsensusVDFTest {
     private static SecureRandom random;
@@ -52,7 +54,7 @@ public class ConsensusVDFTest {
         consensusManager.changeStateTo(ConsensusRoleType.VALIDATOR);
         BFTConsensusPhase validatorphase = (BFTConsensusPhase) consensusManager.getRole().manufacturePhases(ConsensusType.VDF);
 
-        HashMap<BLSPublicKey, BLSSignatureData> list = new HashMap<>();
+        TreeMap<BLSPublicKey, BLSSignatureData> list = new TreeMap<BLSPublicKey, BLSSignatureData>(new SortSignatureMapByBlsPublicKey());
 
         CachedBLSKeyPair.getInstance().setPrivateKey(validator1sk);
         CachedBLSKeyPair.getInstance().setPublicKey(validator1vk);
@@ -84,7 +86,7 @@ public class ConsensusVDFTest {
 
         organizerphase.PreparePhase(consensusMessage);
 
-        HashMap<BLSPublicKey, BLSSignatureData> list1 = new HashMap<>();
+        TreeMap<BLSPublicKey, BLSSignatureData> list1 = new TreeMap<BLSPublicKey, BLSSignatureData>(new SortSignatureMapByBlsPublicKey());
 
         CachedBLSKeyPair.getInstance().setPrivateKey(validator1sk);
         CachedBLSKeyPair.getInstance().setPublicKey(validator1vk);

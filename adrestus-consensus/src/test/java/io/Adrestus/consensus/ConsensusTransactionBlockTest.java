@@ -37,6 +37,7 @@ import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.TreeMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -200,7 +201,7 @@ public class ConsensusTransactionBlockTest {
 
         organizerphase.AnnouncePhase(consensusMessage);
 
-        HashMap<BLSPublicKey, BLSSignatureData> list = new HashMap<>();
+        TreeMap<BLSPublicKey, BLSSignatureData> list = new TreeMap<BLSPublicKey, BLSSignatureData>(new SortSignatureMapByBlsPublicKey());
 
         CachedBLSKeyPair.getInstance().setPrivateKey(validator1sk);
         CachedBLSKeyPair.getInstance().setPublicKey(validator1vk);
@@ -230,7 +231,7 @@ public class ConsensusTransactionBlockTest {
 
         organizerphase.PreparePhase(consensusMessage);
 
-        HashMap<BLSPublicKey, BLSSignatureData> list1 = new HashMap<>();
+        TreeMap<BLSPublicKey, BLSSignatureData> list1 = new TreeMap<BLSPublicKey, BLSSignatureData>(new SortSignatureMapByBlsPublicKey());
 
         CachedBLSKeyPair.getInstance().setPrivateKey(validator1sk);
         CachedBLSKeyPair.getInstance().setPublicKey(validator1vk);

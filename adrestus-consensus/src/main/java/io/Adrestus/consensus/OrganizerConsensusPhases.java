@@ -280,6 +280,7 @@ public class OrganizerConsensusPhases {
             BLSLeaderSignatureData.getMessageHash()[0] = BLSSignature.GetMessageHashAsBase64String(message);
             signatureDataMap.put(CachedBLSKeyPair.getInstance().getPublicKey(), BLSLeaderSignatureData);
 
+
             //data.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
             byte[] toSend = consensus_serialize.encode(data);
             CachedConsensusPublisherData.getInstance().storeAtPosition(0, toSend);
@@ -371,10 +372,9 @@ public class OrganizerConsensusPhases {
             String messageHashAsBase64String = BLSSignature.GetMessageHashAsBase64String(message.toArray());
             for (Map.Entry<BLSPublicKey, BLSSignatureData> entry : data.getSignatures().entrySet()) {
                 BLSSignatureData BLSSignatureData = entry.getValue();
-                BLSSignatureData.getMessageHash()[0] = messageHashAsBase64String;
+                BLSSignatureData.getMessageHash()[1] = messageHashAsBase64String;
                 signatureDataMap.put(entry.getKey(), BLSSignatureData);
             }
-
             //##############################################################
 
             this.sizeCalculator.setTransactionBlock(data.getData());
@@ -468,16 +468,6 @@ public class OrganizerConsensusPhases {
             //commit save to db
             if (DEBUG)
                 return;
-
-            //##############################################################
-            String messageHashAsBase64String = BLSSignature.GetMessageHashAsBase64String(message.toArray());
-            for (Map.Entry<BLSPublicKey, BLSSignatureData> entry : data.getSignatures().entrySet()) {
-                BLSSignatureData BLSSignatureData = entry.getValue();
-                BLSSignatureData.getMessageHash()[1] = messageHashAsBase64String;
-                signatureDataMap.put(entry.getKey(), BLSSignatureData);
-            }
-
-            //##############################################################
 
             this.sizeCalculator.setTransactionBlock(data.getData());
             Signature sig = BLSSignature.sign(block_serialize.encode(data.getData(), this.sizeCalculator.TransactionBlockSizeCalculator()), CachedBLSKeyPair.getInstance().getPrivateKey());

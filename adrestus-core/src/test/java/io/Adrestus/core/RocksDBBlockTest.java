@@ -4,6 +4,7 @@ import com.google.common.reflect.TypeToken;
 import io.Adrestus.MemoryTreePool;
 import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.PatriciaTreeNode;
+import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.core.Util.BlockSizeCalculator;
 import io.Adrestus.crypto.bls.BLS381.ECP;
 import io.Adrestus.crypto.bls.BLS381.ECP2;
@@ -124,12 +125,12 @@ public class RocksDBBlockTest {
     }
 
     @Test
-    public void SerializeBlockDatabase() {
-        IDatabase<String, TransactionBlock> database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.ZONE_1_TRANSACTION_BLOCK);
-
+    public void SerializeBlockDatabase() throws CloneNotSupportedException {
+        IDatabase<String, TransactionBlock> database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(1));
         HashMap<BLSPublicKey, BLSSignatureData> hashMap = new HashMap<BLSPublicKey, BLSSignatureData>();
         BLSSignatureData blsSignatureData1 = new BLSSignatureData();
         blsSignatureData1.getSignature()[0]= BLSSignature.sign("toSign".getBytes(StandardCharsets.UTF_8), sk1);
+        blsSignatureData1.getMessageHash()[0]="asdas";
         BLSSignatureData blsSignatureData2 = new BLSSignatureData();
         BLSSignatureData blsSignatureData3 = new BLSSignatureData();
         BLSSignatureData blsSignatureData4 = new BLSSignatureData();
@@ -141,7 +142,8 @@ public class RocksDBBlockTest {
         block.setHash("1");
         block.setHeight(1);
         block.AddAllSignatureData(hashMap);
-        database.save(String.valueOf(block.getHeight()),block);
+        TransactionBlock a= (TransactionBlock) block.clone();
+        database.save(String.valueOf(a.getHeight()),a);
         TransactionBlock copy = (TransactionBlock) database.findByKey("1").get();
         assertEquals(block, copy);
         System.out.println(copy.toString());

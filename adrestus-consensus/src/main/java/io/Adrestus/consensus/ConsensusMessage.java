@@ -1,6 +1,7 @@
 package io.Adrestus.consensus;
 
 import com.google.common.base.Objects;
+import io.Adrestus.core.SortSignatureMapByBlsPublicKey;
 import io.Adrestus.crypto.bls.BLSSignatureData;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.Adrestus.crypto.bls.model.Signature;
@@ -10,16 +11,17 @@ import io.activej.serializer.annotations.Serialize;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 public class ConsensusMessage<T> implements Serializable {
     private ConsensusMessageType messageType;
     private ConsensusStatusType statusType;
     private T data;
     private ChecksumData checksumData;
-    private Map<BLSPublicKey, BLSSignatureData> signatures;
+    private TreeMap<BLSPublicKey, BLSSignatureData> signatures;
 
     public ConsensusMessage(@Deserialize("data") T data) {
-        this.signatures = new HashMap<>();
+        this.signatures =  new TreeMap<BLSPublicKey, BLSSignatureData>(new SortSignatureMapByBlsPublicKey());
         this.checksumData = new ChecksumData();
         this.messageType = ConsensusMessageType.ANNOUNCE;
         this.statusType = ConsensusStatusType.PENDING;
@@ -51,11 +53,11 @@ public class ConsensusMessage<T> implements Serializable {
     }
 
     @Serialize
-    public Map<BLSPublicKey, BLSSignatureData> getSignatures() {
+    public TreeMap<BLSPublicKey, BLSSignatureData> getSignatures() {
         return signatures;
     }
 
-    public void setSignatures(Map<BLSPublicKey, BLSSignatureData> signatures) {
+    public void setSignatures(TreeMap<BLSPublicKey, BLSSignatureData> signatures) {
         this.signatures = signatures;
     }
 

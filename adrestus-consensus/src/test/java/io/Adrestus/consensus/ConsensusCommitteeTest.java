@@ -7,6 +7,7 @@ import io.Adrestus.core.AbstractBlock;
 import io.Adrestus.core.CommitteeBlock;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedSecurityHeaders;
+import io.Adrestus.core.SortSignatureMapByBlsPublicKey;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.SecurityAuditProofs;
 import io.Adrestus.crypto.WalletAddress;
@@ -307,8 +308,8 @@ public class ConsensusCommitteeTest {
         assertEquals(test, consensusMessage.getData());
         supervisorphase.PreparePhase(consensusMessage);
 
-        HashMap<BLSPublicKey, BLSSignatureData> list = new HashMap<>();
-        ;
+        TreeMap<BLSPublicKey, BLSSignatureData> list = new TreeMap<BLSPublicKey, BLSSignatureData>(new SortSignatureMapByBlsPublicKey());
+
         validatorphase.PreparePhase(consensusMessage);
         if (consensusMessage.getStatusType().equals(ConsensusStatusType.SUCCESS)) {
             BLSSignatureData blsSignatureData = new BLSSignatureData();
