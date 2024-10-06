@@ -74,7 +74,7 @@ public class BindServerReceiptTask extends AdrestusTask {
             TransactionBlock transactionBlock = receiptloadingCache.getIfPresent(receipt.getReceiptBlock().getHeight());
             if (transactionBlock != null) {
                 Transaction trx = transactionBlock.getTransactionList().get(receipt.getPosition());
-                ReceiptBlock receiptBlock1 = new ReceiptBlock(StatusType.PENDING, receipt,transactionBlock, trx);
+                ReceiptBlock receiptBlock1 = new ReceiptBlock(StatusType.PENDING, receipt, transactionBlock, trx);
                 publisher.publish(receiptBlock1);
             } else {
                 List<String> ips = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(receipt.getZoneFrom()).values().stream().collect(Collectors.toList());

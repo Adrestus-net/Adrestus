@@ -390,10 +390,10 @@ public class RocksDBBlockTest {
         database.saveAll(map);
 
         Map<String, TransactionBlock> map_returned = database.findBetweenRange("hash2");
-        assertEquals(map,map_returned);
+        assertEquals(map, map_returned);
         Optional<String> firstKey = map_returned.keySet().stream().findFirst();
         assertEquals("hash2", firstKey.get());
-        assertEquals(5,map_returned.size());
+        assertEquals(5, map_returned.size());
         database.delete_db();
     }
 
@@ -490,13 +490,13 @@ public class RocksDBBlockTest {
 
         database.saveAll(map);
 
-        Map<String, TransactionBlock> map_returned = database.seekBetweenRange(3,database.seekLast().get().getHeight());
+        Map<String, TransactionBlock> map_returned = database.seekBetweenRange(3, database.seekLast().get().getHeight());
         Map<String, TransactionBlock> map_returned3 = database.findBetweenRange("hash3");
-        assertEquals(map3,map_returned3);
-        assertEquals(map2,map_returned);
+        assertEquals(map3, map_returned3);
+        assertEquals(map2, map_returned);
         Optional<String> firstKey = map_returned.keySet().stream().findFirst();
         assertEquals("hash3", firstKey.get());
-        assertEquals(4,map_returned.size());
+        assertEquals(4, map_returned.size());
         database.delete_db();
     }
 

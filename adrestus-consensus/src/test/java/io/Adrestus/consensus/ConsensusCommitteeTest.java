@@ -6,13 +6,13 @@ import io.Adrestus.config.KademliaConfiguration;
 import io.Adrestus.core.AbstractBlock;
 import io.Adrestus.core.CommitteeBlock;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
-import io.Adrestus.core.Resourses.CachedReceiptSemaphore;
 import io.Adrestus.core.Resourses.CachedSecurityHeaders;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.SecurityAuditProofs;
 import io.Adrestus.crypto.WalletAddress;
 import io.Adrestus.crypto.bls.BLS381.ECP;
 import io.Adrestus.crypto.bls.BLS381.ECP2;
+import io.Adrestus.crypto.bls.BLSSignatureData;
 import io.Adrestus.crypto.bls.mapper.ECP2mapper;
 import io.Adrestus.crypto.bls.mapper.ECPmapper;
 import io.Adrestus.crypto.bls.model.BLSPrivateKey;
@@ -46,6 +46,7 @@ import org.spongycastle.util.encoders.Hex;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.TreeMap;
 
@@ -290,9 +291,11 @@ public class ConsensusCommitteeTest {
 
 
         validatorphase.AnnouncePhase(consensusMessage);
-        if (consensusMessage.getStatusType().equals(ConsensusStatusType.SUCCESS))
-            consensusMessage.getSignatures().add(consensusMessage.getChecksumData());
-
+        if (consensusMessage.getStatusType().equals(ConsensusStatusType.SUCCESS)) {
+            BLSSignatureData blsSignatureData = new BLSSignatureData();
+            blsSignatureData.getSignature()[0] = consensusMessage.getChecksumData().getSignature();
+            consensusMessage.getSignatures().put(consensusMessage.getChecksumData().getBlsPublicKey(), blsSignatureData);
+        }
         sk = new BLSPrivateKey(new SecureRandom());
         vk = new BLSPublicKey(sk);
 
@@ -300,16 +303,18 @@ public class ConsensusCommitteeTest {
         CachedBLSKeyPair.getInstance().setPublicKey(vk);
 
         validatorphase.AnnouncePhase(consensusMessage);
-        if (consensusMessage.getStatusType().equals(ConsensusStatusType.SUCCESS))
-            consensusMessage.getSignatures().add(consensusMessage.getChecksumData());
 
         assertEquals(test, consensusMessage.getData());
         supervisorphase.PreparePhase(consensusMessage);
 
-        List<ConsensusMessage.ChecksumData> list = new ArrayList<>();
+        HashMap<BLSPublicKey, BLSSignatureData> list = new HashMap<>();
+        ;
         validatorphase.PreparePhase(consensusMessage);
-        if (consensusMessage.getStatusType().equals(ConsensusStatusType.SUCCESS))
-            list.add(consensusMessage.getChecksumData());
+        if (consensusMessage.getStatusType().equals(ConsensusStatusType.SUCCESS)) {
+            BLSSignatureData blsSignatureData = new BLSSignatureData();
+            blsSignatureData.getSignature()[1] = consensusMessage.getChecksumData().getSignature();
+            list.put(consensusMessage.getChecksumData().getBlsPublicKey(), blsSignatureData);
+        }
 
         sk = new BLSPrivateKey(new SecureRandom());
         vk = new BLSPublicKey(sk);
@@ -318,8 +323,11 @@ public class ConsensusCommitteeTest {
         CachedBLSKeyPair.getInstance().setPublicKey(vk);
 
         validatorphase.PreparePhase(consensusMessage);
-        if (consensusMessage.getStatusType().equals(ConsensusStatusType.SUCCESS))
-            list.add(consensusMessage.getChecksumData());
+        if (consensusMessage.getStatusType().equals(ConsensusStatusType.SUCCESS)) {
+            BLSSignatureData blsSignatureData = new BLSSignatureData();
+            blsSignatureData.getSignature()[1] = consensusMessage.getChecksumData().getSignature();
+            list.put(consensusMessage.getChecksumData().getBlsPublicKey(), blsSignatureData);
+        }
 
         consensusMessage.clear();
         consensusMessage.setSignatures(list);

@@ -34,18 +34,15 @@ import io.distributedLedger.ZoneDatabaseFactory;
 import lombok.SneakyThrows;
 import org.apache.commons.codec.binary.StringUtils;
 import org.apache.tuweni.bytes.Bytes;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
-import java.math.MathContext;
 import java.math.RoundingMode;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
 import java.text.DecimalFormat;
-import java.util.HashMap;
 import java.util.Map;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -64,7 +61,8 @@ public class RewardsTest {
     private static BLSPublicKey vk3;
     private static ECDSASign ecdsaSign = new ECDSASign();
     private static ECKeyPair ecKeyPair1, ecKeyPair2, ecKeyPair3;
-    private static int version = 0x00;;
+    private static int version = 0x00;
+    ;
 
     @SneakyThrows
     @Test
@@ -103,7 +101,7 @@ public class RewardsTest {
         random.setSeed(key3);
         ecKeyPair3 = Keys.createEcKeyPair(random);
 
-        String address ="ADR-ADL3-VDZK-ZU7H-2BX5-M2H4-S7LF-5SR4-ECQA-EIUJ-CBFK";
+        String address = "ADR-ADL3-VDZK-ZU7H-2BX5-M2H4-S7LF-5SR4-ECQA-EIUJ-CBFK";
         String address1 = "ADR-GBIV-HG2J-27P5-BNVN-MLN6-DL5V-M3YZ-PKEJ-CFFG-FK4L";
         String address0 = WalletAddress.generate_address((byte) version, ecKeyPair3.getPublicKey());
         ECDSASignatureData signatureData1 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address)), ecKeyPair1);
@@ -116,10 +114,10 @@ public class RewardsTest {
         String address4 = "ADR-GC2I-WBAW-IKJE-BWFC-ML6T-BNOC-7XOU-IQ74-BJ5L-WP7G";
         String address5 = "ADR-HC2I-WBAW-IKJE-BWFC-ML6T-BNOC-7XOU-IQ74-BJ1L-WP7G";
 
-        PatriciaTreeNode treeNode2 = new PatriciaTreeNode(0, 1,0,0,0);
-        PatriciaTreeNode treeNode3 = new PatriciaTreeNode(0, 6,0,0,0);
-        PatriciaTreeNode treeNode4 = new PatriciaTreeNode(0, 7,0,0,0);
-        PatriciaTreeNode treeNode5 = new PatriciaTreeNode(0, 1,0,0,0);
+        PatriciaTreeNode treeNode2 = new PatriciaTreeNode(0, 1, 0, 0, 0);
+        PatriciaTreeNode treeNode3 = new PatriciaTreeNode(0, 6, 0, 0, 0);
+        PatriciaTreeNode treeNode4 = new PatriciaTreeNode(0, 7, 0, 0, 0);
+        PatriciaTreeNode treeNode5 = new PatriciaTreeNode(0, 1, 0, 0, 0);
         TreeFactory.getMemoryTree(0).store(address2, treeNode2);
         TreeFactory.getMemoryTree(0).store(address3, treeNode3);
         TreeFactory.getMemoryTree(0).store(address4, treeNode4);
@@ -196,24 +194,23 @@ public class RewardsTest {
         CachedStartHeightRewards.getInstance().setHeight(1);
 
 
-
-        PatriciaTreeNode treeNode = new PatriciaTreeNode(0, 1,490,40,0);
+        PatriciaTreeNode treeNode = new PatriciaTreeNode(0, 1, 490, 40, 0);
         treeNode.getStakingInfo().setCommissionRate(10);
-        PatriciaTreeNode treeNode1 = new PatriciaTreeNode(0, 1,270,30,0);
+        PatriciaTreeNode treeNode1 = new PatriciaTreeNode(0, 1, 270, 30, 0);
         treeNode1.getStakingInfo().setCommissionRate(10);
-        PatriciaTreeNode treeNode0 = new PatriciaTreeNode(0, 1,120,10,0);
+        PatriciaTreeNode treeNode0 = new PatriciaTreeNode(0, 1, 120, 10, 0);
         treeNode0.getStakingInfo().setCommissionRate(10);
         TreeFactory.getMemoryTree(0).store(address, treeNode);
-        TreeFactory.getMemoryTree(0).getByaddress(address).get().getDelegation().put(address2,100.0);
-        TreeFactory.getMemoryTree(0).getByaddress(address).get().getDelegation().put(address3,100.0);
-        TreeFactory.getMemoryTree(0).getByaddress(address).get().getDelegation().put(address4,100.0);
-        TreeFactory.getMemoryTree(0).getByaddress(address).get().getDelegation().put(address5,100.0);
-        PatriciaTreeNode treeNodeClone= (PatriciaTreeNode) treeNode.clone();
+        TreeFactory.getMemoryTree(0).getByaddress(address).get().getDelegation().put(address2, 100.0);
+        TreeFactory.getMemoryTree(0).getByaddress(address).get().getDelegation().put(address3, 100.0);
+        TreeFactory.getMemoryTree(0).getByaddress(address).get().getDelegation().put(address4, 100.0);
+        TreeFactory.getMemoryTree(0).getByaddress(address).get().getDelegation().put(address5, 100.0);
+        PatriciaTreeNode treeNodeClone = (PatriciaTreeNode) treeNode.clone();
         TreeFactory.getMemoryTree(0).store(address1, treeNode1);
-        TreeFactory.getMemoryTree(0).getByaddress(address1).get().getDelegation().put(address2,200.0);
-        TreeFactory.getMemoryTree(0).getByaddress(address1).get().getDelegation().put(address3,200.0);
-        TreeFactory.getMemoryTree(0).getByaddress(address1).get().getDelegation().put(address4,200.0);
-        TreeFactory.getMemoryTree(0).getByaddress(address1).get().getDelegation().put(address5,200.0);
+        TreeFactory.getMemoryTree(0).getByaddress(address1).get().getDelegation().put(address2, 200.0);
+        TreeFactory.getMemoryTree(0).getByaddress(address1).get().getDelegation().put(address3, 200.0);
+        TreeFactory.getMemoryTree(0).getByaddress(address1).get().getDelegation().put(address4, 200.0);
+        TreeFactory.getMemoryTree(0).getByaddress(address1).get().getDelegation().put(address5, 200.0);
         TreeFactory.getMemoryTree(0).store(address0, treeNode0);
 
         MemoryTreePool cloned_tree = (MemoryTreePool) TreeFactory.getMemoryTree(0).clone();
@@ -224,7 +221,7 @@ public class RewardsTest {
         king.makeRequest(new Request(RequestType.VALIDATOR_REWARD_CALCULATOR, "VALIDATOR_REWARD_CALCULATOR"));
         king.makeRequest(new Request(RequestType.DELEGATE_REWARD_CALCULATOR, "DELEGATE_REWARD_CALCULATOR"));
         king.makeRequest(new Request(RequestType.REWARD_PRECISION_CALCULATOR, "REWARD_PRECISION_CALCULATOR"));
-        king.makeRequest(new Request(RequestType.REWARD_STORAGE_CALCULATOR, "REWARD_STORAGE_CALCULATOR",TreeFactory.getMemoryTree(0)));
+        king.makeRequest(new Request(RequestType.REWARD_STORAGE_CALCULATOR, "REWARD_STORAGE_CALCULATOR", TreeFactory.getMemoryTree(0)));
         CachedRewardMapData.getInstance().clearInstance();
 
         RewardChainBuilder king2 = new RewardChainBuilder();
@@ -234,52 +231,52 @@ public class RewardsTest {
         king2.makeRequest(new Request(RequestType.VALIDATOR_REWARD_CALCULATOR, "VALIDATOR_REWARD_CALCULATOR"));
         king2.makeRequest(new Request(RequestType.DELEGATE_REWARD_CALCULATOR, "DELEGATE_REWARD_CALCULATOR"));
         king2.makeRequest(new Request(RequestType.REWARD_PRECISION_CALCULATOR, "REWARD_PRECISION_CALCULATOR"));
-        king2.makeRequest(new Request(RequestType.REWARD_STORAGE_CALCULATOR, "REWARD_STORAGE_CALCULATOR",cloned_tree));
+        king2.makeRequest(new Request(RequestType.REWARD_STORAGE_CALCULATOR, "REWARD_STORAGE_CALCULATOR", cloned_tree));
 
-        Map<String,RewardObject> maps=CachedRewardMapData.getInstance().getEffective_stakes_map();
+        Map<String, RewardObject> maps = CachedRewardMapData.getInstance().getEffective_stakes_map();
 
 
-        assertEquals(treeNode,treeNodeClone);
+        assertEquals(treeNode, treeNodeClone);
         assertNotNull(CachedRewardMapData.getInstance().getEffective_stakes_map().get(address));
         assertNotNull(CachedRewardMapData.getInstance().getEffective_stakes_map().get(address1));
 
-        assertEquals(BigDecimal.valueOf(490.000000).setScale(RewardConfiguration.DECIMAL_PRECISION,RewardConfiguration.ROUNDING),CachedRewardMapData.getInstance().getEffective_stakes_map().get(address).getEffective_stake());
-        assertEquals(BigDecimal.valueOf(0.556818),CachedRewardMapData.getInstance().getEffective_stakes_map().get(address).getEffective_stake_ratio());
-        assertEquals(BigDecimal.valueOf(7.015907),CachedRewardMapData.getInstance().getEffective_stakes_map().get(address).getUnreal_reward());
+        assertEquals(BigDecimal.valueOf(490.000000).setScale(RewardConfiguration.DECIMAL_PRECISION, RewardConfiguration.ROUNDING), CachedRewardMapData.getInstance().getEffective_stakes_map().get(address).getEffective_stake());
+        assertEquals(BigDecimal.valueOf(0.556818), CachedRewardMapData.getInstance().getEffective_stakes_map().get(address).getEffective_stake_ratio());
+        assertEquals(BigDecimal.valueOf(7.015907), CachedRewardMapData.getInstance().getEffective_stakes_map().get(address).getUnreal_reward());
 
         //it has some divergent cause it caclulates leader transaction/committe block rewards its normal
-        assertEquals(BigDecimal.valueOf(0.869397),CachedRewardMapData.getInstance().getEffective_stakes_map().get(address).getReal_reward());
+        assertEquals(BigDecimal.valueOf(0.869397), CachedRewardMapData.getInstance().getEffective_stakes_map().get(address).getReal_reward());
 
-        assertEquals(BigDecimal.valueOf(270.000000).setScale(RewardConfiguration.DECIMAL_PRECISION,RewardConfiguration.ROUNDING),CachedRewardMapData.getInstance().getEffective_stakes_map().get(address1).getEffective_stake());
-        assertEquals(BigDecimal.valueOf(0.306818),CachedRewardMapData.getInstance().getEffective_stakes_map().get(address1).getEffective_stake_ratio());
-        assertEquals(BigDecimal.valueOf(3.865907),CachedRewardMapData.getInstance().getEffective_stakes_map().get(address1).getUnreal_reward());
-        assertEquals(BigDecimal.valueOf(0.429545),CachedRewardMapData.getInstance().getEffective_stakes_map().get(address1).getReal_reward());
+        assertEquals(BigDecimal.valueOf(270.000000).setScale(RewardConfiguration.DECIMAL_PRECISION, RewardConfiguration.ROUNDING), CachedRewardMapData.getInstance().getEffective_stakes_map().get(address1).getEffective_stake());
+        assertEquals(BigDecimal.valueOf(0.306818), CachedRewardMapData.getInstance().getEffective_stakes_map().get(address1).getEffective_stake_ratio());
+        assertEquals(BigDecimal.valueOf(3.865907), CachedRewardMapData.getInstance().getEffective_stakes_map().get(address1).getUnreal_reward());
+        assertEquals(BigDecimal.valueOf(0.429545), CachedRewardMapData.getInstance().getEffective_stakes_map().get(address1).getReal_reward());
 
-        assertEquals(BigDecimal.valueOf(120.000000).setScale(RewardConfiguration.DECIMAL_PRECISION,RewardConfiguration.ROUNDING),CachedRewardMapData.getInstance().getEffective_stakes_map().get(address0).getEffective_stake());
-        assertEquals(BigDecimal.valueOf(0.136363),CachedRewardMapData.getInstance().getEffective_stakes_map().get(address0).getEffective_stake_ratio());
-        assertEquals(BigDecimal.valueOf(1.718174),CachedRewardMapData.getInstance().getEffective_stakes_map().get(address0).getUnreal_reward());
-        assertEquals(BigDecimal.valueOf(0.143181),CachedRewardMapData.getInstance().getEffective_stakes_map().get(address0).getReal_reward());
+        assertEquals(BigDecimal.valueOf(120.000000).setScale(RewardConfiguration.DECIMAL_PRECISION, RewardConfiguration.ROUNDING), CachedRewardMapData.getInstance().getEffective_stakes_map().get(address0).getEffective_stake());
+        assertEquals(BigDecimal.valueOf(0.136363), CachedRewardMapData.getInstance().getEffective_stakes_map().get(address0).getEffective_stake_ratio());
+        assertEquals(BigDecimal.valueOf(1.718174), CachedRewardMapData.getInstance().getEffective_stakes_map().get(address0).getUnreal_reward());
+        assertEquals(BigDecimal.valueOf(0.143181), CachedRewardMapData.getInstance().getEffective_stakes_map().get(address0).getReal_reward());
 
 
         //not stakers delegators here
-        assertEquals(BigDecimal.valueOf(0.204082),CachedRewardMapData.getInstance().getEffective_stakes_map().get(address).getDelegate_stake().get(address2).getWeights());
-        assertEquals(BigDecimal.valueOf(0.204082),CachedRewardMapData.getInstance().getEffective_stakes_map().get(address).getDelegate_stake().get(address4).getWeights());
+        assertEquals(BigDecimal.valueOf(0.204082), CachedRewardMapData.getInstance().getEffective_stakes_map().get(address).getDelegate_stake().get(address2).getWeights());
+        assertEquals(BigDecimal.valueOf(0.204082), CachedRewardMapData.getInstance().getEffective_stakes_map().get(address).getDelegate_stake().get(address4).getWeights());
 
 
-        assertEquals(BigDecimal.valueOf(0.740741),CachedRewardMapData.getInstance().getEffective_stakes_map().get(address1).getDelegate_stake().get(address2).getWeights());
-        assertEquals(BigDecimal.valueOf(0.740741),CachedRewardMapData.getInstance().getEffective_stakes_map().get(address1).getDelegate_stake().get(address3).getWeights());
-        assertEquals(BigDecimal.valueOf(0.740741),CachedRewardMapData.getInstance().getEffective_stakes_map().get(address1).getDelegate_stake().get(address4).getWeights());
+        assertEquals(BigDecimal.valueOf(0.740741), CachedRewardMapData.getInstance().getEffective_stakes_map().get(address1).getDelegate_stake().get(address2).getWeights());
+        assertEquals(BigDecimal.valueOf(0.740741), CachedRewardMapData.getInstance().getEffective_stakes_map().get(address1).getDelegate_stake().get(address3).getWeights());
+        assertEquals(BigDecimal.valueOf(0.740741), CachedRewardMapData.getInstance().getEffective_stakes_map().get(address1).getDelegate_stake().get(address4).getWeights());
 
         //treemap asserts stakers
-        assertEquals(0.869397,TreeFactory.getMemoryTree(0).getByaddress(address).get().getUnclaimed_reward());
-        assertEquals(0.429545,TreeFactory.getMemoryTree(0).getByaddress(address1).get().getUnclaimed_reward());
-        assertEquals(0.143181,TreeFactory.getMemoryTree(0).getByaddress(address0).get().getUnclaimed_reward());
+        assertEquals(0.869397, TreeFactory.getMemoryTree(0).getByaddress(address).get().getUnclaimed_reward());
+        assertEquals(0.429545, TreeFactory.getMemoryTree(0).getByaddress(address1).get().getUnclaimed_reward());
+        assertEquals(0.143181, TreeFactory.getMemoryTree(0).getByaddress(address0).get().getUnclaimed_reward());
 
         //treemap asserts delegators
-        assertEquals(4.295453,TreeFactory.getMemoryTree(0).getByaddress(address2).get().getUnclaimed_reward());
-        assertEquals(4.295453,TreeFactory.getMemoryTree(0).getByaddress(address5).get().getUnclaimed_reward());
-        assertEquals(4.295453,TreeFactory.getMemoryTree(0).getByaddress(address3).get().getUnclaimed_reward());
-        assertEquals(4.295453,TreeFactory.getMemoryTree(0).getByaddress(address4).get().getUnclaimed_reward());
+        assertEquals(4.295453, TreeFactory.getMemoryTree(0).getByaddress(address2).get().getUnclaimed_reward());
+        assertEquals(4.295453, TreeFactory.getMemoryTree(0).getByaddress(address5).get().getUnclaimed_reward());
+        assertEquals(4.295453, TreeFactory.getMemoryTree(0).getByaddress(address3).get().getUnclaimed_reward());
+        assertEquals(4.295453, TreeFactory.getMemoryTree(0).getByaddress(address4).get().getUnclaimed_reward());
 
         assertEquals(cloned_tree.getRootHash(), TreeFactory.getMemoryTree(0).getRootHash());
 
@@ -320,7 +317,7 @@ public class RewardsTest {
         random.setSeed(key3);
         ecKeyPair3 = Keys.createEcKeyPair(random);
 
-        String address ="ADR-ADL3-VDZK-ZU7H-2BX5-M2H4-S7LF-5SR4-ECQA-EIUJ-CBFK";
+        String address = "ADR-ADL3-VDZK-ZU7H-2BX5-M2H4-S7LF-5SR4-ECQA-EIUJ-CBFK";
         String address1 = "ADR-GBIV-HG2J-27P5-BNVN-MLN6-DL5V-M3YZ-PKEJ-CFFG-FK4L";
         String address0 = WalletAddress.generate_address((byte) version, ecKeyPair3.getPublicKey());
         ECDSASignatureData signatureData1 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address)), ecKeyPair1);
@@ -333,10 +330,10 @@ public class RewardsTest {
         String address4 = "ADR-GC2I-WBAW-IKJE-BWFC-ML6T-BNOC-7XOU-IQ74-BJ5L-WP7G";
         String address5 = "ADR-HC2I-WBAW-IKJE-BWFC-ML6T-BNOC-7XOU-IQ74-BJ1L-WP7G";
 
-        PatriciaTreeNode treeNode2 = new PatriciaTreeNode(0, 1,0,0,0);
-        PatriciaTreeNode treeNode3 = new PatriciaTreeNode(0, 6,0,0,0);
-        PatriciaTreeNode treeNode4 = new PatriciaTreeNode(0, 7,0,0,0);
-        PatriciaTreeNode treeNode5 = new PatriciaTreeNode(0, 1,0,0,0);
+        PatriciaTreeNode treeNode2 = new PatriciaTreeNode(0, 1, 0, 0, 0);
+        PatriciaTreeNode treeNode3 = new PatriciaTreeNode(0, 6, 0, 0, 0);
+        PatriciaTreeNode treeNode4 = new PatriciaTreeNode(0, 7, 0, 0, 0);
+        PatriciaTreeNode treeNode5 = new PatriciaTreeNode(0, 1, 0, 0, 0);
         TreeFactory.getMemoryTree(0).store(address2, treeNode2);
         TreeFactory.getMemoryTree(0).store(address3, treeNode3);
         TreeFactory.getMemoryTree(0).store(address4, treeNode4);
@@ -408,15 +405,14 @@ public class RewardsTest {
         CachedStartHeightRewards.getInstance().setHeight(1);
 
 
-
-        PatriciaTreeNode treeNode = new PatriciaTreeNode(0, 1,490,40,0);
+        PatriciaTreeNode treeNode = new PatriciaTreeNode(0, 1, 490, 40, 0);
         treeNode.getStakingInfo().setCommissionRate(10);
-        PatriciaTreeNode treeNode1 = new PatriciaTreeNode(0, 1,270,30,0);
+        PatriciaTreeNode treeNode1 = new PatriciaTreeNode(0, 1, 270, 30, 0);
         treeNode1.getStakingInfo().setCommissionRate(10);
-        PatriciaTreeNode treeNode0 = new PatriciaTreeNode(0, 1,120,10,0);
+        PatriciaTreeNode treeNode0 = new PatriciaTreeNode(0, 1, 120, 10, 0);
         treeNode0.getStakingInfo().setCommissionRate(10);
         TreeFactory.getMemoryTree(0).store(address, treeNode);
-        PatriciaTreeNode treeNodeClone= (PatriciaTreeNode) treeNode.clone();
+        PatriciaTreeNode treeNodeClone = (PatriciaTreeNode) treeNode.clone();
         TreeFactory.getMemoryTree(0).store(address1, treeNode1);
         TreeFactory.getMemoryTree(0).store(address0, treeNode0);
 
@@ -428,7 +424,7 @@ public class RewardsTest {
         king.makeRequest(new Request(RequestType.VALIDATOR_REWARD_CALCULATOR, "VALIDATOR_REWARD_CALCULATOR"));
         king.makeRequest(new Request(RequestType.DELEGATE_REWARD_CALCULATOR, "DELEGATE_REWARD_CALCULATOR"));
         king.makeRequest(new Request(RequestType.REWARD_PRECISION_CALCULATOR, "REWARD_PRECISION_CALCULATOR"));
-        king.makeRequest(new Request(RequestType.REWARD_STORAGE_CALCULATOR, "REWARD_STORAGE_CALCULATOR",TreeFactory.getMemoryTree(0)));
+        king.makeRequest(new Request(RequestType.REWARD_STORAGE_CALCULATOR, "REWARD_STORAGE_CALCULATOR", TreeFactory.getMemoryTree(0)));
         CachedRewardMapData.getInstance().clearInstance();
 
         RewardChainBuilder king2 = new RewardChainBuilder();
@@ -438,12 +434,12 @@ public class RewardsTest {
         king2.makeRequest(new Request(RequestType.VALIDATOR_REWARD_CALCULATOR, "VALIDATOR_REWARD_CALCULATOR"));
         king2.makeRequest(new Request(RequestType.DELEGATE_REWARD_CALCULATOR, "DELEGATE_REWARD_CALCULATOR"));
         king2.makeRequest(new Request(RequestType.REWARD_PRECISION_CALCULATOR, "REWARD_PRECISION_CALCULATOR"));
-        king2.makeRequest(new Request(RequestType.REWARD_STORAGE_CALCULATOR, "REWARD_STORAGE_CALCULATOR",cloned_tree));
+        king2.makeRequest(new Request(RequestType.REWARD_STORAGE_CALCULATOR, "REWARD_STORAGE_CALCULATOR", cloned_tree));
 
-        Map<String,RewardObject> maps=CachedRewardMapData.getInstance().getEffective_stakes_map();
+        Map<String, RewardObject> maps = CachedRewardMapData.getInstance().getEffective_stakes_map();
 
 
-        assertEquals(treeNode,treeNodeClone);
+        assertEquals(treeNode, treeNodeClone);
         assertNotNull(CachedRewardMapData.getInstance().getEffective_stakes_map().get(address));
         assertNotNull(CachedRewardMapData.getInstance().getEffective_stakes_map().get(address1));
 
@@ -457,10 +453,10 @@ public class RewardsTest {
 
     @SneakyThrows
     @Test
-    public void WholeTestMultipleBlocks(){
+    public void WholeTestMultipleBlocks() {
         IDatabase<String, TransactionBlock> transactionBlockIDatabase = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(0));
 
-        int sizeBlocks=2;
+        int sizeBlocks = 2;
         int version = 0x00;
         sk1 = new BLSPrivateKey(1);
         vk1 = new BLSPublicKey(sk1);
@@ -489,7 +485,7 @@ public class RewardsTest {
         random.setSeed(key3);
         ecKeyPair3 = Keys.createEcKeyPair(random);
 
-        String address ="ADR-ADL3-VDZK-ZU7H-2BX5-M2H4-S7LF-5SR4-ECQA-EIUJ-CBFK";
+        String address = "ADR-ADL3-VDZK-ZU7H-2BX5-M2H4-S7LF-5SR4-ECQA-EIUJ-CBFK";
         String address1 = "ADR-GBIV-HG2J-27P5-BNVN-MLN6-DL5V-M3YZ-PKEJ-CFFG-FK4L";
         String address0 = WalletAddress.generate_address((byte) version, ecKeyPair3.getPublicKey());
         ECDSASignatureData signatureData1 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address)), ecKeyPair1);
@@ -502,10 +498,10 @@ public class RewardsTest {
         String address4 = "ADR-GC2I-WBAW-IKJE-BWFC-ML6T-BNOC-7XOU-IQ74-BJ5L-WP7G";
         String address5 = "ADR-HC2I-WBAW-IKJE-BWFC-ML6T-BNOC-7XOU-IQ74-BJ1L-WP7G";
 
-        PatriciaTreeNode treeNode2 = new PatriciaTreeNode(0, 1,0,0,0);
-        PatriciaTreeNode treeNode3 = new PatriciaTreeNode(0, 6,0,0,0);
-        PatriciaTreeNode treeNode4 = new PatriciaTreeNode(0, 7,0,0,0);
-        PatriciaTreeNode treeNode5 = new PatriciaTreeNode(0, 1,0,0,0);
+        PatriciaTreeNode treeNode2 = new PatriciaTreeNode(0, 1, 0, 0, 0);
+        PatriciaTreeNode treeNode3 = new PatriciaTreeNode(0, 6, 0, 0, 0);
+        PatriciaTreeNode treeNode4 = new PatriciaTreeNode(0, 7, 0, 0, 0);
+        PatriciaTreeNode treeNode5 = new PatriciaTreeNode(0, 1, 0, 0, 0);
         TreeFactory.getMemoryTree(0).store(address2, treeNode2);
         TreeFactory.getMemoryTree(0).store(address3, treeNode3);
         TreeFactory.getMemoryTree(0).store(address4, treeNode4);
@@ -523,12 +519,12 @@ public class RewardsTest {
         CachedStartHeightRewards.getInstance().setRewardsCommitteeEnabled(false);
 
 
-        for(int i=1;i<=sizeBlocks;i++) {
+        for (int i = 1; i <= sizeBlocks; i++) {
             TransactionBlock transactionBlock = new TransactionBlock();
             transactionBlock.setHash(String.valueOf(i));
             transactionBlock.setHeight(i);
             transactionBlock.setGeneration(i);
-            Bytes message = Bytes.wrap(("Hello, world Block "+String.valueOf(i)).getBytes(UTF_8));
+            Bytes message = Bytes.wrap(("Hello, world Block " + String.valueOf(i)).getBytes(UTF_8));
 
             BLSSignatureData BLSSignatureData1 = new BLSSignatureData();
             BLSSignatureData BLSSignatureData2 = new BLSSignatureData();
@@ -559,15 +555,14 @@ public class RewardsTest {
         CachedStartHeightRewards.getInstance().setHeight(1);
 
 
-
-        PatriciaTreeNode treeNode = new PatriciaTreeNode(0, 1,490,40,0);
+        PatriciaTreeNode treeNode = new PatriciaTreeNode(0, 1, 490, 40, 0);
         treeNode.getStakingInfo().setCommissionRate(10);
-        PatriciaTreeNode treeNode1 = new PatriciaTreeNode(0, 1,270,30,0);
+        PatriciaTreeNode treeNode1 = new PatriciaTreeNode(0, 1, 270, 30, 0);
         treeNode1.getStakingInfo().setCommissionRate(10);
-        PatriciaTreeNode treeNode0 = new PatriciaTreeNode(0, 1,120,10,0);
+        PatriciaTreeNode treeNode0 = new PatriciaTreeNode(0, 1, 120, 10, 0);
         treeNode0.getStakingInfo().setCommissionRate(10);
         TreeFactory.getMemoryTree(0).store(address, treeNode);
-        PatriciaTreeNode treeNodeClone= (PatriciaTreeNode) treeNode.clone();
+        PatriciaTreeNode treeNodeClone = (PatriciaTreeNode) treeNode.clone();
         TreeFactory.getMemoryTree(0).store(address1, treeNode1);
         TreeFactory.getMemoryTree(0).store(address0, treeNode0);
 
@@ -579,11 +574,11 @@ public class RewardsTest {
         king.makeRequest(new Request(RequestType.VALIDATOR_REWARD_CALCULATOR, "VALIDATOR_REWARD_CALCULATOR"));
         king.makeRequest(new Request(RequestType.DELEGATE_REWARD_CALCULATOR, "DELEGATE_REWARD_CALCULATOR"));
         king.makeRequest(new Request(RequestType.REWARD_PRECISION_CALCULATOR, "REWARD_PRECISION_CALCULATOR"));
-        king.makeRequest(new Request(RequestType.REWARD_STORAGE_CALCULATOR, "REWARD_STORAGE_CALCULATOR",TreeFactory.getMemoryTree(0)));
+        king.makeRequest(new Request(RequestType.REWARD_STORAGE_CALCULATOR, "REWARD_STORAGE_CALCULATOR", TreeFactory.getMemoryTree(0)));
 
 
-        Map<String,RewardObject> maps=CachedRewardMapData.getInstance().getEffective_stakes_map();
-        assertEquals(BigDecimal.valueOf(0.429545),maps.get(address1).getReal_reward());
+        Map<String, RewardObject> maps = CachedRewardMapData.getInstance().getEffective_stakes_map();
+        assertEquals(BigDecimal.valueOf(0.429545), maps.get(address1).getReal_reward());
         transactionBlockIDatabase.delete_db();
     }
 }

@@ -530,12 +530,11 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
         try {
             final RocksIterator iterator = rocksDB.newIterator();
             iterator.seekToFirst();
-            int counter=1;
+            int counter = 1;
             while (iterator.isValid() && start <= finish) {
-                if(counter<start){
+                if (counter < start) {
                     iterator.next();
-                }
-                else {
+                } else {
                     byte[] serializedKey = iterator.key();
                     byte[] serializedValue = iterator.value();
                     hashmap.put(keyMapper.decode(serializedKey), valueMapper.decode(serializedValue));

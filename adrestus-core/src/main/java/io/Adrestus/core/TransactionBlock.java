@@ -20,7 +20,7 @@ public class TransactionBlock extends AbstractBlock implements BlockFactory, Dis
 
 
     public TransactionBlock(String previousHash, int height, int Generation, int zone, List<Transaction> transactionList, String blockProposer) {
-        super(previousHash, height, Generation,blockProposer);
+        super(previousHash, height, Generation, blockProposer);
         this.Zone = zone;
         this.TransactionList = transactionList;
     }

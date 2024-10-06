@@ -21,7 +21,7 @@ public class CommitteeBlock extends AbstractBlock implements BlockFactory, Disru
     private int difficulty;
 
     public CommitteeBlock(String previousHash, int height, int Generation, int[] committeeProposer, String VRF, String VDF, int difficulty) {
-        super(previousHash, height, Generation,"");
+        super(previousHash, height, Generation, "");
         this.CommitteeProposer = committeeProposer;
         this.VRF = VRF;
         this.VDF = VDF;
@@ -96,6 +96,7 @@ public class CommitteeBlock extends AbstractBlock implements BlockFactory, Disru
     public void setLeaderPublicKey(BLSPublicKey leaderPublicKey) {
         super.setLeaderPublicKey(leaderPublicKey);
     }
+
     @Serialize
     public String getVRF() {
         return VRF;
@@ -198,7 +199,7 @@ public class CommitteeBlock extends AbstractBlock implements BlockFactory, Disru
 
     @Override
     public int hashCode() {
-        return java.util.Objects.hash(super.hashCode(), Arrays.hashCode(CommitteeProposer), VRF, VDF, StakingMap, StructureMap,super.getSignatureData(), difficulty);
+        return java.util.Objects.hash(super.hashCode(), Arrays.hashCode(CommitteeProposer), VRF, VDF, StakingMap, StructureMap, super.getSignatureData(), difficulty);
     }
 
     @Override

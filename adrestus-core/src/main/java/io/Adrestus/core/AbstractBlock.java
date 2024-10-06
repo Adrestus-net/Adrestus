@@ -219,7 +219,7 @@ public abstract class AbstractBlock extends Object implements BlockFactory, Disr
     }
 
 
-    private static final class SortbyBlsPublicKey implements Comparator<BLSPublicKey>,Serializable {
+    private static final class SortbyBlsPublicKey implements Comparator<BLSPublicKey>, Serializable {
         public int compare(BLSPublicKey o1, BLSPublicKey o2) {
             return o1.toRaw().compareTo(o2.toRaw());
         }

@@ -3,7 +3,6 @@ package io.Adrestus.protocol;
 import io.Adrestus.config.SocketConfigOptions;
 import io.Adrestus.core.Receipt;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
-import io.Adrestus.core.Resourses.CachedReceiptSemaphore;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.core.TransactionBlock;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;

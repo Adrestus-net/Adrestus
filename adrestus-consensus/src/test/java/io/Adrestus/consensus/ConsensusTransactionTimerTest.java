@@ -200,9 +200,9 @@ public class ConsensusTransactionTimerTest {
         ECDSASignatureData signatureData5 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(adddress5)), ecKeyPair5);
         ECDSASignatureData signatureData6 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(adddress6)), ecKeyPair6);
 
-        TreeFactory.getMemoryTree(0).store(adddress1, new PatriciaTreeNode(1000, 0,100,40));
-        TreeFactory.getMemoryTree(0).store(adddress2, new PatriciaTreeNode(1000, 0,200,30));
-        TreeFactory.getMemoryTree(0).store(adddress3, new PatriciaTreeNode(1000, 0,300,20));
+        TreeFactory.getMemoryTree(0).store(adddress1, new PatriciaTreeNode(1000, 0, 100, 40));
+        TreeFactory.getMemoryTree(0).store(adddress2, new PatriciaTreeNode(1000, 0, 200, 30));
+        TreeFactory.getMemoryTree(0).store(adddress3, new PatriciaTreeNode(1000, 0, 300, 20));
         TreeFactory.getMemoryTree(0).store(adddress4, new PatriciaTreeNode(1000, 0));
         TreeFactory.getMemoryTree(0).store(adddress5, new PatriciaTreeNode(1000, 0));
         TreeFactory.getMemoryTree(0).store(adddress6, new PatriciaTreeNode(1000, 0));
@@ -257,9 +257,9 @@ public class ConsensusTransactionTimerTest {
         kad2 = new KademliaData(new SecurityAuditProofs(adddress2, vk2, ecKeyPair2.getPublicKey(), signatureData2), new NettyConnectionInfo("192.168.1.115", KademliaConfiguration.PORT));
         kad3 = new KademliaData(new SecurityAuditProofs(adddress3, vk3, ecKeyPair3.getPublicKey(), signatureData3), new NettyConnectionInfo("192.168.1.116", KademliaConfiguration.PORT));
 
-        System.out.println("ADRESS: "+adddress1+"KEY1  "+vk1.toString());
-        System.out.println("ADRESS: "+adddress2+"KEY2  "+vk2.toString());
-        System.out.println("ADRESS: "+adddress3+"KEY3  "+vk3.toString());
+        System.out.println("ADRESS: " + adddress1 + "KEY1  " + vk1.toString());
+        System.out.println("ADRESS: " + adddress2 + "KEY2  " + vk2.toString());
+        System.out.println("ADRESS: " + adddress3 + "KEY3  " + vk3.toString());
         CachedLatestBlocks.getInstance().getCommitteeBlock().getStakingMap().put(new StakingData(1, 100.0), kad3);
         CachedLatestBlocks.getInstance().getCommitteeBlock().getStakingMap().put(new StakingData(2, 200.0), kad2);
         CachedLatestBlocks.getInstance().getCommitteeBlock().getStakingMap().put(new StakingData(3, 300.0), kad1);
@@ -318,7 +318,7 @@ public class ConsensusTransactionTimerTest {
 
         //assertEquals(TreeFactory.getMemoryTree(1).getByaddress(addreses.get(0)).get().getAmount(), TreeFactory.getMemoryTree(1).getByaddress(addreses.get(0)).get().getAmount()-100);
         for (int i = 0; i < addreses.size() - 1; i++) {
-            System.out.println(addreses.get(i) + " " + TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(addreses.get(i)).get().getAmount()+ " " + TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(addreses.get(i)).get().getUnclaimed_reward());
+            System.out.println(addreses.get(i) + " " + TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(addreses.get(i)).get().getAmount() + " " + TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(addreses.get(i)).get().getUnclaimed_reward());
         }
 
         //be aware that print functionality is  different
@@ -331,7 +331,6 @@ public class ConsensusTransactionTimerTest {
         assertEquals(1013.5, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(6)).get().getAmount());
         assertEquals(1000.0, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(7)).get().getAmount());
         assertEquals(1000.0, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(8)).get().getAmount());
-
 
 
     }

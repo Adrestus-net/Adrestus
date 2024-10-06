@@ -58,17 +58,16 @@ public class MinimumStakingEventHandler extends TransactionEventHandler implemen
             return;
         }
 
-        if(patriciaTreeNode.getStaking_amount()< StakingConfiguration.MINIMUM_STAKING){
-          if(stakingTransaction.getAmount()<StakingConfiguration.MINIMUM_STAKING){
-              patriciaTreeNode.setStaking_amount(stakingTransaction.getAmount());
-              Optional.of("StakingTransaction does not meet minimum requirements").ifPresent(val -> {
-                  LOG.info(val);
-                  stakingTransaction.infos(val);
-              });
-              stakingTransaction.setStatus(StatusType.ABORT);
-          }
-        }
-        else {
+        if (patriciaTreeNode.getStaking_amount() < StakingConfiguration.MINIMUM_STAKING) {
+            if (stakingTransaction.getAmount() < StakingConfiguration.MINIMUM_STAKING) {
+                patriciaTreeNode.setStaking_amount(stakingTransaction.getAmount());
+                Optional.of("StakingTransaction does not meet minimum requirements").ifPresent(val -> {
+                    LOG.info(val);
+                    stakingTransaction.infos(val);
+                });
+                stakingTransaction.setStatus(StatusType.ABORT);
+            }
+        } else {
             if (stakingTransaction.getAmount() <= 0) {
                 Optional.of("StakingTransaction is amount is not sufficient").ifPresent(val -> {
                     LOG.info(val);

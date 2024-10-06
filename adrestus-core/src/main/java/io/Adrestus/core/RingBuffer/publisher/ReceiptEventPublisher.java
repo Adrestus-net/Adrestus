@@ -94,6 +94,7 @@ public class ReceiptEventPublisher implements Publisher<ReceiptBlock> {
         disruptor.handleEventsWith(events).then(new ReceiptClearingEventHandler());
         return this;
     }
+
     public ReceiptEventPublisher mergeEvents() {
         ReceiptEventHandler[] events = new ReceiptEventHandler[group.size()];
         group.toArray(events);

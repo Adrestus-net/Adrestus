@@ -142,6 +142,7 @@ public class BLSTest {
         Signature aggregatedSignature = BLSSignature.aggregate(signatures);
         assertEquals(true, BLSSignature.fastAggregateVerify(publicKeys, message, aggregatedSignature));
     }
+
     @Test
     @Order(15)
     public void fastAggregateVerify15() {

@@ -2,12 +2,13 @@ package io.Adrestus.core.RingBuffer.handler.blocks;
 
 import io.Adrestus.MemoryTreePool;
 import io.Adrestus.TreeFactory;
-import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.Trie.PatriciaTreeTransactionType;
 import io.Adrestus.config.RewardConfiguration;
 import io.Adrestus.core.Resourses.CachedInboundTransactionBlocks;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
-import io.Adrestus.core.RewardMechanism.*;
+import io.Adrestus.core.RewardMechanism.Request;
+import io.Adrestus.core.RewardMechanism.RequestType;
+import io.Adrestus.core.RewardMechanism.RewardChainBuilder;
 import io.Adrestus.core.RingBuffer.event.AbstractBlockEvent;
 import io.Adrestus.core.StatusType;
 import io.Adrestus.core.Transaction;
@@ -15,8 +16,6 @@ import io.Adrestus.core.TransactionBlock;
 import io.Adrestus.core.TreePoolConstructBlock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Map;
 
 public class PatriciaTreeEventHandler implements BlockEventHandler<AbstractBlockEvent> {
     private static Logger LOG = LoggerFactory.getLogger(PatriciaTreeEventHandler.class);
@@ -47,7 +46,7 @@ public class PatriciaTreeEventHandler implements BlockEventHandler<AbstractBlock
                     });
         }
 
-        if(CachedZoneIndex.getInstance().getZoneIndex()==0 && transactionBlock.getHeight()% RewardConfiguration.BLOCK_REWARD_HEIGHT ==0) {
+        if (CachedZoneIndex.getInstance().getZoneIndex() == 0 && transactionBlock.getHeight() % RewardConfiguration.BLOCK_REWARD_HEIGHT == 0) {
             RewardChainBuilder rewardChainBuilder = new RewardChainBuilder();
             rewardChainBuilder.makeRequest(new Request(RequestType.EFFECTIVE_STAKE, "EFFECTIVE_STAKE"));
             rewardChainBuilder.makeRequest(new Request(RequestType.EFFECTIVE_STAKE_RATIO, "EFFECTIVE_STAKE_RATIO"));

@@ -12,7 +12,6 @@ import io.Adrestus.config.SocketConfigOptions;
 import io.Adrestus.consensus.helper.ConsensusTransaction2Timer;
 import io.Adrestus.core.*;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
-import io.Adrestus.core.Resourses.CachedReceiptSemaphore;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.core.RingBuffer.publisher.ReceiptEventPublisher;
 import io.Adrestus.crypto.HashUtil;
@@ -316,7 +315,7 @@ public class ConsensusTransactionTimer2Test {
         CachedEventLoop.getInstance().start();
 
         TCPTransactionConsumer<byte[]> callback = x -> {
-            if(CachedZoneIndex.getInstance().getZoneIndex() == 1) {
+            if (CachedZoneIndex.getInstance().getZoneIndex() == 1) {
                 return "";
             }
             Receipt receipt = recep.decode(x);
@@ -326,10 +325,9 @@ public class ConsensusTransactionTimer2Test {
             TransactionBlock transactionBlock = receiptloadingCache.getIfPresent(receipt.getReceiptBlock().getHeight());
             if (transactionBlock != null) {
                 Transaction trx = transactionBlock.getTransactionList().get(receipt.getPosition());
-                ReceiptBlock receiptBlock1 = new ReceiptBlock(StatusType.PENDING, receipt,transactionBlock, trx);
+                ReceiptBlock receiptBlock1 = new ReceiptBlock(StatusType.PENDING, receipt, transactionBlock, trx);
                 publisher.publish(receiptBlock1);
-            }
-            else {
+            } else {
                 List<String> ips = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(receipt.getZoneFrom()).values().stream().collect(Collectors.toList());
                 ips.remove(IPFinder.getLocalIP());
                 int RPCTransactionZonePort = ZoneDatabaseFactory.getDatabaseRPCPort(receipt.getZoneFrom());
@@ -471,7 +469,7 @@ public class ConsensusTransactionTimer2Test {
         ConsensusTransaction2Timer c = new ConsensusTransaction2Timer(latch, addreses, keypair);
         latch.await();
         c.close();
-        if(CachedZoneIndex.getInstance().getZoneIndex() == 1) {
+        if (CachedZoneIndex.getInstance().getZoneIndex() == 1) {
             Thread.sleep(9300);
         }
         variable = true;

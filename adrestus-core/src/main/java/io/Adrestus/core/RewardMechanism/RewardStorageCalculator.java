@@ -3,7 +3,6 @@ package io.Adrestus.core.RewardMechanism;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import io.Adrestus.Trie.PatriciaTreeTransactionType;
-import io.Adrestus.config.RewardConfiguration;
 
 import java.math.BigDecimal;
 import java.util.Collection;
@@ -37,7 +36,7 @@ public class RewardStorageCalculator implements RewardHandler {
             BigDecimal sum = entry.getValue()
                     .stream()
                     .map(DelegateObject::getReward)
-                    .reduce(BigDecimal.ZERO, (a, b) -> a.add(b) );
+                    .reduce(BigDecimal.ZERO, (a, b) -> a.add(b));
             req.getMemoryTreePool().deposit(PatriciaTreeTransactionType.UNCLAIMED_FEE_REWARD, entry.getKey(), sum.doubleValue(), 0);
         }
         delegate_rewards.clear();

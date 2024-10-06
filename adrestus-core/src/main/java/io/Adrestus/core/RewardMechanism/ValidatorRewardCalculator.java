@@ -52,7 +52,7 @@ public class ValidatorRewardCalculator implements RewardHandler {
 
                     if (!flag) {
                         CachedRewardMapData.getInstance().getEffective_stakes_map().get(data.getAddressData().getAddress()).setBlock_participation(CachedRewardMapData.getInstance().getEffective_stakes_map().get(data.getAddressData().getAddress()).getBlock_participation() + 1);
-                        if(data.getAddressData().getValidatorBlSPublicKey().equals(entry.getValue().getLeaderPublicKey())){
+                        if (data.getAddressData().getValidatorBlSPublicKey().equals(entry.getValue().getLeaderPublicKey())) {
                             CachedRewardMapData.getInstance().getEffective_stakes_map().get(data.getAddressData().getAddress()).setTransactions_leader_participation(CachedRewardMapData.getInstance().getEffective_stakes_map().get(data.getAddressData().getAddress()).getTransactions_leader_participation() + 1);
                         }
                     }
@@ -63,22 +63,22 @@ public class ValidatorRewardCalculator implements RewardHandler {
         });
 
 
-
         for (Map.Entry<String, RewardObject> entry : CachedRewardMapData.getInstance().getEffective_stakes_map().entrySet()) {
             PatriciaTreeNode patriciaTreeNode = TreeFactory.getMemoryTree(0).getByaddress(entry.getKey()).get();
-            BigDecimal block_reward = CustomBigDecimal.valueOf(entry.getValue().getBlock_participation()).multiply(CustomBigDecimal.valueOf(RewardConfiguration.TRANSACTION_REWARD_PER_BLOCK)).multiply(entry.getValue().getEffective_stake_ratio()).setScale(RewardConfiguration.DECIMAL_PRECISION,RewardConfiguration.ROUNDING);
-            BigDecimal commission_fees = CustomBigDecimal.valueOf(patriciaTreeNode.getStakingInfo().getCommissionRate()).multiply(block_reward).divide(CustomBigDecimal.valueOf(100),RewardConfiguration.DECIMAL_PRECISION,RewardConfiguration.ROUNDING);
-            BigDecimal unreal_reward = block_reward.subtract(commission_fees).setScale(RewardConfiguration.DECIMAL_PRECISION,RewardConfiguration.ROUNDING);;
-            BigDecimal real_reward = CustomBigDecimal.valueOf(patriciaTreeNode.getPrivate_staking_amount()).multiply(unreal_reward).divide(CustomBigDecimal.valueOf(patriciaTreeNode.getStaking_amount()),RewardConfiguration.DECIMAL_PRECISION,RewardConfiguration.ROUNDING);
+            BigDecimal block_reward = CustomBigDecimal.valueOf(entry.getValue().getBlock_participation()).multiply(CustomBigDecimal.valueOf(RewardConfiguration.TRANSACTION_REWARD_PER_BLOCK)).multiply(entry.getValue().getEffective_stake_ratio()).setScale(RewardConfiguration.DECIMAL_PRECISION, RewardConfiguration.ROUNDING);
+            BigDecimal commission_fees = CustomBigDecimal.valueOf(patriciaTreeNode.getStakingInfo().getCommissionRate()).multiply(block_reward).divide(CustomBigDecimal.valueOf(100), RewardConfiguration.DECIMAL_PRECISION, RewardConfiguration.ROUNDING);
+            BigDecimal unreal_reward = block_reward.subtract(commission_fees).setScale(RewardConfiguration.DECIMAL_PRECISION, RewardConfiguration.ROUNDING);
+            ;
+            BigDecimal real_reward = CustomBigDecimal.valueOf(patriciaTreeNode.getPrivate_staking_amount()).multiply(unreal_reward).divide(CustomBigDecimal.valueOf(patriciaTreeNode.getStaking_amount()), RewardConfiguration.DECIMAL_PRECISION, RewardConfiguration.ROUNDING);
 
             //leader block rewards
-            real_reward=real_reward.add((CustomBigDecimal.valueOf(RewardConfiguration.TRANSACTION_LEADER_BLOCK_REWARD).multiply(real_reward).divide(CustomBigDecimal.valueOf(100),RewardConfiguration.DECIMAL_PRECISION,RewardConfiguration.ROUNDING)).multiply(CustomBigDecimal.valueOf(entry.getValue().getTransactions_leader_participation())));
+            real_reward = real_reward.add((CustomBigDecimal.valueOf(RewardConfiguration.TRANSACTION_LEADER_BLOCK_REWARD).multiply(real_reward).divide(CustomBigDecimal.valueOf(100), RewardConfiguration.DECIMAL_PRECISION, RewardConfiguration.ROUNDING)).multiply(CustomBigDecimal.valueOf(entry.getValue().getTransactions_leader_participation())));
             if (entry.getValue().isCommittee_leader_participation()) {
                 //committee leader VRF rewards
-                real_reward=real_reward.add((CustomBigDecimal.valueOf(RewardConfiguration.VRF_REWARD).multiply(real_reward).divide(CustomBigDecimal.valueOf(100),RewardConfiguration.DECIMAL_PRECISION,RewardConfiguration.ROUNDING)));
+                real_reward = real_reward.add((CustomBigDecimal.valueOf(RewardConfiguration.VRF_REWARD).multiply(real_reward).divide(CustomBigDecimal.valueOf(100), RewardConfiguration.DECIMAL_PRECISION, RewardConfiguration.ROUNDING)));
 
                 //committee leader VDF rewards
-                real_reward=real_reward.add((CustomBigDecimal.valueOf(RewardConfiguration.VDF_REWARD).multiply(real_reward).divide(CustomBigDecimal.valueOf(100),RewardConfiguration.DECIMAL_PRECISION,RewardConfiguration.ROUNDING)));
+                real_reward = real_reward.add((CustomBigDecimal.valueOf(RewardConfiguration.VDF_REWARD).multiply(real_reward).divide(CustomBigDecimal.valueOf(100), RewardConfiguration.DECIMAL_PRECISION, RewardConfiguration.ROUNDING)));
             }
             entry.getValue().setUnreal_reward(unreal_reward);
             entry.getValue().setReal_reward(real_reward);

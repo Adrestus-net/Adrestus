@@ -106,6 +106,7 @@ public class SupervisorConsensusPhases {
             byte[] solution = vdf.solve(CachedSecurityHeaders.getInstance().getSecurityHeader().getPRnd(), CachedLatestBlocks.getInstance().getCommitteeBlock().getDifficulty());
             data.getData().setVDFSolution(solution);
 
+            data.setStatusType(ConsensusStatusType.SUCCESS);
             if (DEBUG) return;
 
             byte[] message = data_serialize.encode(data.getData());
@@ -138,8 +139,8 @@ public class SupervisorConsensusPhases {
                                 LOG.info("PreparePhase: Validator does not exist on consensus... Ignore");
                                 // i--;
                             } else {
-                                data.getSignatures().put(received.getChecksumData().getBlsPublicKey(),new BLSSignatureData());
-                                data.getSignatures().get(received.getChecksumData().getBlsPublicKey()).getSignature()[0]=received.getChecksumData().getSignature();
+                                data.getSignatures().put(received.getChecksumData().getBlsPublicKey(), new BLSSignatureData());
+                                data.getSignatures().get(received.getChecksumData().getBlsPublicKey()).getSignature()[0] = received.getChecksumData().getSignature();
                                 N_COPY--;
                                 i--;
                             }
@@ -164,19 +165,20 @@ public class SupervisorConsensusPhases {
             data.setMessageType(ConsensusMessageType.PREPARE);
 
             List<BLSPublicKey> publicKeys = new ArrayList<>(data.getSignatures().keySet());
-            List<Signature> signature = data.getSignatures().values().stream().map(BLSSignatureData::getSignature).map(r->r[0]).collect(Collectors.toList());
+            List<Signature> signature = data.getSignatures().values().stream().map(BLSSignatureData::getSignature).map(r -> r[0]).collect(Collectors.toList());
 
 
             Signature aggregatedSignature = BLSSignature.aggregate(signature);
             Bytes message = Bytes.wrap(data.getData().getVDFSolution());
             boolean verify = BLSSignature.fastAggregateVerify(publicKeys, message, aggregatedSignature);
             if (!verify) {
-                LOG.info("Abort consensus phase BLS multi_signature is invalid during prepare phase");
+                LOG.info("PreparePhase: Abort consensus phase BLS multi_signature is invalid during prepare phase");
                 data.setStatusType(ConsensusStatusType.ABORT);
                 return;
             }
 
 
+            data.setStatusType(ConsensusStatusType.SUCCESS);
             if (DEBUG) return;
 
 
@@ -211,7 +213,7 @@ public class SupervisorConsensusPhases {
                                 LOG.info("CommitPhase: Validator does not exist on consensus... Ignore");
                                 // i--;
                             } else {
-                                data.getSignatures().get(received.getChecksumData().getBlsPublicKey()).getSignature()[1]=received.getChecksumData().getSignature();
+                                data.getSignatures().get(received.getChecksumData().getBlsPublicKey()).getSignature()[1] = received.getChecksumData().getSignature();
                                 N_COPY--;
                                 i--;
                             }
@@ -236,7 +238,7 @@ public class SupervisorConsensusPhases {
             data.setMessageType(ConsensusMessageType.COMMIT);
 
             List<BLSPublicKey> publicKeys = new ArrayList<>(data.getSignatures().keySet());
-            List<Signature> signature = data.getSignatures().values().stream().map(BLSSignatureData::getSignature).map(r->r[1]).collect(Collectors.toList());
+            List<Signature> signature = data.getSignatures().values().stream().map(BLSSignatureData::getSignature).map(r -> r[1]).collect(Collectors.toList());
 
 
             Signature aggregatedSignature = BLSSignature.aggregate(signature);
@@ -250,7 +252,7 @@ public class SupervisorConsensusPhases {
             }
 
             //commit save to db
-
+            data.setStatusType(ConsensusStatusType.SUCCESS);
             if (DEBUG) return;
 
             Signature sig = BLSSignature.sign(data_serialize.encode(data.getData()), CachedBLSKeyPair.getInstance().getPrivateKey());
@@ -426,6 +428,7 @@ public class SupervisorConsensusPhases {
             if (data.getStatusType().equals(ConsensusStatusType.ABORT)) return;
 
             data.setMessageType(ConsensusMessageType.ANNOUNCE);
+            data.setStatusType(ConsensusStatusType.SUCCESS);
 
             if (DEBUG) return;
 
@@ -457,8 +460,8 @@ public class SupervisorConsensusPhases {
                                 LOG.info("PreparePhase: Validator does not exist on consensus... Ignore");
                                 //i--;
                             } else {
-                                data.getSignatures().put(received.getChecksumData().getBlsPublicKey(),new BLSSignatureData());
-                                data.getSignatures().get(received.getChecksumData().getBlsPublicKey()).getSignature()[0]=received.getChecksumData().getSignature();
+                                data.getSignatures().put(received.getChecksumData().getBlsPublicKey(), new BLSSignatureData());
+                                data.getSignatures().get(received.getChecksumData().getBlsPublicKey()).getSignature()[0] = received.getChecksumData().getSignature();
                                 N_COPY--;
                                 i--;
                             }
@@ -483,19 +486,20 @@ public class SupervisorConsensusPhases {
             data.setMessageType(ConsensusMessageType.PREPARE);
 
             List<BLSPublicKey> publicKeys = new ArrayList<>(data.getSignatures().keySet());
-            List<Signature> signature = data.getSignatures().values().stream().map(BLSSignatureData::getSignature).map(r->r[0]).collect(Collectors.toList());
+            List<Signature> signature = data.getSignatures().values().stream().map(BLSSignatureData::getSignature).map(r -> r[0]).collect(Collectors.toList());
 
 
             Signature aggregatedSignature = BLSSignature.aggregate(signature);
             byte[] message = serialize.encode(data.getData());
             boolean verify = BLSSignature.fastAggregateVerify(publicKeys, Bytes.wrap(message), aggregatedSignature);
             if (!verify) {
-                LOG.info("Abort consensus phase BLS multi_signature is invalid during prepare phase");
+                LOG.info("PreparePhase: Abort consensus phase BLS multi_signature is invalid during prepare phase");
                 data.setStatusType(ConsensusStatusType.ABORT);
                 return;
             }
 
 
+            data.setStatusType(ConsensusStatusType.SUCCESS);
             if (DEBUG) return;
 
 
@@ -530,7 +534,7 @@ public class SupervisorConsensusPhases {
                                 LOG.info("CommitPhase: Validator does not exist on consensus... Ignore");
                                 //i--;
                             } else {
-                                data.getSignatures().get(received.getChecksumData().getBlsPublicKey()).getSignature()[1]=received.getChecksumData().getSignature();
+                                data.getSignatures().get(received.getChecksumData().getBlsPublicKey()).getSignature()[1] = received.getChecksumData().getSignature();
                                 N_COPY--;
                                 i--;
                             }
@@ -555,7 +559,7 @@ public class SupervisorConsensusPhases {
             data.setMessageType(ConsensusMessageType.COMMIT);
 
             List<BLSPublicKey> publicKeys = new ArrayList<>(data.getSignatures().keySet());
-            List<Signature> signature = data.getSignatures().values().stream().map(BLSSignatureData::getSignature).map(r->r[1]).collect(Collectors.toList());
+            List<Signature> signature = data.getSignatures().values().stream().map(BLSSignatureData::getSignature).map(r -> r[1]).collect(Collectors.toList());
 
 
             Signature aggregatedSignature = BLSSignature.aggregate(signature);
@@ -563,13 +567,13 @@ public class SupervisorConsensusPhases {
             Bytes message = Bytes.wrap(wrapp);
             boolean verify = BLSSignature.fastAggregateVerify(publicKeys, message, aggregatedSignature);
             if (!verify) {
-                LOG.info("Abort consensus phase BLS multi_signature is invalid during commit phase");
+                LOG.info("CommitPhase: Abort consensus phase BLS multi_signature is invalid during commit phase");
                 data.setStatusType(ConsensusStatusType.ABORT);
                 return;
             }
 
             //commit save to db
-
+            data.setStatusType(ConsensusStatusType.SUCCESS);
             if (DEBUG) return;
 
             Signature sig = BLSSignature.sign(serialize.encode(data.getData()), CachedBLSKeyPair.getInstance().getPrivateKey());
@@ -653,6 +657,7 @@ public class SupervisorConsensusPhases {
 
             regural_block.forgeCommitteBlock(block.getData());
             block.setMessageType(ConsensusMessageType.ANNOUNCE);
+            block.setStatusType(ConsensusStatusType.SUCCESS);
             if (DEBUG) return;
 
             this.sizeCalculator.setCommitteeBlock(block.getData());
@@ -685,8 +690,8 @@ public class SupervisorConsensusPhases {
                                 LOG.info("PreparePhase: Validator does not exist on consensus... Ignore");
                                 // i--;
                             } else {
-                                block.getSignatures().put(received.getChecksumData().getBlsPublicKey(),new BLSSignatureData());
-                                block.getSignatures().get(received.getChecksumData().getBlsPublicKey()).getSignature()[0]=received.getChecksumData().getSignature();
+                                block.getSignatures().put(received.getChecksumData().getBlsPublicKey(), new BLSSignatureData());
+                                block.getSignatures().get(received.getChecksumData().getBlsPublicKey()).getSignature()[0] = received.getChecksumData().getSignature();
                                 N_COPY--;
                                 i--;
                             }
@@ -711,7 +716,7 @@ public class SupervisorConsensusPhases {
             block.setMessageType(ConsensusMessageType.PREPARE);
 
             List<BLSPublicKey> publicKeys = new ArrayList<>(block.getSignatures().keySet());
-            List<Signature> signature = block.getSignatures().values().stream().map(BLSSignatureData::getSignature).map(r->r[0]).collect(Collectors.toList());
+            List<Signature> signature = block.getSignatures().values().stream().map(BLSSignatureData::getSignature).map(r -> r[0]).collect(Collectors.toList());
 
             Signature aggregatedSignature = BLSSignature.aggregate(signature);
 
@@ -720,11 +725,12 @@ public class SupervisorConsensusPhases {
             boolean verify = BLSSignature.fastAggregateVerify(publicKeys, message, aggregatedSignature);
             if (!verify) {
                 cleanup();
-                LOG.info("Abort consensus phase BLS multi_signature is invalid during prepare phase");
+                LOG.info("PreparePhase: Abort consensus phase BLS multi_signature is invalid during prepare phase");
                 block.setStatusType(ConsensusStatusType.ABORT);
                 return;
             }
 
+            block.setStatusType(ConsensusStatusType.SUCCESS);
             if (DEBUG) return;
 
 
@@ -760,7 +766,7 @@ public class SupervisorConsensusPhases {
                                 LOG.info("CommitPhase: Validator does not exist on consensus... Ignore");
                                 //i--;
                             } else {
-                                block.getSignatures().get(received.getChecksumData().getBlsPublicKey()).getSignature()[1]=received.getChecksumData().getSignature();
+                                block.getSignatures().get(received.getChecksumData().getBlsPublicKey()).getSignature()[1] = received.getChecksumData().getSignature();
                                 N_COPY--;
                                 i--;
                             }
@@ -785,7 +791,7 @@ public class SupervisorConsensusPhases {
             block.setMessageType(ConsensusMessageType.COMMIT);
 
             List<BLSPublicKey> publicKeys = new ArrayList<>(block.getSignatures().keySet());
-            List<Signature> signature = block.getSignatures().values().stream().map(BLSSignatureData::getSignature).map(r->r[1]).collect(Collectors.toList());
+            List<Signature> signature = block.getSignatures().values().stream().map(BLSSignatureData::getSignature).map(r -> r[1]).collect(Collectors.toList());
 
 
             Signature aggregatedSignature = BLSSignature.aggregate(signature);
@@ -801,6 +807,7 @@ public class SupervisorConsensusPhases {
 
             //commit save to db
 
+            block.setStatusType(ConsensusStatusType.SUCCESS);
             if (DEBUG) return;
 
             this.sizeCalculator.setCommitteeBlock(block.getData());

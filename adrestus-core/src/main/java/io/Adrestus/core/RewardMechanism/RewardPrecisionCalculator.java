@@ -2,7 +2,6 @@ package io.Adrestus.core.RewardMechanism;
 
 import io.Adrestus.config.RewardConfiguration;
 
-import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.Map;
@@ -29,7 +28,7 @@ public class RewardPrecisionCalculator implements RewardHandler {
     @Override
     public void handle(Request req) {
         req.markHandled();
-        Map<String,RewardObject> maps=CachedRewardMapData.getInstance().getEffective_stakes_map();
+        Map<String, RewardObject> maps = CachedRewardMapData.getInstance().getEffective_stakes_map();
         CachedRewardMapData.getInstance().getEffective_stakes_map().values().forEach(RewardPrecisionCalculator::applyPrecision);
     }
 

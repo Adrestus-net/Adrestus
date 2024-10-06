@@ -11,7 +11,10 @@ import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.config.RewardConfiguration;
 import io.Adrestus.config.SocketConfigOptions;
 import io.Adrestus.core.Resourses.*;
-import io.Adrestus.core.RewardMechanism.*;
+import io.Adrestus.core.RewardMechanism.CachedRewardMapData;
+import io.Adrestus.core.RewardMechanism.Request;
+import io.Adrestus.core.RewardMechanism.RequestType;
+import io.Adrestus.core.RewardMechanism.RewardChainBuilder;
 import io.Adrestus.core.Util.BlockSizeCalculator;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.bls.BLS381.ECP;
@@ -212,7 +215,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
                         });
 
                     });
-        if(CachedZoneIndex.getInstance().getZoneIndex()==0 && transactionBlock.getHeight()% RewardConfiguration.BLOCK_REWARD_HEIGHT ==0) {
+        if (CachedZoneIndex.getInstance().getZoneIndex() == 0 && transactionBlock.getHeight() % RewardConfiguration.BLOCK_REWARD_HEIGHT == 0) {
             RewardChainBuilder rewardChainBuilder = new RewardChainBuilder();
             rewardChainBuilder.makeRequest(new Request(RequestType.EFFECTIVE_STAKE, "EFFECTIVE_STAKE"));
             rewardChainBuilder.makeRequest(new Request(RequestType.EFFECTIVE_STAKE_RATIO, "EFFECTIVE_STAKE_RATIO"));
@@ -456,7 +459,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
             })).start();
         }
 
-        if(CachedZoneIndex.getInstance().getZoneIndex()==0 && transactionBlock.getHeight() % RewardConfiguration.BLOCK_REWARD_HEIGHT==0) {
+        if (CachedZoneIndex.getInstance().getZoneIndex() == 0 && transactionBlock.getHeight() % RewardConfiguration.BLOCK_REWARD_HEIGHT == 0) {
             RewardChainBuilder rewardChainBuilder = new RewardChainBuilder();
             rewardChainBuilder.makeRequest(new Request(RequestType.REWARD_STORAGE_CALCULATOR, "REWARD_STORAGE_CALCULATOR", TreeFactory.getMemoryTree(0)));
             CachedRewardMapData.getInstance().clearInstance();

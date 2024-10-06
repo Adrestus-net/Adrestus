@@ -2,6 +2,7 @@ package io.Adrestus.consensus;
 
 import com.google.common.reflect.TypeToken;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
+import io.Adrestus.crypto.bls.BLSSignatureData;
 import io.Adrestus.crypto.bls.model.BLSPrivateKey;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.Adrestus.crypto.bls.model.CachedBLSKeyPair;
@@ -12,8 +13,7 @@ import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Type;
 import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 
 public class ConsensusVRFTest {
     private static SerializationUtil<ConsensusMessage> serialize;
@@ -32,11 +32,17 @@ public class ConsensusVRFTest {
         CachedLatestBlocks.getInstance().getCommitteeBlock().setViewID(10);
 
 
-        BLSPrivateKey sk = new BLSPrivateKey(new SecureRandom());
-        BLSPublicKey vk = new BLSPublicKey(sk);
+        BLSPrivateKey leadersk = new BLSPrivateKey(new SecureRandom());
+        BLSPublicKey leadervk = new BLSPublicKey(leadersk);
 
-        CachedBLSKeyPair.getInstance().setPrivateKey(sk);
-        CachedBLSKeyPair.getInstance().setPublicKey(vk);
+        BLSPrivateKey validator1sk = new BLSPrivateKey(new SecureRandom());
+        BLSPublicKey validator1vk = new BLSPublicKey(validator1sk);
+
+        BLSPrivateKey validator2sk = new BLSPrivateKey(new SecureRandom());
+        BLSPublicKey validator2vk = new BLSPublicKey(validator2sk);
+
+        CachedBLSKeyPair.getInstance().setPrivateKey(leadersk);
+        CachedBLSKeyPair.getInstance().setPublicKey(leadervk);
 
         ConsensusManager consensusManager = new ConsensusManager(true);
         consensusManager.changeStateTo(ConsensusRoleType.SUPERVISOR);
@@ -46,22 +52,22 @@ public class ConsensusVRFTest {
         organizerphase.Initialize(organizer_message);
 
         consensusManager.changeStateTo(ConsensusRoleType.VALIDATOR);
-        VRFConsensusPhase validatorphase1 = (VRFConsensusPhase) consensusManager.getRole().manufacturePhases(ConsensusType.VRF);
+        VRFConsensusPhase validatorphase = (VRFConsensusPhase) consensusManager.getRole().manufacturePhases(ConsensusType.VRF);
 
-        validatorphase1.Initialize(organizer_message);
+        validatorphase.Initialize(organizer_message);
 
 
         organizer_message.getSigners().add(organizer_message.getData());
 
-        //Thread.sleep(1000);
-        sk = new BLSPrivateKey(new SecureRandom());
-        vk = new BLSPublicKey(sk);
 
-        CachedBLSKeyPair.getInstance().setPrivateKey(sk);
-        CachedBLSKeyPair.getInstance().setPublicKey(vk);
+        CachedBLSKeyPair.getInstance().setPrivateKey(validator1sk);
+        CachedBLSKeyPair.getInstance().setPublicKey(validator1vk);
 
-        validatorphase1.Initialize(organizer_message);
+        validatorphase.Initialize(organizer_message);
 
+
+        CachedBLSKeyPair.getInstance().setPrivateKey(leadersk);
+        CachedBLSKeyPair.getInstance().setPublicKey(leadervk);
 
         organizer_message.getSigners().add(organizer_message.getData());
 
@@ -71,50 +77,77 @@ public class ConsensusVRFTest {
         organizerphase.AnnouncePhase(consensusMessage);
 
 
-        validatorphase1.AnnouncePhase(consensusMessage);
-        consensusMessage.getSignatures().add(consensusMessage.getChecksumData());
+        HashMap<BLSPublicKey, BLSSignatureData> list = new HashMap<>();
+
+        CachedBLSKeyPair.getInstance().setPrivateKey(validator1sk);
+        CachedBLSKeyPair.getInstance().setPublicKey(validator1vk);
+
+        validatorphase.AnnouncePhase(consensusMessage);
+        if (consensusMessage.getStatusType().equals(ConsensusStatusType.SUCCESS)) {
+            BLSSignatureData blsSignatureData = new BLSSignatureData();
+            blsSignatureData.getSignature()[0] = consensusMessage.getChecksumData().getSignature();
+            list.put(consensusMessage.getChecksumData().getBlsPublicKey(), blsSignatureData);
+        }
+
+        CachedBLSKeyPair.getInstance().setPrivateKey(validator2sk);
+        CachedBLSKeyPair.getInstance().setPublicKey(validator2vk);
+
+        validatorphase.AnnouncePhase(consensusMessage);
+        if (consensusMessage.getStatusType().equals(ConsensusStatusType.SUCCESS)) {
+            BLSSignatureData blsSignatureData = new BLSSignatureData();
+            blsSignatureData.getSignature()[0] = consensusMessage.getChecksumData().getSignature();
+            list.put(consensusMessage.getChecksumData().getBlsPublicKey(), blsSignatureData);
+        }
 
         byte[] buffer = serialize.encode(consensusMessage);
         ConsensusMessage<VRFMessage> fg = serialize.decode(buffer);
 
-        sk = new BLSPrivateKey(new SecureRandom());
-        vk = new BLSPublicKey(sk);
-
-        CachedBLSKeyPair.getInstance().setPrivateKey(sk);
-        CachedBLSKeyPair.getInstance().setPublicKey(vk);
-
-        validatorphase1.AnnouncePhase(consensusMessage);
-        consensusMessage.getSignatures().add(consensusMessage.getChecksumData());
-
+        consensusMessage.clear();
+        consensusMessage.setSignatures(list);
 
         organizerphase.PreparePhase(consensusMessage);
 
 
-        List<ConsensusMessage.ChecksumData> list = new ArrayList<>();
+        HashMap<BLSPublicKey, BLSSignatureData> list1 = new HashMap<>();
 
-        validatorphase1.PreparePhase(consensusMessage);
-        if (consensusMessage.getStatusType().equals(ConsensusStatusType.SUCCESS))
-            list.add(consensusMessage.getChecksumData());
+        CachedBLSKeyPair.getInstance().setPrivateKey(validator1sk);
+        CachedBLSKeyPair.getInstance().setPublicKey(validator1vk);
+
+        validatorphase.PreparePhase(consensusMessage);
+        if (consensusMessage.getStatusType().equals(ConsensusStatusType.SUCCESS)) {
+            BLSSignatureData blsSignatureData = new BLSSignatureData();
+            blsSignatureData.getSignature()[1] = consensusMessage.getChecksumData().getSignature();
+            list1.put(consensusMessage.getChecksumData().getBlsPublicKey(), blsSignatureData);
+        }
+
+        CachedBLSKeyPair.getInstance().setPrivateKey(validator2sk);
+        CachedBLSKeyPair.getInstance().setPublicKey(validator2vk);
+
+        validatorphase.PreparePhase(consensusMessage);
+        if (consensusMessage.getStatusType().equals(ConsensusStatusType.SUCCESS)) {
+            BLSSignatureData blsSignatureData = new BLSSignatureData();
+            blsSignatureData.getSignature()[1] = consensusMessage.getChecksumData().getSignature();
+            list1.put(consensusMessage.getChecksumData().getBlsPublicKey(), blsSignatureData);
+        }
 
 
-        sk = new BLSPrivateKey(new SecureRandom());
-        vk = new BLSPublicKey(sk);
-
-        CachedBLSKeyPair.getInstance().setPrivateKey(sk);
-        CachedBLSKeyPair.getInstance().setPublicKey(vk);
-
-
-        validatorphase1.PreparePhase(consensusMessage);
-        if (consensusMessage.getStatusType().equals(ConsensusStatusType.SUCCESS))
-            list.add(consensusMessage.getChecksumData());
+        CachedBLSKeyPair.getInstance().setPrivateKey(leadersk);
+        CachedBLSKeyPair.getInstance().setPublicKey(leadervk);
 
         consensusMessage.clear();
-        consensusMessage.setSignatures(list);
+        consensusMessage.setSignatures(list1);
+
         organizerphase.CommitPhase(consensusMessage);
 
+        CachedBLSKeyPair.getInstance().setPrivateKey(validator1sk);
+        CachedBLSKeyPair.getInstance().setPublicKey(validator1vk);
 
-        validatorphase1.CommitPhase(consensusMessage);
-        validatorphase1.CommitPhase(consensusMessage);
+        validatorphase.CommitPhase(consensusMessage);
+
+        CachedBLSKeyPair.getInstance().setPrivateKey(validator2sk);
+        CachedBLSKeyPair.getInstance().setPublicKey(validator2vk);
+
+        validatorphase.CommitPhase(consensusMessage);
 
     }
 }

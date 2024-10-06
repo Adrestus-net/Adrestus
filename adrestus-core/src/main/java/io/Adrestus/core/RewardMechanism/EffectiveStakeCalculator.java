@@ -25,21 +25,21 @@ public class EffectiveStakeCalculator implements RewardHandler {
     public void handle(Request req) {
         req.markHandled();
         List<String> adresses = TreeFactory.getMemoryTree(0).Keyset(Bytes53.ZERO, Integer.MAX_VALUE).stream().collect(Collectors.toList());
-        int stake_counter=0;
-        double total_stake=0;
-        for(String address : adresses) {
-            PatriciaTreeNode patriciaTreeNode=TreeFactory.getMemoryTree(0).getByaddress(address).get();
-            if(patriciaTreeNode.getStaking_amount()>0){
+        int stake_counter = 0;
+        double total_stake = 0;
+        for (String address : adresses) {
+            PatriciaTreeNode patriciaTreeNode = TreeFactory.getMemoryTree(0).getByaddress(address).get();
+            if (patriciaTreeNode.getStaking_amount() > 0) {
                 stake_counter++;
                 total_stake += patriciaTreeNode.getStaking_amount();
             }
         }
 
-        for(String address : adresses) {
-            PatriciaTreeNode patriciaTreeNode=TreeFactory.getMemoryTree(0).getByaddress(address).get();
-            if(patriciaTreeNode.getStaking_amount()>0){
-               double effective_stake=Math.max(Math.min((1+StakingConfiguration.C)*total_stake/stake_counter,patriciaTreeNode.getStaking_amount()),(1-StakingConfiguration.C)*total_stake/stake_counter);
-               CachedRewardMapData.getInstance().getEffective_stakes_map().put(address,new RewardObject(CustomBigDecimal.valueOf(effective_stake),BigDecimal.ZERO));
+        for (String address : adresses) {
+            PatriciaTreeNode patriciaTreeNode = TreeFactory.getMemoryTree(0).getByaddress(address).get();
+            if (patriciaTreeNode.getStaking_amount() > 0) {
+                double effective_stake = Math.max(Math.min((1 + StakingConfiguration.C) * total_stake / stake_counter, patriciaTreeNode.getStaking_amount()), (1 - StakingConfiguration.C) * total_stake / stake_counter);
+                CachedRewardMapData.getInstance().getEffective_stakes_map().put(address, new RewardObject(CustomBigDecimal.valueOf(effective_stake), BigDecimal.ZERO));
             }
         }
     }

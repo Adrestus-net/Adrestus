@@ -4,7 +4,6 @@ import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.config.KademliaConfiguration;
-import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Util.BlockSizeCalculator;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.SecurityAuditProofs;
@@ -45,9 +44,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.TreeMap;
-import java.util.concurrent.TimeUnit;
 
-import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class SerializableBlockTest {
@@ -134,23 +131,24 @@ public class SerializableBlockTest {
     }
 
     @Test
-    public void TransactionBlocktest1(){
+    public void TransactionBlocktest1() {
         TransactionBlock prevblock = new TransactionBlock();
         CommitteeBlock committeeBlock = new CommitteeBlock();
         committeeBlock.setGeneration(1);
         committeeBlock.setViewID(1);
         prevblock.setHeight(1);
         prevblock.setHash("hash");
-        prevblock.getSignatureData().put(vk1,new BLSSignatureData());
+        prevblock.getSignatureData().put(vk1, new BLSSignatureData());
         prevblock.getHeaderData().setTimestamp(GetTime.GetTimeStampInString());
         BlockSizeCalculator blockSizeCalculator = new BlockSizeCalculator();
         blockSizeCalculator.setTransactionBlock(prevblock);
         byte[] tohash = serenc.encode(prevblock, blockSizeCalculator.TransactionBlockSizeCalculator());
         TransactionBlock newblock = (TransactionBlock) serenc.decode(tohash);
-        assertEquals(prevblock,newblock);
+        assertEquals(prevblock, newblock);
     }
+
     @Test
-    public void TransactionBlocktest2(){
+    public void TransactionBlocktest2() {
         TransactionBlock prevblock = new TransactionBlock();
         CommitteeBlock committeeBlock = new CommitteeBlock();
         committeeBlock.setGeneration(1);
@@ -162,7 +160,7 @@ public class SerializableBlockTest {
         blockSizeCalculator.setTransactionBlock(prevblock);
         byte[] tohash = serenc.encode(prevblock, blockSizeCalculator.TransactionBlockSizeCalculator());
         TransactionBlock newblock = (TransactionBlock) serenc.decode(tohash);
-        assertEquals(prevblock,newblock);
+        assertEquals(prevblock, newblock);
     }
 
     @Test
@@ -201,7 +199,7 @@ public class SerializableBlockTest {
         committeeBlock.getStructureMap().get(0).put(vk2, "192.168.1.116");
         committeeBlock.getStructureMap().get(0).put(vk3, "192.168.1.115");
 
-        committeeBlock.getSignatureData().put(vk1,new BLSSignatureData());
+        committeeBlock.getSignatureData().put(vk1, new BLSSignatureData());
         committeeBlock.getStakingMap().put(new StakingData(1, 10.0), new KademliaData(new SecurityAuditProofs(address1, vk1, ecKeyPair1.getPublicKey(), signatureData1), new NettyConnectionInfo("192.168.1.106", KademliaConfiguration.PORT)));
         committeeBlock.getStakingMap().put(new StakingData(2, 13.0), new KademliaData(new SecurityAuditProofs(address2, vk2, ecKeyPair2.getPublicKey(), signatureData2), new NettyConnectionInfo("192.168.1.116", KademliaConfiguration.PORT)));
         committeeBlock.getStakingMap().put(new StakingData(2, 17.0), new KademliaData(new SecurityAuditProofs(address3, vk3, ecKeyPair3.getPublicKey(), signatureData3), new NettyConnectionInfo("192.168.1.115", KademliaConfiguration.PORT)));
@@ -210,35 +208,35 @@ public class SerializableBlockTest {
         blockSizeCalculator.setCommitteeBlock(committeeBlock);
         byte[] tohash = serenc.encode(committeeBlock, blockSizeCalculator.CommitteeBlockSizeCalculator());
         CommitteeBlock newblock = (CommitteeBlock) serenc.decode(tohash);
-        assertEquals(committeeBlock,newblock);
+        assertEquals(committeeBlock, newblock);
     }
 
     @Test
-    public void HashmapTest(){
+    public void HashmapTest() {
         HashMap<BLSPublicKey, BLSSignatureData> hashMap = new HashMap<BLSPublicKey, BLSSignatureData>();
-        BLSSignatureData blsSignatureData1=new BLSSignatureData();
-        BLSSignatureData blsSignatureData2=new BLSSignatureData();
-        BLSSignatureData blsSignatureData3=new BLSSignatureData();
-        BLSSignatureData blsSignatureData4=new BLSSignatureData();
+        BLSSignatureData blsSignatureData1 = new BLSSignatureData();
+        BLSSignatureData blsSignatureData2 = new BLSSignatureData();
+        BLSSignatureData blsSignatureData3 = new BLSSignatureData();
+        BLSSignatureData blsSignatureData4 = new BLSSignatureData();
         hashMap.put(vk3, blsSignatureData1);
         hashMap.put(vk4, blsSignatureData2);
         hashMap.put(vk1, blsSignatureData3);
         hashMap.put(vk2, blsSignatureData4);
-        AbstractBlock block=new TransactionBlock();
+        AbstractBlock block = new TransactionBlock();
         block.AddAllSignatureData(hashMap);
-        blsSignatureData1.getMessageHash()[0]="adasdas";
+        blsSignatureData1.getMessageHash()[0] = "adasdas";
         hashMap.put(vk3, blsSignatureData1);
         block.AddAllSignatureData(hashMap);
-        TreeMap<BLSPublicKey, BLSSignatureData> final_block=block.getSignatureData();
+        TreeMap<BLSPublicKey, BLSSignatureData> final_block = block.getSignatureData();
         System.out.println(vk1.getPoint().toString());
         System.out.println(vk2.getPoint().toString());
         System.out.println(vk3.getPoint().toString());
         System.out.println(vk4.getPoint().toString());
-        assertEquals(vk3,final_block.keySet().toArray()[0]);
-        assertEquals(vk1,final_block.keySet().toArray()[1]);
-        assertEquals(vk4,final_block.keySet().toArray()[2]);
-        assertEquals(vk2,final_block.keySet().toArray()[3]);
-        assertEquals("adasdas",final_block.get(vk3).getMessageHash()[0]);
+        assertEquals(vk3, final_block.keySet().toArray()[0]);
+        assertEquals(vk1, final_block.keySet().toArray()[1]);
+        assertEquals(vk4, final_block.keySet().toArray()[2]);
+        assertEquals(vk2, final_block.keySet().toArray()[3]);
+        assertEquals("adasdas", final_block.get(vk3).getMessageHash()[0]);
     }
 
 }

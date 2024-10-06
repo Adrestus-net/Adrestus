@@ -6,6 +6,7 @@ public class CachedRewardMapData {
 
     private static volatile CachedRewardMapData instance;
     private final HashMap<String, RewardObject> effective_stakes_map;
+
     private CachedRewardMapData() {
         if (instance != null) {
             throw new IllegalStateException("Already initialized.");

@@ -7,6 +7,7 @@ import io.Adrestus.consensus.ConsensusStatusType;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedLeaderIndex;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
+import io.Adrestus.crypto.bls.BLSSignatureData;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.Adrestus.crypto.bls.model.BLSSignature;
 import io.Adrestus.crypto.bls.model.CachedBLSKeyPair;
@@ -17,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
@@ -79,7 +81,8 @@ public class ChangeViewSupervisorConsensusPhase extends ChangeViewConsensusPhase
                             LOG.info("AnnouncePhase: Validator does not exist on consensus... Ignore");
                             i--;
                         } else {
-                            data.getSignatures().add(received.getChecksumData());
+                            data.getSignatures().put(received.getChecksumData().getBlsPublicKey(), new BLSSignatureData());
+                            data.getSignatures().get(received.getChecksumData().getBlsPublicKey()).getSignature()[0] = received.getChecksumData().getSignature();
                             N_COPY--;
                             i--;
                         }
@@ -102,8 +105,8 @@ public class ChangeViewSupervisorConsensusPhase extends ChangeViewConsensusPhase
 
             data.setMessageType(ConsensusMessageType.PREPARE);
 
-            List<BLSPublicKey> publicKeys = data.getSignatures().stream().map(ConsensusMessage.ChecksumData::getBlsPublicKey).collect(Collectors.toList());
-            List<Signature> signature = data.getSignatures().stream().map(ConsensusMessage.ChecksumData::getSignature).collect(Collectors.toList());
+            List<BLSPublicKey> publicKeys = new ArrayList<>(data.getSignatures().keySet());
+            List<Signature> signature = data.getSignatures().values().stream().map(BLSSignatureData::getSignature).map(r -> r[0]).collect(Collectors.toList());
 
             Signature aggregatedSignature = BLSSignature.aggregate(signature);
 

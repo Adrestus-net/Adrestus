@@ -177,7 +177,7 @@ public class MemoryTreePoolTest {
     @Test
     public void MultiPatriciaTrees2() throws Exception {
         String address = "ADR-ADL3-VDZK-ZU7H-2BX5-M2H4-S7LF-5SR4-ECQA-EIUJ-CBFK";
-        PatriciaTreeNode treeNode = new PatriciaTreeNode(200, 112, 0, 456,456);
+        PatriciaTreeNode treeNode = new PatriciaTreeNode(200, 112, 0, 456, 456);
         TreeFactory.getMemoryTree(1).store(address, treeNode);
         MemoryTreePool replica = new MemoryTreePool(((MemoryTreePool) TreeFactory.getMemoryTree(1)));
         MemoryTreePool replica2 = new MemoryTreePool(((MemoryTreePool) TreeFactory.getMemoryTree(1)));
@@ -258,28 +258,29 @@ public class MemoryTreePoolTest {
         PatriciaTreeNode treeNode2 = new PatriciaTreeNode(2, 1112);
         MemoryTreePool m = (MemoryTreePool) TreeFactory.getMemoryTree(1).clone();
         TreeFactory.getMemoryTree(1).store(address, treeNode);
-        m.store(address,treeNode2);
+        m.store(address, treeNode2);
         assertNotEquals(m.getRootHash(), TreeFactory.getMemoryTree(1).getRootHash());
-        PatriciaTreeNode patriciaTreeNode= (PatriciaTreeNode) m.getByaddress(address).get().clone();
+        PatriciaTreeNode patriciaTreeNode = (PatriciaTreeNode) m.getByaddress(address).get().clone();
         patriciaTreeNode.setNonce(112);
-        m.store(address,patriciaTreeNode);
+        m.store(address, patriciaTreeNode);
         assertEquals(m.getRootHash(), TreeFactory.getMemoryTree(1).getRootHash());
         //m.store(address,treeNode);
-        PatriciaTreeNode patriciaTreeNode3= (PatriciaTreeNode) TreeFactory.getMemoryTree(1).getByaddress(address).get();
-        patriciaTreeNode3.setStakingInfo(new StakingInfo("name",10,"identity","website","details"));
+        PatriciaTreeNode patriciaTreeNode3 = (PatriciaTreeNode) TreeFactory.getMemoryTree(1).getByaddress(address).get();
+        patriciaTreeNode3.setStakingInfo(new StakingInfo("name", 10, "identity", "website", "details"));
         patriciaTreeNode3.setAmount(21312);
         TreeFactory.getMemoryTree(1).store(address, patriciaTreeNode3);
         assertNotEquals(m.getRootHash(), TreeFactory.getMemoryTree(1).getRootHash());
-        PatriciaTreeNode patriciaTreeNode2= (PatriciaTreeNode) m.getByaddress(address).get().clone();
-        patriciaTreeNode2.setStakingInfo(new StakingInfo("name",10,"identity","website","details"));
+        PatriciaTreeNode patriciaTreeNode2 = (PatriciaTreeNode) m.getByaddress(address).get().clone();
+        patriciaTreeNode2.setStakingInfo(new StakingInfo("name", 10, "identity", "website", "details"));
         patriciaTreeNode2.setAmount(21312);
-        m.store(address,patriciaTreeNode2);
+        m.store(address, patriciaTreeNode2);
         assertEquals(m.getRootHash(), TreeFactory.getMemoryTree(1).getRootHash());
-        PatriciaTreeNode copy=m.getByaddress(address).get();
+        PatriciaTreeNode copy = m.getByaddress(address).get();
         assertEquals(treeNode, copy);
         assertEquals(m.getRootHash(), TreeFactory.getMemoryTree(1).getRootHash());
 
     }
+
     @Test
     public void RetrieveKeys() throws Exception {
         String Address = "ADR-ADL3-VDZK-ZU7H-2BX5-M2H4-S7LF-5SR4-ECQA-EIUJ-CBFK";

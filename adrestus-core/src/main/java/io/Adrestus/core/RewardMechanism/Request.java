@@ -3,7 +3,6 @@ package io.Adrestus.core.RewardMechanism;
 import io.Adrestus.IMemoryTreePool;
 import lombok.Getter;
 
-import java.util.HashMap;
 import java.util.Objects;
 
 @Getter
@@ -18,7 +17,7 @@ public class Request {
         this.requestDescription = Objects.requireNonNull(requestDescription);
     }
 
-    public Request(final RequestType requestType, final String requestDescription,final IMemoryTreePool memoryTreePool) {
+    public Request(final RequestType requestType, final String requestDescription, final IMemoryTreePool memoryTreePool) {
         this.requestType = Objects.requireNonNull(requestType);
         this.requestDescription = Objects.requireNonNull(requestDescription);
         this.memoryTreePool = Objects.requireNonNull(memoryTreePool);

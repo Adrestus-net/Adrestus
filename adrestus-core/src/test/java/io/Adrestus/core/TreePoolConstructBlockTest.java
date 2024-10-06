@@ -19,6 +19,7 @@ public class TreePoolConstructBlockTest {
     private String address3 = "3";
     private String address4 = "4";
     private String address5 = "5";
+
     @BeforeAll
     public static void setup() {
         CachedZoneIndex.getInstance().setZoneIndex(0);
@@ -51,11 +52,12 @@ public class TreePoolConstructBlockTest {
         assertEquals(replica.getRootHash(), TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getRootHash());
         TreeFactory.ClearMemoryTree(CachedZoneIndex.getInstance().getZoneIndex());
     }
+
     @SneakyThrows
     @Test
     public void regular_transaction1a() {
-        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(address, new PatriciaTreeNode(1000, 0,34,4,0));
-        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(address2, new PatriciaTreeNode(1000, 0,45,5,0));
+        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(address, new PatriciaTreeNode(1000, 0, 34, 4, 0));
+        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(address2, new PatriciaTreeNode(1000, 0, 45, 5, 0));
         ArrayList<Transaction> list = new ArrayList<>();
         Transaction transaction1 = new RegularTransaction();
         transaction1.setFrom(address);
@@ -283,7 +285,7 @@ public class TreePoolConstructBlockTest {
     @SneakyThrows
     @Test
     public void UnClaimedReward_transaction() {
-        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(address, new PatriciaTreeNode(0, 0, 0, 1000,1000));
+        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(address, new PatriciaTreeNode(0, 0, 0, 1000, 1000));
         ArrayList<Transaction> list = new ArrayList<>();
         UnclaimedFeeRewardTransaction transaction1 = new UnclaimedFeeRewardTransaction();
         transaction1.setRecipientAddress(address);
@@ -305,7 +307,7 @@ public class TreePoolConstructBlockTest {
     @SneakyThrows
     @Test
     public void reward_transaction() {
-        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(address, new PatriciaTreeNode(0, 0, 0, 1000,1000));
+        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(address, new PatriciaTreeNode(0, 0, 0, 1000, 1000));
         ArrayList<Transaction> list = new ArrayList<>();
         RewardsTransaction reward = new RewardsTransaction();
         reward.setRecipientAddress(address);
