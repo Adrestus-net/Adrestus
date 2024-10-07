@@ -3,10 +3,8 @@ package io.Adrestus.core;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class BlockIndex implements IBlockIndex {
 
@@ -87,4 +85,10 @@ public class BlockIndex implements IBlockIndex {
         }
         return 0;
     }
+
+    @Override
+    public boolean containsAll(Set<BLSPublicKey> left, Set<BLSPublicKey> right) {
+        return new HashSet<>(left).containsAll(right);
+    }
+
 }

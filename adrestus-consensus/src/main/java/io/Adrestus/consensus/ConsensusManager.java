@@ -30,4 +30,18 @@ public class ConsensusManager {
                 break;
         }
     }
+
+    public void clearStateTo(ConsensusRoleType type,boolean DEBUG) {
+        switch (type) {
+            case SUPERVISOR:
+                Supervisor.getInstance(this.DEBUG).clear(DEBUG);
+                break;
+            case VALIDATOR:
+                Validator.getInstance(this.DEBUG).clear(DEBUG);
+                break;
+            case ORGANIZER:
+                Organizer.getInstance(this.DEBUG).clear(DEBUG);
+                break;
+        }
+    }
 }

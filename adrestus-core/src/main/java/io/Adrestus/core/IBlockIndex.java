@@ -2,6 +2,9 @@ package io.Adrestus.core;
 
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
 
+import java.util.List;
+import java.util.Set;
+
 public interface IBlockIndex {
     int getPublicKeyIndex(int zone, BLSPublicKey pub_key);
 
@@ -16,5 +19,7 @@ public interface IBlockIndex {
     Integer getZone(BLSPublicKey blsPublicKey);
 
     Integer getZone(String IP);
+
+    boolean containsAll(Set<BLSPublicKey> left, Set<BLSPublicKey> right);
 
 }

@@ -24,7 +24,6 @@ public abstract class AbstractBlock extends Object implements BlockFactory, Disr
     private int ViewID;
     private String BlockProposer;
     private BLSPublicKey LeaderPublicKey;
-    private HashMap<BLSPublicKey, BLSSignatureData> leaderSignatureData;
     private TreeMap<BLSPublicKey, BLSSignatureData> signatureData;
 
 
@@ -37,7 +36,6 @@ public abstract class AbstractBlock extends Object implements BlockFactory, Disr
         this.ViewID = viewID;
         this.LeaderPublicKey = new BLSPublicKey();
         this.BlockProposer = "";
-        this.leaderSignatureData = new HashMap<>();
         this.signatureData = new TreeMap<BLSPublicKey, BLSSignatureData>(new SortSignatureMapByBlsPublicKey());
     }
 
@@ -47,7 +45,6 @@ public abstract class AbstractBlock extends Object implements BlockFactory, Disr
         this.Generation = generation;
         this.LeaderPublicKey = new BLSPublicKey();
         this.BlockProposer = blockProposer;
-        this.leaderSignatureData = new HashMap<>();
         this.signatureData = new TreeMap<BLSPublicKey, BLSSignatureData>(new SortSignatureMapByBlsPublicKey());
     }
 
@@ -58,7 +55,6 @@ public abstract class AbstractBlock extends Object implements BlockFactory, Disr
         this.Height = height;
         this.LeaderPublicKey = new BLSPublicKey();
         this.BlockProposer = "";
-        this.leaderSignatureData = new HashMap<>();
         this.signatureData = new TreeMap<BLSPublicKey, BLSSignatureData>(new SortSignatureMapByBlsPublicKey());
     }
 
@@ -72,7 +68,6 @@ public abstract class AbstractBlock extends Object implements BlockFactory, Disr
         this.Statustype = StatusType.PENDING;
         this.LeaderPublicKey = new BLSPublicKey();
         this.BlockProposer = "";
-        this.leaderSignatureData = new HashMap<>();
         this.signatureData = new TreeMap<BLSPublicKey, BLSSignatureData>(new SortSignatureMapByBlsPublicKey());
     }
 
@@ -86,7 +81,6 @@ public abstract class AbstractBlock extends Object implements BlockFactory, Disr
         this.ViewID = 0;
         this.LeaderPublicKey = new BLSPublicKey();
         this.BlockProposer = "";
-        this.leaderSignatureData = new HashMap<>();
         this.signatureData = new TreeMap<BLSPublicKey, BLSSignatureData>(new SortSignatureMapByBlsPublicKey());
     }
 
@@ -196,16 +190,6 @@ public abstract class AbstractBlock extends Object implements BlockFactory, Disr
         LeaderPublicKey = leaderPublicKey;
     }
 
-    @Serialize
-    public HashMap<BLSPublicKey, BLSSignatureData> getLeaderSignatureData() {
-        return leaderSignatureData;
-    }
-
-    public void setLeaderSignatureData(HashMap<BLSPublicKey, BLSSignatureData> leaderSignatureData) {
-        this.leaderSignatureData = leaderSignatureData;
-    }
-
-
     public static boolean TreeMapEquals(TreeMap<BLSPublicKey, BLSSignatureData> left, TreeMap<BLSPublicKey, BLSSignatureData> right) {
         if (left.size() != right.size())
             return false;
@@ -229,42 +213,18 @@ public abstract class AbstractBlock extends Object implements BlockFactory, Disr
         return isEqual;
     }
 
-    public static boolean HashMapEquals(HashMap<BLSPublicKey, BLSSignatureData> left, HashMap<BLSPublicKey, BLSSignatureData> right) {
-        if (left.size() != right.size())
-            return false;
-        List<BLSPublicKey> key_list1 = new ArrayList<>(left.keySet());
-        List<BLSPublicKey> key_list2 = new ArrayList<>(left.keySet());
-        List<BLSSignatureData> val_list1 = new ArrayList<>(left.values());
-        List<BLSSignatureData> val_list2 = new ArrayList<>(right.values());
-        boolean key = true;
-        for (int i = 0; i < key_list1.size(); i++) {
-            key = key_list1.get(i).equals(key_list2.get(i));
-            if (!key)
-                break;
-        }
-        boolean val = true;
-        for (int i = 0; i < val_list1.size(); i++) {
-            val = val_list1.get(i).equals(val_list2.get(i));
-            if (!val)
-                break;
-        }
-        boolean isEqual =  Objects.equals(key, val);
-        return isEqual;
-    }
-
-
     //NEVER DELETE THIS FUNCTION ELSE BLOCK HASH EVENT HANDLER WILL HAVE PROBLEM IS EQUALS FUNCTIONALITY
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         AbstractBlock block = (AbstractBlock) o;
-        return Size == block.Size && Height == block.Height && Generation == block.Generation && ViewID == block.ViewID && Objects.equals(header, block.header) && Statustype == block.Statustype && Objects.equals(Hash, block.Hash) && Objects.equals(BlockProposer, block.BlockProposer) && Objects.equals(LeaderPublicKey, block.LeaderPublicKey) && HashMapEquals(leaderSignatureData, block.leaderSignatureData) && TreeMapEquals(signatureData, block.signatureData);
+        return Size == block.Size && Height == block.Height && Generation == block.Generation && ViewID == block.ViewID && Objects.equals(header, block.header) && Statustype == block.Statustype && Objects.equals(Hash, block.Hash) && Objects.equals(BlockProposer, block.BlockProposer) && Objects.equals(LeaderPublicKey, block.LeaderPublicKey) &&  TreeMapEquals(signatureData, block.signatureData);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(header, Statustype, Hash, Size, Height, Generation, ViewID, BlockProposer, LeaderPublicKey, leaderSignatureData, signatureData);
+        return Objects.hash(header, Statustype, Hash, Size, Height, Generation, ViewID, BlockProposer, LeaderPublicKey, signatureData);
     }
 
     public static class Header implements Serializable {

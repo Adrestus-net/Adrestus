@@ -52,4 +52,10 @@ public class Validator implements ConsensusRole {
     public ChangeViewConsensusPhase manufacterChangeViewPhases(ConsensusType consensusType) {
         return (ChangeViewConsensusPhase) change_view_map.get(consensusType);
     }
+
+    public synchronized void clear(boolean DEBUG){
+        instance = null;
+        this.validator_map.clear();
+        this.change_view_map.clear();
+    }
 }

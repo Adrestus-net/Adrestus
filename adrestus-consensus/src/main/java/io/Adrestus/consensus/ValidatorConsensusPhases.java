@@ -37,7 +37,6 @@ import io.Adrestus.util.GetTime;
 import io.Adrestus.util.SerializationUtil;
 import lombok.SneakyThrows;
 import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.tuweni.bytes.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -943,7 +942,8 @@ public class ValidatorConsensusPhases {
         private final SerializationUtil<SerializableErasureObject> serenc_erasure;
         private final DefaultFactory factory;
         private final BlockSizeCalculator sizeCalculator;
-        private final String Shake256Hash[];
+        private final String[] Shake256Hash;
+        private final List<byte[]> prevAgreegation;
 
         private RpcErasureClient<byte[]> collector_client;
 
@@ -964,7 +964,8 @@ public class ValidatorConsensusPhases {
             this.sizeCalculator = new BlockSizeCalculator();
             this.signatureMapper = new SerializationUtil<Signature>(Signature.class, list);
             this.serenc_erasure = new SerializationUtil<SerializableErasureObject>(SerializableErasureObject.class);
-            this.Shake256Hash=new String[3];
+            this.Shake256Hash = new String[2];
+            this.prevAgreegation = new ArrayList<>(2);
             ErasureServerInstance.getInstance();
         }
 
@@ -986,7 +987,6 @@ public class ValidatorConsensusPhases {
                     CachedLeaderIndex.getInstance().setTransactionPositionLeader(current + 1);
                     this.collector_client = new RpcErasureClient<byte[]>(LeaderIP, ERASURE_SERVER_PORT, ERASURE_CLIENT_TIMEOUT, CachedEventLoop.getInstance().getEventloop());
                 }
-
             }
         }
 
@@ -1110,7 +1110,7 @@ public class ValidatorConsensusPhases {
                     return;
                 }
             } else
-                this.original_copy = data.getData();
+                this.original_copy = (TransactionBlock) data.getData().clone();
 
             data.setStatusType(ConsensusStatusType.SUCCESS);
             long Dispersefinish = System.currentTimeMillis();
@@ -1162,24 +1162,6 @@ public class ValidatorConsensusPhases {
                         LOG.info("AnnouncePhase: This is not the valid leader for this round");
                         data.setStatusType(ConsensusStatusType.ABORT);
                         return;
-                    } else {
-                        this.sizeCalculator.setTransactionBlock(this.original_copy);
-                        bytesBlock = block_serialize.encode(this.original_copy, this.sizeCalculator.TransactionBlockSizeCalculator());
-                        String hash = HashUtil.sha256_bytetoString(bytesBlock);
-                        if (!hash.equals(data.getHash())) {
-                            cleanup();
-                            LOG.info("AnnouncePhase: Abort consensus phase BLS leader hash is invalid according to block");
-                            data.setStatusType(ConsensusStatusType.ABORT);
-                            return;
-                        }
-                        boolean verify = BLSSignature.verify(data.getChecksumData().getSignature(), bytesBlock, data.getChecksumData().getBlsPublicKey());
-                        if (!verify) {
-                            cleanup();
-                            LOG.info("AnnouncePhase: Abort consensus phase BLS leader signature is invalid during announce phase");
-                            data.setStatusType(ConsensusStatusType.ABORT);
-                            return;
-                        }
-
                     }
                 } catch (IllegalArgumentException | StringIndexOutOfBoundsException e) {
                     cleanup();
@@ -1214,30 +1196,48 @@ public class ValidatorConsensusPhases {
                 long CriticaltimeElapsed = Criticalfinish - Criticalstart;
                 System.out.println("CriticaltimeElapsed " + CriticaltimeElapsed);
             }
+
             if (this.original_copy.getStatustype().equals(StatusType.ABORT)) {
                 cleanup();
                 LOG.info("AnnouncePhase: Block is not valid marked as ABORT");
                 data.setStatusType(ConsensusStatusType.ABORT);
                 return;
             }
-            data.setStatusType(ConsensusStatusType.SUCCESS);
-            data.setData(null);
-
+            this.sizeCalculator.setTransactionBlock(this.original_copy);
+            bytesBlock = block_serialize.encode(this.original_copy, this.sizeCalculator.TransactionBlockSizeCalculator());
             if (bytesBlock == null) {
                 cleanup();
                 LOG.info("AnnouncePhase: failed  to receive correct bytes block: Abort");
                 data.setStatusType(ConsensusStatusType.ABORT);
                 return;
             }
+            String hash = HashUtil.sha256_bytetoString(bytesBlock);
+            if (!hash.equals(data.getHash())) {
+                cleanup();
+                LOG.info("AnnouncePhase: Abort consensus phase BLS leader hash is invalid according to block");
+                data.setStatusType(ConsensusStatusType.ABORT);
+                return;
+            }
+            boolean verify = BLSSignature.verify(data.getChecksumData().getSignature(), bytesBlock, data.getChecksumData().getBlsPublicKey());
+            if (!verify) {
+                cleanup();
+                LOG.info("AnnouncePhase: Abort consensus phase BLS leader signature is invalid during announce phase");
+                data.setStatusType(ConsensusStatusType.ABORT);
+                return;
+            }
 
-            BLSSignatureData BLSLeaderSignatureData = new BLSSignatureData(3);
+            data.setStatusType(ConsensusStatusType.SUCCESS);
+            data.setData(null);
+
+            BLSSignatureData BLSLeaderSignatureData = new BLSSignatureData(2);
             BLSLeaderSignatureData.getSignature()[0] = new Signature(data.getChecksumData().getSignature().getPoint());
             BLSLeaderSignatureData.getMessageHash()[0] = BLSSignature.GetMessageHashAsBase64String(bytesBlock);
-            this.original_copy.getLeaderSignatureData().put(CachedBLSKeyPair.getInstance().getPublicKey(), BLSLeaderSignatureData);
+            this.original_copy.getSignatureData().put(data.getChecksumData().getBlsPublicKey(), BLSLeaderSignatureData);
 
             this.sizeCalculator.setTransactionBlock(original_copy);
             byte[] message = block_serialize.encode(original_copy, this.sizeCalculator.TransactionBlockSizeCalculator());
-            Shake256Hash[0]=BLSSignature.GetMessageHashAsBase64String(message);
+            this.Shake256Hash[0] = BLSSignature.GetMessageHashAsBase64String(message);
+            this.prevAgreegation.add(0, message);
             Signature sig = BLSSignature.sign(message, CachedBLSKeyPair.getInstance().getPrivateKey());
             data.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
 
@@ -1289,38 +1289,22 @@ public class ValidatorConsensusPhases {
                         data = consensus_serialize.decode(receive);
                         if (data.getMessageType().equals(ConsensusMessageType.PREPARE))
                             break;
+                        if (!this.blockIndex.containsAll(data.getSignatures().keySet(), CachedLatestBlocks
+                                .getInstance()
+                                .getCommitteeBlock()
+                                .getStructureMap()
+                                .get(CachedZoneIndex.getInstance().getZoneIndex()).keySet())) {
+                            cleanup();
+                            LOG.info("PreparePhase: Abort Some Validators Public keys are not exist on Committee Block");
+                            data.setStatusType(ConsensusStatusType.ABORT);
+                            return;
+                        }
                     }
                     if (!data.getChecksumData().getBlsPublicKey().toRaw().equals(leader_bls.toRaw())) {
                         cleanup();
                         LOG.info("PreparePhase: This is not the valid leader for this round");
                         data.setStatusType(ConsensusStatusType.ABORT);
                         return;
-                    } else {
-                        //##############################################################
-                        //##############################################################
-                        String messageHashAsBase64String = Shake256Hash[0];
-                        for (Map.Entry<BLSPublicKey, BLSSignatureData> entry : data.getSignatures().entrySet()) {
-                            BLSSignatureData BLSSignatureData = new BLSSignatureData();
-                            BLSSignatureData.getSignature()[0] = new Signature(entry.getValue().getSignature()[0].getPoint());
-                            BLSSignatureData.getMessageHash()[0] = messageHashAsBase64String;
-                            this.original_copy.getSignatureData().put(entry.getKey(), BLSSignatureData);
-                        }
-                        this.sizeCalculator.setTransactionBlock(this.original_copy);
-                        bytesBlock = block_serialize.encode(this.original_copy, this.sizeCalculator.TransactionBlockSizeCalculator());
-                        String hash = HashUtil.sha256_bytetoString(bytesBlock);
-                        if (!hash.equals(data.getHash())) {
-                            cleanup();
-                            LOG.info("PreparePhase: Abort consensus phase BLS leader hash is invalid according to block");
-                            data.setStatusType(ConsensusStatusType.ABORT);
-                            return;
-                        }
-                        boolean verify = BLSSignature.verify(data.getChecksumData().getSignature(), bytesBlock, data.getChecksumData().getBlsPublicKey());
-                        if (!verify) {
-                            cleanup();
-                            LOG.info("PreparePhase: Abort consensus phase BLS leader signature is invalid during prepare phase");
-                            data.setStatusType(ConsensusStatusType.ABORT);
-                            return;
-                        }
                     }
                 } catch (IllegalArgumentException | StringIndexOutOfBoundsException e) {
                     cleanup();
@@ -1348,12 +1332,39 @@ public class ValidatorConsensusPhases {
                 return;
             }
 
+            //##############################################################
+            String messageHashAsBase64String = Shake256Hash[0];
+            for (Map.Entry<BLSPublicKey, BLSSignatureData> entry : data.getSignatures().entrySet()) {
+                BLSSignatureData BLSSignatureData = new BLSSignatureData();
+                BLSSignatureData.getSignature()[0] = new Signature(entry.getValue().getSignature()[0].getPoint());
+                BLSSignatureData.getMessageHash()[0] = messageHashAsBase64String;
+                this.original_copy.getSignatureData().put(entry.getKey(), BLSSignatureData);
+            }
+            //##############################################################
+
+            this.sizeCalculator.setTransactionBlock(this.original_copy);
+            bytesBlock = block_serialize.encode(this.original_copy, this.sizeCalculator.TransactionBlockSizeCalculator());
             if (bytesBlock == null) {
                 cleanup();
                 LOG.info("PreparePhase: failed  to receive correct bytes block: Abort");
                 data.setStatusType(ConsensusStatusType.ABORT);
                 return;
             }
+            String hash = HashUtil.sha256_bytetoString(bytesBlock);
+            if (!hash.equals(data.getHash())) {
+                cleanup();
+                LOG.info("PreparePhase: Abort consensus phase BLS leader hash is invalid according to block");
+                data.setStatusType(ConsensusStatusType.ABORT);
+                return;
+            }
+            boolean verifyLeader = BLSSignature.verify(data.getChecksumData().getSignature(), bytesBlock, data.getChecksumData().getBlsPublicKey());
+            if (!verifyLeader) {
+                cleanup();
+                LOG.info("PreparePhase: Abort consensus phase BLS leader signature is invalid during prepare phase");
+                data.setStatusType(ConsensusStatusType.ABORT);
+                return;
+            }
+            //##############################################################
 
             List<BLSPublicKey> publicKeys = new ArrayList<>(data.getSignatures().keySet());
             List<Signature> signature = data.getSignatures().values().stream().map(BLSSignatureData::getSignature).map(r -> r[0]).collect(Collectors.toList());
@@ -1361,7 +1372,7 @@ public class ValidatorConsensusPhases {
 
             Signature aggregatedSignature = BLSSignature.aggregate(signature);
 
-            Bytes toVerify = Bytes.wrap(bytesBlock);
+            Bytes toVerify = Bytes.wrap(prevAgreegation.get(0));
             boolean verify = BLSSignature.fastAggregateVerify(publicKeys, toVerify, aggregatedSignature);
             if (!verify) {
                 cleanup();
@@ -1371,11 +1382,10 @@ public class ValidatorConsensusPhases {
             }
 
 
-
-            BLSSignatureData BLSLeaderSignatureData = this.original_copy.getLeaderSignatureData().get(data.getChecksumData().getBlsPublicKey());
+            BLSSignatureData BLSLeaderSignatureData = this.original_copy.getSignatureData().get(data.getChecksumData().getBlsPublicKey());
             BLSLeaderSignatureData.getSignature()[1] = new Signature(data.getChecksumData().getSignature().getPoint());
             BLSLeaderSignatureData.getMessageHash()[1] = BLSSignature.GetMessageHashAsBase64String(bytesBlock);
-            this.original_copy.getLeaderSignatureData().put(data.getChecksumData().getBlsPublicKey(), BLSLeaderSignatureData);
+            this.original_copy.getSignatureData().put(data.getChecksumData().getBlsPublicKey(), BLSLeaderSignatureData);
 
             // data.clear();
             data.setStatusType(ConsensusStatusType.SUCCESS);
@@ -1384,7 +1394,8 @@ public class ValidatorConsensusPhases {
             this.sizeCalculator.setTransactionBlock(original_copy);
             byte[] message = block_serialize.encode(original_copy, this.sizeCalculator.TransactionBlockSizeCalculator());
             data.setHash(HashUtil.sha256_bytetoString(message));
-            Shake256Hash[1]=BLSSignature.GetMessageHashAsBase64String(message);
+            Shake256Hash[1] = BLSSignature.GetMessageHashAsBase64String(message);
+            this.prevAgreegation.add(1, message);
             Signature sig = BLSSignature.sign(message, CachedBLSKeyPair.getInstance().getPrivateKey());
             data.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
 
@@ -1436,6 +1447,17 @@ public class ValidatorConsensusPhases {
                         data = consensus_serialize.decode(receive);
                         if (data.getMessageType().equals(ConsensusMessageType.COMMIT))
                             break;
+
+                        if (!this.blockIndex.containsAll(data.getSignatures().keySet(), CachedLatestBlocks
+                                .getInstance()
+                                .getCommitteeBlock()
+                                .getStructureMap()
+                                .get(CachedZoneIndex.getInstance().getZoneIndex()).keySet())) {
+                            cleanup();
+                            LOG.info("CommitPhase: Abort Some Validators Public keys are not exist on Committee Block");
+                            data.setStatusType(ConsensusStatusType.ABORT);
+                            return;
+                        }
                     }
 
                     if (!data.getChecksumData().getBlsPublicKey().toRaw().equals(leader_bls.toRaw())) {
@@ -1443,30 +1465,6 @@ public class ValidatorConsensusPhases {
                         LOG.info("CommitPhase: This is not the valid leader for this round");
                         data.setStatusType(ConsensusStatusType.ABORT);
                         return;
-                    } else {
-                        String messageHashAsBase64String = Shake256Hash[1];
-                        for (Map.Entry<BLSPublicKey, BLSSignatureData> entry : data.getSignatures().entrySet()) {
-                            BLSSignatureData BLSSignatureData = new BLSSignatureData();
-                            BLSSignatureData.getSignature()[1] = new Signature(entry.getValue().getSignature()[1].getPoint());
-                            BLSSignatureData.getMessageHash()[1] = messageHashAsBase64String;
-                            this.original_copy.getSignatureData().put(entry.getKey(), BLSSignatureData);
-                        }
-                        this.sizeCalculator.setTransactionBlock(this.original_copy);
-                        bytesBlock = block_serialize.encode(this.original_copy, this.sizeCalculator.TransactionBlockSizeCalculator());
-                        String hash = HashUtil.sha256_bytetoString(bytesBlock);
-                        if (!hash.equals(data.getHash())) {
-                            cleanup();
-                            LOG.info("PreparePhase: Abort consensus phase BLS leader hash is invalid according to block");
-                            data.setStatusType(ConsensusStatusType.ABORT);
-                            return;
-                        }
-                        boolean verify = BLSSignature.verify(data.getChecksumData().getSignature(), bytesBlock, data.getChecksumData().getBlsPublicKey());
-                        if (!verify) {
-                            cleanup();
-                            LOG.info("CommitPhase: Abort consensus phase BLS leader signature is invalid during commit phase");
-                            data.setStatusType(ConsensusStatusType.ABORT);
-                            return;
-                        }
                     }
                 } catch (IllegalArgumentException | StringIndexOutOfBoundsException e) {
                     cleanup();
@@ -1493,9 +1491,32 @@ public class ValidatorConsensusPhases {
                 return;
             }
 
+            String messageHashAsBase64String = Shake256Hash[1];
+            for (Map.Entry<BLSPublicKey, BLSSignatureData> entry : data.getSignatures().entrySet()) {
+                BLSSignatureData BLSSignatureData = new BLSSignatureData();
+                BLSSignatureData.getSignature()[1] = new Signature(entry.getValue().getSignature()[1].getPoint());
+                BLSSignatureData.getMessageHash()[1] = messageHashAsBase64String;
+                this.original_copy.getSignatureData().put(entry.getKey(), BLSSignatureData);
+            }
+            this.sizeCalculator.setTransactionBlock(this.original_copy);
+            bytesBlock = block_serialize.encode(this.original_copy, this.sizeCalculator.TransactionBlockSizeCalculator());
             if (bytesBlock == null) {
                 cleanup();
                 LOG.info("CommitPhase: failed  to receive correct bytes block: Abort");
+                data.setStatusType(ConsensusStatusType.ABORT);
+                return;
+            }
+            String hash = HashUtil.sha256_bytetoString(bytesBlock);
+            if (!hash.equals(data.getHash())) {
+                cleanup();
+                LOG.info("CommitPhase: Abort consensus phase BLS leader hash is invalid according to block");
+                data.setStatusType(ConsensusStatusType.ABORT);
+                return;
+            }
+            boolean verifyLeader = BLSSignature.verify(data.getChecksumData().getSignature(), bytesBlock, data.getChecksumData().getBlsPublicKey());
+            if (!verifyLeader) {
+                cleanup();
+                LOG.info("CommitPhase: Abort consensus phase BLS leader signature is invalid during commit phase");
                 data.setStatusType(ConsensusStatusType.ABORT);
                 return;
             }
@@ -1506,7 +1527,7 @@ public class ValidatorConsensusPhases {
 
             Signature aggregatedSignature = BLSSignature.aggregate(signature);
 
-            Bytes toVerify = Bytes.wrap(bytesBlock);
+            Bytes toVerify = Bytes.wrap(prevAgreegation.get(1));
             boolean verify = BLSSignature.fastAggregateVerify(publicKeys, toVerify, aggregatedSignature);
             if (!verify) {
                 cleanup();
@@ -1519,11 +1540,6 @@ public class ValidatorConsensusPhases {
             if (DEBUG)
                 return;
 
-
-            BLSSignatureData BLSLeaderSignatureData = this.original_copy.getLeaderSignatureData().get(CachedBLSKeyPair.getInstance().getPublicKey());
-            BLSLeaderSignatureData.getSignature()[2] = new Signature(data.getChecksumData().getSignature().getPoint());
-            BLSLeaderSignatureData.getMessageHash()[2] = BLSSignature.GetMessageHashAsBase64String(bytesBlock);
-            this.original_copy.getLeaderSignatureData().put(CachedBLSKeyPair.getInstance().getPublicKey(), BLSLeaderSignatureData);
 
             //##############################################################
            /* if (current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).size() - 1)

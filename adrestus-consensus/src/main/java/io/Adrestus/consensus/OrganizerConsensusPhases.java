@@ -258,8 +258,6 @@ public class OrganizerConsensusPhases {
             long Announceestartb = System.currentTimeMillis();
             data.setData(null);
             data.setMessageType(ConsensusMessageType.ANNOUNCE);
-            if (DEBUG)
-                return;
 
             this.sizeCalculator.setTransactionBlock(original_copy);
             byte[] message = block_serialize.encode(original_copy, this.sizeCalculator.TransactionBlockSizeCalculator());
@@ -268,10 +266,13 @@ public class OrganizerConsensusPhases {
             data.getChecksumData().setBlsPublicKey(CachedBLSKeyPair.getInstance().getPublicKey());
             data.getChecksumData().setSignature(sig);
 
-            BLSSignatureData BLSLeaderSignatureData = new BLSSignatureData(3);
+            BLSSignatureData BLSLeaderSignatureData = new BLSSignatureData(2);
             BLSLeaderSignatureData.getSignature()[0] = sig;
             BLSLeaderSignatureData.getMessageHash()[0] = BLSSignature.GetMessageHashAsBase64String(message);
-            this.original_copy.getLeaderSignatureData().put(CachedBLSKeyPair.getInstance().getPublicKey(), BLSLeaderSignatureData);
+            this.original_copy.getSignatureData().put(CachedBLSKeyPair.getInstance().getPublicKey(), BLSLeaderSignatureData);
+
+            if (DEBUG)
+                return;
 
             //data.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
             byte[] toSend = consensus_serialize.encode(data);
@@ -353,8 +354,6 @@ public class OrganizerConsensusPhases {
             }
 
 
-            if (DEBUG)
-                return;
 
 
             //##############################################################
@@ -373,10 +372,13 @@ public class OrganizerConsensusPhases {
             data.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
 
 
-            BLSSignatureData BLSLeaderSignatureData = this.original_copy.getLeaderSignatureData().get(CachedBLSKeyPair.getInstance().getPublicKey());
+            BLSSignatureData BLSLeaderSignatureData = this.original_copy.getSignatureData().get(CachedBLSKeyPair.getInstance().getPublicKey());
             BLSLeaderSignatureData.getSignature()[1] = sig;
             BLSLeaderSignatureData.getMessageHash()[1] = BLSSignature.GetMessageHashAsBase64String(toSign);
-            this.original_copy.getLeaderSignatureData().put(CachedBLSKeyPair.getInstance().getPublicKey(), BLSLeaderSignatureData);
+            this.original_copy.getSignatureData().put(CachedBLSKeyPair.getInstance().getPublicKey(), BLSLeaderSignatureData);
+
+            if (DEBUG)
+                return;
 
             this.N_COPY = (this.N - 1) - ConsensusServer.getInstance().getPeers_not_connected();
 
@@ -459,9 +461,6 @@ public class OrganizerConsensusPhases {
             }
 
 
-            //commit save to db
-            if (DEBUG)
-                return;
 
             //##############################################################
             String messageHashAsBase64String = BLSSignature.GetMessageHashAsBase64String(message.toArray());
@@ -479,10 +478,9 @@ public class OrganizerConsensusPhases {
             Signature sig = BLSSignature.sign(toSign, CachedBLSKeyPair.getInstance().getPrivateKey());
             data.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
 
-            BLSSignatureData BLSLeaderSignatureData = this.original_copy.getLeaderSignatureData().get(CachedBLSKeyPair.getInstance().getPublicKey());
-            BLSLeaderSignatureData.getSignature()[2] = sig;
-            BLSLeaderSignatureData.getMessageHash()[2] = BLSSignature.GetMessageHashAsBase64String(toSign);
-            this.original_copy.getLeaderSignatureData().put(CachedBLSKeyPair.getInstance().getPublicKey(), BLSLeaderSignatureData);
+            //commit save to db
+            if (DEBUG)
+                return;
 
             this.N_COPY = (this.N - 1) - ConsensusServer.getInstance().getPeers_not_connected();
             int i = this.N_COPY;
