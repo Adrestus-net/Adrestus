@@ -16,6 +16,7 @@ import io.Adrestus.crypto.bls.mapper.ECPmapper;
 import io.Adrestus.crypto.bls.model.BLSPrivateKey;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.Adrestus.crypto.bls.model.BLSSignature;
+import io.Adrestus.crypto.bls.model.Signature;
 import io.Adrestus.crypto.elliptic.ECDSASign;
 import io.Adrestus.crypto.elliptic.ECDSASignatureData;
 import io.Adrestus.crypto.elliptic.ECKeyPair;
@@ -280,8 +281,8 @@ public class SerializableBlockTest {
         String hash1=HashUtil.sha256_bytetoString(data);
 
         HashMap<BLSPublicKey, BLSSignatureData> hashMap1 = new HashMap<BLSPublicKey, BLSSignatureData>();
-        BLSSignatureData blsSignatureData1a = new BLSSignatureData();
-        blsSignatureData1a.getSignature()[0]= BLSSignature.sign("0".getBytes(StandardCharsets.UTF_8), sk1);
+        BLSSignatureData blsSignatureData1a = new BLSSignatureData(2);
+        blsSignatureData1a.getSignature()[0]= new Signature(blsSignatureData1.getSignature()[0].getPoint());
         blsSignatureData1a.getSignature()[1]= BLSSignature.sign("1".getBytes(StandardCharsets.UTF_8), sk1);
         blsSignatureData1a.getMessageHash()[0] = "0";
         blsSignatureData1a.getMessageHash()[1] = "1";
@@ -308,13 +309,23 @@ public class SerializableBlockTest {
         TransactionBlock blocka = new TransactionBlock();
         blocka.setHash("1");
         blocka.setHeight(1);
-        blocka.AddAllSignatureData(hashMap1);
+        blocka.getSignatureData().put(vk1, blsSignatureData1a);
+        blocka.getSignatureData().put(vk2, blsSignatureData2a);
+        blocka.getSignatureData().put(vk3, blsSignatureData3a);
+        blocka.getSignatureData().put(vk4, blsSignatureData4a);
 
         assertEquals(block,blocka);
         BlockSizeCalculator blockSizeCalculatora = new BlockSizeCalculator();
         blockSizeCalculatora.setTransactionBlock(blocka);
         byte [] dataa= serenc.encode(blocka, blockSizeCalculatora.TransactionBlockSizeCalculator());
+        TransactionBlock cloned = (TransactionBlock) serenc.decode(dataa);
+        assertEquals(block,cloned);
+        assertEquals(blocka,cloned);
         String hash2=HashUtil.sha256_bytetoString(dataa);
         assertEquals(hash1, hash2);
+        blockSizeCalculatora.setTransactionBlock(cloned);
+        byte [] dataa2= serenc.encode(cloned, blockSizeCalculatora.TransactionBlockSizeCalculator());
+        String hash3=HashUtil.sha256_bytetoString(dataa2);
+        assertEquals(hash2, hash3);
     }
 }

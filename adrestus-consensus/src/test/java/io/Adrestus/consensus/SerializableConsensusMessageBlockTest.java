@@ -12,12 +12,8 @@ import io.Adrestus.crypto.bls.model.BLSPrivateKey;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.Adrestus.crypto.bls.model.BLSSignature;
 import io.Adrestus.crypto.bls.model.Signature;
-import io.Adrestus.crypto.elliptic.ECDSASign;
-import io.Adrestus.crypto.elliptic.ECDSASignatureData;
-import io.Adrestus.crypto.elliptic.ECKeyPair;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.crypto.elliptic.mapper.CustomSerializerTreeMap;
-import io.Adrestus.p2p.kademlia.repository.KademliaData;
 import io.Adrestus.util.SerializationUtil;
 import io.distributedLedger.DatabaseFactory;
 import io.distributedLedger.DatabaseType;
@@ -31,13 +27,12 @@ import java.lang.reflect.Type;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.TreeMap;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class SerializableBlockTest {
+public class SerializableConsensusMessageBlockTest {
     private static final Type fluentType = new TypeToken<ConsensusMessage<TransactionBlock>>() {
     }.getType();
 
@@ -158,8 +153,14 @@ public class SerializableBlockTest {
         block.setHeight(1);
         block.setSignatureData(signatureData);
         ConsensusMessage<TransactionBlock> consensusMessage = new ConsensusMessage<>(block);
+        ConsensusMessage<TransactionBlock> consensusMessage2 = new ConsensusMessage<>(block);
+        BLSPrivateKey sk1a = new BLSPrivateKey(1);
+        BLSPublicKey vk1a = new BLSPublicKey(sk1a);
+        consensusMessage2.getChecksumData().setBlsPublicKey(vk1a);
+        consensusMessage2.getChecksumData().setSignature(BLSSignature.sign("toSign".getBytes(StandardCharsets.UTF_8), sk1));
         consensusMessage.getChecksumData().setBlsPublicKey(vk1);
         consensusMessage.getChecksumData().setSignature(BLSSignature.sign("toSign".getBytes(StandardCharsets.UTF_8), sk1));
+        assertEquals(consensusMessage, consensusMessage2);
         byte[] hash=consensus_serialize.encode(consensusMessage);
         ConsensusMessage<TransactionBlock> replica=this.consensus_serialize.decode(hash);
         assertEquals(consensusMessage, replica);

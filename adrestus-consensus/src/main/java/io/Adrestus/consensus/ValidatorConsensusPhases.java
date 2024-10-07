@@ -187,7 +187,7 @@ public class ValidatorConsensusPhases {
             //CachedSecurityHeaders.getInstance().getSecurityHeader().setRnd(data.getData().getVDFSolution());
             data.setStatusType(ConsensusStatusType.SUCCESS);
             Signature sig = BLSSignature.sign(data.getData().getVDFSolution(), CachedBLSKeyPair.getInstance().getPrivateKey());
-            data.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
+            data.setChecksumData(new ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
 
             if (DEBUG)
                 return;
@@ -298,7 +298,7 @@ public class ValidatorConsensusPhases {
 
             byte[] message = data_serialize.encode(data.getData());
             Signature sig = BLSSignature.sign(message, CachedBLSKeyPair.getInstance().getPrivateKey());
-            data.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
+            data.setChecksumData(new ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
 
             if (DEBUG)
                 return;
@@ -685,7 +685,7 @@ public class ValidatorConsensusPhases {
             }
             byte[] message = serialize.encode(data.getData());
             Signature sig = BLSSignature.sign(message, CachedBLSKeyPair.getInstance().getPrivateKey());
-            data.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
+            data.setChecksumData(new ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
 
             data.setStatusType(ConsensusStatusType.SUCCESS);
             if (DEBUG)
@@ -793,7 +793,7 @@ public class ValidatorConsensusPhases {
 
             byte[] message = serialize.encode(data.getData());
             Signature sig = BLSSignature.sign(message, CachedBLSKeyPair.getInstance().getPrivateKey());
-            data.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
+            data.setChecksumData(new ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
 
 
             if (DEBUG)
@@ -1239,7 +1239,7 @@ public class ValidatorConsensusPhases {
             this.Shake256Hash[0] = BLSSignature.GetMessageHashAsBase64String(message);
             this.prevAgreegation.add(0, message);
             Signature sig = BLSSignature.sign(message, CachedBLSKeyPair.getInstance().getPrivateKey());
-            data.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
+            data.setChecksumData(new ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
 
             if (DEBUG)
                 return;
@@ -1397,7 +1397,7 @@ public class ValidatorConsensusPhases {
             Shake256Hash[1] = BLSSignature.GetMessageHashAsBase64String(message);
             this.prevAgreegation.add(1, message);
             Signature sig = BLSSignature.sign(message, CachedBLSKeyPair.getInstance().getPrivateKey());
-            data.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
+            data.setChecksumData(new ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
 
             if (DEBUG)
                 return;
@@ -1706,7 +1706,7 @@ public class ValidatorConsensusPhases {
             block.setStatusType(ConsensusStatusType.SUCCESS);
             this.sizeCalculator.setCommitteeBlock(block.getData());
             Signature sig = BLSSignature.sign(block_serialize.encode(block.getData(), this.sizeCalculator.CommitteeBlockSizeCalculator()), CachedBLSKeyPair.getInstance().getPrivateKey());
-            block.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
+            block.setChecksumData(new ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
 
             if (DEBUG)
                 return;
@@ -1811,7 +1811,7 @@ public class ValidatorConsensusPhases {
 
             this.sizeCalculator.setCommitteeBlock(block.getData());
             Signature sig = BLSSignature.sign(block_serialize.encode(block.getData(), this.sizeCalculator.CommitteeBlockSizeCalculator()), CachedBLSKeyPair.getInstance().getPrivateKey());
-            block.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
+            block.setChecksumData(new ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
 
             if (DEBUG)
                 return;

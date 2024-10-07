@@ -183,7 +183,7 @@ public class SupervisorConsensusPhases {
 
 
             Signature sig = BLSSignature.sign(data_serialize.encode(data.getData()), CachedBLSKeyPair.getInstance().getPrivateKey());
-            data.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
+            data.setChecksumData(new ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
 
             this.N_COPY = (this.N - 1) - ConsensusServer.getInstance().getPeers_not_connected();
 
@@ -256,7 +256,7 @@ public class SupervisorConsensusPhases {
             if (DEBUG) return;
 
             Signature sig = BLSSignature.sign(data_serialize.encode(data.getData()), CachedBLSKeyPair.getInstance().getPrivateKey());
-            data.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
+            data.setChecksumData(new ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
 
             this.N_COPY = (this.N - 1) - ConsensusServer.getInstance().getPeers_not_connected();
             int i = N_COPY;
@@ -504,7 +504,7 @@ public class SupervisorConsensusPhases {
 
 
             Signature sig = BLSSignature.sign(serialize.encode(data.getData()), CachedBLSKeyPair.getInstance().getPrivateKey());
-            data.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
+            data.setChecksumData(new ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
 
             this.N_COPY = (this.N - 1) - ConsensusServer.getInstance().getPeers_not_connected();
 
@@ -577,7 +577,7 @@ public class SupervisorConsensusPhases {
             if (DEBUG) return;
 
             Signature sig = BLSSignature.sign(serialize.encode(data.getData()), CachedBLSKeyPair.getInstance().getPrivateKey());
-            data.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
+            data.setChecksumData(new ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
 
             this.N_COPY = (this.N - 1) - ConsensusServer.getInstance().getPeers_not_connected();
             int i = N_COPY;
@@ -736,7 +736,7 @@ public class SupervisorConsensusPhases {
 
             this.sizeCalculator.setCommitteeBlock(block.getData());
             Signature sig = BLSSignature.sign(block_serialize.encode(block.getData(), this.sizeCalculator.CommitteeBlockSizeCalculator()), CachedBLSKeyPair.getInstance().getPrivateKey());
-            block.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
+            block.setChecksumData(new ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
 
             this.N_COPY = (this.N - 1) - ConsensusServer.getInstance().getPeers_not_connected();
 
@@ -812,7 +812,7 @@ public class SupervisorConsensusPhases {
 
             this.sizeCalculator.setCommitteeBlock(block.getData());
             Signature sig = BLSSignature.sign(block_serialize.encode(block.getData(), this.sizeCalculator.CommitteeBlockSizeCalculator()), CachedBLSKeyPair.getInstance().getPrivateKey());
-            block.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
+            block.setChecksumData(new ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
 
             this.N_COPY = (this.N - 1) - ConsensusServer.getInstance().getPeers_not_connected();
             int i = N_COPY;

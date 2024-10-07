@@ -80,7 +80,7 @@ public class SerializeBLSTest {
         vrfMessage.setType(VRFMessage.vrfMessageType.INIT);
         ConsensusMessage<VRFMessage> consensusMessage = new ConsensusMessage<>(vrfMessage);
         consensusMessage.setMessageType(ConsensusMessageType.COMMIT);
-        ConsensusMessage.ChecksumData checksumData = new ConsensusMessage.ChecksumData();
+        ChecksumData checksumData = new ChecksumData();
         checksumData.setSignature(bls_sig);
         checksumData.setBlsPublicKey(vk);
         consensusMessage.setChecksumData(checksumData);

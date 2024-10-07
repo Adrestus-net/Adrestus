@@ -7,6 +7,7 @@ import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.Adrestus.crypto.bls.model.Signature;
 import io.activej.serializer.annotations.Deserialize;
 import io.activej.serializer.annotations.Serialize;
+import io.activej.serializer.annotations.SerializeNullable;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -18,7 +19,7 @@ public class ConsensusMessage<T> implements Serializable {
     private T data;
     private String hash;
     private ChecksumData checksumData;
-    private Map<BLSPublicKey, BLSSignatureData> signatures;
+    private TreeMap<BLSPublicKey, BLSSignatureData> signatures;
 
     public ConsensusMessage(@Deserialize("data") T data) {
         this.signatures = new TreeMap<BLSPublicKey, BLSSignatureData>(new SortSignatureMapByBlsPublicKey());
@@ -29,6 +30,7 @@ public class ConsensusMessage<T> implements Serializable {
         this.hash = "";
     }
 
+    @SerializeNullable
     @Serialize
     public T getData() {
         return data;
@@ -47,18 +49,20 @@ public class ConsensusMessage<T> implements Serializable {
         this.checksumData = checksumData;
     }
 
-    @Serialize
-    public Map<BLSPublicKey, BLSSignatureData> getSignatures() {
-        return signatures;
-    }
-
-    public void setSignatures(Map<BLSPublicKey, BLSSignatureData> signatures) {
-        this.signatures = signatures;
-    }
 
     @Serialize
     public ConsensusMessageType getMessageType() {
         return messageType;
+    }
+
+
+    @Serialize
+    public TreeMap<BLSPublicKey, BLSSignatureData> getSignatures() {
+        return signatures;
+    }
+
+    public void setSignatures(TreeMap<BLSPublicKey, BLSSignatureData> signatures) {
+        this.signatures = signatures;
     }
 
     public void setMessageType(ConsensusMessageType messageType) {
@@ -98,7 +102,7 @@ public class ConsensusMessage<T> implements Serializable {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(messageType, statusType, data, checksumData, signatures,hash);
+        return java.util.Objects.hash(messageType, statusType, data, hash, checksumData, signatures);
     }
 
     @Override
@@ -111,65 +115,6 @@ public class ConsensusMessage<T> implements Serializable {
                 ", checksumData=" + checksumData +
                 ", signatures=" + signatures +
                 '}';
-    }
-
-    public static class ChecksumData implements Serializable, Cloneable {
-        private Signature signature;
-        private BLSPublicKey blsPublicKey;
-
-        public ChecksumData(@Deserialize("signature") Signature signature, @Deserialize("blsPublicKey") BLSPublicKey blsPublicKey) {
-            this.signature = signature;
-            this.blsPublicKey = blsPublicKey;
-        }
-
-        public ChecksumData() {
-            this.signature = new Signature();
-            this.blsPublicKey = new BLSPublicKey();
-        }
-
-        @Serialize
-        public Signature getSignature() {
-            return signature;
-        }
-
-        public void setSignature(Signature signature) {
-            this.signature = signature;
-        }
-
-        @Serialize
-        public BLSPublicKey getBlsPublicKey() {
-            return blsPublicKey;
-        }
-
-        public void setBlsPublicKey(BLSPublicKey blsPublicKey) {
-            this.blsPublicKey = blsPublicKey;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            ChecksumData that = (ChecksumData) o;
-            return Objects.equal(signature, that.signature) && Objects.equal(blsPublicKey, that.blsPublicKey);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hashCode(signature, blsPublicKey);
-        }
-
-        @Override
-        protected Object clone() throws CloneNotSupportedException {
-            return super.clone();
-        }
-
-        @Override
-        public String toString() {
-            return "ChecksumData{" +
-                    "signature=" + signature.getPoint().getValue().toString() +
-                    ", blsPublicKey=" + blsPublicKey.toString() +
-                    '}';
-        }
     }
 
 }

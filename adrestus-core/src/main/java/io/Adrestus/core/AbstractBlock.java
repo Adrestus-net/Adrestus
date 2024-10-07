@@ -190,36 +190,13 @@ public abstract class AbstractBlock extends Object implements BlockFactory, Disr
         LeaderPublicKey = leaderPublicKey;
     }
 
-    public static boolean TreeMapEquals(TreeMap<BLSPublicKey, BLSSignatureData> left, TreeMap<BLSPublicKey, BLSSignatureData> right) {
-        if (left.size() != right.size())
-            return false;
-        List<BLSPublicKey> key_list1 = new ArrayList<>(left.keySet());
-        List<BLSPublicKey> key_list2 = new ArrayList<>(left.keySet());
-        List<BLSSignatureData> val_list1 = new ArrayList<>(left.values());
-        List<BLSSignatureData> val_list2 = new ArrayList<>(right.values());
-        boolean key = true;
-        for (int i = 0; i < key_list1.size(); i++) {
-            key = key_list1.get(i).equals(key_list2.get(i));
-            if (!key)
-                break;
-        }
-        boolean val = true;
-        for (int i = 0; i < val_list1.size(); i++) {
-            val = val_list1.get(i).equals(val_list2.get(i));
-            if (!val)
-                break;
-        }
-        boolean isEqual =  Objects.equals(key, val);
-        return isEqual;
-    }
 
-    //NEVER DELETE THIS FUNCTION ELSE BLOCK HASH EVENT HANDLER WILL HAVE PROBLEM IS EQUALS FUNCTIONALITY
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         AbstractBlock block = (AbstractBlock) o;
-        return Size == block.Size && Height == block.Height && Generation == block.Generation && ViewID == block.ViewID && Objects.equals(header, block.header) && Statustype == block.Statustype && Objects.equals(Hash, block.Hash) && Objects.equals(BlockProposer, block.BlockProposer) && Objects.equals(LeaderPublicKey, block.LeaderPublicKey) &&  TreeMapEquals(signatureData, block.signatureData);
+        return Size == block.Size && Height == block.Height && Generation == block.Generation && ViewID == block.ViewID && Objects.equals(header, block.header) && Statustype == block.Statustype && Objects.equals(Hash, block.Hash) && Objects.equals(BlockProposer, block.BlockProposer) && Objects.equals(LeaderPublicKey, block.LeaderPublicKey) &&  Objects.equals(signatureData, block.signatureData);
     }
 
     @Override

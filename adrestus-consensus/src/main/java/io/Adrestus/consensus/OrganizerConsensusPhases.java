@@ -369,7 +369,7 @@ public class OrganizerConsensusPhases {
             byte[] toSign = block_serialize.encode(this.original_copy, this.sizeCalculator.TransactionBlockSizeCalculator());
             data.setHash(HashUtil.sha256_bytetoString(toSign));
             Signature sig = BLSSignature.sign(toSign, CachedBLSKeyPair.getInstance().getPrivateKey());
-            data.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
+            data.setChecksumData(new ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
 
 
             BLSSignatureData BLSLeaderSignatureData = this.original_copy.getSignatureData().get(CachedBLSKeyPair.getInstance().getPublicKey());
@@ -476,7 +476,7 @@ public class OrganizerConsensusPhases {
             byte[] toSign = block_serialize.encode(this.original_copy, this.sizeCalculator.TransactionBlockSizeCalculator());
             data.setHash(HashUtil.sha256_bytetoString(toSign));
             Signature sig = BLSSignature.sign(toSign, CachedBLSKeyPair.getInstance().getPrivateKey());
-            data.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
+            data.setChecksumData(new ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
 
             //commit save to db
             if (DEBUG)

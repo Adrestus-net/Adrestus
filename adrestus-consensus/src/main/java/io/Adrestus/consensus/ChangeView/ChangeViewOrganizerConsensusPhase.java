@@ -1,5 +1,6 @@
 package io.Adrestus.consensus.ChangeView;
 
+import io.Adrestus.consensus.ChecksumData;
 import io.Adrestus.consensus.ConsensusMessage;
 import io.Adrestus.consensus.ConsensusMessageType;
 import io.Adrestus.consensus.ConsensusStatusType;
@@ -116,7 +117,7 @@ public class ChangeViewOrganizerConsensusPhase extends ChangeViewConsensusPhase 
                 return;
 
             Signature sig = BLSSignature.sign(change_view_ser.encode(data.getData()), CachedBLSKeyPair.getInstance().getPrivateKey());
-            data.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
+            data.setChecksumData(new ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
 
             this.N_COPY = (this.N - 1) - ConsensusServer.getInstance().getPeers_not_connected();
 
