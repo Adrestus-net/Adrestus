@@ -1,7 +1,9 @@
 package io.Adrestus.crypto.bls.model;
 
+import io.Adrestus.crypto.bls.BLS381.ECP2;
 import io.activej.serializer.annotations.Deserialize;
 import io.activej.serializer.annotations.Serialize;
+import org.spongycastle.util.encoders.Hex;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -46,6 +48,18 @@ public class Signature implements Cloneable, Serializable {
         return new Signature(point);
     }
 
+    public byte[] toBytes() {
+        return point.tobytes();
+    }
+
+    public String toRaw() {
+        return Hex.toHexString(toBytes());
+    }
+
+    public static Signature fromByte(byte[] buf) {
+        return new Signature(new G2Point(ECP2.fromBytes(buf)));
+    }
+
     @Serialize
     public Supplier<G2Point> getSupplier_point() {
         return supplier_point;
@@ -64,7 +78,7 @@ public class Signature implements Cloneable, Serializable {
     }
 
     @Override
-    protected Signature clone() {
+    public Signature clone() {
         return new Signature(new G2Point(point));
     }
 

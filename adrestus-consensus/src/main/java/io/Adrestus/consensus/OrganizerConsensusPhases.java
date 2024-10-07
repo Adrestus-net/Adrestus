@@ -15,10 +15,7 @@ import io.Adrestus.crypto.bls.BLS381.ECP2;
 import io.Adrestus.crypto.bls.BLSSignatureData;
 import io.Adrestus.crypto.bls.mapper.ECP2mapper;
 import io.Adrestus.crypto.bls.mapper.ECPmapper;
-import io.Adrestus.crypto.bls.model.BLSPublicKey;
-import io.Adrestus.crypto.bls.model.BLSSignature;
-import io.Adrestus.crypto.bls.model.CachedBLSKeyPair;
-import io.Adrestus.crypto.bls.model.Signature;
+import io.Adrestus.crypto.bls.model.*;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.crypto.elliptic.mapper.CustomSerializerTreeMap;
 import io.Adrestus.erasure.code.ArrayDataEncoder;
@@ -267,9 +264,9 @@ public class OrganizerConsensusPhases {
             data.getChecksumData().setSignature(sig);
 
             BLSSignatureData BLSLeaderSignatureData = new BLSSignatureData(2);
-            BLSLeaderSignatureData.getSignature()[0] = sig;
+            BLSLeaderSignatureData.getSignature()[0] = Signature.fromByte(sig.toBytes());
             BLSLeaderSignatureData.getMessageHash()[0] = BLSSignature.GetMessageHashAsBase64String(message);
-            this.original_copy.getSignatureData().put(CachedBLSKeyPair.getInstance().getPublicKey(), BLSLeaderSignatureData);
+            this.original_copy.getSignatureData().put(BLSPublicKey.fromByte(CachedBLSKeyPair.getInstance().getPublicKey().toBytes()), BLSLeaderSignatureData);
 
             if (DEBUG)
                 return;
@@ -344,6 +341,7 @@ public class OrganizerConsensusPhases {
 
             this.sizeCalculator.setTransactionBlock(original_copy);
             byte[] toVerify = block_serialize.encode(original_copy, this.sizeCalculator.TransactionBlockSizeCalculator());
+            System.out.println("---> "+HashUtil.sha256_bytetoString(toVerify));
             Bytes message = Bytes.wrap(toVerify);
             boolean verify = BLSSignature.fastAggregateVerify(publicKeys, message, aggregatedSignature);
             if (!verify) {
@@ -360,8 +358,9 @@ public class OrganizerConsensusPhases {
             String messageHashAsBase64String = BLSSignature.GetMessageHashAsBase64String(message.toArray());
             for (Map.Entry<BLSPublicKey, BLSSignatureData> entry : data.getSignatures().entrySet()) {
                 BLSSignatureData BLSSignatureData = entry.getValue();
+                BLSSignatureData.getSignature()[0]=Signature.fromByte(entry.getValue().getSignature()[0].toBytes());
                 BLSSignatureData.getMessageHash()[0] = messageHashAsBase64String;
-                this.original_copy.getSignatureData().put(entry.getKey(), BLSSignatureData);
+                this.original_copy.getSignatureData().put(BLSPublicKey.fromByte(entry.getKey().toBytes()), BLSSignatureData);
             }
             //##############################################################
 
@@ -373,9 +372,9 @@ public class OrganizerConsensusPhases {
 
 
             BLSSignatureData BLSLeaderSignatureData = this.original_copy.getSignatureData().get(CachedBLSKeyPair.getInstance().getPublicKey());
-            BLSLeaderSignatureData.getSignature()[1] = sig;
-            BLSLeaderSignatureData.getMessageHash()[1] = BLSSignature.GetMessageHashAsBase64String(toSign);
-            this.original_copy.getSignatureData().put(CachedBLSKeyPair.getInstance().getPublicKey(), BLSLeaderSignatureData);
+            BLSLeaderSignatureData.getSignature()[0] = Signature.fromByte(sig.toBytes());
+            BLSLeaderSignatureData.getMessageHash()[0] = BLSSignature.GetMessageHashAsBase64String(toSign);
+            this.original_copy.getSignatureData().put(BLSPublicKey.fromByte(CachedBLSKeyPair.getInstance().getPublicKey().toBytes()), BLSLeaderSignatureData);
 
             if (DEBUG)
                 return;
@@ -466,8 +465,9 @@ public class OrganizerConsensusPhases {
             String messageHashAsBase64String = BLSSignature.GetMessageHashAsBase64String(message.toArray());
             for (Map.Entry<BLSPublicKey, BLSSignatureData> entry : data.getSignatures().entrySet()) {
                 BLSSignatureData BLSSignatureData = entry.getValue();
+                BLSSignatureData.getSignature()[1]=Signature.fromByte(entry.getValue().getSignature()[1].toBytes());
                 BLSSignatureData.getMessageHash()[1] = messageHashAsBase64String;
-                this.original_copy.getSignatureData().put(entry.getKey(), BLSSignatureData);
+                this.original_copy.getSignatureData().put(BLSPublicKey.fromByte(entry.getKey().toBytes()), BLSSignatureData);
             }
             //##############################################################
 

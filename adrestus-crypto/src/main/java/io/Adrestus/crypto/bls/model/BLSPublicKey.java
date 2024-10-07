@@ -87,7 +87,7 @@ public class BLSPublicKey implements Cloneable, Serializable {
     }
 
     @Override
-    protected BLSPublicKey clone() {
+    public BLSPublicKey clone() {
         return new BLSPublicKey(new G1Point(point));
     }
 
