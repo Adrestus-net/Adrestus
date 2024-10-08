@@ -8,6 +8,7 @@ import io.Adrestus.core.RingBuffer.event.TransactionEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigDecimal;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
@@ -33,7 +34,7 @@ public class AmountEventHandler extends TransactionEventHandler implements Trans
 
         } catch (NoSuchElementException ex) {
             LOG.info("State trie is empty we add getTo address");
-            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(regularTransaction.getTo(), new PatriciaTreeNode(0, 0));
+            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(regularTransaction.getTo(), new PatriciaTreeNode(BigDecimal.ZERO, 0));
         } catch (NullPointerException ex) {
             Optional.of("RegularTransaction To is empty").ifPresent(val -> {
                 LOG.info(val);
@@ -49,7 +50,7 @@ public class AmountEventHandler extends TransactionEventHandler implements Trans
 
         } catch (NoSuchElementException ex) {
             LOG.info("State trie is empty we add getFrom address");
-            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(regularTransaction.getFrom(), new PatriciaTreeNode(0, 0));
+            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(regularTransaction.getFrom(), new PatriciaTreeNode(BigDecimal.ZERO, 0));
             patriciaTreeNode = TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(regularTransaction.getFrom()).get();
         } catch (NullPointerException ex) {
             Optional.of("RegularTransaction from is empty").ifPresent(val -> {
@@ -60,7 +61,7 @@ public class AmountEventHandler extends TransactionEventHandler implements Trans
             return;
         }
 
-        if (regularTransaction.getAmount() > patriciaTreeNode.getAmount()) {
+        if (regularTransaction.getAmount().compareTo(patriciaTreeNode.getAmount())>0) {
             Optional.of("RegularTransaction amount is not sufficient").ifPresent(val -> {
                 LOG.info(val);
                 regularTransaction.infos(val);
@@ -78,7 +79,7 @@ public class AmountEventHandler extends TransactionEventHandler implements Trans
 
         } catch (NoSuchElementException ex) {
             LOG.info("State trie is empty we add RecipientAddress address");
-            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(rewardsTransaction.getRecipientAddress(), new PatriciaTreeNode(0, 0));
+            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(rewardsTransaction.getRecipientAddress(), new PatriciaTreeNode(BigDecimal.ZERO, 0));
             patriciaTreeNode = TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(rewardsTransaction.getRecipientAddress()).get();
         } catch (NullPointerException ex) {
             Optional.of("RewardsTransaction is empty").ifPresent(val -> {
@@ -89,7 +90,7 @@ public class AmountEventHandler extends TransactionEventHandler implements Trans
             return;
         }
 
-        if (rewardsTransaction.getAmount() > patriciaTreeNode.getUnclaimed_reward()) {
+        if (rewardsTransaction.getAmount().compareTo(patriciaTreeNode.getUnclaimed_reward())>0) {
             Optional.of("RewardsTransaction Claimed reward is not sufficient").ifPresent(val -> {
                 LOG.info(val);
                 rewardsTransaction.infos(val);
@@ -108,7 +109,7 @@ public class AmountEventHandler extends TransactionEventHandler implements Trans
 
         } catch (NoSuchElementException ex) {
             LOG.info("State trie is empty we add ValidatorAddress address");
-            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(stakingTransaction.getValidatorAddress(), new PatriciaTreeNode(0, 0));
+            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(stakingTransaction.getValidatorAddress(), new PatriciaTreeNode(BigDecimal.ZERO, 0));
             patriciaTreeNode = TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(stakingTransaction.getValidatorAddress()).get();
         } catch (NullPointerException ex) {
             Optional.of("StakingTransaction is empty").ifPresent(val -> {
@@ -119,7 +120,7 @@ public class AmountEventHandler extends TransactionEventHandler implements Trans
             return;
         }
 
-        if (stakingTransaction.getAmount() > patriciaTreeNode.getAmount()) {
+        if (stakingTransaction.getAmount().compareTo(patriciaTreeNode.getAmount())>0) {
             Optional.of("StakingTransaction amount is not sufficient").ifPresent(val -> {
                 LOG.info(val);
                 stakingTransaction.infos(val);
@@ -137,7 +138,7 @@ public class AmountEventHandler extends TransactionEventHandler implements Trans
 
         } catch (NoSuchElementException ex) {
             LOG.info("State trie is empty we add getValidatorAddress address");
-            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(delegateTransaction.getValidatorAddress(), new PatriciaTreeNode(0, 0));
+            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(delegateTransaction.getValidatorAddress(), new PatriciaTreeNode(BigDecimal.ZERO, 0));
         } catch (NullPointerException ex) {
             Optional.of("DelegateTransaction ValidatorAddress is empty").ifPresent(val -> {
                 LOG.info(val);
@@ -153,7 +154,7 @@ public class AmountEventHandler extends TransactionEventHandler implements Trans
 
         } catch (NoSuchElementException ex) {
             LOG.info("State trie is empty we add get DelegatorAddress");
-            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(delegateTransaction.getDelegatorAddress(), new PatriciaTreeNode(0, 0));
+            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(delegateTransaction.getDelegatorAddress(), new PatriciaTreeNode(BigDecimal.ZERO, 0));
             patriciaTreeNode = TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(delegateTransaction.getDelegatorAddress()).get();
         } catch (NullPointerException ex) {
             Optional.of("DelegateTransaction DelegatorAddress is empty").ifPresent(val -> {
@@ -164,7 +165,7 @@ public class AmountEventHandler extends TransactionEventHandler implements Trans
             return;
         }
 
-        if (delegateTransaction.getAmount() > patriciaTreeNode.getAmount()) {
+        if (delegateTransaction.getAmount().compareTo(patriciaTreeNode.getAmount())>0) {
             Optional.of("DelegateTransaction amount is not sufficient").ifPresent(val -> {
                 LOG.info(val);
                 delegateTransaction.infos(val);
@@ -182,7 +183,7 @@ public class AmountEventHandler extends TransactionEventHandler implements Trans
 
         } catch (NoSuchElementException ex) {
             LOG.info("State trie is empty we add getRecipientAddress");
-            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(unclaimedFeeRewardTransaction.getRecipientAddress(), new PatriciaTreeNode(0, 0));
+            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(unclaimedFeeRewardTransaction.getRecipientAddress(), new PatriciaTreeNode(BigDecimal.ZERO, 0));
             patriciaTreeNode = TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(unclaimedFeeRewardTransaction.getRecipientAddress()).get();
         } catch (NullPointerException ex) {
             Optional.of("UnclaimedFeeRewardTransaction is empty").ifPresent(val -> {
@@ -203,7 +204,7 @@ public class AmountEventHandler extends TransactionEventHandler implements Trans
 
         } catch (NoSuchElementException ex) {
             LOG.info("UndelegatingTransaction State trie is empty we add getValidatorAddress address");
-            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(unDelegateTransaction.getValidatorAddress(), new PatriciaTreeNode(0, 0));
+            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(unDelegateTransaction.getValidatorAddress(), new PatriciaTreeNode(BigDecimal.ZERO, 0));
             patriciaTreeNode = TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(unDelegateTransaction.getValidatorAddress()).get();
         } catch (NullPointerException ex) {
             Optional.of("UndelegatingTransaction ValidatorAddress is empty").ifPresent(val -> {
@@ -219,7 +220,7 @@ public class AmountEventHandler extends TransactionEventHandler implements Trans
 
         } catch (NoSuchElementException ex) {
             LOG.info("UndelegatingTransaction State trie is empty we add get DelegatorAddress");
-            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(unDelegateTransaction.getDelegatorAddress(), new PatriciaTreeNode(0, 0));
+            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(unDelegateTransaction.getDelegatorAddress(), new PatriciaTreeNode(BigDecimal.ZERO, 0));
         } catch (NullPointerException ex) {
             Optional.of("UndelegatingTransaction DelegatorAddress is empty").ifPresent(val -> {
                 LOG.info(val);
@@ -229,7 +230,7 @@ public class AmountEventHandler extends TransactionEventHandler implements Trans
             return;
         }
 
-        if (unDelegateTransaction.getAmount() > patriciaTreeNode.getStaking_amount()) {
+        if (unDelegateTransaction.getAmount().compareTo(patriciaTreeNode.getStaking_amount())>0) {
             Optional.of("UndelegatingTransaction amount is not sufficient").ifPresent(val -> {
                 LOG.info(val);
                 unDelegateTransaction.infos(val);
@@ -261,7 +262,7 @@ public class AmountEventHandler extends TransactionEventHandler implements Trans
             return;
         }
 
-        if (unstakingTransaction.getAmount() > patriciaTreeNode.getStaking_amount()) {
+        if (unstakingTransaction.getAmount().compareTo(patriciaTreeNode.getStaking_amount())>0) {
             Optional.of("UnstakingTransaction amount is not sufficient").ifPresent(val -> {
                 LOG.info(val);
                 unstakingTransaction.infos(val);

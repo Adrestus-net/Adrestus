@@ -148,7 +148,7 @@ public class ConsensusTransactionTimer {
             CachedLeaderIndex.getInstance().setTransactionPositionLeader(current);
             if (target == current) {
                 LOG.info("ORGANIZER State");
-                chooser();
+                //chooser();
                 consensusManager.changeStateTo(ConsensusRoleType.ORGANIZER);
                 var organizerphase = consensusManager.getRole().manufacturePhases(ConsensusType.TRANSACTION_BLOCK);
                 organizerphase.InitialSetup();

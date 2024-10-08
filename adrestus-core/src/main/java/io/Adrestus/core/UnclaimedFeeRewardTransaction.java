@@ -1,5 +1,7 @@
 package io.Adrestus.core;
 
+import java.math.BigDecimal;
+
 public class UnclaimedFeeRewardTransaction extends RewardsTransaction {
 
 
@@ -7,7 +9,7 @@ public class UnclaimedFeeRewardTransaction extends RewardsTransaction {
         super();
     }
 
-    public UnclaimedFeeRewardTransaction(TransactionType type, String from, double amount) {
+    public UnclaimedFeeRewardTransaction(TransactionType type, String from, BigDecimal amount) {
         super(type, from, amount);
     }
 
@@ -19,12 +21,12 @@ public class UnclaimedFeeRewardTransaction extends RewardsTransaction {
 
 
     @Override
-    public double getAmountWithTransactionFee() {
+    public BigDecimal getAmountWithTransactionFee() {
         return super.getAmountWithTransactionFee();
     }
 
     @Override
-    public void setAmount(double amount) {
+    public void setAmount(BigDecimal amount) {
         super.setAmount(amount);
     }
 

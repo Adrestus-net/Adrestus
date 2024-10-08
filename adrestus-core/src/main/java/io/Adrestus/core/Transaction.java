@@ -3,15 +3,16 @@ package io.Adrestus.core;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.google.common.base.Objects;
 import io.Adrestus.crypto.elliptic.ECDSASignatureData;
 import io.activej.serializer.annotations.Serialize;
 import io.activej.serializer.annotations.SerializeClass;
 import io.activej.serializer.annotations.SerializeNullable;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Comparator;
+import java.util.Objects;
 
 
 @SerializeClass(subclasses = {RegularTransaction.class, RewardsTransaction.class, StakingTransaction.class, DelegateTransaction.class, UnclaimedFeeRewardTransaction.class, UnDelegateTransaction.class, UnstakingTransaction.class})
@@ -29,8 +30,8 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
     protected int BlockNumber;
     protected String From;
     protected String To;
-    protected double Amount;
-    protected double AmountWithTransactionFee;
+    protected BigDecimal Amount;
+    protected BigDecimal AmountWithTransactionFee;
     protected int Nonce;
 
     protected BigInteger XAxis;
@@ -50,8 +51,8 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
         this.timestamp = "";
         this.From = "";
         this.To = "";
-        this.Amount = 0;
-        this.AmountWithTransactionFee = 0;
+        this.Amount = BigDecimal.ZERO;
+        this.AmountWithTransactionFee = BigDecimal.ZERO;
         this.Nonce = 0;
         this.XAxis = new BigInteger("0");
         this.YAxis = new BigInteger("0");
@@ -59,7 +60,7 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
         this.transactionCallback = null;
     }
 
-    public Transaction(TransactionType transactionType, double amount) {
+    public Transaction(TransactionType transactionType, BigDecimal amount) {
         this.Hash = "";
         this.Type = transactionType;
         this.Status = StatusType.PENDING;
@@ -70,7 +71,7 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
         this.From = "";
         this.To = "";
         this.Amount = amount;
-        this.AmountWithTransactionFee = 0;
+        this.AmountWithTransactionFee = BigDecimal.ZERO;
         this.Nonce = 0;
         this.XAxis = new BigInteger("0");
         this.YAxis = new BigInteger("0");
@@ -88,8 +89,8 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
         this.timestamp = "";
         this.From = "";
         this.To = "";
-        this.Amount = 0;
-        this.AmountWithTransactionFee = 0;
+        this.Amount = BigDecimal.ZERO;
+        this.AmountWithTransactionFee = BigDecimal.ZERO;
         this.Nonce = 0;
         this.XAxis = new BigInteger("0");
         this.YAxis = new BigInteger("0");
@@ -107,8 +108,8 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
         this.timestamp = "";
         this.From = "";
         this.To = "";
-        this.Amount = 0;
-        this.AmountWithTransactionFee = 0;
+        this.Amount = BigDecimal.ZERO;
+        this.AmountWithTransactionFee = BigDecimal.ZERO;
         this.Nonce = 0;
         this.XAxis = new BigInteger("0");
         this.YAxis = new BigInteger("0");
@@ -116,7 +117,7 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
         this.transactionCallback = null;
     }
 
-    public Transaction(String hash, TransactionType type, StatusType status, int zoneFrom, int zoneTo, String timestamp, int blockNumber, String from, String to, double amount, double AmountWithTransactionFee, int nonce, ECDSASignatureData signature) {
+    public Transaction(String hash, TransactionType type, StatusType status, int zoneFrom, int zoneTo, String timestamp, int blockNumber, String from, String to, BigDecimal amount, BigDecimal AmountWithTransactionFee, int nonce, ECDSASignatureData signature) {
         this.Hash = hash;
         this.Type = type;
         this.Status = status;
@@ -133,7 +134,7 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
         this.transactionCallback = null;
     }
 
-    public Transaction(String hash, TransactionType type, StatusType status, int zoneFrom, int zoneTo, String timestamp, String from, String to, double amount, double AmountWithTransactionFee, int nonce, ECDSASignatureData signature) {
+    public Transaction(String hash, TransactionType type, StatusType status, int zoneFrom, int zoneTo, String timestamp, String from, String to, BigDecimal amount, BigDecimal AmountWithTransactionFee, int nonce, ECDSASignatureData signature) {
         this.Hash = hash;
         this.Type = type;
         this.Status = status;
@@ -149,7 +150,7 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
         this.transactionCallback = null;
     }
 
-    public Transaction(String hash, TransactionType type, StatusType status, int zoneFrom, int zoneTo, String timestamp, int blockNumber, String from, String to, double amount, double amountWithTransactionFee, int nonce, BigInteger XAxis, BigInteger YAxis, ECDSASignatureData signature) {
+    public Transaction(String hash, TransactionType type, StatusType status, int zoneFrom, int zoneTo, String timestamp, int blockNumber, String from, String to, BigDecimal amount, BigDecimal amountWithTransactionFee, int nonce, BigInteger XAxis, BigInteger YAxis, ECDSASignatureData signature) {
         this.Hash = hash;
         this.Type = type;
         this.Status = status;
@@ -245,21 +246,21 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
     }
 
     @Serialize
-    public double getAmount() {
-        return this.Amount;
+    public BigDecimal getAmount() {
+        return Amount;
     }
 
-    public void setAmount(double amount) {
-        this.Amount = amount;
+    public void setAmount(BigDecimal amount) {
+        Amount = amount;
     }
 
     @Serialize
-    public double getAmountWithTransactionFee() {
-        return this.AmountWithTransactionFee;
+    public BigDecimal getAmountWithTransactionFee() {
+        return AmountWithTransactionFee;
     }
 
-    public void setAmountWithTransactionFee(double AmountWithTransactionFee) {
-        this.AmountWithTransactionFee = AmountWithTransactionFee;
+    public void setAmountWithTransactionFee(BigDecimal amountWithTransactionFee) {
+        AmountWithTransactionFee = amountWithTransactionFee;
     }
 
     @Serialize
@@ -339,12 +340,12 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Transaction that = (Transaction) o;
-        return ZoneFrom == that.ZoneFrom && ZoneTo == that.ZoneTo && BlockNumber == that.BlockNumber && Double.compare(that.Amount, Amount) == 0 && Double.compare(that.AmountWithTransactionFee, AmountWithTransactionFee) == 0 && Nonce == that.Nonce && Objects.equal(Hash, that.Hash) && Type == that.Type && Objects.equal(timestamp, that.timestamp) && Objects.equal(From, that.From) && Objects.equal(To, that.To) && Objects.equal(XAxis, that.XAxis) && Objects.equal(YAxis, that.YAxis) && Objects.equal(Signature, that.Signature) && Objects.equal(transactionCallback, that.transactionCallback);
+        return ZoneFrom == that.ZoneFrom && ZoneTo == that.ZoneTo && BlockNumber == that.BlockNumber && Nonce == that.Nonce && Objects.equals(Hash, that.Hash) && Type == that.Type && Status == that.Status && Objects.equals(timestamp, that.timestamp) && Objects.equals(From, that.From) && Objects.equals(To, that.To) && Objects.equals(Amount, that.Amount) && Objects.equals(AmountWithTransactionFee, that.AmountWithTransactionFee) && Objects.equals(XAxis, that.XAxis) && Objects.equals(YAxis, that.YAxis) && Objects.equals(Signature, that.Signature) && Objects.equals(transactionCallback, that.transactionCallback);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(Hash, Type, Status, ZoneFrom, ZoneTo, timestamp, BlockNumber, From, To, Amount, AmountWithTransactionFee, Nonce, XAxis, YAxis, Signature);
+        return Objects.hash(Hash, Type, Status, ZoneFrom, ZoneTo, timestamp, BlockNumber, From, To, Amount, AmountWithTransactionFee, Nonce, XAxis, YAxis, Signature, transactionCallback);
     }
 
     public Object clone() throws CloneNotSupportedException {
@@ -369,6 +370,7 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
                 ", XAxis=" + XAxis +
                 ", YAxis=" + YAxis +
                 ", Signature=" + Signature +
+                ", transactionCallback=" + transactionCallback +
                 '}';
     }
 }

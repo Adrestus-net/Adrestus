@@ -7,12 +7,9 @@ import java.text.DecimalFormat;
 import java.util.Map;
 
 public class RewardPrecisionCalculator implements RewardHandler {
-    private static DecimalFormat reward_format;
+
 
     public RewardPrecisionCalculator() {
-        reward_format = new DecimalFormat();
-        reward_format.setMaximumFractionDigits(RewardConfiguration.DECIMAL_PRECISION);
-        reward_format.setRoundingMode(RewardConfiguration.ROUNDING);
     }
 
     @Override
@@ -28,23 +25,21 @@ public class RewardPrecisionCalculator implements RewardHandler {
     @Override
     public void handle(Request req) {
         req.markHandled();
-        Map<String, RewardObject> maps = CachedRewardMapData.getInstance().getEffective_stakes_map();
         CachedRewardMapData.getInstance().getEffective_stakes_map().values().forEach(RewardPrecisionCalculator::applyPrecision);
     }
 
     private static RewardObject applyPrecision(RewardObject rewardObject) {
-
-        rewardObject.setEffective_stake(rewardObject.getEffective_stake().setScale(RewardConfiguration.DECIMAL_PRECISION, RoundingMode.HALF_UP));
-        rewardObject.setEffective_stake_ratio(rewardObject.getEffective_stake_ratio().setScale(RewardConfiguration.DECIMAL_PRECISION, RoundingMode.HALF_UP));
-        rewardObject.setUnreal_reward(rewardObject.getUnreal_reward().setScale(RewardConfiguration.DECIMAL_PRECISION, RoundingMode.HALF_UP));
-        rewardObject.setReal_reward(rewardObject.getReal_reward().setScale(RewardConfiguration.DECIMAL_PRECISION, RoundingMode.HALF_UP));
+        rewardObject.setEffective_stake(rewardObject.getEffective_stake().setScale(RewardConfiguration.DECIMAL_PRECISION, RewardConfiguration.ROUNDING));
+        rewardObject.setEffective_stake_ratio(rewardObject.getEffective_stake_ratio().setScale(RewardConfiguration.DECIMAL_PRECISION,RewardConfiguration.ROUNDING));
+        rewardObject.setUnreal_reward(rewardObject.getUnreal_reward().setScale(RewardConfiguration.DECIMAL_PRECISION, RewardConfiguration.ROUNDING));
+        rewardObject.setReal_reward(rewardObject.getReal_reward().setScale(RewardConfiguration.DECIMAL_PRECISION, RewardConfiguration.ROUNDING));
         rewardObject.getDelegate_stake().values().forEach(RewardPrecisionCalculator::applyPrecision);
         return rewardObject;
     }
 
     private static DelegateObject applyPrecision(DelegateObject delegateObject) {
-        delegateObject.setReward(delegateObject.getReward().setScale(RewardConfiguration.DECIMAL_PRECISION, RoundingMode.HALF_UP));
-        delegateObject.setWeights(delegateObject.getWeights().setScale(RewardConfiguration.DECIMAL_PRECISION, RoundingMode.HALF_UP));
+        delegateObject.setReward(delegateObject.getReward().setScale(RewardConfiguration.DECIMAL_PRECISION, RewardConfiguration.ROUNDING));
+        delegateObject.setWeights(delegateObject.getWeights().setScale(RewardConfiguration.DECIMAL_PRECISION, RewardConfiguration.ROUNDING));
         return delegateObject;
     }
 

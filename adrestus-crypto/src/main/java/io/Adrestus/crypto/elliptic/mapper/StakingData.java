@@ -1,22 +1,23 @@
 package io.Adrestus.crypto.elliptic.mapper;
 
-import com.google.common.base.Objects;
 import io.activej.serializer.annotations.Serialize;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.util.Objects;
 
 public class StakingData implements Serializable {
     private int uid;
-    private double stake;
+    private BigDecimal stake;
 
-    public StakingData(int uid, double stake) {
+    public StakingData(int uid, BigDecimal stake) {
         this.uid = uid;
         this.stake = stake;
     }
 
     public StakingData() {
         this.uid = 0;
-        this.stake = 0.0;
+        this.stake = BigDecimal.ZERO;
     }
 
     @Serialize
@@ -29,11 +30,11 @@ public class StakingData implements Serializable {
     }
 
     @Serialize
-    public double getStake() {
+    public BigDecimal getStake() {
         return stake;
     }
 
-    public void setStake(double stake) {
+    public void setStake(BigDecimal stake) {
         this.stake = stake;
     }
 
@@ -42,12 +43,12 @@ public class StakingData implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         StakingData that = (StakingData) o;
-        return uid == that.uid && Double.compare(that.stake, stake) == 0;
+        return uid == that.uid && Objects.equals(stake, that.stake);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(uid, stake);
+        return Objects.hash(uid, stake);
     }
 
     @Override

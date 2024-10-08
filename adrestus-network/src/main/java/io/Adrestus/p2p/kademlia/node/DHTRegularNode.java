@@ -32,6 +32,7 @@ import org.apache.commons.codec.binary.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -198,7 +199,7 @@ public class DHTRegularNode {
                         LOG.info("Kademlia Data are not valid abort");
                     } else {
 
-                        if (TreeFactory.getMemoryTree(0).getByaddress(value.getAddressData().getAddress()).get().getAmount() < StakingConfiguration.MINIMUM_STAKING) {
+                        if (TreeFactory.getMemoryTree(0).getByaddress(value.getAddressData().getAddress()).get().getAmount().compareTo(BigDecimal.valueOf(StakingConfiguration.MINIMUM_STAKING)) < 0) {
                             LOG.info("Amount of this address not meet minimum requirements");
                         } else {
                             active_nodes.add(value);

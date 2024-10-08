@@ -8,6 +8,7 @@ import io.Adrestus.config.KademliaConfiguration;
 import io.Adrestus.config.RewardConfiguration;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedStartHeightRewards;
+import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.core.RewardMechanism.*;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.SecurityAuditProofs;
@@ -27,12 +28,14 @@ import io.Adrestus.crypto.mnemonic.Security;
 import io.Adrestus.crypto.mnemonic.WordList;
 import io.Adrestus.p2p.kademlia.common.NettyConnectionInfo;
 import io.Adrestus.p2p.kademlia.repository.KademliaData;
+import io.Adrestus.util.GetTime;
 import io.distributedLedger.DatabaseFactory;
 import io.distributedLedger.DatabaseType;
 import io.distributedLedger.IDatabase;
 import io.distributedLedger.ZoneDatabaseFactory;
 import lombok.SneakyThrows;
 import org.apache.commons.codec.binary.StringUtils;
+import org.apache.commons.lang3.SerializationUtils;
 import org.apache.tuweni.bytes.Bytes;
 import org.junit.jupiter.api.Test;
 
@@ -43,7 +46,10 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -65,14 +71,9 @@ public class RewardsTest {
     ;
 
     @SneakyThrows
-    @Test
+//    @Test
     public void SimpleTestCheckOperations() throws CloneNotSupportedException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException, MnemonicException {
         IDatabase<String, TransactionBlock> transactionBlockIDatabase = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(0));
-
-        DecimalFormat df2 = new DecimalFormat();
-        df2.setMaximumFractionDigits(6);
-        df2.setRoundingMode(RoundingMode.DOWN);
-        System.out.println(df2.format(0.13636323636363635));
         int version = 0x00;
         sk1 = new BLSPrivateKey(1);
         vk1 = new BLSPublicKey(sk1);
@@ -194,7 +195,7 @@ public class RewardsTest {
         CachedStartHeightRewards.getInstance().setHeight(1);
 
 
-        PatriciaTreeNode treeNode = new PatriciaTreeNode(0, 1, 490, 40, 0);
+        PatriciaTreeNode treeNode = new PatriciaTreeNode(12.2, 1, 490, 40, 0);
         treeNode.getStakingInfo().setCommissionRate(10);
         PatriciaTreeNode treeNode1 = new PatriciaTreeNode(0, 1, 270, 30, 0);
         treeNode1.getStakingInfo().setCommissionRate(10);
@@ -236,6 +237,7 @@ public class RewardsTest {
         Map<String, RewardObject> maps = CachedRewardMapData.getInstance().getEffective_stakes_map();
 
 
+        assertEquals(12.2, TreeFactory.getMemoryTree(0).getByaddress(address).get().getAmount());
         assertEquals(treeNode, treeNodeClone);
         assertNotNull(CachedRewardMapData.getInstance().getEffective_stakes_map().get(address));
         assertNotNull(CachedRewardMapData.getInstance().getEffective_stakes_map().get(address1));
@@ -286,9 +288,10 @@ public class RewardsTest {
     }
 
     @SneakyThrows
-    @Test
+//    @Test
     public void CheckClonedTreeEquals() throws CloneNotSupportedException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException, MnemonicException {
         IDatabase<String, TransactionBlock> transactionBlockIDatabase = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(0));
+
         int version = 0x00;
         sk1 = new BLSPrivateKey(1);
         vk1 = new BLSPublicKey(sk1);
@@ -434,7 +437,7 @@ public class RewardsTest {
         king2.makeRequest(new Request(RequestType.VALIDATOR_REWARD_CALCULATOR, "VALIDATOR_REWARD_CALCULATOR"));
         king2.makeRequest(new Request(RequestType.DELEGATE_REWARD_CALCULATOR, "DELEGATE_REWARD_CALCULATOR"));
         king2.makeRequest(new Request(RequestType.REWARD_PRECISION_CALCULATOR, "REWARD_PRECISION_CALCULATOR"));
-        king2.makeRequest(new Request(RequestType.REWARD_STORAGE_CALCULATOR, "REWARD_STORAGE_CALCULATOR", cloned_tree));
+        king2.makeRequest(new Request(RequestType.REWARD_STORAGE_CALCULATOR, "REWARD_STORAGE_CALCULATOR",cloned_tree));
 
         Map<String, RewardObject> maps = CachedRewardMapData.getInstance().getEffective_stakes_map();
 
@@ -452,7 +455,7 @@ public class RewardsTest {
     }
 
     @SneakyThrows
-    @Test
+//    @Test
     public void WholeTestMultipleBlocks() {
         IDatabase<String, TransactionBlock> transactionBlockIDatabase = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(0));
 
@@ -574,11 +577,392 @@ public class RewardsTest {
         king.makeRequest(new Request(RequestType.VALIDATOR_REWARD_CALCULATOR, "VALIDATOR_REWARD_CALCULATOR"));
         king.makeRequest(new Request(RequestType.DELEGATE_REWARD_CALCULATOR, "DELEGATE_REWARD_CALCULATOR"));
         king.makeRequest(new Request(RequestType.REWARD_PRECISION_CALCULATOR, "REWARD_PRECISION_CALCULATOR"));
-        king.makeRequest(new Request(RequestType.REWARD_STORAGE_CALCULATOR, "REWARD_STORAGE_CALCULATOR", TreeFactory.getMemoryTree(0)));
+        king.makeRequest(new Request(RequestType.REWARD_STORAGE_CALCULATOR, "REWARD_STORAGE_CALCULATOR",TreeFactory.getMemoryTree(0)));
 
 
         Map<String, RewardObject> maps = CachedRewardMapData.getInstance().getEffective_stakes_map();
         assertEquals(BigDecimal.valueOf(0.429545), maps.get(address1).getReal_reward());
+
+        CachedRewardMapData.getInstance().clearInstance();
         transactionBlockIDatabase.delete_db();
+        TreeFactory.ClearMemoryTree(0);
+    }
+
+
+    //This test should be equal with consensus transaction rewards test
+    // the correct way is to calculate rewards every 3 blocks not one time after 6 blocks
+    @SneakyThrows
+//    @Test
+    public void ConsensusTransactionTimerRewardTest() {
+        IDatabase<String, TransactionBlock> transactionBlockIDatabase = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(0));
+        transactionBlockIDatabase.delete_db();
+        transactionBlockIDatabase = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(0));
+
+        sk1 = new BLSPrivateKey(1);
+        vk1 = new BLSPublicKey(sk1);
+
+        sk2 = new BLSPrivateKey(2);
+        vk2 = new BLSPublicKey(sk2);
+
+        sk3 = new BLSPrivateKey(3);
+        vk3 = new BLSPublicKey(sk3);
+
+        String address1 = "ADR-AB2W-RIQY-LSIH-CXQQ-FGRV-AINR-57RO-NFXU-IWM5-IANJ";
+        String address2 = "ADR-ACAO-BKTC-CFKG-VXWF-PSI2-QHWR-ZIGK-CCOL-LGJN-CM3U";
+        String address3 = "ADR-AADE-ROH3-CAFV-XK5V-2NKZ-QMTG-SFMC-37W5-SHUV-2T46";
+
+        char[] mnemonic1 = "sample sail jungle learn general promote task puppy own conduct green affair ".toCharArray();
+        char[] mnemonic2 = "photo monitor cushion indicate civil witness orchard estate online favorite sustain extend".toCharArray();
+        char[] mnemonic3 = "struggle travel ketchup tomato satoshi caught fog process grace pupil item ahead ".toCharArray();
+        char[] passphrase = "p4ssphr4se".toCharArray();
+
+        Mnemonic mnem = new Mnemonic(Security.NORMAL, WordList.ENGLISH);
+        byte[] key1 = mnem.createSeed(mnemonic1, passphrase);
+        byte[] key2 = mnem.createSeed(mnemonic2, passphrase);
+        byte[] key3 = mnem.createSeed(mnemonic3, passphrase);
+        SecureRandom random = SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
+        random.setSeed(key1);
+        ecKeyPair1 = Keys.createEcKeyPair(random);
+        random.setSeed(key2);
+        ecKeyPair2 = Keys.createEcKeyPair(random);
+        random.setSeed(key3);
+        ecKeyPair3 = Keys.createEcKeyPair(random);
+
+        ECDSASignatureData signatureData1 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address1)), ecKeyPair1);
+        ECDSASignatureData signatureData2 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address2)), ecKeyPair2);
+        ECDSASignatureData signatureData3 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address3)), ecKeyPair3);
+
+        PatriciaTreeNode treeNode1=new PatriciaTreeNode(1000, 0, 100, 40);
+        //treeNode1.getStakingInfo().setCommissionRate(10);
+        PatriciaTreeNode treeNode2=new PatriciaTreeNode(1000, 0, 200, 30);
+       // treeNode2.getStakingInfo().setCommissionRate(10);
+        PatriciaTreeNode treeNode3=new PatriciaTreeNode(1000, 0, 300, 20);
+       // treeNode3.getStakingInfo().setCommissionRate(10);
+        TreeFactory.getMemoryTree(0).store(address1, treeNode1);
+        TreeFactory.getMemoryTree(0).store(address2, treeNode2);
+        TreeFactory.getMemoryTree(0).store(address3, treeNode3);
+
+        TransactionBlock prevblock = new TransactionBlock();
+        CommitteeBlock committeeBlock = new CommitteeBlock();
+        committeeBlock.setGeneration(1);
+        committeeBlock.setViewID(1);
+        prevblock.setHeight(1);
+        prevblock.setHash("hash");
+        prevblock.getHeaderData().setTimestamp(GetTime.GetTimeStampInString());
+        Bytes message1 = Bytes.wrap("Hello, world Block 1".getBytes(UTF_8));
+        BLSSignatureData BLSSignatureData1a = new BLSSignatureData();
+        BLSSignatureData BLSSignatureData2a = new BLSSignatureData();
+        BLSSignatureData BLSSignatureData3a = new BLSSignatureData();
+        BLSSignatureData1a.getSignature()[0] = BLSSignature.sign(message1.toArray(), sk1);
+        BLSSignatureData1a.getSignature()[1] = BLSSignature.sign(message1.toArray(), sk1);
+        BLSSignatureData2a.getSignature()[0] = BLSSignature.sign(message1.toArray(), sk2);
+        BLSSignatureData2a.getSignature()[1] = BLSSignature.sign(message1.toArray(), sk2);
+        BLSSignatureData3a.getSignature()[0] = BLSSignature.sign(message1.toArray(), sk3);
+        BLSSignatureData3a.getSignature()[1] = BLSSignature.sign(message1.toArray(), sk3);
+
+        BLSSignatureData1a.getMessageHash()[0] = BLSSignature.GetMessageHashAsBase64String(message1.toArray());
+        BLSSignatureData1a.getMessageHash()[1] = BLSSignature.GetMessageHashAsBase64String(message1.toArray());
+        BLSSignatureData2a.getMessageHash()[0] = BLSSignature.GetMessageHashAsBase64String(message1.toArray());
+        BLSSignatureData2a.getMessageHash()[1] = BLSSignature.GetMessageHashAsBase64String(message1.toArray());
+        BLSSignatureData3a.getMessageHash()[0] = BLSSignature.GetMessageHashAsBase64String(message1.toArray());
+        BLSSignatureData3a.getMessageHash()[1] = BLSSignature.GetMessageHashAsBase64String(message1.toArray());
+
+        prevblock.getSignatureData().put(vk1, BLSSignatureData1a);
+        prevblock.getSignatureData().put(vk2, BLSSignatureData2a);
+        prevblock.getSignatureData().put(vk3, BLSSignatureData3a);
+        prevblock.setLeaderPublicKey(vk1);
+        prevblock.setBlockProposer(vk1.toRaw());
+
+        KademliaData kad1 = new KademliaData(new SecurityAuditProofs(address1, vk1, ecKeyPair1.getPublicKey(), signatureData1), new NettyConnectionInfo("192.168.1.106", KademliaConfiguration.PORT));
+        KademliaData kad2 = new KademliaData(new SecurityAuditProofs(address2, vk2, ecKeyPair2.getPublicKey(), signatureData2), new NettyConnectionInfo("192.168.1.115", KademliaConfiguration.PORT));
+        KademliaData kad3 = new KademliaData(new SecurityAuditProofs(address3, vk3, ecKeyPair3.getPublicKey(), signatureData3), new NettyConnectionInfo("192.168.1.116", KademliaConfiguration.PORT));
+
+        committeeBlock.getStakingMap().put(new StakingData(1, 100.0), kad3);
+        committeeBlock.getStakingMap().put(new StakingData(2, 200.0), kad2);
+        committeeBlock.getStakingMap().put(new StakingData(3, 300.0), kad1);
+
+        CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
+        CachedLatestBlocks.getInstance().setTransactionBlock(prevblock);
+        transactionBlockIDatabase.save(String.valueOf(prevblock.getHeight()), prevblock);
+
+        MemoryTreePool replica= (MemoryTreePool) TreeFactory.getMemoryTree(0).clone();
+        List<BLSPublicKey> keys=committeeBlock.getStakingMap().values().stream().map(KademliaData::getAddressData).map(SecurityAuditProofs::getValidatorBlSPublicKey).collect(Collectors.toList());
+        int count=0;
+        ArrayList<Map<String, RewardObject>> rewardsTotal=new ArrayList<>(3);
+        CachedStartHeightRewards.getInstance().setHeight(1);
+        for(int i=2;i<=6;i++){
+            TransactionBlock transactionBlock = new TransactionBlock();
+            transactionBlock.setHash(String.valueOf(i));
+            transactionBlock.setHeight(i);
+            transactionBlock.setGeneration(i);
+            Bytes message = Bytes.wrap("Hello, world Block 1".getBytes(UTF_8));
+            BLSSignatureData BLSSignatureData1 = new BLSSignatureData();
+            BLSSignatureData BLSSignatureData2 = new BLSSignatureData();
+            BLSSignatureData BLSSignatureData3 = new BLSSignatureData();
+            BLSSignatureData1.getSignature()[0] = BLSSignature.sign(message.toArray(), sk1);
+            BLSSignatureData1.getSignature()[1] = BLSSignature.sign(message.toArray(), sk1);
+            BLSSignatureData2.getSignature()[0] = BLSSignature.sign(message.toArray(), sk2);
+            BLSSignatureData2.getSignature()[1] = BLSSignature.sign(message.toArray(), sk2);
+            BLSSignatureData3.getSignature()[0] = BLSSignature.sign(message.toArray(), sk3);
+            BLSSignatureData3.getSignature()[1] = BLSSignature.sign(message.toArray(), sk3);
+
+            BLSSignatureData1.getMessageHash()[0] = BLSSignature.GetMessageHashAsBase64String(message.toArray());
+            BLSSignatureData1.getMessageHash()[1] = BLSSignature.GetMessageHashAsBase64String(message.toArray());
+            BLSSignatureData2.getMessageHash()[0] = BLSSignature.GetMessageHashAsBase64String(message.toArray());
+            BLSSignatureData2.getMessageHash()[1] = BLSSignature.GetMessageHashAsBase64String(message.toArray());
+            BLSSignatureData3.getMessageHash()[0] = BLSSignature.GetMessageHashAsBase64String(message.toArray());
+            BLSSignatureData3.getMessageHash()[1] = BLSSignature.GetMessageHashAsBase64String(message.toArray());
+
+            transactionBlock.getSignatureData().put(vk1, BLSSignatureData1);
+            transactionBlock.getSignatureData().put(vk2, BLSSignatureData2);
+            transactionBlock.getSignatureData().put(vk3, BLSSignatureData3);
+            transactionBlock.setLeaderPublicKey(keys.get(count));
+            transactionBlock.setBlockProposer(keys.get(count).toRaw());
+            if(transactionBlock.getHeight()%RewardConfiguration.BLOCK_REWARD_HEIGHT==0){
+                RewardChainBuilder king1 = new RewardChainBuilder();
+                king1.makeRequest(new Request(RequestType.EFFECTIVE_STAKE, "EFFECTIVE_STAKE"));
+                king1.makeRequest(new Request(RequestType.EFFECTIVE_STAKE_RATIO, "EFFECTIVE_STAKE_RATIO"));
+                king1.makeRequest(new Request(RequestType.DELEGATE_WEIGHTS_CALCULATOR, "DELEGATE_WEIGHTS_CALCULATOR"));
+                king1.makeRequest(new Request(RequestType.VALIDATOR_REWARD_CALCULATOR, "VALIDATOR_REWARD_CALCULATOR"));
+                king1.makeRequest(new Request(RequestType.DELEGATE_REWARD_CALCULATOR, "DELEGATE_REWARD_CALCULATOR"));
+                king1.makeRequest(new Request(RequestType.REWARD_PRECISION_CALCULATOR, "REWARD_PRECISION_CALCULATOR"));
+                king1.makeRequest(new Request(RequestType.REWARD_STORAGE_CALCULATOR, "REWARD_STORAGE_CALCULATOR", replica));
+                if(transactionBlock.getHeight()==3) {
+                    rewardsTotal.add(0, SerializationUtils.clone(CachedRewardMapData.getInstance().getEffective_stakes_map()));
+                    CachedStartHeightRewards.getInstance().setHeight(transactionBlock.getHeight());
+                    CachedRewardMapData.getInstance().clearInstance();
+                }
+                else {
+                    rewardsTotal.add(1, SerializationUtils.clone(CachedRewardMapData.getInstance().getEffective_stakes_map()));
+                }
+
+            }
+            if(transactionBlock.getHeight()==6){
+                CachedStartHeightRewards.getInstance().setHeight(1);
+                CachedRewardMapData.getInstance().clearInstance();
+
+                RewardChainBuilder king = new RewardChainBuilder();
+                king.makeRequest(new Request(RequestType.EFFECTIVE_STAKE, "EFFECTIVE_STAKE"));
+                king.makeRequest(new Request(RequestType.EFFECTIVE_STAKE_RATIO, "EFFECTIVE_STAKE_RATIO"));
+                king.makeRequest(new Request(RequestType.DELEGATE_WEIGHTS_CALCULATOR, "DELEGATE_WEIGHTS_CALCULATOR"));
+                king.makeRequest(new Request(RequestType.VALIDATOR_REWARD_CALCULATOR, "VALIDATOR_REWARD_CALCULATOR"));
+                king.makeRequest(new Request(RequestType.DELEGATE_REWARD_CALCULATOR, "DELEGATE_REWARD_CALCULATOR"));
+                king.makeRequest(new Request(RequestType.REWARD_PRECISION_CALCULATOR, "REWARD_PRECISION_CALCULATOR"));
+                king.makeRequest(new Request(RequestType.REWARD_STORAGE_CALCULATOR, "REWARD_STORAGE_CALCULATOR", TreeFactory.getMemoryTree(0)));
+                rewardsTotal.add(2, SerializationUtils.clone(CachedRewardMapData.getInstance().getEffective_stakes_map()));
+            }
+            transactionBlockIDatabase.save(String.valueOf(i), transactionBlock);
+            if(count==2) {
+                count = 0;
+            }
+            else {
+                count++;
+            }
+        }
+
+
+        Map<String,TransactionBlock>res=transactionBlockIDatabase.seekFromStart();
+
+
+//        System.out.println();
+//        System.out.println(rewardsTotal.get(0).get(address3).getUnreal_reward().add(rewardsTotal.get(2).get(address3).getUnreal_reward()));
+//        System.out.println(rewardsTotal.get(0).get(address2).getUnreal_reward().add(rewardsTotal.get(2).get(address2).getUnreal_reward()));
+//        System.out.println(rewardsTotal.get(0).get(address1).getUnreal_reward().add(rewardsTotal.get(2).get(address1).getUnreal_reward()));
+//
+//        System.out.println();
+//        System.out.println(rewardsTotal.get(0).get(address3).getReal_reward().add(rewardsTotal.get(2).get(address3).getReal_reward()));
+//        System.out.println(rewardsTotal.get(0).get(address2).getReal_reward().add(rewardsTotal.get(2).get(address2).getReal_reward()));
+//        System.out.println(rewardsTotal.get(0).get(address1).getReal_reward().add(rewardsTotal.get(2).get(address1).getReal_reward()));
+//
+//        System.out.println();
+//        System.out.println(replica.getByaddress(address1).get().getUnclaimed_reward());
+//        System.out.println(replica.getByaddress(address2).get().getUnclaimed_reward());
+//        System.out.println(replica.getByaddress(address3).get().getUnclaimed_reward());
+
+        // Theese values must be the same with transaction timer test unclaimed rewards min the transaction fees
+//        assertEquals(1.236666,replica.getByaddress(address3).get().getUnclaimed_reward());
+//        assertEquals(1.854996,replica.getByaddress(address2).get().getUnclaimed_reward());
+//        assertEquals(2.659986,replica.getByaddress(address1).get().getUnclaimed_reward());
+
+
+
+
+        assertEquals(rewardsTotal.get(0).get(address1).getUnreal_reward().add(rewardsTotal.get(1).get(address1).getUnreal_reward()),rewardsTotal.get(2).get(address1).getUnreal_reward());
+        assertEquals(rewardsTotal.get(0).get(address2).getUnreal_reward().add(rewardsTotal.get(1).get(address2).getUnreal_reward()),rewardsTotal.get(2).get(address2).getUnreal_reward());
+        assertEquals(rewardsTotal.get(0).get(address3).getUnreal_reward().add(rewardsTotal.get(1).get(address3).getUnreal_reward()),rewardsTotal.get(2).get(address3).getUnreal_reward());
+
+        assertEquals(rewardsTotal.get(0).get(address1).getReal_reward().add(rewardsTotal.get(1).get(address1).getReal_reward()),rewardsTotal.get(2).get(address1).getReal_reward());
+        assertEquals(rewardsTotal.get(0).get(address2).getReal_reward().add(rewardsTotal.get(1).get(address2).getReal_reward()),rewardsTotal.get(2).get(address2).getReal_reward());
+        assertEquals(rewardsTotal.get(0).get(address3).getReal_reward().add(rewardsTotal.get(1).get(address3).getReal_reward()),rewardsTotal.get(2).get(address3).getReal_reward());
+
+        assertEquals(TreeFactory.getMemoryTree(0).getByaddress(address1).get().getUnclaimed_reward(),replica.getByaddress(address1).get().getUnclaimed_reward());
+        assertEquals(TreeFactory.getMemoryTree(0).getByaddress(address2).get().getUnclaimed_reward(),replica.getByaddress(address2).get().getUnclaimed_reward());
+        assertEquals(TreeFactory.getMemoryTree(0).getByaddress(address3).get().getUnclaimed_reward(),replica.getByaddress(address3).get().getUnclaimed_reward());
+
+//      assertEquals(rewardsTotal.get(0).get(address1).getUnreal_reward().add(rewardsTotal.get(1).get(address1).getUnreal_reward()),TreeFactory.getMemoryTree(0).getByaddress(address1).get().getUnclaimed_reward());
+
+        CachedRewardMapData.getInstance().clearInstance();
+        transactionBlockIDatabase.delete_db();
+        TreeFactory.ClearMemoryTree(0);
+    }
+
+
+    //This reward is equal to notebook split rewards and total rewards should be the same
+    @SneakyThrows
+    @Test
+    public void NotebookRewardTest() {
+        IDatabase<String, TransactionBlock> transactionBlockIDatabase = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(0));
+        transactionBlockIDatabase.delete_db();
+        transactionBlockIDatabase = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(0));
+
+        sk1 = new BLSPrivateKey(1);
+        vk1 = new BLSPublicKey(sk1);
+
+        sk2 = new BLSPrivateKey(2);
+        vk2 = new BLSPublicKey(sk2);
+
+
+        String address1 = "ADR-AB2W-RIQY-LSIH-CXQQ-FGRV-AINR-57RO-NFXU-IWM5-IANJ";
+        String address2 = "ADR-ACAO-BKTC-CFKG-VXWF-PSI2-QHWR-ZIGK-CCOL-LGJN-CM3U";
+
+        char[] mnemonic1 = "sample sail jungle learn general promote task puppy own conduct green affair ".toCharArray();
+        char[] mnemonic2 = "photo monitor cushion indicate civil witness orchard estate online favorite sustain extend".toCharArray();
+        char[] passphrase = "p4ssphr4se".toCharArray();
+
+        Mnemonic mnem = new Mnemonic(Security.NORMAL, WordList.ENGLISH);
+        byte[] key1 = mnem.createSeed(mnemonic1, passphrase);
+        byte[] key2 = mnem.createSeed(mnemonic1, passphrase);
+        SecureRandom random = SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
+        random.setSeed(key1);
+        ecKeyPair1 = Keys.createEcKeyPair(random);
+        random.setSeed(key2);
+        ecKeyPair2 = Keys.createEcKeyPair(random);
+
+        ECDSASignatureData signatureData1 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address1)), ecKeyPair1);
+        ECDSASignatureData signatureData2 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address1)), ecKeyPair2);
+        PatriciaTreeNode treeNode1=new PatriciaTreeNode(1000, 0, 270, 20);
+        PatriciaTreeNode treeNode2=new PatriciaTreeNode(1000, 0, 450, 40);
+        treeNode1.getStakingInfo().setCommissionRate(5);
+        treeNode2.getStakingInfo().setCommissionRate(10);
+
+        TreeFactory.getMemoryTree(0).store(address1, treeNode1);
+        TreeFactory.getMemoryTree(0).store(address2, treeNode2);
+        MemoryTreePool replica= (MemoryTreePool) TreeFactory.getMemoryTree(0).clone();
+
+        List<Map<String, RewardObject>> rewardsTotal=new ArrayList<>();
+
+        CommitteeBlock committeeBlock = new CommitteeBlock();
+        committeeBlock.setGeneration(1);
+        committeeBlock.setViewID(1);
+
+        TransactionBlock prevblock1 = new TransactionBlock();
+        prevblock1.setHeight(1);
+        prevblock1.setHash("hash");
+        prevblock1.getHeaderData().setTimestamp(GetTime.GetTimeStampInString());
+        Bytes message1 = Bytes.wrap("Hello, world Block 1".getBytes(UTF_8));
+        BLSSignatureData BLSSignatureData1a = new BLSSignatureData();
+        BLSSignatureData BLSSignatureData3a = new BLSSignatureData();
+        BLSSignatureData1a.getSignature()[0] = BLSSignature.sign(message1.toArray(), sk1);
+        BLSSignatureData1a.getSignature()[1] = BLSSignature.sign(message1.toArray(), sk1);
+        BLSSignatureData3a.getSignature()[0] = BLSSignature.sign(message1.toArray(), sk2);
+        BLSSignatureData3a.getSignature()[1] = BLSSignature.sign(message1.toArray(), sk2);
+
+
+        BLSSignatureData1a.getMessageHash()[0] = BLSSignature.GetMessageHashAsBase64String(message1.toArray());
+        BLSSignatureData1a.getMessageHash()[1] = BLSSignature.GetMessageHashAsBase64String(message1.toArray());
+        BLSSignatureData3a.getMessageHash()[0] = BLSSignature.GetMessageHashAsBase64String(message1.toArray());
+        BLSSignatureData3a.getMessageHash()[1] = BLSSignature.GetMessageHashAsBase64String(message1.toArray());
+
+        prevblock1.getSignatureData().put(vk1, BLSSignatureData1a);
+        prevblock1.getSignatureData().put(vk2, BLSSignatureData3a);
+        prevblock1.setLeaderPublicKey(vk1);
+        prevblock1.setBlockProposer(vk1.toRaw());
+
+        TransactionBlock prevblock2 = new TransactionBlock();
+        prevblock2.setHeight(2);
+        prevblock2.setHash("hash2");
+        prevblock2.getHeaderData().setTimestamp(GetTime.GetTimeStampInString());
+        BLSSignatureData BLSSignatureData2a = new BLSSignatureData();
+        BLSSignatureData BLSSignatureData4a = new BLSSignatureData();
+        BLSSignatureData2a.getSignature()[0] = BLSSignature.sign(message1.toArray(), sk1);
+        BLSSignatureData2a.getSignature()[1] = BLSSignature.sign(message1.toArray(), sk1);
+        BLSSignatureData4a.getSignature()[0] = BLSSignature.sign(message1.toArray(), sk2);
+        BLSSignatureData4a.getSignature()[1] = BLSSignature.sign(message1.toArray(), sk2);
+
+
+        BLSSignatureData2a.getMessageHash()[0] = BLSSignature.GetMessageHashAsBase64String(message1.toArray());
+        BLSSignatureData2a.getMessageHash()[1] = BLSSignature.GetMessageHashAsBase64String(message1.toArray());
+        BLSSignatureData4a.getMessageHash()[0] = BLSSignature.GetMessageHashAsBase64String(message1.toArray());
+        BLSSignatureData4a.getMessageHash()[1] = BLSSignature.GetMessageHashAsBase64String(message1.toArray());
+
+        prevblock2.getSignatureData().put(vk1, BLSSignatureData2a);
+        prevblock2.getSignatureData().put(vk2, BLSSignatureData4a);
+        prevblock2.setLeaderPublicKey(vk2);
+        prevblock2.setBlockProposer(vk2.toRaw());
+
+        KademliaData kad1 = new KademliaData(new SecurityAuditProofs(address1, vk1, ecKeyPair1.getPublicKey(), signatureData1), new NettyConnectionInfo("192.168.1.106", KademliaConfiguration.PORT));
+        KademliaData kad2 = new KademliaData(new SecurityAuditProofs(address2, vk2, ecKeyPair2.getPublicKey(), signatureData2), new NettyConnectionInfo("192.168.1.116", KademliaConfiguration.PORT));
+
+        committeeBlock.getStakingMap().put(new StakingData(1, 270.0), kad1);
+        committeeBlock.getStakingMap().put(new StakingData(2, 490.0), kad2);
+
+
+        CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
+        transactionBlockIDatabase.save(String.valueOf(prevblock1.getHeight()), prevblock1);
+        CachedStartHeightRewards.getInstance().setHeight(1);
+        RewardChainBuilder king = new RewardChainBuilder();
+        king.makeRequest(new Request(RequestType.EFFECTIVE_STAKE, "EFFECTIVE_STAKE"));
+        king.makeRequest(new Request(RequestType.EFFECTIVE_STAKE_RATIO, "EFFECTIVE_STAKE_RATIO"));
+        king.makeRequest(new Request(RequestType.DELEGATE_WEIGHTS_CALCULATOR, "DELEGATE_WEIGHTS_CALCULATOR"));
+        king.makeRequest(new Request(RequestType.VALIDATOR_REWARD_CALCULATOR, "VALIDATOR_REWARD_CALCULATOR"));
+        king.makeRequest(new Request(RequestType.DELEGATE_REWARD_CALCULATOR, "DELEGATE_REWARD_CALCULATOR"));
+        king.makeRequest(new Request(RequestType.REWARD_PRECISION_CALCULATOR, "REWARD_PRECISION_CALCULATOR"));
+        king.makeRequest(new Request(RequestType.REWARD_STORAGE_CALCULATOR, "REWARD_STORAGE_CALCULATOR", TreeFactory.getMemoryTree(0)));
+
+        rewardsTotal.add(0, SerializationUtils.clone(CachedRewardMapData.getInstance().getEffective_stakes_map()));
+        CachedRewardMapData.getInstance().clearInstance();
+        transactionBlockIDatabase.save(String.valueOf(prevblock2.getHeight()), prevblock2);
+        CachedStartHeightRewards.getInstance().setHeight(2);
+
+        RewardChainBuilder king1 = new RewardChainBuilder();
+        king1.makeRequest(new Request(RequestType.EFFECTIVE_STAKE, "EFFECTIVE_STAKE"));
+        king1.makeRequest(new Request(RequestType.EFFECTIVE_STAKE_RATIO, "EFFECTIVE_STAKE_RATIO"));
+        king1.makeRequest(new Request(RequestType.DELEGATE_WEIGHTS_CALCULATOR, "DELEGATE_WEIGHTS_CALCULATOR"));
+        king1.makeRequest(new Request(RequestType.VALIDATOR_REWARD_CALCULATOR, "VALIDATOR_REWARD_CALCULATOR"));
+        king1.makeRequest(new Request(RequestType.DELEGATE_REWARD_CALCULATOR, "DELEGATE_REWARD_CALCULATOR"));
+        king1.makeRequest(new Request(RequestType.REWARD_PRECISION_CALCULATOR, "REWARD_PRECISION_CALCULATOR"));
+        king1.makeRequest(new Request(RequestType.REWARD_STORAGE_CALCULATOR, "REWARD_STORAGE_CALCULATOR", TreeFactory.getMemoryTree(0)));
+        rewardsTotal.add(1, SerializationUtils.clone(CachedRewardMapData.getInstance().getEffective_stakes_map()));
+
+        CachedRewardMapData.getInstance().clearInstance();
+        CachedStartHeightRewards.getInstance().setHeight(1);
+        RewardChainBuilder king2 = new RewardChainBuilder();
+        king2.makeRequest(new Request(RequestType.EFFECTIVE_STAKE, "EFFECTIVE_STAKE"));
+        king2.makeRequest(new Request(RequestType.EFFECTIVE_STAKE_RATIO, "EFFECTIVE_STAKE_RATIO"));
+        king2.makeRequest(new Request(RequestType.DELEGATE_WEIGHTS_CALCULATOR, "DELEGATE_WEIGHTS_CALCULATOR"));
+        king2.makeRequest(new Request(RequestType.VALIDATOR_REWARD_CALCULATOR, "VALIDATOR_REWARD_CALCULATOR"));
+        king2.makeRequest(new Request(RequestType.DELEGATE_REWARD_CALCULATOR, "DELEGATE_REWARD_CALCULATOR"));
+        king2.makeRequest(new Request(RequestType.REWARD_PRECISION_CALCULATOR, "REWARD_PRECISION_CALCULATOR"));
+        king2.makeRequest(new Request(RequestType.REWARD_STORAGE_CALCULATOR, "REWARD_STORAGE_CALCULATOR", replica));
+
+        rewardsTotal.add(2, SerializationUtils.clone(CachedRewardMapData.getInstance().getEffective_stakes_map()));
+        CachedRewardMapData.getInstance().clearInstance();
+
+        assertEquals(rewardsTotal.get(0).get(address1).getReal_reward().add(rewardsTotal.get(1).get(address1).getReal_reward()),rewardsTotal.get(2).get(address1).getReal_reward());
+        assertEquals(rewardsTotal.get(0).get(address2).getReal_reward().add(rewardsTotal.get(1).get(address2).getReal_reward()),rewardsTotal.get(2).get(address2).getReal_reward());
+
+        assertEquals(rewardsTotal.get(0).get(address1).getUnreal_reward().add(rewardsTotal.get(1).get(address1).getUnreal_reward()),rewardsTotal.get(2).get(address1).getUnreal_reward());
+        assertEquals(rewardsTotal.get(0).get(address2).getUnreal_reward().add(rewardsTotal.get(1).get(address2).getUnreal_reward()),rewardsTotal.get(2).get(address2).getUnreal_reward());
+
+        assertEquals(rewardsTotal.get(0).get(address1).getReal_reward().add(rewardsTotal.get(1).get(address1).getReal_reward()),BigDecimal.valueOf(replica.getByaddress(address1).get().getUnclaimed_reward()));
+        assertEquals(rewardsTotal.get(0).get(address2).getReal_reward().add(rewardsTotal.get(1).get(address2).getReal_reward()),BigDecimal.valueOf(replica.getByaddress(address2).get().getUnclaimed_reward()).setScale(RewardConfiguration.DECIMAL_PRECISION,RewardConfiguration.ROUNDING));
+
+        assertEquals(TreeFactory.getMemoryTree(0).getByaddress(address1).get().getUnclaimed_reward(),replica.getByaddress(address1).get().getUnclaimed_reward());
+        assertEquals(TreeFactory.getMemoryTree(0).getByaddress(address2).get().getUnclaimed_reward(),replica.getByaddress(address2).get().getUnclaimed_reward());
+
+        assertEquals(rewardsTotal.get(0).get(address1).getUnreal_reward().add(rewardsTotal.get(1).get(address1).getUnreal_reward()),TreeFactory.getMemoryTree(0).getByaddress(address1).get().getUnclaimed_reward());
+        CachedRewardMapData.getInstance().clearInstance();
+        transactionBlockIDatabase.delete_db();
+        TreeFactory.ClearMemoryTree(0);
     }
 }

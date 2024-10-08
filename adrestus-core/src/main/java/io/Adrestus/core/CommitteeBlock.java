@@ -218,7 +218,7 @@ public class CommitteeBlock extends AbstractBlock implements BlockFactory, Disru
     private static final class StakingValueComparator implements Comparator<StakingData>, Serializable {
         @Override
         public int compare(StakingData a, StakingData b) {
-            if (a.getStake() >= b.getStake()) {
+            if (a.getStake().compareTo(b.getStake())>=0) {
                 return -1;
             } else {
                 return 1;

@@ -34,6 +34,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.spongycastle.util.encoders.Hex;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.Random;
@@ -73,7 +74,7 @@ public class DHTStressTest {
 
         kademliaData = new KademliaData(new SecurityAuditProofs(adddress, ecKeyPair.getPublicKey(), signatureData), new NettyConnectionInfo("127.0.0.1", 8080));
         kademliaData.getAddressData().setValidatorBlSPublicKey(vk);
-        TreeFactory.getMemoryTree(0).store(adddress, new PatriciaTreeNode(1000, 0));
+        TreeFactory.getMemoryTree(0).store(adddress, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
         Gson gson = new Gson();
         String jsonString = gson.toJson(kademliaData);
         KademliaData copydata = gson.fromJson(jsonString, KademliaData.class);

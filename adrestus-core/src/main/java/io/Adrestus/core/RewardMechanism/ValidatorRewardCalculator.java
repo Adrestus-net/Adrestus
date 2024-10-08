@@ -18,6 +18,8 @@ import io.distributedLedger.IDatabase;
 import io.distributedLedger.ZoneDatabaseFactory;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.sql.SQLOutput;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -68,18 +70,19 @@ public class ValidatorRewardCalculator implements RewardHandler {
             BigDecimal block_reward = CustomBigDecimal.valueOf(entry.getValue().getBlock_participation()).multiply(CustomBigDecimal.valueOf(RewardConfiguration.TRANSACTION_REWARD_PER_BLOCK)).multiply(entry.getValue().getEffective_stake_ratio()).setScale(RewardConfiguration.DECIMAL_PRECISION, RewardConfiguration.ROUNDING);
             BigDecimal commission_fees = CustomBigDecimal.valueOf(patriciaTreeNode.getStakingInfo().getCommissionRate()).multiply(block_reward).divide(CustomBigDecimal.valueOf(100), RewardConfiguration.DECIMAL_PRECISION, RewardConfiguration.ROUNDING);
             BigDecimal unreal_reward = block_reward.subtract(commission_fees).setScale(RewardConfiguration.DECIMAL_PRECISION, RewardConfiguration.ROUNDING);
-            ;
             BigDecimal real_reward = CustomBigDecimal.valueOf(patriciaTreeNode.getPrivate_staking_amount()).multiply(unreal_reward).divide(CustomBigDecimal.valueOf(patriciaTreeNode.getStaking_amount()), RewardConfiguration.DECIMAL_PRECISION, RewardConfiguration.ROUNDING);
-
+            BigDecimal per_block=real_reward.divide(CustomBigDecimal.valueOf(entry.getValue().getBlock_participation()),RewardConfiguration.DECIMAL_PRECISION,RewardConfiguration.ROUNDING);
             //leader block rewards
-            real_reward = real_reward.add((CustomBigDecimal.valueOf(RewardConfiguration.TRANSACTION_LEADER_BLOCK_REWARD).multiply(real_reward).divide(CustomBigDecimal.valueOf(100), RewardConfiguration.DECIMAL_PRECISION, RewardConfiguration.ROUNDING)).multiply(CustomBigDecimal.valueOf(entry.getValue().getTransactions_leader_participation())));
+            //Don't change rounding mode up problem here
+            real_reward = real_reward.add(per_block.multiply(BigDecimal.valueOf(entry.getValue().getTransactions_leader_participation())).multiply(RewardConfiguration.TRANSACTION_LEADER_BLOCK_REWARD).setScale(RewardConfiguration.DECIMAL_PRECISION, RoundingMode.UP));
             if (entry.getValue().isCommittee_leader_participation()) {
                 //committee leader VRF rewards
-                real_reward = real_reward.add((CustomBigDecimal.valueOf(RewardConfiguration.VRF_REWARD).multiply(real_reward).divide(CustomBigDecimal.valueOf(100), RewardConfiguration.DECIMAL_PRECISION, RewardConfiguration.ROUNDING)));
+                real_reward = real_reward.add(per_block.multiply(RewardConfiguration.VDF_REWARD)).setScale(RewardConfiguration.DECIMAL_PRECISION, RewardConfiguration.ROUNDING);
 
                 //committee leader VDF rewards
-                real_reward = real_reward.add((CustomBigDecimal.valueOf(RewardConfiguration.VDF_REWARD).multiply(real_reward).divide(CustomBigDecimal.valueOf(100), RewardConfiguration.DECIMAL_PRECISION, RewardConfiguration.ROUNDING)));
+                real_reward = real_reward.add(per_block.multiply(RewardConfiguration.VRF_REWARD)).setScale(RewardConfiguration.DECIMAL_PRECISION, RewardConfiguration.ROUNDING);
             }
+
             entry.getValue().setUnreal_reward(unreal_reward);
             entry.getValue().setReal_reward(real_reward);
         }

@@ -4,26 +4,28 @@ import io.activej.serializer.annotations.Serialize;
 import io.activej.serializer.annotations.SerializeNullable;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.*;
 
 public class PatriciaTreeNode implements PatriciaTreeTransactionBlackSmith, PatriciaTreeReceiptBlackSmith, Serializable, Cloneable {
 
-    private double amount;
-    private double staking_amount;
-    private double private_staking_amount;
-    private double unclaimed_reward;
+    private BigDecimal amount;
+    private BigDecimal staking_amount;
+    private BigDecimal private_staking_amount;
+    private BigDecimal unclaimed_reward;
     private int nonce;
     private StakingInfo stakingInfo;
     private Map<PatriciaTreeTransactionType, @SerializeNullable PatriciaTreeTransactionMethods> transactionsMap;
     private PatriciaTreeReceiptMethods patriciaTreeReceiptMethods;
-    private Map<String, Double> delegation;
+    private Map<String, BigDecimal> delegation;
 
-    public PatriciaTreeNode(double amount, int nonce) {
+
+    public PatriciaTreeNode(BigDecimal amount, int nonce) {
         this.amount = amount;
         this.nonce = nonce;
-        this.staking_amount = 0;
-        this.private_staking_amount = 0;
-        this.unclaimed_reward = 0;
+        this.staking_amount = BigDecimal.ZERO;
+        this.private_staking_amount = BigDecimal.ZERO;
+        this.unclaimed_reward = BigDecimal.ZERO;
         this.stakingInfo = new StakingInfo();
         this.patriciaTreeReceiptMethods = new PatriciaTreeReceipts();
         this.transactionsMap = new EnumMap<>(PatriciaTreeTransactionType.class);
@@ -31,12 +33,13 @@ public class PatriciaTreeNode implements PatriciaTreeTransactionBlackSmith, Patr
         this.Init();
     }
 
-    public PatriciaTreeNode(double amount, int nonce, double staking_amount) {
+
+    public PatriciaTreeNode(BigDecimal amount, int nonce, BigDecimal staking_amount) {
         this.amount = amount;
         this.nonce = nonce;
         this.staking_amount = staking_amount;
-        this.unclaimed_reward = 0;
-        this.private_staking_amount = 0;
+        this.unclaimed_reward = BigDecimal.ZERO;
+        this.private_staking_amount = BigDecimal.ZERO;
         this.stakingInfo = new StakingInfo();
         this.patriciaTreeReceiptMethods = new PatriciaTreeReceipts();
         this.transactionsMap = new EnumMap<>(PatriciaTreeTransactionType.class);
@@ -44,7 +47,8 @@ public class PatriciaTreeNode implements PatriciaTreeTransactionBlackSmith, Patr
         this.Init();
     }
 
-    public PatriciaTreeNode(double amount, int nonce, double staking_amount, double private_staking_amount, double unclaimed_reward) {
+
+    public PatriciaTreeNode(BigDecimal amount, int nonce, BigDecimal staking_amount, BigDecimal private_staking_amount, BigDecimal unclaimed_reward) {
         this.amount = amount;
         this.nonce = nonce;
         this.staking_amount = staking_amount;
@@ -57,12 +61,13 @@ public class PatriciaTreeNode implements PatriciaTreeTransactionBlackSmith, Patr
         this.Init();
     }
 
-    public PatriciaTreeNode(double amount, int nonce, double staking_amount, double private_staking_amount) {
+
+    public PatriciaTreeNode(BigDecimal amount, int nonce, BigDecimal staking_amount, BigDecimal private_staking_amount) {
         this.amount = amount;
         this.nonce = nonce;
         this.staking_amount = staking_amount;
         this.private_staking_amount = private_staking_amount;
-        this.unclaimed_reward = 0;
+        this.unclaimed_reward = BigDecimal.ZERO;
         this.stakingInfo = new StakingInfo();
         this.patriciaTreeReceiptMethods = new PatriciaTreeReceipts();
         this.transactionsMap = new EnumMap<>(PatriciaTreeTransactionType.class);
@@ -70,12 +75,13 @@ public class PatriciaTreeNode implements PatriciaTreeTransactionBlackSmith, Patr
         this.Init();
     }
 
-    public PatriciaTreeNode(double amount) {
+
+    public PatriciaTreeNode(BigDecimal amount) {
         this.amount = amount;
         this.nonce = 0;
-        this.staking_amount = 0;
-        this.unclaimed_reward = 0;
-        this.private_staking_amount = 0;
+        this.staking_amount = BigDecimal.ZERO;
+        this.unclaimed_reward = BigDecimal.ZERO;
+        this.private_staking_amount = BigDecimal.ZERO;
         this.stakingInfo = new StakingInfo();
         this.patriciaTreeReceiptMethods = new PatriciaTreeReceipts();
         this.transactionsMap = new EnumMap<>(PatriciaTreeTransactionType.class);
@@ -84,11 +90,11 @@ public class PatriciaTreeNode implements PatriciaTreeTransactionBlackSmith, Patr
     }
 
     public PatriciaTreeNode() {
-        this.amount = 0;
+        this.amount = BigDecimal.ZERO;
         this.nonce = 0;
-        this.staking_amount = 0;
-        this.unclaimed_reward = 0;
-        this.private_staking_amount = 0;
+        this.staking_amount = BigDecimal.ZERO;
+        this.unclaimed_reward = BigDecimal.ZERO;
+        this.private_staking_amount = BigDecimal.ZERO;
         this.stakingInfo = new StakingInfo();
         this.patriciaTreeReceiptMethods = new PatriciaTreeReceipts();
         this.transactionsMap = new EnumMap<>(PatriciaTreeTransactionType.class);
@@ -174,15 +180,6 @@ public class PatriciaTreeNode implements PatriciaTreeTransactionBlackSmith, Patr
     }
 
     @Serialize
-    public double getAmount() {
-        return amount;
-    }
-
-    public void setAmount(double amount) {
-        this.amount = amount;
-    }
-
-    @Serialize
     public int getNonce() {
         return nonce;
     }
@@ -191,23 +188,6 @@ public class PatriciaTreeNode implements PatriciaTreeTransactionBlackSmith, Patr
         this.nonce = nonce;
     }
 
-    @Serialize
-    public double getStaking_amount() {
-        return staking_amount;
-    }
-
-    public void setStaking_amount(double staking_amount) {
-        this.staking_amount = staking_amount;
-    }
-
-    @Serialize
-    public double getUnclaimed_reward() {
-        return unclaimed_reward;
-    }
-
-    public void setUnclaimed_reward(double unclaimed_reward) {
-        this.unclaimed_reward = unclaimed_reward;
-    }
 
     @Override
     @Serialize
@@ -231,21 +211,48 @@ public class PatriciaTreeNode implements PatriciaTreeTransactionBlackSmith, Patr
 
 
     @Serialize
-    public Map<String, Double> getDelegation() {
+    public Map<String, BigDecimal> getDelegation() {
         return delegation;
     }
 
-    public void setDelegation(Map<String, Double> delegation) {
+    public void setDelegation(Map<String, BigDecimal> delegation) {
         this.delegation = delegation;
     }
 
     @Serialize
-    public double getPrivate_staking_amount() {
+    public BigDecimal getAmount() {
+        return amount;
+    }
+
+    public void setAmount(BigDecimal amount) {
+        this.amount = amount;
+    }
+
+    @Serialize
+    public BigDecimal getUnclaimed_reward() {
+        return unclaimed_reward;
+    }
+
+    public void setUnclaimed_reward(BigDecimal unclaimed_reward) {
+        this.unclaimed_reward = unclaimed_reward;
+    }
+
+    @Serialize
+    public BigDecimal getPrivate_staking_amount() {
         return private_staking_amount;
     }
 
-    public void setPrivate_staking_amount(double private_staking_amount) {
+    public void setPrivate_staking_amount(BigDecimal private_staking_amount) {
         this.private_staking_amount = private_staking_amount;
+    }
+
+    @Serialize
+    public BigDecimal getStaking_amount() {
+        return staking_amount;
+    }
+
+    public void setStaking_amount(BigDecimal staking_amount) {
+        this.staking_amount = staking_amount;
     }
 
     @Override
@@ -264,7 +271,7 @@ public class PatriciaTreeNode implements PatriciaTreeTransactionBlackSmith, Patr
     }
 
 
-    private static boolean MapAreEqual(Map<String, Double> first, Map<String, Double> second) {
+    private static boolean MapAreEqual(Map<String, BigDecimal> first, Map<String, BigDecimal> second) {
         if (first.size() != second.size()) {
             return false;
         }
@@ -303,14 +310,14 @@ public class PatriciaTreeNode implements PatriciaTreeTransactionBlackSmith, Patr
         return true;
     }
 
+
     //NEVER DELETE THIS FUNCTION ELSE BLOCK HASH EVENT HANDLER WILL HAVE PROBLEM with  EQUALS FUNCTIONALITY
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         PatriciaTreeNode that = (PatriciaTreeNode) o;
-//      Stream.of(that.transactionsMap.keySet()).map()
-        return Double.compare(amount, that.amount) == 0 && Double.compare(private_staking_amount, that.private_staking_amount) == 0 && Double.compare(staking_amount, that.staking_amount) == 0 && Double.compare(unclaimed_reward, that.unclaimed_reward) == 0 && nonce == that.nonce && Objects.equals(stakingInfo, that.stakingInfo) && linkedEquals(transactionsMap, that.transactionsMap) && Objects.equals(patriciaTreeReceiptMethods, that.patriciaTreeReceiptMethods) && MapAreEqual(delegation, that.delegation);
+        return nonce == that.nonce && Objects.equals(amount, that.amount) && Objects.equals(staking_amount, that.staking_amount) && Objects.equals(private_staking_amount, that.private_staking_amount) && Objects.equals(unclaimed_reward, that.unclaimed_reward) && Objects.equals(stakingInfo, that.stakingInfo) && linkedEquals(transactionsMap, that.transactionsMap) && Objects.equals(patriciaTreeReceiptMethods, that.patriciaTreeReceiptMethods) && MapAreEqual(delegation, that.delegation);
     }
 
     @Override

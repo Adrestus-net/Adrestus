@@ -1,8 +1,9 @@
 package io.Adrestus.core.RewardMechanism;
 
+import java.io.Serializable;
 import java.util.HashMap;
 
-public class CachedRewardMapData {
+public class CachedRewardMapData implements Serializable {
 
     private static volatile CachedRewardMapData instance;
     private final HashMap<String, RewardObject> effective_stakes_map;
@@ -38,6 +39,7 @@ public class CachedRewardMapData {
 
     public void clearInstance() {
         synchronized (CachedRewardMapData.class) {
+            effective_stakes_map.values().forEach(val->val.getDelegate_stake().clear());
             effective_stakes_map.clear();
             instance = null;
         }

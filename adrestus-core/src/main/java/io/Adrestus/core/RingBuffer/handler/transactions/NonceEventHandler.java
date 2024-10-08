@@ -8,6 +8,7 @@ import io.Adrestus.core.RingBuffer.event.TransactionEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigDecimal;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
@@ -31,7 +32,7 @@ public class NonceEventHandler extends TransactionEventHandler implements Transa
 
         } catch (NoSuchElementException ex) {
             LOG.info("State trie is empty we add From address");
-            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(regularTransaction.getFrom(), new PatriciaTreeNode(0, 0));
+            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(regularTransaction.getFrom(), new PatriciaTreeNode(BigDecimal.ZERO, 0));
             patriciaTreeNode = TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(regularTransaction.getFrom()).get();
         } catch (NullPointerException ex) {
             Optional.of("RegularTransaction is empty").ifPresent(val -> {
@@ -60,7 +61,7 @@ public class NonceEventHandler extends TransactionEventHandler implements Transa
 
         } catch (NoSuchElementException ex) {
             LOG.info("State trie is empty we add RecipientAddress address");
-            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(rewardsTransaction.getRecipientAddress(), new PatriciaTreeNode(0, 0));
+            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(rewardsTransaction.getRecipientAddress(), new PatriciaTreeNode(BigDecimal.ZERO, 0));
             patriciaTreeNode = TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(rewardsTransaction.getRecipientAddress()).get();
         } catch (NullPointerException ex) {
             Optional.of("RewardsTransaction is empty").ifPresent(val -> {
@@ -89,7 +90,7 @@ public class NonceEventHandler extends TransactionEventHandler implements Transa
 
         } catch (NoSuchElementException ex) {
             LOG.info("State trie is empty we add ValidatorAddress");
-            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(stakingTransaction.getValidatorAddress(), new PatriciaTreeNode(0, 0));
+            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(stakingTransaction.getValidatorAddress(), new PatriciaTreeNode(BigDecimal.ZERO, 0));
             patriciaTreeNode = TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(stakingTransaction.getValidatorAddress()).get();
         } catch (NullPointerException ex) {
             Optional.of("StakingTransaction is empty").ifPresent(val -> {
@@ -118,7 +119,7 @@ public class NonceEventHandler extends TransactionEventHandler implements Transa
 
         } catch (NoSuchElementException ex) {
             LOG.info("State trie is empty we add DelegatorAddress");
-            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(delegateTransaction.getDelegatorAddress(), new PatriciaTreeNode(0, 0));
+            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(delegateTransaction.getDelegatorAddress(), new PatriciaTreeNode(BigDecimal.ZERO, 0));
             patriciaTreeNode = TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(delegateTransaction.getDelegatorAddress()).get();
         } catch (NullPointerException ex) {
             Optional.of("DelegateTransaction is empty").ifPresent(val -> {
@@ -147,7 +148,7 @@ public class NonceEventHandler extends TransactionEventHandler implements Transa
 
         } catch (NoSuchElementException ex) {
             LOG.info("State trie is empty we add UnclaimedFeeRewardTransaction");
-            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(unclaimedFeeRewardTransaction.getRecipientAddress(), new PatriciaTreeNode(0, 0));
+            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(unclaimedFeeRewardTransaction.getRecipientAddress(), new PatriciaTreeNode(BigDecimal.ZERO, 0));
             patriciaTreeNode = TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(unclaimedFeeRewardTransaction.getRecipientAddress()).get();
         } catch (NullPointerException ex) {
             Optional.of("UnclaimedFeeRewardTransaction is empty").ifPresent(val -> {

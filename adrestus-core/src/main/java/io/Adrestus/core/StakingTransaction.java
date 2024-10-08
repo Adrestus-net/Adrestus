@@ -3,6 +3,7 @@ package io.Adrestus.core;
 import io.Adrestus.crypto.elliptic.ECDSASignatureData;
 import io.activej.serializer.annotations.Serialize;
 
+import java.math.BigDecimal;
 import java.util.Objects;
 
 public class StakingTransaction extends Transaction {
@@ -13,7 +14,7 @@ public class StakingTransaction extends Transaction {
     private double CommissionRate;
     private String ValidatorAddress;
 
-    public StakingTransaction(String hash, TransactionType type, StatusType status, int zoneFrom, int zoneTo, String timestamp, int blockNumber, String from, String to, double amount, double transactionFee, int nonce, ECDSASignatureData signature, String name, String details, String website, String identity, double commissionRate, String validatorAddress) {
+    public StakingTransaction(String hash, TransactionType type, StatusType status, int zoneFrom, int zoneTo, String timestamp, int blockNumber, String from, String to, BigDecimal amount, BigDecimal transactionFee, int nonce, ECDSASignatureData signature, String name, String details, String website, String identity, double commissionRate, String validatorAddress) {
         super(hash, type, status, zoneFrom, zoneTo, timestamp, blockNumber, from, to, amount, transactionFee, nonce, signature);
         this.Name = name;
         this.Details = details;

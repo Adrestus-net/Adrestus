@@ -42,6 +42,7 @@ import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
 
 import java.lang.reflect.Type;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -133,7 +134,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
         todelete.clear();
 
         if (!transactionBlock.getTransactionList().isEmpty()) {
-            double sum = transactionBlock.getTransactionList().parallelStream().filter(val -> !val.getType().equals(TransactionType.UNCLAIMED_FEE_REWARD)).mapToDouble(Transaction::getAmountWithTransactionFee).sum();
+            BigDecimal sum = transactionBlock.getTransactionList().parallelStream().filter(val -> !val.getType().equals(TransactionType.UNCLAIMED_FEE_REWARD)).map(Transaction::getAmountWithTransactionFee).reduce(BigDecimal.ZERO, BigDecimal::add);;
             try {
                 transactionBlock.getTransactionList().add(0, new UnclaimedFeeRewardTransaction(TransactionType.UNCLAIMED_FEE_REWARD, this.blockIndex.getAddressByPublicKey(CachedBLSKeyPair.getInstance().getPublicKey()), sum));
             } catch (NoSuchElementException e) {

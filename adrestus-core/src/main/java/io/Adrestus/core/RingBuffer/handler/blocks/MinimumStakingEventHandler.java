@@ -9,6 +9,7 @@ import io.Adrestus.p2p.kademlia.repository.KademliaData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -40,7 +41,7 @@ public class MinimumStakingEventHandler implements BlockEventHandler<AbstractBlo
             if (TreeFactory.getMemoryTree(0)
                     .getByaddress(securityAuditProofs.getAddressData().getAddress())
                     .get()
-                    .getAmount() >= StakingConfiguration.MINIMUM_STAKING)
+                    .getAmount().compareTo(BigDecimal.valueOf(StakingConfiguration.MINIMUM_STAKING))>=0)
                 return true;
             else
                 return false;

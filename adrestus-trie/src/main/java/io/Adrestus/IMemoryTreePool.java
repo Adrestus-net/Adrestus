@@ -9,14 +9,15 @@ import io.Adrestus.util.bytes.Bytes53;
 import io.vavr.control.Option;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Set;
 
 public interface IMemoryTreePool extends Serializable {
     void store(String address, PatriciaTreeNode patriciaTreeNode);
 
-    void deposit(PatriciaTreeTransactionType type, String address, double amount, double fees);
+    void deposit(PatriciaTreeTransactionType type, String address, BigDecimal amount, BigDecimal fees);
 
-    void withdraw(PatriciaTreeTransactionType type, String address, double amount, double fees);
+    void withdraw(PatriciaTreeTransactionType type, String address, BigDecimal amount, BigDecimal fees);
 
 
     void setStakingInfos(String address, StakingInfo stakingInfo);

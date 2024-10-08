@@ -10,6 +10,7 @@ import io.Adrestus.util.SerializationUtil;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Type;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,7 +25,7 @@ public class PatriciaTreeNodeSerializeTest {
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(BloomFilter.class, ctx -> new BloomFilterSerializer()));
         SerializationUtil<PatriciaTreeNode> ser = new SerializationUtil<PatriciaTreeNode>(fluentType, list);
-        PatriciaTreeNode patriciaTreeNode = new PatriciaTreeNode(23, 2, 31);
+        PatriciaTreeNode patriciaTreeNode = new PatriciaTreeNode(BigDecimal.valueOf(23), 2, BigDecimal.valueOf(31));
         patriciaTreeNode.addTransactionPosition(PatriciaTreeTransactionType.REGULAR, "1", 0, 1, 2);
         patriciaTreeNode.addTransactionPosition(PatriciaTreeTransactionType.REGULAR, "2", 0, 1, 3);
         patriciaTreeNode.addTransactionPosition(PatriciaTreeTransactionType.REGULAR, "3", 0, 1, 4);

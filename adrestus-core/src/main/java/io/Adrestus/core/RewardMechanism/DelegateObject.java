@@ -1,9 +1,10 @@
 package io.Adrestus.core.RewardMechanism;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Objects;
 
-public class DelegateObject {
+public class DelegateObject implements Serializable {
     private BigDecimal weights;
     private BigDecimal reward;
 

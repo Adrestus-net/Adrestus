@@ -15,6 +15,7 @@ import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.SerializationUtils;
 
 import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.EnumMap;
@@ -95,7 +96,7 @@ public class MemoryTreePool implements IMemoryTreePool, Cloneable {
     //be aware that print functionality is  different
     @SneakyThrows
     @Override
-    public void deposit(PatriciaTreeTransactionType type, String address, double amount, double fees) {
+    public void deposit(PatriciaTreeTransactionType type, String address, BigDecimal amount, BigDecimal fees) {
         w.lock();
         try {
             this.transactionsMap.get(type).deposit(this.patriciaTreeImp, address, amount, fees);
@@ -108,7 +109,7 @@ public class MemoryTreePool implements IMemoryTreePool, Cloneable {
     //be aware that print functionality is  different
     @SneakyThrows
     @Override
-    public void withdraw(PatriciaTreeTransactionType type, String address, double amount, double fees) {
+    public void withdraw(PatriciaTreeTransactionType type, String address, BigDecimal amount, BigDecimal fees) {
         w.lock();
         try {
             this.transactionsMap.get(type).withdraw(this.patriciaTreeImp, address, amount, fees);

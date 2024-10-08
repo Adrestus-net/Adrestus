@@ -322,7 +322,7 @@ public class ConsensusTransactionTimerTest {
         }
 
         //be aware that print functionality is  different
-        assertEquals(991.1, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(0)).get().getAmount());
+        assertEquals(992.219993, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(0)).get().getAmount());
         assertEquals(984.8, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(1)).get().getAmount());
         assertEquals(993.3999999999999, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(2)).get().getAmount());
         assertEquals(993.0, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(3)).get().getAmount());

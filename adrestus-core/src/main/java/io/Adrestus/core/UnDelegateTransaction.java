@@ -2,13 +2,15 @@ package io.Adrestus.core;
 
 import io.Adrestus.crypto.elliptic.ECDSASignatureData;
 
+import java.math.BigDecimal;
+
 public class UnDelegateTransaction extends DelegateTransaction {
 
     public UnDelegateTransaction(String delegatorAddress, String validatorAddress) {
         super(delegatorAddress, validatorAddress);
     }
 
-    public UnDelegateTransaction(String hash, TransactionType type, StatusType status, int zoneFrom, int zoneTo, String timestamp, int blockNumber, String from, String to, double amount, double transactionFee, int nonce, ECDSASignatureData signature, String delegatorAddress, String validatorAddress) {
+    public UnDelegateTransaction(String hash, TransactionType type, StatusType status, int zoneFrom, int zoneTo, String timestamp, int blockNumber, String from, String to, BigDecimal amount, BigDecimal transactionFee, int nonce, ECDSASignatureData signature, String delegatorAddress, String validatorAddress) {
         super(hash, type, status, zoneFrom, zoneTo, timestamp, blockNumber, from, to, amount, transactionFee, nonce, signature, delegatorAddress, validatorAddress);
     }
 

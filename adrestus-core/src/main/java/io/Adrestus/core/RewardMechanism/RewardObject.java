@@ -1,11 +1,12 @@
 package io.Adrestus.core.RewardMechanism;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-public class RewardObject {
+public class RewardObject implements Serializable {
 
     private BigDecimal effective_stake;
     private BigDecimal effective_stake_ratio;

@@ -30,7 +30,7 @@ public class SortedStakingEventHandler implements BlockEventHandler<AbstractBloc
             List<StakingData> old = new ArrayList<>(values);
             List<StakingData> neww = new ArrayList<>(keys);
             for (int i = 0; i < old.size(); i++) {
-                if (Double.compare(old.get(i).getStake(), neww.get(i).getStake()) != 0) {
+                if (old.get(i).getStake().compareTo(neww.get(i).getStake()) != 0) {
                     LOG.info("Staking Map elements is not sorted or equal");
                     block.setStatustype(StatusType.ABORT);
                     return;
@@ -44,7 +44,7 @@ public class SortedStakingEventHandler implements BlockEventHandler<AbstractBloc
     private static final class StakingValueComparator implements Comparator<StakingData>, Serializable {
         @Override
         public int compare(StakingData a, StakingData b) {
-            if (a.getStake() >= b.getStake()) {
+            if (a.getStake().compareTo(b.getStake())>=0) {
                 return -1;
             } else {
                 return 1;

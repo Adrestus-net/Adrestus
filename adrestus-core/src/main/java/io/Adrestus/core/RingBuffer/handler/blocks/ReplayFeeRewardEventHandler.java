@@ -8,6 +8,8 @@ import io.Adrestus.core.UnclaimedFeeRewardTransaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigDecimal;
+
 public class ReplayFeeRewardEventHandler implements BlockEventHandler<AbstractBlockEvent> {
     private static Logger LOG = LoggerFactory.getLogger(ReplayFeeRewardEventHandler.class);
 
@@ -18,8 +20,8 @@ public class ReplayFeeRewardEventHandler implements BlockEventHandler<AbstractBl
             return;
         try {
             UnclaimedFeeRewardTransaction transaction = (UnclaimedFeeRewardTransaction) transactionBlock.getTransactionList().get(0);
-            double sum = transactionBlock.getTransactionList().parallelStream().skip(1).mapToDouble(Transaction::getAmountWithTransactionFee).sum();
-            if (sum != transaction.getAmount()) {
+            BigDecimal sum = transactionBlock.getTransactionList().parallelStream().skip(1).map(Transaction::getAmountWithTransactionFee).reduce(BigDecimal.ZERO, BigDecimal::add);
+            if (sum.compareTo(transaction.getAmount())!=0) {
                 LOG.info("Leader FeeRewardTransaction is invalid abort");
                 transactionBlock.setStatustype(StatusType.ABORT);
                 return;

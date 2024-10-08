@@ -345,7 +345,6 @@ public class OrganizerConsensusPhases {
 
             this.sizeCalculator.setTransactionBlock(original_copy);
             byte[] toVerify = block_serialize.encode(original_copy, this.sizeCalculator.TransactionBlockSizeCalculator());
-            System.out.println("---> " + HashUtil.sha256_bytetoString(toVerify));
             Bytes message = Bytes.wrap(toVerify);
             boolean verify = BLSSignature.fastAggregateVerify(publicKeys, message, aggregatedSignature);
             if (!verify) {
@@ -500,13 +499,6 @@ public class OrganizerConsensusPhases {
             long timeElapsed = Commiteefinish - Commiteerestart;
             System.out.println("Organizer committee " + timeElapsed);
             LOG.info("Block is finalized with Success");
-
-            try {
-                Thread.sleep(1500);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-            int a = 4;
         }
     }
 

@@ -29,6 +29,7 @@ import org.apache.commons.codec.binary.StringUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -111,16 +112,16 @@ public class SimulationTest {
         keypair.add(ecKeyPair9);
         keypair.add(ecKeyPair10);
 
-        TreeFactory.getMemoryTree(0).store(adddress1, new PatriciaTreeNode(1000, 0));
-        TreeFactory.getMemoryTree(0).store(adddress2, new PatriciaTreeNode(1000, 0));
-        TreeFactory.getMemoryTree(0).store(adddress3, new PatriciaTreeNode(1000, 0));
-        TreeFactory.getMemoryTree(0).store(adddress4, new PatriciaTreeNode(1000, 0));
-        TreeFactory.getMemoryTree(0).store(adddress5, new PatriciaTreeNode(1000, 0));
-        TreeFactory.getMemoryTree(0).store(adddress6, new PatriciaTreeNode(1000, 0));
-        TreeFactory.getMemoryTree(0).store(adddress7, new PatriciaTreeNode(1000, 0));
-        TreeFactory.getMemoryTree(0).store(adddress8, new PatriciaTreeNode(1000, 0));
-        TreeFactory.getMemoryTree(0).store(adddress9, new PatriciaTreeNode(1000, 0));
-        TreeFactory.getMemoryTree(0).store(adddress10, new PatriciaTreeNode(1000, 0));
+        TreeFactory.getMemoryTree(0).store(adddress1, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
+        TreeFactory.getMemoryTree(0).store(adddress2, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
+        TreeFactory.getMemoryTree(0).store(adddress3, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
+        TreeFactory.getMemoryTree(0).store(adddress4, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
+        TreeFactory.getMemoryTree(0).store(adddress5, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
+        TreeFactory.getMemoryTree(0).store(adddress6, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
+        TreeFactory.getMemoryTree(0).store(adddress7, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
+        TreeFactory.getMemoryTree(0).store(adddress8, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
+        TreeFactory.getMemoryTree(0).store(adddress9, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
+        TreeFactory.getMemoryTree(0).store(adddress10, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
     }
 
     @Test

@@ -9,6 +9,7 @@ import io.Adrestus.core.RingBuffer.event.TransactionEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigDecimal;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
@@ -48,7 +49,7 @@ public class StakingEventHandler extends TransactionEventHandler implements Tran
 
         } catch (NoSuchElementException ex) {
             LOG.info("State trie is empty we add address");
-            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(stakingTransaction.getValidatorAddress(), new PatriciaTreeNode(0, 0));
+            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(stakingTransaction.getValidatorAddress(), new PatriciaTreeNode(BigDecimal.ZERO, 0));
             stakingInfo = TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(stakingTransaction.getValidatorAddress()).get().getStakingInfo();
         } catch (NullPointerException ex) {
             Optional.of("Staking Transaction is empty").ifPresent(val -> {

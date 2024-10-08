@@ -9,6 +9,7 @@ import io.Adrestus.core.RingBuffer.event.TransactionEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigDecimal;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
@@ -47,7 +48,7 @@ public class MinimumStakingEventHandler extends TransactionEventHandler implemen
 
         } catch (NoSuchElementException ex) {
             LOG.info("State trie is empty we add ValidatorAddress address");
-            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(stakingTransaction.getValidatorAddress(), new PatriciaTreeNode(0, 0));
+            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(stakingTransaction.getValidatorAddress(), new PatriciaTreeNode(BigDecimal.ZERO, 0));
             patriciaTreeNode = TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(stakingTransaction.getValidatorAddress()).get();
         } catch (NullPointerException ex) {
             Optional.of("StakingTransaction is empty").ifPresent(val -> {
@@ -58,8 +59,8 @@ public class MinimumStakingEventHandler extends TransactionEventHandler implemen
             return;
         }
 
-        if (patriciaTreeNode.getStaking_amount() < StakingConfiguration.MINIMUM_STAKING) {
-            if (stakingTransaction.getAmount() < StakingConfiguration.MINIMUM_STAKING) {
+        if (patriciaTreeNode.getStaking_amount().compareTo(BigDecimal.valueOf(StakingConfiguration.MINIMUM_STAKING))<0) {
+            if (stakingTransaction.getAmount().compareTo(BigDecimal.valueOf(StakingConfiguration.MINIMUM_STAKING))<0) {
                 patriciaTreeNode.setStaking_amount(stakingTransaction.getAmount());
                 Optional.of("StakingTransaction does not meet minimum requirements").ifPresent(val -> {
                     LOG.info(val);
@@ -68,7 +69,7 @@ public class MinimumStakingEventHandler extends TransactionEventHandler implemen
                 stakingTransaction.setStatus(StatusType.ABORT);
             }
         } else {
-            if (stakingTransaction.getAmount() <= 0) {
+            if (stakingTransaction.getAmount().compareTo(BigDecimal.ZERO)<=0) {
                 Optional.of("StakingTransaction is amount is not sufficient").ifPresent(val -> {
                     LOG.info(val);
                     stakingTransaction.infos(val);
