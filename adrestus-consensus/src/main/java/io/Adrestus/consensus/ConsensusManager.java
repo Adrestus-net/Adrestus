@@ -31,7 +31,7 @@ public class ConsensusManager {
         }
     }
 
-    public void clearStateTo(ConsensusRoleType type,boolean DEBUG) {
+    public void clearStateTo(ConsensusRoleType type, boolean DEBUG) {
         switch (type) {
             case SUPERVISOR:
                 Supervisor.getInstance(this.DEBUG).clear(DEBUG);

@@ -4,7 +4,6 @@ import io.Adrestus.crypto.bls.model.*;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
-import org.spongycastle.util.encoders.Hex;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -26,7 +25,7 @@ public class BlsSerializationTest {
         byte[] msg = "Test_Message".getBytes();
         Signature bls_sig = BLSSignature.sign(msg, sk);
 
-        for(int i=0;i<200;i++) {
+        for (int i = 0; i < 200; i++) {
             BLSPublicKey clonevk = BLSPublicKey.fromByte(vk.toBytes());
             Signature clone_sig = Signature.fromByte(bls_sig.toBytes());
 

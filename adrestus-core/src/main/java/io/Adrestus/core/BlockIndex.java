@@ -4,7 +4,6 @@ import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class BlockIndex implements IBlockIndex {
 
@@ -88,7 +87,7 @@ public class BlockIndex implements IBlockIndex {
 
     @Override
     public boolean containsAll(Set<BLSPublicKey> left, Set<BLSPublicKey> right) {
-        return new HashSet<>(left).containsAll(right);
+        return new HashSet<>(right).containsAll(left);
     }
 
 }

@@ -4,7 +4,6 @@ import com.google.common.reflect.TypeToken;
 import io.Adrestus.MemoryTreePool;
 import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.PatriciaTreeNode;
-import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.core.Util.BlockSizeCalculator;
 import io.Adrestus.crypto.bls.BLS381.ECP;
 import io.Adrestus.crypto.bls.BLS381.ECP2;
@@ -14,7 +13,6 @@ import io.Adrestus.crypto.bls.mapper.ECPmapper;
 import io.Adrestus.crypto.bls.model.BLSPrivateKey;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.Adrestus.crypto.bls.model.BLSSignature;
-import io.Adrestus.crypto.bls.model.CachedBLSKeyPair;
 import io.Adrestus.crypto.elliptic.ECDSASign;
 import io.Adrestus.crypto.elliptic.ECDSASignatureData;
 import io.Adrestus.crypto.elliptic.ECKeyPair;
@@ -129,8 +127,8 @@ public class RocksDBBlockTest {
         IDatabase<String, TransactionBlock> database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(1));
         HashMap<BLSPublicKey, BLSSignatureData> hashMap = new HashMap<BLSPublicKey, BLSSignatureData>();
         BLSSignatureData blsSignatureData1 = new BLSSignatureData();
-        blsSignatureData1.getSignature()[0]= BLSSignature.sign("toSign".getBytes(StandardCharsets.UTF_8), sk1);
-        blsSignatureData1.getMessageHash()[0]="asdas";
+        blsSignatureData1.getSignature()[0] = BLSSignature.sign("toSign".getBytes(StandardCharsets.UTF_8), sk1);
+        blsSignatureData1.getMessageHash()[0] = "asdas";
         BLSSignatureData blsSignatureData2 = new BLSSignatureData();
         BLSSignatureData blsSignatureData3 = new BLSSignatureData();
         BLSSignatureData blsSignatureData4 = new BLSSignatureData();
@@ -142,13 +140,14 @@ public class RocksDBBlockTest {
         block.setHash("1");
         block.setHeight(1);
         block.AddAllSignatureData(hashMap);
-        TransactionBlock a= (TransactionBlock) block.clone();
-        database.save(String.valueOf(a.getHeight()),a);
+        TransactionBlock a = (TransactionBlock) block.clone();
+        database.save(String.valueOf(a.getHeight()), a);
         TransactionBlock copy = (TransactionBlock) database.findByKey("1").get();
         assertEquals(block, copy);
         System.out.println(copy.toString());
         database.delete_db();
     }
+
     @Test
     public void add_get2() {
         IDatabase<String, AbstractBlock> database = new DatabaseFactory(String.class, AbstractBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.ZONE_1_TRANSACTION_BLOCK);

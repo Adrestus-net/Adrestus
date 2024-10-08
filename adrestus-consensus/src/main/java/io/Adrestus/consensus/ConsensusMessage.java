@@ -1,16 +1,13 @@
 package io.Adrestus.consensus;
 
-import com.google.common.base.Objects;
 import io.Adrestus.core.SortSignatureMapByBlsPublicKey;
 import io.Adrestus.crypto.bls.BLSSignatureData;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
-import io.Adrestus.crypto.bls.model.Signature;
 import io.activej.serializer.annotations.Deserialize;
 import io.activej.serializer.annotations.Serialize;
 import io.activej.serializer.annotations.SerializeNullable;
 
 import java.io.Serializable;
-import java.util.Map;
 import java.util.TreeMap;
 
 public class ConsensusMessage<T> implements Serializable {

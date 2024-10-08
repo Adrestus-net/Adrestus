@@ -29,6 +29,9 @@ public class TimeStampEventHandler implements BlockEventHandler<AbstractBlockEve
     @Override
     public void visit(CommitteeBlock committeeBlock) {
         try {
+            if (committeeBlock.getHeight() <= 1)
+                return;
+
             Timestamp current = GetTime.GetTimestampFromString(committeeBlock.getHeaderData().getTimestamp());
             Timestamp cached = GetTime.GetTimestampFromString(CachedLatestBlocks.getInstance().getCommitteeBlock().getHeaderData().getTimestamp());
             if (!cached.before(current)) {
@@ -46,6 +49,8 @@ public class TimeStampEventHandler implements BlockEventHandler<AbstractBlockEve
     @Override
     public void visit(TransactionBlock transactionBlock) {
         try {
+            if (transactionBlock.getHeight() <= 2)
+                return;
             Timestamp current = GetTime.GetTimestampFromString(transactionBlock.getHeaderData().getTimestamp());
             Timestamp cached = GetTime.GetTimestampFromString(CachedLatestBlocks.getInstance().getTransactionBlock().getHeaderData().getTimestamp());
 

@@ -35,7 +35,6 @@ import org.spongycastle.util.encoders.Hex;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.TreeMap;
 import java.util.concurrent.CountDownLatch;
@@ -199,7 +198,7 @@ public class ConsensusTransactionBlockTest {
 
         consensusManager.changeStateTo(ConsensusRoleType.VALIDATOR);
         BFTConsensusPhase validatorphase1 = (BFTConsensusPhase) consensusManager.getRole().manufacturePhases(ConsensusType.TRANSACTION_BLOCK);
-        consensusManager.clearStateTo(ConsensusRoleType.VALIDATOR,true);
+        consensusManager.clearStateTo(ConsensusRoleType.VALIDATOR, true);
         consensusManager.changeStateTo(ConsensusRoleType.VALIDATOR);
         BFTConsensusPhase validatorphase2 = (BFTConsensusPhase) consensusManager.getRole().manufacturePhases(ConsensusType.TRANSACTION_BLOCK);
 

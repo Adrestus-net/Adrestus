@@ -12,7 +12,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.security.SecureRandom;
-import java.util.HashMap;
 import java.util.TreeMap;
 
 public class ConsensusVDFTest {

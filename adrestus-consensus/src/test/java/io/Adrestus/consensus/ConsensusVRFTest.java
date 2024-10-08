@@ -22,7 +22,6 @@ import java.lang.reflect.Type;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.TreeMap;
 
@@ -38,7 +37,7 @@ public class ConsensusVRFTest {
         list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
         Type fluentType = new TypeToken<ConsensusMessage<VRFMessage>>() {
         }.getType();
-        serialize = new SerializationUtil<ConsensusMessage>(fluentType,list);
+        serialize = new SerializationUtil<ConsensusMessage>(fluentType, list);
     }
 
     @Test

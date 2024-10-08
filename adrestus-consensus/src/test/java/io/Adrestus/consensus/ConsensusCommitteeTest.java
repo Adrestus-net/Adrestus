@@ -47,7 +47,6 @@ import org.spongycastle.util.encoders.Hex;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.TreeMap;
 

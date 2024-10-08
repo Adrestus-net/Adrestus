@@ -60,7 +60,6 @@ public class Signature implements Cloneable, Serializable {
         return new Signature(new G2Point(ECP2.fromBytes(buf)));
     }
 
-    @Serialize
     public Supplier<G2Point> getSupplier_point() {
         return supplier_point;
     }

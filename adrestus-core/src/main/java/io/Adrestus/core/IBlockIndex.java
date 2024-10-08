@@ -2,7 +2,6 @@ package io.Adrestus.core;
 
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
 
-import java.util.List;
 import java.util.Set;
 
 public interface IBlockIndex {

@@ -1289,6 +1289,7 @@ public class ValidatorConsensusPhases {
                         data = consensus_serialize.decode(receive);
                         if (data.getMessageType().equals(ConsensusMessageType.PREPARE))
                             break;
+
                         if (!this.blockIndex.containsAll(data.getSignatures().keySet(), CachedLatestBlocks
                                 .getInstance()
                                 .getCommitteeBlock()
@@ -1336,9 +1337,9 @@ public class ValidatorConsensusPhases {
             String messageHashAsBase64String = Shake256Hash[0];
             for (Map.Entry<BLSPublicKey, BLSSignatureData> entry : data.getSignatures().entrySet()) {
                 BLSSignatureData BLSSignatureData = new BLSSignatureData();
-                BLSSignatureData.getSignature()[0]=Signature.fromByte(entry.getValue().getSignature()[0].toBytes());
+                BLSSignatureData.getSignature()[0] = entry.getValue().getSignature()[0];
                 BLSSignatureData.getMessageHash()[0] = messageHashAsBase64String;
-                this.original_copy.getSignatureData().put(BLSPublicKey.fromByte(entry.getKey().toBytes()), BLSSignatureData);
+                this.original_copy.getSignatureData().put(entry.getKey(), BLSSignatureData);
             }
             //##############################################################
 
@@ -1383,7 +1384,7 @@ public class ValidatorConsensusPhases {
 
 
             BLSSignatureData BLSLeaderSignatureData = this.original_copy.getSignatureData().get(data.getChecksumData().getBlsPublicKey());
-            BLSLeaderSignatureData.getSignature()[1] =  Signature.fromByte(data.getChecksumData().getSignature().toBytes());
+            BLSLeaderSignatureData.getSignature()[1] = Signature.fromByte(data.getChecksumData().getSignature().toBytes());
             BLSLeaderSignatureData.getMessageHash()[1] = BLSSignature.GetMessageHashAsBase64String(bytesBlock);
             this.original_copy.getSignatureData().put(BLSPublicKey.fromByte(data.getChecksumData().getBlsPublicKey().toBytes()), BLSLeaderSignatureData);
 
@@ -1493,10 +1494,10 @@ public class ValidatorConsensusPhases {
 
             String messageHashAsBase64String = Shake256Hash[1];
             for (Map.Entry<BLSPublicKey, BLSSignatureData> entry : data.getSignatures().entrySet()) {
-                BLSSignatureData BLSSignatureData = entry.getValue();
-                BLSSignatureData.getSignature()[1]=Signature.fromByte(entry.getValue().getSignature()[1].toBytes());
+                BLSSignatureData BLSSignatureData = this.original_copy.getSignatureData().get(entry.getKey());
+                BLSSignatureData.getSignature()[1] = entry.getValue().getSignature()[1];
                 BLSSignatureData.getMessageHash()[1] = messageHashAsBase64String;
-                this.original_copy.getSignatureData().put(BLSPublicKey.fromByte(entry.getKey().toBytes()), BLSSignatureData);
+                this.original_copy.getSignatureData().put(entry.getKey(), BLSSignatureData);
             }
             this.sizeCalculator.setTransactionBlock(this.original_copy);
             bytesBlock = block_serialize.encode(this.original_copy, this.sizeCalculator.TransactionBlockSizeCalculator());

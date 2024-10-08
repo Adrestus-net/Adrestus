@@ -1,7 +1,9 @@
 package io.Adrestus.consensus;
 
 import com.google.common.reflect.TypeToken;
-import io.Adrestus.core.*;
+import io.Adrestus.core.AbstractBlock;
+import io.Adrestus.core.SortSignatureMapByBlsPublicKey;
+import io.Adrestus.core.TransactionBlock;
 import io.Adrestus.core.Util.BlockSizeCalculator;
 import io.Adrestus.crypto.bls.BLS381.ECP;
 import io.Adrestus.crypto.bls.BLS381.ECP2;
@@ -104,13 +106,14 @@ public class SerializableConsensusMessageBlockTest {
         sk8 = new BLSPrivateKey(8);
         vk8 = new BLSPublicKey(sk8);
     }
+
     @Test
     public void SerializeBlockDatabase() {
         IDatabase<String, TransactionBlock> database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(1));
 
         TreeMap<BLSPublicKey, BLSSignatureData> signatureData = new TreeMap<BLSPublicKey, BLSSignatureData>(new SortSignatureMapByBlsPublicKey());
         BLSSignatureData blsSignatureData1 = new BLSSignatureData();
-        blsSignatureData1.getSignature()[0]= BLSSignature.sign("toSign".getBytes(StandardCharsets.UTF_8), sk1);
+        blsSignatureData1.getSignature()[0] = BLSSignature.sign("toSign".getBytes(StandardCharsets.UTF_8), sk1);
         BLSSignatureData blsSignatureData2 = new BLSSignatureData();
         BLSSignatureData blsSignatureData3 = new BLSSignatureData();
         BLSSignatureData blsSignatureData4 = new BLSSignatureData();
@@ -122,7 +125,7 @@ public class SerializableConsensusMessageBlockTest {
         block.setHash("1");
         block.setHeight(1);
         block.setSignatureData(signatureData);
-        database.save(String.valueOf(block.getHeight()),block);
+        database.save(String.valueOf(block.getHeight()), block);
         TransactionBlock copy = (TransactionBlock) database.findByKey("1").get();
         assertEquals(block, copy);
         System.out.println(copy.toString());
@@ -140,7 +143,7 @@ public class SerializableConsensusMessageBlockTest {
 
         TreeMap<BLSPublicKey, BLSSignatureData> signatureData = new TreeMap<BLSPublicKey, BLSSignatureData>(new SortSignatureMapByBlsPublicKey());
         BLSSignatureData blsSignatureData1 = new BLSSignatureData();
-        blsSignatureData1.getSignature()[0]= BLSSignature.sign("toSign".getBytes(StandardCharsets.UTF_8), sk1);
+        blsSignatureData1.getSignature()[0] = BLSSignature.sign("toSign".getBytes(StandardCharsets.UTF_8), sk1);
         BLSSignatureData blsSignatureData2 = new BLSSignatureData();
         BLSSignatureData blsSignatureData3 = new BLSSignatureData();
         BLSSignatureData blsSignatureData4 = new BLSSignatureData();
@@ -161,14 +164,40 @@ public class SerializableConsensusMessageBlockTest {
         consensusMessage.getChecksumData().setBlsPublicKey(vk1);
         consensusMessage.getChecksumData().setSignature(BLSSignature.sign("toSign".getBytes(StandardCharsets.UTF_8), sk1));
         assertEquals(consensusMessage, consensusMessage2);
-        byte[] hash=consensus_serialize.encode(consensusMessage);
-        ConsensusMessage<TransactionBlock> replica=this.consensus_serialize.decode(hash);
+        byte[] hash = consensus_serialize.encode(consensusMessage);
+        ConsensusMessage<TransactionBlock> replica = this.consensus_serialize.decode(hash);
         assertEquals(consensusMessage, replica);
         BLSSignatureData blsSignatureData6 = new BLSSignatureData();
-        blsSignatureData6.getSignature()[0]= new Signature(replica.getChecksumData().getSignature().getPoint());
+        blsSignatureData6.getSignature()[0] = new Signature(replica.getChecksumData().getSignature().getPoint());
         consensusMessage.getSignatures().put(vk1, blsSignatureData6);
-        byte[] hash2=this.consensus_serialize.encode(consensusMessage);
-        ConsensusMessage<TransactionBlock> clone=this.consensus_serialize.decode(hash2);
+        byte[] hash2 = this.consensus_serialize.encode(consensusMessage);
+        ConsensusMessage<TransactionBlock> clone = this.consensus_serialize.decode(hash2);
         assertEquals(consensusMessage, clone);
+    }
+
+    @Test
+    public void testList() {
+        List<String> expected = new ArrayList<String>();
+        expected.add("that");
+        expected.add("another");
+
+        List<String> actual = new ArrayList<String>();
+        actual.add("another");
+        actual.add("that");
+        actual.add("pet");
+
+
+        List<String> expected1 = new ArrayList<String>();
+        expected1.add("that");
+        expected1.add("another");
+
+        List<String> actual1 = new ArrayList<String>();
+        actual1.add("another");
+        actual1.add("thata");
+        actual1.add("pet");
+
+
+        assertEquals(true, actual.containsAll(expected));
+        assertEquals(false, actual1.containsAll(expected1));
     }
 }
