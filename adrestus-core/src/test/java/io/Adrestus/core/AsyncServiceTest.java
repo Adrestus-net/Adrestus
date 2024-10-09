@@ -20,6 +20,7 @@ import io.Adrestus.crypto.elliptic.ECDSASign;
 import io.Adrestus.crypto.elliptic.ECDSASignatureData;
 import io.Adrestus.crypto.elliptic.ECKeyPair;
 import io.Adrestus.crypto.elliptic.Keys;
+import io.Adrestus.crypto.elliptic.mapper.BigDecimalSerializer;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.crypto.elliptic.mapper.StakingData;
 import io.Adrestus.crypto.mnemonic.Mnemonic;
@@ -36,6 +37,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.spongycastle.util.encoders.Hex;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -64,6 +66,7 @@ public class AsyncServiceTest {
     public static void setup() throws Exception {
         int version = 0x00;
         List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         transaction_encode = new SerializationUtil<Transaction>(Transaction.class, list);
         ECDSASign ecdsaSign = new ECDSASign();
@@ -131,7 +134,7 @@ public class AsyncServiceTest {
             String adddress = WalletAddress.generate_address((byte) version, ecKeyPair.getPublicKey());
             addreses.add(adddress);
             keypair.add(ecKeyPair);
-            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(adddress, new PatriciaTreeNode(1000, 0));
+            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(adddress, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
         }
 
         List<SerializationUtil.Mapping> listss = new ArrayList<>();
@@ -153,8 +156,8 @@ public class AsyncServiceTest {
             transaction.setTimestamp(GetTime.GetTimeStampInString());
             transaction.setZoneFrom(0);
             transaction.setZoneTo(0);
-            transaction.setAmount(100);
-            transaction.setAmountWithTransactionFee(transaction.getAmount() * (10.0 / 100.0));
+            transaction.setAmount(BigDecimal.valueOf(100));
+            transaction.setAmountWithTransactionFee(transaction.getAmount().multiply(BigDecimal.valueOf(10.0 / 100.0)));
             transaction.setTransactionCallback(transactionCallback);
             transaction.setNonce(1);
 
@@ -175,8 +178,8 @@ public class AsyncServiceTest {
         committeeBlock.getStructureMap().get(0).put(vk1, "192.168.1.116");
         committeeBlock.getStructureMap().get(0).put(vk2, "192.168.1.113");
 
-        committeeBlock.getStakingMap().put(new StakingData(1, 10.0), new KademliaData(new SecurityAuditProofs(addreses.get(0), vk1, ecKeyPair1.getPublicKey(), signatureData1), new NettyConnectionInfo("192.168.1.116", KademliaConfiguration.PORT)));
-        committeeBlock.getStakingMap().put(new StakingData(2, 13.0), new KademliaData(new SecurityAuditProofs(addreses.get(1), vk2, ecKeyPair2.getPublicKey(), signatureData2), new NettyConnectionInfo("192.168.1.113", KademliaConfiguration.PORT)));
+        committeeBlock.getStakingMap().put(new StakingData(1, BigDecimal.valueOf(10.0)), new KademliaData(new SecurityAuditProofs(addreses.get(0), vk1, ecKeyPair1.getPublicKey(), signatureData1), new NettyConnectionInfo("192.168.1.116", KademliaConfiguration.PORT)));
+        committeeBlock.getStakingMap().put(new StakingData(2, BigDecimal.valueOf(13.0)), new KademliaData(new SecurityAuditProofs(addreses.get(1), vk2, ecKeyPair2.getPublicKey(), signatureData2), new NettyConnectionInfo("192.168.1.113", KademliaConfiguration.PORT)));
 
         CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
         CachedLeaderIndex.getInstance().setCommitteePositionLeader(0);

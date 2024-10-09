@@ -8,6 +8,7 @@ import io.Adrestus.crypto.elliptic.mapper.StakingData;
 import io.Adrestus.p2p.kademlia.repository.KademliaData;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -147,8 +148,8 @@ public class BlockSizeCalculatorTest {
         b.setCommitteeProposer(new int[5]);
         b.setVDF("vdf");
         b.setVRF("vrf");
-        b.getStakingMap().put(new StakingData(1, 2), new KademliaData());
-        b.getStakingMap().put(new StakingData(2, 3), new KademliaData());
+        b.getStakingMap().put(new StakingData(1, BigDecimal.valueOf(2)), new KademliaData());
+        b.getStakingMap().put(new StakingData(2, BigDecimal.valueOf(3)), new KademliaData());
 
         BlockSizeCalculator blockSizeCalculator = new BlockSizeCalculator(b);
         assertEquals(11284, blockSizeCalculator.CommitteeBlockSizeCalculator());
@@ -168,8 +169,8 @@ public class BlockSizeCalculatorTest {
         b.setCommitteeProposer(new int[5]);
         b.setVDF("vdf");
         b.setVRF("vrf");
-        b.getStakingMap().put(new StakingData(1, 2), new KademliaData());
-        b.getStakingMap().put(new StakingData(2, 3), new KademliaData());
+        b.getStakingMap().put(new StakingData(1, BigDecimal.valueOf(2)), new KademliaData());
+        b.getStakingMap().put(new StakingData(2, BigDecimal.valueOf(3)), new KademliaData());
 
         b.getStructureMap().get(0).put(new BLSPublicKey(), new String("1"));
         b.getStructureMap().get(0).put(new BLSPublicKey(new BLSPrivateKey(2)), new String("2"));

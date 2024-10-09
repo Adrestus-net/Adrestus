@@ -18,6 +18,7 @@ import io.Adrestus.crypto.elliptic.ECDSASign;
 import io.Adrestus.crypto.elliptic.ECDSASignatureData;
 import io.Adrestus.crypto.elliptic.ECKeyPair;
 import io.Adrestus.crypto.elliptic.Keys;
+import io.Adrestus.crypto.elliptic.mapper.BigDecimalSerializer;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.crypto.mnemonic.Mnemonic;
 import io.Adrestus.crypto.mnemonic.MnemonicException;
@@ -33,6 +34,7 @@ import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeAll;
 import org.spongycastle.util.encoders.Hex;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
@@ -90,6 +92,7 @@ public class DisruptorStressTest {
         ECDSASign ecdsaSign = new ECDSASign();
 
         List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         SerializationUtil<Transaction> serenc = new SerializationUtil<Transaction>(Transaction.class, list);
 
@@ -107,7 +110,7 @@ public class DisruptorStressTest {
             String adddress = WalletAddress.generate_address((byte) version, ecKeyPair.getPublicKey());
             addreses.add(adddress);
             keypair.add(ecKeyPair);
-            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(adddress, new PatriciaTreeNode(1000, 0));
+            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(adddress, new PatriciaTreeNode(BigDecimal.valueOf(1000, 0)));
         }
 
         ArrayList<Transaction> list2 = new ArrayList<>();
@@ -119,8 +122,8 @@ public class DisruptorStressTest {
             transaction.setTimestamp(GetTime.GetTimeStampInString());
             transaction.setZoneFrom(0);
             transaction.setZoneTo(0);
-            transaction.setAmount(100);
-            transaction.setAmountWithTransactionFee(transaction.getAmount() * (10.0 / 100.0));
+            transaction.setAmount(BigDecimal.valueOf(100));
+            transaction.setAmountWithTransactionFee(transaction.getAmount().multiply(BigDecimal.valueOf(10.0 / 100.0)));
             transaction.setNonce(1);
             byte byf[] = serenc.encode(transaction);
             transaction.setHash(HashUtil.sha256_bytetoString(byf));
@@ -167,6 +170,7 @@ public class DisruptorStressTest {
         ECDSASign ecdsaSign = new ECDSASign();
 
         List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         SerializationUtil<Transaction> serenc = new SerializationUtil<Transaction>(Transaction.class, list);
 
@@ -183,7 +187,7 @@ public class DisruptorStressTest {
             String adddress = WalletAddress.generate_address((byte) version, ecKeyPair.getPublicKey());
             addreses.add(adddress);
             keypair.add(ecKeyPair);
-            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(adddress, new PatriciaTreeNode(1000, 0));
+            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(adddress, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
         }
 
         ArrayList<Transaction> list1 = new ArrayList<>();
@@ -195,8 +199,8 @@ public class DisruptorStressTest {
             transaction.setTimestamp(GetTime.GetTimeStampInString());
             transaction.setZoneFrom(0);
             transaction.setZoneTo(0);
-            transaction.setAmount(100);
-            transaction.setAmountWithTransactionFee(transaction.getAmount() * (10.0 / 100.0));
+            transaction.setAmount(BigDecimal.valueOf(100));
+            transaction.setAmountWithTransactionFee(transaction.getAmount().multiply(BigDecimal.valueOf(10.0 / 100.0)));
             transaction.setNonce(1);
             byte byf[] = serenc.encode(transaction);
             transaction.setHash(HashUtil.sha256_bytetoString(byf));

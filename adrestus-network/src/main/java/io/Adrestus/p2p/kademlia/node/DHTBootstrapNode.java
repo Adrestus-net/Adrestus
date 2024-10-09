@@ -150,7 +150,7 @@ public class DHTBootstrapNode {
                         LOG.info("Kademlia Data are not valid abort");
                     } else {
 
-                        if (TreeFactory.getMemoryTree(0).getByaddress(value.getAddressData().getAddress()).get().getAmount().compareTo(BigDecimal.valueOf(StakingConfiguration.MINIMUM_STAKING))<0) {
+                        if (TreeFactory.getMemoryTree(0).getByaddress(value.getAddressData().getAddress()).get().getAmount().compareTo(BigDecimal.valueOf(StakingConfiguration.MINIMUM_STAKING)) < 0) {
                             LOG.info("Amount of this address not meet minimum requirements");
                         } else {
                             active_nodes.add(value);

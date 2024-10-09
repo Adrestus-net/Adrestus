@@ -31,7 +31,7 @@ public class TransactionFeeEventHandler extends TransactionEventHandler implemen
 
     @Override
     public void visit(RegularTransaction regularTransaction) {
-        if (regularTransaction.getAmountWithTransactionFee().compareTo(FEES.multiply(regularTransaction.getAmount()).divide(PERCENT, RewardConfiguration.DECIMAL_PRECISION,RewardConfiguration.ROUNDING))!=0) {
+        if (regularTransaction.getAmountWithTransactionFee().compareTo(FEES.multiply(regularTransaction.getAmount()).divide(PERCENT, RewardConfiguration.DECIMAL_PRECISION, RewardConfiguration.ROUNDING)) != 0) {
             Optional.of("RegularTransaction fee calculator is incorrect").ifPresent(val -> {
                 LOG.info(val);
                 regularTransaction.infos(val);
@@ -47,7 +47,7 @@ public class TransactionFeeEventHandler extends TransactionEventHandler implemen
 
     @Override
     public void visit(StakingTransaction stakingTransaction) {
-        if (stakingTransaction.getAmountWithTransactionFee().compareTo(FEES.multiply(stakingTransaction.getAmount()).divide(PERCENT, RewardConfiguration.DECIMAL_PRECISION,RewardConfiguration.ROUNDING))!=0) {
+        if (stakingTransaction.getAmountWithTransactionFee().compareTo(FEES.multiply(stakingTransaction.getAmount()).divide(PERCENT, RewardConfiguration.DECIMAL_PRECISION, RewardConfiguration.ROUNDING)) != 0) {
             Optional.of("StakingTransaction fee calculator is incorrect").ifPresent(val -> {
                 LOG.info(val);
                 stakingTransaction.infos(val);
@@ -58,7 +58,7 @@ public class TransactionFeeEventHandler extends TransactionEventHandler implemen
 
     @Override
     public void visit(DelegateTransaction delegateTransaction) {
-        if (delegateTransaction.getAmountWithTransactionFee().compareTo(FEES.multiply(delegateTransaction.getAmount()).divide(PERCENT, RewardConfiguration.DECIMAL_PRECISION,RewardConfiguration.ROUNDING))!=0) {
+        if (delegateTransaction.getAmountWithTransactionFee().compareTo(FEES.multiply(delegateTransaction.getAmount()).divide(PERCENT, RewardConfiguration.DECIMAL_PRECISION, RewardConfiguration.ROUNDING)) != 0) {
             Optional.of("DelegateTransaction fee calculator is incorrect").ifPresent(val -> {
                 LOG.info(val);
                 delegateTransaction.infos(val);
@@ -74,7 +74,7 @@ public class TransactionFeeEventHandler extends TransactionEventHandler implemen
 
     @Override
     public void visit(UnDelegateTransaction unDelegateTransaction) {
-        if (unDelegateTransaction.getAmountWithTransactionFee().compareTo(FEES.multiply(unDelegateTransaction.getAmount()).divide(PERCENT, RewardConfiguration.DECIMAL_PRECISION,RewardConfiguration.ROUNDING))!=0) {
+        if (unDelegateTransaction.getAmountWithTransactionFee().compareTo(FEES.multiply(unDelegateTransaction.getAmount()).divide(PERCENT, RewardConfiguration.DECIMAL_PRECISION, RewardConfiguration.ROUNDING)) != 0) {
             Optional.of("UnDelegateTransaction fee calculator is incorrect").ifPresent(val -> {
                 LOG.info(val);
                 unDelegateTransaction.infos(val);
@@ -85,7 +85,7 @@ public class TransactionFeeEventHandler extends TransactionEventHandler implemen
 
     @Override
     public void visit(UnstakingTransaction unstakingTransaction) {
-        if (unstakingTransaction.getAmountWithTransactionFee().compareTo(FEES.multiply(unstakingTransaction.getAmount()).divide(PERCENT, RewardConfiguration.DECIMAL_PRECISION,RewardConfiguration.ROUNDING))!=0) {
+        if (unstakingTransaction.getAmountWithTransactionFee().compareTo(FEES.multiply(unstakingTransaction.getAmount()).divide(PERCENT, RewardConfiguration.DECIMAL_PRECISION, RewardConfiguration.ROUNDING)) != 0) {
             Optional.of("Unstaking Transaction fee calculator is incorrect").ifPresent(val -> {
                 LOG.info(val);
                 unstakingTransaction.infos(val);

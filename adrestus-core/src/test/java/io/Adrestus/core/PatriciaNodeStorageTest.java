@@ -13,6 +13,7 @@ import io.Adrestus.crypto.bls.BLS381.ECP;
 import io.Adrestus.crypto.bls.BLS381.ECP2;
 import io.Adrestus.crypto.bls.mapper.ECP2mapper;
 import io.Adrestus.crypto.bls.mapper.ECPmapper;
+import io.Adrestus.crypto.elliptic.mapper.BigDecimalSerializer;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.crypto.elliptic.mapper.CustomSerializerTreeMap;
 import io.Adrestus.util.SerializationUtil;
@@ -23,6 +24,7 @@ import io.distributedLedger.ZoneDatabaseFactory;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.util.*;
@@ -36,6 +38,7 @@ public class PatriciaNodeStorageTest {
     @BeforeAll
     public static void setup() {
         List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         recep = new SerializationUtil<Receipt>(Receipt.class, list);
 
@@ -55,7 +58,7 @@ public class PatriciaNodeStorageTest {
         transactionBlock1.setHeight(3);
         transactionBlock1.setHash("hash1");
 
-        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store("From1a", new PatriciaTreeNode(0, 0));
+        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store("From1a", new PatriciaTreeNode(BigDecimal.ZERO, 0));
 
         Receipt.ReceiptBlock receiptBlock1 = new Receipt.ReceiptBlock(1, 1, "1");
         Receipt receipt1 = new Receipt(0, 1, receiptBlock1, null, 1);
@@ -99,8 +102,8 @@ public class PatriciaNodeStorageTest {
     @Test
     public void PublisherTransactionTest() throws InterruptedException {
         CachedZoneIndex.getInstance().setZoneIndex(0);
-        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store("from1", new PatriciaTreeNode(0, 0));
-        TreeFactory.getMemoryTree(1).store("from1", new PatriciaTreeNode(0, 0));
+        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store("from1", new PatriciaTreeNode(BigDecimal.ZERO, 0));
+        TreeFactory.getMemoryTree(1).store("from1", new PatriciaTreeNode(BigDecimal.ZERO, 0));
         IDatabase<String, TransactionBlock> transactionBlockIDatabase = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
         IDatabase<String, TransactionBlock> transactionBlockIDatabase1 = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(1));
         TransactionEventPublisher publisher = new TransactionEventPublisher(1024);
@@ -200,7 +203,7 @@ public class PatriciaNodeStorageTest {
 
     @Test
     public void TransactionMaxTest() {
-        TreeFactory.getMemoryTree(0).store("From1a", new PatriciaTreeNode(0, 0));
+        TreeFactory.getMemoryTree(0).store("From1a", new PatriciaTreeNode(BigDecimal.ZERO, 0));
         StorageInfo s1 = new StorageInfo(0, 1, 0);
         StorageInfo s2 = new StorageInfo(0, 2, 1);
         StorageInfo s3 = new StorageInfo(0, 3, 2);
@@ -229,13 +232,14 @@ public class PatriciaNodeStorageTest {
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
         list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
+        list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
         SerializationUtil<AbstractBlock> serenc = new SerializationUtil<AbstractBlock>(AbstractBlock.class, list);
 
-        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store("From1a", new PatriciaTreeNode(0, 0));
-        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store("From2a", new PatriciaTreeNode(0, 0));
-        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store("From3a", new PatriciaTreeNode(0, 0));
+        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store("From1a", new PatriciaTreeNode(BigDecimal.ZERO, 0));
+        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store("From2a", new PatriciaTreeNode(BigDecimal.ZERO, 0));
+        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store("From3a", new PatriciaTreeNode(BigDecimal.ZERO, 0));
 
         TransactionBlock transactionBlock1 = new TransactionBlock();
         transactionBlock1.setHeight(1);
@@ -404,7 +408,7 @@ public class PatriciaNodeStorageTest {
 
 
         //ATTENTION FROM1A IS GET_TO NOT GET_FROM
-        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store("From1a", new PatriciaTreeNode(0, 0));
+        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store("From1a", new PatriciaTreeNode(BigDecimal.ZERO, 0));
 
         Receipt.ReceiptBlock receiptBlock1 = new Receipt.ReceiptBlock(1, 1, "1");
         Receipt.ReceiptBlock receiptBlock1a = new Receipt.ReceiptBlock(2, 6, "1a");

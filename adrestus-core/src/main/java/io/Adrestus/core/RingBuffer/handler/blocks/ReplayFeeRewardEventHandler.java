@@ -21,7 +21,7 @@ public class ReplayFeeRewardEventHandler implements BlockEventHandler<AbstractBl
         try {
             UnclaimedFeeRewardTransaction transaction = (UnclaimedFeeRewardTransaction) transactionBlock.getTransactionList().get(0);
             BigDecimal sum = transactionBlock.getTransactionList().parallelStream().skip(1).map(Transaction::getAmountWithTransactionFee).reduce(BigDecimal.ZERO, BigDecimal::add);
-            if (sum.compareTo(transaction.getAmount())!=0) {
+            if (sum.compareTo(transaction.getAmount()) != 0) {
                 LOG.info("Leader FeeRewardTransaction is invalid abort");
                 transactionBlock.setStatustype(StatusType.ABORT);
                 return;

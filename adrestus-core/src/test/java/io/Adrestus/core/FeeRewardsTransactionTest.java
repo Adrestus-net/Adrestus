@@ -25,6 +25,7 @@ import io.Adrestus.crypto.elliptic.ECDSASign;
 import io.Adrestus.crypto.elliptic.ECDSASignatureData;
 import io.Adrestus.crypto.elliptic.ECKeyPair;
 import io.Adrestus.crypto.elliptic.Keys;
+import io.Adrestus.crypto.elliptic.mapper.BigDecimalSerializer;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.crypto.elliptic.mapper.StakingData;
 import io.Adrestus.crypto.mnemonic.Mnemonic;
@@ -45,6 +46,7 @@ import org.junit.jupiter.api.Test;
 import org.spongycastle.util.encoders.Hex;
 
 import java.lang.reflect.Type;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -171,33 +173,33 @@ public class FeeRewardsTransactionTest {
         ECDSASignatureData signatureData5 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address5)), ecKeyPair5);
         ECDSASignatureData signatureData6 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address6)), ecKeyPair6);
 
-        TreeFactory.getMemoryTree(0).store(address1, new PatriciaTreeNode(3000, 0));
-        TreeFactory.getMemoryTree(0).store(address2, new PatriciaTreeNode(3000, 0));
-        TreeFactory.getMemoryTree(0).store(address3, new PatriciaTreeNode(3000, 0));
-        TreeFactory.getMemoryTree(0).store(address4, new PatriciaTreeNode(3000, 0));
-        TreeFactory.getMemoryTree(0).store(address5, new PatriciaTreeNode(3000, 0));
-        TreeFactory.getMemoryTree(0).store(address6, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(0).store(address1, new PatriciaTreeNode(BigDecimal.valueOf(3000), 0));
+        TreeFactory.getMemoryTree(0).store(address2, new PatriciaTreeNode(BigDecimal.valueOf(3000), 0));
+        TreeFactory.getMemoryTree(0).store(address3, new PatriciaTreeNode(BigDecimal.valueOf(3000), 0));
+        TreeFactory.getMemoryTree(0).store(address4, new PatriciaTreeNode(BigDecimal.valueOf(3000), 0));
+        TreeFactory.getMemoryTree(0).store(address5, new PatriciaTreeNode(BigDecimal.valueOf(3000), 0));
+        TreeFactory.getMemoryTree(0).store(address6, new PatriciaTreeNode(BigDecimal.valueOf(3000), 0));
 
-        TreeFactory.getMemoryTree(1).store(address1, new PatriciaTreeNode(3000, 0));
-        TreeFactory.getMemoryTree(1).store(address2, new PatriciaTreeNode(3000, 0));
-        TreeFactory.getMemoryTree(1).store(address3, new PatriciaTreeNode(3000, 0));
-        TreeFactory.getMemoryTree(1).store(address4, new PatriciaTreeNode(3000, 0));
-        TreeFactory.getMemoryTree(1).store(address5, new PatriciaTreeNode(3000, 0));
-        TreeFactory.getMemoryTree(1).store(address6, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(1).store(address1, new PatriciaTreeNode(BigDecimal.valueOf(3000), 0));
+        TreeFactory.getMemoryTree(1).store(address2, new PatriciaTreeNode(BigDecimal.valueOf(3000), 0));
+        TreeFactory.getMemoryTree(1).store(address3, new PatriciaTreeNode(BigDecimal.valueOf(3000), 0));
+        TreeFactory.getMemoryTree(1).store(address4, new PatriciaTreeNode(BigDecimal.valueOf(3000), 0));
+        TreeFactory.getMemoryTree(1).store(address5, new PatriciaTreeNode(BigDecimal.valueOf(3000), 0));
+        TreeFactory.getMemoryTree(1).store(address6, new PatriciaTreeNode(BigDecimal.valueOf(3000), 0));
 
-        TreeFactory.getMemoryTree(2).store(address1, new PatriciaTreeNode(3000, 0));
-        TreeFactory.getMemoryTree(2).store(address2, new PatriciaTreeNode(3000, 0));
-        TreeFactory.getMemoryTree(2).store(address3, new PatriciaTreeNode(3000, 0));
-        TreeFactory.getMemoryTree(2).store(address4, new PatriciaTreeNode(3000, 0));
-        TreeFactory.getMemoryTree(2).store(address5, new PatriciaTreeNode(3000, 0));
-        TreeFactory.getMemoryTree(2).store(address6, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(2).store(address1, new PatriciaTreeNode(BigDecimal.valueOf(3000), 0));
+        TreeFactory.getMemoryTree(2).store(address2, new PatriciaTreeNode(BigDecimal.valueOf(3000), 0));
+        TreeFactory.getMemoryTree(2).store(address3, new PatriciaTreeNode(BigDecimal.valueOf(3000), 0));
+        TreeFactory.getMemoryTree(2).store(address4, new PatriciaTreeNode(BigDecimal.valueOf(3000), 0));
+        TreeFactory.getMemoryTree(2).store(address5, new PatriciaTreeNode(BigDecimal.valueOf(3000), 0));
+        TreeFactory.getMemoryTree(2).store(address6, new PatriciaTreeNode(BigDecimal.valueOf(3000), 0));
 
-        TreeFactory.getMemoryTree(3).store(address1, new PatriciaTreeNode(3000, 0));
-        TreeFactory.getMemoryTree(3).store(address2, new PatriciaTreeNode(3000, 0));
-        TreeFactory.getMemoryTree(3).store(address3, new PatriciaTreeNode(3000, 0));
-        TreeFactory.getMemoryTree(3).store(address4, new PatriciaTreeNode(3000, 0));
-        TreeFactory.getMemoryTree(3).store(address5, new PatriciaTreeNode(3000, 0));
-        TreeFactory.getMemoryTree(3).store(address6, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(3).store(address1, new PatriciaTreeNode(BigDecimal.valueOf(3000), 0));
+        TreeFactory.getMemoryTree(3).store(address2, new PatriciaTreeNode(BigDecimal.valueOf(3000), 0));
+        TreeFactory.getMemoryTree(3).store(address3, new PatriciaTreeNode(BigDecimal.valueOf(3000), 0));
+        TreeFactory.getMemoryTree(3).store(address4, new PatriciaTreeNode(BigDecimal.valueOf(3000), 0));
+        TreeFactory.getMemoryTree(3).store(address5, new PatriciaTreeNode(BigDecimal.valueOf(3000), 0));
+        TreeFactory.getMemoryTree(3).store(address6, new PatriciaTreeNode(BigDecimal.valueOf(3000), 0));
 
         kad1 = new KademliaData(new SecurityAuditProofs(address1, vk1, ecKeyPair1.getPublicKey(), signatureData1), new NettyConnectionInfo("192.168.1.106", KademliaConfiguration.PORT));
         kad2 = new KademliaData(new SecurityAuditProofs(address2, vk2, ecKeyPair2.getPublicKey(), signatureData2), new NettyConnectionInfo("192.168.1.113", KademliaConfiguration.PORT));
@@ -215,12 +217,12 @@ public class FeeRewardsTransactionTest {
         committeeBlock.getStructureMap().get(1).put(vk6, "192.168.1.115");
 
 
-        committeeBlock.getStakingMap().put(new StakingData(1, 10.0), kad1);
-        committeeBlock.getStakingMap().put(new StakingData(2, 11.0), kad2);
-        committeeBlock.getStakingMap().put(new StakingData(3, 151.0), kad3);
-        committeeBlock.getStakingMap().put(new StakingData(4, 16.0), kad4);
-        committeeBlock.getStakingMap().put(new StakingData(5, 271.0), kad5);
-        committeeBlock.getStakingMap().put(new StakingData(6, 281.0), kad6);
+        committeeBlock.getStakingMap().put(new StakingData(1, BigDecimal.valueOf(10.0)), kad1);
+        committeeBlock.getStakingMap().put(new StakingData(2, BigDecimal.valueOf(11.0)), kad2);
+        committeeBlock.getStakingMap().put(new StakingData(3, BigDecimal.valueOf(151.0)), kad3);
+        committeeBlock.getStakingMap().put(new StakingData(4, BigDecimal.valueOf(16.0)), kad4);
+        committeeBlock.getStakingMap().put(new StakingData(5, BigDecimal.valueOf(271.0)), kad5);
+        committeeBlock.getStakingMap().put(new StakingData(6, BigDecimal.valueOf(281.0)), kad6);
 
         CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
 
@@ -230,10 +232,11 @@ public class FeeRewardsTransactionTest {
         CachedLatestBlocks.getInstance().getCommitteeBlock().setHeight(0);
 
         CachedZoneIndex.getInstance().setZoneIndex(0);
-        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(address3, new PatriciaTreeNode(0, 0));
+        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(address3, new PatriciaTreeNode(BigDecimal.ZERO, 0));
 
 
         List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         serenc = new SerializationUtil<Transaction>(Transaction.class, list);
 
@@ -248,7 +251,7 @@ public class FeeRewardsTransactionTest {
             String adddress = WalletAddress.generate_address((byte) version, ecKeyPair.getPublicKey());
             addreses.add(adddress);
             keypair.add(ecKeyPair);
-            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(adddress, new PatriciaTreeNode(1000, 0));
+            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(adddress, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
         }
 
         for (int i = 0; i < size - 1; i++) {
@@ -259,8 +262,8 @@ public class FeeRewardsTransactionTest {
             transaction.setTimestamp(GetTime.GetTimeStampInString());
             transaction.setZoneFrom(0);
             transaction.setZoneTo(0);
-            transaction.setAmount(100);
-            transaction.setAmountWithTransactionFee(transaction.getAmount() * (10.0 / 100.0));
+            transaction.setAmount(BigDecimal.valueOf(100));
+            transaction.setAmountWithTransactionFee(transaction.getAmount().multiply(BigDecimal.valueOf(10.0 / 100.0)));
             transaction.setNonce(1);
             byte byf[] = serenc.encode(transaction);
             transaction.setHash(HashUtil.sha256_bytetoString(byf));
@@ -268,7 +271,7 @@ public class FeeRewardsTransactionTest {
             transaction.setSignature(signatureData);
             arrayList.add(transaction);
         }
-        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(address2, new PatriciaTreeNode(1000, 0, 0, 100));
+        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(address2, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0, BigDecimal.ZERO, BigDecimal.valueOf(100)));
         RewardsTransaction rewardsTransaction = new RewardsTransaction();
         rewardsTransaction.setType(TransactionType.REWARDS);
         rewardsTransaction.setRecipientAddress(address2);
@@ -277,15 +280,15 @@ public class FeeRewardsTransactionTest {
         rewardsTransaction.setTimestamp(GetTime.GetTimeStampInString());
         rewardsTransaction.setZoneFrom(0);
         rewardsTransaction.setZoneTo(0);
-        rewardsTransaction.setAmount(100);
-        rewardsTransaction.setAmountWithTransactionFee((double) (100 * 10) / 100);
+        rewardsTransaction.setAmount(BigDecimal.valueOf(100));
+        rewardsTransaction.setAmountWithTransactionFee(rewardsTransaction.getAmount().multiply(BigDecimal.valueOf(10.0 / 100.0)));
         rewardsTransaction.setNonce(1);
         byte byf[] = serenc.encode(rewardsTransaction);
         rewardsTransaction.setHash(HashUtil.sha256_bytetoString(byf));
         ECDSASignatureData signatureData = ecdsaSign.secp256SignMessage(Hex.decode(rewardsTransaction.getHash()), ecKeyPair2);
         rewardsTransaction.setSignature(signatureData);
         arrayList.add(rewardsTransaction);
-        double sum = arrayList.parallelStream().filter(val -> !val.getType().equals(TransactionType.UNCLAIMED_FEE_REWARD)).mapToDouble(Transaction::getAmountWithTransactionFee).sum();
+        BigDecimal sum = arrayList.parallelStream().filter(val -> !val.getType().equals(TransactionType.UNCLAIMED_FEE_REWARD)).map(Transaction::getAmountWithTransactionFee).reduce(BigDecimal.ZERO, BigDecimal::add);
         arrayList.add(0, new UnclaimedFeeRewardTransaction(TransactionType.UNCLAIMED_FEE_REWARD, address3, sum));
 
     }
@@ -302,7 +305,7 @@ public class FeeRewardsTransactionTest {
         BLSPublicKey key = blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedLeaderIndex.getInstance().getTransactionPositionLeader());
         String address = blockIndex.getAddressByPublicKey(key);
         long count = transactionBlock.getTransactionList().stream().filter(val -> val.getType().equals(TransactionType.UNCLAIMED_FEE_REWARD)).count();
-        double sum = arrayList.parallelStream().skip(1).filter(val -> val.getType().equals(TransactionType.REGULAR)).mapToDouble(Transaction::getAmount).sum();
+        BigDecimal sum = arrayList.parallelStream().skip(1).filter(val -> val.getType().equals(TransactionType.REGULAR)).map(Transaction::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
         assertEquals(1, count);
         assertEquals(200, sum);
         assertEquals(vk3, key);
@@ -356,8 +359,8 @@ public class FeeRewardsTransactionTest {
     @Test
     public void reward_transaction() throws InterruptedException {
         CachedZoneIndex.getInstance().setZoneIndex(0);
-        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(address1, new PatriciaTreeNode(1000, 0));
-        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).deposit(PatriciaTreeTransactionType.UNCLAIMED_FEE_REWARD, address1, 100, 1);
+        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(address1, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
+        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).deposit(PatriciaTreeTransactionType.UNCLAIMED_FEE_REWARD, address1, BigDecimal.valueOf(100), BigDecimal.valueOf(1));
         TransactionEventPublisher publisher = new TransactionEventPublisher(100);
         SignatureEventHandler signatureEventHandler = new SignatureEventHandler(SignatureEventHandler.SignatureBehaviorType.SIMPLE_TRANSACTIONS);
         CachedBLSKeyPair.getInstance().setPublicKey(vk1);
@@ -398,9 +401,9 @@ public class FeeRewardsTransactionTest {
         rewardsTransaction.setTimestamp(GetTime.GetTimeStampInString());
         rewardsTransaction.setZoneFrom(0);
         rewardsTransaction.setZoneTo(0);
-        rewardsTransaction.setAmount(100);
-        rewardsTransaction.setAmountWithTransactionFee((double) (100 * 10) / 100);
-        rewardsTransaction.setAmountWithTransactionFee(0);
+        rewardsTransaction.setAmount(BigDecimal.valueOf(100));
+        rewardsTransaction.setAmountWithTransactionFee(rewardsTransaction.getAmount().multiply(BigDecimal.valueOf(10.0 / 100.0)));
+        rewardsTransaction.setAmountWithTransactionFee(BigDecimal.ZERO);
         rewardsTransaction.setNonce(1);
         rewardsTransaction.setTransactionCallback(transactionCallback);
         byte byf[] = serenc.encode(rewardsTransaction);

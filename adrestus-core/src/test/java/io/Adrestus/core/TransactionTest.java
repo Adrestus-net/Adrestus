@@ -14,6 +14,7 @@ import io.Adrestus.crypto.elliptic.ECDSASign;
 import io.Adrestus.crypto.elliptic.ECDSASignatureData;
 import io.Adrestus.crypto.elliptic.ECKeyPair;
 import io.Adrestus.crypto.elliptic.Keys;
+import io.Adrestus.crypto.elliptic.mapper.BigDecimalSerializer;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.crypto.mnemonic.Mnemonic;
 import io.Adrestus.crypto.mnemonic.MnemonicException;
@@ -25,6 +26,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.spongycastle.util.encoders.Hex;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
@@ -59,10 +61,11 @@ public class TransactionTest {
     public void Transaction_test() {
 
         List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         SerializationUtil<Transaction> ser = new SerializationUtil<Transaction>(Transaction.class, list);
         Transaction transaction = new RegularTransaction();
-        transaction.setAmount(100);
+        transaction.setAmount(BigDecimal.valueOf(100));
         transaction.setHash("Hash");
         transaction.setType(TransactionType.REGULAR);
 
@@ -83,15 +86,16 @@ public class TransactionTest {
         ECKeyPair ecKeyPair = Keys.createEcKeyPair(new SecureRandom(key));
 
         List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         SerializationUtil<Transaction> ser = new SerializationUtil<Transaction>(Transaction.class, list);
         Transaction transaction = new RegularTransaction();
-        transaction.setAmount(1000000);
+        transaction.setAmount(BigDecimal.valueOf(1000000));
         transaction.setHash("Hash");
         transaction.setType(TransactionType.REGULAR);
         transaction.setTimestamp(GetTime.GetTimeStampInString());
         transaction.setStatus(StatusType.PENDING);
-        transaction.setAmountWithTransactionFee(100);
+        transaction.setAmountWithTransactionFee(BigDecimal.valueOf(100));
         transaction.setNonce(10000);
         transaction.setBlockNumber(1000);
         transaction.setXAxis(new BigInteger("73885651435926854515264701221164520142160681037984229233067136520784684869519"));
@@ -118,6 +122,7 @@ public class TransactionTest {
     public void rewards_test() {
 
         List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         SerializationUtil<Transaction> ser = new SerializationUtil<Transaction>(Transaction.class, list);
         UnclaimedFeeRewardTransaction transaction = new UnclaimedFeeRewardTransaction();
@@ -136,10 +141,11 @@ public class TransactionTest {
     @Test
     public void StakingTransaction_test() {
         List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         SerializationUtil<Transaction> serenc = new SerializationUtil<Transaction>(Transaction.class, list);
         Transaction stakingTransaction = new StakingTransaction();
-        stakingTransaction.setAmount(100);
+        stakingTransaction.setAmount(BigDecimal.valueOf(100));
         stakingTransaction.setType(TransactionType.STAKING);
         byte[] buffer = serenc.encode(stakingTransaction);
 
@@ -151,10 +157,11 @@ public class TransactionTest {
     @Test
     public void RewardTransaction_test() {
         List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         SerializationUtil<Transaction> serenc = new SerializationUtil<Transaction>(Transaction.class, list);
         RewardsTransaction rewardsTransaction = new RewardsTransaction("Del");
-        rewardsTransaction.setAmount(100);
+        rewardsTransaction.setAmount(BigDecimal.valueOf(100));
         rewardsTransaction.setType(TransactionType.REWARDS);
         byte[] buffers = serenc.encode(rewardsTransaction);
 
@@ -166,12 +173,13 @@ public class TransactionTest {
     @Test
     public void DelegateTransaction_test() {
         List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         SerializationUtil<Transaction> serenc = new SerializationUtil<Transaction>(Transaction.class, list);
         //byte[] buffer = new byte[200];
         // BinarySerializer<DelegateTransaction> serenc = SerializerBuilder.create().build(DelegateTransaction.class);
         Transaction delegateTransaction = new DelegateTransaction();
-        delegateTransaction.setAmount(100);
+        delegateTransaction.setAmount(BigDecimal.valueOf(100));
         delegateTransaction.setType(TransactionType.DELEGATE);
         byte[] buffer = serenc.encode(delegateTransaction);
 
@@ -214,6 +222,7 @@ public class TransactionTest {
         ECDSASign ecdsaSign = new ECDSASign();
 
         List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         SerializationUtil<Transaction> serenc = new SerializationUtil<Transaction>(Transaction.class, list);
 
@@ -230,7 +239,7 @@ public class TransactionTest {
             String adddress = WalletAddress.generate_address((byte) version, ecKeyPair.getPublicKey());
             addreses.add(adddress);
             keypair.add(ecKeyPair);
-            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(adddress, new PatriciaTreeNode(1000, 0));
+            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(adddress, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
         }
 
 
@@ -243,8 +252,8 @@ public class TransactionTest {
             transaction.setTimestamp(GetTime.GetTimeStampInString());
             transaction.setZoneFrom(0);
             transaction.setZoneTo(0);
-            transaction.setAmount(100);
-            transaction.setAmountWithTransactionFee(transaction.getAmount() * (10.0 / 100.0));
+            transaction.setAmount(BigDecimal.valueOf(100));
+            transaction.setAmountWithTransactionFee(transaction.getAmount().multiply(BigDecimal.valueOf(10.0 / 100.0)));
             transaction.setNonce(1);
             byte byf[] = serenc.encode(transaction);
             transaction.setHash(HashUtil.sha256_bytetoString(byf));

@@ -1,6 +1,7 @@
 package io.Adrestus.core;
 
 import io.Adrestus.config.SocketConfigOptions;
+import io.Adrestus.crypto.elliptic.mapper.BigDecimalSerializer;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.network.TCPTransactionConsumer;
 import io.Adrestus.network.TransactionChannelHandler;
@@ -14,6 +15,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -30,6 +32,7 @@ public class SocketChannelTest {
     @BeforeAll
     public static void setup() {
         List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         trans = new SerializationUtil<Transaction>(Transaction.class, list);
         recep = new SerializationUtil<Receipt>(Receipt.class, list);

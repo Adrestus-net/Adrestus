@@ -6,6 +6,7 @@ import io.Adrestus.Trie.PatriciaTreeTransactionType;
 import io.Adrestus.Trie.StorageInfo;
 import io.Adrestus.bloom_filter.BloomFilter;
 import io.Adrestus.bloom_filter.mapper.BloomFilterSerializer;
+import io.Adrestus.crypto.elliptic.mapper.BigDecimalSerializer;
 import io.Adrestus.util.SerializationUtil;
 import org.junit.jupiter.api.Test;
 
@@ -23,6 +24,7 @@ public class PatriciaTreeNodeSerializeTest {
         Type fluentType = new TypeToken<PatriciaTreeNode>() {
         }.getType();
         List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
         list.add(new SerializationUtil.Mapping(BloomFilter.class, ctx -> new BloomFilterSerializer()));
         SerializationUtil<PatriciaTreeNode> ser = new SerializationUtil<PatriciaTreeNode>(fluentType, list);
         PatriciaTreeNode patriciaTreeNode = new PatriciaTreeNode(BigDecimal.valueOf(23), 2, BigDecimal.valueOf(31));

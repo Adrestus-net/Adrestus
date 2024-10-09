@@ -8,7 +8,6 @@ import io.Adrestus.config.KademliaConfiguration;
 import io.Adrestus.config.RewardConfiguration;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedStartHeightRewards;
-import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.core.RewardMechanism.*;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.SecurityAuditProofs;
@@ -40,12 +39,10 @@ import org.apache.tuweni.bytes.Bytes;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -115,10 +112,10 @@ public class RewardsTest {
         String address4 = "ADR-GC2I-WBAW-IKJE-BWFC-ML6T-BNOC-7XOU-IQ74-BJ5L-WP7G";
         String address5 = "ADR-HC2I-WBAW-IKJE-BWFC-ML6T-BNOC-7XOU-IQ74-BJ1L-WP7G";
 
-        PatriciaTreeNode treeNode2 = new PatriciaTreeNode(0, 1, 0, 0, 0);
-        PatriciaTreeNode treeNode3 = new PatriciaTreeNode(0, 6, 0, 0, 0);
-        PatriciaTreeNode treeNode4 = new PatriciaTreeNode(0, 7, 0, 0, 0);
-        PatriciaTreeNode treeNode5 = new PatriciaTreeNode(0, 1, 0, 0, 0);
+        PatriciaTreeNode treeNode2 = new PatriciaTreeNode(BigDecimal.ZERO, 1, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO);
+        PatriciaTreeNode treeNode3 = new PatriciaTreeNode(BigDecimal.ZERO, 6, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO);
+        PatriciaTreeNode treeNode4 = new PatriciaTreeNode(BigDecimal.ZERO, 7, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO);
+        PatriciaTreeNode treeNode5 = new PatriciaTreeNode(BigDecimal.ZERO, 1, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO);
         TreeFactory.getMemoryTree(0).store(address2, treeNode2);
         TreeFactory.getMemoryTree(0).store(address3, treeNode3);
         TreeFactory.getMemoryTree(0).store(address4, treeNode4);
@@ -126,9 +123,9 @@ public class RewardsTest {
 
         CommitteeBlock committeeBlock = new CommitteeBlock();
         committeeBlock.setGeneration(1);
-        committeeBlock.getStakingMap().put(new StakingData(1, 490), new KademliaData(new SecurityAuditProofs(address, vk1, ecKeyPair1.getPublicKey(), signatureData1), new NettyConnectionInfo("192.168.1.106", KademliaConfiguration.PORT)));
-        committeeBlock.getStakingMap().put(new StakingData(2, 270), new KademliaData(new SecurityAuditProofs(address1, vk2, ecKeyPair2.getPublicKey(), signatureData2), new NettyConnectionInfo("192.168.1.116", KademliaConfiguration.PORT)));
-        committeeBlock.getStakingMap().put(new StakingData(2, 120), new KademliaData(new SecurityAuditProofs(address0, vk3, ecKeyPair3.getPublicKey(), signatureData3), new NettyConnectionInfo("192.168.1.119", KademliaConfiguration.PORT)));
+        committeeBlock.getStakingMap().put(new StakingData(1, BigDecimal.valueOf(490)), new KademliaData(new SecurityAuditProofs(address, vk1, ecKeyPair1.getPublicKey(), signatureData1), new NettyConnectionInfo("192.168.1.106", KademliaConfiguration.PORT)));
+        committeeBlock.getStakingMap().put(new StakingData(2, BigDecimal.valueOf(270)), new KademliaData(new SecurityAuditProofs(address1, vk2, ecKeyPair2.getPublicKey(), signatureData2), new NettyConnectionInfo("192.168.1.116", KademliaConfiguration.PORT)));
+        committeeBlock.getStakingMap().put(new StakingData(2, BigDecimal.valueOf(120)), new KademliaData(new SecurityAuditProofs(address0, vk3, ecKeyPair3.getPublicKey(), signatureData3), new NettyConnectionInfo("192.168.1.119", KademliaConfiguration.PORT)));
         committeeBlock.setCommitteeProposer(new int[committeeBlock.getStakingMap().size()]);
         committeeBlock.setBlockProposer(vk1.toRaw());
         committeeBlock.setLeaderPublicKey(vk1);
@@ -195,23 +192,23 @@ public class RewardsTest {
         CachedStartHeightRewards.getInstance().setHeight(1);
 
 
-        PatriciaTreeNode treeNode = new PatriciaTreeNode(12.2, 1, 490, 40, 0);
+        PatriciaTreeNode treeNode = new PatriciaTreeNode(BigDecimal.valueOf(12.2), 1, BigDecimal.valueOf(490), BigDecimal.valueOf(40), BigDecimal.ZERO);
         treeNode.getStakingInfo().setCommissionRate(10);
-        PatriciaTreeNode treeNode1 = new PatriciaTreeNode(0, 1, 270, 30, 0);
+        PatriciaTreeNode treeNode1 = new PatriciaTreeNode(BigDecimal.ZERO, 1, BigDecimal.valueOf(270), BigDecimal.valueOf(30), BigDecimal.ZERO);
         treeNode1.getStakingInfo().setCommissionRate(10);
-        PatriciaTreeNode treeNode0 = new PatriciaTreeNode(0, 1, 120, 10, 0);
+        PatriciaTreeNode treeNode0 = new PatriciaTreeNode(BigDecimal.ZERO, 1, BigDecimal.valueOf(120), BigDecimal.valueOf(10), BigDecimal.ZERO);
         treeNode0.getStakingInfo().setCommissionRate(10);
         TreeFactory.getMemoryTree(0).store(address, treeNode);
-        TreeFactory.getMemoryTree(0).getByaddress(address).get().getDelegation().put(address2, 100.0);
-        TreeFactory.getMemoryTree(0).getByaddress(address).get().getDelegation().put(address3, 100.0);
-        TreeFactory.getMemoryTree(0).getByaddress(address).get().getDelegation().put(address4, 100.0);
-        TreeFactory.getMemoryTree(0).getByaddress(address).get().getDelegation().put(address5, 100.0);
+        TreeFactory.getMemoryTree(0).getByaddress(address).get().getDelegation().put(address2, BigDecimal.valueOf(100.0));
+        TreeFactory.getMemoryTree(0).getByaddress(address).get().getDelegation().put(address3, BigDecimal.valueOf(100.0));
+        TreeFactory.getMemoryTree(0).getByaddress(address).get().getDelegation().put(address4, BigDecimal.valueOf(100.0));
+        TreeFactory.getMemoryTree(0).getByaddress(address).get().getDelegation().put(address5, BigDecimal.valueOf(100.0));
         PatriciaTreeNode treeNodeClone = (PatriciaTreeNode) treeNode.clone();
         TreeFactory.getMemoryTree(0).store(address1, treeNode1);
-        TreeFactory.getMemoryTree(0).getByaddress(address1).get().getDelegation().put(address2, 200.0);
-        TreeFactory.getMemoryTree(0).getByaddress(address1).get().getDelegation().put(address3, 200.0);
-        TreeFactory.getMemoryTree(0).getByaddress(address1).get().getDelegation().put(address4, 200.0);
-        TreeFactory.getMemoryTree(0).getByaddress(address1).get().getDelegation().put(address5, 200.0);
+        TreeFactory.getMemoryTree(0).getByaddress(address1).get().getDelegation().put(address2, BigDecimal.valueOf(200.0));
+        TreeFactory.getMemoryTree(0).getByaddress(address1).get().getDelegation().put(address3, BigDecimal.valueOf(200.0));
+        TreeFactory.getMemoryTree(0).getByaddress(address1).get().getDelegation().put(address4, BigDecimal.valueOf(200.0));
+        TreeFactory.getMemoryTree(0).getByaddress(address1).get().getDelegation().put(address5, BigDecimal.valueOf(200.0));
         TreeFactory.getMemoryTree(0).store(address0, treeNode0);
 
         MemoryTreePool cloned_tree = (MemoryTreePool) TreeFactory.getMemoryTree(0).clone();
@@ -333,10 +330,10 @@ public class RewardsTest {
         String address4 = "ADR-GC2I-WBAW-IKJE-BWFC-ML6T-BNOC-7XOU-IQ74-BJ5L-WP7G";
         String address5 = "ADR-HC2I-WBAW-IKJE-BWFC-ML6T-BNOC-7XOU-IQ74-BJ1L-WP7G";
 
-        PatriciaTreeNode treeNode2 = new PatriciaTreeNode(0, 1, 0, 0, 0);
-        PatriciaTreeNode treeNode3 = new PatriciaTreeNode(0, 6, 0, 0, 0);
-        PatriciaTreeNode treeNode4 = new PatriciaTreeNode(0, 7, 0, 0, 0);
-        PatriciaTreeNode treeNode5 = new PatriciaTreeNode(0, 1, 0, 0, 0);
+        PatriciaTreeNode treeNode2 = new PatriciaTreeNode(BigDecimal.ZERO, 1, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO);
+        PatriciaTreeNode treeNode3 = new PatriciaTreeNode(BigDecimal.ZERO, 6, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO);
+        PatriciaTreeNode treeNode4 = new PatriciaTreeNode(BigDecimal.ZERO, 7, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO);
+        PatriciaTreeNode treeNode5 = new PatriciaTreeNode(BigDecimal.ZERO, 1, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO);
         TreeFactory.getMemoryTree(0).store(address2, treeNode2);
         TreeFactory.getMemoryTree(0).store(address3, treeNode3);
         TreeFactory.getMemoryTree(0).store(address4, treeNode4);
@@ -344,9 +341,9 @@ public class RewardsTest {
 
         CommitteeBlock committeeBlock = new CommitteeBlock();
         committeeBlock.setGeneration(1);
-        committeeBlock.getStakingMap().put(new StakingData(1, 490), new KademliaData(new SecurityAuditProofs(address, vk1, ecKeyPair1.getPublicKey(), signatureData1), new NettyConnectionInfo("192.168.1.106", KademliaConfiguration.PORT)));
-        committeeBlock.getStakingMap().put(new StakingData(2, 270), new KademliaData(new SecurityAuditProofs(address1, vk2, ecKeyPair2.getPublicKey(), signatureData2), new NettyConnectionInfo("192.168.1.116", KademliaConfiguration.PORT)));
-        committeeBlock.getStakingMap().put(new StakingData(2, 120), new KademliaData(new SecurityAuditProofs(address0, vk3, ecKeyPair3.getPublicKey(), signatureData3), new NettyConnectionInfo("192.168.1.119", KademliaConfiguration.PORT)));
+        committeeBlock.getStakingMap().put(new StakingData(1, BigDecimal.valueOf(490)), new KademliaData(new SecurityAuditProofs(address, vk1, ecKeyPair1.getPublicKey(), signatureData1), new NettyConnectionInfo("192.168.1.106", KademliaConfiguration.PORT)));
+        committeeBlock.getStakingMap().put(new StakingData(2, BigDecimal.valueOf(270)), new KademliaData(new SecurityAuditProofs(address1, vk2, ecKeyPair2.getPublicKey(), signatureData2), new NettyConnectionInfo("192.168.1.116", KademliaConfiguration.PORT)));
+        committeeBlock.getStakingMap().put(new StakingData(2, BigDecimal.valueOf(120)), new KademliaData(new SecurityAuditProofs(address0, vk3, ecKeyPair3.getPublicKey(), signatureData3), new NettyConnectionInfo("192.168.1.119", KademliaConfiguration.PORT)));
         committeeBlock.setCommitteeProposer(new int[committeeBlock.getStakingMap().size()]);
         committeeBlock.setBlockProposer(vk1.toRaw());
         committeeBlock.setLeaderPublicKey(vk1);
@@ -408,11 +405,11 @@ public class RewardsTest {
         CachedStartHeightRewards.getInstance().setHeight(1);
 
 
-        PatriciaTreeNode treeNode = new PatriciaTreeNode(0, 1, 490, 40, 0);
+        PatriciaTreeNode treeNode = new PatriciaTreeNode(BigDecimal.ZERO, 1, BigDecimal.valueOf(490), BigDecimal.valueOf(40), BigDecimal.ZERO);
         treeNode.getStakingInfo().setCommissionRate(10);
-        PatriciaTreeNode treeNode1 = new PatriciaTreeNode(0, 1, 270, 30, 0);
+        PatriciaTreeNode treeNode1 = new PatriciaTreeNode(BigDecimal.ZERO, 1, BigDecimal.valueOf(270), BigDecimal.valueOf(30), BigDecimal.ZERO);
         treeNode1.getStakingInfo().setCommissionRate(10);
-        PatriciaTreeNode treeNode0 = new PatriciaTreeNode(0, 1, 120, 10, 0);
+        PatriciaTreeNode treeNode0 = new PatriciaTreeNode(BigDecimal.ZERO, 1, BigDecimal.valueOf(120), BigDecimal.valueOf(10), BigDecimal.ZERO);
         treeNode0.getStakingInfo().setCommissionRate(10);
         TreeFactory.getMemoryTree(0).store(address, treeNode);
         PatriciaTreeNode treeNodeClone = (PatriciaTreeNode) treeNode.clone();
@@ -437,7 +434,7 @@ public class RewardsTest {
         king2.makeRequest(new Request(RequestType.VALIDATOR_REWARD_CALCULATOR, "VALIDATOR_REWARD_CALCULATOR"));
         king2.makeRequest(new Request(RequestType.DELEGATE_REWARD_CALCULATOR, "DELEGATE_REWARD_CALCULATOR"));
         king2.makeRequest(new Request(RequestType.REWARD_PRECISION_CALCULATOR, "REWARD_PRECISION_CALCULATOR"));
-        king2.makeRequest(new Request(RequestType.REWARD_STORAGE_CALCULATOR, "REWARD_STORAGE_CALCULATOR",cloned_tree));
+        king2.makeRequest(new Request(RequestType.REWARD_STORAGE_CALCULATOR, "REWARD_STORAGE_CALCULATOR", cloned_tree));
 
         Map<String, RewardObject> maps = CachedRewardMapData.getInstance().getEffective_stakes_map();
 
@@ -501,10 +498,10 @@ public class RewardsTest {
         String address4 = "ADR-GC2I-WBAW-IKJE-BWFC-ML6T-BNOC-7XOU-IQ74-BJ5L-WP7G";
         String address5 = "ADR-HC2I-WBAW-IKJE-BWFC-ML6T-BNOC-7XOU-IQ74-BJ1L-WP7G";
 
-        PatriciaTreeNode treeNode2 = new PatriciaTreeNode(0, 1, 0, 0, 0);
-        PatriciaTreeNode treeNode3 = new PatriciaTreeNode(0, 6, 0, 0, 0);
-        PatriciaTreeNode treeNode4 = new PatriciaTreeNode(0, 7, 0, 0, 0);
-        PatriciaTreeNode treeNode5 = new PatriciaTreeNode(0, 1, 0, 0, 0);
+        PatriciaTreeNode treeNode2 = new PatriciaTreeNode(BigDecimal.ZERO, 1, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO);
+        PatriciaTreeNode treeNode3 = new PatriciaTreeNode(BigDecimal.ZERO, 6, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO);
+        PatriciaTreeNode treeNode4 = new PatriciaTreeNode(BigDecimal.ZERO, 7, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO);
+        PatriciaTreeNode treeNode5 = new PatriciaTreeNode(BigDecimal.ZERO, 1, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO);
         TreeFactory.getMemoryTree(0).store(address2, treeNode2);
         TreeFactory.getMemoryTree(0).store(address3, treeNode3);
         TreeFactory.getMemoryTree(0).store(address4, treeNode4);
@@ -512,9 +509,9 @@ public class RewardsTest {
 
         CommitteeBlock committeeBlock = new CommitteeBlock();
         committeeBlock.setGeneration(1);
-        committeeBlock.getStakingMap().put(new StakingData(1, 490), new KademliaData(new SecurityAuditProofs(address, vk1, ecKeyPair1.getPublicKey(), signatureData1), new NettyConnectionInfo("192.168.1.106", KademliaConfiguration.PORT)));
-        committeeBlock.getStakingMap().put(new StakingData(2, 270), new KademliaData(new SecurityAuditProofs(address1, vk2, ecKeyPair2.getPublicKey(), signatureData2), new NettyConnectionInfo("192.168.1.116", KademliaConfiguration.PORT)));
-        committeeBlock.getStakingMap().put(new StakingData(2, 120), new KademliaData(new SecurityAuditProofs(address0, vk3, ecKeyPair3.getPublicKey(), signatureData3), new NettyConnectionInfo("192.168.1.119", KademliaConfiguration.PORT)));
+        committeeBlock.getStakingMap().put(new StakingData(1, BigDecimal.valueOf(490)), new KademliaData(new SecurityAuditProofs(address, vk1, ecKeyPair1.getPublicKey(), signatureData1), new NettyConnectionInfo("192.168.1.106", KademliaConfiguration.PORT)));
+        committeeBlock.getStakingMap().put(new StakingData(2, BigDecimal.valueOf(270)), new KademliaData(new SecurityAuditProofs(address1, vk2, ecKeyPair2.getPublicKey(), signatureData2), new NettyConnectionInfo("192.168.1.116", KademliaConfiguration.PORT)));
+        committeeBlock.getStakingMap().put(new StakingData(2, BigDecimal.valueOf(120)), new KademliaData(new SecurityAuditProofs(address0, vk3, ecKeyPair3.getPublicKey(), signatureData3), new NettyConnectionInfo("192.168.1.119", KademliaConfiguration.PORT)));
         committeeBlock.setCommitteeProposer(new int[committeeBlock.getStakingMap().size()]);
         committeeBlock.setBlockProposer(vk1.toRaw());
         committeeBlock.setLeaderPublicKey(vk1);
@@ -558,11 +555,11 @@ public class RewardsTest {
         CachedStartHeightRewards.getInstance().setHeight(1);
 
 
-        PatriciaTreeNode treeNode = new PatriciaTreeNode(0, 1, 490, 40, 0);
+        PatriciaTreeNode treeNode = new PatriciaTreeNode(BigDecimal.ZERO, 1, BigDecimal.valueOf(490), BigDecimal.valueOf(40), BigDecimal.ZERO);
         treeNode.getStakingInfo().setCommissionRate(10);
-        PatriciaTreeNode treeNode1 = new PatriciaTreeNode(0, 1, 270, 30, 0);
+        PatriciaTreeNode treeNode1 = new PatriciaTreeNode(BigDecimal.ZERO, 1, BigDecimal.valueOf(270), BigDecimal.valueOf(30), BigDecimal.ZERO);
         treeNode1.getStakingInfo().setCommissionRate(10);
-        PatriciaTreeNode treeNode0 = new PatriciaTreeNode(0, 1, 120, 10, 0);
+        PatriciaTreeNode treeNode0 = new PatriciaTreeNode(BigDecimal.ZERO, 1, BigDecimal.valueOf(120), BigDecimal.valueOf(10), BigDecimal.ZERO);
         treeNode0.getStakingInfo().setCommissionRate(10);
         TreeFactory.getMemoryTree(0).store(address, treeNode);
         PatriciaTreeNode treeNodeClone = (PatriciaTreeNode) treeNode.clone();
@@ -577,7 +574,7 @@ public class RewardsTest {
         king.makeRequest(new Request(RequestType.VALIDATOR_REWARD_CALCULATOR, "VALIDATOR_REWARD_CALCULATOR"));
         king.makeRequest(new Request(RequestType.DELEGATE_REWARD_CALCULATOR, "DELEGATE_REWARD_CALCULATOR"));
         king.makeRequest(new Request(RequestType.REWARD_PRECISION_CALCULATOR, "REWARD_PRECISION_CALCULATOR"));
-        king.makeRequest(new Request(RequestType.REWARD_STORAGE_CALCULATOR, "REWARD_STORAGE_CALCULATOR",TreeFactory.getMemoryTree(0)));
+        king.makeRequest(new Request(RequestType.REWARD_STORAGE_CALCULATOR, "REWARD_STORAGE_CALCULATOR", TreeFactory.getMemoryTree(0)));
 
 
         Map<String, RewardObject> maps = CachedRewardMapData.getInstance().getEffective_stakes_map();
@@ -632,12 +629,12 @@ public class RewardsTest {
         ECDSASignatureData signatureData2 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address2)), ecKeyPair2);
         ECDSASignatureData signatureData3 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address3)), ecKeyPair3);
 
-        PatriciaTreeNode treeNode1=new PatriciaTreeNode(1000, 0, 100, 40);
+        PatriciaTreeNode treeNode1 = new PatriciaTreeNode(BigDecimal.valueOf(1000), 0, BigDecimal.valueOf(100), BigDecimal.valueOf(40));
         //treeNode1.getStakingInfo().setCommissionRate(10);
-        PatriciaTreeNode treeNode2=new PatriciaTreeNode(1000, 0, 200, 30);
-       // treeNode2.getStakingInfo().setCommissionRate(10);
-        PatriciaTreeNode treeNode3=new PatriciaTreeNode(1000, 0, 300, 20);
-       // treeNode3.getStakingInfo().setCommissionRate(10);
+        PatriciaTreeNode treeNode2 = new PatriciaTreeNode(BigDecimal.valueOf(1000), 0, BigDecimal.valueOf(200), BigDecimal.valueOf(30));
+        // treeNode2.getStakingInfo().setCommissionRate(10);
+        PatriciaTreeNode treeNode3 = new PatriciaTreeNode(BigDecimal.valueOf(1000), 0, BigDecimal.valueOf(300), BigDecimal.valueOf(20));
+        // treeNode3.getStakingInfo().setCommissionRate(10);
         TreeFactory.getMemoryTree(0).store(address1, treeNode1);
         TreeFactory.getMemoryTree(0).store(address2, treeNode2);
         TreeFactory.getMemoryTree(0).store(address3, treeNode3);
@@ -677,20 +674,20 @@ public class RewardsTest {
         KademliaData kad2 = new KademliaData(new SecurityAuditProofs(address2, vk2, ecKeyPair2.getPublicKey(), signatureData2), new NettyConnectionInfo("192.168.1.115", KademliaConfiguration.PORT));
         KademliaData kad3 = new KademliaData(new SecurityAuditProofs(address3, vk3, ecKeyPair3.getPublicKey(), signatureData3), new NettyConnectionInfo("192.168.1.116", KademliaConfiguration.PORT));
 
-        committeeBlock.getStakingMap().put(new StakingData(1, 100.0), kad3);
-        committeeBlock.getStakingMap().put(new StakingData(2, 200.0), kad2);
-        committeeBlock.getStakingMap().put(new StakingData(3, 300.0), kad1);
+        committeeBlock.getStakingMap().put(new StakingData(1, BigDecimal.valueOf(100.0)), kad3);
+        committeeBlock.getStakingMap().put(new StakingData(2, BigDecimal.valueOf(200.0)), kad2);
+        committeeBlock.getStakingMap().put(new StakingData(3, BigDecimal.valueOf(300.0)), kad1);
 
         CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
         CachedLatestBlocks.getInstance().setTransactionBlock(prevblock);
         transactionBlockIDatabase.save(String.valueOf(prevblock.getHeight()), prevblock);
 
-        MemoryTreePool replica= (MemoryTreePool) TreeFactory.getMemoryTree(0).clone();
-        List<BLSPublicKey> keys=committeeBlock.getStakingMap().values().stream().map(KademliaData::getAddressData).map(SecurityAuditProofs::getValidatorBlSPublicKey).collect(Collectors.toList());
-        int count=0;
-        ArrayList<Map<String, RewardObject>> rewardsTotal=new ArrayList<>(3);
+        MemoryTreePool replica = (MemoryTreePool) TreeFactory.getMemoryTree(0).clone();
+        List<BLSPublicKey> keys = committeeBlock.getStakingMap().values().stream().map(KademliaData::getAddressData).map(SecurityAuditProofs::getValidatorBlSPublicKey).collect(Collectors.toList());
+        int count = 0;
+        ArrayList<Map<String, RewardObject>> rewardsTotal = new ArrayList<>(3);
         CachedStartHeightRewards.getInstance().setHeight(1);
-        for(int i=2;i<=6;i++){
+        for (int i = 2; i <= 6; i++) {
             TransactionBlock transactionBlock = new TransactionBlock();
             transactionBlock.setHash(String.valueOf(i));
             transactionBlock.setHeight(i);
@@ -718,7 +715,7 @@ public class RewardsTest {
             transactionBlock.getSignatureData().put(vk3, BLSSignatureData3);
             transactionBlock.setLeaderPublicKey(keys.get(count));
             transactionBlock.setBlockProposer(keys.get(count).toRaw());
-            if(transactionBlock.getHeight()%RewardConfiguration.BLOCK_REWARD_HEIGHT==0){
+            if (transactionBlock.getHeight() % RewardConfiguration.BLOCK_REWARD_HEIGHT == 0) {
                 RewardChainBuilder king1 = new RewardChainBuilder();
                 king1.makeRequest(new Request(RequestType.EFFECTIVE_STAKE, "EFFECTIVE_STAKE"));
                 king1.makeRequest(new Request(RequestType.EFFECTIVE_STAKE_RATIO, "EFFECTIVE_STAKE_RATIO"));
@@ -727,17 +724,16 @@ public class RewardsTest {
                 king1.makeRequest(new Request(RequestType.DELEGATE_REWARD_CALCULATOR, "DELEGATE_REWARD_CALCULATOR"));
                 king1.makeRequest(new Request(RequestType.REWARD_PRECISION_CALCULATOR, "REWARD_PRECISION_CALCULATOR"));
                 king1.makeRequest(new Request(RequestType.REWARD_STORAGE_CALCULATOR, "REWARD_STORAGE_CALCULATOR", replica));
-                if(transactionBlock.getHeight()==3) {
+                if (transactionBlock.getHeight() == 3) {
                     rewardsTotal.add(0, SerializationUtils.clone(CachedRewardMapData.getInstance().getEffective_stakes_map()));
                     CachedStartHeightRewards.getInstance().setHeight(transactionBlock.getHeight());
                     CachedRewardMapData.getInstance().clearInstance();
-                }
-                else {
+                } else {
                     rewardsTotal.add(1, SerializationUtils.clone(CachedRewardMapData.getInstance().getEffective_stakes_map()));
                 }
 
             }
-            if(transactionBlock.getHeight()==6){
+            if (transactionBlock.getHeight() == 6) {
                 CachedStartHeightRewards.getInstance().setHeight(1);
                 CachedRewardMapData.getInstance().clearInstance();
 
@@ -752,16 +748,15 @@ public class RewardsTest {
                 rewardsTotal.add(2, SerializationUtils.clone(CachedRewardMapData.getInstance().getEffective_stakes_map()));
             }
             transactionBlockIDatabase.save(String.valueOf(i), transactionBlock);
-            if(count==2) {
+            if (count == 2) {
                 count = 0;
-            }
-            else {
+            } else {
                 count++;
             }
         }
 
 
-        Map<String,TransactionBlock>res=transactionBlockIDatabase.seekFromStart();
+        Map<String, TransactionBlock> res = transactionBlockIDatabase.seekFromStart();
 
 
 //        System.out.println();
@@ -785,19 +780,17 @@ public class RewardsTest {
 //        assertEquals(2.659986,replica.getByaddress(address1).get().getUnclaimed_reward());
 
 
+        assertEquals(rewardsTotal.get(0).get(address1).getUnreal_reward().add(rewardsTotal.get(1).get(address1).getUnreal_reward()), rewardsTotal.get(2).get(address1).getUnreal_reward());
+        assertEquals(rewardsTotal.get(0).get(address2).getUnreal_reward().add(rewardsTotal.get(1).get(address2).getUnreal_reward()), rewardsTotal.get(2).get(address2).getUnreal_reward());
+        assertEquals(rewardsTotal.get(0).get(address3).getUnreal_reward().add(rewardsTotal.get(1).get(address3).getUnreal_reward()), rewardsTotal.get(2).get(address3).getUnreal_reward());
 
+        assertEquals(rewardsTotal.get(0).get(address1).getReal_reward().add(rewardsTotal.get(1).get(address1).getReal_reward()), rewardsTotal.get(2).get(address1).getReal_reward());
+        assertEquals(rewardsTotal.get(0).get(address2).getReal_reward().add(rewardsTotal.get(1).get(address2).getReal_reward()), rewardsTotal.get(2).get(address2).getReal_reward());
+        assertEquals(rewardsTotal.get(0).get(address3).getReal_reward().add(rewardsTotal.get(1).get(address3).getReal_reward()), rewardsTotal.get(2).get(address3).getReal_reward());
 
-        assertEquals(rewardsTotal.get(0).get(address1).getUnreal_reward().add(rewardsTotal.get(1).get(address1).getUnreal_reward()),rewardsTotal.get(2).get(address1).getUnreal_reward());
-        assertEquals(rewardsTotal.get(0).get(address2).getUnreal_reward().add(rewardsTotal.get(1).get(address2).getUnreal_reward()),rewardsTotal.get(2).get(address2).getUnreal_reward());
-        assertEquals(rewardsTotal.get(0).get(address3).getUnreal_reward().add(rewardsTotal.get(1).get(address3).getUnreal_reward()),rewardsTotal.get(2).get(address3).getUnreal_reward());
-
-        assertEquals(rewardsTotal.get(0).get(address1).getReal_reward().add(rewardsTotal.get(1).get(address1).getReal_reward()),rewardsTotal.get(2).get(address1).getReal_reward());
-        assertEquals(rewardsTotal.get(0).get(address2).getReal_reward().add(rewardsTotal.get(1).get(address2).getReal_reward()),rewardsTotal.get(2).get(address2).getReal_reward());
-        assertEquals(rewardsTotal.get(0).get(address3).getReal_reward().add(rewardsTotal.get(1).get(address3).getReal_reward()),rewardsTotal.get(2).get(address3).getReal_reward());
-
-        assertEquals(TreeFactory.getMemoryTree(0).getByaddress(address1).get().getUnclaimed_reward(),replica.getByaddress(address1).get().getUnclaimed_reward());
-        assertEquals(TreeFactory.getMemoryTree(0).getByaddress(address2).get().getUnclaimed_reward(),replica.getByaddress(address2).get().getUnclaimed_reward());
-        assertEquals(TreeFactory.getMemoryTree(0).getByaddress(address3).get().getUnclaimed_reward(),replica.getByaddress(address3).get().getUnclaimed_reward());
+        assertEquals(TreeFactory.getMemoryTree(0).getByaddress(address1).get().getUnclaimed_reward(), replica.getByaddress(address1).get().getUnclaimed_reward());
+        assertEquals(TreeFactory.getMemoryTree(0).getByaddress(address2).get().getUnclaimed_reward(), replica.getByaddress(address2).get().getUnclaimed_reward());
+        assertEquals(TreeFactory.getMemoryTree(0).getByaddress(address3).get().getUnclaimed_reward(), replica.getByaddress(address3).get().getUnclaimed_reward());
 
 //      assertEquals(rewardsTotal.get(0).get(address1).getUnreal_reward().add(rewardsTotal.get(1).get(address1).getUnreal_reward()),TreeFactory.getMemoryTree(0).getByaddress(address1).get().getUnclaimed_reward());
 
@@ -840,16 +833,16 @@ public class RewardsTest {
 
         ECDSASignatureData signatureData1 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address1)), ecKeyPair1);
         ECDSASignatureData signatureData2 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address1)), ecKeyPair2);
-        PatriciaTreeNode treeNode1=new PatriciaTreeNode(1000, 0, 270, 20);
-        PatriciaTreeNode treeNode2=new PatriciaTreeNode(1000, 0, 450, 40);
+        PatriciaTreeNode treeNode1 = new PatriciaTreeNode(BigDecimal.valueOf(1000), 0, BigDecimal.valueOf(270), BigDecimal.valueOf(20));
+        PatriciaTreeNode treeNode2 = new PatriciaTreeNode(BigDecimal.valueOf(1000), 0, BigDecimal.valueOf(450), BigDecimal.valueOf(40));
         treeNode1.getStakingInfo().setCommissionRate(5);
         treeNode2.getStakingInfo().setCommissionRate(10);
 
         TreeFactory.getMemoryTree(0).store(address1, treeNode1);
         TreeFactory.getMemoryTree(0).store(address2, treeNode2);
-        MemoryTreePool replica= (MemoryTreePool) TreeFactory.getMemoryTree(0).clone();
+        MemoryTreePool replica = (MemoryTreePool) TreeFactory.getMemoryTree(0).clone();
 
-        List<Map<String, RewardObject>> rewardsTotal=new ArrayList<>();
+        List<Map<String, RewardObject>> rewardsTotal = new ArrayList<>();
 
         CommitteeBlock committeeBlock = new CommitteeBlock();
         committeeBlock.setGeneration(1);
@@ -903,8 +896,8 @@ public class RewardsTest {
         KademliaData kad1 = new KademliaData(new SecurityAuditProofs(address1, vk1, ecKeyPair1.getPublicKey(), signatureData1), new NettyConnectionInfo("192.168.1.106", KademliaConfiguration.PORT));
         KademliaData kad2 = new KademliaData(new SecurityAuditProofs(address2, vk2, ecKeyPair2.getPublicKey(), signatureData2), new NettyConnectionInfo("192.168.1.116", KademliaConfiguration.PORT));
 
-        committeeBlock.getStakingMap().put(new StakingData(1, 270.0), kad1);
-        committeeBlock.getStakingMap().put(new StakingData(2, 490.0), kad2);
+        committeeBlock.getStakingMap().put(new StakingData(1, BigDecimal.valueOf(270.0)), kad1);
+        committeeBlock.getStakingMap().put(new StakingData(2, BigDecimal.valueOf(490.0)), kad2);
 
 
         CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
@@ -948,19 +941,19 @@ public class RewardsTest {
         rewardsTotal.add(2, SerializationUtils.clone(CachedRewardMapData.getInstance().getEffective_stakes_map()));
         CachedRewardMapData.getInstance().clearInstance();
 
-        assertEquals(rewardsTotal.get(0).get(address1).getReal_reward().add(rewardsTotal.get(1).get(address1).getReal_reward()),rewardsTotal.get(2).get(address1).getReal_reward());
-        assertEquals(rewardsTotal.get(0).get(address2).getReal_reward().add(rewardsTotal.get(1).get(address2).getReal_reward()),rewardsTotal.get(2).get(address2).getReal_reward());
+        assertEquals(rewardsTotal.get(0).get(address1).getReal_reward().add(rewardsTotal.get(1).get(address1).getReal_reward()), rewardsTotal.get(2).get(address1).getReal_reward());
+        assertEquals(rewardsTotal.get(0).get(address2).getReal_reward().add(rewardsTotal.get(1).get(address2).getReal_reward()), rewardsTotal.get(2).get(address2).getReal_reward());
 
-        assertEquals(rewardsTotal.get(0).get(address1).getUnreal_reward().add(rewardsTotal.get(1).get(address1).getUnreal_reward()),rewardsTotal.get(2).get(address1).getUnreal_reward());
-        assertEquals(rewardsTotal.get(0).get(address2).getUnreal_reward().add(rewardsTotal.get(1).get(address2).getUnreal_reward()),rewardsTotal.get(2).get(address2).getUnreal_reward());
+        assertEquals(rewardsTotal.get(0).get(address1).getUnreal_reward().add(rewardsTotal.get(1).get(address1).getUnreal_reward()), rewardsTotal.get(2).get(address1).getUnreal_reward());
+        assertEquals(rewardsTotal.get(0).get(address2).getUnreal_reward().add(rewardsTotal.get(1).get(address2).getUnreal_reward()), rewardsTotal.get(2).get(address2).getUnreal_reward());
 
-        assertEquals(rewardsTotal.get(0).get(address1).getReal_reward().add(rewardsTotal.get(1).get(address1).getReal_reward()),BigDecimal.valueOf(replica.getByaddress(address1).get().getUnclaimed_reward()));
-        assertEquals(rewardsTotal.get(0).get(address2).getReal_reward().add(rewardsTotal.get(1).get(address2).getReal_reward()),BigDecimal.valueOf(replica.getByaddress(address2).get().getUnclaimed_reward()).setScale(RewardConfiguration.DECIMAL_PRECISION,RewardConfiguration.ROUNDING));
+        assertEquals(rewardsTotal.get(0).get(address1).getReal_reward().add(rewardsTotal.get(1).get(address1).getReal_reward()), replica.getByaddress(address1).get().getUnclaimed_reward());
+        assertEquals(rewardsTotal.get(0).get(address2).getReal_reward().add(rewardsTotal.get(1).get(address2).getReal_reward()), replica.getByaddress(address2).get().getUnclaimed_reward().setScale(RewardConfiguration.DECIMAL_PRECISION, RewardConfiguration.ROUNDING));
 
-        assertEquals(TreeFactory.getMemoryTree(0).getByaddress(address1).get().getUnclaimed_reward(),replica.getByaddress(address1).get().getUnclaimed_reward());
-        assertEquals(TreeFactory.getMemoryTree(0).getByaddress(address2).get().getUnclaimed_reward(),replica.getByaddress(address2).get().getUnclaimed_reward());
+        assertEquals(TreeFactory.getMemoryTree(0).getByaddress(address1).get().getUnclaimed_reward(), replica.getByaddress(address1).get().getUnclaimed_reward());
+        assertEquals(TreeFactory.getMemoryTree(0).getByaddress(address2).get().getUnclaimed_reward(), replica.getByaddress(address2).get().getUnclaimed_reward());
 
-        assertEquals(rewardsTotal.get(0).get(address1).getUnreal_reward().add(rewardsTotal.get(1).get(address1).getUnreal_reward()),TreeFactory.getMemoryTree(0).getByaddress(address1).get().getUnclaimed_reward());
+        assertEquals(rewardsTotal.get(0).get(address1).getReal_reward().add(rewardsTotal.get(1).get(address1).getReal_reward()), TreeFactory.getMemoryTree(0).getByaddress(address1).get().getUnclaimed_reward());
         CachedRewardMapData.getInstance().clearInstance();
         transactionBlockIDatabase.delete_db();
         TreeFactory.ClearMemoryTree(0);

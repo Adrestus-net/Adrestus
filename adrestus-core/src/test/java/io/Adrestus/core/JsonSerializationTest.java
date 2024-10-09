@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.Adrestus.crypto.elliptic.ECDSASignatureData;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -14,7 +15,7 @@ public class JsonSerializationTest {
     @Test
     public void test() throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
-        Transaction transaction = new RegularTransaction("hash1", TransactionType.REGULAR, StatusType.PENDING, 0, 0, "", "", "", 0, 0, 0, new ECDSASignatureData());
+        Transaction transaction = new RegularTransaction("hash1", TransactionType.REGULAR, StatusType.PENDING, 0, 0, "", "", "", BigDecimal.ZERO, BigDecimal.ZERO, 0, new ECDSASignatureData());
         Transaction transaction2 = new RegularTransaction();
         transaction2.setHash("hash2");
         transaction2.setType(TransactionType.REWARDS);
@@ -33,7 +34,7 @@ public class JsonSerializationTest {
         signatureData.setR(new BigInteger("30179190089666276834887403079562508974417649980904472865724382004973443579854").toByteArray());
         signatureData.setS(new BigInteger("14029798542497621816798343676332730497595770105064178818079147459382128035034").toByteArray());
 
-        Transaction transaction = new RegularTransaction("hash1", TransactionType.REGULAR, StatusType.PENDING, 0, 0, "", "", "", 0, 0, 0, signatureData);
+        Transaction transaction = new RegularTransaction("hash1", TransactionType.REGULAR, StatusType.PENDING, 0, 0, "", "", "", BigDecimal.ZERO, BigDecimal.ZERO, 0, signatureData);
         String jsonDataString = mapper.writeValueAsString(transaction);
 
         assertEquals("{\"transactiontype\":\"RegularTransaction\",\"type\":\"REGULAR\",\"status\":\"PENDING\",\"timestamp\":\"\",\"hash\":\"hash1\",\"nonce\":0,\"blockNumber\":0,\"from\":\"\",\"to\":\"\",\"zoneFrom\":0,\"zoneTo\":0,\"amount\":0.0,\"amountWithTransactionFee\":0.0,\"xaxis\":null,\"yaxis\":null,\"signature\":{\"v\":0,\"r\":\"QrjQ9wiWv/wkFXTZN20gdKU/cmjH1Dv1o8snhZH5f84=\",\"s\":\"HwSVpnel8+Wg/o8u9Q99fQmSvmeLNDFEG/zDhQ+mRNo=\",\"pub\":\"\"},\"transactionCallback\":null}", jsonDataString);

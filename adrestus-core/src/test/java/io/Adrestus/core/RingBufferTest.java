@@ -3,6 +3,7 @@ package io.Adrestus.core;
 import io.Adrestus.core.RingBuffer.publisher.BlockEventPublisher;
 import io.Adrestus.core.RingBuffer.publisher.TransactionEventPublisher;
 import io.Adrestus.crypto.HashUtil;
+import io.Adrestus.crypto.elliptic.mapper.BigDecimalSerializer;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.util.GetTime;
 import io.Adrestus.util.SerializationUtil;
@@ -13,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,6 +51,7 @@ public class RingBufferTest {
     // @Test
     public void TransactionTest() throws InterruptedException {
         List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         SerializationUtil<Transaction> serenc = new SerializationUtil<Transaction>(Transaction.class, list);
 
@@ -58,8 +61,8 @@ public class RingBufferTest {
         transaction.setTimestamp(GetTime.GetTimeStampInString());
         transaction.setZoneFrom(0);
         transaction.setZoneTo(0);
-        transaction.setAmount(100);
-        transaction.setAmountWithTransactionFee(transaction.getAmount() * (10.0 / 100.0));
+        transaction.setAmount(BigDecimal.valueOf(100));
+        transaction.setAmountWithTransactionFee(transaction.getAmount().multiply(BigDecimal.valueOf(10.0 / 100.0)));
         transaction.setNonce(1);
         byte byf[] = serenc.encode(transaction);
         transaction.setHash(HashUtil.sha256_bytetoString(byf));

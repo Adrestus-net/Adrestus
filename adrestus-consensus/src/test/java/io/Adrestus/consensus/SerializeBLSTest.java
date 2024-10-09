@@ -9,11 +9,13 @@ import io.Adrestus.crypto.bls.model.BLSPrivateKey;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.Adrestus.crypto.bls.model.BLSSignature;
 import io.Adrestus.crypto.bls.model.Signature;
+import io.Adrestus.crypto.elliptic.mapper.BigDecimalSerializer;
 import io.Adrestus.crypto.vrf.VRFMessage;
 import io.Adrestus.util.SerializationUtil;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Type;
+import java.math.BigDecimal;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +31,7 @@ public class SerializeBLSTest {
         BLSPublicKey vk = new BLSPublicKey(sk);
 
         List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
         list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
         list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
         SerializationUtil<BLSPublicKey> ser = new SerializationUtil<BLSPublicKey>(BLSPublicKey.class, list);
@@ -46,6 +49,7 @@ public class SerializeBLSTest {
         BLSPrivateKey sk = new BLSPrivateKey(new SecureRandom());
         BLSPublicKey vk = new BLSPublicKey(sk);
         List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
         list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
         list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
 
@@ -69,6 +73,7 @@ public class SerializeBLSTest {
         Signature bls_sig = BLSSignature.sign(msg, sk);
         ////////////////////
         List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
         list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
         list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
         Type fluentType = new TypeToken<ConsensusMessage<VRFMessage>>() {

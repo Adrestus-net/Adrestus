@@ -17,7 +17,7 @@ public class DelegateTransaction extends Transaction {
         this.ValidatorAddress = validatorAddress;
     }
 
-    public DelegateTransaction(String hash, TransactionType type, StatusType status, int zoneFrom, int zoneTo, String timestamp, int blockNumber, String from, String to, BigDecimal amount,BigDecimal transactionFee, int nonce, ECDSASignatureData signature, String delegatorAddress, String validatorAddress) {
+    public DelegateTransaction(String hash, TransactionType type, StatusType status, int zoneFrom, int zoneTo, String timestamp, int blockNumber, String from, String to, BigDecimal amount, BigDecimal transactionFee, int nonce, ECDSASignatureData signature, String delegatorAddress, String validatorAddress) {
         super(hash, type, status, zoneFrom, zoneTo, timestamp, blockNumber, from, to, amount, transactionFee, nonce, signature);
         this.DelegatorAddress = delegatorAddress;
         this.ValidatorAddress = validatorAddress;

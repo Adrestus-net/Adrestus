@@ -17,6 +17,7 @@ import io.Adrestus.crypto.elliptic.ECDSASign;
 import io.Adrestus.crypto.elliptic.ECDSASignatureData;
 import io.Adrestus.crypto.elliptic.ECKeyPair;
 import io.Adrestus.crypto.elliptic.Keys;
+import io.Adrestus.crypto.elliptic.mapper.BigDecimalSerializer;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.crypto.mnemonic.Mnemonic;
 import io.Adrestus.crypto.mnemonic.Security;
@@ -32,6 +33,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.spongycastle.util.encoders.Hex;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -79,8 +81,8 @@ public class AllTransactionTest {
         address1 = WalletAddress.generate_address((byte) version, ecKeyPair1.getPublicKey());
         address2 = WalletAddress.generate_address((byte) version, ecKeyPair2.getPublicKey());
 
-        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(address1, new PatriciaTreeNode(100, 0, 100, 100, 100));
-        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(address2, new PatriciaTreeNode(100, 0, 100, 100, 100));
+        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(address1, new PatriciaTreeNode(BigDecimal.valueOf(100), 0, BigDecimal.valueOf(100), BigDecimal.valueOf(100), BigDecimal.valueOf(100)));
+        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(address2, new PatriciaTreeNode(BigDecimal.valueOf(100), 0, BigDecimal.valueOf(100), BigDecimal.valueOf(100), BigDecimal.valueOf(100)));
         CachedZoneIndex.getInstance().setZoneIndex(0);
         publisher = new TransactionEventPublisher(100);
         signatureEventHandler = new SignatureEventHandler(SignatureEventHandler.SignatureBehaviorType.SIMPLE_TRANSACTIONS);
@@ -106,6 +108,7 @@ public class AllTransactionTest {
         publisher.start();
 
         List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         serenc = new SerializationUtil<Transaction>(Transaction.class, list);
     }
@@ -129,8 +132,8 @@ public class AllTransactionTest {
         rewardsTransaction.setTimestamp(GetTime.GetTimeStampInString());
         rewardsTransaction.setZoneFrom(0);
         rewardsTransaction.setZoneTo(0);
-        rewardsTransaction.setAmount(100);
-        rewardsTransaction.setAmountWithTransactionFee((double) (100 * 10) / 100);
+        rewardsTransaction.setAmount(BigDecimal.valueOf(100));
+        rewardsTransaction.setAmountWithTransactionFee(BigDecimal.valueOf((100 * 10) / 100));
         rewardsTransaction.setNonce(1);
         rewardsTransaction.setTransactionCallback(transactionCallback);
         byte byf[] = serenc.encode(rewardsTransaction, 1024);
@@ -167,8 +170,8 @@ public class AllTransactionTest {
         stakingTransaction.setCommissionRate(10);
         stakingTransaction.setZoneFrom(0);
         stakingTransaction.setZoneTo(0);
-        stakingTransaction.setAmount(100);
-        stakingTransaction.setAmountWithTransactionFee((double) (100 * 10) / 100);
+        stakingTransaction.setAmount(BigDecimal.valueOf(100));
+        stakingTransaction.setAmountWithTransactionFee(BigDecimal.valueOf((100 * 10) / 100));
         stakingTransaction.setNonce(1);
         stakingTransaction.setTransactionCallback(transactionCallback);
         byte byf[] = serenc.encode(stakingTransaction, 1024);
@@ -205,8 +208,8 @@ public class AllTransactionTest {
         unstakingTransaction.setCommissionRate(10);
         unstakingTransaction.setZoneFrom(0);
         unstakingTransaction.setZoneTo(0);
-        unstakingTransaction.setAmount(100);
-        unstakingTransaction.setAmountWithTransactionFee((double) (100 * 10) / 100);
+        unstakingTransaction.setAmount(BigDecimal.valueOf(100));
+        unstakingTransaction.setAmountWithTransactionFee(BigDecimal.valueOf((100 * 10) / 100));
         unstakingTransaction.setNonce(1);
         unstakingTransaction.setTransactionCallback(transactionCallback);
         byte byf[] = serenc.encode(unstakingTransaction, 1024);
@@ -238,8 +241,8 @@ public class AllTransactionTest {
         delegateTransaction.setTimestamp(GetTime.GetTimeStampInString());
         delegateTransaction.setZoneFrom(0);
         delegateTransaction.setZoneTo(0);
-        delegateTransaction.setAmount(100);
-        delegateTransaction.setAmountWithTransactionFee((double) (100 * 10) / 100);
+        delegateTransaction.setAmount(BigDecimal.valueOf(100));
+        delegateTransaction.setAmountWithTransactionFee(BigDecimal.valueOf((100 * 10) / 100));
         delegateTransaction.setNonce(1);
         delegateTransaction.setTransactionCallback(transactionCallback);
         byte byf[] = serenc.encode(delegateTransaction, 1024);
@@ -287,8 +290,8 @@ public class AllTransactionTest {
         unDelegateTransaction.setTimestamp(GetTime.GetTimeStampInString());
         unDelegateTransaction.setZoneFrom(0);
         unDelegateTransaction.setZoneTo(0);
-        unDelegateTransaction.setAmount(100);
-        unDelegateTransaction.setAmountWithTransactionFee((double) (100 * 10) / 100);
+        unDelegateTransaction.setAmount(BigDecimal.valueOf(100));
+        unDelegateTransaction.setAmountWithTransactionFee(BigDecimal.valueOf((100 * 10) / 100));
         unDelegateTransaction.setTransactionCallback(transactionCallback);
         unDelegateTransaction.setNonce(1);
         byte byf[] = serenc.encode(unDelegateTransaction, 1024);
@@ -328,8 +331,8 @@ public class AllTransactionTest {
         delegateTransaction.setTimestamp(time2);
         delegateTransaction.setZoneFrom(0);
         delegateTransaction.setZoneTo(0);
-        delegateTransaction.setAmount(100);
-        delegateTransaction.setAmountWithTransactionFee((double) (100 * 10) / 100);
+        delegateTransaction.setAmount(BigDecimal.valueOf(100));
+        delegateTransaction.setAmountWithTransactionFee(BigDecimal.valueOf((100 * 10) / 100));
         delegateTransaction.setNonce(1);
         byte byf[] = serenc.encode(delegateTransaction, 1024);
         delegateTransaction.setHash(HashUtil.sha256_bytetoString(byf));
@@ -349,8 +352,8 @@ public class AllTransactionTest {
         delegateTransaction2.setTimestamp(time1);
         delegateTransaction2.setZoneFrom(0);
         delegateTransaction2.setZoneTo(0);
-        delegateTransaction2.setAmount(10);
-        delegateTransaction2.setAmountWithTransactionFee((double) (10 * 10) / 100);
+        delegateTransaction2.setAmount(BigDecimal.valueOf(10));
+        delegateTransaction2.setAmountWithTransactionFee(BigDecimal.valueOf((10 * 10) / 100));
         delegateTransaction2.setNonce(1);
         delegateTransaction2.setTransactionCallback(transactionCallback);
         byte byf1[] = serenc.encode(delegateTransaction2, 1024);

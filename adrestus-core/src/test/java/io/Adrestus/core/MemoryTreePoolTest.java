@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
 import java.lang.reflect.Type;
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,11 +35,11 @@ public class MemoryTreePoolTest {
     @Test
     public void store_mempool() throws Exception {
         String address = "ADR-ADL3-VDZK-ZU7H-2BX5-M2H4-S7LF-5SR4-ECQA-EIUJ-CBFK";
-        PatriciaTreeNode treeNode = new PatriciaTreeNode(10, 1);
-        treeNode.setAmount(100);
+        PatriciaTreeNode treeNode = new PatriciaTreeNode(BigDecimal.valueOf(10), 1);
+        treeNode.setAmount(BigDecimal.valueOf(100));
         treeNode.setNonce(2);
-        PatriciaTreeNode treeNode2 = new PatriciaTreeNode(10, 1);
-        treeNode2.setAmount(100);
+        PatriciaTreeNode treeNode2 = new PatriciaTreeNode(BigDecimal.valueOf(10), 1);
+        treeNode2.setAmount(BigDecimal.valueOf(100));
         treeNode2.setNonce(2);
         TreeFactory.getMemoryTree(1).store(address, treeNode);
 
@@ -46,8 +47,8 @@ public class MemoryTreePoolTest {
         System.out.println(TreeFactory.getMemoryTree(0).getRootHash());
 
 
-        TreeFactory.getMemoryTree(1).deposit(PatriciaTreeTransactionType.REGULAR, address, 50, 1);
-        TreeFactory.getMemoryTree(1).deposit(PatriciaTreeTransactionType.REGULAR, "updated_address", 20, 1);
+        TreeFactory.getMemoryTree(1).deposit(PatriciaTreeTransactionType.REGULAR, address, BigDecimal.valueOf(50), BigDecimal.ONE);
+        TreeFactory.getMemoryTree(1).deposit(PatriciaTreeTransactionType.REGULAR, "updated_address", BigDecimal.valueOf(20), BigDecimal.ONE);
         Option<PatriciaTreeNode> copy = TreeFactory.getMemoryTree(1).getByaddress(address);
         Option<PatriciaTreeNode> copy2 = TreeFactory.getMemoryTree(1).getByaddress("updated_address");
         assertEquals(149, copy.get().getAmount());
@@ -61,7 +62,7 @@ public class MemoryTreePoolTest {
     @Test
     public void mempool_get_value() throws Exception {
         String address = "ADR-ADL3-VDZK-ZU7H-2BX5-M2H4-S7LF-5SR4-ECQA-EIUJ-CBFK";
-        PatriciaTreeNode treeNode = new PatriciaTreeNode(10, 1);
+        PatriciaTreeNode treeNode = new PatriciaTreeNode(BigDecimal.valueOf(10), 1);
         TreeFactory.getMemoryTree(1).store(address, treeNode);
 
 
@@ -75,10 +76,10 @@ public class MemoryTreePoolTest {
     @Test
     public void deposit_withdraw() throws Exception {
         String address = "ADR-ADL3-VDZK-ZU7H-2BX5-M2H4-S7LF-5SR4-ECQA-EIUJ-CBFK";
-        PatriciaTreeNode treeNode = new PatriciaTreeNode(10, 1);
+        PatriciaTreeNode treeNode = new PatriciaTreeNode(BigDecimal.valueOf(10), 1);
         TreeFactory.getMemoryTree(1).store(address, treeNode);
 
-        TreeFactory.getMemoryTree(1).withdraw(PatriciaTreeTransactionType.REGULAR, address, 1, 1);
+        TreeFactory.getMemoryTree(1).withdraw(PatriciaTreeTransactionType.REGULAR, address, BigDecimal.ONE, BigDecimal.ONE);
         System.out.println(TreeFactory.getMemoryTree(1).getByaddress(address).get().getAmount());
         assertEquals(8, TreeFactory.getMemoryTree(1).getByaddress(address).get().getAmount());
         Option<PatriciaTreeNode> copy = TreeFactory.getMemoryTree(0).getByaddress(address);
@@ -91,12 +92,12 @@ public class MemoryTreePoolTest {
     @Test
     public void deposit_withdraw_unclaimed() throws Exception {
         String address = "ADR-ADL3-VDZK-ZU7H-2BX5-M2H4-S7LF-5SR4-ECQA-EIUJ-CBFK";
-        PatriciaTreeNode treeNode = new PatriciaTreeNode(10, 1);
+        PatriciaTreeNode treeNode = new PatriciaTreeNode(BigDecimal.valueOf(10), 1);
         TreeFactory.getMemoryTree(1).store(address, treeNode);
 
-        TreeFactory.getMemoryTree(1).deposit(PatriciaTreeTransactionType.UNCLAIMED_FEE_REWARD, address, 10, 1);
+        TreeFactory.getMemoryTree(1).deposit(PatriciaTreeTransactionType.UNCLAIMED_FEE_REWARD, address, BigDecimal.valueOf(10), BigDecimal.ONE);
         assertEquals(10, TreeFactory.getMemoryTree(1).getByaddress(address).get().getUnclaimed_reward());
-        TreeFactory.getMemoryTree(1).withdraw(PatriciaTreeTransactionType.UNCLAIMED_FEE_REWARD, address, 5, 1);
+        TreeFactory.getMemoryTree(1).withdraw(PatriciaTreeTransactionType.UNCLAIMED_FEE_REWARD, address, BigDecimal.valueOf(5), BigDecimal.ONE);
         assertEquals(5, TreeFactory.getMemoryTree(1).getByaddress(address).get().getUnclaimed_reward());
         Option<PatriciaTreeNode> copy = TreeFactory.getMemoryTree(0).getByaddress(address);
 
@@ -107,7 +108,7 @@ public class MemoryTreePoolTest {
 
     @Test
     public void mempool_stress_test() throws Exception {
-        PatriciaTreeNode treeNode = new PatriciaTreeNode(10, 1);
+        PatriciaTreeNode treeNode = new PatriciaTreeNode(BigDecimal.valueOf(10), 1);
         int size = 10000;
         for (int i = 0; i < size; i++) {
             TreeFactory.getMemoryTree(0).store(String.valueOf(i), treeNode);
@@ -134,7 +135,7 @@ public class MemoryTreePoolTest {
         SerializationUtil valueMapper = new SerializationUtil<>(fluentType, list);
 
         String address = "ADR-ADL3-VDZK-ZU7H-2BX5-M2H4-S7LF-5SR4-ECQA-EIUJ-CBFK";
-        PatriciaTreeNode treeNode = new PatriciaTreeNode(2, 1);
+        PatriciaTreeNode treeNode = new PatriciaTreeNode(BigDecimal.valueOf(2), 1);
         TreeFactory.getMemoryTree(1).store(address, treeNode);
         MemoryTreePool m = (MemoryTreePool) TreeFactory.getMemoryTree(1);
 
@@ -157,7 +158,7 @@ public class MemoryTreePoolTest {
     @Test
     public void MultiPatriciaTrees() throws Exception {
         String address = "ADR-ADL3-VDZK-ZU7H-2BX5-M2H4-S7LF-5SR4-ECQA-EIUJ-CBFK";
-        PatriciaTreeNode treeNode = new PatriciaTreeNode(200, 112, 0, 456);
+        PatriciaTreeNode treeNode = new PatriciaTreeNode(BigDecimal.valueOf(200), 112, BigDecimal.ZERO, BigDecimal.valueOf(456));
         TreeFactory.getMemoryTree(1).store(address, treeNode);
         String hash = TreeFactory.getMemoryTree(1).getRootHash();
         MemoryTreePool replica = new MemoryTreePool(((MemoryTreePool) TreeFactory.getMemoryTree(1)));
@@ -165,30 +166,30 @@ public class MemoryTreePoolTest {
         assertEquals(hash, hash);
         assertEquals(hash, replica.getRootHash());
         assertEquals(hash, replica2.getRootHash());
-        replica2.withdraw(PatriciaTreeTransactionType.UNCLAIMED_FEE_REWARD, address, 10, 1);
-        replica2.withdraw(PatriciaTreeTransactionType.REGULAR, address, 2, 1);
-        replica2.deposit(PatriciaTreeTransactionType.REGULAR, address, 20, 1);
-        replica.withdraw(PatriciaTreeTransactionType.UNCLAIMED_FEE_REWARD, address, 10, 1);
-        replica.withdraw(PatriciaTreeTransactionType.REGULAR, address, 2, 1);
-        replica.deposit(PatriciaTreeTransactionType.REGULAR, address, 20, 1);
+        replica2.withdraw(PatriciaTreeTransactionType.UNCLAIMED_FEE_REWARD, address, BigDecimal.valueOf(10), BigDecimal.ONE);
+        replica2.withdraw(PatriciaTreeTransactionType.REGULAR, address, BigDecimal.valueOf(2), BigDecimal.ONE);
+        replica2.deposit(PatriciaTreeTransactionType.REGULAR, address, BigDecimal.valueOf(20), BigDecimal.ONE);
+        replica.withdraw(PatriciaTreeTransactionType.UNCLAIMED_FEE_REWARD, address, BigDecimal.valueOf(10), BigDecimal.ONE);
+        replica.withdraw(PatriciaTreeTransactionType.REGULAR, address, BigDecimal.valueOf(2), BigDecimal.ONE);
+        replica.deposit(PatriciaTreeTransactionType.REGULAR, address, BigDecimal.valueOf(20), BigDecimal.ONE);
         assertEquals(replica, replica2);
     }
 
     @Test
     public void MultiPatriciaTrees2() throws Exception {
         String address = "ADR-ADL3-VDZK-ZU7H-2BX5-M2H4-S7LF-5SR4-ECQA-EIUJ-CBFK";
-        PatriciaTreeNode treeNode = new PatriciaTreeNode(200, 112, 0, 456, 456);
+        PatriciaTreeNode treeNode = new PatriciaTreeNode(BigDecimal.valueOf(200), 112, BigDecimal.ZERO, BigDecimal.valueOf(456), BigDecimal.valueOf(456));
         TreeFactory.getMemoryTree(1).store(address, treeNode);
         MemoryTreePool replica = new MemoryTreePool(((MemoryTreePool) TreeFactory.getMemoryTree(1)));
         MemoryTreePool replica2 = new MemoryTreePool(((MemoryTreePool) TreeFactory.getMemoryTree(1)));
-        replica.deposit(PatriciaTreeTransactionType.UNCLAIMED_FEE_REWARD, address, 10, 1);
-        replica.withdraw(PatriciaTreeTransactionType.UNCLAIMED_FEE_REWARD, address, 2, 1);
-        replica.deposit(PatriciaTreeTransactionType.REGULAR, address, 10, 1);
-        replica.withdraw(PatriciaTreeTransactionType.REGULAR, address, 2, 1);
-        replica2.deposit(PatriciaTreeTransactionType.UNCLAIMED_FEE_REWARD, address, 10, 1);
-        replica2.withdraw(PatriciaTreeTransactionType.UNCLAIMED_FEE_REWARD, address, 2, 1);
-        replica2.deposit(PatriciaTreeTransactionType.REGULAR, address, 10, 1);
-        replica2.withdraw(PatriciaTreeTransactionType.REGULAR, address, 2, 1);
+        replica.deposit(PatriciaTreeTransactionType.UNCLAIMED_FEE_REWARD, address, BigDecimal.valueOf(10), BigDecimal.ONE);
+        replica.withdraw(PatriciaTreeTransactionType.UNCLAIMED_FEE_REWARD, address, BigDecimal.valueOf(2), BigDecimal.ONE);
+        replica.deposit(PatriciaTreeTransactionType.REGULAR, address, BigDecimal.valueOf(10), BigDecimal.ONE);
+        replica.withdraw(PatriciaTreeTransactionType.REGULAR, address, BigDecimal.valueOf(2), BigDecimal.ONE);
+        replica2.deposit(PatriciaTreeTransactionType.UNCLAIMED_FEE_REWARD, address, BigDecimal.valueOf(10), BigDecimal.ONE);
+        replica2.withdraw(PatriciaTreeTransactionType.UNCLAIMED_FEE_REWARD, address, BigDecimal.valueOf(2), BigDecimal.ONE);
+        replica2.deposit(PatriciaTreeTransactionType.REGULAR, address, BigDecimal.valueOf(10), BigDecimal.ONE);
+        replica2.withdraw(PatriciaTreeTransactionType.REGULAR, address, BigDecimal.valueOf(2), BigDecimal.ONE);
         assertEquals(456, TreeFactory.getMemoryTree(1).getByaddress(address).get().getUnclaimed_reward());
         assertEquals(464, replica.getByaddress(address).get().getUnclaimed_reward());
         assertEquals(464, replica2.getByaddress(address).get().getUnclaimed_reward());
@@ -200,21 +201,21 @@ public class MemoryTreePoolTest {
         String address1 = "1";
         String address2 = "2";
         String address3 = "2";
-        PatriciaTreeNode treeNode1 = new PatriciaTreeNode(200, 112, 0, 456);
-        PatriciaTreeNode treeNode2 = new PatriciaTreeNode(200, 112, 0, 456);
-        PatriciaTreeNode treeNode3 = new PatriciaTreeNode(200, 112, 0, 456);
+        PatriciaTreeNode treeNode1 = new PatriciaTreeNode(BigDecimal.valueOf(200), 112, BigDecimal.ZERO, BigDecimal.valueOf(456));
+        PatriciaTreeNode treeNode2 = new PatriciaTreeNode(BigDecimal.valueOf(200), 112, BigDecimal.ZERO, BigDecimal.valueOf(456));
+        PatriciaTreeNode treeNode3 = new PatriciaTreeNode(BigDecimal.valueOf(200), 112, BigDecimal.ZERO, BigDecimal.valueOf(456));
         TreeFactory.getMemoryTree(1).store(address1, treeNode1);
         TreeFactory.getMemoryTree(2).store(address2, treeNode2);
         TreeFactory.getMemoryTree(3).store(address3, treeNode3);
         MemoryTreePool replica = new MemoryTreePool(((MemoryTreePool) TreeFactory.getMemoryTree(1)));
         MemoryTreePool replica2 = new MemoryTreePool(((MemoryTreePool) TreeFactory.getMemoryTree(1)));
-        replica.deposit(PatriciaTreeTransactionType.REGULAR, address1, 10, 1);
-        replica.deposit(PatriciaTreeTransactionType.REGULAR, address2, 20, 1);
-        replica.deposit(PatriciaTreeTransactionType.REGULAR, address3, 30, 1);
+        replica.deposit(PatriciaTreeTransactionType.REGULAR, address1, BigDecimal.valueOf(10), BigDecimal.ONE);
+        replica.deposit(PatriciaTreeTransactionType.REGULAR, address2, BigDecimal.valueOf(20), BigDecimal.ONE);
+        replica.deposit(PatriciaTreeTransactionType.REGULAR, address3, BigDecimal.valueOf(30), BigDecimal.ONE);
 
-        replica2.deposit(PatriciaTreeTransactionType.REGULAR, address3, 30, 1);
-        replica2.deposit(PatriciaTreeTransactionType.REGULAR, address2, 20, 1);
-        replica2.deposit(PatriciaTreeTransactionType.REGULAR, address1, 10, 1);
+        replica2.deposit(PatriciaTreeTransactionType.REGULAR, address3, BigDecimal.valueOf(30), BigDecimal.ONE);
+        replica2.deposit(PatriciaTreeTransactionType.REGULAR, address2, BigDecimal.valueOf(20), BigDecimal.ONE);
+        replica2.deposit(PatriciaTreeTransactionType.REGULAR, address1, BigDecimal.valueOf(10), BigDecimal.ONE);
         assertEquals(replica, replica2);
 
 
@@ -223,12 +224,12 @@ public class MemoryTreePoolTest {
     @Test
     public void serialization_tree2() throws Exception {
         String address = "ADR-ADL3-VDZK-ZU7H-2BX5-M2H4-S7LF-5SR4-ECQA-EIUJ-CBFK";
-        PatriciaTreeNode treeNode = new PatriciaTreeNode(2, 112);
+        PatriciaTreeNode treeNode = new PatriciaTreeNode(BigDecimal.valueOf(2), 112);
         TreeFactory.getMemoryTree(1).store(address, treeNode);
         System.out.println(TreeFactory.getMemoryTree(1).getRootHash());
 
 
-        TreeFactory.getMemoryTree(1).store(address, new PatriciaTreeNode(1, 3));
+        TreeFactory.getMemoryTree(1).store(address, new PatriciaTreeNode(BigDecimal.ONE, 3));
         System.out.println(TreeFactory.getMemoryTree(1).getRootHash());
         Option<PatriciaTreeNode> pats = TreeFactory.getMemoryTree(1).getByaddress(address);
         MemoryTreePool m = (MemoryTreePool) TreeFactory.getMemoryTree(1);
@@ -254,8 +255,8 @@ public class MemoryTreePoolTest {
     @Test
     public void StorageStakingInfos() throws Exception {
         String address = "ADR-ADL3-VDZK-ZU7H-2BX5-M2H4-S7LF-5SR4-ECQA-EIUJ-CBFK";
-        PatriciaTreeNode treeNode = new PatriciaTreeNode(2, 112);
-        PatriciaTreeNode treeNode2 = new PatriciaTreeNode(2, 1112);
+        PatriciaTreeNode treeNode = new PatriciaTreeNode(BigDecimal.valueOf(2), 112);
+        PatriciaTreeNode treeNode2 = new PatriciaTreeNode(BigDecimal.valueOf(2), 1112);
         MemoryTreePool m = (MemoryTreePool) TreeFactory.getMemoryTree(1).clone();
         TreeFactory.getMemoryTree(1).store(address, treeNode);
         m.store(address, treeNode2);
@@ -267,12 +268,12 @@ public class MemoryTreePoolTest {
         //m.store(address,treeNode);
         PatriciaTreeNode patriciaTreeNode3 = (PatriciaTreeNode) TreeFactory.getMemoryTree(1).getByaddress(address).get();
         patriciaTreeNode3.setStakingInfo(new StakingInfo("name", 10, "identity", "website", "details"));
-        patriciaTreeNode3.setAmount(21312);
+        patriciaTreeNode3.setAmount(BigDecimal.valueOf(21312));
         TreeFactory.getMemoryTree(1).store(address, patriciaTreeNode3);
         assertNotEquals(m.getRootHash(), TreeFactory.getMemoryTree(1).getRootHash());
         PatriciaTreeNode patriciaTreeNode2 = (PatriciaTreeNode) m.getByaddress(address).get().clone();
         patriciaTreeNode2.setStakingInfo(new StakingInfo("name", 10, "identity", "website", "details"));
-        patriciaTreeNode2.setAmount(21312);
+        patriciaTreeNode2.setAmount(BigDecimal.valueOf(21312));
         m.store(address, patriciaTreeNode2);
         assertEquals(m.getRootHash(), TreeFactory.getMemoryTree(1).getRootHash());
         PatriciaTreeNode copy = m.getByaddress(address).get();
@@ -295,10 +296,10 @@ public class MemoryTreePoolTest {
         String copies = new String(bytes, "UTF-8");
         assertEquals(Address, copies);
 
-        PatriciaTreeNode treeNode1 = new PatriciaTreeNode(1, 112);
-        PatriciaTreeNode treeNode2 = new PatriciaTreeNode(2, 212);
-        PatriciaTreeNode treeNode3 = new PatriciaTreeNode(3, 112);
-        PatriciaTreeNode treeNode4 = new PatriciaTreeNode(4, 112);
+        PatriciaTreeNode treeNode1 = new PatriciaTreeNode(BigDecimal.valueOf(1), 112);
+        PatriciaTreeNode treeNode2 = new PatriciaTreeNode(BigDecimal.valueOf(2), 212);
+        PatriciaTreeNode treeNode3 = new PatriciaTreeNode(BigDecimal.valueOf(3), 112);
+        PatriciaTreeNode treeNode4 = new PatriciaTreeNode(BigDecimal.valueOf(4), 112);
         TreeFactory.getMemoryTree(1).store(Address, treeNode1);
         TreeFactory.getMemoryTree(1).store(Address2, treeNode2);
         TreeFactory.getMemoryTree(1).store(Address3, treeNode3);

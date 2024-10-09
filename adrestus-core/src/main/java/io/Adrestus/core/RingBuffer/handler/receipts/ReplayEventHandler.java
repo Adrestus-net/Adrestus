@@ -9,6 +9,7 @@ import io.Adrestus.core.RingBuffer.event.ReceiptBlockEvent;
 import io.Adrestus.core.StatusType;
 import io.Adrestus.core.TransactionBlock;
 import io.Adrestus.crypto.HashUtil;
+import io.Adrestus.crypto.elliptic.mapper.BigDecimalSerializer;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.util.SerializationUtil;
 import io.distributedLedger.DatabaseFactory;
@@ -18,6 +19,7 @@ import io.distributedLedger.ZoneDatabaseFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +33,7 @@ public class ReplayEventHandler implements ReceiptEventHandler<ReceiptBlockEvent
 
     public ReplayEventHandler() {
         List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         this.recep = new SerializationUtil<Receipt>(Receipt.class, list);
     }

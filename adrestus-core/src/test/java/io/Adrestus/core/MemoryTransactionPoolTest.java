@@ -7,6 +7,7 @@ import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -22,7 +23,7 @@ public class MemoryTransactionPoolTest {
     public void chek_duplicate() throws Exception {
         MemoryTransactionPool.getInstance().getAll().clear();
         Transaction transaction = new RegularTransaction();
-        transaction.setAmount(100);
+        transaction.setAmount(BigDecimal.valueOf(100));
         transaction.setHash("Hash");
         transaction.setTimestamp(GetTime.GetTimeStampInString());
         int count = (int) MemoryTransactionPool.getInstance().getAllStream().count();
@@ -37,7 +38,7 @@ public class MemoryTransactionPoolTest {
     public void add_mempool() throws Exception {
         MemoryTransactionPool.getInstance().getAll().clear();
         Transaction transaction = new RegularTransaction();
-        transaction.setAmount(101);
+        transaction.setAmount(BigDecimal.valueOf(101));
         transaction.setFrom("1");
         transaction.setHash("Hash1");
         transaction.setTimestamp(GetTime.GetTimeStampInString());
@@ -46,7 +47,7 @@ public class MemoryTransactionPoolTest {
 
 
         Transaction transaction1 = new RegularTransaction();
-        transaction1.setAmount(50);
+        transaction1.setAmount(BigDecimal.valueOf(50));
         transaction1.setHash("Hash2");
         transaction1.setFrom("2");
         transaction1.setTimestamp(GetTime.GetTimeStampInString());
@@ -54,7 +55,7 @@ public class MemoryTransactionPoolTest {
         assertEquals(true, MemoryTransactionPool.getInstance().add(transaction1));
 
         Transaction transaction3 = new RegularTransaction();
-        transaction3.setAmount(50);
+        transaction3.setAmount(BigDecimal.valueOf(50));
         transaction3.setHash("Hash2");
         transaction3.setFrom("2");
         transaction.setTimestamp(GetTime.GetTimeStampInString());
@@ -68,23 +69,23 @@ public class MemoryTransactionPoolTest {
         MemoryTransactionPool.getInstance().clear();
         ArrayList<Transaction> list = new ArrayList<Transaction>();
         Transaction transaction1 = new RegularTransaction();
-        transaction1.setAmount(100);
+        transaction1.setAmount(BigDecimal.valueOf(100));
         transaction1.setFrom("1");
         transaction1.setHash("Hash1");
 
         Transaction transaction2 = new RegularTransaction();
-        transaction2.setAmount(100);
+        transaction2.setAmount(BigDecimal.valueOf(100));
         transaction2.setFrom("2");
         transaction2.setHash("Hash2");
 
         Transaction transaction3 = new RegularTransaction();
-        transaction3.setAmount(100);
+        transaction3.setAmount(BigDecimal.valueOf(100));
         transaction3.setHash("Hash3");
         transaction3.setFrom("3");
         transaction3.setTimestamp(GetTime.GetTimeStampInString());
 
         Transaction transaction4 = new RegularTransaction();
-        transaction4.setAmount(100);
+        transaction4.setAmount(BigDecimal.valueOf(100));
         transaction4.setHash("Hash4");
         transaction4.setFrom("4");
         transaction4.setTimestamp(GetTime.GetTimeStampInString());
@@ -111,23 +112,23 @@ public class MemoryTransactionPoolTest {
     public void delete_mempool2() throws Exception {
         MemoryTransactionPool.getInstance().clear();
         Transaction transaction1 = new RegularTransaction();
-        transaction1.setAmount(100);
+        transaction1.setAmount(BigDecimal.valueOf(100));
         transaction1.setFrom("1");
         transaction1.setHash("Hash1");
 
         Transaction transaction2 = new RegularTransaction();
-        transaction2.setAmount(100);
+        transaction2.setAmount(BigDecimal.valueOf(100));
         transaction2.setFrom("1");
         transaction2.setHash("Hash2");
 
         Transaction transaction3 = new RegularTransaction();
-        transaction3.setAmount(100);
+        transaction3.setAmount(BigDecimal.valueOf(100));
         transaction3.setHash("Hash3");
         transaction3.setFrom("3");
         transaction3.setTimestamp(GetTime.GetTimeStampInString());
 
         Transaction transaction4 = new RegularTransaction();
-        transaction4.setAmount(100);
+        transaction4.setAmount(BigDecimal.valueOf(100));
         transaction4.setHash("Hash4");
         transaction4.setFrom("4");
         transaction4.setTimestamp(GetTime.GetTimeStampInString());
@@ -229,7 +230,7 @@ public class MemoryTransactionPoolTest {
     public void mempool_get_by_hash() throws Exception {
         MemoryTransactionPool.getInstance().getAll().clear();
         Transaction transaction1 = new RegularTransaction();
-        transaction1.setAmount(100);
+        transaction1.setAmount(BigDecimal.valueOf(100));
         transaction1.setFrom("1");
         transaction1.setHash("Hash4");
         transaction1.setTimestamp(GetTime.GetTimeStampInString());

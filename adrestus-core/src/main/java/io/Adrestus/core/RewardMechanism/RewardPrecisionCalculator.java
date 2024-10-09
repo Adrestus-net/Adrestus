@@ -2,10 +2,6 @@ package io.Adrestus.core.RewardMechanism;
 
 import io.Adrestus.config.RewardConfiguration;
 
-import java.math.RoundingMode;
-import java.text.DecimalFormat;
-import java.util.Map;
-
 public class RewardPrecisionCalculator implements RewardHandler {
 
 
@@ -30,7 +26,7 @@ public class RewardPrecisionCalculator implements RewardHandler {
 
     private static RewardObject applyPrecision(RewardObject rewardObject) {
         rewardObject.setEffective_stake(rewardObject.getEffective_stake().setScale(RewardConfiguration.DECIMAL_PRECISION, RewardConfiguration.ROUNDING));
-        rewardObject.setEffective_stake_ratio(rewardObject.getEffective_stake_ratio().setScale(RewardConfiguration.DECIMAL_PRECISION,RewardConfiguration.ROUNDING));
+        rewardObject.setEffective_stake_ratio(rewardObject.getEffective_stake_ratio().setScale(RewardConfiguration.DECIMAL_PRECISION, RewardConfiguration.ROUNDING));
         rewardObject.setUnreal_reward(rewardObject.getUnreal_reward().setScale(RewardConfiguration.DECIMAL_PRECISION, RewardConfiguration.ROUNDING));
         rewardObject.setReal_reward(rewardObject.getReal_reward().setScale(RewardConfiguration.DECIMAL_PRECISION, RewardConfiguration.ROUNDING));
         rewardObject.getDelegate_stake().values().forEach(RewardPrecisionCalculator::applyPrecision);

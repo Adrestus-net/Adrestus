@@ -2,6 +2,7 @@ package io.Adrestus.core;
 
 import com.google.common.reflect.TypeToken;
 import io.Adrestus.core.RingBuffer.publisher.TransactionEventPublisher;
+import io.Adrestus.crypto.elliptic.mapper.BigDecimalSerializer;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.util.GetTime;
 import io.Adrestus.util.SerializationUtil;
@@ -12,6 +13,7 @@ import io.distributedLedger.LevelDBTransactionWrapper;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Type;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,19 +30,19 @@ public class LevelDBTransactionTest {
         IDatabase<String, LevelDBTransactionWrapper<Transaction>> database = new DatabaseFactory(String.class, Transaction.class, new TypeToken<LevelDBTransactionWrapper<Transaction>>() {
         }.getType()).getDatabase(DatabaseType.LEVEL_DB);
         Transaction transaction = new RegularTransaction();
-        transaction.setAmount(100);
+        transaction.setAmount(BigDecimal.valueOf(100));
         transaction.setHash("Hash");
         transaction.setFrom("1");
         transaction.setTo("2");
 
         Transaction transaction2 = new RegularTransaction();
-        transaction2.setAmount(200);
+        transaction2.setAmount(BigDecimal.valueOf(200));
         transaction2.setHash("Hash12");
         transaction2.setFrom("3");
         transaction2.setTo("1");
 
         Transaction transaction3 = new RegularTransaction();
-        transaction3.setAmount(200);
+        transaction3.setAmount(BigDecimal.valueOf(200));
         transaction3.setHash("Hash3");
         transaction3.setFrom("4");
         transaction3.setTo("1");
@@ -69,19 +71,19 @@ public class LevelDBTransactionTest {
         IDatabase<String, LevelDBTransactionWrapper<Transaction>> database = new DatabaseFactory(String.class, Transaction.class, new TypeToken<LevelDBTransactionWrapper<Transaction>>() {
         }.getType()).getDatabase(DatabaseType.LEVEL_DB);
         Transaction transaction = new RegularTransaction();
-        transaction.setAmount(100);
+        transaction.setAmount(BigDecimal.valueOf(100));
         transaction.setHash("Hash");
         transaction.setFrom("1");
         transaction.setTo("2");
 
         Transaction transaction2 = new RegularTransaction();
-        transaction2.setAmount(200);
+        transaction2.setAmount(BigDecimal.valueOf(200));
         transaction2.setHash("Hash12");
         transaction2.setFrom("3");
         transaction2.setTo("1");
 
         Transaction transaction3 = new RegularTransaction();
-        transaction3.setAmount(200);
+        transaction3.setAmount(BigDecimal.valueOf(200));
         transaction3.setHash("Hash3");
         transaction3.setFrom("4");
         transaction3.setTo("1");
@@ -107,7 +109,7 @@ public class LevelDBTransactionTest {
         }.getType()).getDatabase(DatabaseType.LEVEL_DB);
 
         Transaction transaction = new RegularTransaction();
-        transaction.setAmount(100);
+        transaction.setAmount(BigDecimal.valueOf(100));
         transaction.setHash("Hash1");
         transaction.setFrom("1");
         transaction.setTimestamp(GetTime.GetTimeStampInString());
@@ -115,7 +117,7 @@ public class LevelDBTransactionTest {
         Thread.sleep(100);
 
         Transaction transaction2 = new RegularTransaction();
-        transaction2.setAmount(200);
+        transaction2.setAmount(BigDecimal.valueOf(200));
         transaction2.setHash("Hash2");
         transaction2.setFrom("1");
         transaction2.setTimestamp(GetTime.GetTimeStampInString());
@@ -123,7 +125,7 @@ public class LevelDBTransactionTest {
         Thread.sleep(100);
 
         Transaction transaction3 = new RegularTransaction();
-        transaction3.setAmount(200);
+        transaction3.setAmount(BigDecimal.valueOf(200));
         transaction3.setHash("Hash3");
         transaction3.setFrom("1");
         transaction3.setTimestamp(GetTime.GetTimeStampInString());
@@ -131,7 +133,7 @@ public class LevelDBTransactionTest {
         Thread.sleep(100);
 
         Transaction transaction4 = new RegularTransaction();
-        transaction4.setAmount(200);
+        transaction4.setAmount(BigDecimal.valueOf(200));
         transaction4.setHash("Hash3");
         transaction4.setFrom("1");
         transaction4.setTimestamp(GetTime.GetTimeStampInString());
@@ -158,7 +160,7 @@ public class LevelDBTransactionTest {
         IDatabase<String, LevelDBTransactionWrapper<Transaction>> database = new DatabaseFactory(String.class, RegularTransaction.class, new TypeToken<LevelDBTransactionWrapper<Transaction>>() {
         }.getType()).getDatabase(DatabaseType.LEVEL_DB);
         Transaction transaction = new RegularTransaction();
-        transaction.setAmount(100);
+        transaction.setAmount(BigDecimal.valueOf(100));
         transaction.setHash("Hash123");
         transaction.setFrom("1");
         transaction.setTo("2");
@@ -167,7 +169,7 @@ public class LevelDBTransactionTest {
 
 
         Transaction transaction2 = new RegularTransaction();
-        transaction2.setAmount(200);
+        transaction2.setAmount(BigDecimal.valueOf(200));
         transaction2.setHash("Hash124");
         transaction2.setFrom("3");
         transaction2.setTo("1");
@@ -175,7 +177,7 @@ public class LevelDBTransactionTest {
         Thread.sleep(200);
 
         Transaction transaction3 = new RegularTransaction();
-        transaction3.setAmount(200);
+        transaction3.setAmount(BigDecimal.valueOf(200));
         transaction3.setHash("Hash345");
         transaction3.setFrom("4");
         transaction3.setTo("1");
@@ -198,6 +200,7 @@ public class LevelDBTransactionTest {
         Type fluentType = new TypeToken<Map<String, LevelDBTransactionWrapper<Transaction>>>() {
         }.getType();
         List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         SerializationUtil valueMapper = new SerializationUtil<>(fluentType, list);
 

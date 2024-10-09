@@ -2,12 +2,14 @@ package io.Adrestus.core.Resourses;
 
 
 import io.Adrestus.core.Transaction;
+import io.Adrestus.crypto.elliptic.mapper.BigDecimalSerializer;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.util.GetTime;
 import io.Adrestus.util.SerializationUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.util.*;
@@ -33,6 +35,7 @@ public class MemoryTransactionPool implements IMemoryPool<Transaction> {
             throw new IllegalStateException("Already initialized.");
         } else {
             List<SerializationUtil.Mapping> list = new ArrayList<>();
+            list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
             list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
             this.memorypool = new HashMap<String, LinkedHashMap<String, Transaction>>();
             this.wrapper = new SerializationUtil<>(Transaction.class, list);

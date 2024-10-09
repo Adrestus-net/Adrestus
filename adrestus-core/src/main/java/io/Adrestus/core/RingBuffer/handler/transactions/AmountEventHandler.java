@@ -61,7 +61,7 @@ public class AmountEventHandler extends TransactionEventHandler implements Trans
             return;
         }
 
-        if (regularTransaction.getAmount().compareTo(patriciaTreeNode.getAmount())>0) {
+        if (regularTransaction.getAmount().compareTo(patriciaTreeNode.getAmount()) > 0) {
             Optional.of("RegularTransaction amount is not sufficient").ifPresent(val -> {
                 LOG.info(val);
                 regularTransaction.infos(val);
@@ -90,7 +90,7 @@ public class AmountEventHandler extends TransactionEventHandler implements Trans
             return;
         }
 
-        if (rewardsTransaction.getAmount().compareTo(patriciaTreeNode.getUnclaimed_reward())>0) {
+        if (rewardsTransaction.getAmount().compareTo(patriciaTreeNode.getUnclaimed_reward()) > 0) {
             Optional.of("RewardsTransaction Claimed reward is not sufficient").ifPresent(val -> {
                 LOG.info(val);
                 rewardsTransaction.infos(val);
@@ -120,7 +120,7 @@ public class AmountEventHandler extends TransactionEventHandler implements Trans
             return;
         }
 
-        if (stakingTransaction.getAmount().compareTo(patriciaTreeNode.getAmount())>0) {
+        if (stakingTransaction.getAmount().compareTo(patriciaTreeNode.getAmount()) > 0) {
             Optional.of("StakingTransaction amount is not sufficient").ifPresent(val -> {
                 LOG.info(val);
                 stakingTransaction.infos(val);
@@ -165,7 +165,7 @@ public class AmountEventHandler extends TransactionEventHandler implements Trans
             return;
         }
 
-        if (delegateTransaction.getAmount().compareTo(patriciaTreeNode.getAmount())>0) {
+        if (delegateTransaction.getAmount().compareTo(patriciaTreeNode.getAmount()) > 0) {
             Optional.of("DelegateTransaction amount is not sufficient").ifPresent(val -> {
                 LOG.info(val);
                 delegateTransaction.infos(val);
@@ -230,7 +230,7 @@ public class AmountEventHandler extends TransactionEventHandler implements Trans
             return;
         }
 
-        if (unDelegateTransaction.getAmount().compareTo(patriciaTreeNode.getStaking_amount())>0) {
+        if (unDelegateTransaction.getAmount().compareTo(patriciaTreeNode.getStaking_amount()) > 0) {
             Optional.of("UndelegatingTransaction amount is not sufficient").ifPresent(val -> {
                 LOG.info(val);
                 unDelegateTransaction.infos(val);
@@ -262,7 +262,7 @@ public class AmountEventHandler extends TransactionEventHandler implements Trans
             return;
         }
 
-        if (unstakingTransaction.getAmount().compareTo(patriciaTreeNode.getStaking_amount())>0) {
+        if (unstakingTransaction.getAmount().compareTo(patriciaTreeNode.getStaking_amount()) > 0) {
             Optional.of("UnstakingTransaction amount is not sufficient").ifPresent(val -> {
                 LOG.info(val);
                 unstakingTransaction.infos(val);

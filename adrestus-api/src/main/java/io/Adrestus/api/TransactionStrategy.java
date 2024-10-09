@@ -5,6 +5,7 @@ import io.Adrestus.config.SocketConfigOptions;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.core.Transaction;
+import io.Adrestus.crypto.elliptic.mapper.BigDecimalSerializer;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.util.SerializationUtil;
 import io.activej.bytebuf.ByteBuf;
@@ -21,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.util.*;
@@ -49,6 +51,7 @@ public class TransactionStrategy implements IStrategy {
 
     public TransactionStrategy(Transaction transaction, MessageListener messageListener) {
         List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         this.messageListener = messageListener;
         this.transaction_list = new ArrayList<>();
@@ -61,6 +64,7 @@ public class TransactionStrategy implements IStrategy {
 
     public TransactionStrategy(List<Transaction> transaction_list) {
         List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         this.messageListener = new MessageListener();
         this.transaction_list = transaction_list;
@@ -179,6 +183,7 @@ public class TransactionStrategy implements IStrategy {
 
     private static @NotNull Promise<ByteBuf> loadData(Transaction transaction) {
         List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         SerializationUtil<Transaction> transaction_encode = new SerializationUtil<Transaction>(Transaction.class, list);
         byte transaction_hash[] = transaction_encode.encode(transaction, 1024);

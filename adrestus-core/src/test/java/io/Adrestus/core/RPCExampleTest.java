@@ -20,6 +20,7 @@ import io.Adrestus.crypto.elliptic.ECDSASign;
 import io.Adrestus.crypto.elliptic.ECDSASignatureData;
 import io.Adrestus.crypto.elliptic.ECKeyPair;
 import io.Adrestus.crypto.elliptic.Keys;
+import io.Adrestus.crypto.elliptic.mapper.BigDecimalSerializer;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.crypto.elliptic.mapper.CustomSerializerTreeMap;
 import io.Adrestus.crypto.mnemonic.Mnemonic;
@@ -56,6 +57,7 @@ import org.spongycastle.util.encoders.Hex;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -110,6 +112,7 @@ class RPCExampleTest {
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
         list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
+        list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
         encode = new SerializationUtil<TransactionBlock>(TransactionBlock.class, list);
@@ -140,8 +143,8 @@ class RPCExampleTest {
             transaction.setTimestamp(GetTime.GetTimeStampInString());
             transaction.setZoneFrom(1);
             transaction.setZoneTo(2);
-            transaction.setAmount(100);
-            transaction.setAmountWithTransactionFee(transaction.getAmount() * (10.0 / 100.0));
+            transaction.setAmount(BigDecimal.valueOf(100));
+            transaction.setAmountWithTransactionFee(transaction.getAmount().multiply(BigDecimal.valueOf(10.0 / 100.0)));
             transaction.setNonce(1);
             byte byf[] = serenc.encode(transaction);
             transaction.setHash(HashUtil.sha256_bytetoString(byf));
@@ -484,7 +487,7 @@ class RPCExampleTest {
             SerializationUtil valueMapper = new SerializationUtil<>(fluentType, seri);
 
             String address = "ADR-ADL3-VDZK-ZU7H-2BX5-M2H4-S7LF-5SR4-ECQA-EIUJ-CBFK";
-            PatriciaTreeNode treeNode = new PatriciaTreeNode(2, 1);
+            PatriciaTreeNode treeNode = new PatriciaTreeNode(BigDecimal.valueOf(2), 1);
             TreeFactory.getMemoryTree(0).store(address, treeNode);
             MemoryTreePool m = (MemoryTreePool) TreeFactory.getMemoryTree(1);
 
@@ -666,7 +669,7 @@ class RPCExampleTest {
         IDatabase<String, LevelDBTransactionWrapper<Transaction>> database = new DatabaseFactory(String.class, Transaction.class, new TypeToken<LevelDBTransactionWrapper<Transaction>>() {
         }.getType()).getDatabase(DatabaseType.LEVEL_DB);
         Transaction transaction = new RegularTransaction();
-        transaction.setAmount(100);
+        transaction.setAmount(BigDecimal.valueOf(100));
         transaction.setHash("Hash123");
         transaction.setFrom("1");
         transaction.setTo("2");
@@ -675,7 +678,7 @@ class RPCExampleTest {
 
 
         Transaction transaction2 = new RegularTransaction();
-        transaction2.setAmount(200);
+        transaction2.setAmount(BigDecimal.valueOf(200));
         transaction2.setHash("Hash124");
         transaction2.setFrom("3");
         transaction2.setTo("1");
@@ -683,7 +686,7 @@ class RPCExampleTest {
         Thread.sleep(200);
 
         Transaction transaction3 = new RegularTransaction();
-        transaction3.setAmount(200);
+        transaction3.setAmount(BigDecimal.valueOf(200));
         transaction3.setHash("Hash345");
         transaction3.setFrom("4");
         transaction3.setTo("1");
@@ -731,7 +734,7 @@ class RPCExampleTest {
         IDatabase<String, LevelDBTransactionWrapper<Transaction>> database = new DatabaseFactory(String.class, Transaction.class, new TypeToken<LevelDBTransactionWrapper<Transaction>>() {
         }.getType()).getDatabase(DatabaseType.LEVEL_DB);
         Transaction transaction = new RegularTransaction();
-        transaction.setAmount(100);
+        transaction.setAmount(BigDecimal.valueOf(100));
         transaction.setHash("Hash123");
         transaction.setFrom("1");
         transaction.setTo("2");
@@ -740,7 +743,7 @@ class RPCExampleTest {
 
 
         Transaction transaction2 = new RegularTransaction();
-        transaction2.setAmount(200);
+        transaction2.setAmount(BigDecimal.valueOf(200));
         transaction2.setHash("Hash124");
         transaction2.setFrom("3");
         transaction2.setTo("1");
@@ -748,7 +751,7 @@ class RPCExampleTest {
         Thread.sleep(200);
 
         Transaction transaction3 = new RegularTransaction();
-        transaction3.setAmount(200);
+        transaction3.setAmount(BigDecimal.valueOf(200));
         transaction3.setHash("Hash345");
         transaction3.setFrom("4");
         transaction3.setTo("1");

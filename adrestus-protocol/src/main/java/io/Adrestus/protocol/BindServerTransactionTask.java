@@ -6,6 +6,7 @@ import io.Adrestus.core.Resourses.CacheTemporalTransactionPool;
 import io.Adrestus.core.Resourses.MemoryRingBuffer;
 import io.Adrestus.core.Resourses.MemoryTransactionPool;
 import io.Adrestus.core.Transaction;
+import io.Adrestus.crypto.elliptic.mapper.BigDecimalSerializer;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.network.IPFinder;
 import io.Adrestus.network.TCPTransactionConsumer;
@@ -15,6 +16,7 @@ import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +30,7 @@ public class BindServerTransactionTask extends AdrestusTask {
     public BindServerTransactionTask() {
         super();
         List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         this.serenc = new SerializationUtil<Transaction>(Transaction.class, list);
         this.callBackReceive();

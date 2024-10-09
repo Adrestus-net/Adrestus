@@ -30,7 +30,7 @@ public class DelegateWeightsCalculator implements RewardHandler {
             BigDecimal validator_stake = TreeFactory.getMemoryTree(0).getByaddress(validator_address).get().getStaking_amount();
             Map<String, BigDecimal> delegation = TreeFactory.getMemoryTree(0).getByaddress(data.getAddressData().getAddress()).get().getDelegation();
             for (Map.Entry<String, BigDecimal> entry : delegation.entrySet()) {
-                CachedRewardMapData.getInstance().getEffective_stakes_map().get(validator_address).getDelegate_stake().put(entry.getKey(), new DelegateObject(entry.getValue().divide(validator_stake, RewardConfiguration.DECIMAL_PRECISION,RewardConfiguration.ROUNDING), BigDecimal.ZERO));
+                CachedRewardMapData.getInstance().getEffective_stakes_map().get(validator_address).getDelegate_stake().put(entry.getKey(), new DelegateObject(entry.getValue().divide(validator_stake, RewardConfiguration.DECIMAL_PRECISION, RewardConfiguration.ROUNDING), BigDecimal.ZERO));
             }
         });
     }

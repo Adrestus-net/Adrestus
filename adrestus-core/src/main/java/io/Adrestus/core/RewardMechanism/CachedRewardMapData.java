@@ -39,7 +39,7 @@ public class CachedRewardMapData implements Serializable {
 
     public void clearInstance() {
         synchronized (CachedRewardMapData.class) {
-            effective_stakes_map.values().forEach(val->val.getDelegate_stake().clear());
+            effective_stakes_map.values().forEach(val -> val.getDelegate_stake().clear());
             effective_stakes_map.clear();
             instance = null;
         }

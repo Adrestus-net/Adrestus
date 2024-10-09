@@ -16,6 +16,7 @@ import io.Adrestus.crypto.bls.model.BLSSignature;
 import io.Adrestus.crypto.elliptic.ECDSASign;
 import io.Adrestus.crypto.elliptic.ECDSASignatureData;
 import io.Adrestus.crypto.elliptic.ECKeyPair;
+import io.Adrestus.crypto.elliptic.mapper.BigDecimalSerializer;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.crypto.elliptic.mapper.CustomSerializerTreeMap;
 import io.Adrestus.crypto.elliptic.mapper.StakingData;
@@ -30,6 +31,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Type;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -92,6 +94,7 @@ public class RocksDBBlockTest {
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
         list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
+        list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
         serenc = new SerializationUtil<AbstractBlock>(AbstractBlock.class, list);
@@ -211,14 +214,15 @@ public class RocksDBBlockTest {
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
         list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
+        list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
         SerializationUtil<AbstractBlock> serenc = new SerializationUtil<AbstractBlock>(AbstractBlock.class, list);
         String hash = "Hash";
         CommitteeBlock committeeBlock = new CommitteeBlock();
         KademliaData data = new KademliaData();
-        committeeBlock.getStakingMap().put(new StakingData(1, 10.0), data);
-        committeeBlock.getStakingMap().put(new StakingData(2, 13.0), data);
+        committeeBlock.getStakingMap().put(new StakingData(1, BigDecimal.valueOf(10.0)), data);
+        committeeBlock.getStakingMap().put(new StakingData(2, BigDecimal.valueOf(13.0)), data);
         committeeBlock.getStructureMap().get(0).put(new BLSPublicKey(), "");
         committeeBlock.getStructureMap().put(0, new LinkedHashMap<BLSPublicKey, String>());
         committeeBlock.setGeneration(1);
@@ -300,11 +304,12 @@ public class RocksDBBlockTest {
         Type fluentType = new TypeToken<MemoryTreePool>() {
         }.getType();
         List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
         list.add(new SerializationUtil.Mapping(MemoryTreePool.class, ctx -> new MemoryTreePoolSerializer()));
         SerializationUtil valueMapper = new SerializationUtil<>(fluentType, list);
 
         String address = "ADR-ADL3-VDZK-ZU7H-2BX5-M2H4-S7LF-5SR4-ECQA-EIUJ-CBFK";
-        PatriciaTreeNode treeNode = new PatriciaTreeNode(2, 1);
+        PatriciaTreeNode treeNode = new PatriciaTreeNode(BigDecimal.valueOf(2), 1);
         TreeFactory.getMemoryTree(1).store(address, treeNode);
         MemoryTreePool m = (MemoryTreePool) TreeFactory.getMemoryTree(1);
 
@@ -624,11 +629,12 @@ public class RocksDBBlockTest {
         Type fluentType = new TypeToken<MemoryTreePool>() {
         }.getType();
         List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
         list.add(new SerializationUtil.Mapping(MemoryTreePool.class, ctx -> new MemoryTreePoolSerializer()));
         SerializationUtil valueMapper = new SerializationUtil<>(fluentType, list);
 
         String address = "ADR-ADL3-VDZK-ZU7H-2BX5-M2H4-S7LF-5SR4-ECQA-EIUJ-CBFK";
-        PatriciaTreeNode treeNode = new PatriciaTreeNode(2, 1);
+        PatriciaTreeNode treeNode = new PatriciaTreeNode(BigDecimal.valueOf(2), 1);
         TreeFactory.getMemoryTree(1).store(address, treeNode);
         MemoryTreePool m = (MemoryTreePool) TreeFactory.getMemoryTree(1);
 

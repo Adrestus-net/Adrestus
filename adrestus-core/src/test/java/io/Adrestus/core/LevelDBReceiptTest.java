@@ -1,6 +1,7 @@
 package io.Adrestus.core;
 
 import com.google.common.reflect.TypeToken;
+import io.Adrestus.crypto.elliptic.mapper.BigDecimalSerializer;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.util.SerializationUtil;
 import io.distributedLedger.DatabaseFactory;
@@ -9,6 +10,7 @@ import io.distributedLedger.IDatabase;
 import io.distributedLedger.LevelDBReceiptWrapper;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,11 +24,12 @@ public class LevelDBReceiptTest {
     @Test
     public void serialize() {
         List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         SerializationUtil<Receipt> recep = new SerializationUtil<Receipt>(Receipt.class, list);
 
         Transaction transaction = new RegularTransaction();
-        transaction.setAmount(100);
+        transaction.setAmount(BigDecimal.valueOf(100));
         transaction.setHash("Hash");
         transaction.setFrom("1");
         transaction.setTo("2");
@@ -43,7 +46,7 @@ public class LevelDBReceiptTest {
         IDatabase<String, LevelDBReceiptWrapper<Receipt>> receiptdatabase = new DatabaseFactory(String.class, Receipt.class, new TypeToken<LevelDBReceiptWrapper<Receipt>>() {
         }.getType()).getDatabase(DatabaseType.LEVEL_DB);
         Transaction transaction = new RegularTransaction();
-        transaction.setAmount(100);
+        transaction.setAmount(BigDecimal.valueOf(100));
         transaction.setHash("Hash");
         transaction.setFrom("1");
         transaction.setTo("2");
@@ -63,13 +66,13 @@ public class LevelDBReceiptTest {
         IDatabase<String, LevelDBReceiptWrapper<Receipt>> receiptdatabase = new DatabaseFactory(String.class, Receipt.class, new TypeToken<LevelDBReceiptWrapper<Receipt>>() {
         }.getType()).getDatabase(DatabaseType.LEVEL_DB);
         Transaction transaction = new RegularTransaction();
-        transaction.setAmount(100);
+        transaction.setAmount(BigDecimal.valueOf(100));
         transaction.setHash("Hash");
         transaction.setFrom("1");
         transaction.setTo("2");
 
         Transaction transaction2 = new RegularTransaction();
-        transaction2.setAmount(100);
+        transaction2.setAmount(BigDecimal.valueOf(100));
         transaction2.setHash("Hash2");
         transaction2.setFrom("1");
         transaction2.setTo("2");

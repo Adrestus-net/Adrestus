@@ -2,7 +2,6 @@ package io.Adrestus;
 
 import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.Trie.optimize64_trie.MerklePatriciaTrie;
-import io.Adrestus.config.RewardConfiguration;
 import io.Adrestus.util.bytes.Bytes;
 import io.vavr.control.Option;
 

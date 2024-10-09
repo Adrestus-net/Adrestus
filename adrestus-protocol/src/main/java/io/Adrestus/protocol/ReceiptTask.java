@@ -5,6 +5,7 @@ import io.Adrestus.core.Receipt;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.core.TransactionBlock;
+import io.Adrestus.crypto.elliptic.mapper.BigDecimalSerializer;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.util.SerializationUtil;
 import io.activej.bytebuf.ByteBuf;
@@ -16,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -37,6 +39,7 @@ public class ReceiptTask extends AdrestusTask {
 
     public ReceiptTask() {
         List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         this.eventloop = Eventloop.create().withCurrentThread();
         this.recep = new SerializationUtil<Receipt>(Receipt.class, list);

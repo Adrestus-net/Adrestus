@@ -20,6 +20,7 @@ import io.Adrestus.crypto.elliptic.ECDSASign;
 import io.Adrestus.crypto.elliptic.ECDSASignatureData;
 import io.Adrestus.crypto.elliptic.ECKeyPair;
 import io.Adrestus.crypto.elliptic.Keys;
+import io.Adrestus.crypto.elliptic.mapper.BigDecimalSerializer;
 import io.Adrestus.crypto.elliptic.mapper.StakingData;
 import io.Adrestus.crypto.mnemonic.Mnemonic;
 import io.Adrestus.crypto.mnemonic.Security;
@@ -36,6 +37,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Type;
+import java.math.BigDecimal;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
@@ -84,16 +86,16 @@ public class TreemapSerializationTest {
         ECDSASignatureData signatureData1 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address1)), ecKeyPair1);
         ECDSASignatureData signatureData2 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address2)), ecKeyPair2);
 
-        TreeFactory.getMemoryTree(0).store(address1, new PatriciaTreeNode(3000, 0));
-        TreeFactory.getMemoryTree(0).store(address2, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(0).store(address1, new PatriciaTreeNode(BigDecimal.valueOf(3000), 0));
+        TreeFactory.getMemoryTree(0).store(address2, new PatriciaTreeNode(BigDecimal.valueOf(3000), 0));
 
         CommitteeBlock committeeBlock = new CommitteeBlock();
         committeeBlock.getHeaderData().setTimestamp("2022-11-18 15:01:29.304");
         committeeBlock.getStructureMap().get(0).put(vk1, "192.168.1.106");
         committeeBlock.getStructureMap().get(0).put(vk2, "192.168.1.116");
 
-        committeeBlock.getStakingMap().put(new StakingData(1, 10.0), new KademliaData(new SecurityAuditProofs(address1, vk1, ecKeyPair1.getPublicKey(), signatureData1), new NettyConnectionInfo("192.168.1.106", KademliaConfiguration.PORT)));
-        committeeBlock.getStakingMap().put(new StakingData(2, 13.0), new KademliaData(new SecurityAuditProofs(address2, vk2, ecKeyPair2.getPublicKey(), signatureData2), new NettyConnectionInfo("192.168.1.116", KademliaConfiguration.PORT)));
+        committeeBlock.getStakingMap().put(new StakingData(1, BigDecimal.valueOf(10.0)), new KademliaData(new SecurityAuditProofs(address1, vk1, ecKeyPair1.getPublicKey(), signatureData1), new NettyConnectionInfo("192.168.1.106", KademliaConfiguration.PORT)));
+        committeeBlock.getStakingMap().put(new StakingData(2, BigDecimal.valueOf(13.0)), new KademliaData(new SecurityAuditProofs(address2, vk2, ecKeyPair2.getPublicKey(), signatureData2), new NettyConnectionInfo("192.168.1.116", KademliaConfiguration.PORT)));
 
         CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
         CachedLeaderIndex.getInstance().setCommitteePositionLeader(0);
@@ -123,11 +125,12 @@ public class TreemapSerializationTest {
         Type fluentType = new TypeToken<MemoryTreePool>() {
         }.getType();
         List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
         list.add(new SerializationUtil.Mapping(MemoryTreePool.class, ctx -> new MemoryTreePoolSerializer()));
         SerializationUtil valueMapper = new SerializationUtil<>(fluentType, list);
 
         String address = "ADR-ADL3-VDZK-ZU7H-2BX5-M2H4-S7LF-5SR4-ECQA-EIUJ-CBFK";
-        PatriciaTreeNode treeNode = new PatriciaTreeNode(2, 1);
+        PatriciaTreeNode treeNode = new PatriciaTreeNode(BigDecimal.valueOf(2), 1);
         TreeFactory.getMemoryTree(1).store(address, treeNode);
         MemoryTreePool m = (MemoryTreePool) TreeFactory.getMemoryTree(1);
 
@@ -154,14 +157,15 @@ public class TreemapSerializationTest {
         Type fluentType = new TypeToken<MemoryTreePool>() {
         }.getType();
         List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
         list.add(new SerializationUtil.Mapping(MemoryTreePool.class, ctx -> new MemoryTreePoolSerializer()));
         SerializationUtil valueMapper = new SerializationUtil<>(fluentType, list);
 
         String address = "ADR-ADL3-VDZK-ZU7H-2BX5-M2H4-S7LF-5SR4-ECQA-EIUJ-CBFK";
-        PatriciaTreeNode treeNode = new PatriciaTreeNode(2, 1);
-        PatriciaTreeNode treeNode1 = new PatriciaTreeNode(12, 2);
-        PatriciaTreeNode treeNode3 = new PatriciaTreeNode(123, 2);
-        PatriciaTreeNode treeNode4 = new PatriciaTreeNode(15, 2);
+        PatriciaTreeNode treeNode = new PatriciaTreeNode(BigDecimal.valueOf(2), 1);
+        PatriciaTreeNode treeNode1 = new PatriciaTreeNode(BigDecimal.valueOf(12), 2);
+        PatriciaTreeNode treeNode3 = new PatriciaTreeNode(BigDecimal.valueOf(123), 2);
+        PatriciaTreeNode treeNode4 = new PatriciaTreeNode(BigDecimal.valueOf(15), 2);
         TreeFactory.getMemoryTree(1).store(address, treeNode);
         TreeFactory.getMemoryTree(0).store(address, treeNode1);
         TreeFactory.getMemoryTree(2).store(address, treeNode3);
@@ -201,11 +205,12 @@ public class TreemapSerializationTest {
         Type fluentType = new TypeToken<MemoryTreePool>() {
         }.getType();
         List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
         list.add(new SerializationUtil.Mapping(MemoryTreePool.class, ctx -> new MemoryTreePoolSerializer()));
         SerializationUtil valueMapper = new SerializationUtil<>(fluentType, list);
 
         String address = "ADR-ADL3-VDZK-ZU7H-2BX5-M2H4-S7LF-5SR4-ECQA-EIUJ-CBFK";
-        PatriciaTreeNode treeNode = new PatriciaTreeNode(2, 1);
+        PatriciaTreeNode treeNode = new PatriciaTreeNode(BigDecimal.valueOf(2), 1);
         TreeFactory.getMemoryTree(1).store(address, treeNode);
         MemoryTreePool m = (MemoryTreePool) TreeFactory.getMemoryTree(1);
 
@@ -215,7 +220,7 @@ public class TreemapSerializationTest {
         tree_database.save("patricia_tree_root", bt);
         MemoryTreePool copy = (MemoryTreePool) valueMapper.decode(tree_database.findByKey("patricia_tree_root").get());
 
-        PatriciaTreeNode treeNode2 = new PatriciaTreeNode(3, 3);
+        PatriciaTreeNode treeNode2 = new PatriciaTreeNode(BigDecimal.valueOf(3), 3);
         TreeFactory.getMemoryTree(1).store("address", treeNode2);
         assertEquals(treeNode2, TreeFactory.getMemoryTree(1).getByaddress("address").get());
 
@@ -239,11 +244,12 @@ public class TreemapSerializationTest {
         Type fluentType = new TypeToken<MemoryTreePool>() {
         }.getType();
         List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
         list.add(new SerializationUtil.Mapping(MemoryTreePool.class, ctx -> new MemoryTreePoolSerializer()));
         SerializationUtil valueMapper = new SerializationUtil<>(fluentType, list);
 
         String address = "ADR-ADL3-VDZK-ZU7H-2BX5-M2H4-S7LF-5SR4-ECQA-EIUJ-CBFK";
-        PatriciaTreeNode treeNode = new PatriciaTreeNode(2, 1);
+        PatriciaTreeNode treeNode = new PatriciaTreeNode(BigDecimal.valueOf(2), 1);
         treeNode.addTransactionPosition(PatriciaTreeTransactionType.REGULAR, "1", 0, 1, 1);
         TreeFactory.getMemoryTree(1).store(address, treeNode);
         MemoryTreePool m = (MemoryTreePool) TreeFactory.getMemoryTree(1);
@@ -254,7 +260,7 @@ public class TreemapSerializationTest {
         tree_database.save("patricia_tree_root", bt);
         MemoryTreePool copy = (MemoryTreePool) valueMapper.decode(tree_database.findByKey("patricia_tree_root").get());
 
-        PatriciaTreeNode treeNode2 = new PatriciaTreeNode(3, 3);
+        PatriciaTreeNode treeNode2 = new PatriciaTreeNode(BigDecimal.valueOf(3), 3);
         TreeFactory.getMemoryTree(1).store("address", treeNode2);
         assertEquals(treeNode2, TreeFactory.getMemoryTree(1).getByaddress("address").get());
 
@@ -278,11 +284,12 @@ public class TreemapSerializationTest {
         Type fluentType = new TypeToken<MemoryTreePool>() {
         }.getType();
         List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
         list.add(new SerializationUtil.Mapping(MemoryTreePool.class, ctx -> new MemoryTreePoolSerializer()));
         SerializationUtil valueMapper = new SerializationUtil<>(fluentType, list);
 
         String address = "ADR-ADL3-VDZK-ZU7H-2BX5-M2H4-S7LF-5SR4-ECQA-EIUJ-CBFK";
-        PatriciaTreeNode treeNode = new PatriciaTreeNode(2, 1);
+        PatriciaTreeNode treeNode = new PatriciaTreeNode(BigDecimal.valueOf(2), 1);
         TreeFactory.getMemoryTree(1).store(address, treeNode);
         MemoryTreePool m = (MemoryTreePool) TreeFactory.getMemoryTree(1);
         MemoryTreePool m2 = (MemoryTreePool) TreeFactory.getMemoryTree(2);

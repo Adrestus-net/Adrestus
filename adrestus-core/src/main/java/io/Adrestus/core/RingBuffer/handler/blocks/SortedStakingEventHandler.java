@@ -44,7 +44,7 @@ public class SortedStakingEventHandler implements BlockEventHandler<AbstractBloc
     private static final class StakingValueComparator implements Comparator<StakingData>, Serializable {
         @Override
         public int compare(StakingData a, StakingData b) {
-            if (a.getStake().compareTo(b.getStake())>=0) {
+            if (a.getStake().compareTo(b.getStake()) >= 0) {
                 return -1;
             } else {
                 return 1;

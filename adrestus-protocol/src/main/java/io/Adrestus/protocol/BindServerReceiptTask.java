@@ -7,6 +7,7 @@ import io.Adrestus.config.SocketConfigOptions;
 import io.Adrestus.core.*;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.RingBuffer.publisher.ReceiptEventPublisher;
+import io.Adrestus.crypto.elliptic.mapper.BigDecimalSerializer;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.network.CachedEventLoop;
 import io.Adrestus.network.IPFinder;
@@ -19,6 +20,7 @@ import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -39,6 +41,7 @@ public class BindServerReceiptTask extends AdrestusTask {
     public BindServerReceiptTask() {
         super();
         List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         this.recep = new SerializationUtil<Receipt>(Receipt.class, list);
         this.callBackReceive();

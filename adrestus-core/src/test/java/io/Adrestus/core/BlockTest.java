@@ -27,6 +27,7 @@ import io.Adrestus.crypto.elliptic.ECDSASign;
 import io.Adrestus.crypto.elliptic.ECDSASignatureData;
 import io.Adrestus.crypto.elliptic.ECKeyPair;
 import io.Adrestus.crypto.elliptic.Keys;
+import io.Adrestus.crypto.elliptic.mapper.BigDecimalSerializer;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.crypto.elliptic.mapper.CustomSerializerTreeMap;
 import io.Adrestus.crypto.elliptic.mapper.StakingData;
@@ -48,6 +49,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.spongycastle.util.encoders.Hex;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.*;
@@ -137,6 +139,7 @@ public class BlockTest {
         delete_test();
         sizeCalculator = new BlockSizeCalculator();
         List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
         list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
         list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
@@ -198,7 +201,7 @@ public class BlockTest {
             String adddress = WalletAddress.generate_address((byte) version, ecKeyPair.getPublicKey());
             addreses.add(adddress);
             keypair.add(ecKeyPair);
-            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(adddress, new PatriciaTreeNode(1000, 0));
+            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(adddress, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
         }
 
         signatureData1 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(addreses.get(0))), keypair.get(0));
@@ -220,8 +223,8 @@ public class BlockTest {
             transaction.setTimestamp(GetTime.GetTimeStampInString());
             transaction.setZoneFrom(0);
             transaction.setZoneTo(0);
-            transaction.setAmount(100);
-            transaction.setAmountWithTransactionFee(transaction.getAmount() * (10.0 / 100.0));
+            transaction.setAmount(BigDecimal.valueOf(100));
+            transaction.setAmountWithTransactionFee(transaction.getAmount().multiply(BigDecimal.valueOf(10.0 / 100.0)));
             transaction.setNonce(1);
             transaction.setTransactionCallback(transactionCallback);
             byte byf[] = trx_serence.encode(transaction);
@@ -241,8 +244,8 @@ public class BlockTest {
             transaction.setTimestamp(GetTime.GetTimeStampInString());
             transaction.setZoneFrom(0);
             transaction.setZoneTo(1);
-            transaction.setAmount(100);
-            transaction.setAmountWithTransactionFee(transaction.getAmount() * (10.0 / 100.0));
+            transaction.setAmount(BigDecimal.valueOf(100));
+            transaction.setAmountWithTransactionFee(transaction.getAmount().multiply(BigDecimal.valueOf(10.0 / 100.0)));
             transaction.setNonce(1);
             byte byf[] = trx_serence.encode(transaction);
             transaction.setHash(HashUtil.sha256_bytetoString(byf));
@@ -278,6 +281,7 @@ public class BlockTest {
     @Test
     public void commitee_block() {
         List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
         list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
         list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
@@ -298,6 +302,7 @@ public class BlockTest {
     @Test
     public void transaction_block() {
         List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
         SerializationUtil<TransactionBlock> encode = new SerializationUtil<TransactionBlock>(TransactionBlock.class, list);
@@ -377,9 +382,9 @@ public class BlockTest {
         kad2 = new KademliaData(new SecurityAuditProofs(addreses.get(1), vk2, keypair.get(1).getPublicKey(), signatureData2), new NettyConnectionInfo("192.168.1.115", KademliaConfiguration.PORT));
         kad3 = new KademliaData(new SecurityAuditProofs(addreses.get(2), vk3, keypair.get(2).getPublicKey(), signatureData3), new NettyConnectionInfo("192.168.1.116", KademliaConfiguration.PORT));
 
-        CachedLatestBlocks.getInstance().getCommitteeBlock().getStakingMap().put(new StakingData(1, 10.0), kad1);
-        CachedLatestBlocks.getInstance().getCommitteeBlock().getStakingMap().put(new StakingData(2, 11.0), kad2);
-        CachedLatestBlocks.getInstance().getCommitteeBlock().getStakingMap().put(new StakingData(3, 151.0), kad3);
+        CachedLatestBlocks.getInstance().getCommitteeBlock().getStakingMap().put(new StakingData(1, BigDecimal.valueOf(10.0)), kad1);
+        CachedLatestBlocks.getInstance().getCommitteeBlock().getStakingMap().put(new StakingData(2, BigDecimal.valueOf(11.0)), kad2);
+        CachedLatestBlocks.getInstance().getCommitteeBlock().getStakingMap().put(new StakingData(3, BigDecimal.valueOf(151.0)), kad3);
 
         CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).put(vk1, "192.168.1.106");
         //CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).put(vk2, "192.168.1.110");
@@ -420,7 +425,8 @@ public class BlockTest {
 
 
         BlockIndex blockIndex = new BlockIndex();
-        double sum = transactions.parallelStream().filter(val -> !val.getType().equals(TransactionType.UNCLAIMED_FEE_REWARD)).mapToDouble(Transaction::getAmountWithTransactionFee).sum();
+        BigDecimal sum = transactions.parallelStream().filter(val -> !val.getType().equals(TransactionType.UNCLAIMED_FEE_REWARD)).map(Transaction::getAmountWithTransactionFee).reduce(BigDecimal.ZERO, BigDecimal::add);
+        ;
         try {
             transactions.add(0, new UnclaimedFeeRewardTransaction(TransactionType.UNCLAIMED_FEE_REWARD, blockIndex.getAddressByPublicKey(CachedBLSKeyPair.getInstance().getPublicKey()), sum));
         } catch (NoSuchElementException e) {
@@ -506,9 +512,9 @@ public class BlockTest {
         kad2 = new KademliaData(new SecurityAuditProofs(addreses.get(1), vk2, keypair.get(1).getPublicKey(), signatureData2), new NettyConnectionInfo("192.168.1.115", KademliaConfiguration.PORT));
         kad3 = new KademliaData(new SecurityAuditProofs(addreses.get(2), vk3, keypair.get(2).getPublicKey(), signatureData3), new NettyConnectionInfo("192.168.1.116", KademliaConfiguration.PORT));
 
-        CachedLatestBlocks.getInstance().getCommitteeBlock().getStakingMap().put(new StakingData(1, 10.0), kad1);
-        CachedLatestBlocks.getInstance().getCommitteeBlock().getStakingMap().put(new StakingData(2, 11.0), kad2);
-        CachedLatestBlocks.getInstance().getCommitteeBlock().getStakingMap().put(new StakingData(3, 151.0), kad3);
+        CachedLatestBlocks.getInstance().getCommitteeBlock().getStakingMap().put(new StakingData(1, BigDecimal.valueOf(10.0)), kad1);
+        CachedLatestBlocks.getInstance().getCommitteeBlock().getStakingMap().put(new StakingData(2, BigDecimal.valueOf(11.0)), kad2);
+        CachedLatestBlocks.getInstance().getCommitteeBlock().getStakingMap().put(new StakingData(3, BigDecimal.valueOf(151.0)), kad3);
 
         CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).put(vk1, "192.168.1.106");
         //CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).put(vk2, "192.168.1.110");
@@ -541,7 +547,7 @@ public class BlockTest {
         publisher.start();
 
         BlockIndex blockIndex = new BlockIndex();
-        double sum = outer_transactions.parallelStream().filter(val -> !val.getType().equals(TransactionType.UNCLAIMED_FEE_REWARD)).mapToDouble(Transaction::getAmountWithTransactionFee).sum();
+        BigDecimal sum = outer_transactions.parallelStream().filter(val -> !val.getType().equals(TransactionType.UNCLAIMED_FEE_REWARD)).map(Transaction::getAmountWithTransactionFee).reduce(BigDecimal.ZERO, BigDecimal::add);
         try {
             outer_transactions.add(0, new UnclaimedFeeRewardTransaction(TransactionType.UNCLAIMED_FEE_REWARD, blockIndex.getAddressByPublicKey(CachedBLSKeyPair.getInstance().getPublicKey()), sum));
         } catch (NoSuchElementException e) {
@@ -737,16 +743,16 @@ public class BlockTest {
         ECDSASignatureData signatureData9 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(adddress9)), ecKeyPair9);
         ECDSASignatureData signatureData10 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(adddress10)), ecKeyPair10);
 
-        TreeFactory.getMemoryTree(0).store(adddress1, new PatriciaTreeNode(1000, 0));
-        TreeFactory.getMemoryTree(0).store(adddress2, new PatriciaTreeNode(1000, 0));
-        TreeFactory.getMemoryTree(0).store(adddress3, new PatriciaTreeNode(1000, 0));
-        TreeFactory.getMemoryTree(0).store(adddress4, new PatriciaTreeNode(1000, 0));
-        TreeFactory.getMemoryTree(0).store(adddress5, new PatriciaTreeNode(1000, 0));
-        TreeFactory.getMemoryTree(0).store(adddress6, new PatriciaTreeNode(1000, 0));
-        TreeFactory.getMemoryTree(0).store(adddress7, new PatriciaTreeNode(1000, 0));
-        TreeFactory.getMemoryTree(0).store(adddress8, new PatriciaTreeNode(1000, 0));
-        TreeFactory.getMemoryTree(0).store(adddress9, new PatriciaTreeNode(1000, 0));
-        TreeFactory.getMemoryTree(0).store(adddress10, new PatriciaTreeNode(1000, 0));
+        TreeFactory.getMemoryTree(0).store(adddress1, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
+        TreeFactory.getMemoryTree(0).store(adddress2, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
+        TreeFactory.getMemoryTree(0).store(adddress3, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
+        TreeFactory.getMemoryTree(0).store(adddress4, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
+        TreeFactory.getMemoryTree(0).store(adddress5, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
+        TreeFactory.getMemoryTree(0).store(adddress6, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
+        TreeFactory.getMemoryTree(0).store(adddress7, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
+        TreeFactory.getMemoryTree(0).store(adddress8, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
+        TreeFactory.getMemoryTree(0).store(adddress9, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
+        TreeFactory.getMemoryTree(0).store(adddress10, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
 
         BlockEventPublisher publisher = new BlockEventPublisher(1024);
 
@@ -774,14 +780,14 @@ public class BlockTest {
         prevblock.setHeight(0);
         CachedLatestBlocks.getInstance().setCommitteeBlock(prevblock);
         CommitteeBlock committeeBlock = new CommitteeBlock();
-        committeeBlock.getStakingMap().put(new StakingData(1, 10.0), new KademliaData(new SecurityAuditProofs(vk1, adddress1, ecKeyPair1.getPublicKey(), signatureData1), new NettyConnectionInfo("192.168.1.101", KademliaConfiguration.PORT)));
-        committeeBlock.getStakingMap().put(new StakingData(2, 13.0), new KademliaData(new SecurityAuditProofs(vk2, adddress2, ecKeyPair2.getPublicKey(), signatureData2), new NettyConnectionInfo("192.168.1.102", KademliaConfiguration.PORT)));
-        committeeBlock.getStakingMap().put(new StakingData(3, 7.0), new KademliaData(new SecurityAuditProofs(vk3, adddress3, ecKeyPair3.getPublicKey(), signatureData3), new NettyConnectionInfo("192.168.1.103", KademliaConfiguration.PORT)));
-        committeeBlock.getStakingMap().put(new StakingData(4, 22.0), new KademliaData(new SecurityAuditProofs(vk4, adddress4, ecKeyPair4.getPublicKey(), signatureData4), new NettyConnectionInfo("192.168.1.104", KademliaConfiguration.PORT)));
-        committeeBlock.getStakingMap().put(new StakingData(5, 6.0), new KademliaData(new SecurityAuditProofs(vk5, adddress5, ecKeyPair5.getPublicKey(), signatureData5), new NettyConnectionInfo("192.168.1.105", KademliaConfiguration.PORT)));
-        committeeBlock.getStakingMap().put(new StakingData(6, 32.0), new KademliaData(new SecurityAuditProofs(vk6, adddress6, ecKeyPair6.getPublicKey(), signatureData6), new NettyConnectionInfo("192.168.1.106", KademliaConfiguration.PORT)));
-        committeeBlock.getStakingMap().put(new StakingData(7, 33.0), new KademliaData(new SecurityAuditProofs(vk7, adddress7, ecKeyPair7.getPublicKey(), signatureData7), new NettyConnectionInfo("192.168.1.107", KademliaConfiguration.PORT)));
-        committeeBlock.getStakingMap().put(new StakingData(8, 31.0), new KademliaData(new SecurityAuditProofs(vk8, adddress8, ecKeyPair8.getPublicKey(), signatureData8), new NettyConnectionInfo("192.168.1.108", KademliaConfiguration.PORT)));
+        committeeBlock.getStakingMap().put(new StakingData(1, BigDecimal.valueOf(10.0)), new KademliaData(new SecurityAuditProofs(vk1, adddress1, ecKeyPair1.getPublicKey(), signatureData1), new NettyConnectionInfo("192.168.1.101", KademliaConfiguration.PORT)));
+        committeeBlock.getStakingMap().put(new StakingData(2, BigDecimal.valueOf(13.0)), new KademliaData(new SecurityAuditProofs(vk2, adddress2, ecKeyPair2.getPublicKey(), signatureData2), new NettyConnectionInfo("192.168.1.102", KademliaConfiguration.PORT)));
+        committeeBlock.getStakingMap().put(new StakingData(3, BigDecimal.valueOf(7.0)), new KademliaData(new SecurityAuditProofs(vk3, adddress3, ecKeyPair3.getPublicKey(), signatureData3), new NettyConnectionInfo("192.168.1.103", KademliaConfiguration.PORT)));
+        committeeBlock.getStakingMap().put(new StakingData(4, BigDecimal.valueOf(22.0)), new KademliaData(new SecurityAuditProofs(vk4, adddress4, ecKeyPair4.getPublicKey(), signatureData4), new NettyConnectionInfo("192.168.1.104", KademliaConfiguration.PORT)));
+        committeeBlock.getStakingMap().put(new StakingData(5, BigDecimal.valueOf(6.0)), new KademliaData(new SecurityAuditProofs(vk5, adddress5, ecKeyPair5.getPublicKey(), signatureData5), new NettyConnectionInfo("192.168.1.105", KademliaConfiguration.PORT)));
+        committeeBlock.getStakingMap().put(new StakingData(6, BigDecimal.valueOf(32.0)), new KademliaData(new SecurityAuditProofs(vk6, adddress6, ecKeyPair6.getPublicKey(), signatureData6), new NettyConnectionInfo("192.168.1.106", KademliaConfiguration.PORT)));
+        committeeBlock.getStakingMap().put(new StakingData(7, BigDecimal.valueOf(33.0)), new KademliaData(new SecurityAuditProofs(vk7, adddress7, ecKeyPair7.getPublicKey(), signatureData7), new NettyConnectionInfo("192.168.1.107", KademliaConfiguration.PORT)));
+        committeeBlock.getStakingMap().put(new StakingData(8, BigDecimal.valueOf(31.0)), new KademliaData(new SecurityAuditProofs(vk8, adddress8, ecKeyPair8.getPublicKey(), signatureData8), new NettyConnectionInfo("192.168.1.108", KademliaConfiguration.PORT)));
 
         committeeBlock.setCommitteeProposer(new int[committeeBlock.getStakingMap().size()]);
         committeeBlock.setGeneration(1);
@@ -943,14 +949,14 @@ public class BlockTest {
     public void radmones_test() {
         SecureRandom random = new SecureRandom();
         CommitteeBlock committeeBlock = new CommitteeBlock();
-        committeeBlock.getStakingMap().put(new StakingData(1, 10.0), new KademliaData(new SecurityAuditProofs(vk1), new NettyConnectionInfo("192.168.1.101", KademliaConfiguration.PORT)));
-        committeeBlock.getStakingMap().put(new StakingData(2, 13.0), new KademliaData(new SecurityAuditProofs(vk2), new NettyConnectionInfo("192.168.1.102", KademliaConfiguration.PORT)));
-        committeeBlock.getStakingMap().put(new StakingData(3, 7.0), new KademliaData(new SecurityAuditProofs(vk3), new NettyConnectionInfo("192.168.1.103", KademliaConfiguration.PORT)));
-        committeeBlock.getStakingMap().put(new StakingData(4, 22.0), new KademliaData(new SecurityAuditProofs(vk4), new NettyConnectionInfo("192.168.1.104", KademliaConfiguration.PORT)));
-        committeeBlock.getStakingMap().put(new StakingData(5, 6.0), new KademliaData(new SecurityAuditProofs(vk5), new NettyConnectionInfo("192.168.1.105", KademliaConfiguration.PORT)));
-        committeeBlock.getStakingMap().put(new StakingData(6, 32.0), new KademliaData(new SecurityAuditProofs(vk6), new NettyConnectionInfo("192.168.1.106", KademliaConfiguration.PORT)));
-        committeeBlock.getStakingMap().put(new StakingData(7, 33.0), new KademliaData(new SecurityAuditProofs(vk7), new NettyConnectionInfo("192.168.1.107", KademliaConfiguration.PORT)));
-        committeeBlock.getStakingMap().put(new StakingData(8, 31.0), new KademliaData(new SecurityAuditProofs(vk8), new NettyConnectionInfo("192.168.1.108", KademliaConfiguration.PORT)));
+        committeeBlock.getStakingMap().put(new StakingData(1, BigDecimal.valueOf(10.0)), new KademliaData(new SecurityAuditProofs(vk1), new NettyConnectionInfo("192.168.1.101", KademliaConfiguration.PORT)));
+        committeeBlock.getStakingMap().put(new StakingData(2, BigDecimal.valueOf(13.0)), new KademliaData(new SecurityAuditProofs(vk2), new NettyConnectionInfo("192.168.1.102", KademliaConfiguration.PORT)));
+        committeeBlock.getStakingMap().put(new StakingData(3, BigDecimal.valueOf(7.0)), new KademliaData(new SecurityAuditProofs(vk3), new NettyConnectionInfo("192.168.1.103", KademliaConfiguration.PORT)));
+        committeeBlock.getStakingMap().put(new StakingData(4, BigDecimal.valueOf(22.0)), new KademliaData(new SecurityAuditProofs(vk4), new NettyConnectionInfo("192.168.1.104", KademliaConfiguration.PORT)));
+        committeeBlock.getStakingMap().put(new StakingData(5, BigDecimal.valueOf(6.0)), new KademliaData(new SecurityAuditProofs(vk5), new NettyConnectionInfo("192.168.1.105", KademliaConfiguration.PORT)));
+        committeeBlock.getStakingMap().put(new StakingData(6, BigDecimal.valueOf(32.0)), new KademliaData(new SecurityAuditProofs(vk6), new NettyConnectionInfo("192.168.1.106", KademliaConfiguration.PORT)));
+        committeeBlock.getStakingMap().put(new StakingData(7, BigDecimal.valueOf(33.0)), new KademliaData(new SecurityAuditProofs(vk7), new NettyConnectionInfo("192.168.1.107", KademliaConfiguration.PORT)));
+        committeeBlock.getStakingMap().put(new StakingData(8, BigDecimal.valueOf(31.0)), new KademliaData(new SecurityAuditProofs(vk8), new NettyConnectionInfo("192.168.1.108", KademliaConfiguration.PORT)));
 
         ArrayList<Integer> exclude = new ArrayList<Integer>();
         ArrayList<Integer> order = new ArrayList<Integer>();
@@ -1069,7 +1075,7 @@ public class BlockTest {
         for (int i = 0; i < finish; i++) {
             BLSPrivateKey sk = new BLSPrivateKey(i);
             BLSPublicKey vk = new BLSPublicKey(sk);
-            committeeBlock.getStakingMap().put(new StakingData(i, i), new KademliaData(new SecurityAuditProofs(vk), new NettyConnectionInfo(String.valueOf(i), KademliaConfiguration.PORT)));
+            committeeBlock.getStakingMap().put(new StakingData(i, BigDecimal.valueOf(i)), new KademliaData(new SecurityAuditProofs(vk), new NettyConnectionInfo(String.valueOf(i), KademliaConfiguration.PORT)));
         }
         ArrayList<Integer> exclude = new ArrayList<Integer>();
         ArrayList<Integer> order = new ArrayList<Integer>();

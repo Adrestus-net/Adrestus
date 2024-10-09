@@ -49,6 +49,7 @@
         <serializer.version>5.4.3</serializer.version>
         <commons_net.version>3.9.0</commons_net.version>
         <logback.version>1.4.14</logback.version>
+        <compress.version>1.27.1</compress.version>
     </properties>
     <repositories>
         <repository>
@@ -96,6 +97,11 @@
         </snapshotRepository>
     </distributionManagement>
     <dependencies>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-compress</artifactId>
+            <version>${compress.version}</version>
+        </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>

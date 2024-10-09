@@ -41,7 +41,7 @@ public class MinimumStakingEventHandler implements BlockEventHandler<AbstractBlo
             if (TreeFactory.getMemoryTree(0)
                     .getByaddress(securityAuditProofs.getAddressData().getAddress())
                     .get()
-                    .getAmount().compareTo(BigDecimal.valueOf(StakingConfiguration.MINIMUM_STAKING))>=0)
+                    .getAmount().compareTo(BigDecimal.valueOf(StakingConfiguration.MINIMUM_STAKING)) >= 0)
                 return true;
             else
                 return false;

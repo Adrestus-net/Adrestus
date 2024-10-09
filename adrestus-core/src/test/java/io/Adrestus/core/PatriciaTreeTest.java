@@ -10,6 +10,7 @@ import org.apache.commons.lang3.SerializationUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.util.function.Function;
 
@@ -36,9 +37,9 @@ public class PatriciaTreeTest {
     public void simple_test() {
         IMerklePatriciaTrie<Bytes, PatriciaTreeNode> optimized2 = new MerklePatriciaTrie<Bytes, PatriciaTreeNode>(valueSerializer2);
         final Bytes key1 = Bytes.of(1, 5, 8, 9);
-        optimized2.put(key1, new PatriciaTreeNode(1, 2));
+        optimized2.put(key1, new PatriciaTreeNode(BigDecimal.ONE, 2));
         String hash1 = optimized2.getRootHash().toHexString();
-        optimized2.put(key1, new PatriciaTreeNode(1, 2));
+        optimized2.put(key1, new PatriciaTreeNode(BigDecimal.ONE, 2));
         String hash2 = optimized2.getRootHash().toHexString();
         assertEquals(hash1, hash2);
     }
@@ -92,7 +93,7 @@ public class PatriciaTreeTest {
         final Bytes key1 = Bytes.of(1, 5, 8, 9);
 
 
-        PatriciaTreeNode node = new PatriciaTreeNode(2, 3);
+        PatriciaTreeNode node = new PatriciaTreeNode(BigDecimal.valueOf(2), 3);
         final String hash = optimized2.getRootHash().toHexString();
         assertEquals("0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421", hash);
         optimized2.put(key1, node);
@@ -112,7 +113,7 @@ public class PatriciaTreeTest {
         for (int i = 0; i < size; i++) {
             stringBuilder.append(addres);
             stringBuilder.append(String.valueOf(i));
-            optimized2.put(Bytes.wrap(stringBuilder.toString().getBytes(StandardCharsets.UTF_8)), new PatriciaTreeNode(i, i));
+            optimized2.put(Bytes.wrap(stringBuilder.toString().getBytes(StandardCharsets.UTF_8)), new PatriciaTreeNode(BigDecimal.valueOf(i), i));
             stringBuilder.setLength(0);
             optimized2.getRootHash();
         }
@@ -120,7 +121,7 @@ public class PatriciaTreeTest {
         for (int i = 0; i < size; i++) {
             stringBuilder.append(addres);
             stringBuilder.append(String.valueOf(i));
-            assertEquals(new PatriciaTreeNode(i, i), optimized2.get(Bytes.wrap(stringBuilder.toString().getBytes(StandardCharsets.UTF_8))).get());
+            assertEquals(new PatriciaTreeNode(BigDecimal.valueOf(i), i), optimized2.get(Bytes.wrap(stringBuilder.toString().getBytes(StandardCharsets.UTF_8))).get());
             stringBuilder.setLength(0);
         }
     }
