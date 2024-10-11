@@ -467,6 +467,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
             RewardChainBuilder rewardChainBuilder = new RewardChainBuilder();
             rewardChainBuilder.makeRequest(new Request(RequestType.REWARD_STORAGE_CALCULATOR, "REWARD_STORAGE_CALCULATOR", TreeFactory.getMemoryTree(0)));
             CachedRewardMapData.getInstance().clearInstance();
+            CachedStartHeightRewards.getInstance().setRewardsCommitteeEnabled(false);
             CachedStartHeightRewards.getInstance().setHeight(transactionBlock.getHeight());
         }
         tree_database.save(String.valueOf(CachedZoneIndex.getInstance().getZoneIndex()), patricia_tree_wrapper.encode_special(TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()), SerializationUtils.serialize(TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex())).length));

@@ -51,8 +51,8 @@ public class MemoryTreePoolTest {
         TreeFactory.getMemoryTree(1).deposit(PatriciaTreeTransactionType.REGULAR, "updated_address", BigDecimal.valueOf(20), BigDecimal.ONE);
         Option<PatriciaTreeNode> copy = TreeFactory.getMemoryTree(1).getByaddress(address);
         Option<PatriciaTreeNode> copy2 = TreeFactory.getMemoryTree(1).getByaddress("updated_address");
-        assertEquals(149, copy.get().getAmount());
-        assertEquals(119, copy2.get().getAmount());
+        assertEquals(149, copy.get().getAmount().doubleValue());
+        assertEquals(119, copy2.get().getAmount().doubleValue());
 
         if (copy.isDefined())
             System.out.println(copy.get().toString());
@@ -81,7 +81,7 @@ public class MemoryTreePoolTest {
 
         TreeFactory.getMemoryTree(1).withdraw(PatriciaTreeTransactionType.REGULAR, address, BigDecimal.ONE, BigDecimal.ONE);
         System.out.println(TreeFactory.getMemoryTree(1).getByaddress(address).get().getAmount());
-        assertEquals(8, TreeFactory.getMemoryTree(1).getByaddress(address).get().getAmount());
+        assertEquals(8, TreeFactory.getMemoryTree(1).getByaddress(address).get().getAmount().doubleValue());
         Option<PatriciaTreeNode> copy = TreeFactory.getMemoryTree(0).getByaddress(address);
 
         if (copy.isDefined())
@@ -96,9 +96,9 @@ public class MemoryTreePoolTest {
         TreeFactory.getMemoryTree(1).store(address, treeNode);
 
         TreeFactory.getMemoryTree(1).deposit(PatriciaTreeTransactionType.UNCLAIMED_FEE_REWARD, address, BigDecimal.valueOf(10), BigDecimal.ONE);
-        assertEquals(10, TreeFactory.getMemoryTree(1).getByaddress(address).get().getUnclaimed_reward());
+        assertEquals(10, TreeFactory.getMemoryTree(1).getByaddress(address).get().getUnclaimed_reward().doubleValue());
         TreeFactory.getMemoryTree(1).withdraw(PatriciaTreeTransactionType.UNCLAIMED_FEE_REWARD, address, BigDecimal.valueOf(5), BigDecimal.ONE);
-        assertEquals(5, TreeFactory.getMemoryTree(1).getByaddress(address).get().getUnclaimed_reward());
+        assertEquals(5, TreeFactory.getMemoryTree(1).getByaddress(address).get().getUnclaimed_reward().doubleValue());
         Option<PatriciaTreeNode> copy = TreeFactory.getMemoryTree(0).getByaddress(address);
 
         if (copy.isDefined())
@@ -190,9 +190,9 @@ public class MemoryTreePoolTest {
         replica2.withdraw(PatriciaTreeTransactionType.UNCLAIMED_FEE_REWARD, address, BigDecimal.valueOf(2), BigDecimal.ONE);
         replica2.deposit(PatriciaTreeTransactionType.REGULAR, address, BigDecimal.valueOf(10), BigDecimal.ONE);
         replica2.withdraw(PatriciaTreeTransactionType.REGULAR, address, BigDecimal.valueOf(2), BigDecimal.ONE);
-        assertEquals(456, TreeFactory.getMemoryTree(1).getByaddress(address).get().getUnclaimed_reward());
-        assertEquals(464, replica.getByaddress(address).get().getUnclaimed_reward());
-        assertEquals(464, replica2.getByaddress(address).get().getUnclaimed_reward());
+        assertEquals(456, TreeFactory.getMemoryTree(1).getByaddress(address).get().getUnclaimed_reward().doubleValue());
+        assertEquals(464, replica.getByaddress(address).get().getUnclaimed_reward().doubleValue());
+        assertEquals(464, replica2.getByaddress(address).get().getUnclaimed_reward().doubleValue());
         assertEquals(replica, replica2);
     }
 

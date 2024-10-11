@@ -39,6 +39,7 @@ import org.apache.commons.codec.binary.StringUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -104,8 +105,8 @@ public class ConsensusCommitteeTimer2Test {
         ECDSASignatureData signatureData1 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address1)), ecKeyPair1);
         ECDSASignatureData signatureData2 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address2)), ecKeyPair2);
 
-        TreeFactory.getMemoryTree(0).store(address1, new PatriciaTreeNode(3000, 0, 213));
-        TreeFactory.getMemoryTree(0).store(address2, new PatriciaTreeNode(3000, 0, 10));
+        TreeFactory.getMemoryTree(0).store(address1, new PatriciaTreeNode(BigDecimal.valueOf(3000), 0, BigDecimal.valueOf(213)));
+        TreeFactory.getMemoryTree(0).store(address2, new PatriciaTreeNode(BigDecimal.valueOf(3000), 0, BigDecimal.valueOf(10)));
 
         CommitteeBlock committeeBlock = new CommitteeBlock();
         committeeBlock.getHeaderData().setTimestamp("2022-11-18 15:01:29.304");
@@ -134,8 +135,8 @@ public class ConsensusCommitteeTimer2Test {
             committeeBlock.getStructureMap().get(0).put(list_data.get(0).getAddressData().getValidatorBlSPublicKey(), list_data.get(0).getNettyConnectionInfo().getHost());
             committeeBlock.getStructureMap().get(0).put(list_data.get(1).getAddressData().getValidatorBlSPublicKey(), list_data.get(1).getNettyConnectionInfo().getHost());
 
-            committeeBlock.getStakingMap().put(new StakingData(1, 10.0), list_data.get(0));
-            committeeBlock.getStakingMap().put(new StakingData(2, 13.0), list_data.get(1));
+            committeeBlock.getStakingMap().put(new StakingData(1, BigDecimal.valueOf(10.0)), list_data.get(0));
+            committeeBlock.getStakingMap().put(new StakingData(2, BigDecimal.valueOf(13.0)), list_data.get(1));
         } else if (IP.equals("192.168.1.116")) {
             dhtBootstrapNode.Init();
             nettyConnectionInfo = new NettyConnectionInfo(IP, KademliaConfiguration.PORT);
@@ -152,8 +153,8 @@ public class ConsensusCommitteeTimer2Test {
             committeeBlock.getStructureMap().get(0).put(list_data.get(1).getAddressData().getValidatorBlSPublicKey(), list_data.get(1).getNettyConnectionInfo().getHost());
             committeeBlock.getStructureMap().get(0).put(list_data.get(0).getAddressData().getValidatorBlSPublicKey(), list_data.get(0).getNettyConnectionInfo().getHost());
 
-            committeeBlock.getStakingMap().put(new StakingData(1, 10.0), list_data.get(1));
-            committeeBlock.getStakingMap().put(new StakingData(2, 13.0), list_data.get(0));
+            committeeBlock.getStakingMap().put(new StakingData(1, BigDecimal.valueOf(10.0)), list_data.get(1));
+            committeeBlock.getStakingMap().put(new StakingData(2, BigDecimal.valueOf(13.0)), list_data.get(0));
         } else {
 
         }

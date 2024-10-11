@@ -91,7 +91,7 @@ public class ConsensusTransactionTimer {
         nonce++;
 
         for (int i = start; i <= stop; i++) {
-            if (i == 0 && TreeFactory.getMemoryTree(0).getByaddress(addreses.get(0)).get().getUnclaimed_reward() > 0) {
+            if (i == 0 && TreeFactory.getMemoryTree(0).getByaddress(addreses.get(0)).get().getUnclaimed_reward().compareTo(BigDecimal.ZERO)>0) {
                 RewardsTransaction rewardsTransaction = new RewardsTransaction();
                 rewardsTransaction.setRecipientAddress(addreses.get(0));
                 rewardsTransaction.setTo("");
@@ -101,7 +101,7 @@ public class ConsensusTransactionTimer {
                 rewardsTransaction.setZoneFrom(0);
                 rewardsTransaction.setZoneTo(0);
                 rewardsTransaction.setAmount(TreeFactory.getMemoryTree(0).getByaddress(addreses.get(0)).get().getUnclaimed_reward());
-                rewardsTransaction.setAmountWithTransactionFee(0);
+                rewardsTransaction.setAmountWithTransactionFee(BigDecimal.ZERO);
                 rewardsTransaction.setNonce(nonce);
                 byte byf[] = serenc.encode(rewardsTransaction, 1024);
                 rewardsTransaction.setHash(HashUtil.sha256_bytetoString(byf));
@@ -119,8 +119,8 @@ public class ConsensusTransactionTimer {
                 Thread.sleep(10);
                 transaction.setZoneFrom(CachedZoneIndex.getInstance().getZoneIndex());
                 transaction.setZoneTo(CachedZoneIndex.getInstance().getZoneIndex());
-                transaction.setAmount(i + 10);
-                transaction.setAmountWithTransactionFee(transaction.getAmount() * (10.0 / 100.0));
+                transaction.setAmount(BigDecimal.valueOf(i + 10));
+                transaction.setAmountWithTransactionFee(transaction.getAmount().multiply(BigDecimal.valueOf(10.0 / 100.0)));
                 transaction.setNonce(nonce);
                 byte byf[] = serenc.encode(transaction, 1024);
                 transaction.setHash(HashUtil.sha256_bytetoString(byf));
@@ -151,7 +151,7 @@ public class ConsensusTransactionTimer {
             CachedLeaderIndex.getInstance().setTransactionPositionLeader(current);
             if (target == current) {
                 LOG.info("ORGANIZER State");
-                //chooser();
+                chooser();
                 consensusManager.changeStateTo(ConsensusRoleType.ORGANIZER);
                 var organizerphase = consensusManager.getRole().manufacturePhases(ConsensusType.TRANSACTION_BLOCK);
                 organizerphase.InitialSetup();

@@ -2,6 +2,7 @@ package io.Adrestus.consensus;
 
 import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.PatriciaTreeNode;
+import io.Adrestus.Trie.PatriciaTreeTransactionType;
 import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.config.KademliaConfiguration;
 import io.Adrestus.consensus.helper.ConsensusTransactionTimer;
@@ -49,6 +50,7 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -203,16 +205,16 @@ public class ConsensusTransactionTimerTest {
         ECDSASignatureData signatureData5 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(adddress5)), ecKeyPair5);
         ECDSASignatureData signatureData6 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(adddress6)), ecKeyPair6);
 
-        TreeFactory.getMemoryTree(0).store(adddress1, new PatriciaTreeNode(1000, 0, 100, 40));
-        TreeFactory.getMemoryTree(0).store(adddress2, new PatriciaTreeNode(1000, 0, 200, 30));
-        TreeFactory.getMemoryTree(0).store(adddress3, new PatriciaTreeNode(1000, 0, 300, 20));
-        TreeFactory.getMemoryTree(0).store(adddress4, new PatriciaTreeNode(1000, 0));
-        TreeFactory.getMemoryTree(0).store(adddress5, new PatriciaTreeNode(1000, 0));
-        TreeFactory.getMemoryTree(0).store(adddress6, new PatriciaTreeNode(1000, 0));
-        TreeFactory.getMemoryTree(0).store(adddress7, new PatriciaTreeNode(1000, 0));
-        TreeFactory.getMemoryTree(0).store(adddress8, new PatriciaTreeNode(1000, 0));
-        TreeFactory.getMemoryTree(0).store(adddress9, new PatriciaTreeNode(1000, 0));
-        TreeFactory.getMemoryTree(0).store(adddress10, new PatriciaTreeNode(1000, 0));
+        TreeFactory.getMemoryTree(0).store(adddress1, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0, BigDecimal.valueOf(100), BigDecimal.valueOf(40)));
+        TreeFactory.getMemoryTree(0).store(adddress2, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0, BigDecimal.valueOf(200), BigDecimal.valueOf(30)));
+        TreeFactory.getMemoryTree(0).store(adddress3, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0, BigDecimal.valueOf(300), BigDecimal.valueOf(20)));
+        TreeFactory.getMemoryTree(0).store(adddress4, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
+        TreeFactory.getMemoryTree(0).store(adddress5, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
+        TreeFactory.getMemoryTree(0).store(adddress6, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
+        TreeFactory.getMemoryTree(0).store(adddress7, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
+        TreeFactory.getMemoryTree(0).store(adddress8, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
+        TreeFactory.getMemoryTree(0).store(adddress9, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
+        TreeFactory.getMemoryTree(0).store(adddress10, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
 
 
         TransactionBlock prevblock = new TransactionBlock();
@@ -263,9 +265,9 @@ public class ConsensusTransactionTimerTest {
         System.out.println("ADRESS: " + adddress1 + "KEY1  " + vk1.toString());
         System.out.println("ADRESS: " + adddress2 + "KEY2  " + vk2.toString());
         System.out.println("ADRESS: " + adddress3 + "KEY3  " + vk3.toString());
-        CachedLatestBlocks.getInstance().getCommitteeBlock().getStakingMap().put(new StakingData(1, 100.0), kad3);
-        CachedLatestBlocks.getInstance().getCommitteeBlock().getStakingMap().put(new StakingData(2, 200.0), kad2);
-        CachedLatestBlocks.getInstance().getCommitteeBlock().getStakingMap().put(new StakingData(3, 300.0), kad1);
+        CachedLatestBlocks.getInstance().getCommitteeBlock().getStakingMap().put(new StakingData(1, BigDecimal.valueOf(100.0)), kad3);
+        CachedLatestBlocks.getInstance().getCommitteeBlock().getStakingMap().put(new StakingData(2, BigDecimal.valueOf(200.0)), kad2);
+        CachedLatestBlocks.getInstance().getCommitteeBlock().getStakingMap().put(new StakingData(3, BigDecimal.valueOf(300.0)), kad1);
 
         CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).put(vk1, "192.168.1.106");
         //CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).put(vk2, "192.168.1.110");
@@ -324,6 +326,25 @@ public class ConsensusTransactionTimerTest {
             System.out.println(addreses.get(i) + " " + TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(addreses.get(i)).get().getAmount() + " " + TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(addreses.get(i)).get().getUnclaimed_reward());
         }
 
+        IDatabase<String, TransactionBlock> block_database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
+        Map<String, TransactionBlock> res = block_database.seekFromStart();
+        Map<String,BigDecimal>claimed=new HashMap<>();
+        for (Map.Entry<String, TransactionBlock> entry : res.entrySet()){
+            BigDecimal sum=entry.getValue().getTransactionList().stream().map(Transaction::getAmountWithTransactionFee).reduce(BigDecimal.ZERO, BigDecimal::add);
+            String address=CachedLatestBlocks.getInstance().getCommitteeBlock().getStakingMap().values().stream().map(KademliaData::getAddressData).filter(val->val.getValidatorBlSPublicKey().equals(entry.getValue().getLeaderPublicKey())).findFirst().get().getAddress();
+            if(claimed.get(address)==null)
+                claimed.put(address,sum);
+            else
+                claimed.put(address,sum.add(claimed.get(address)));
+        }
+
+        assertEquals(TreeFactory.getMemoryTree(0).getByaddress("ADR-AB2W-RIQY-LSIH-CXQQ-FGRV-AINR-57RO-NFXU-IWM5-IANJ").get().getUnclaimed_reward(),TreeFactory.getMemoryTree(0).getByaddress("ADR-AB2W-RIQY-LSIH-CXQQ-FGRV-AINR-57RO-NFXU-IWM5-IANJ").get().getUnclaimed_reward().subtract(claimed.get("ADR-AB2W-RIQY-LSIH-CXQQ-FGRV-AINR-57RO-NFXU-IWM5-IANJ")));
+        assertEquals(TreeFactory.getMemoryTree(0).getByaddress("ADR-ACAO-BKTC-CFKG-VXWF-PSI2-QHWR-ZIGK-CCOL-LGJN-CM3U").get().getUnclaimed_reward(),TreeFactory.getMemoryTree(0).getByaddress("ADR-ACAO-BKTC-CFKG-VXWF-PSI2-QHWR-ZIGK-CCOL-LGJN-CM3U").get().getUnclaimed_reward().subtract(claimed.get("ADR-ACAO-BKTC-CFKG-VXWF-PSI2-QHWR-ZIGK-CCOL-LGJN-CM3U")));
+        assertEquals(TreeFactory.getMemoryTree(0).getByaddress("ADR-AB2W-RIQY-LSIH-CXQQ-FGRV-AINR-57RO-NFXU-IWM5-IANJ").get().getUnclaimed_reward(),TreeFactory.getMemoryTree(0).getByaddress("address").get().getUnclaimed_reward().subtract(claimed.get("ADR-AB2W-RIQY-LSIH-CXQQ-FGRV-AINR-57RO-NFXU-IWM5-IANJ")));
+
+        assertEquals(1.190001,TreeFactory.getMemoryTree(0).getByaddress("ADR-AADE-ROH3-CAFV-XK5V-2NKZ-QMTG-SFMC-37W5-SHUV-2T46").get().getUnclaimed_reward().subtract(claimed.get("ADR-AADE-ROH3-CAFV-XK5V-2NKZ-QMTG-SFMC-37W5-SHUV-2T46")));
+        assertEquals(1.784998,TreeFactory.getMemoryTree(0).getByaddress("ADR-ACAO-BKTC-CFKG-VXWF-PSI2-QHWR-ZIGK-CCOL-LGJN-CM3U").get().getUnclaimed_reward().subtract(claimed.get("ADR-ACAO-BKTC-CFKG-VXWF-PSI2-QHWR-ZIGK-CCOL-LGJN-CM3U")));
+        assertEquals(2.473339,TreeFactory.getMemoryTree(0).getByaddress("ADR-AB2W-RIQY-LSIH-CXQQ-FGRV-AINR-57RO-NFXU-IWM5-IANJ").get().getUnclaimed_reward().subtract(claimed.get("ADR-AB2W-RIQY-LSIH-CXQQ-FGRV-AINR-57RO-NFXU-IWM5-IANJ")));
         //be aware that print functionality is  different
         assertEquals(992.219993, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(0)).get().getAmount());
         assertEquals(984.8, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(1)).get().getAmount());

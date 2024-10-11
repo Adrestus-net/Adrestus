@@ -45,7 +45,9 @@ import org.spongycastle.util.encoders.Hex;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.RoundingMode;
 import java.security.SecureRandom;
+import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -54,6 +56,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ReceiptsTest {
@@ -132,13 +135,14 @@ public class ReceiptsTest {
         ECDSASign ecdsaSign = new ECDSASign();
 
         List<SerializationUtil.Mapping> lists = new ArrayList<>();
+        lists.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
         lists.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         SerializationUtil<Transaction> enc = new SerializationUtil<Transaction>(Transaction.class, lists);
 
         ArrayList<String> addreses = new ArrayList<>();
         ArrayList<ECKeyPair> keypair = new ArrayList<>();
         int version = 0x00;
-        int size = 10;
+        int size = 100;
         for (int i = 0; i < size; i++) {
             Mnemonic mnem = new Mnemonic(Security.NORMAL, WordList.ENGLISH);
             char[] mnemonic_sequence = mnem.create();
@@ -153,8 +157,8 @@ public class ReceiptsTest {
 
 
         int j = 1;
-        signatureEventHandler.setLatch(new CountDownLatch(size - 1));
-        for (int i = 0; i < size - 1; i++) {
+        signatureEventHandler.setLatch(new CountDownLatch(size - 2));
+        for (int i = 1; i < size - 1; i++) {
             Transaction transaction = new RegularTransaction();
             transaction.setFrom(addreses.get(i));
             transaction.setTo(addreses.get(i + 1));
@@ -163,9 +167,9 @@ public class ReceiptsTest {
             transaction.setZoneFrom(0);
             transaction.setZoneTo(j);
             transaction.setAmount(BigDecimal.valueOf(i));
-            transaction.setAmountWithTransactionFee(transaction.getAmount().multiply(BigDecimal.valueOf(10.0 / 100.0)));
+            transaction.setAmountWithTransactionFee(BigDecimal.valueOf(i).multiply(BigDecimal.valueOf(10.0/100.0)));
             transaction.setNonce(1);
-            byte byf[] = enc.encode(transaction);
+            byte byf[] = enc.encode(transaction,1024);
             transaction.setHash(HashUtil.sha256_bytetoString(byf));
             //  await().atMost(500, TimeUnit.MILLISECONDS);
 
@@ -206,6 +210,13 @@ public class ReceiptsTest {
         transactionBlock.setMerkleRoot(tree.getRootHash());
         byte[] tohash = serenc.encode(transactionBlock);
         transactionBlock.setHash(HashUtil.sha256_bytetoString(tohash));
+
+        BlockSizeCalculator blockSizeCalculator=new BlockSizeCalculator();
+        blockSizeCalculator.setTransactionBlock(transactionBlock);
+        byte[] buffer = serenc.encode(transactionBlock,blockSizeCalculator.TransactionBlockSizeCalculator());
+        TransactionBlock clone = (TransactionBlock) serenc.decode(buffer);
+        assertEquals(transactionBlock, clone);
+        assertEquals(size-2,transactionBlock.getTransactionList().size());
     }
 
     @SneakyThrows

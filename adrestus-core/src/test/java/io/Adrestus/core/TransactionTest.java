@@ -39,6 +39,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TransactionTest {
 
@@ -244,6 +245,13 @@ public class TransactionTest {
 
 
         signatureEventHandler.setLatch(new CountDownLatch(size - 1));
+        ArrayList<String> mesages = new ArrayList<>();
+        TransactionCallback transactionCallback = new TransactionCallback() {
+            @Override
+            public void call(String value) {
+                mesages.add(value);
+            }
+        };
         for (int i = 0; i < size - 1; i++) {
             Transaction transaction = new RegularTransaction();
             transaction.setFrom(addreses.get(i));
@@ -255,7 +263,8 @@ public class TransactionTest {
             transaction.setAmount(BigDecimal.valueOf(100));
             transaction.setAmountWithTransactionFee(transaction.getAmount().multiply(BigDecimal.valueOf(10.0 / 100.0)));
             transaction.setNonce(1);
-            byte byf[] = serenc.encode(transaction);
+            transaction.setTransactionCallback(transactionCallback);
+            byte byf[] = serenc.encode(transaction,1024);
             transaction.setHash(HashUtil.sha256_bytetoString(byf));
 
             ECDSASignatureData signatureData = ecdsaSign.secp256SignMessage(Hex.decode(transaction.getHash()), keypair.get(i));
@@ -265,6 +274,7 @@ public class TransactionTest {
             await().atMost(100, TimeUnit.MILLISECONDS);
             //publisher.publish(transaction);
         }
+        assertTrue(mesages.isEmpty());
         publisher.getJobSyncUntilRemainingCapacityZero();
         signatureEventHandler.getLatch().await();
         publisher.close();

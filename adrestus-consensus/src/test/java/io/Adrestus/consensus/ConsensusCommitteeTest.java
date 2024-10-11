@@ -215,16 +215,16 @@ public class ConsensusCommitteeTest {
         signatureData.add(signatureData10);
         signatureData.add(signatureData11);
 
-        TreeFactory.getMemoryTree(0).store(adddress1, new PatriciaTreeNode(2000, 0));
-        TreeFactory.getMemoryTree(0).store(adddress2, new PatriciaTreeNode(3000, 0));
-        TreeFactory.getMemoryTree(0).store(adddress3, new PatriciaTreeNode(3000, 0));
-        TreeFactory.getMemoryTree(0).store(adddress4, new PatriciaTreeNode(3000, 0));
-        TreeFactory.getMemoryTree(0).store(adddress5, new PatriciaTreeNode(3000, 0));
-        TreeFactory.getMemoryTree(0).store(adddress6, new PatriciaTreeNode(3000, 0));
-        TreeFactory.getMemoryTree(0).store(adddress7, new PatriciaTreeNode(3000, 0));
-        TreeFactory.getMemoryTree(0).store(adddress8, new PatriciaTreeNode(3000, 0));
-        TreeFactory.getMemoryTree(0).store(adddress9, new PatriciaTreeNode(3000, 0));
-        TreeFactory.getMemoryTree(0).store(adddress10, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(0).store(adddress1, new PatriciaTreeNode(BigDecimal.valueOf(2000), 0));
+        TreeFactory.getMemoryTree(0).store(adddress2, new PatriciaTreeNode(BigDecimal.valueOf(3000), 0));
+        TreeFactory.getMemoryTree(0).store(adddress3, new PatriciaTreeNode(BigDecimal.valueOf(3000), 0));
+        TreeFactory.getMemoryTree(0).store(adddress4, new PatriciaTreeNode(BigDecimal.valueOf(3000), 0));
+        TreeFactory.getMemoryTree(0).store(adddress5, new PatriciaTreeNode(BigDecimal.valueOf(3000), 0));
+        TreeFactory.getMemoryTree(0).store(adddress6, new PatriciaTreeNode(BigDecimal.valueOf(3000), 0));
+        TreeFactory.getMemoryTree(0).store(adddress7, new PatriciaTreeNode(BigDecimal.valueOf(3000), 0));
+        TreeFactory.getMemoryTree(0).store(adddress8, new PatriciaTreeNode(BigDecimal.valueOf(3000), 0));
+        TreeFactory.getMemoryTree(0).store(adddress9, new PatriciaTreeNode(BigDecimal.valueOf(3000), 0));
+        TreeFactory.getMemoryTree(0).store(adddress10, new PatriciaTreeNode(BigDecimal.valueOf(3000), 0));
 
         CommitteeBlock prevblock = new CommitteeBlock();
         prevblock.getHeaderData().setTimestamp(GetTime.GetTimeStampInString());
@@ -233,14 +233,14 @@ public class ConsensusCommitteeTest {
         prevblock.setHeight(0);
         prevblock.setDifficulty(113);
 
-        prevblock.getStakingMap().put(new StakingData(1, 1010.0), new KademliaData(new SecurityAuditProofs(addreses.get(0), vk1, keypair.get(0).getPublicKey(), signatureData.get(0)), new NettyConnectionInfo("192.168.1.101", KademliaConfiguration.PORT)));
-        prevblock.getStakingMap().put(new StakingData(2, 1013.0), new KademliaData(new SecurityAuditProofs(addreses.get(1), vk2, keypair.get(1).getPublicKey(), signatureData.get(1)), new NettyConnectionInfo("192.168.1.101", KademliaConfiguration.PORT)));
-        prevblock.getStakingMap().put(new StakingData(3, 1007.0), new KademliaData(new SecurityAuditProofs(addreses.get(2), vk3, keypair.get(2).getPublicKey(), signatureData.get(2)), new NettyConnectionInfo("192.168.1.101", KademliaConfiguration.PORT)));
-        prevblock.getStakingMap().put(new StakingData(4, 1022.0), new KademliaData(new SecurityAuditProofs(addreses.get(3), vk4, keypair.get(3).getPublicKey(), signatureData.get(3)), new NettyConnectionInfo("192.168.1.101", KademliaConfiguration.PORT)));
-        prevblock.getStakingMap().put(new StakingData(5, 1006.0), new KademliaData(new SecurityAuditProofs(addreses.get(4), vk5, keypair.get(4).getPublicKey(), signatureData.get(4)), new NettyConnectionInfo("192.168.1.101", KademliaConfiguration.PORT)));
-        prevblock.getStakingMap().put(new StakingData(6, 1032.0), new KademliaData(new SecurityAuditProofs(addreses.get(5), vk6, keypair.get(5).getPublicKey(), signatureData.get(5)), new NettyConnectionInfo("192.168.1.101", KademliaConfiguration.PORT)));
-        prevblock.getStakingMap().put(new StakingData(7, 1012.0), new KademliaData(new SecurityAuditProofs(addreses.get(6), vk7, keypair.get(6).getPublicKey(), signatureData.get(6)), new NettyConnectionInfo("192.168.1.101", KademliaConfiguration.PORT)));
-        prevblock.getStakingMap().put(new StakingData(8, 1031.0), new KademliaData(new SecurityAuditProofs(addreses.get(7), vk8, keypair.get(7).getPublicKey(), signatureData.get(7)), new NettyConnectionInfo("192.168.1.101", KademliaConfiguration.PORT)));
+        prevblock.getStakingMap().put(new StakingData(1, BigDecimal.valueOf(1010.0)), new KademliaData(new SecurityAuditProofs(addreses.get(0), vk1, keypair.get(0).getPublicKey(), signatureData.get(0)), new NettyConnectionInfo("192.168.1.101", KademliaConfiguration.PORT)));
+        prevblock.getStakingMap().put(new StakingData(2, BigDecimal.valueOf(1013.0)), new KademliaData(new SecurityAuditProofs(addreses.get(1), vk2, keypair.get(1).getPublicKey(), signatureData.get(1)), new NettyConnectionInfo("192.168.1.101", KademliaConfiguration.PORT)));
+        prevblock.getStakingMap().put(new StakingData(3, BigDecimal.valueOf(1007.0)), new KademliaData(new SecurityAuditProofs(addreses.get(2), vk3, keypair.get(2).getPublicKey(), signatureData.get(2)), new NettyConnectionInfo("192.168.1.101", KademliaConfiguration.PORT)));
+        prevblock.getStakingMap().put(new StakingData(4, BigDecimal.valueOf(1022.0)), new KademliaData(new SecurityAuditProofs(addreses.get(3), vk4, keypair.get(3).getPublicKey(), signatureData.get(3)), new NettyConnectionInfo("192.168.1.101", KademliaConfiguration.PORT)));
+        prevblock.getStakingMap().put(new StakingData(5, BigDecimal.valueOf(1006.0)), new KademliaData(new SecurityAuditProofs(addreses.get(4), vk5, keypair.get(4).getPublicKey(), signatureData.get(4)), new NettyConnectionInfo("192.168.1.101", KademliaConfiguration.PORT)));
+        prevblock.getStakingMap().put(new StakingData(6, BigDecimal.valueOf(1032.0)), new KademliaData(new SecurityAuditProofs(addreses.get(5), vk6, keypair.get(5).getPublicKey(), signatureData.get(5)), new NettyConnectionInfo("192.168.1.101", KademliaConfiguration.PORT)));
+        prevblock.getStakingMap().put(new StakingData(7, BigDecimal.valueOf(1012.0)), new KademliaData(new SecurityAuditProofs(addreses.get(6), vk7, keypair.get(6).getPublicKey(), signatureData.get(6)), new NettyConnectionInfo("192.168.1.101", KademliaConfiguration.PORT)));
+        prevblock.getStakingMap().put(new StakingData(8, BigDecimal.valueOf(1031.0)), new KademliaData(new SecurityAuditProofs(addreses.get(7), vk8, keypair.get(7).getPublicKey(), signatureData.get(7)), new NettyConnectionInfo("192.168.1.101", KademliaConfiguration.PORT)));
 
 
         CachedLatestBlocks.getInstance().setCommitteeBlock(prevblock);

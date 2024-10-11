@@ -3,6 +3,7 @@ package io.Adrestus.core;
 import io.Adrestus.MemoryTreePool;
 import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.PatriciaTreeNode;
+import io.Adrestus.Trie.PatriciaTreeTransactionType;
 import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.config.KademliaConfiguration;
 import io.Adrestus.config.RewardConfiguration;
@@ -43,6 +44,7 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
+import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -68,7 +70,7 @@ public class RewardsTest {
     ;
 
     @SneakyThrows
-//    @Test
+    @Test
     public void SimpleTestCheckOperations() throws CloneNotSupportedException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException, MnemonicException {
         IDatabase<String, TransactionBlock> transactionBlockIDatabase = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(0));
         int version = 0x00;
@@ -130,7 +132,7 @@ public class RewardsTest {
         committeeBlock.setBlockProposer(vk1.toRaw());
         committeeBlock.setLeaderPublicKey(vk1);
         CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
-        CachedStartHeightRewards.getInstance().setRewardsCommitteeEnabled(false);
+        CachedStartHeightRewards.getInstance().setRewardsCommitteeEnabled(true);
 
 
         TransactionBlock transactionBlock1 = new TransactionBlock();
@@ -234,48 +236,48 @@ public class RewardsTest {
         Map<String, RewardObject> maps = CachedRewardMapData.getInstance().getEffective_stakes_map();
 
 
-        assertEquals(12.2, TreeFactory.getMemoryTree(0).getByaddress(address).get().getAmount());
+        assertEquals(12.2, TreeFactory.getMemoryTree(0).getByaddress(address).get().getAmount().doubleValue());
         assertEquals(treeNode, treeNodeClone);
         assertNotNull(CachedRewardMapData.getInstance().getEffective_stakes_map().get(address));
         assertNotNull(CachedRewardMapData.getInstance().getEffective_stakes_map().get(address1));
 
-        assertEquals(BigDecimal.valueOf(490.000000).setScale(RewardConfiguration.DECIMAL_PRECISION, RewardConfiguration.ROUNDING), CachedRewardMapData.getInstance().getEffective_stakes_map().get(address).getEffective_stake());
-        assertEquals(BigDecimal.valueOf(0.556818), CachedRewardMapData.getInstance().getEffective_stakes_map().get(address).getEffective_stake_ratio());
-        assertEquals(BigDecimal.valueOf(7.015907), CachedRewardMapData.getInstance().getEffective_stakes_map().get(address).getUnreal_reward());
+        assertEquals(490.000000, CachedRewardMapData.getInstance().getEffective_stakes_map().get(address).getEffective_stake().doubleValue());
+        assertEquals(0.556818, CachedRewardMapData.getInstance().getEffective_stakes_map().get(address).getEffective_stake_ratio().doubleValue());
+        assertEquals(7.015907, CachedRewardMapData.getInstance().getEffective_stakes_map().get(address).getUnreal_reward().doubleValue());
 
         //it has some divergent cause it caclulates leader transaction/committe block rewards its normal
-        assertEquals(BigDecimal.valueOf(0.869397), CachedRewardMapData.getInstance().getEffective_stakes_map().get(address).getReal_reward());
+        assertEquals(BigDecimal.valueOf(1.656533), CachedRewardMapData.getInstance().getEffective_stakes_map().get(address).getReal_reward());
 
-        assertEquals(BigDecimal.valueOf(270.000000).setScale(RewardConfiguration.DECIMAL_PRECISION, RewardConfiguration.ROUNDING), CachedRewardMapData.getInstance().getEffective_stakes_map().get(address1).getEffective_stake());
-        assertEquals(BigDecimal.valueOf(0.306818), CachedRewardMapData.getInstance().getEffective_stakes_map().get(address1).getEffective_stake_ratio());
-        assertEquals(BigDecimal.valueOf(3.865907), CachedRewardMapData.getInstance().getEffective_stakes_map().get(address1).getUnreal_reward());
-        assertEquals(BigDecimal.valueOf(0.429545), CachedRewardMapData.getInstance().getEffective_stakes_map().get(address1).getReal_reward());
+        assertEquals(270.000000, CachedRewardMapData.getInstance().getEffective_stakes_map().get(address1).getEffective_stake().doubleValue());
+        assertEquals(0.306818, CachedRewardMapData.getInstance().getEffective_stakes_map().get(address1).getEffective_stake_ratio().doubleValue());
+        assertEquals(3.865907, CachedRewardMapData.getInstance().getEffective_stakes_map().get(address1).getUnreal_reward().doubleValue());
+        assertEquals(0.859090, CachedRewardMapData.getInstance().getEffective_stakes_map().get(address1).getReal_reward().doubleValue());
 
-        assertEquals(BigDecimal.valueOf(120.000000).setScale(RewardConfiguration.DECIMAL_PRECISION, RewardConfiguration.ROUNDING), CachedRewardMapData.getInstance().getEffective_stakes_map().get(address0).getEffective_stake());
-        assertEquals(BigDecimal.valueOf(0.136363), CachedRewardMapData.getInstance().getEffective_stakes_map().get(address0).getEffective_stake_ratio());
-        assertEquals(BigDecimal.valueOf(1.718174), CachedRewardMapData.getInstance().getEffective_stakes_map().get(address0).getUnreal_reward());
-        assertEquals(BigDecimal.valueOf(0.143181), CachedRewardMapData.getInstance().getEffective_stakes_map().get(address0).getReal_reward());
+        assertEquals(120.000000, CachedRewardMapData.getInstance().getEffective_stakes_map().get(address0).getEffective_stake().doubleValue());
+        assertEquals(0.136364, CachedRewardMapData.getInstance().getEffective_stakes_map().get(address0).getEffective_stake_ratio().doubleValue());
+        assertEquals(1.718186, CachedRewardMapData.getInstance().getEffective_stakes_map().get(address0).getUnreal_reward().doubleValue());
+        assertEquals(0.334092, CachedRewardMapData.getInstance().getEffective_stakes_map().get(address0).getReal_reward().doubleValue());
 
 
         //not stakers delegators here
-        assertEquals(BigDecimal.valueOf(0.204082), CachedRewardMapData.getInstance().getEffective_stakes_map().get(address).getDelegate_stake().get(address2).getWeights());
-        assertEquals(BigDecimal.valueOf(0.204082), CachedRewardMapData.getInstance().getEffective_stakes_map().get(address).getDelegate_stake().get(address4).getWeights());
+        assertEquals(0.204082, CachedRewardMapData.getInstance().getEffective_stakes_map().get(address).getDelegate_stake().get(address2).getWeights().doubleValue());
+        assertEquals(0.204082, CachedRewardMapData.getInstance().getEffective_stakes_map().get(address).getDelegate_stake().get(address4).getWeights().doubleValue());
 
 
-        assertEquals(BigDecimal.valueOf(0.740741), CachedRewardMapData.getInstance().getEffective_stakes_map().get(address1).getDelegate_stake().get(address2).getWeights());
-        assertEquals(BigDecimal.valueOf(0.740741), CachedRewardMapData.getInstance().getEffective_stakes_map().get(address1).getDelegate_stake().get(address3).getWeights());
-        assertEquals(BigDecimal.valueOf(0.740741), CachedRewardMapData.getInstance().getEffective_stakes_map().get(address1).getDelegate_stake().get(address4).getWeights());
+        assertEquals(0.740741, CachedRewardMapData.getInstance().getEffective_stakes_map().get(address1).getDelegate_stake().get(address2).getWeights().doubleValue());
+        assertEquals(0.740741, CachedRewardMapData.getInstance().getEffective_stakes_map().get(address1).getDelegate_stake().get(address3).getWeights().doubleValue());
+        assertEquals(0.740741, CachedRewardMapData.getInstance().getEffective_stakes_map().get(address1).getDelegate_stake().get(address4).getWeights().doubleValue());
 
         //treemap asserts stakers
-        assertEquals(0.869397, TreeFactory.getMemoryTree(0).getByaddress(address).get().getUnclaimed_reward());
-        assertEquals(0.429545, TreeFactory.getMemoryTree(0).getByaddress(address1).get().getUnclaimed_reward());
-        assertEquals(0.143181, TreeFactory.getMemoryTree(0).getByaddress(address0).get().getUnclaimed_reward());
+        assertEquals(1.656533, TreeFactory.getMemoryTree(0).getByaddress(address).get().getUnclaimed_reward().doubleValue());
+        assertEquals(0.859090, TreeFactory.getMemoryTree(0).getByaddress(address1).get().getUnclaimed_reward().doubleValue());
+        assertEquals(0.334092, TreeFactory.getMemoryTree(0).getByaddress(address0).get().getUnclaimed_reward().doubleValue());
 
         //treemap asserts delegators
-        assertEquals(4.295453, TreeFactory.getMemoryTree(0).getByaddress(address2).get().getUnclaimed_reward());
-        assertEquals(4.295453, TreeFactory.getMemoryTree(0).getByaddress(address5).get().getUnclaimed_reward());
-        assertEquals(4.295453, TreeFactory.getMemoryTree(0).getByaddress(address3).get().getUnclaimed_reward());
-        assertEquals(4.295453, TreeFactory.getMemoryTree(0).getByaddress(address4).get().getUnclaimed_reward());
+        assertEquals(4.295456, TreeFactory.getMemoryTree(0).getByaddress(address2).get().getUnclaimed_reward().doubleValue());
+        assertEquals(4.295456, TreeFactory.getMemoryTree(0).getByaddress(address5).get().getUnclaimed_reward().doubleValue());
+        assertEquals(4.295456, TreeFactory.getMemoryTree(0).getByaddress(address3).get().getUnclaimed_reward().doubleValue());
+        assertEquals(4.295456, TreeFactory.getMemoryTree(0).getByaddress(address4).get().getUnclaimed_reward().doubleValue());
 
         assertEquals(cloned_tree.getRootHash(), TreeFactory.getMemoryTree(0).getRootHash());
 
@@ -285,7 +287,7 @@ public class RewardsTest {
     }
 
     @SneakyThrows
-//    @Test
+    @Test
     public void CheckClonedTreeEquals() throws CloneNotSupportedException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException, MnemonicException {
         IDatabase<String, TransactionBlock> transactionBlockIDatabase = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(0));
 
@@ -348,7 +350,7 @@ public class RewardsTest {
         committeeBlock.setBlockProposer(vk1.toRaw());
         committeeBlock.setLeaderPublicKey(vk1);
         CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
-        CachedStartHeightRewards.getInstance().setRewardsCommitteeEnabled(false);
+        CachedStartHeightRewards.getInstance().setRewardsCommitteeEnabled(true);
 
 
         TransactionBlock transactionBlock1 = new TransactionBlock();
@@ -446,13 +448,19 @@ public class RewardsTest {
 
         assertEquals(cloned_tree.getRootHash(), TreeFactory.getMemoryTree(0).getRootHash());
 
+        assertEquals(TreeFactory.getMemoryTree(0).getByaddress(address1).get().getUnclaimed_reward(), cloned_tree.getByaddress(address1).get().getUnclaimed_reward());
+        assertEquals(TreeFactory.getMemoryTree(0).getByaddress(address2).get().getUnclaimed_reward(), cloned_tree.getByaddress(address2).get().getUnclaimed_reward());
+        assertEquals(TreeFactory.getMemoryTree(0).getByaddress(address3).get().getUnclaimed_reward(), cloned_tree.getByaddress(address3).get().getUnclaimed_reward());
+        assertEquals(TreeFactory.getMemoryTree(0).getByaddress(address4).get().getUnclaimed_reward(), cloned_tree.getByaddress(address4).get().getUnclaimed_reward());
+        assertEquals(TreeFactory.getMemoryTree(0).getByaddress(address5).get().getUnclaimed_reward(), cloned_tree.getByaddress(address5).get().getUnclaimed_reward());
+
         CachedRewardMapData.getInstance().clearInstance();
         transactionBlockIDatabase.delete_db();
         TreeFactory.ClearMemoryTree(0);
     }
 
     @SneakyThrows
-//    @Test
+    @Test
     public void WholeTestMultipleBlocks() {
         IDatabase<String, TransactionBlock> transactionBlockIDatabase = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(0));
 
@@ -516,7 +524,7 @@ public class RewardsTest {
         committeeBlock.setBlockProposer(vk1.toRaw());
         committeeBlock.setLeaderPublicKey(vk1);
         CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
-        CachedStartHeightRewards.getInstance().setRewardsCommitteeEnabled(false);
+        CachedStartHeightRewards.getInstance().setRewardsCommitteeEnabled(true);
 
 
         for (int i = 1; i <= sizeBlocks; i++) {
@@ -577,8 +585,28 @@ public class RewardsTest {
         king.makeRequest(new Request(RequestType.REWARD_STORAGE_CALCULATOR, "REWARD_STORAGE_CALCULATOR", TreeFactory.getMemoryTree(0)));
 
 
+        CachedRewardMapData.getInstance().clearInstance();
+        RewardChainBuilder king1 = new RewardChainBuilder();
+        king1.makeRequest(new Request(RequestType.EFFECTIVE_STAKE, "EFFECTIVE_STAKE"));
+        king1.makeRequest(new Request(RequestType.EFFECTIVE_STAKE_RATIO, "EFFECTIVE_STAKE_RATIO"));
+        king1.makeRequest(new Request(RequestType.DELEGATE_WEIGHTS_CALCULATOR, "DELEGATE_WEIGHTS_CALCULATOR"));
+        king1.makeRequest(new Request(RequestType.VALIDATOR_REWARD_CALCULATOR, "VALIDATOR_REWARD_CALCULATOR"));
+        king1.makeRequest(new Request(RequestType.DELEGATE_REWARD_CALCULATOR, "DELEGATE_REWARD_CALCULATOR"));
+        king1.makeRequest(new Request(RequestType.REWARD_PRECISION_CALCULATOR, "REWARD_PRECISION_CALCULATOR"));
+        king1.makeRequest(new Request(RequestType.REWARD_STORAGE_CALCULATOR, "REWARD_STORAGE_CALCULATOR", cloned_tree));
+
         Map<String, RewardObject> maps = CachedRewardMapData.getInstance().getEffective_stakes_map();
-        assertEquals(BigDecimal.valueOf(0.429545), maps.get(address1).getReal_reward());
+
+
+        assertEquals(1.724147,TreeFactory.getMemoryTree(0).getByaddress(address).get().getUnclaimed_reward().doubleValue());
+        assertEquals(0.859090,TreeFactory.getMemoryTree(0).getByaddress(address1).get().getUnclaimed_reward().doubleValue());
+        assertEquals(0.334092,TreeFactory.getMemoryTree(0).getByaddress(address0).get().getUnclaimed_reward().doubleValue());
+
+        assertEquals(TreeFactory.getMemoryTree(0).getByaddress(address1).get().getUnclaimed_reward(), cloned_tree.getByaddress(address1).get().getUnclaimed_reward());
+        assertEquals(TreeFactory.getMemoryTree(0).getByaddress(address2).get().getUnclaimed_reward(), cloned_tree.getByaddress(address2).get().getUnclaimed_reward());
+        assertEquals(TreeFactory.getMemoryTree(0).getByaddress(address3).get().getUnclaimed_reward(), cloned_tree.getByaddress(address3).get().getUnclaimed_reward());
+        assertEquals(TreeFactory.getMemoryTree(0).getByaddress(address4).get().getUnclaimed_reward(), cloned_tree.getByaddress(address4).get().getUnclaimed_reward());
+        assertEquals(TreeFactory.getMemoryTree(0).getByaddress(address5).get().getUnclaimed_reward(), cloned_tree.getByaddress(address5).get().getUnclaimed_reward());
 
         CachedRewardMapData.getInstance().clearInstance();
         transactionBlockIDatabase.delete_db();
@@ -589,7 +617,7 @@ public class RewardsTest {
     //This test should be equal with consensus transaction rewards test
     // the correct way is to calculate rewards every 3 blocks not one time after 6 blocks
     @SneakyThrows
-//    @Test
+    @Test
     public void ConsensusTransactionTimerRewardTest() {
         IDatabase<String, TransactionBlock> transactionBlockIDatabase = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(0));
         transactionBlockIDatabase.delete_db();
@@ -689,6 +717,10 @@ public class RewardsTest {
         CachedStartHeightRewards.getInstance().setHeight(1);
         for (int i = 2; i <= 6; i++) {
             TransactionBlock transactionBlock = new TransactionBlock();
+            Transaction transaction=new RegularTransaction();
+            transaction.setAmount(BigDecimal.valueOf(100));
+            transaction.setAmountWithTransactionFee(BigDecimal.valueOf(10));
+            transactionBlock.getTransactionList().add(transaction);
             transactionBlock.setHash(String.valueOf(i));
             transactionBlock.setHeight(i);
             transactionBlock.setGeneration(i);
@@ -757,27 +789,25 @@ public class RewardsTest {
 
 
         Map<String, TransactionBlock> res = transactionBlockIDatabase.seekFromStart();
+        MemoryTreePool replica2 = (MemoryTreePool) TreeFactory.getMemoryTree(0).clone();
+        for (Map.Entry<String, TransactionBlock> entry : res.entrySet()){
+            BigDecimal sum=entry.getValue().getTransactionList().stream().map(Transaction::getAmountWithTransactionFee).reduce(BigDecimal.ZERO, BigDecimal::add);
+            String address=CachedLatestBlocks.getInstance().getCommitteeBlock().getStakingMap().values().stream().map(KademliaData::getAddressData).filter(val->val.getValidatorBlSPublicKey().equals(entry.getValue().getLeaderPublicKey())).findFirst().get().getAddress();
+            replica2.deposit(PatriciaTreeTransactionType.UNCLAIMED_FEE_REWARD,address,sum,BigDecimal.ZERO);
+        }
 
+        assertEquals(BigDecimal.valueOf(2*10).add(TreeFactory.getMemoryTree(0).getByaddress(address1).get().getUnclaimed_reward()),replica2.getByaddress(address1).get().getUnclaimed_reward());
+        assertEquals(BigDecimal.valueOf(2*10).add(TreeFactory.getMemoryTree(0).getByaddress(address2).get().getUnclaimed_reward()),replica2.getByaddress(address2).get().getUnclaimed_reward());
+        assertEquals(BigDecimal.valueOf(1*10).add(TreeFactory.getMemoryTree(0).getByaddress(address3).get().getUnclaimed_reward()),replica2.getByaddress(address3).get().getUnclaimed_reward());
 
-//        System.out.println();
-//        System.out.println(rewardsTotal.get(0).get(address3).getUnreal_reward().add(rewardsTotal.get(2).get(address3).getUnreal_reward()));
-//        System.out.println(rewardsTotal.get(0).get(address2).getUnreal_reward().add(rewardsTotal.get(2).get(address2).getUnreal_reward()));
-//        System.out.println(rewardsTotal.get(0).get(address1).getUnreal_reward().add(rewardsTotal.get(2).get(address1).getUnreal_reward()));
-//
-//        System.out.println();
-//        System.out.println(rewardsTotal.get(0).get(address3).getReal_reward().add(rewardsTotal.get(2).get(address3).getReal_reward()));
-//        System.out.println(rewardsTotal.get(0).get(address2).getReal_reward().add(rewardsTotal.get(2).get(address2).getReal_reward()));
-//        System.out.println(rewardsTotal.get(0).get(address1).getReal_reward().add(rewardsTotal.get(2).get(address1).getReal_reward()));
-//
-//        System.out.println();
-//        System.out.println(replica.getByaddress(address1).get().getUnclaimed_reward());
-//        System.out.println(replica.getByaddress(address2).get().getUnclaimed_reward());
-//        System.out.println(replica.getByaddress(address3).get().getUnclaimed_reward());
 
         // Theese values must be the same with transaction timer test unclaimed rewards min the transaction fees
-//        assertEquals(1.236666,replica.getByaddress(address3).get().getUnclaimed_reward());
-//        assertEquals(1.854996,replica.getByaddress(address2).get().getUnclaimed_reward());
-//        assertEquals(2.659986,replica.getByaddress(address1).get().getUnclaimed_reward());
+        assertEquals(1.190001,replica.getByaddress("ADR-AADE-ROH3-CAFV-XK5V-2NKZ-QMTG-SFMC-37W5-SHUV-2T46").get().getUnclaimed_reward().doubleValue());
+        assertEquals(1.784998,replica.getByaddress("ADR-ACAO-BKTC-CFKG-VXWF-PSI2-QHWR-ZIGK-CCOL-LGJN-CM3U").get().getUnclaimed_reward().doubleValue());
+        assertEquals(2.473339,replica.getByaddress("ADR-AB2W-RIQY-LSIH-CXQQ-FGRV-AINR-57RO-NFXU-IWM5-IANJ").get().getUnclaimed_reward().doubleValue());
+        assertEquals(1.190001,replica.getByaddress(address3).get().getUnclaimed_reward().doubleValue());
+        assertEquals(1.784998,replica.getByaddress(address2).get().getUnclaimed_reward().doubleValue());
+        assertEquals(2.473339,replica.getByaddress(address1).get().getUnclaimed_reward().doubleValue());
 
 
         assertEquals(rewardsTotal.get(0).get(address1).getUnreal_reward().add(rewardsTotal.get(1).get(address1).getUnreal_reward()), rewardsTotal.get(2).get(address1).getUnreal_reward());
@@ -792,7 +822,13 @@ public class RewardsTest {
         assertEquals(TreeFactory.getMemoryTree(0).getByaddress(address2).get().getUnclaimed_reward(), replica.getByaddress(address2).get().getUnclaimed_reward());
         assertEquals(TreeFactory.getMemoryTree(0).getByaddress(address3).get().getUnclaimed_reward(), replica.getByaddress(address3).get().getUnclaimed_reward());
 
-//      assertEquals(rewardsTotal.get(0).get(address1).getUnreal_reward().add(rewardsTotal.get(1).get(address1).getUnreal_reward()),TreeFactory.getMemoryTree(0).getByaddress(address1).get().getUnclaimed_reward());
+        assertEquals(TreeFactory.getMemoryTree(0).getByaddress(address1).get().getUnclaimed_reward(), replica.getByaddress(address1).get().getUnclaimed_reward());
+        assertEquals(TreeFactory.getMemoryTree(0).getByaddress(address2).get().getUnclaimed_reward(), replica.getByaddress(address2).get().getUnclaimed_reward());
+        assertEquals(TreeFactory.getMemoryTree(0).getByaddress(address3).get().getUnclaimed_reward(), replica.getByaddress(address3).get().getUnclaimed_reward());
+
+        assertEquals(rewardsTotal.get(0).get(address1).getReal_reward().add(rewardsTotal.get(1).get(address1).getReal_reward()),TreeFactory.getMemoryTree(0).getByaddress(address1).get().getUnclaimed_reward());
+        assertEquals(rewardsTotal.get(0).get(address2).getReal_reward().add(rewardsTotal.get(1).get(address2).getReal_reward()),TreeFactory.getMemoryTree(0).getByaddress(address2).get().getUnclaimed_reward());
+        assertEquals(rewardsTotal.get(0).get(address3).getReal_reward().add(rewardsTotal.get(1).get(address3).getReal_reward()),TreeFactory.getMemoryTree(0).getByaddress(address3).get().getUnclaimed_reward());
 
         CachedRewardMapData.getInstance().clearInstance();
         transactionBlockIDatabase.delete_db();
@@ -800,7 +836,6 @@ public class RewardsTest {
     }
 
 
-    //This reward is equal to notebook split rewards and total rewards should be the same
     @SneakyThrows
     @Test
     public void NotebookRewardTest() {
@@ -847,6 +882,8 @@ public class RewardsTest {
         CommitteeBlock committeeBlock = new CommitteeBlock();
         committeeBlock.setGeneration(1);
         committeeBlock.setViewID(1);
+        committeeBlock.setLeaderPublicKey(vk1);
+        committeeBlock.setBlockProposer(vk1.toRaw());
 
         TransactionBlock prevblock1 = new TransactionBlock();
         prevblock1.setHeight(1);
@@ -903,6 +940,7 @@ public class RewardsTest {
         CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
         transactionBlockIDatabase.save(String.valueOf(prevblock1.getHeight()), prevblock1);
         CachedStartHeightRewards.getInstance().setHeight(1);
+        CachedStartHeightRewards.getInstance().setRewardsCommitteeEnabled(true);
         RewardChainBuilder king = new RewardChainBuilder();
         king.makeRequest(new Request(RequestType.EFFECTIVE_STAKE, "EFFECTIVE_STAKE"));
         king.makeRequest(new Request(RequestType.EFFECTIVE_STAKE_RATIO, "EFFECTIVE_STAKE_RATIO"));
@@ -916,6 +954,7 @@ public class RewardsTest {
         CachedRewardMapData.getInstance().clearInstance();
         transactionBlockIDatabase.save(String.valueOf(prevblock2.getHeight()), prevblock2);
         CachedStartHeightRewards.getInstance().setHeight(2);
+        CachedStartHeightRewards.getInstance().setRewardsCommitteeEnabled(false);
 
         RewardChainBuilder king1 = new RewardChainBuilder();
         king1.makeRequest(new Request(RequestType.EFFECTIVE_STAKE, "EFFECTIVE_STAKE"));
@@ -929,6 +968,7 @@ public class RewardsTest {
 
         CachedRewardMapData.getInstance().clearInstance();
         CachedStartHeightRewards.getInstance().setHeight(1);
+        CachedStartHeightRewards.getInstance().setRewardsCommitteeEnabled(true);
         RewardChainBuilder king2 = new RewardChainBuilder();
         king2.makeRequest(new Request(RequestType.EFFECTIVE_STAKE, "EFFECTIVE_STAKE"));
         king2.makeRequest(new Request(RequestType.EFFECTIVE_STAKE_RATIO, "EFFECTIVE_STAKE_RATIO"));
@@ -948,12 +988,14 @@ public class RewardsTest {
         assertEquals(rewardsTotal.get(0).get(address2).getUnreal_reward().add(rewardsTotal.get(1).get(address2).getUnreal_reward()), rewardsTotal.get(2).get(address2).getUnreal_reward());
 
         assertEquals(rewardsTotal.get(0).get(address1).getReal_reward().add(rewardsTotal.get(1).get(address1).getReal_reward()), replica.getByaddress(address1).get().getUnclaimed_reward());
-        assertEquals(rewardsTotal.get(0).get(address2).getReal_reward().add(rewardsTotal.get(1).get(address2).getReal_reward()), replica.getByaddress(address2).get().getUnclaimed_reward().setScale(RewardConfiguration.DECIMAL_PRECISION, RewardConfiguration.ROUNDING));
+        assertEquals(rewardsTotal.get(0).get(address2).getReal_reward().add(rewardsTotal.get(1).get(address2).getReal_reward()), replica.getByaddress(address2).get().getUnclaimed_reward());
 
         assertEquals(TreeFactory.getMemoryTree(0).getByaddress(address1).get().getUnclaimed_reward(), replica.getByaddress(address1).get().getUnclaimed_reward());
         assertEquals(TreeFactory.getMemoryTree(0).getByaddress(address2).get().getUnclaimed_reward(), replica.getByaddress(address2).get().getUnclaimed_reward());
 
         assertEquals(rewardsTotal.get(0).get(address1).getReal_reward().add(rewardsTotal.get(1).get(address1).getReal_reward()), TreeFactory.getMemoryTree(0).getByaddress(address1).get().getUnclaimed_reward());
+        assertEquals(rewardsTotal.get(0).get(address2).getReal_reward().add(rewardsTotal.get(1).get(address2).getReal_reward()), TreeFactory.getMemoryTree(0).getByaddress(address2).get().getUnclaimed_reward());
+
         CachedRewardMapData.getInstance().clearInstance();
         transactionBlockIDatabase.delete_db();
         TreeFactory.ClearMemoryTree(0);

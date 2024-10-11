@@ -115,8 +115,8 @@ public class ConsensusTransaction2Timer {
             transaction.setTimestamp(GetTime.GetTimeStampInString());
             transaction.setZoneFrom(CachedZoneIndex.getInstance().getZoneIndex());
             transaction.setZoneTo(0);
-            transaction.setAmount(i + 10);
-            transaction.setAmountWithTransactionFee(transaction.getAmount() * (10.0 / 100.0));
+            transaction.setAmount(BigDecimal.valueOf(i + 10));
+            transaction.setAmountWithTransactionFee(transaction.getAmount().multiply(BigDecimal.valueOf(10.0 / 100.0)));
             transaction.setNonce(nonce);
             byte byf[] = serenc.encode(transaction, 1024);
             transaction.setHash(HashUtil.sha256_bytetoString(byf));
@@ -160,8 +160,8 @@ public class ConsensusTransaction2Timer {
             Thread.sleep(10);
             transaction.setZoneFrom(CachedZoneIndex.getInstance().getZoneIndex());
             transaction.setZoneTo(CachedZoneIndex.getInstance().getZoneIndex());
-            transaction.setAmount(i + 10);
-            transaction.setAmountWithTransactionFee(transaction.getAmount() * (10.0 / 100.0));
+            transaction.setAmount(BigDecimal.valueOf(i + 10));
+            transaction.setAmountWithTransactionFee(transaction.getAmount().multiply(BigDecimal.valueOf(10.0 / 100.0)));
             transaction.setNonce(nonce);
             byte byf[] = serenc.encode(transaction, 1024);
             transaction.setHash(HashUtil.sha256_bytetoString(byf));

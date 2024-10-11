@@ -1930,7 +1930,7 @@ public class ValidatorConsensusPhases {
                 return;
             }
 
-            CachedStartHeightRewards.getInstance().setRewardsCommitteeEnabled(false);
+            CachedStartHeightRewards.getInstance().setRewardsCommitteeEnabled(true);
             BlockInvent regural_block = (BlockInvent) factory.getBlock(BlockType.REGULAR);
             regural_block.InventCommitteBlock(block.getData());
             //commit save to db

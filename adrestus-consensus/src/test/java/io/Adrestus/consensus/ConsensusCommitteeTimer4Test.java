@@ -43,6 +43,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.spongycastle.util.encoders.Hex;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -148,11 +149,11 @@ public class ConsensusCommitteeTimer4Test {
         ECDSASignatureData signatureData4 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address4)), ecKeyPair4);
         ECDSASignatureData signatureData5 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address5)), ecKeyPair5);
 
-        TreeFactory.getMemoryTree(0).store(address1, new PatriciaTreeNode(3000, 0));
-        TreeFactory.getMemoryTree(0).store(address2, new PatriciaTreeNode(3000, 0));
-        TreeFactory.getMemoryTree(0).store(address3, new PatriciaTreeNode(3000, 0));
-        TreeFactory.getMemoryTree(0).store(address4, new PatriciaTreeNode(3000, 0));
-        TreeFactory.getMemoryTree(0).store(address5, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(0).store(address1, new PatriciaTreeNode(BigDecimal.valueOf(3000), 0));
+        TreeFactory.getMemoryTree(0).store(address2, new PatriciaTreeNode(BigDecimal.valueOf(3000), 0));
+        TreeFactory.getMemoryTree(0).store(address3, new PatriciaTreeNode(BigDecimal.valueOf(3000), 0));
+        TreeFactory.getMemoryTree(0).store(address4, new PatriciaTreeNode(BigDecimal.valueOf(3000), 0));
+        TreeFactory.getMemoryTree(0).store(address5, new PatriciaTreeNode(BigDecimal.valueOf(3000), 0));
 
         kad1 = new KademliaData(new SecurityAuditProofs(address1, vk1, ecKeyPair1.getPublicKey(), signatureData1), new NettyConnectionInfo("192.168.1.106", KademliaConfiguration.PORT));
         kad2 = new KademliaData(new SecurityAuditProofs(address2, vk2, ecKeyPair2.getPublicKey(), signatureData2), new NettyConnectionInfo("192.168.1.113", KademliaConfiguration.PORT));
@@ -168,11 +169,11 @@ public class ConsensusCommitteeTimer4Test {
         committeeBlock.getStructureMap().get(0).put(vk5, "192.168.1.112");
 
 
-        committeeBlock.getStakingMap().put(new StakingData(1, 10.0), kad1);
-        committeeBlock.getStakingMap().put(new StakingData(2, 11.0), kad2);
-        committeeBlock.getStakingMap().put(new StakingData(3, 151.0), kad3);
-        committeeBlock.getStakingMap().put(new StakingData(4, 16.0), kad4);
-        committeeBlock.getStakingMap().put(new StakingData(5, 271.0), kad5);
+        committeeBlock.getStakingMap().put(new StakingData(1, BigDecimal.valueOf(10.0)), kad1);
+        committeeBlock.getStakingMap().put(new StakingData(2, BigDecimal.valueOf(11.0)), kad2);
+        committeeBlock.getStakingMap().put(new StakingData(3, BigDecimal.valueOf(151.0)), kad3);
+        committeeBlock.getStakingMap().put(new StakingData(4, BigDecimal.valueOf(16.0)), kad4);
+        committeeBlock.getStakingMap().put(new StakingData(5, BigDecimal.valueOf(271.0)), kad5);
 
         CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
 

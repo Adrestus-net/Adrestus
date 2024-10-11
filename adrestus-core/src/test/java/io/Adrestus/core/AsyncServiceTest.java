@@ -94,6 +94,7 @@ public class AsyncServiceTest {
         ECDSASignatureData signatureData2 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address2)), ecKeyPair2);
 
         List<SerializationUtil.Mapping> lists = new ArrayList<>();
+        lists.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
         lists.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         SerializationUtil<Transaction> serenc = new SerializationUtil<Transaction>(Transaction.class, lists);
 
@@ -138,6 +139,7 @@ public class AsyncServiceTest {
         }
 
         List<SerializationUtil.Mapping> listss = new ArrayList<>();
+        listss.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
         listss.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         serenc = new SerializationUtil<Transaction>(Transaction.class, listss);
         ArrayList<String> mesages = new ArrayList<>();

@@ -59,18 +59,21 @@ public class ValidatorRewardCalculator implements RewardHandler {
                     }
                 }
             }
-            if (CachedLatestBlocks.getInstance().getCommitteeBlock().getLeaderPublicKey().equals(data.getAddressData().getValidatorBlSPublicKey()) && !CachedStartHeightRewards.getInstance().isRewardsCommitteeEnabled())
+            if (CachedLatestBlocks.getInstance().getCommitteeBlock().getLeaderPublicKey().equals(data.getAddressData().getValidatorBlSPublicKey()) && CachedStartHeightRewards.getInstance().isRewardsCommitteeEnabled())
                 CachedRewardMapData.getInstance().getEffective_stakes_map().get(data.getAddressData().getAddress()).setCommittee_leader_participation(true);
         });
 
+
+        Map<String, RewardObject> maps = CachedRewardMapData.getInstance().getEffective_stakes_map();
 
         for (Map.Entry<String, RewardObject> entry : CachedRewardMapData.getInstance().getEffective_stakes_map().entrySet()) {
             PatriciaTreeNode patriciaTreeNode = TreeFactory.getMemoryTree(0).getByaddress(entry.getKey()).get();
             BigDecimal block_reward = CustomBigDecimal.valueOf(entry.getValue().getBlock_participation()).multiply(CustomBigDecimal.valueOf(RewardConfiguration.TRANSACTION_REWARD_PER_BLOCK)).multiply(entry.getValue().getEffective_stake_ratio()).setScale(RewardConfiguration.DECIMAL_PRECISION, RewardConfiguration.ROUNDING);
             BigDecimal commission_fees = CustomBigDecimal.valueOf(patriciaTreeNode.getStakingInfo().getCommissionRate()).multiply(block_reward).divide(CustomBigDecimal.valueOf(100), RewardConfiguration.DECIMAL_PRECISION, RewardConfiguration.ROUNDING);
             BigDecimal unreal_reward = block_reward.subtract(commission_fees).setScale(RewardConfiguration.DECIMAL_PRECISION, RewardConfiguration.ROUNDING);
-            BigDecimal real_reward = CustomBigDecimal.valueOf(patriciaTreeNode.getPrivate_staking_amount()).multiply(unreal_reward).divide(CustomBigDecimal.valueOf(patriciaTreeNode.getStaking_amount()), RewardConfiguration.DECIMAL_PRECISION, RewardConfiguration.ROUNDING);
+            BigDecimal real_reward = commission_fees.add(CustomBigDecimal.valueOf(patriciaTreeNode.getPrivate_staking_amount()).multiply(unreal_reward).divide(CustomBigDecimal.valueOf(patriciaTreeNode.getStaking_amount()), RewardConfiguration.DECIMAL_PRECISION, RewardConfiguration.ROUNDING));
             BigDecimal per_block = real_reward.divide(CustomBigDecimal.valueOf(entry.getValue().getBlock_participation()), RewardConfiguration.DECIMAL_PRECISION, RewardConfiguration.ROUNDING);
+
             //leader block rewards
             //Don't change rounding mode up problem here
             real_reward = real_reward.add(per_block.multiply(BigDecimal.valueOf(entry.getValue().getTransactions_leader_participation())).multiply(RewardConfiguration.TRANSACTION_LEADER_BLOCK_REWARD).setScale(RewardConfiguration.DECIMAL_PRECISION, RoundingMode.UP));

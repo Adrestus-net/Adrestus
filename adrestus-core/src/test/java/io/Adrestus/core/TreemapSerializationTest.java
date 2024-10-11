@@ -191,10 +191,10 @@ public class TreemapSerializationTest {
 
         assertEquals(treeNode4, pat.get());
         assertEquals(m, copy);
-        assertEquals(15, TreeFactory.getMemoryTree(3).getByaddress(address).get().getAmount());
-        assertEquals(15, TreeFactory.getMemoryTree(0).getByaddress(address).get().getAmount());
-        assertEquals(2, TreeFactory.getMemoryTree(1).getByaddress(address).get().getAmount());
-        assertEquals(123, TreeFactory.getMemoryTree(2).getByaddress(address).get().getAmount());
+        assertEquals(15, TreeFactory.getMemoryTree(3).getByaddress(address).get().getAmount().doubleValue());
+        assertEquals(15, TreeFactory.getMemoryTree(0).getByaddress(address).get().getAmount().doubleValue());
+        assertEquals(2, TreeFactory.getMemoryTree(1).getByaddress(address).get().getAmount().doubleValue());
+        assertEquals(123, TreeFactory.getMemoryTree(2).getByaddress(address).get().getAmount().doubleValue());
         tree_datasbase.delete_db();
     }
 

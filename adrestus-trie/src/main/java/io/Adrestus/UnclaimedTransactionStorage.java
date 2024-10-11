@@ -2,6 +2,7 @@ package io.Adrestus;
 
 import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.Trie.optimize64_trie.MerklePatriciaTrie;
+import io.Adrestus.config.RewardConfiguration;
 import io.Adrestus.util.bytes.Bytes;
 import io.vavr.control.Option;
 
@@ -18,7 +19,7 @@ public class UnclaimedTransactionStorage implements TransactionStorage {
             patriciaTreeImp.put(key, next);
         } else {
             PatriciaTreeNode patriciaTreeNode = (PatriciaTreeNode) prev.get().clone();
-            BigDecimal new_cash = patriciaTreeNode.getUnclaimed_reward().add(amount);
+            BigDecimal new_cash = patriciaTreeNode.getUnclaimed_reward().add(amount).setScale(RewardConfiguration.DECIMAL_PRECISION,RewardConfiguration.ROUNDING);
             patriciaTreeNode.setUnclaimed_reward(new_cash);
             patriciaTreeImp.put(key, patriciaTreeNode);
         }
@@ -33,7 +34,7 @@ public class UnclaimedTransactionStorage implements TransactionStorage {
             patriciaTreeImp.put(key, next);
         } else {
             PatriciaTreeNode patriciaTreeNode = (PatriciaTreeNode) prev.get().clone();
-            BigDecimal new_cash = prev.get().getUnclaimed_reward().subtract(amount);
+            BigDecimal new_cash = prev.get().getUnclaimed_reward().subtract(amount).setScale(RewardConfiguration.DECIMAL_PRECISION,RewardConfiguration.ROUNDING);;
             patriciaTreeNode.setUnclaimed_reward(new_cash);
             patriciaTreeNode.setNonce(patriciaTreeNode.getNonce() + 1);
             patriciaTreeImp.put(key, patriciaTreeNode);

@@ -11,6 +11,7 @@ import io.activej.serializer.annotations.SerializeNullable;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Objects;
 
@@ -57,7 +58,13 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
         this.XAxis = new BigInteger("0");
         this.YAxis = new BigInteger("0");
         this.Signature = new ECDSASignatureData();
-        this.transactionCallback = null;
+        ArrayList<String> mesages = new ArrayList<>();
+        this.transactionCallback = new TransactionCallback() {
+            @Override
+            public void call(String value) {
+                mesages.add(value);
+            }
+        };
     }
 
     public Transaction(TransactionType transactionType, BigDecimal amount) {
@@ -76,7 +83,13 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
         this.XAxis = new BigInteger("0");
         this.YAxis = new BigInteger("0");
         this.Signature = new ECDSASignatureData();
-        this.transactionCallback = null;
+        ArrayList<String> mesages = new ArrayList<>();
+        this.transactionCallback = new TransactionCallback() {
+            @Override
+            public void call(String value) {
+                mesages.add(value);
+            }
+        };
     }
 
     public Transaction(TransactionType type, Transaction... children) {
@@ -95,7 +108,13 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
         this.XAxis = new BigInteger("0");
         this.YAxis = new BigInteger("0");
         this.Signature = new ECDSASignatureData();
-        this.transactionCallback = null;
+        ArrayList<String> mesages = new ArrayList<>();
+        this.transactionCallback = new TransactionCallback() {
+            @Override
+            public void call(String value) {
+                mesages.add(value);
+            }
+        };
     }
 
     public Transaction(String hash) {
@@ -114,7 +133,13 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
         this.XAxis = new BigInteger("0");
         this.YAxis = new BigInteger("0");
         this.Signature = new ECDSASignatureData();
-        this.transactionCallback = null;
+        ArrayList<String> mesages = new ArrayList<>();
+        this.transactionCallback = new TransactionCallback() {
+            @Override
+            public void call(String value) {
+                mesages.add(value);
+            }
+        };
     }
 
     public Transaction(String hash, TransactionType type, StatusType status, int zoneFrom, int zoneTo, String timestamp, int blockNumber, String from, String to, BigDecimal amount, BigDecimal AmountWithTransactionFee, int nonce, ECDSASignatureData signature) {
@@ -131,7 +156,13 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
         this.AmountWithTransactionFee = AmountWithTransactionFee;
         this.Nonce = nonce;
         this.Signature = signature;
-        this.transactionCallback = null;
+        ArrayList<String> mesages = new ArrayList<>();
+        this.transactionCallback = new TransactionCallback() {
+            @Override
+            public void call(String value) {
+                mesages.add(value);
+            }
+        };
     }
 
     public Transaction(String hash, TransactionType type, StatusType status, int zoneFrom, int zoneTo, String timestamp, String from, String to, BigDecimal amount, BigDecimal AmountWithTransactionFee, int nonce, ECDSASignatureData signature) {
@@ -147,7 +178,13 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
         this.AmountWithTransactionFee = AmountWithTransactionFee;
         this.Nonce = nonce;
         this.Signature = signature;
-        this.transactionCallback = null;
+        ArrayList<String> mesages = new ArrayList<>();
+        this.transactionCallback = new TransactionCallback() {
+            @Override
+            public void call(String value) {
+                mesages.add(value);
+            }
+        };
     }
 
     public Transaction(String hash, TransactionType type, StatusType status, int zoneFrom, int zoneTo, String timestamp, int blockNumber, String from, String to, BigDecimal amount, BigDecimal amountWithTransactionFee, int nonce, BigInteger XAxis, BigInteger YAxis, ECDSASignatureData signature) {
@@ -166,7 +203,13 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
         this.XAxis = XAxis;
         this.YAxis = YAxis;
         this.Signature = signature;
-        this.transactionCallback = null;
+        ArrayList<String> mesages = new ArrayList<>();
+        this.transactionCallback = new TransactionCallback() {
+            @Override
+            public void call(String value) {
+                mesages.add(value);
+            }
+        };
     }
 
     public void accept(TransactionUnitVisitor visitor) {
@@ -310,7 +353,6 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
 
 
     @Serialize
-    @SerializeNullable
     public TransactionCallback getTransactionCallback() {
         return transactionCallback;
     }
@@ -340,7 +382,7 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Transaction that = (Transaction) o;
-        return ZoneFrom == that.ZoneFrom && ZoneTo == that.ZoneTo && BlockNumber == that.BlockNumber && Nonce == that.Nonce && Objects.equals(Hash, that.Hash) && Type == that.Type && Status == that.Status && Objects.equals(timestamp, that.timestamp) && Objects.equals(From, that.From) && Objects.equals(To, that.To) && Objects.equals(Amount, that.Amount) && Objects.equals(AmountWithTransactionFee, that.AmountWithTransactionFee) && Objects.equals(XAxis, that.XAxis) && Objects.equals(YAxis, that.YAxis) && Objects.equals(Signature, that.Signature) && Objects.equals(transactionCallback, that.transactionCallback);
+        return ZoneFrom == that.ZoneFrom && ZoneTo == that.ZoneTo && BlockNumber == that.BlockNumber && Nonce == that.Nonce && Objects.equals(Hash, that.Hash) && Type == that.Type && Status == that.Status && Objects.equals(timestamp, that.timestamp) && Objects.equals(From, that.From) && Objects.equals(To, that.To) && Objects.equals(Amount, that.Amount) && Objects.equals(AmountWithTransactionFee, that.AmountWithTransactionFee) && Objects.equals(XAxis, that.XAxis) && Objects.equals(YAxis, that.YAxis) && Objects.equals(Signature, that.Signature);
     }
 
     @Override

@@ -231,27 +231,27 @@ public class ConsensusTransactionTimer2Test {
         keypair.add(ecKeyPair9);
         keypair.add(ecKeyPair10);
 
-        TreeFactory.getMemoryTree(1).store(adddress1, new PatriciaTreeNode(1000, 0));
-        TreeFactory.getMemoryTree(1).store(adddress2, new PatriciaTreeNode(1000, 0));
-        TreeFactory.getMemoryTree(1).store(adddress3, new PatriciaTreeNode(1000, 0));
-        TreeFactory.getMemoryTree(1).store(adddress4, new PatriciaTreeNode(1000, 0));
-        TreeFactory.getMemoryTree(1).store(adddress5, new PatriciaTreeNode(1000, 0));
-        TreeFactory.getMemoryTree(1).store(adddress6, new PatriciaTreeNode(1000, 0));
-        TreeFactory.getMemoryTree(1).store(adddress7, new PatriciaTreeNode(1000, 0));
-        TreeFactory.getMemoryTree(1).store(adddress8, new PatriciaTreeNode(1000, 0));
-        TreeFactory.getMemoryTree(1).store(adddress9, new PatriciaTreeNode(1000, 0));
-        TreeFactory.getMemoryTree(1).store(adddress10, new PatriciaTreeNode(1000, 0));
+        TreeFactory.getMemoryTree(1).store(adddress1, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
+        TreeFactory.getMemoryTree(1).store(adddress2, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
+        TreeFactory.getMemoryTree(1).store(adddress3, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
+        TreeFactory.getMemoryTree(1).store(adddress4, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
+        TreeFactory.getMemoryTree(1).store(adddress5, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
+        TreeFactory.getMemoryTree(1).store(adddress6, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
+        TreeFactory.getMemoryTree(1).store(adddress7, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
+        TreeFactory.getMemoryTree(1).store(adddress8, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
+        TreeFactory.getMemoryTree(1).store(adddress9, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
+        TreeFactory.getMemoryTree(1).store(adddress10, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
 
-        TreeFactory.getMemoryTree(0).store(adddress1, new PatriciaTreeNode(1000, 0));
-        TreeFactory.getMemoryTree(0).store(adddress2, new PatriciaTreeNode(1000, 0));
-        TreeFactory.getMemoryTree(0).store(adddress3, new PatriciaTreeNode(1000, 0));
-        TreeFactory.getMemoryTree(0).store(adddress4, new PatriciaTreeNode(1000, 0));
-        TreeFactory.getMemoryTree(0).store(adddress5, new PatriciaTreeNode(1000, 0));
-        TreeFactory.getMemoryTree(0).store(adddress6, new PatriciaTreeNode(1000, 0));
-        TreeFactory.getMemoryTree(0).store(adddress7, new PatriciaTreeNode(1000, 0));
-        TreeFactory.getMemoryTree(0).store(adddress8, new PatriciaTreeNode(1000, 0));
-        TreeFactory.getMemoryTree(0).store(adddress9, new PatriciaTreeNode(1000, 0));
-        TreeFactory.getMemoryTree(0).store(adddress10, new PatriciaTreeNode(1000, 0));
+        TreeFactory.getMemoryTree(0).store(adddress1, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
+        TreeFactory.getMemoryTree(0).store(adddress2, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
+        TreeFactory.getMemoryTree(0).store(adddress3, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
+        TreeFactory.getMemoryTree(0).store(adddress4, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
+        TreeFactory.getMemoryTree(0).store(adddress5, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
+        TreeFactory.getMemoryTree(0).store(adddress6, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
+        TreeFactory.getMemoryTree(0).store(adddress7, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
+        TreeFactory.getMemoryTree(0).store(adddress8, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
+        TreeFactory.getMemoryTree(0).store(adddress9, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
+        TreeFactory.getMemoryTree(0).store(adddress10, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
 
         ECDSASignatureData signatureData1 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(adddress1)), ecKeyPair1);
         ECDSASignatureData signatureData2 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(adddress2)), ecKeyPair2);
@@ -275,12 +275,12 @@ public class ConsensusTransactionTimer2Test {
         prevblock.getHeaderData().setTimestamp(GetTime.GetTimeStampInString());
         CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
 
-        CachedLatestBlocks.getInstance().getCommitteeBlock().getStakingMap().put(new StakingData(1, 10.0), kad1);
-        CachedLatestBlocks.getInstance().getCommitteeBlock().getStakingMap().put(new StakingData(2, 11.0), kad2);
-        CachedLatestBlocks.getInstance().getCommitteeBlock().getStakingMap().put(new StakingData(3, 151.0), kad3);
-        CachedLatestBlocks.getInstance().getCommitteeBlock().getStakingMap().put(new StakingData(1, 101.0), kad4);
-        CachedLatestBlocks.getInstance().getCommitteeBlock().getStakingMap().put(new StakingData(2, 111.0), kad5);
-        CachedLatestBlocks.getInstance().getCommitteeBlock().getStakingMap().put(new StakingData(3, 251.0), kad6);
+        CachedLatestBlocks.getInstance().getCommitteeBlock().getStakingMap().put(new StakingData(1, BigDecimal.valueOf(10.0)), kad1);
+        CachedLatestBlocks.getInstance().getCommitteeBlock().getStakingMap().put(new StakingData(2, BigDecimal.valueOf(11.0)), kad2);
+        CachedLatestBlocks.getInstance().getCommitteeBlock().getStakingMap().put(new StakingData(3, BigDecimal.valueOf(151.0)), kad3);
+        CachedLatestBlocks.getInstance().getCommitteeBlock().getStakingMap().put(new StakingData(1, BigDecimal.valueOf(101.0)), kad4);
+        CachedLatestBlocks.getInstance().getCommitteeBlock().getStakingMap().put(new StakingData(2, BigDecimal.valueOf(111.0)), kad5);
+        CachedLatestBlocks.getInstance().getCommitteeBlock().getStakingMap().put(new StakingData(3, BigDecimal.valueOf(251.0)), kad6);
 
         CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).put(vk1, "192.168.1.106");
         CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).put(vk2, "192.168.1.113");

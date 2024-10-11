@@ -38,6 +38,7 @@ public class SignatureSerializationTest {
     static BinarySerializer<Transaction> enc = SerializerBuilder
             .create()
             .with(ECDSASignatureData.class, ctx -> new SignatureDataSerializer())
+            .with(BigDecimal.class, ctx -> new BigDecimalSerializer())
             .with(BigInteger.class, ctx -> new BigIntegerSerializer())
             .build(Transaction.class);
     static SerializationUtil<Transaction> serenc;

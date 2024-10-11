@@ -189,6 +189,7 @@ public class BlockTest {
         ECDSASign ecdsaSign = new ECDSASign();
 
         List<SerializationUtil.Mapping> list2 = new ArrayList<>();
+        list2.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
         list2.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         trx_serence = new SerializationUtil<Transaction>(Transaction.class, list2);
 
@@ -227,7 +228,7 @@ public class BlockTest {
             transaction.setAmountWithTransactionFee(transaction.getAmount().multiply(BigDecimal.valueOf(10.0 / 100.0)));
             transaction.setNonce(1);
             transaction.setTransactionCallback(transactionCallback);
-            byte byf[] = trx_serence.encode(transaction);
+            byte byf[] = trx_serence.encode(transaction,1024);
             transaction.setHash(HashUtil.sha256_bytetoString(byf));
             await().atMost(500, TimeUnit.MILLISECONDS);
 
@@ -247,7 +248,7 @@ public class BlockTest {
             transaction.setAmount(BigDecimal.valueOf(100));
             transaction.setAmountWithTransactionFee(transaction.getAmount().multiply(BigDecimal.valueOf(10.0 / 100.0)));
             transaction.setNonce(1);
-            byte byf[] = trx_serence.encode(transaction);
+            byte byf[] = trx_serence.encode(transaction,1024);
             transaction.setHash(HashUtil.sha256_bytetoString(byf));
             await().atMost(500, TimeUnit.MILLISECONDS);
 

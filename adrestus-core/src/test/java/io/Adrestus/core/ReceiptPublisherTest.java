@@ -120,6 +120,7 @@ public class ReceiptPublisherTest {
         ECDSASign ecdsaSign = new ECDSASign();
 
         List<SerializationUtil.Mapping> lists = new ArrayList<>();
+        lists.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
         lists.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         SerializationUtil<Transaction> enc = new SerializationUtil<Transaction>(Transaction.class, lists);
 
@@ -161,7 +162,7 @@ public class ReceiptPublisherTest {
             transaction.setAmountWithTransactionFee(transaction.getAmount().multiply(BigDecimal.valueOf(10.0 / 100.0)));
             transaction.setNonce(1);
             transaction.setTransactionCallback(transactionCallback);
-            byte byf[] = enc.encode(transaction);
+            byte byf[] = enc.encode(transaction,1024);
             transaction.setHash(HashUtil.sha256_bytetoString(byf));
             //  await().atMost(500, TimeUnit.MILLISECONDS);
 
