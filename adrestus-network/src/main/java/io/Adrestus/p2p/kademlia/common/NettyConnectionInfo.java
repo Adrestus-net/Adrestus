@@ -1,26 +1,17 @@
 package io.Adrestus.p2p.kademlia.common;
 
-import com.google.common.base.Objects;
 import io.Adrestus.p2p.kademlia.connection.ConnectionInfo;
 import io.activej.serializer.annotations.Serialize;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
+
+import java.util.Objects;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
 public class NettyConnectionInfo implements ConnectionInfo {
     private String host;
     private int port;
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        NettyConnectionInfo that = (NettyConnectionInfo) o;
-        return getPort() == that.getPort() && Objects.equal(getHost(), that.getHost());
-    }
 
     @Serialize
     public String getHost() {
@@ -41,7 +32,23 @@ public class NettyConnectionInfo implements ConnectionInfo {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        NettyConnectionInfo that = (NettyConnectionInfo) o;
+        return port == that.port && Objects.equals(host, that.host);
+    }
+
+    @Override
     public int hashCode() {
-        return Objects.hashCode(getHost(), getPort());
+        return Objects.hash(host, port);
+    }
+
+    @Override
+    public String toString() {
+        return "NettyConnectionInfo{" +
+                "host='" + host + '\'' +
+                ", port=" + port +
+                '}';
     }
 }

@@ -3,6 +3,7 @@ package io.Adrestus.core;
 import com.google.common.base.Objects;
 import io.Adrestus.core.RingBuffer.handler.blocks.DisruptorBlock;
 import io.Adrestus.core.RingBuffer.handler.blocks.DisruptorBlockVisitor;
+import io.Adrestus.core.comparators.StakingValueComparator;
 import io.Adrestus.crypto.bls.BLSSignatureData;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.Adrestus.crypto.elliptic.mapper.StakingData;
@@ -213,16 +214,5 @@ public class CommitteeBlock extends AbstractBlock implements BlockFactory, Disru
                 ", StructureMap=" + StructureMap +
                 ", difficulty=" + difficulty +
                 '}';
-    }
-
-    private static final class StakingValueComparator implements Comparator<StakingData>, Serializable {
-        @Override
-        public int compare(StakingData a, StakingData b) {
-            if (a.getStake().compareTo(b.getStake()) >= 0) {
-                return -1;
-            } else {
-                return 1;
-            } // returning 0 would merge keys
-        }
     }
 }

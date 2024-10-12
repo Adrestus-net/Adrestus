@@ -18,8 +18,6 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <crypto.version>1.0-SNAPSHOT</crypto.version>
         <lz4.version>1.8.0</lz4.version>
-        <json.version>20231013</json.version>
-        <fastjson2.version>2.0.45</fastjson2.version>
         <util.version>1.0-SNAPSHOT</util.version>
     </properties>
 
@@ -44,16 +42,6 @@
             <groupId>org.lz4</groupId>
             <artifactId>lz4-java</artifactId>
             <version>${lz4.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.json</groupId>
-            <artifactId>json</artifactId>
-            <version>${json.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.alibaba.fastjson2</groupId>
-            <artifactId>fastjson2</artifactId>
-            <version>${fastjson2.version}</version>
         </dependency>
     </dependencies>
     <build>

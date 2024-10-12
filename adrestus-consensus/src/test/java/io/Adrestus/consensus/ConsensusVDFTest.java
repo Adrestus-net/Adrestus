@@ -2,7 +2,7 @@ package io.Adrestus.consensus;
 
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedSecurityHeaders;
-import io.Adrestus.core.SortSignatureMapByBlsPublicKey;
+import io.Adrestus.core.comparators.SortSignatureMapByBlsPublicKey;
 import io.Adrestus.crypto.bls.BLSSignatureData;
 import io.Adrestus.crypto.bls.model.BLSPrivateKey;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;

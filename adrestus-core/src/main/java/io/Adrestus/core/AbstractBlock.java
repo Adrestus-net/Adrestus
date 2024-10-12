@@ -2,6 +2,7 @@ package io.Adrestus.core;
 
 import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.core.RingBuffer.handler.blocks.DisruptorBlock;
+import io.Adrestus.core.comparators.SortSignatureMapByBlsPublicKey;
 import io.Adrestus.crypto.bls.BLSSignatureData;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.activej.serializer.annotations.Serialize;

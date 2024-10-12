@@ -39,4 +39,5 @@ public class BigIntegerSerializer extends AbstractSerializerDef {
         return let(arrayNew(byte[].class, readVarInt(in)), array ->
                 sequence(readBytes(in, array), constructor(BigInteger.class, array)));
     }
+
 }

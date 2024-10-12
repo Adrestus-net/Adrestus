@@ -1,12 +1,8 @@
-package io.Adrestus.crypto.elliptic.mapper;
+package io.Adrestus.core.mapper;
 
 import io.activej.serializer.*;
 import lombok.SneakyThrows;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.TreeMap;
 
 public class CustomSerializerTreeMap extends SimpleSerializerDef<TreeMap<Object, Object>> {
@@ -18,10 +14,7 @@ public class CustomSerializerTreeMap extends SimpleSerializerDef<TreeMap<Object,
             @SneakyThrows
             @Override
             public void encode(BinaryOutput out, TreeMap<Object, Object> item) {
-                ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-                ObjectOutputStream outstream = new ObjectOutputStream(byteOut);
-                outstream.writeObject(item);
-                byte[] bytes = byteOut.toByteArray();
+                byte[] bytes = CustomFurySerializer.getInstance().getFury().serialize(item);
                 out.writeVarInt(bytes.length);
                 out.write(bytes);
             }
@@ -31,10 +24,7 @@ public class CustomSerializerTreeMap extends SimpleSerializerDef<TreeMap<Object,
             public TreeMap<Object, Object> decode(BinaryInput in) throws CorruptedDataException {
                 byte[] bytes = new byte[in.readVarInt()];
                 in.read(bytes);
-                ByteArrayInputStream byteIn = new ByteArrayInputStream(bytes);
-                ObjectInputStream instream = new ObjectInputStream(byteIn);
-                TreeMap<Object, Object> treemap = (TreeMap<Object, Object>) instream.readObject();
-                return treemap;
+                return (TreeMap<Object, Object>) CustomFurySerializer.getInstance().getFury().deserialize(bytes);
             }
         };
     }

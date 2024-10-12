@@ -11,6 +11,7 @@ import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.config.KademliaConfiguration;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedLeaderIndex;
+import io.Adrestus.core.mapper.CustomFurySerializer;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.SecurityAuditProofs;
 import io.Adrestus.crypto.WalletAddress;
@@ -60,6 +61,7 @@ public class TreemapSerializationTest {
 
     @BeforeAll
     public static void setup() throws Exception {
+        CustomFurySerializer.getInstance().getFury();
         int version = 0x00;
         sk1 = new BLSPrivateKey(1);
         vk1 = new BLSPublicKey(sk1);
@@ -184,7 +186,14 @@ public class TreemapSerializationTest {
         byte[] bt = valueMapper.encode_special(m, SerializationUtils.serialize(m).length);
         tree_datasbase.save("patricia_tree_root", bt);
         MemoryTreePool copy = (MemoryTreePool) valueMapper.decode(tree_datasbase.findByKey("patricia_tree_root").get());
-
+        long start = System.currentTimeMillis();
+        for (int i = 0; i < 1000; i++) {
+            byte[] bt1 = valueMapper.encode_special(m, SerializationUtils.serialize(m).length);
+            MemoryTreePool copy1 = (MemoryTreePool) valueMapper.decode(tree_datasbase.findByKey("patricia_tree_root").get());
+        }
+        long finish = System.currentTimeMillis();
+        long timeElapsed = finish - start;
+        System.out.println("elapsed: " + timeElapsed);
 
         //copy.store(address, treeNode);
         Option<PatriciaTreeNode> pat = copy.getByaddress(address);
@@ -197,6 +206,67 @@ public class TreemapSerializationTest {
         assertEquals(123, TreeFactory.getMemoryTree(2).getByaddress(address).get().getAmount().doubleValue());
         tree_datasbase.delete_db();
     }
+
+//    @Test
+//    public void treemap_database_Fury_Serialization() throws Exception {
+//        IDatabase<String, byte[]> tree_datasbase = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getPatriciaTreeZoneInstance(0));
+//        TreeFactory.ClearMemoryTree(0);
+//
+//        String address1 = "1";
+//        String address2 = "2";
+//        String address3 = "3";
+//        String address4 = "4";
+//        PatriciaTreeNode treeNode = new PatriciaTreeNode(BigDecimal.valueOf(2), 1);
+//        PatriciaTreeNode treeNode1 = new PatriciaTreeNode(BigDecimal.valueOf(12), 2);
+//        PatriciaTreeNode treeNode3 = new PatriciaTreeNode(BigDecimal.valueOf(123), 2);
+//        PatriciaTreeNode treeNode4 = new PatriciaTreeNode(BigDecimal.valueOf(15), 2);
+//        TreeFactory.getMemoryTree(0).store(address1, treeNode);
+//        TreeFactory.getMemoryTree(0).store(address2, treeNode1);
+//        TreeFactory.getMemoryTree(0).store(address3, treeNode3);
+//        TreeFactory.getMemoryTree(0).store(address4, treeNode4);
+//        //m.getByaddress(address);
+//        //use only special
+//        byte[] bt = CustomFurySerializer.getInstance().getFury().serialize(TreeFactory.getMemoryTree(0));
+//        tree_datasbase.save("patricia_tree_root", bt);
+//        MemoryTreePool copy2 = (MemoryTreePool) CustomFurySerializer.getInstance().getFury().deserialize(bt);
+//        MemoryTreePool copy = (MemoryTreePool) CustomFurySerializer.getInstance().getFury().deserialize(tree_datasbase.findByKey("patricia_tree_root").get());
+//
+//        long start = System.currentTimeMillis();
+//        for (int i = 0; i < 1000; i++) {
+//            byte[] bt1 = CustomFurySerializer.getInstance().getFury().serialize(TreeFactory.getMemoryTree(0));
+//            MemoryTreePool copy1 = (MemoryTreePool) CustomFurySerializer.getInstance().getFury().deserialize(tree_datasbase.findByKey("patricia_tree_root").get());
+//        }
+//        long finish = System.currentTimeMillis();
+//        long timeElapsed = finish - start;
+//        System.out.println("elapsed: " + timeElapsed);
+//        assertEquals(copy, copy2);
+////
+////        assertEquals(treeNode4, pat.get());
+////        assertEquals(15, copy2.getByaddress(address).get().getAmount().doubleValue());
+////        assertEquals(15, copy2.getByaddress(address).get().getAmount().doubleValue());
+//
+//        System.out.println(TreeFactory.getMemoryTree(0).getByaddress(address1).get().toString()+" "+TreeFactory.getMemoryTree(0).getRootHash());
+//        System.out.println(copy2.getByaddress(address1).get().toString()+" "+copy2.getRootHash());
+//
+//        assertEquals(TreeFactory.getMemoryTree(0).getByaddress(address1).get(), copy2.getByaddress(address1).get());
+//        assertEquals(TreeFactory.getMemoryTree(0).getByaddress(address2).get(), copy2.getByaddress(address2).get());
+//        assertEquals(TreeFactory.getMemoryTree(0).getByaddress(address3).get(), copy2.getByaddress(address3).get());
+//        assertEquals(TreeFactory.getMemoryTree(0).getByaddress(address4).get(), copy2.getByaddress(address4).get());
+//
+//        assertEquals(2, copy2.getByaddress(address1).get().getAmount().doubleValue());
+//        assertEquals(12, copy2.getByaddress(address2).get().getAmount().doubleValue());
+//        assertEquals(123, copy2.getByaddress(address3).get().getAmount().doubleValue());
+//        assertEquals(15, copy2.getByaddress(address4).get().getAmount().doubleValue());
+//
+//        assertEquals(2, TreeFactory.getMemoryTree(0).getByaddress(address1).get().getAmount().doubleValue());
+//        assertEquals(12, TreeFactory.getMemoryTree(0).getByaddress(address2).get().getAmount().doubleValue());
+//        assertEquals(123, TreeFactory.getMemoryTree(0).getByaddress(address3).get().getAmount().doubleValue());
+//        assertEquals(15, TreeFactory.getMemoryTree(0).getByaddress(address4).get().getAmount().doubleValue());
+//
+//        assertEquals(TreeFactory.getMemoryTree(0), copy2);
+//        assertEquals(TreeFactory.getMemoryTree(0), copy2);
+//        tree_datasbase.delete_db();
+//    }
 
     @Test
     public void treemap_database_test2() throws Exception {

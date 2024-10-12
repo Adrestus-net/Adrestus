@@ -6,12 +6,10 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.Adrestus.crypto.elliptic.ECDSASignatureData;
 import io.activej.serializer.annotations.Serialize;
 import io.activej.serializer.annotations.SerializeClass;
-import io.activej.serializer.annotations.SerializeNullable;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Objects;
 
@@ -19,7 +17,7 @@ import java.util.Objects;
 @SerializeClass(subclasses = {RegularTransaction.class, RewardsTransaction.class, StakingTransaction.class, DelegateTransaction.class, UnclaimedFeeRewardTransaction.class, UnDelegateTransaction.class, UnstakingTransaction.class})
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "transactiontype")
 @JsonSubTypes({@JsonSubTypes.Type(value = RegularTransaction.class, name = "RegularTransaction"), @JsonSubTypes.Type(value = RewardsTransaction.class, name = "RewardsTransaction"), @JsonSubTypes.Type(value = StakingTransaction.class, name = "StakingTransaction"), @JsonSubTypes.Type(value = DelegateTransaction.class, name = "DelegateTransaction"), @JsonSubTypes.Type(value = UnclaimedFeeRewardTransaction.class, name = "UnclaimedFeeRewardTransaction"), @JsonSubTypes.Type(value = UnDelegateTransaction.class, name = "UnDelegateTransaction"), @JsonSubTypes.Type(value = UnstakingTransaction.class, name = "UnstakingTransaction")})
-@JsonPropertyOrder({"transactiontype", "type", "status", "timestamp", "hash", "nonce", "blockNumber", "from", "to", "zoneFrom", "zoneTo", "blockNumber", "amount", "amountWithTransactionFee", "xaxis", "yaxis", "signature"})
+@JsonPropertyOrder({"transactiontype", "type", "status", "timestamp", "hash", "nonce", "blockNumber", "from", "to", "zoneFrom", "zoneTo", "blockNumber", "amount", "amountWithTransactionFee", "xaxis", "yaxis", "signature", "transactionCallback"})
 public abstract class Transaction implements Cloneable, Comparable<Transaction>, Comparator<Transaction>, Serializable {
 
     protected String Hash;
@@ -58,13 +56,7 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
         this.XAxis = new BigInteger("0");
         this.YAxis = new BigInteger("0");
         this.Signature = new ECDSASignatureData();
-        ArrayList<String> mesages = new ArrayList<>();
-        this.transactionCallback = new TransactionCallback() {
-            @Override
-            public void call(String value) {
-                mesages.add(value);
-            }
-        };
+        this.transactionCallback = null;
     }
 
     public Transaction(TransactionType transactionType, BigDecimal amount) {
@@ -83,13 +75,7 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
         this.XAxis = new BigInteger("0");
         this.YAxis = new BigInteger("0");
         this.Signature = new ECDSASignatureData();
-        ArrayList<String> mesages = new ArrayList<>();
-        this.transactionCallback = new TransactionCallback() {
-            @Override
-            public void call(String value) {
-                mesages.add(value);
-            }
-        };
+        this.transactionCallback = null;
     }
 
     public Transaction(TransactionType type, Transaction... children) {
@@ -108,13 +94,7 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
         this.XAxis = new BigInteger("0");
         this.YAxis = new BigInteger("0");
         this.Signature = new ECDSASignatureData();
-        ArrayList<String> mesages = new ArrayList<>();
-        this.transactionCallback = new TransactionCallback() {
-            @Override
-            public void call(String value) {
-                mesages.add(value);
-            }
-        };
+        this.transactionCallback = null;
     }
 
     public Transaction(String hash) {
@@ -133,13 +113,7 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
         this.XAxis = new BigInteger("0");
         this.YAxis = new BigInteger("0");
         this.Signature = new ECDSASignatureData();
-        ArrayList<String> mesages = new ArrayList<>();
-        this.transactionCallback = new TransactionCallback() {
-            @Override
-            public void call(String value) {
-                mesages.add(value);
-            }
-        };
+        this.transactionCallback = null;
     }
 
     public Transaction(String hash, TransactionType type, StatusType status, int zoneFrom, int zoneTo, String timestamp, int blockNumber, String from, String to, BigDecimal amount, BigDecimal AmountWithTransactionFee, int nonce, ECDSASignatureData signature) {
@@ -156,13 +130,7 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
         this.AmountWithTransactionFee = AmountWithTransactionFee;
         this.Nonce = nonce;
         this.Signature = signature;
-        ArrayList<String> mesages = new ArrayList<>();
-        this.transactionCallback = new TransactionCallback() {
-            @Override
-            public void call(String value) {
-                mesages.add(value);
-            }
-        };
+        this.transactionCallback = null;
     }
 
     public Transaction(String hash, TransactionType type, StatusType status, int zoneFrom, int zoneTo, String timestamp, String from, String to, BigDecimal amount, BigDecimal AmountWithTransactionFee, int nonce, ECDSASignatureData signature) {
@@ -178,13 +146,7 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
         this.AmountWithTransactionFee = AmountWithTransactionFee;
         this.Nonce = nonce;
         this.Signature = signature;
-        ArrayList<String> mesages = new ArrayList<>();
-        this.transactionCallback = new TransactionCallback() {
-            @Override
-            public void call(String value) {
-                mesages.add(value);
-            }
-        };
+        this.transactionCallback = null;
     }
 
     public Transaction(String hash, TransactionType type, StatusType status, int zoneFrom, int zoneTo, String timestamp, int blockNumber, String from, String to, BigDecimal amount, BigDecimal amountWithTransactionFee, int nonce, BigInteger XAxis, BigInteger YAxis, ECDSASignatureData signature) {
@@ -203,13 +165,7 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
         this.XAxis = XAxis;
         this.YAxis = YAxis;
         this.Signature = signature;
-        ArrayList<String> mesages = new ArrayList<>();
-        this.transactionCallback = new TransactionCallback() {
-            @Override
-            public void call(String value) {
-                mesages.add(value);
-            }
-        };
+        this.transactionCallback = null;
     }
 
     public void accept(TransactionUnitVisitor visitor) {

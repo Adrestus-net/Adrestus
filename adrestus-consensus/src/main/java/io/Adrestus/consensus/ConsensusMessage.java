@@ -1,6 +1,6 @@
 package io.Adrestus.consensus;
 
-import io.Adrestus.core.SortSignatureMapByBlsPublicKey;
+import io.Adrestus.core.comparators.SortSignatureMapByBlsPublicKey;
 import io.Adrestus.crypto.bls.BLSSignatureData;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.activej.serializer.annotations.Deserialize;

@@ -5,7 +5,6 @@ import io.Adrestus.bloom_filter.Util.UtilConstants;
 import io.Adrestus.bloom_filter.core.BloomObject;
 import io.Adrestus.bloom_filter.impl.InMemoryBloomFilter;
 import junit.framework.Assert;
-import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -68,8 +67,7 @@ public class BloomFilterTest {
 
         String get = Arrays.toString(filter1.toBitsetArray());
         BloomObject bloomObject = new BloomObject(filter1.toBitsetArray(), filter1.getNumberOfHashFunctions(), filter1.getNumberOfBits());
-        JSONObject jsonObject = new JSONObject(bloomObject);
-        String myJson = jsonObject.toString();
+        String myJson = JSON.toJSONString(bloomObject);
         BloomObject object = JSON.parseObject(myJson, BloomObject.class);
 
         BloomFilter<String> match_filter = new InMemoryBloomFilter<String>(object.getNumBitsRequired(), object.getHashFunctionNum(), object.getArray(), null);
@@ -113,8 +111,7 @@ public class BloomFilterTest {
             String kl = UUID.randomUUID().toString();
             filter1.add(kl);
             BloomObject bloomObject = new BloomObject(filter1.toBitsetArray(), filter1.getNumberOfHashFunctions(), filter1.getNumberOfBits());
-            JSONObject jsonObject = new JSONObject(bloomObject);
-            String myJson = jsonObject.toString();
+            String myJson = JSON.toJSONString(bloomObject);
             System.out.println(kl + " " + myJson);
         }
     }

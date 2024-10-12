@@ -14,6 +14,7 @@ import io.Adrestus.core.RingBuffer.handler.transactions.SignatureEventHandler;
 import io.Adrestus.core.RingBuffer.publisher.BlockEventPublisher;
 import io.Adrestus.core.RingBuffer.publisher.TransactionEventPublisher;
 import io.Adrestus.core.Util.BlockSizeCalculator;
+import io.Adrestus.core.mapper.CustomSerializerTreeMap;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.WalletAddress;
 import io.Adrestus.crypto.bls.BLS381.ECP;
@@ -29,7 +30,6 @@ import io.Adrestus.crypto.elliptic.ECKeyPair;
 import io.Adrestus.crypto.elliptic.Keys;
 import io.Adrestus.crypto.elliptic.mapper.BigDecimalSerializer;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
-import io.Adrestus.crypto.elliptic.mapper.CustomSerializerTreeMap;
 import io.Adrestus.crypto.mnemonic.Mnemonic;
 import io.Adrestus.crypto.mnemonic.Security;
 import io.Adrestus.crypto.mnemonic.WordList;
@@ -45,9 +45,7 @@ import org.spongycastle.util.encoders.Hex;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.math.RoundingMode;
 import java.security.SecureRandom;
-import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -56,7 +54,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ReceiptsTest {
@@ -167,9 +164,9 @@ public class ReceiptsTest {
             transaction.setZoneFrom(0);
             transaction.setZoneTo(j);
             transaction.setAmount(BigDecimal.valueOf(i));
-            transaction.setAmountWithTransactionFee(BigDecimal.valueOf(i).multiply(BigDecimal.valueOf(10.0/100.0)));
+            transaction.setAmountWithTransactionFee(BigDecimal.valueOf(i).multiply(BigDecimal.valueOf(10.0 / 100.0)));
             transaction.setNonce(1);
-            byte byf[] = enc.encode(transaction,1024);
+            byte byf[] = enc.encode(transaction, 1024);
             transaction.setHash(HashUtil.sha256_bytetoString(byf));
             //  await().atMost(500, TimeUnit.MILLISECONDS);
 
@@ -211,12 +208,12 @@ public class ReceiptsTest {
         byte[] tohash = serenc.encode(transactionBlock);
         transactionBlock.setHash(HashUtil.sha256_bytetoString(tohash));
 
-        BlockSizeCalculator blockSizeCalculator=new BlockSizeCalculator();
+        BlockSizeCalculator blockSizeCalculator = new BlockSizeCalculator();
         blockSizeCalculator.setTransactionBlock(transactionBlock);
-        byte[] buffer = serenc.encode(transactionBlock,blockSizeCalculator.TransactionBlockSizeCalculator());
+        byte[] buffer = serenc.encode(transactionBlock, blockSizeCalculator.TransactionBlockSizeCalculator());
         TransactionBlock clone = (TransactionBlock) serenc.decode(buffer);
         assertEquals(transactionBlock, clone);
-        assertEquals(size-2,transactionBlock.getTransactionList().size());
+        assertEquals(size - 2, transactionBlock.getTransactionList().size());
     }
 
     @SneakyThrows

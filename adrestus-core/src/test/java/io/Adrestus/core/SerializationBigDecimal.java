@@ -1,13 +1,13 @@
 package io.Adrestus.core;
 
 import io.Adrestus.core.Util.BlockSizeCalculator;
+import io.Adrestus.core.mapper.CustomSerializerTreeMap;
 import io.Adrestus.crypto.bls.BLS381.ECP;
 import io.Adrestus.crypto.bls.BLS381.ECP2;
 import io.Adrestus.crypto.bls.mapper.ECP2mapper;
 import io.Adrestus.crypto.bls.mapper.ECPmapper;
 import io.Adrestus.crypto.elliptic.mapper.BigDecimalSerializer;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
-import io.Adrestus.crypto.elliptic.mapper.CustomSerializerTreeMap;
 import io.Adrestus.util.SerializationUtil;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeAll;
@@ -74,6 +74,8 @@ public class SerializationBigDecimal {
         block.getTransactionList().add(transaction7);
         this.sizeCalculator.setTransactionBlock(block);
         byte[] message = serenc.encode(block, this.sizeCalculator.TransactionBlockSizeCalculator());
+        this.sizeCalculator.setTransactionBlock(block);
+        byte[] message2 = serenc.encode(block, this.sizeCalculator.TransactionBlockSizeCalculator());
         TransactionBlock clone = (TransactionBlock) serenc.decode(message);
 
         assertEquals(12.456823234234, BigDecimal.valueOf(12.456823234234).doubleValue());
@@ -93,20 +95,20 @@ public class SerializationBigDecimal {
         assertEquals(5464, block.getTransactionList().get(6).getAmountWithTransactionFee().doubleValue());
 
         assertEquals(12.456823234234, BigDecimal.valueOf(12.456823234234).doubleValue());
-        assertEquals(12.456823,  clone.getTransactionList().get(0).getAmount().doubleValue());
-        assertEquals(12.456823,  clone.getTransactionList().get(0).getAmountWithTransactionFee().doubleValue());
-        assertEquals(12.4568,  clone.getTransactionList().get(1).getAmount().doubleValue());
+        assertEquals(12.456823, clone.getTransactionList().get(0).getAmount().doubleValue());
+        assertEquals(12.456823, clone.getTransactionList().get(0).getAmountWithTransactionFee().doubleValue());
+        assertEquals(12.4568, clone.getTransactionList().get(1).getAmount().doubleValue());
         assertEquals(0.30, block.getTransactionList().get(1).getAmountWithTransactionFee().doubleValue());
-        assertEquals(1245.4568,  clone.getTransactionList().get(2).getAmount().doubleValue());
-        assertEquals(1245.4568,  clone.getTransactionList().get(2).getAmountWithTransactionFee().doubleValue());
-        assertEquals(1.223432,  clone.getTransactionList().get(3).getAmount().doubleValue());
-        assertEquals(1.2,  clone.getTransactionList().get(3).getAmountWithTransactionFee().doubleValue());
-        assertEquals(1,  clone.getTransactionList().get(4).getAmount().doubleValue());
-        assertEquals(12,  clone.getTransactionList().get(4).getAmountWithTransactionFee().doubleValue());
-        assertEquals(0.2,  clone.getTransactionList().get(5).getAmount().doubleValue());
-        assertEquals(0.233232,  clone.getTransactionList().get(5).getAmountWithTransactionFee().doubleValue());
-        assertEquals(0.2465,  clone.getTransactionList().get(6).getAmount().doubleValue());
-        assertEquals(5464,  clone.getTransactionList().get(6).getAmountWithTransactionFee().doubleValue());
+        assertEquals(1245.4568, clone.getTransactionList().get(2).getAmount().doubleValue());
+        assertEquals(1245.4568, clone.getTransactionList().get(2).getAmountWithTransactionFee().doubleValue());
+        assertEquals(1.223432, clone.getTransactionList().get(3).getAmount().doubleValue());
+        assertEquals(1.2, clone.getTransactionList().get(3).getAmountWithTransactionFee().doubleValue());
+        assertEquals(1, clone.getTransactionList().get(4).getAmount().doubleValue());
+        assertEquals(12, clone.getTransactionList().get(4).getAmountWithTransactionFee().doubleValue());
+        assertEquals(0.2, clone.getTransactionList().get(5).getAmount().doubleValue());
+        assertEquals(0.233232, clone.getTransactionList().get(5).getAmountWithTransactionFee().doubleValue());
+        assertEquals(0.2465, clone.getTransactionList().get(6).getAmount().doubleValue());
+        assertEquals(5464, clone.getTransactionList().get(6).getAmountWithTransactionFee().doubleValue());
         assertEquals(block, clone);
 
     }

@@ -44,7 +44,6 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
-import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -598,9 +597,9 @@ public class RewardsTest {
         Map<String, RewardObject> maps = CachedRewardMapData.getInstance().getEffective_stakes_map();
 
 
-        assertEquals(1.724147,TreeFactory.getMemoryTree(0).getByaddress(address).get().getUnclaimed_reward().doubleValue());
-        assertEquals(0.859090,TreeFactory.getMemoryTree(0).getByaddress(address1).get().getUnclaimed_reward().doubleValue());
-        assertEquals(0.334092,TreeFactory.getMemoryTree(0).getByaddress(address0).get().getUnclaimed_reward().doubleValue());
+        assertEquals(1.724147, TreeFactory.getMemoryTree(0).getByaddress(address).get().getUnclaimed_reward().doubleValue());
+        assertEquals(0.859090, TreeFactory.getMemoryTree(0).getByaddress(address1).get().getUnclaimed_reward().doubleValue());
+        assertEquals(0.334092, TreeFactory.getMemoryTree(0).getByaddress(address0).get().getUnclaimed_reward().doubleValue());
 
         assertEquals(TreeFactory.getMemoryTree(0).getByaddress(address1).get().getUnclaimed_reward(), cloned_tree.getByaddress(address1).get().getUnclaimed_reward());
         assertEquals(TreeFactory.getMemoryTree(0).getByaddress(address2).get().getUnclaimed_reward(), cloned_tree.getByaddress(address2).get().getUnclaimed_reward());
@@ -717,7 +716,7 @@ public class RewardsTest {
         CachedStartHeightRewards.getInstance().setHeight(1);
         for (int i = 2; i <= 6; i++) {
             TransactionBlock transactionBlock = new TransactionBlock();
-            Transaction transaction=new RegularTransaction();
+            Transaction transaction = new RegularTransaction();
             transaction.setAmount(BigDecimal.valueOf(100));
             transaction.setAmountWithTransactionFee(BigDecimal.valueOf(10));
             transactionBlock.getTransactionList().add(transaction);
@@ -790,24 +789,24 @@ public class RewardsTest {
 
         Map<String, TransactionBlock> res = transactionBlockIDatabase.seekFromStart();
         MemoryTreePool replica2 = (MemoryTreePool) TreeFactory.getMemoryTree(0).clone();
-        for (Map.Entry<String, TransactionBlock> entry : res.entrySet()){
-            BigDecimal sum=entry.getValue().getTransactionList().stream().map(Transaction::getAmountWithTransactionFee).reduce(BigDecimal.ZERO, BigDecimal::add);
-            String address=CachedLatestBlocks.getInstance().getCommitteeBlock().getStakingMap().values().stream().map(KademliaData::getAddressData).filter(val->val.getValidatorBlSPublicKey().equals(entry.getValue().getLeaderPublicKey())).findFirst().get().getAddress();
-            replica2.deposit(PatriciaTreeTransactionType.UNCLAIMED_FEE_REWARD,address,sum,BigDecimal.ZERO);
+        for (Map.Entry<String, TransactionBlock> entry : res.entrySet()) {
+            BigDecimal sum = entry.getValue().getTransactionList().stream().map(Transaction::getAmountWithTransactionFee).reduce(BigDecimal.ZERO, BigDecimal::add);
+            String address = CachedLatestBlocks.getInstance().getCommitteeBlock().getStakingMap().values().stream().map(KademliaData::getAddressData).filter(val -> val.getValidatorBlSPublicKey().equals(entry.getValue().getLeaderPublicKey())).findFirst().get().getAddress();
+            replica2.deposit(PatriciaTreeTransactionType.UNCLAIMED_FEE_REWARD, address, sum, BigDecimal.ZERO);
         }
 
-        assertEquals(BigDecimal.valueOf(2*10).add(TreeFactory.getMemoryTree(0).getByaddress(address1).get().getUnclaimed_reward()),replica2.getByaddress(address1).get().getUnclaimed_reward());
-        assertEquals(BigDecimal.valueOf(2*10).add(TreeFactory.getMemoryTree(0).getByaddress(address2).get().getUnclaimed_reward()),replica2.getByaddress(address2).get().getUnclaimed_reward());
-        assertEquals(BigDecimal.valueOf(1*10).add(TreeFactory.getMemoryTree(0).getByaddress(address3).get().getUnclaimed_reward()),replica2.getByaddress(address3).get().getUnclaimed_reward());
+        assertEquals(BigDecimal.valueOf(2 * 10).add(TreeFactory.getMemoryTree(0).getByaddress(address1).get().getUnclaimed_reward()), replica2.getByaddress(address1).get().getUnclaimed_reward());
+        assertEquals(BigDecimal.valueOf(2 * 10).add(TreeFactory.getMemoryTree(0).getByaddress(address2).get().getUnclaimed_reward()), replica2.getByaddress(address2).get().getUnclaimed_reward());
+        assertEquals(BigDecimal.valueOf(1 * 10).add(TreeFactory.getMemoryTree(0).getByaddress(address3).get().getUnclaimed_reward()), replica2.getByaddress(address3).get().getUnclaimed_reward());
 
 
         // Theese values must be the same with transaction timer test unclaimed rewards min the transaction fees
-        assertEquals(1.190001,replica.getByaddress("ADR-AADE-ROH3-CAFV-XK5V-2NKZ-QMTG-SFMC-37W5-SHUV-2T46").get().getUnclaimed_reward().doubleValue());
-        assertEquals(1.784998,replica.getByaddress("ADR-ACAO-BKTC-CFKG-VXWF-PSI2-QHWR-ZIGK-CCOL-LGJN-CM3U").get().getUnclaimed_reward().doubleValue());
-        assertEquals(2.473339,replica.getByaddress("ADR-AB2W-RIQY-LSIH-CXQQ-FGRV-AINR-57RO-NFXU-IWM5-IANJ").get().getUnclaimed_reward().doubleValue());
-        assertEquals(1.190001,replica.getByaddress(address3).get().getUnclaimed_reward().doubleValue());
-        assertEquals(1.784998,replica.getByaddress(address2).get().getUnclaimed_reward().doubleValue());
-        assertEquals(2.473339,replica.getByaddress(address1).get().getUnclaimed_reward().doubleValue());
+        assertEquals(1.190001, replica.getByaddress("ADR-AADE-ROH3-CAFV-XK5V-2NKZ-QMTG-SFMC-37W5-SHUV-2T46").get().getUnclaimed_reward().doubleValue());
+        assertEquals(1.784998, replica.getByaddress("ADR-ACAO-BKTC-CFKG-VXWF-PSI2-QHWR-ZIGK-CCOL-LGJN-CM3U").get().getUnclaimed_reward().doubleValue());
+        assertEquals(2.473339, replica.getByaddress("ADR-AB2W-RIQY-LSIH-CXQQ-FGRV-AINR-57RO-NFXU-IWM5-IANJ").get().getUnclaimed_reward().doubleValue());
+        assertEquals(1.190001, replica.getByaddress(address3).get().getUnclaimed_reward().doubleValue());
+        assertEquals(1.784998, replica.getByaddress(address2).get().getUnclaimed_reward().doubleValue());
+        assertEquals(2.473339, replica.getByaddress(address1).get().getUnclaimed_reward().doubleValue());
 
 
         assertEquals(rewardsTotal.get(0).get(address1).getUnreal_reward().add(rewardsTotal.get(1).get(address1).getUnreal_reward()), rewardsTotal.get(2).get(address1).getUnreal_reward());
@@ -826,9 +825,9 @@ public class RewardsTest {
         assertEquals(TreeFactory.getMemoryTree(0).getByaddress(address2).get().getUnclaimed_reward(), replica.getByaddress(address2).get().getUnclaimed_reward());
         assertEquals(TreeFactory.getMemoryTree(0).getByaddress(address3).get().getUnclaimed_reward(), replica.getByaddress(address3).get().getUnclaimed_reward());
 
-        assertEquals(rewardsTotal.get(0).get(address1).getReal_reward().add(rewardsTotal.get(1).get(address1).getReal_reward()),TreeFactory.getMemoryTree(0).getByaddress(address1).get().getUnclaimed_reward());
-        assertEquals(rewardsTotal.get(0).get(address2).getReal_reward().add(rewardsTotal.get(1).get(address2).getReal_reward()),TreeFactory.getMemoryTree(0).getByaddress(address2).get().getUnclaimed_reward());
-        assertEquals(rewardsTotal.get(0).get(address3).getReal_reward().add(rewardsTotal.get(1).get(address3).getReal_reward()),TreeFactory.getMemoryTree(0).getByaddress(address3).get().getUnclaimed_reward());
+        assertEquals(rewardsTotal.get(0).get(address1).getReal_reward().add(rewardsTotal.get(1).get(address1).getReal_reward()), TreeFactory.getMemoryTree(0).getByaddress(address1).get().getUnclaimed_reward());
+        assertEquals(rewardsTotal.get(0).get(address2).getReal_reward().add(rewardsTotal.get(1).get(address2).getReal_reward()), TreeFactory.getMemoryTree(0).getByaddress(address2).get().getUnclaimed_reward());
+        assertEquals(rewardsTotal.get(0).get(address3).getReal_reward().add(rewardsTotal.get(1).get(address3).getReal_reward()), TreeFactory.getMemoryTree(0).getByaddress(address3).get().getUnclaimed_reward());
 
         CachedRewardMapData.getInstance().clearInstance();
         transactionBlockIDatabase.delete_db();

@@ -19,7 +19,7 @@ public class UnclaimedTransactionStorage implements TransactionStorage {
             patriciaTreeImp.put(key, next);
         } else {
             PatriciaTreeNode patriciaTreeNode = (PatriciaTreeNode) prev.get().clone();
-            BigDecimal new_cash = patriciaTreeNode.getUnclaimed_reward().add(amount).setScale(RewardConfiguration.DECIMAL_PRECISION,RewardConfiguration.ROUNDING);
+            BigDecimal new_cash = patriciaTreeNode.getUnclaimed_reward().add(amount).setScale(RewardConfiguration.DECIMAL_PRECISION, RewardConfiguration.ROUNDING);
             patriciaTreeNode.setUnclaimed_reward(new_cash);
             patriciaTreeImp.put(key, patriciaTreeNode);
         }
@@ -34,7 +34,8 @@ public class UnclaimedTransactionStorage implements TransactionStorage {
             patriciaTreeImp.put(key, next);
         } else {
             PatriciaTreeNode patriciaTreeNode = (PatriciaTreeNode) prev.get().clone();
-            BigDecimal new_cash = prev.get().getUnclaimed_reward().subtract(amount).setScale(RewardConfiguration.DECIMAL_PRECISION,RewardConfiguration.ROUNDING);;
+            BigDecimal new_cash = prev.get().getUnclaimed_reward().subtract(amount).setScale(RewardConfiguration.DECIMAL_PRECISION, RewardConfiguration.ROUNDING);
+            ;
             patriciaTreeNode.setUnclaimed_reward(new_cash);
             patriciaTreeNode.setNonce(patriciaTreeNode.getNonce() + 1);
             patriciaTreeImp.put(key, patriciaTreeNode);

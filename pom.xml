@@ -50,6 +50,8 @@
         <commons_net.version>3.9.0</commons_net.version>
         <logback.version>1.4.14</logback.version>
         <compress.version>1.27.1</compress.version>
+        <fury_core.version>0.8.0</fury_core.version>
+        <fastjson2.version>2.0.45</fastjson2.version>
     </properties>
     <repositories>
         <repository>
@@ -97,6 +99,16 @@
         </snapshotRepository>
     </distributionManagement>
     <dependencies>
+        <dependency>
+            <groupId>com.alibaba.fastjson2</groupId>
+            <artifactId>fastjson2</artifactId>
+            <version>${fastjson2.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.fury</groupId>
+            <artifactId>fury-core</artifactId>
+            <version>${fury_core.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-compress</artifactId>

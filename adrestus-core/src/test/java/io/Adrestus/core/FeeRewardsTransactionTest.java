@@ -224,6 +224,7 @@ public class FeeRewardsTransactionTest {
         committeeBlock.getStakingMap().put(new StakingData(5, BigDecimal.valueOf(271.0)), kad5);
         committeeBlock.getStakingMap().put(new StakingData(6, BigDecimal.valueOf(281.0)), kad6);
 
+
         CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
 
         CachedLatestBlocks.getInstance().getCommitteeBlock().setDifficulty(112);
@@ -239,6 +240,7 @@ public class FeeRewardsTransactionTest {
         list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         serenc = new SerializationUtil<Transaction>(Transaction.class, list);
+
 
         ArrayList<String> addreses = new ArrayList<>();
         ArrayList<ECKeyPair> keypair = new ArrayList<>();
@@ -265,7 +267,7 @@ public class FeeRewardsTransactionTest {
             transaction.setAmount(BigDecimal.valueOf(100));
             transaction.setAmountWithTransactionFee(transaction.getAmount().multiply(BigDecimal.valueOf(10.0 / 100.0)));
             transaction.setNonce(1);
-            byte byf[] = serenc.encode(transaction,1204);
+            byte byf[] = serenc.encode(transaction, 1204);
             transaction.setHash(HashUtil.sha256_bytetoString(byf));
             ECDSASignatureData signatureData = ecdsaSign.secp256SignMessage(Hex.decode(transaction.getHash()), keypair.get(i));
             transaction.setSignature(signatureData);
@@ -283,7 +285,7 @@ public class FeeRewardsTransactionTest {
         rewardsTransaction.setAmount(BigDecimal.valueOf(100));
         rewardsTransaction.setAmountWithTransactionFee(rewardsTransaction.getAmount().multiply(BigDecimal.valueOf(10.0 / 100.0)));
         rewardsTransaction.setNonce(1);
-        byte byf[] = serenc.encode(rewardsTransaction,1204);
+        byte byf[] = serenc.encode(rewardsTransaction, 1204);
         rewardsTransaction.setHash(HashUtil.sha256_bytetoString(byf));
         ECDSASignatureData signatureData = ecdsaSign.secp256SignMessage(Hex.decode(rewardsTransaction.getHash()), ecKeyPair2);
         rewardsTransaction.setSignature(signatureData);
@@ -405,7 +407,7 @@ public class FeeRewardsTransactionTest {
         rewardsTransaction.setAmountWithTransactionFee(BigDecimal.ZERO);
         rewardsTransaction.setNonce(1);
         rewardsTransaction.setTransactionCallback(transactionCallback);
-        byte[] byf = serenc.encode(rewardsTransaction,1024);
+        byte[] byf = serenc.encode(rewardsTransaction, 1024);
         rewardsTransaction.setHash(HashUtil.sha256_bytetoString(byf));
         ECDSASignatureData signatureData = ecdsaSign.secp256SignMessage(Hex.decode(rewardsTransaction.getHash()), ecKeyPair1);
         rewardsTransaction.setSignature(signatureData);
