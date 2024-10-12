@@ -11,7 +11,7 @@ import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.config.KademliaConfiguration;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedLeaderIndex;
-import io.Adrestus.core.mapper.CustomFurySerializer;
+import io.Adrestus.core.mapper.CoreFurySerializer;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.SecurityAuditProofs;
 import io.Adrestus.crypto.WalletAddress;
@@ -40,11 +40,9 @@ import org.junit.jupiter.api.Test;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
@@ -61,7 +59,7 @@ public class TreemapSerializationTest {
 
     @BeforeAll
     public static void setup() throws Exception {
-        CustomFurySerializer.getInstance().getFury();
+        CoreFurySerializer.getInstance().getFury();
         int version = 0x00;
         sk1 = new BLSPrivateKey(1);
         vk1 = new BLSPublicKey(sk1);
@@ -183,14 +181,18 @@ public class TreemapSerializationTest {
         IMemoryTreePool m41 = TreeFactory.getMemoryTree(2);
         //m.getByaddress(address);
         //use only special
-        byte[] bt = valueMapper.encode_special(m, SerializationUtils.serialize(m).length);
+        for (int i = 0; i < 100000; i++) {
+            char[] chars = new char[1000];
+            Arrays.fill(chars, String.valueOf(i).charAt(0));
+            String str = new String(chars);
+            PatriciaTreeNode patriciaTreeNode=new PatriciaTreeNode(BigDecimal.valueOf(2), 1,BigDecimal.valueOf(23453),BigDecimal.valueOf(243534),BigDecimal.valueOf(234534));
+            TreeFactory.getMemoryTree(0).store(str, patriciaTreeNode);
+        }
+
+        long start = System.currentTimeMillis();
+        byte[] bt = valueMapper.encode_special(TreeFactory.getMemoryTree(0), SerializationUtils.serialize(TreeFactory.getMemoryTree(0)).length);
         tree_datasbase.save("patricia_tree_root", bt);
         MemoryTreePool copy = (MemoryTreePool) valueMapper.decode(tree_datasbase.findByKey("patricia_tree_root").get());
-        long start = System.currentTimeMillis();
-        for (int i = 0; i < 1000; i++) {
-            byte[] bt1 = valueMapper.encode_special(m, SerializationUtils.serialize(m).length);
-            MemoryTreePool copy1 = (MemoryTreePool) valueMapper.decode(tree_datasbase.findByKey("patricia_tree_root").get());
-        }
         long finish = System.currentTimeMillis();
         long timeElapsed = finish - start;
         System.out.println("elapsed: " + timeElapsed);
@@ -199,7 +201,7 @@ public class TreemapSerializationTest {
         Option<PatriciaTreeNode> pat = copy.getByaddress(address);
 
         assertEquals(treeNode4, pat.get());
-        assertEquals(m, copy);
+        assertEquals(TreeFactory.getMemoryTree(0), copy);
         assertEquals(15, TreeFactory.getMemoryTree(3).getByaddress(address).get().getAmount().doubleValue());
         assertEquals(15, TreeFactory.getMemoryTree(0).getByaddress(address).get().getAmount().doubleValue());
         assertEquals(2, TreeFactory.getMemoryTree(1).getByaddress(address).get().getAmount().doubleValue());
@@ -209,8 +211,9 @@ public class TreemapSerializationTest {
 
 //    @Test
 //    public void treemap_database_Fury_Serialization() throws Exception {
-//        IDatabase<String, byte[]> tree_datasbase = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getPatriciaTreeZoneInstance(0));
-//        TreeFactory.ClearMemoryTree(0);
+//      IDatabase<String, byte[]> tree_datasbase = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getPatriciaTreeZoneInstance(0));
+//      TreeFactory.ClearMemoryTree(0);
+//
 //
 //        String address1 = "1";
 //        String address2 = "2";
@@ -224,18 +227,26 @@ public class TreemapSerializationTest {
 //        TreeFactory.getMemoryTree(0).store(address2, treeNode1);
 //        TreeFactory.getMemoryTree(0).store(address3, treeNode3);
 //        TreeFactory.getMemoryTree(0).store(address4, treeNode4);
-//        //m.getByaddress(address);
-//        //use only special
+//
+//
+//        TreeFactory.setMemoryTree((IMemoryTreePool) TreeFactory.getMemoryTree(0).clone(), 1);
+//
 //        byte[] bt = CustomFurySerializer.getInstance().getFury().serialize(TreeFactory.getMemoryTree(0));
 //        tree_datasbase.save("patricia_tree_root", bt);
 //        MemoryTreePool copy2 = (MemoryTreePool) CustomFurySerializer.getInstance().getFury().deserialize(bt);
 //        MemoryTreePool copy = (MemoryTreePool) CustomFurySerializer.getInstance().getFury().deserialize(tree_datasbase.findByKey("patricia_tree_root").get());
 //
-//        long start = System.currentTimeMillis();
-//        for (int i = 0; i < 1000; i++) {
-//            byte[] bt1 = CustomFurySerializer.getInstance().getFury().serialize(TreeFactory.getMemoryTree(0));
-//            MemoryTreePool copy1 = (MemoryTreePool) CustomFurySerializer.getInstance().getFury().deserialize(tree_datasbase.findByKey("patricia_tree_root").get());
+//        for (int i = 0; i < 100000; i++) {
+//            char[] chars = new char[1000];
+//            Arrays.fill(chars, String.valueOf(i).charAt(0));
+//            String str = new String(chars);
+//            PatriciaTreeNode patriciaTreeNode=new PatriciaTreeNode(BigDecimal.valueOf(2), 1,BigDecimal.valueOf(23453),BigDecimal.valueOf(243534),BigDecimal.valueOf(234534));
+//            TreeFactory.getMemoryTree(0).store(str, patriciaTreeNode);
 //        }
+//
+//        long start = System.currentTimeMillis();
+//        byte[] bt1 = CustomFurySerializer.getInstance().getFury().serialize(TreeFactory.getMemoryTree(0));
+//        MemoryTreePool clone_bt = (MemoryTreePool) CustomFurySerializer.getInstance().getFury().deserialize(bt1);
 //        long finish = System.currentTimeMillis();
 //        long timeElapsed = finish - start;
 //        System.out.println("elapsed: " + timeElapsed);
@@ -263,8 +274,8 @@ public class TreemapSerializationTest {
 //        assertEquals(123, TreeFactory.getMemoryTree(0).getByaddress(address3).get().getAmount().doubleValue());
 //        assertEquals(15, TreeFactory.getMemoryTree(0).getByaddress(address4).get().getAmount().doubleValue());
 //
-//        assertEquals(TreeFactory.getMemoryTree(0), copy2);
-//        assertEquals(TreeFactory.getMemoryTree(0), copy2);
+//        MatcherAssert.assertThat(TreeFactory.getMemoryTree(0).getPatriciaTreeImp(), Matchers.equalTo(copy.getPatriciaTreeImp()));
+//        assertEquals(TreeFactory.getMemoryTree(0), copy);
 //        tree_datasbase.delete_db();
 //    }
 

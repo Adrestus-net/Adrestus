@@ -1,20 +1,12 @@
 package io.Adrestus.core.mapper;
 
-import ch.qos.logback.classic.Logger;
-import ch.qos.logback.classic.LoggerContext;
 import io.Adrestus.Trie.HashMapDB;
-import io.Adrestus.core.comparators.SortSignatureMapByBlsPublicKey;
-import io.Adrestus.core.comparators.StakingValueComparator;
-import io.Adrestus.crypto.bls.BLSSignatureData;
-import io.Adrestus.crypto.bls.model.Signature;
-import io.Adrestus.crypto.elliptic.mapper.StakingData;
-import io.Adrestus.p2p.kademlia.repository.KademliaData;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import org.apache.fury.Fury;
 import org.apache.fury.config.CompatibleMode;
 import org.apache.fury.config.Language;
-import org.slf4j.LoggerFactory;
+import org.apache.fury.logging.LoggerFactory;
 
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
@@ -25,7 +17,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.TreeMap;
 
-public class CustomFurySerializer {
+public class CoreFurySerializer {
     private int DEPTH = 130;
     @Getter
     private final Fury fury;
@@ -33,15 +25,13 @@ public class CustomFurySerializer {
     private final HashSet<String> class_names;
     private final HashSet<Class> ignore_class_names;
     private final ArrayList<Object> toSerialize;
-    private static volatile CustomFurySerializer instance;
+    private static volatile CoreFurySerializer instance;
 
     static {
-        LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
-        Logger rootLogger = loggerContext.getLogger("org.apache.fury");
-        rootLogger.setLevel(ch.qos.logback.classic.Level.OFF);
+        LoggerFactory.disableLogging();
     }
 
-    private CustomFurySerializer() throws ClassNotFoundException {
+    private CoreFurySerializer() throws ClassNotFoundException {
         if (instance != null) {
             throw new IllegalStateException("Already initialized.");
         }
@@ -51,33 +41,34 @@ public class CustomFurySerializer {
         this.toSerialize = new ArrayList<>();
         this.fury = Fury.builder()
                 .withLanguage(Language.JAVA)
-                .withAsyncCompilation(false)
                 .withRefTracking(false)
                 .withClassVersionCheck(true)
                 .withCompatibleMode(CompatibleMode.SCHEMA_CONSISTENT)
                 .withAsyncCompilation(true)
                 .withCodegen(false)
-                .requireClassRegistration(true)
+                .requireClassRegistration(false)
                 .build();
-        this.Setup();
-        this.withDataType(new KademliaData())
-                .withDataType(new StakingData())
-                .withDataType(new SortSignatureMapByBlsPublicKey())
-                .withDataType(new StakingValueComparator())
-                .withDataType(new BLSSignatureData())
-                .withDataType(new Signature())
-                .Construct();
+//        this.Setup();
+//        this.withDataType(new KademliaData())
+//                .withDataType(new StakingData())
+//                .withDataType(new SortSignatureMapByBlsPublicKey())
+//                .withDataType(new StakingValueComparator())
+//                .withDataType(new BLSSignatureData())
+//                .withDataType(new Signature())
+//                .withDataType(new MemoryTreePool())
+//                .withDataType(new MerklePatriciaTreeImp())
+//                .Construct();
     }
 
     @SneakyThrows
-    public static CustomFurySerializer getInstance() {
+    public static CoreFurySerializer getInstance() {
 
         var result = instance;
         if (result == null) {
-            synchronized (CustomFurySerializer.class) {
+            synchronized (CoreFurySerializer.class) {
                 result = instance;
                 if (result == null) {
-                    result = new CustomFurySerializer();
+                    result = new CoreFurySerializer();
                     instance = result;
                 }
             }
@@ -85,7 +76,7 @@ public class CustomFurySerializer {
         return result;
     }
 
-    public CustomFurySerializer withDataType(Object data) {
+    public CoreFurySerializer withDataType(Object data) {
         this.toSerialize.add(data);
         return this;
     }
