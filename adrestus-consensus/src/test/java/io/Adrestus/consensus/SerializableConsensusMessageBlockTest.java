@@ -131,7 +131,7 @@ public class SerializableConsensusMessageBlockTest {
         database.save(String.valueOf(block.getHeight()), block);
         TransactionBlock copy = (TransactionBlock) database.findByKey("1").get();
         assertEquals(block, copy);
-        System.out.println(copy.toString());
+
         database.delete_db();
     }
 
@@ -145,12 +145,21 @@ public class SerializableConsensusMessageBlockTest {
         list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
         this.consensus_serialize = new SerializationUtil<ConsensusMessage>(fluentType, list);
 
+        String message="toSign";
         TreeMap<BLSPublicKey, BLSSignatureData> signatureData = new TreeMap<BLSPublicKey, BLSSignatureData>(new SortSignatureMapByBlsPublicKey());
         BLSSignatureData blsSignatureData1 = new BLSSignatureData();
-        blsSignatureData1.getSignature()[0] = BLSSignature.sign("toSign".getBytes(StandardCharsets.UTF_8), sk1);
         BLSSignatureData blsSignatureData2 = new BLSSignatureData();
         BLSSignatureData blsSignatureData3 = new BLSSignatureData();
         BLSSignatureData blsSignatureData4 = new BLSSignatureData();
+
+        blsSignatureData1.getSignature()[0] = BLSSignature.sign(message.getBytes(StandardCharsets.UTF_8), sk3);
+        blsSignatureData1.getMessageHash()[0]=message;
+        blsSignatureData2.getSignature()[0] = BLSSignature.sign(message.getBytes(StandardCharsets.UTF_8), sk4);
+        blsSignatureData2.getMessageHash()[0]=message;
+        blsSignatureData3.getSignature()[0] = BLSSignature.sign(message.getBytes(StandardCharsets.UTF_8), sk1);
+        blsSignatureData3.getMessageHash()[0]=message;
+        blsSignatureData4.getSignature()[0] = BLSSignature.sign(message.getBytes(StandardCharsets.UTF_8), sk2);
+        blsSignatureData4.getMessageHash()[0]=message;
         signatureData.put(vk3, blsSignatureData1);
         signatureData.put(vk4, blsSignatureData2);
         signatureData.put(vk1, blsSignatureData3);
@@ -167,16 +176,22 @@ public class SerializableConsensusMessageBlockTest {
         consensusMessage2.getChecksumData().setSignature(BLSSignature.sign("toSign".getBytes(StandardCharsets.UTF_8), sk1));
         consensusMessage.getChecksumData().setBlsPublicKey(vk1);
         consensusMessage.getChecksumData().setSignature(BLSSignature.sign("toSign".getBytes(StandardCharsets.UTF_8), sk1));
+        consensusMessage.getSignatures().putAll(signatureData);
+        consensusMessage2.getSignatures().putAll(signatureData);
         assertEquals(consensusMessage, consensusMessage2);
-        byte[] hash = consensus_serialize.encode(consensusMessage);
-        ConsensusMessage<TransactionBlock> replica = this.consensus_serialize.decode(hash);
-        assertEquals(consensusMessage, replica);
+
+
+        byte[] data = consensus_serialize.encode(consensusMessage);
+        ConsensusMessage<TransactionBlock> cloned = this.consensus_serialize.decode(data);
+        assertEquals(consensusMessage, cloned);
+        assertEquals(consensusMessage2, cloned);
+
         BLSSignatureData blsSignatureData6 = new BLSSignatureData();
-        blsSignatureData6.getSignature()[0] = new Signature(replica.getChecksumData().getSignature().getPoint());
+        blsSignatureData6.getSignature()[0] = new Signature(cloned.getChecksumData().getSignature().getPoint());
         consensusMessage.getSignatures().put(vk1, blsSignatureData6);
         byte[] hash2 = this.consensus_serialize.encode(consensusMessage);
-        ConsensusMessage<TransactionBlock> clone = this.consensus_serialize.decode(hash2);
-        assertEquals(consensusMessage, clone);
+        ConsensusMessage<TransactionBlock> cloned2 = this.consensus_serialize.decode(hash2);
+        assertEquals(consensusMessage, cloned2);
     }
 
     @Test

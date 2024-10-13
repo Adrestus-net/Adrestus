@@ -153,6 +153,7 @@ public class SerializableBlockTest {
         assertEquals(prevblock, newblock);
     }
 
+    @SneakyThrows
     @Test
     public void TransactionBlocktest2() {
         TransactionBlock prevblock = new TransactionBlock();
@@ -164,9 +165,11 @@ public class SerializableBlockTest {
         prevblock.getHeaderData().setTimestamp(GetTime.GetTimeStampInString());
         BlockSizeCalculator blockSizeCalculator = new BlockSizeCalculator();
         blockSizeCalculator.setTransactionBlock(prevblock);
-        byte[] tohash = serenc.encode(prevblock, blockSizeCalculator.TransactionBlockSizeCalculator());
-        TransactionBlock newblock = (TransactionBlock) serenc.decode(tohash);
+        byte[] data = serenc.encode(prevblock, blockSizeCalculator.TransactionBlockSizeCalculator());
+        TransactionBlock newblock = (TransactionBlock) serenc.decode(data);
+        TransactionBlock cloned_newblock= (TransactionBlock) newblock.clone();
         assertEquals(prevblock, newblock);
+        assertEquals(prevblock, cloned_newblock);
     }
 
     @Test
@@ -212,8 +215,8 @@ public class SerializableBlockTest {
 
         BlockSizeCalculator blockSizeCalculator = new BlockSizeCalculator();
         blockSizeCalculator.setCommitteeBlock(committeeBlock);
-        byte[] tohash = serenc.encode(committeeBlock, blockSizeCalculator.CommitteeBlockSizeCalculator());
-        CommitteeBlock newblock = (CommitteeBlock) serenc.decode(tohash);
+        byte[] data = serenc.encode(committeeBlock, blockSizeCalculator.CommitteeBlockSizeCalculator());
+        CommitteeBlock newblock = (CommitteeBlock) serenc.decode(data);
         assertEquals(committeeBlock, newblock);
     }
 
@@ -228,9 +231,10 @@ public class SerializableBlockTest {
         hashMap.put(vk4, blsSignatureData2);
         hashMap.put(vk1, blsSignatureData3);
         hashMap.put(vk2, blsSignatureData4);
+
         AbstractBlock block = new TransactionBlock();
         block.AddAllSignatureData(hashMap);
-        blsSignatureData1.getMessageHash()[0] = "adasdas";
+        blsSignatureData1.getMessageHash()[0] = "test";
         hashMap.put(vk3, blsSignatureData1);
         block.AddAllSignatureData(hashMap);
         TreeMap<BLSPublicKey, BLSSignatureData> final_block = block.getSignatureData();
@@ -242,7 +246,7 @@ public class SerializableBlockTest {
         assertEquals(vk1, final_block.keySet().toArray()[1]);
         assertEquals(vk4, final_block.keySet().toArray()[2]);
         assertEquals(vk2, final_block.keySet().toArray()[3]);
-        assertEquals("adasdas", final_block.get(vk3).getMessageHash()[0]);
+        assertEquals("test", final_block.get(vk3).getMessageHash()[0]);
     }
 
     @Test

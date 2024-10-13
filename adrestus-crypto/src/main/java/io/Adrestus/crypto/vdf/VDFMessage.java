@@ -25,12 +25,14 @@ public class VDFMessage implements Serializable {
         this.VDFSolution = VDFSolution;
     }
 
+
+    //Never delete this Arrays.equals(VDFSolution, that.VDFSolution) should exist
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         VDFMessage that = (VDFMessage) o;
-        return Objects.equal(VDFSolution, that.VDFSolution);
+        return Arrays.equals(VDFSolution, that.VDFSolution);
     }
 
     @Override

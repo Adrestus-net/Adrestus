@@ -18,6 +18,15 @@ public class ConsensusMessage<T> implements Serializable {
     private ChecksumData checksumData;
     private TreeMap<BLSPublicKey, BLSSignatureData> signatures;
 
+    public ConsensusMessage() {
+        this.signatures = new TreeMap<BLSPublicKey, BLSSignatureData>(new SortSignatureMapByBlsPublicKey());
+        this.checksumData = new ChecksumData();
+        this.messageType = ConsensusMessageType.ANNOUNCE;
+        this.statusType = ConsensusStatusType.PENDING;
+        this.data = null;
+        this.hash = "";
+    }
+
     public ConsensusMessage(@Deserialize("data") T data) {
         this.signatures = new TreeMap<BLSPublicKey, BLSSignatureData>(new SortSignatureMapByBlsPublicKey());
         this.checksumData = new ChecksumData();

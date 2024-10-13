@@ -19,7 +19,7 @@ public final class VRFMessage implements Serializable {
     public VRFMessage() {
         this.type = vrfMessageType.INIT;
         this.BlockHash = "";
-        prnd = new byte[100];
+        this.prnd = new byte[100];
         Arrays.fill(prnd, (byte) 1);
         this.data = new VRFData();
         this.signers = new ArrayList<VRFData>();
@@ -126,6 +126,20 @@ public final class VRFMessage implements Serializable {
             return super.clone();
         }
 
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            VRFData vrfData = (VRFData) o;
+            return java.util.Objects.deepEquals(bls_pubkey, vrfData.bls_pubkey) && java.util.Objects.deepEquals(ri, vrfData.ri) && java.util.Objects.deepEquals(pi, vrfData.pi);
+        }
+
+        @Override
+        public int hashCode() {
+            return java.util.Objects.hash(Arrays.hashCode(bls_pubkey), Arrays.hashCode(ri), Arrays.hashCode(pi));
+        }
+
         @Override
         public String toString() {
             return "VRFData{" +
@@ -137,12 +151,14 @@ public final class VRFMessage implements Serializable {
     }
 
 
+
+    //NEVER DELETE THIS Arrays.equalS(prnd, message.prnd) SHOULD EXIST
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         VRFMessage message = (VRFMessage) o;
-        return type == message.type && Objects.equal(BlockHash, message.BlockHash) && Objects.equal(prnd, message.prnd) && Objects.equal(data, message.data) && Objects.equal(signers, message.signers);
+        return type == message.type && Objects.equal(BlockHash, message.BlockHash) && Arrays.equals(prnd, message.prnd) && Objects.equal(data, message.data) && Objects.equal(signers, message.signers);
     }
 
     @Override
