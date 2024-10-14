@@ -7,12 +7,12 @@ import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.Trie.PatriciaTreeTransactionType;
 import io.Adrestus.Trie.StakingInfo;
+import io.Adrestus.crypto.elliptic.mapper.CustomFurySerializer;
 import io.Adrestus.mapper.MemoryTreePoolSerializer;
 import io.Adrestus.util.SerializationUtil;
 import io.Adrestus.util.bytes.Bytes53;
 import io.vavr.control.Option;
 import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.lang3.SerializationUtils;
 import org.apache.tuweni.bytes.Bytes;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
@@ -141,7 +141,7 @@ public class MemoryTreePoolTest {
 
         //m.getByaddress(address);
         //use only special
-        byte[] bt = valueMapper.encode_special(m, SerializationUtils.serialize(m).length);
+        byte[] bt = valueMapper.encode_special(m, CustomFurySerializer.getInstance().getFury().serialize(m).length);
         MemoryTreePool copy = (MemoryTreePool) valueMapper.decode(bt);
 
 
@@ -234,8 +234,8 @@ public class MemoryTreePoolTest {
         Option<PatriciaTreeNode> pats = TreeFactory.getMemoryTree(1).getByaddress(address);
         MemoryTreePool m = (MemoryTreePool) TreeFactory.getMemoryTree(1);
 
-        byte[] bt = SerializationUtils.serialize(m);
-        MemoryTreePool copy = (MemoryTreePool) SerializationUtils.deserialize(bt);
+        byte[] bt = CustomFurySerializer.getInstance().getFury().serialize(m);
+        MemoryTreePool copy = (MemoryTreePool) CustomFurySerializer.getInstance().getFury().deserialize(bt);
 
         Option<PatriciaTreeNode> pat = copy.getByaddress(address);
 

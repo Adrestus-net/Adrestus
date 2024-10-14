@@ -17,6 +17,7 @@ import io.distributedLedger.PatriciaTreeInstance;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
 import java.security.SecureRandom;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -38,10 +39,10 @@ public class WorkerTest {
             random.setSeed(key);
             ECKeyPair ecKeyPair = Keys.createEcKeyPair(random);
             String adddress = WalletAddress.generate_address((byte) version, ecKeyPair.getPublicKey());
-            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(adddress, new PatriciaTreeNode(1000, 0));
+            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(adddress, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
         }
-        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store("ADR-GBIV-HG2J-27P5-BNVN-MLN6-DL5V-M3YZ-PKEJ-CFFG-FK4L", new PatriciaTreeNode(1000, 0));
-        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store("ADR-GB5Y-BF5F-JUS3-5HHG-WWQR-MCM3-LIP6-EMWY-UVAK-PXYV", new PatriciaTreeNode(1000, 0));
+        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store("ADR-GBIV-HG2J-27P5-BNVN-MLN6-DL5V-M3YZ-PKEJ-CFFG-FK4L", new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
+        TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store("ADR-GB5Y-BF5F-JUS3-5HHG-WWQR-MCM3-LIP6-EMWY-UVAK-PXYV", new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
     }
 
     //IT'S IMPORTANT to have cachedEventLoop started to play

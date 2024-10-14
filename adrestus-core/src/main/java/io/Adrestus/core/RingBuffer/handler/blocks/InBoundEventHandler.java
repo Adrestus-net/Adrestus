@@ -57,7 +57,7 @@ public class InBoundEventHandler implements BlockEventHandler<AbstractBlockEvent
     @Override
     public void onEvent(AbstractBlockEvent blockEvent, long l, boolean b) throws InterruptedException {
         transactionBlock = (TransactionBlock) blockEvent.getBlock();
-        transactionBlockClonable = (TransactionBlock) blockEvent.getBlock().clone();
+        transactionBlockClonable = (TransactionBlock) transactionBlock.clone();
         committeeBlock = CachedLatestBlocks.getInstance().getCommitteeBlock();
         inner_receipts = transactionBlockClonable.getInbound().getMap_receipts();
 

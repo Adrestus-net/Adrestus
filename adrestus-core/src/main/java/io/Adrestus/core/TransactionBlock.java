@@ -2,6 +2,9 @@ package io.Adrestus.core;
 
 import io.Adrestus.core.RingBuffer.handler.blocks.DisruptorBlock;
 import io.Adrestus.core.RingBuffer.handler.blocks.DisruptorBlockVisitor;
+import io.Adrestus.core.Util.BlockSizeCalculator;
+import io.Adrestus.core.mapper.SerializerCoreActiveJ;
+import io.Adrestus.core.mapper.SerializerCoreFury;
 import io.Adrestus.crypto.bls.BLSSignatureData;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.activej.serializer.annotations.Serialize;
@@ -186,16 +189,8 @@ public class TransactionBlock extends AbstractBlock implements BlockFactory, Dis
     @Override
     public Object clone() throws CloneNotSupportedException {
         try {
-            ByteArrayOutputStream bOut = new ByteArrayOutputStream();
-            ObjectOutputStream out = new ObjectOutputStream(bOut);
-            out.writeObject(super.clone());
-            out.close();
-
-            ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(bOut.toByteArray()));
-            TransactionBlock copy = (TransactionBlock) in.readObject();
-            in.close();
-
-            return copy;
+            byte[] bytes = SerializerCoreFury.getInstance().getFury().serialize(this);
+            return (TransactionBlock) SerializerCoreFury.getInstance().getFury().deserialize(bytes);
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException(e);

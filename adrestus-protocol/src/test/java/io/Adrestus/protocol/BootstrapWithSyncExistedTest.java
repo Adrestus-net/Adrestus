@@ -38,17 +38,18 @@ import io.Adrestus.p2p.kademlia.node.KeyHashGenerator;
 import io.Adrestus.p2p.kademlia.repository.KademliaData;
 import io.Adrestus.p2p.kademlia.util.BoundedHashUtil;
 import io.Adrestus.p2p.kademlia.util.LoggerKademlia;
+import io.Adrestus.protocol.mapper.CustomFurySerializer;
 import io.Adrestus.util.GetTime;
 import io.Adrestus.util.SerializationUtil;
 import io.distributedLedger.*;
 import org.apache.commons.codec.binary.StringUtils;
-import org.apache.commons.lang3.SerializationUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.spongycastle.util.encoders.Hex;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -198,14 +199,14 @@ public class BootstrapWithSyncExistedTest {
         ECDSASignatureData signatureData7 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address7)), ecKeyPair7);
         ECDSASignatureData signatureData8 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address8)), ecKeyPair8);
 
-        TreeFactory.getMemoryTree(0).store(address1, new PatriciaTreeNode(3000, 0));
-        TreeFactory.getMemoryTree(0).store(address2, new PatriciaTreeNode(3000, 0));
-        TreeFactory.getMemoryTree(0).store(address3, new PatriciaTreeNode(3000, 0));
-        TreeFactory.getMemoryTree(0).store(address4, new PatriciaTreeNode(3000, 0));
-        TreeFactory.getMemoryTree(0).store(address5, new PatriciaTreeNode(3000, 0));
-        TreeFactory.getMemoryTree(0).store(address6, new PatriciaTreeNode(3000, 0));
-        TreeFactory.getMemoryTree(0).store(address7, new PatriciaTreeNode(3000, 0));
-        TreeFactory.getMemoryTree(0).store(address8, new PatriciaTreeNode(3000, 0));
+        TreeFactory.getMemoryTree(0).store(address1, new PatriciaTreeNode(BigDecimal.valueOf(3000), 0));
+        TreeFactory.getMemoryTree(0).store(address2, new PatriciaTreeNode(BigDecimal.valueOf(3000), 0));
+        TreeFactory.getMemoryTree(0).store(address3, new PatriciaTreeNode(BigDecimal.valueOf(3000), 0));
+        TreeFactory.getMemoryTree(0).store(address4, new PatriciaTreeNode(BigDecimal.valueOf(3000), 0));
+        TreeFactory.getMemoryTree(0).store(address5, new PatriciaTreeNode(BigDecimal.valueOf(3000), 0));
+        TreeFactory.getMemoryTree(0).store(address6, new PatriciaTreeNode(BigDecimal.valueOf(3000), 0));
+        TreeFactory.getMemoryTree(0).store(address7, new PatriciaTreeNode(BigDecimal.valueOf(3000), 0));
+        TreeFactory.getMemoryTree(0).store(address8, new PatriciaTreeNode(BigDecimal.valueOf(3000), 0));
 
         kad1 = new KademliaData(new SecurityAuditProofs(address1, vk1, ecKeyPair1.getPublicKey(), signatureData1), new NettyConnectionInfo("192.168.1.106", KademliaConfiguration.PORT));
         kad2 = new KademliaData(new SecurityAuditProofs(address2, vk2, ecKeyPair2.getPublicKey(), signatureData2), new NettyConnectionInfo("192.168.1.113", KademliaConfiguration.PORT));
@@ -225,13 +226,13 @@ public class BootstrapWithSyncExistedTest {
         committeeBlock.getStructureMap().get(1).put(vk6, "192.168.1.115");
 
 
-        committeeBlock.getStakingMap().put(new StakingData(1, 10.0), kad1);
-        committeeBlock.getStakingMap().put(new StakingData(2, 11.0), kad2);
-        committeeBlock.getStakingMap().put(new StakingData(3, 151.0), kad3);
-        committeeBlock.getStakingMap().put(new StakingData(4, 16.0), kad4);
-        committeeBlock.getStakingMap().put(new StakingData(5, 271.0), kad5);
-        committeeBlock.getStakingMap().put(new StakingData(6, 281.0), kad6);
-        committeeBlock.getStakingMap().put(new StakingData(7, 284.0), kad8);
+        committeeBlock.getStakingMap().put(new StakingData(1, BigDecimal.valueOf(10.0)), kad1);
+        committeeBlock.getStakingMap().put(new StakingData(2, BigDecimal.valueOf(11.0)), kad2);
+        committeeBlock.getStakingMap().put(new StakingData(3, BigDecimal.valueOf(151.0)), kad3);
+        committeeBlock.getStakingMap().put(new StakingData(4, BigDecimal.valueOf(16.0)), kad4);
+        committeeBlock.getStakingMap().put(new StakingData(5, BigDecimal.valueOf(271.0)), kad5);
+        committeeBlock.getStakingMap().put(new StakingData(6, BigDecimal.valueOf(281.0)), kad6);
+        committeeBlock.getStakingMap().put(new StakingData(7, BigDecimal.valueOf(284.0)), kad8);
 
         CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
 
@@ -249,7 +250,7 @@ public class BootstrapWithSyncExistedTest {
         CachedLatestBlocks.getInstance().setTransactionBlock(prevblock);
 
         database.save(String.valueOf(CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration()), CachedLatestBlocks.getInstance().getCommitteeBlock());
-        tree_database.save("1", patricia_tree_wrapper.encode_special(TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()), SerializationUtils.serialize(TreeFactory.getMemoryTree(0)).length));
+        tree_database.save("1", patricia_tree_wrapper.encode_special(TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()), CustomFurySerializer.getInstance().getFury().serialize(TreeFactory.getMemoryTree(0)).length));
         CachedSecurityHeaders.getInstance().getSecurityHeader().setPRnd(Hex.decode("c1f72aa5bd1e1d53c723b149259b63f759f40d5ab003b547d5c13d45db9a5da8"));
         CachedSecurityHeaders.getInstance().getSecurityHeader().setRnd(vdf.solve(CachedSecurityHeaders.getInstance().getSecurityHeader().getPRnd(), CachedLatestBlocks.getInstance().getCommitteeBlock().getDifficulty()));
 

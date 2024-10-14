@@ -24,7 +24,7 @@ public class OutBoundEventHandler implements BlockEventHandler<AbstractBlockEven
     @Override
     public void onEvent(AbstractBlockEvent blockEvent, long l, boolean b) throws Exception {
         TransactionBlock transactionBlock = (TransactionBlock) blockEvent.getBlock();
-        TransactionBlock transactionBlockclonable = (TransactionBlock) blockEvent.getBlock().clone();
+        TransactionBlock transactionBlockclonable = (TransactionBlock) transactionBlock.clone();
         final LinkedHashMap<Integer, LinkedHashMap<Receipt.ReceiptBlock, List<Receipt>>> outer_receipts = transactionBlockclonable.getOutbound().getMap_receipts();
         if (transactionBlockclonable.getOutbound().getMap_receipts().isEmpty())
             return;

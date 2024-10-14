@@ -11,7 +11,7 @@ import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.config.KademliaConfiguration;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedLeaderIndex;
-import io.Adrestus.core.mapper.CoreFurySerializer;
+import io.Adrestus.core.mapper.SerializerCoreFury;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.SecurityAuditProofs;
 import io.Adrestus.crypto.WalletAddress;
@@ -22,6 +22,7 @@ import io.Adrestus.crypto.elliptic.ECDSASignatureData;
 import io.Adrestus.crypto.elliptic.ECKeyPair;
 import io.Adrestus.crypto.elliptic.Keys;
 import io.Adrestus.crypto.elliptic.mapper.BigDecimalSerializer;
+import io.Adrestus.crypto.elliptic.mapper.CustomFurySerializer;
 import io.Adrestus.crypto.elliptic.mapper.StakingData;
 import io.Adrestus.crypto.mnemonic.Mnemonic;
 import io.Adrestus.crypto.mnemonic.Security;
@@ -33,7 +34,6 @@ import io.Adrestus.util.SerializationUtil;
 import io.distributedLedger.*;
 import io.vavr.control.Option;
 import org.apache.commons.codec.binary.StringUtils;
-import org.apache.commons.lang3.SerializationUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -59,7 +59,7 @@ public class TreemapSerializationTest {
 
     @BeforeAll
     public static void setup() throws Exception {
-        CoreFurySerializer.getInstance().getFury();
+        SerializerCoreFury.getInstance().getFury();
         int version = 0x00;
         sk1 = new BLSPrivateKey(1);
         vk1 = new BLSPublicKey(sk1);
@@ -136,7 +136,7 @@ public class TreemapSerializationTest {
 
         //m.getByaddress(address);
         //use only special
-        byte[] bt = valueMapper.encode_special(m, SerializationUtils.serialize(m).length);
+        byte[] bt = valueMapper.encode_special(m, CustomFurySerializer.getInstance().getFury().serialize(m).length);
         tree_datasbase.save("patricia_tree_root", bt);
         MemoryTreePool copy = (MemoryTreePool) valueMapper.decode(tree_datasbase.findByKey("patricia_tree_root").get());
 
@@ -190,7 +190,7 @@ public class TreemapSerializationTest {
         }
 
         long start = System.currentTimeMillis();
-        byte[] bt = valueMapper.encode_special(TreeFactory.getMemoryTree(0), SerializationUtils.serialize(TreeFactory.getMemoryTree(0)).length);
+        byte[] bt = valueMapper.encode_special(TreeFactory.getMemoryTree(0), CustomFurySerializer.getInstance().getFury().serialize(TreeFactory.getMemoryTree(0)).length);
         tree_datasbase.save("patricia_tree_root", bt);
         MemoryTreePool copy = (MemoryTreePool) valueMapper.decode(tree_datasbase.findByKey("patricia_tree_root").get());
         long finish = System.currentTimeMillis();
@@ -297,7 +297,7 @@ public class TreemapSerializationTest {
 
         //m.getByaddress(address);
         //use only special
-        byte[] bt = valueMapper.encode_special(m, SerializationUtils.serialize(m).length);
+        byte[] bt = valueMapper.encode_special(m, CustomFurySerializer.getInstance().getFury().serialize(m).length);
         tree_database.save("patricia_tree_root", bt);
         MemoryTreePool copy = (MemoryTreePool) valueMapper.decode(tree_database.findByKey("patricia_tree_root").get());
 
@@ -337,7 +337,7 @@ public class TreemapSerializationTest {
 
         //m.getByaddress(address);
         //use only special
-        byte[] bt = valueMapper.encode_special(m, SerializationUtils.serialize(m).length);
+        byte[] bt = valueMapper.encode_special(m, CustomFurySerializer.getInstance().getFury().serialize(m).length);
         tree_database.save("patricia_tree_root", bt);
         MemoryTreePool copy = (MemoryTreePool) valueMapper.decode(tree_database.findByKey("patricia_tree_root").get());
 
@@ -379,8 +379,8 @@ public class TreemapSerializationTest {
         assertEquals(m2, m2clone);
         //m.getByaddress(address);
         //use only special
-        byte[] bt = valueMapper.encode_special(m, SerializationUtils.serialize(m).length);
-        byte[] bt2 = valueMapper.encode_special(m2, SerializationUtils.serialize(m2).length);
+        byte[] bt = valueMapper.encode_special(m, CustomFurySerializer.getInstance().getFury().serialize(m).length);
+        byte[] bt2 = valueMapper.encode_special(m2, CustomFurySerializer.getInstance().getFury().serialize(m2).length);
         tree_datasbase.save("3", bt);
         tree_datasbase.save("4", bt2);
         tree_datasbase.save("2", bt);

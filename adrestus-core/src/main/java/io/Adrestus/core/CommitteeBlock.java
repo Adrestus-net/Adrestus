@@ -3,7 +3,10 @@ package io.Adrestus.core;
 import com.google.common.base.Objects;
 import io.Adrestus.core.RingBuffer.handler.blocks.DisruptorBlock;
 import io.Adrestus.core.RingBuffer.handler.blocks.DisruptorBlockVisitor;
+import io.Adrestus.core.Util.BlockSizeCalculator;
 import io.Adrestus.core.comparators.StakingValueComparator;
+import io.Adrestus.core.mapper.SerializerCoreActiveJ;
+import io.Adrestus.core.mapper.SerializerCoreFury;
 import io.Adrestus.crypto.bls.BLSSignatureData;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.Adrestus.crypto.elliptic.mapper.StakingData;
@@ -169,7 +172,16 @@ public class CommitteeBlock extends AbstractBlock implements BlockFactory, Disru
     public void AddAllSignatureData(HashMap<BLSPublicKey, BLSSignatureData> signatureData) {
         super.AddAllSignatureData(signatureData);
     }
-
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        try {
+            byte[] bytes = SerializerCoreFury.getInstance().getFury().serialize(this);
+            return (CommitteeBlock) SerializerCoreFury.getInstance().getFury().deserialize(bytes);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+    }
     //NEVER DELETE THIS ONLY CHANGE INSIDE
     @Override
     public boolean equals(Object o) {

@@ -5,9 +5,9 @@ import io.Adrestus.core.RingBuffer.publisher.TransactionEventPublisher;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.elliptic.mapper.BigDecimalSerializer;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
+import io.Adrestus.crypto.elliptic.mapper.CustomFurySerializer;
 import io.Adrestus.util.GetTime;
 import io.Adrestus.util.SerializationUtil;
-import org.apache.commons.lang3.SerializationUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -73,7 +73,7 @@ public class RingBufferTest {
     }
 
 
-    //@Test
+    @Test
     public void CommitBlockTest() throws InterruptedException, IOException {
         BlockEventPublisher publisher = new BlockEventPublisher(1024);
         CommitteeBlock block = new CommitteeBlock();
@@ -83,8 +83,8 @@ public class RingBufferTest {
         out.writeObject(block);
         out.close();
 
-        byte[] buff = SerializationUtils.serialize(block);
-        CommitteeBlock copy = SerializationUtils.deserialize(buff);
+        byte[] buff = CustomFurySerializer.getInstance().getFury().serialize(block);
+        CommitteeBlock copy = (CommitteeBlock) CustomFurySerializer.getInstance().getFury().deserialize(buff);
         assertEquals(block, copy);
         publisher.withHashHandler().mergeEvents();
         publisher.start();

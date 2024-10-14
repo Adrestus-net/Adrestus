@@ -5,8 +5,8 @@ import io.Adrestus.Trie.MerklePatriciaTreeImp;
 import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.Trie.optimize64_trie.IMerklePatriciaTrie;
 import io.Adrestus.Trie.optimize64_trie.MerklePatriciaTrie;
+import io.Adrestus.crypto.elliptic.mapper.CustomFurySerializer;
 import io.Adrestus.util.bytes.Bytes;
-import org.apache.commons.lang3.SerializationUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -28,7 +28,7 @@ public class PatriciaTreeTest {
     void setUp() throws Exception {
         trie = new MerklePatriciaTreeImp();
         valueSerializer = value -> (value != null) ? Bytes.wrap(value.getBytes(StandardCharsets.UTF_8)) : null;
-        valueSerializer2 = value -> (value != null) ? Bytes.wrap(SerializationUtils.serialize(value)) : null;
+        valueSerializer2 = value -> (value != null) ? Bytes.wrap(CustomFurySerializer.getInstance().getFury().serialize(value)) : null;
         optimized = new MerklePatriciaTrie<Bytes, String>(valueSerializer);
         optimized2 = new MerklePatriciaTrie<Bytes, PatriciaTreeNode>(valueSerializer2);
     }
@@ -101,7 +101,7 @@ public class PatriciaTreeTest {
         node.setNonce(12);
         optimized2.put(key1, node);
         final String hash2 = optimized2.getRootHash().toHexString();
-        assertEquals("0x2f93991cda7e62dab310c498b229a27e2240056b97edefe8ec3068fe5d266831", hash2);
+        assertEquals("0xdcb92030948975e8c99cca4b701714c56a0086b0e865010e00c5ca3122067c61", hash2);
         assertEquals(node, optimized2.get(key1).get());
     }
 

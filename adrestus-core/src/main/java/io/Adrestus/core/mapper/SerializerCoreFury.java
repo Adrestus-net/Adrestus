@@ -1,9 +1,18 @@
 package io.Adrestus.core.mapper;
 
+import io.Adrestus.MemoryTreePool;
 import io.Adrestus.Trie.HashMapDB;
+import io.Adrestus.Trie.MerklePatriciaTreeImp;
+import io.Adrestus.core.comparators.SortSignatureMapByBlsPublicKey;
+import io.Adrestus.core.comparators.StakingValueComparator;
+import io.Adrestus.crypto.bls.BLSSignatureData;
+import io.Adrestus.crypto.bls.model.Signature;
+import io.Adrestus.crypto.elliptic.mapper.StakingData;
+import io.Adrestus.p2p.kademlia.repository.KademliaData;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import org.apache.fury.Fury;
+import org.apache.fury.ThreadSafeFury;
 import org.apache.fury.config.CompatibleMode;
 import org.apache.fury.config.Language;
 import org.apache.fury.logging.LoggerFactory;
@@ -17,21 +26,21 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.TreeMap;
 
-public class CoreFurySerializer {
+public class SerializerCoreFury {
     private int DEPTH = 130;
     @Getter
-    private final Fury fury;
+    private final ThreadSafeFury fury;
     private final HashSet<Class> classes;
     private final HashSet<String> class_names;
     private final HashSet<Class> ignore_class_names;
     private final ArrayList<Object> toSerialize;
-    private static volatile CoreFurySerializer instance;
+    private static volatile SerializerCoreFury instance;
 
     static {
         LoggerFactory.disableLogging();
     }
 
-    private CoreFurySerializer() throws ClassNotFoundException {
+    private SerializerCoreFury() throws ClassNotFoundException {
         if (instance != null) {
             throw new IllegalStateException("Already initialized.");
         }
@@ -42,33 +51,34 @@ public class CoreFurySerializer {
         this.fury = Fury.builder()
                 .withLanguage(Language.JAVA)
                 .withRefTracking(false)
+                .withRefCopy(false)
                 .withClassVersionCheck(true)
                 .withCompatibleMode(CompatibleMode.SCHEMA_CONSISTENT)
                 .withAsyncCompilation(true)
                 .withCodegen(false)
                 .requireClassRegistration(false)
-                .build();
-//        this.Setup();
-//        this.withDataType(new KademliaData())
-//                .withDataType(new StakingData())
-//                .withDataType(new SortSignatureMapByBlsPublicKey())
-//                .withDataType(new StakingValueComparator())
-//                .withDataType(new BLSSignatureData())
-//                .withDataType(new Signature())
-//                .withDataType(new MemoryTreePool())
-//                .withDataType(new MerklePatriciaTreeImp())
-//                .Construct();
+                .buildThreadSafeFury();
+        this.Setup();
+        this.withDataType(new KademliaData())
+                .withDataType(new StakingData())
+                .withDataType(new SortSignatureMapByBlsPublicKey())
+                .withDataType(new StakingValueComparator())
+                .withDataType(new BLSSignatureData())
+                .withDataType(new Signature())
+                .withDataType(new MemoryTreePool())
+                .withDataType(new MerklePatriciaTreeImp())
+                .Construct();
     }
 
     @SneakyThrows
-    public static CoreFurySerializer getInstance() {
+    public static SerializerCoreFury getInstance() {
 
         var result = instance;
         if (result == null) {
-            synchronized (CoreFurySerializer.class) {
+            synchronized (SerializerCoreFury.class) {
                 result = instance;
                 if (result == null) {
-                    result = new CoreFurySerializer();
+                    result = new SerializerCoreFury();
                     instance = result;
                 }
             }
@@ -76,7 +86,7 @@ public class CoreFurySerializer {
         return result;
     }
 
-    public CoreFurySerializer withDataType(Object data) {
+    public SerializerCoreFury withDataType(Object data) {
         this.toSerialize.add(data);
         return this;
     }

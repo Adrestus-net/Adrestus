@@ -5,6 +5,10 @@ package io.Adrestus.crypto;
 
 import com.google.common.base.Suppliers;
 import com.google.common.hash.Hashing;
+import lombok.SneakyThrows;
+import net.jpountz.xxhash.StreamingXXHash32;
+import net.jpountz.xxhash.XXHashFactory;
+import net.openhft.hashing.LongHashFunction;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.tuweni.bytes.Bytes;
 import org.apache.tuweni.bytes.Bytes32;
@@ -17,6 +21,7 @@ import org.spongycastle.util.encoders.Hex;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import java.io.ByteArrayInputStream;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.*;
@@ -218,6 +223,11 @@ public class HashUtil {
             LOG.error("Can't find such algorithm", e);
             throw new RuntimeException(e);
         }
+    }
+
+    @SneakyThrows
+    public static long XXH3(byte[] data) {
+        return LongHashFunction.xx3().hashBytes(data);
     }
 
     /**

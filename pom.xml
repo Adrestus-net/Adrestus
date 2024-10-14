@@ -52,8 +52,18 @@
         <compress.version>1.27.1</compress.version>
         <fury_core.version>0.8.0</fury_core.version>
         <fastjson2.version>2.0.45</fastjson2.version>
+        <lz4.version>1.8.0</lz4.version>
     </properties>
     <repositories>
+        <repository>
+            <id>central</id>
+            <name>Central Repository</name>
+            <url>https://repo.maven.apache.org/maven2</url>
+            <layout>default</layout>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
         <repository>
             <id>sonatype-nexus-snapshots</id>
             <url>https://oss.sonatype.org/content/repositories/snapshots</url>
@@ -118,6 +128,11 @@
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>${logback.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.lz4</groupId>
+            <artifactId>lz4-java</artifactId>
+            <version>${lz4.version}</version>
         </dependency>
         <dependency>
             <groupId>commons-net</groupId>

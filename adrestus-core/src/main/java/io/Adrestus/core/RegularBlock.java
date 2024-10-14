@@ -25,6 +25,7 @@ import io.Adrestus.crypto.bls.mapper.ECPmapper;
 import io.Adrestus.crypto.bls.model.CachedBLSKeyPair;
 import io.Adrestus.crypto.elliptic.mapper.BigDecimalSerializer;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
+import io.Adrestus.crypto.elliptic.mapper.CustomFurySerializer;
 import io.Adrestus.crypto.elliptic.mapper.StakingData;
 import io.Adrestus.mapper.MemoryTreePoolSerializer;
 import io.Adrestus.network.AsyncService;
@@ -37,7 +38,6 @@ import io.Adrestus.util.MathOperationUtil;
 import io.Adrestus.util.SerializationUtil;
 import io.distributedLedger.*;
 import lombok.SneakyThrows;
-import org.apache.commons.lang3.SerializationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
@@ -470,7 +470,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
             CachedStartHeightRewards.getInstance().setRewardsCommitteeEnabled(false);
             CachedStartHeightRewards.getInstance().setHeight(transactionBlock.getHeight());
         }
-        tree_database.save(String.valueOf(CachedZoneIndex.getInstance().getZoneIndex()), patricia_tree_wrapper.encode_special(TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()), SerializationUtils.serialize(TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex())).length));
+        tree_database.save(String.valueOf(CachedZoneIndex.getInstance().getZoneIndex()), patricia_tree_wrapper.encode_special(TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()), CustomFurySerializer.getInstance().getFury().serialize(TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex())).length));
         CachedLatestBlocks.getInstance().setTransactionBlock(transactionBlock);
         MemoryTransactionPool.getInstance().delete(transactionBlock.getTransactionList());
 

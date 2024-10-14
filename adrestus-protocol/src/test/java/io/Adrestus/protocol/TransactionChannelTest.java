@@ -35,6 +35,7 @@ import org.junit.jupiter.api.Test;
 import org.spongycastle.util.encoders.Hex;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.security.InvalidAlgorithmParameterException;
@@ -114,8 +115,8 @@ public class TransactionChannelTest {
             transaction.setTimestamp(GetTime.GetTimeStampInString());
             transaction.setZoneFrom(0);
             transaction.setZoneTo(0);
-            transaction.setAmount(j);
-            transaction.setAmountWithTransactionFee(transaction.getAmount() * (10.0 / 100.0));
+            transaction.setAmount(BigDecimal.valueOf(j));
+            transaction.setAmountWithTransactionFee(transaction.getAmount().multiply(BigDecimal.valueOf(10.0 / 100.0)));
             transaction.setNonce(1);
             byte before_hash[] = encode.encode(transaction);
             transaction.setHash(HashUtil.sha256_bytetoString(before_hash));

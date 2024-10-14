@@ -3,9 +3,11 @@ package io.Adrestus.core;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import io.Adrestus.core.mapper.SerializerCoreActiveJ;
 import io.Adrestus.crypto.elliptic.ECDSASignatureData;
 import io.activej.serializer.annotations.Serialize;
 import io.activej.serializer.annotations.SerializeClass;
+import io.activej.serializer.annotations.SerializeNullable;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -309,6 +311,7 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
 
 
     @Serialize
+    @SerializeNullable
     public TransactionCallback getTransactionCallback() {
         return transactionCallback;
     }

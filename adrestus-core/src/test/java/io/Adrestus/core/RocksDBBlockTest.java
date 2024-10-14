@@ -19,6 +19,7 @@ import io.Adrestus.crypto.elliptic.ECDSASignatureData;
 import io.Adrestus.crypto.elliptic.ECKeyPair;
 import io.Adrestus.crypto.elliptic.mapper.BigDecimalSerializer;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
+import io.Adrestus.crypto.elliptic.mapper.CustomFurySerializer;
 import io.Adrestus.crypto.elliptic.mapper.StakingData;
 import io.Adrestus.mapper.MemoryTreePoolSerializer;
 import io.Adrestus.p2p.kademlia.repository.KademliaData;
@@ -26,7 +27,6 @@ import io.Adrestus.util.SerializationUtil;
 import io.distributedLedger.*;
 import io.vavr.control.Option;
 import lombok.SneakyThrows;
-import org.apache.commons.lang3.SerializationUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -315,7 +315,7 @@ public class RocksDBBlockTest {
 
         //m.getByaddress(address);
         //use only special
-        byte[] buffer = valueMapper.encode_special(m, SerializationUtils.serialize(m).length);
+        byte[] buffer = valueMapper.encode_special(m, CustomFurySerializer.getInstance().getFury().serialize(m).length);
 
         IDatabase<String, byte[]> database = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, PatriciaTreeInstance.PATRICIA_TREE_INSTANCE_0);
         database.save("hash1", buffer);
@@ -640,7 +640,7 @@ public class RocksDBBlockTest {
 
         //m.getByaddress(address);
         //use only special
-        byte[] bt = valueMapper.encode_special(m, SerializationUtils.serialize(m).length);
+        byte[] bt = valueMapper.encode_special(m, CustomFurySerializer.getInstance().getFury().serialize(m).length);
         Map<String, byte[]> map = new HashMap<>();
         map.put(m.getRootHash(), bt);
         tree_database.saveAll(map);

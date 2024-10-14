@@ -27,8 +27,25 @@
         <jnr.version>2.2.12</jnr.version>
         <config.version>1.0-SNAPSHOT</config.version>
         <http.components>5.2.1</http.components>
+        <openhft.version>0.15</openhft.version>
     </properties>
+    <repositories>
+        <repository>
+            <id>central</id>
+            <name>Default Repository</name>
+            <layout>default</layout>
+            <url>https://repo1.maven.org/maven2</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
     <dependencies>
+        <dependency>
+            <groupId>net.openhft</groupId>
+            <artifactId>zero-allocation-hashing</artifactId>
+            <version>${openhft.version}</version>
+        </dependency>
         <dependency>
             <groupId>de.ruedigermoeller</groupId>
             <artifactId>fst</artifactId>

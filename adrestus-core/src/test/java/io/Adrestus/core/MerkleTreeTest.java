@@ -3,9 +3,12 @@ package io.Adrestus.core;
 import io.Adrestus.Trie.MerkleNode;
 import io.Adrestus.Trie.MerkleProofs;
 import io.Adrestus.Trie.MerkleTreeImp;
+import io.Adrestus.crypto.HashUtil;
+import org.apache.tuweni.bytes.Bytes;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,6 +23,49 @@ public class MerkleTreeTest {
         tree = new MerkleTreeImp();
     }
 
+
+    @Test
+    public void merklee_just_simple() {
+        tree = new MerkleTreeImp();
+        List<MerkleNode> list1 = new ArrayList<MerkleNode>();
+        MerkleNode node1 = new MerkleNode("A");
+        MerkleNode node2 = new MerkleNode("B");
+        MerkleNode node3 = new MerkleNode("C");
+        MerkleNode node4 = new MerkleNode("D");
+        MerkleNode node5 = new MerkleNode("E");
+        MerkleNode node6 = new MerkleNode("F");
+        MerkleNode node7 = new MerkleNode("G");
+        MerkleNode node8 = new MerkleNode("H");
+        list1.add(node1);
+        list1.add(node2);
+        list1.add(node3);
+        list1.add(node4);
+        list1.add(node5);
+        list1.add(node6);
+        list1.add(node7);
+        list1.add(node8);
+        tree.my_generate(list1);
+        tree.build_proofs2(list1, node1);
+        MerkleProofs proofs = tree.getMerkleeproofs();
+        System.out.println(tree.getRootHash());
+        int g=3;
+    }
+
+    //553
+    @Test
+    public void sha256() {
+        for (int i = 0; i < 1000000; i++) {
+            HashUtil.sha256(String.valueOf(i).getBytes(StandardCharsets.UTF_8));
+        }
+    }
+
+    //25ms
+    @Test
+    public void xx3() {
+        for (int i = 0; i < 1000000; i++) {
+            HashUtil.XXH3(String.valueOf(i).getBytes(StandardCharsets.UTF_8));
+        }
+    }
     @Test
     public void merklee_tree() {
         List<MerkleNode> list1 = new ArrayList<MerkleNode>();

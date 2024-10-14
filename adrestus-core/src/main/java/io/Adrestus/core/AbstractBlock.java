@@ -7,6 +7,7 @@ import io.Adrestus.crypto.bls.BLSSignatureData;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.activej.serializer.annotations.Serialize;
 import io.activej.serializer.annotations.SerializeClass;
+import io.activej.serializer.annotations.SerializeNullable;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -162,6 +163,7 @@ public abstract class AbstractBlock extends Object implements BlockFactory, Disr
     }
 
     @Serialize
+    @SerializeNullable
     public TreeMap<BLSPublicKey, BLSSignatureData> getSignatureData() {
         return signatureData;
     }

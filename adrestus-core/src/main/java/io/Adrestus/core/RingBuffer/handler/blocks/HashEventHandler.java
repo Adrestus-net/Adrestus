@@ -85,8 +85,11 @@ public class HashEventHandler implements BlockEventHandler<AbstractBlockEvent>, 
                 transactionBlock.setStatustype(StatusType.ABORT);
             }
             TransactionBlock cloneable = (TransactionBlock) transactionBlock.clone();
+            if(!cloneable.equals(transactionBlock)) {
+                int g=3;
+            }
             cloneable.setHash("");
-            this.sizeCalculator.setTransactionBlock(cloneable);
+            this.sizeCalculator.setTransactionBlock(transactionBlock);
             byte[] buffer = wrapper.encode(cloneable, this.sizeCalculator.TransactionBlockSizeCalculator());
             String result_hash = HashUtil.sha256_bytetoString(buffer);
             if (!result_hash.equals(transactionBlock.getHash())) {

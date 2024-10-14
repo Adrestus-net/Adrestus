@@ -8,6 +8,7 @@ import io.Adrestus.crypto.bls.mapper.ECP2mapper;
 import io.Adrestus.crypto.bls.mapper.ECPmapper;
 import io.Adrestus.crypto.elliptic.mapper.BigDecimalSerializer;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
+import io.Adrestus.crypto.elliptic.mapper.CustomFurySerializer;
 import io.Adrestus.crypto.elliptic.mapper.CustomSerializerTreeMap;
 import io.Adrestus.mapper.MemoryTreePoolSerializer;
 import io.Adrestus.util.SerializationUtil;
@@ -20,7 +21,6 @@ import io.distributedLedger.DatabaseInstance;
 import io.distributedLedger.LevelDBTransactionWrapper;
 import io.distributedLedger.PatriciaTreeInstance;
 import lombok.SneakyThrows;
-import org.apache.commons.lang3.SerializationUtils;
 
 import java.io.Serializable;
 import java.lang.reflect.Type;
@@ -240,7 +240,7 @@ public class RpcAdrestusServer<T> implements Runnable {
             TransactionResponse response;
             try {
                 result = service.downloadTransactionDatabase(request.hash);
-                response = new TransactionResponse(SerializationUtils.serialize((Serializable) result));
+                response = new TransactionResponse(CustomFurySerializer.getInstance().getFury().serialize((Serializable) result));
             } catch (Exception e) {
                 return Promise.ofException(e);
             }

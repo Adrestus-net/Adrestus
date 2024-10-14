@@ -95,7 +95,7 @@ public class ConsensusTransactionTimer4Test {
             randoms.setSeed(key);
             ECKeyPair ecKeyPair = Keys.createEcKeyPair(randoms);
             String adddress = WalletAddress.generate_address((byte) version, ecKeyPair.getPublicKey());
-            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(adddress, new PatriciaTreeNode(1000, 0));
+            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(adddress, new PatriciaTreeNode(BigDecimal.valueOf(100), 0));
         }
 
         blockIndex = new BlockIndex();
@@ -137,7 +137,7 @@ public class ConsensusTransactionTimer4Test {
 
 
         try {
-            prevblock.setTransactionProposer(CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).keySet().stream().findFirst().get().toRaw());
+            prevblock.setBlockProposer(CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).keySet().stream().findFirst().get().toRaw());
             prevblock.setLeaderPublicKey(CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).keySet().stream().findFirst().get());
 
             CachedLatestBlocks.getInstance().setTransactionBlock(prevblock);

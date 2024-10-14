@@ -22,6 +22,7 @@ import io.vavr.control.Option;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Consumer;
@@ -190,6 +191,19 @@ public class MerklePatriciaTrie<K extends Bytes, V> implements IMerklePatriciaTr
     public void visitLeafs(final TrieIterator.LeafHandler<V> handler) {
         final TrieIterator<V> visitor = new TrieIterator<>(handler, true);
         root.accept(visitor, bytesToPath(Bytes32.ZERO));
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MerklePatriciaTrie<?, ?> that = (MerklePatriciaTrie<?, ?>) o;
+        return Objects.equals(root.getHash(), that.root.getHash());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getVisitor, removeVisitor, nodeFactory, root);
     }
 
     @Override

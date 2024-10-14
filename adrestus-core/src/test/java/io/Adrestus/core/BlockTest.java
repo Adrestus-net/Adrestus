@@ -30,6 +30,7 @@ import io.Adrestus.crypto.elliptic.ECKeyPair;
 import io.Adrestus.crypto.elliptic.Keys;
 import io.Adrestus.crypto.elliptic.mapper.BigDecimalSerializer;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
+import io.Adrestus.crypto.elliptic.mapper.CustomFurySerializer;
 import io.Adrestus.crypto.elliptic.mapper.StakingData;
 import io.Adrestus.crypto.mnemonic.Mnemonic;
 import io.Adrestus.crypto.mnemonic.Security;
@@ -44,7 +45,6 @@ import io.Adrestus.util.SerializationUtil;
 import io.distributedLedger.*;
 import lombok.SneakyThrows;
 import org.apache.commons.codec.binary.StringUtils;
-import org.apache.commons.lang3.SerializationUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.spongycastle.util.encoders.Hex;
@@ -300,6 +300,7 @@ public class BlockTest {
         assertEquals(copys, block);
     }
 
+    @SneakyThrows
     @Test
     public void transaction_block() {
         List<SerializationUtil.Mapping> list = new ArrayList<>();
@@ -314,11 +315,16 @@ public class BlockTest {
         block.setHash("hash10");
         block.setSize(1);
         block.setZone(0);
+        block.setTransactionList(new ArrayList<>(outer_transactions));
         byte[] buffer = encode.encode(block);
 
+        TransactionBlock cloned1= (TransactionBlock) block.clone();
         TransactionBlock copys = encode.decode(buffer);
+        TransactionBlock cloned2= (TransactionBlock) copys.clone();
         System.out.println(copys.toString());
         assertEquals(copys, block);
+        assertEquals(copys, cloned1);
+        assertEquals(cloned2, cloned1);
     }
 
     @Test
@@ -427,7 +433,6 @@ public class BlockTest {
 
         BlockIndex blockIndex = new BlockIndex();
         BigDecimal sum = transactions.parallelStream().filter(val -> !val.getType().equals(TransactionType.UNCLAIMED_FEE_REWARD)).map(Transaction::getAmountWithTransactionFee).reduce(BigDecimal.ZERO, BigDecimal::add);
-        ;
         try {
             transactions.add(0, new UnclaimedFeeRewardTransaction(TransactionType.UNCLAIMED_FEE_REWARD, blockIndex.getAddressByPublicKey(CachedBLSKeyPair.getInstance().getPublicKey()), sum));
         } catch (NoSuchElementException e) {
@@ -622,12 +627,14 @@ public class BlockTest {
             int size = blockSizeCalculator.TransactionBlockSizeCalculator();
             byte[] tohash = serenc.encode(transactionBlock, size);
             transactionBlock.setHash(HashUtil.sha256_bytetoString(tohash));
-            TransactionBlock transactionBlock3 = SerializationUtils.deserialize(SerializationUtils.serialize(transactionBlock));
+            TransactionBlock transactionBlock3 = (TransactionBlock) CustomFurySerializer.getInstance().getFury().deserialize(CustomFurySerializer.getInstance().getFury().serialize(transactionBlock));
             transactionBlock3.setHash("");
             byte[] tohash2 = serenc.encode(transactionBlock3, size);
             assertEquals(HashUtil.sha256_bytetoString(tohash2), HashUtil.sha256_bytetoString(tohash));
             transactionBlock3.getTransactionList().remove(0);
             assertNotEquals(transactionBlock3.getTransactionList().size(), transactionBlock.getTransactionList().size());
+            TransactionBlock transactionBlock1= (TransactionBlock) transactionBlock.clone();
+            assertEquals(transactionBlock,transactionBlock1);
             publisher.publish(transactionBlock);
             publisher.getJobSyncUntilRemainingCapacityZero();
             count++;

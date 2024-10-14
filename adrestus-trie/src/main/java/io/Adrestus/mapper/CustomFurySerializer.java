@@ -1,4 +1,4 @@
-package io.Adrestus.crypto.elliptic.mapper;
+package io.Adrestus.mapper;
 
 import lombok.Getter;
 import lombok.SneakyThrows;

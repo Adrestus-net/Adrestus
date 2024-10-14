@@ -7,6 +7,7 @@ import io.Adrestus.crypto.bls.mapper.ECP2mapper;
 import io.Adrestus.crypto.bls.mapper.ECPmapper;
 import io.Adrestus.crypto.elliptic.mapper.BigDecimalSerializer;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
+import io.Adrestus.crypto.elliptic.mapper.CustomFurySerializer;
 import io.Adrestus.crypto.elliptic.mapper.CustomSerializerTreeMap;
 import io.Adrestus.mapper.MemoryTreePoolSerializer;
 import io.Adrestus.util.SerializationUtil;
@@ -18,7 +19,6 @@ import io.activej.rpc.client.sender.RpcStrategyRoundRobin;
 import io.activej.serializer.SerializerBuilder;
 import io.distributedLedger.LevelDBTransactionWrapper;
 import lombok.SneakyThrows;
-import org.apache.commons.lang3.SerializationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
@@ -239,14 +239,14 @@ public class RpcAdrestusClient<T> {
 
             Map<String, Long> collect = toCompare.stream().collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
             byte[] map_data = Hex.decode(collect.keySet().stream().findFirst().get());
-            Map<String, LevelDBTransactionWrapper<T>> toSend = SerializationUtils.deserialize(map_data);
+            Map<String, LevelDBTransactionWrapper<T>> toSend = (Map<String, LevelDBTransactionWrapper<T>>) CustomFurySerializer.getInstance().getFury().deserialize(map_data);
             collect.clear();
             responses.clear();
             toCompare.clear();
             return toSend;
         } else {
             TransactionResponse response = getTransactionDatabase(this.client, hash).get();
-            return (Map<String, LevelDBTransactionWrapper<T>>) (SerializationUtils.deserialize(response.getByte_data()));
+            return (Map<String, LevelDBTransactionWrapper<T>>) (CustomFurySerializer.getInstance().getFury().deserialize(response.getByte_data()));
         }
     }
 
