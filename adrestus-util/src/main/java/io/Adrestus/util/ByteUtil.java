@@ -636,6 +636,10 @@ public class ByteUtil {
         return bytes;
     }
 
+    public static int log2(int N) {
+        int result = (int) (Math.log(N) / Math.log(2));
+        return result;
+    }
 
     public static byte[] parseWord(byte[] input, int idx) {
         return parseBytes(input, 32 * idx, 32);

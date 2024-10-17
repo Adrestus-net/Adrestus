@@ -167,7 +167,7 @@ public class SerializableBlockTest {
         blockSizeCalculator.setTransactionBlock(prevblock);
         byte[] data = serenc.encode(prevblock, blockSizeCalculator.TransactionBlockSizeCalculator());
         TransactionBlock newblock = (TransactionBlock) serenc.decode(data);
-        TransactionBlock cloned_newblock= (TransactionBlock) newblock.clone();
+        TransactionBlock cloned_newblock = (TransactionBlock) newblock.clone();
         assertEquals(prevblock, newblock);
         assertEquals(prevblock, cloned_newblock);
     }

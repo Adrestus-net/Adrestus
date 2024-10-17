@@ -2,7 +2,7 @@ package io.Adrestus.consensus;
 
 import com.google.common.reflect.TypeToken;
 import io.Adrestus.Trie.MerkleNode;
-import io.Adrestus.Trie.MerkleTreeImp;
+import io.Adrestus.Trie.MerkleTreeOldImp;
 import io.Adrestus.core.*;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedLeaderIndex;
@@ -188,7 +188,7 @@ public class OrganizerConsensusPhases {
                     n.add(srcPacket);
                 }
             }
-            MerkleTreeImp tree = new MerkleTreeImp();
+            MerkleTreeOldImp tree = new MerkleTreeOldImp();
             ArrayList<MerkleNode> merkleNodes = new ArrayList<MerkleNode>();
             for (int i = 0; i < n.size(); i++) {
                 SerializableErasureObject serializableErasureObject = new SerializableErasureObject(object, n.get(i).asArray(), new ArrayList<byte[]>());

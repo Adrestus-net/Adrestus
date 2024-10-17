@@ -42,7 +42,6 @@ import java.math.BigDecimal;
 import java.security.SecureRandom;
 import java.util.*;
 
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
@@ -185,7 +184,7 @@ public class TreemapSerializationTest {
             char[] chars = new char[1000];
             Arrays.fill(chars, String.valueOf(i).charAt(0));
             String str = new String(chars);
-            PatriciaTreeNode patriciaTreeNode=new PatriciaTreeNode(BigDecimal.valueOf(2), 1,BigDecimal.valueOf(23453),BigDecimal.valueOf(243534),BigDecimal.valueOf(234534));
+            PatriciaTreeNode patriciaTreeNode = new PatriciaTreeNode(BigDecimal.valueOf(2), 1, BigDecimal.valueOf(23453), BigDecimal.valueOf(243534), BigDecimal.valueOf(234534));
             TreeFactory.getMemoryTree(0).store(str, patriciaTreeNode);
         }
 

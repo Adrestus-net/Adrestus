@@ -4,7 +4,7 @@ import com.google.common.primitives.Ints;
 import io.Adrestus.MemoryTreePool;
 import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.MerkleNode;
-import io.Adrestus.Trie.MerkleTreeImp;
+import io.Adrestus.Trie.MerkleTreeOldImp;
 import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.config.KademliaConfiguration;
@@ -318,9 +318,9 @@ public class BlockTest {
         block.setTransactionList(new ArrayList<>(outer_transactions));
         byte[] buffer = encode.encode(block);
 
-        TransactionBlock cloned1= (TransactionBlock) block.clone();
+        TransactionBlock cloned1 = (TransactionBlock) block.clone();
         TransactionBlock copys = encode.decode(buffer);
-        TransactionBlock cloned2= (TransactionBlock) copys.clone();
+        TransactionBlock cloned2 = (TransactionBlock) copys.clone();
         System.out.println(copys.toString());
         assertEquals(copys, block);
         assertEquals(copys, cloned1);
@@ -441,7 +441,7 @@ public class BlockTest {
         int count = 0;
         while (count < 100) {
             TransactionBlock transactionBlock = new TransactionBlock();
-            MerkleTreeImp tree = new MerkleTreeImp();
+            MerkleTreeOldImp tree = new MerkleTreeOldImp();
             ArrayList<MerkleNode> merkleNodeArrayList = new ArrayList<>();
             transactionBlock.getHeaderData().setPreviousHash(CachedLatestBlocks.getInstance().getTransactionBlock().getHash());
             transactionBlock.getHeaderData().setVersion(AdrestusConfiguration.version);
@@ -570,7 +570,7 @@ public class BlockTest {
         int count = 0;
         while (count < 100) {
             TransactionBlock transactionBlock = new TransactionBlock();
-            MerkleTreeImp tree = new MerkleTreeImp();
+            MerkleTreeOldImp tree = new MerkleTreeOldImp();
             ArrayList<MerkleNode> merkleNodeArrayList = new ArrayList<>();
             transactionBlock.getHeaderData().setPreviousHash(CachedLatestBlocks.getInstance().getTransactionBlock().getHash());
             transactionBlock.getHeaderData().setVersion(AdrestusConfiguration.version);
@@ -633,8 +633,8 @@ public class BlockTest {
             assertEquals(HashUtil.sha256_bytetoString(tohash2), HashUtil.sha256_bytetoString(tohash));
             transactionBlock3.getTransactionList().remove(0);
             assertNotEquals(transactionBlock3.getTransactionList().size(), transactionBlock.getTransactionList().size());
-            TransactionBlock transactionBlock1= (TransactionBlock) transactionBlock.clone();
-            assertEquals(transactionBlock,transactionBlock1);
+            TransactionBlock transactionBlock1 = (TransactionBlock) transactionBlock.clone();
+            assertEquals(transactionBlock, transactionBlock1);
             publisher.publish(transactionBlock);
             publisher.getJobSyncUntilRemainingCapacityZero();
             count++;

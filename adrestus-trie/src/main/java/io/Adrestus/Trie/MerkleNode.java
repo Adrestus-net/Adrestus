@@ -89,4 +89,14 @@ public class MerkleNode implements Serializable {
     public int hashCode() {
         return Objects.hashCode(transactionHash, root, left, right);
     }
+
+    @Override
+    public String toString() {
+        return "MerkleNode{" +
+                "transactionHash='" + transactionHash + '\'' +
+                ", root=" + root +
+                ", left=" + left +
+                ", right=" + right +
+                '}';
+    }
 }

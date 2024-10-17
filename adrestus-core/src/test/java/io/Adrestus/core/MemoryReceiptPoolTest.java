@@ -1,6 +1,6 @@
 package io.Adrestus.core;
 
-import io.Adrestus.Trie.MerkleProofs;
+import io.Adrestus.Trie.MerkleProofsCached;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.core.Resourses.MemoryReceiptPool;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
@@ -44,7 +44,7 @@ public class MemoryReceiptPoolTest {
         MemoryReceiptPool.getInstance().getAll().clear();
 
         Receipt receipt = new Receipt(0, 1, new Receipt.ReceiptBlock(1, 1, "as"), 1, null);
-        Receipt receipt1 = new Receipt(0, 1, new Receipt.ReceiptBlock(1, 1, "as"), 1, new MerkleProofs());
+        Receipt receipt1 = new Receipt(0, 1, new Receipt.ReceiptBlock(1, 1, "as"), 1, new MerkleProofsCached());
         int count = (int) MemoryReceiptPool.getInstance().getAllStream().count();
         MemoryReceiptPool.getInstance().add(receipt);
         MemoryReceiptPool.getInstance().add(receipt1);

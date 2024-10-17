@@ -14,7 +14,6 @@
  */
 package io.Adrestus.Trie.optimize64_trie;
 
-import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.mapper.CustomFurySerializer;
 import io.Adrestus.util.BytesValueRLPOutput;
 import io.Adrestus.util.RLP;

@@ -2,14 +2,12 @@ package io.Adrestus.core;
 
 import io.Adrestus.core.RingBuffer.handler.blocks.DisruptorBlock;
 import io.Adrestus.core.RingBuffer.handler.blocks.DisruptorBlockVisitor;
-import io.Adrestus.core.Util.BlockSizeCalculator;
-import io.Adrestus.core.mapper.SerializerCoreActiveJ;
 import io.Adrestus.core.mapper.SerializerCoreFury;
 import io.Adrestus.crypto.bls.BLSSignatureData;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.activej.serializer.annotations.Serialize;
 
-import java.io.*;
+import java.io.Serializable;
 import java.util.*;
 
 public class TransactionBlock extends AbstractBlock implements BlockFactory, DisruptorBlock, Serializable {

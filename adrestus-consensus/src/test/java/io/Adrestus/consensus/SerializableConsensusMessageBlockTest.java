@@ -145,7 +145,7 @@ public class SerializableConsensusMessageBlockTest {
         list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
         this.consensus_serialize = new SerializationUtil<ConsensusMessage>(fluentType, list);
 
-        String message="toSign";
+        String message = "toSign";
         TreeMap<BLSPublicKey, BLSSignatureData> signatureData = new TreeMap<BLSPublicKey, BLSSignatureData>(new SortSignatureMapByBlsPublicKey());
         BLSSignatureData blsSignatureData1 = new BLSSignatureData();
         BLSSignatureData blsSignatureData2 = new BLSSignatureData();
@@ -153,13 +153,13 @@ public class SerializableConsensusMessageBlockTest {
         BLSSignatureData blsSignatureData4 = new BLSSignatureData();
 
         blsSignatureData1.getSignature()[0] = BLSSignature.sign(message.getBytes(StandardCharsets.UTF_8), sk3);
-        blsSignatureData1.getMessageHash()[0]=message;
+        blsSignatureData1.getMessageHash()[0] = message;
         blsSignatureData2.getSignature()[0] = BLSSignature.sign(message.getBytes(StandardCharsets.UTF_8), sk4);
-        blsSignatureData2.getMessageHash()[0]=message;
+        blsSignatureData2.getMessageHash()[0] = message;
         blsSignatureData3.getSignature()[0] = BLSSignature.sign(message.getBytes(StandardCharsets.UTF_8), sk1);
-        blsSignatureData3.getMessageHash()[0]=message;
+        blsSignatureData3.getMessageHash()[0] = message;
         blsSignatureData4.getSignature()[0] = BLSSignature.sign(message.getBytes(StandardCharsets.UTF_8), sk2);
-        blsSignatureData4.getMessageHash()[0]=message;
+        blsSignatureData4.getMessageHash()[0] = message;
         signatureData.put(vk3, blsSignatureData1);
         signatureData.put(vk4, blsSignatureData2);
         signatureData.put(vk1, blsSignatureData3);

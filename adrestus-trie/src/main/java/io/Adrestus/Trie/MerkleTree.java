@@ -3,16 +3,17 @@ package io.Adrestus.Trie;
 import java.util.List;
 
 public interface MerkleTree {
-
     MerkleProofs getMerkleeproofs();
 
-    void build_proofs(List<MerkleNode> list, MerkleNode target);
+    String generateRoot(MerkleProofs proofs);
+
+    void build_proofs(MerkleNode current);
 
     String getRootHash();
 
-    void my_generate(List<MerkleNode> list);
-
-    void my_generate2(List<MerkleNode> dataBlocks);
+    void constructTree(List<MerkleNode> list);
 
     boolean isMekleeNodeExisted(List<MerkleNode> list, String roothash, MerkleNode node);
+
+    void clear();
 }

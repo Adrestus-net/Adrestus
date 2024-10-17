@@ -1,83 +1,43 @@
 package io.Adrestus.Trie;
 
-import com.google.common.base.Objects;
-import io.activej.serializer.annotations.Deserialize;
-import io.activej.serializer.annotations.Serialize;
+import java.util.HashMap;
+import java.util.Objects;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
+public class MerkleProofs implements Cloneable{
 
-public class MerkleProofs implements Serializable {
-    private String roothash;
-    private List<MerkleNode> list_builder;
-    private MerkleNode target;
-
-    public MerkleProofs(String roothash, List<MerkleNode> list_builder, MerkleNode target) {
-        this.roothash = roothash;
-        this.list_builder = list_builder;
-        this.target = target;
-    }
-
-    public MerkleProofs(@Deserialize("list_builder") List<MerkleNode> list_builder) {
-        this.roothash = "";
-        this.list_builder = list_builder;
-        this.target = new MerkleNode("");
-    }
+    private HashMap<Integer, MerkleNode> proofs;
 
     public MerkleProofs() {
-        this.roothash = "";
-        this.list_builder = new ArrayList<>();
-        this.target = new MerkleNode("");
+        this.proofs = new HashMap<>();
     }
 
-    @Serialize
-    public String getRoothash() {
-        return roothash;
+    public HashMap<Integer, MerkleNode> getProofs() {
+        return proofs;
     }
 
-    public void setRoothash(String roothash) {
-        this.roothash = roothash;
+    public void setProofs(HashMap<Integer, MerkleNode> proofs) {
+        this.proofs = proofs;
     }
 
-    @Serialize
-    public List<MerkleNode> getList_builder() {
-        return list_builder;
+    public void clear() {
+        this.proofs.clear();
     }
 
-    public void setList_builder(List<MerkleNode> list_builder) {
-        this.list_builder = list_builder;
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
     }
-
-    @Serialize
-    public MerkleNode getTarget() {
-        return target;
-    }
-
-    public void setTarget(MerkleNode target) {
-        this.target = target;
-    }
-
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         MerkleProofs that = (MerkleProofs) o;
-        return Objects.equal(roothash, that.roothash) && Objects.equal(list_builder, that.list_builder) && Objects.equal(target, that.target);
+        return Objects.equals(proofs, that.proofs);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(roothash, list_builder, target);
-    }
-
-    @Override
-    public String toString() {
-        return "MerkleProofs{" +
-                "roothash='" + roothash + '\'' +
-                ", list_builder=" + list_builder +
-                ", target=" + target +
-                '}';
+        return Objects.hashCode(proofs);
     }
 }

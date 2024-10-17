@@ -7,16 +7,16 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MerkleTreeImp implements MerkleTree {
-    private static Logger LOG = LoggerFactory.getLogger(MerkleTreeImp.class);
+public class MerkleTreeOldImp implements MerkleTreeOld {
+    private static Logger LOG = LoggerFactory.getLogger(MerkleTreeOldImp.class);
 
     private MerkleNode root;
     // private ArrayList<MekleeNode> proofs = new ArrayList<MekleeNode>();
 
-    private MerkleProofs MerkleProofs;// = new MerkleProofs(new ArrayList<MerkleNode>());
+    private MerkleProofsCached MerkleProofs;// = new MerkleProofs(new ArrayList<MerkleNode>());
     private final int pos = 0;
 
-    public MerkleTreeImp() {
+    public MerkleTreeOldImp() {
         this.root = new MerkleNode("");
     }
 
@@ -136,7 +136,7 @@ public class MerkleTreeImp implements MerkleTree {
 
 
     @Override
-    public io.Adrestus.Trie.MerkleProofs getMerkleeproofs() {
+    public MerkleProofsCached getMerkleeproofs() {
         return MerkleProofs;
     }
 
@@ -148,7 +148,7 @@ public class MerkleTreeImp implements MerkleTree {
             current_list.add(node);
         }
 
-        this.MerkleProofs = new MerkleProofs(new ArrayList<MerkleNode>());
+        this.MerkleProofs = new MerkleProofsCached(new ArrayList<MerkleNode>());
         current.setTransactionHash(HashUtil.sha256(current.getTransactionHash()));
         this.MerkleProofs.setTarget(current);
         proofs(current_list, current);
@@ -161,7 +161,7 @@ public class MerkleTreeImp implements MerkleTree {
             current_list.add(node);
         }
 
-        this.MerkleProofs = new MerkleProofs(new ArrayList<MerkleNode>());
+        this.MerkleProofs = new MerkleProofsCached(new ArrayList<MerkleNode>());
         current.setTransactionHash(HashUtil.sha256(current.getTransactionHash()));
         this.MerkleProofs.setTarget(current);
         proofs2(current_list, current).result();
@@ -270,7 +270,7 @@ public class MerkleTreeImp implements MerkleTree {
         return RecursiveOptimizer.more(() -> proofs2(iterate, finalCurrent));
     }
 
-    public String GenerateRoot(MerkleProofs proofs) {
+    public String GenerateRoot(MerkleProofsCached proofs) {
         String hash = proofs.getTarget().getTransactionHash();
         for (int i = 0; i < proofs.getList_builder().size(); i++) {
             if (proofs.getList_builder().get(i).getLeft() != null) {

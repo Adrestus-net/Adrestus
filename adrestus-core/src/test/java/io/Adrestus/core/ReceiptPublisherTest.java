@@ -2,7 +2,7 @@ package io.Adrestus.core;
 
 import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.MerkleNode;
-import io.Adrestus.Trie.MerkleTreeImp;
+import io.Adrestus.Trie.MerkleTreeOldImp;
 import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
@@ -70,7 +70,7 @@ public class ReceiptPublisherTest {
     private static BLSPublicKey vk6;
     private static SerializationUtil<AbstractBlock> serenc;
     private static ArrayList<MerkleNode> merkleNodeArrayList;
-    private static MerkleTreeImp tree;
+    private static MerkleTreeOldImp tree;
 
     @BeforeAll
     public static void setup() throws Exception {
@@ -189,7 +189,7 @@ public class ReceiptPublisherTest {
         committeeBlock.getStructureMap().get(1).put(vk2, "192.168.1.116");
         CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
 
-        tree = new MerkleTreeImp();
+        tree = new MerkleTreeOldImp();
         transactionBlock = new TransactionBlock();
         transactionBlock.setGeneration(4);
         transactionBlock.setHeight(100);

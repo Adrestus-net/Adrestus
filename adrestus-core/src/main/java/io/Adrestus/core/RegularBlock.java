@@ -5,7 +5,7 @@ import com.google.common.reflect.TypeToken;
 import io.Adrestus.MemoryTreePool;
 import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.MerkleNode;
-import io.Adrestus.Trie.MerkleTreeImp;
+import io.Adrestus.Trie.MerkleTreeOldImp;
 import io.Adrestus.Trie.PatriciaTreeTransactionType;
 import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.config.RewardConfiguration;
@@ -108,7 +108,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
 
     @Override
     public void forgeTransactionBlock(TransactionBlock transactionBlock) throws Exception {
-        MerkleTreeImp tree = new MerkleTreeImp();
+        MerkleTreeOldImp tree = new MerkleTreeOldImp();
         ArrayList<MerkleNode> merkleNodeArrayList = new ArrayList<>();
         transactionBlock.getHeaderData().setPreviousHash(CachedLatestBlocks.getInstance().getTransactionBlock().getHash());
         transactionBlock.getHeaderData().setVersion(AdrestusConfiguration.version);

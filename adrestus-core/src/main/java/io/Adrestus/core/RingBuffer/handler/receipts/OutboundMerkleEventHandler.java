@@ -1,7 +1,7 @@
 package io.Adrestus.core.RingBuffer.handler.receipts;
 
 import io.Adrestus.Trie.MerkleNode;
-import io.Adrestus.Trie.MerkleTreeImp;
+import io.Adrestus.Trie.MerkleTreeOldImp;
 import io.Adrestus.core.ReceiptBlock;
 import io.Adrestus.core.RingBuffer.event.ReceiptBlockEvent;
 import io.Adrestus.core.StatusType;
@@ -18,7 +18,7 @@ public class OutboundMerkleEventHandler implements ReceiptEventHandler<ReceiptBl
     @Override
     public void onEvent(ReceiptBlockEvent receiptBlockEvent, long l, boolean b) throws InterruptedException {
         ReceiptBlock receiptBlock = receiptBlockEvent.getReceiptBlock();
-        final MerkleTreeImp outer_tree = new MerkleTreeImp();
+        final MerkleTreeOldImp outer_tree = new MerkleTreeOldImp();
         final ArrayList<MerkleNode> merkleNodeArrayList = new ArrayList<>();
         receiptBlock.getTransactionBlock().getTransactionList().forEach(val -> merkleNodeArrayList.add(new MerkleNode(val.getHash())));
         outer_tree.my_generate2(merkleNodeArrayList);

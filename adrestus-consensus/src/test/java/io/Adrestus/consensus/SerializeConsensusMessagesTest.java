@@ -57,10 +57,10 @@ public class SerializeConsensusMessagesTest {
         checksumData.setSignature(bls_sig);
         checksumData.setBlsPublicKey(vk);
         consensusMessage.setChecksumData(checksumData);
-        BLSSignatureData blsSignatureData=new BLSSignatureData();
-        blsSignatureData.getSignature()[0]=bls_sig;
-        blsSignatureData.getMessageHash()[0]="hash";
-        consensusMessage.getSignatures().put(vk,blsSignatureData);
+        BLSSignatureData blsSignatureData = new BLSSignatureData();
+        blsSignatureData.getSignature()[0] = bls_sig;
+        blsSignatureData.getMessageHash()[0] = "hash";
+        consensusMessage.getSignatures().put(vk, blsSignatureData);
 
         byte[] buffer = serialize.encode(consensusMessage);
         ConsensusMessage<VRFMessage> copy = serialize.decode(buffer);
@@ -89,7 +89,7 @@ public class SerializeConsensusMessagesTest {
         SerializationUtil<ConsensusMessage> serialize = new SerializationUtil<ConsensusMessage>(fluentType, list);
 
 
-        VDFMessage vdfMessage=new VDFMessage();
+        VDFMessage vdfMessage = new VDFMessage();
         vdfMessage.setVDFSolution("asda".getBytes());
         ConsensusMessage<VDFMessage> consensusMessage = new ConsensusMessage<VDFMessage>(vdfMessage);
         consensusMessage.setMessageType(ConsensusMessageType.COMMIT);
@@ -97,10 +97,10 @@ public class SerializeConsensusMessagesTest {
         checksumData.setSignature(bls_sig);
         checksumData.setBlsPublicKey(vk);
         consensusMessage.setChecksumData(checksumData);
-        BLSSignatureData blsSignatureData=new BLSSignatureData();
-        blsSignatureData.getSignature()[0]=bls_sig;
-        blsSignatureData.getMessageHash()[0]="hash";
-        consensusMessage.getSignatures().put(vk,blsSignatureData);
+        BLSSignatureData blsSignatureData = new BLSSignatureData();
+        blsSignatureData.getSignature()[0] = bls_sig;
+        blsSignatureData.getMessageHash()[0] = "hash";
+        consensusMessage.getSignatures().put(vk, blsSignatureData);
 
         byte[] buffer = serialize.encode(consensusMessage);
         ConsensusMessage<VDFMessage> copy = serialize.decode(buffer);

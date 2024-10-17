@@ -1,19 +1,12 @@
 package io.Adrestus.mapper;
 
 import io.Adrestus.MemoryTreePool;
-import io.Adrestus.crypto.elliptic.mapper.CustomFurySerializer;
 import io.activej.serializer.*;
 import lombok.SneakyThrows;
 import org.apache.fury.Fury;
 import org.apache.fury.config.CompatibleMode;
 import org.apache.fury.config.Language;
 import org.apache.fury.logging.LoggerFactory;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.util.TreeMap;
 
 public class MemoryTreePoolSerializer extends SimpleSerializerDef<MemoryTreePool> {
     private final Fury fury;

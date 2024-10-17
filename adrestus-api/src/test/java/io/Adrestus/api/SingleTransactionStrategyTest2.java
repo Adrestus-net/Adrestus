@@ -27,6 +27,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.spongycastle.util.encoders.Hex;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -79,7 +80,7 @@ public class SingleTransactionStrategyTest2 {
             String adddress = WalletAddress.generate_address((byte) version, ecKeyPair.getPublicKey());
             addreses.add(adddress);
             keypair.add(ecKeyPair);
-            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(adddress, new PatriciaTreeNode(1000, 0));
+            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(adddress, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
         }
         List<SerializationUtil.Mapping> lists = new ArrayList<>();
         lists.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
@@ -125,7 +126,7 @@ public class SingleTransactionStrategyTest2 {
 
 
         try {
-            prevblock.setTransactionProposer(CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).keySet().stream().findFirst().get().toRaw());
+            prevblock.setBlockProposer(CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).keySet().stream().findFirst().get().toRaw());
             prevblock.setLeaderPublicKey(CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).keySet().stream().findFirst().get());
 
             CachedLatestBlocks.getInstance().setTransactionBlock(prevblock);
@@ -150,8 +151,8 @@ public class SingleTransactionStrategyTest2 {
                 transaction.setTimestamp(GetTime.GetTimeStampInString());
                 transaction.setZoneFrom(1);
                 transaction.setZoneTo(1);
-                transaction.setAmount(100);
-                transaction.setAmountWithTransactionFee(transaction.getAmount() * (10.0 / 100.0));
+                transaction.setAmount(BigDecimal.valueOf(100));
+                transaction.setAmountWithTransactionFee(transaction.getAmount().multiply(BigDecimal.valueOf(10.0 / 100.0)));
                 transaction.setNonce(j);
 
                 byte byf[] = serenc.encode(transaction, 1024);

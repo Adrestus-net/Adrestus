@@ -85,8 +85,8 @@ public class HashEventHandler implements BlockEventHandler<AbstractBlockEvent>, 
                 transactionBlock.setStatustype(StatusType.ABORT);
             }
             TransactionBlock cloneable = (TransactionBlock) transactionBlock.clone();
-            if(!cloneable.equals(transactionBlock)) {
-                int g=3;
+            if (!cloneable.equals(transactionBlock)) {
+                int g = 3;
             }
             cloneable.setHash("");
             this.sizeCalculator.setTransactionBlock(transactionBlock);

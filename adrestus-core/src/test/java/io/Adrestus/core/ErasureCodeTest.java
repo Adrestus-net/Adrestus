@@ -2,7 +2,7 @@ package io.Adrestus.core;
 
 import com.google.common.collect.Lists;
 import io.Adrestus.Trie.MerkleNode;
-import io.Adrestus.Trie.MerkleTreeImp;
+import io.Adrestus.Trie.MerkleTreeOldImp;
 import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.core.Util.BlockSizeCalculator;
@@ -562,7 +562,7 @@ public class ErasureCodeTest {
                 n.add(srcPacket);
             }
         }
-        MerkleTreeImp tree = new MerkleTreeImp();
+        MerkleTreeOldImp tree = new MerkleTreeOldImp();
         ArrayList<MerkleNode> merkleNodes = new ArrayList<MerkleNode>();
         for (int i = 0; i < n.size(); i++) {
             SerializableErasureObject serializableErasureObject = new SerializableErasureObject(object, n.get(i).asArray());

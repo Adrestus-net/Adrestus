@@ -28,6 +28,7 @@ import org.bouncycastle.util.encoders.Hex;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -78,7 +79,7 @@ public class ReplaySameTransactionTest {
             String adddress = WalletAddress.generate_address((byte) version, ecKeyPair.getPublicKey());
             addreses.add(adddress);
             keypair.add(ecKeyPair);
-            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(adddress, new PatriciaTreeNode(1000, 0));
+            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(adddress, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
         }
 
         List<SerializationUtil.Mapping> lists = new ArrayList<>();
@@ -148,8 +149,8 @@ public class ReplaySameTransactionTest {
         transaction.setTimestamp(GetTime.GetTimeStampInString());
         transaction.setZoneFrom(1);
         transaction.setZoneTo(1);
-        transaction.setAmount(100);
-        transaction.setAmountWithTransactionFee(transaction.getAmount() * (10.0 / 100.0));
+        transaction.setAmount(BigDecimal.valueOf(100));
+        transaction.setAmountWithTransactionFee(transaction.getAmount().multiply(BigDecimal.valueOf(10.0 / 100.0)));
         transaction.setNonce(1);
 
         byte byf[] = serenc.encode(transaction, 1024);

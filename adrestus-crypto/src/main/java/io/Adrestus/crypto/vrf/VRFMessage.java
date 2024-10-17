@@ -151,7 +151,6 @@ public final class VRFMessage implements Serializable {
     }
 
 
-
     //NEVER DELETE THIS Arrays.equalS(prnd, message.prnd) SHOULD EXIST
     @Override
     public boolean equals(Object o) {

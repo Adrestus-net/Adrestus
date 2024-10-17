@@ -2,7 +2,7 @@ package io.Adrestus.core;
 
 import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.MerkleNode;
-import io.Adrestus.Trie.MerkleTreeImp;
+import io.Adrestus.Trie.MerkleTreeOldImp;
 import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.Trie.PatriciaTreeTransactionType;
 import io.Adrestus.config.AdrestusConfiguration;
@@ -46,7 +46,6 @@ import org.spongycastle.util.encoders.Hex;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.security.SecureRandom;
-import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -75,7 +74,7 @@ public class ReceiptsTest {
     private static BLSPublicKey vk6;
     private static SerializationUtil<AbstractBlock> serenc;
     private static ArrayList<MerkleNode> merkleNodeArrayList;
-    private static MerkleTreeImp tree;
+    private static MerkleTreeOldImp tree;
 
     @BeforeAll
     public static void setup() throws Exception {
@@ -195,7 +194,7 @@ public class ReceiptsTest {
         committeeBlock.getStructureMap().get(1).put(vk6, "192.168.1.118");
         CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
         CachedZoneIndex.getInstance().setZoneIndexInternalIP();
-        tree = new MerkleTreeImp();
+        tree = new MerkleTreeOldImp();
         transactionBlock = new TransactionBlock();
         transactionBlock.setGeneration(4);
         transactionBlock.setHeight(100);
@@ -208,7 +207,7 @@ public class ReceiptsTest {
         transactionBlock.setMerkleRoot(tree.getRootHash());
         BlockSizeCalculator blockSizeCalculator1 = new BlockSizeCalculator();
         blockSizeCalculator1.setTransactionBlock(transactionBlock);
-        byte[] tohash = serenc.encode(transactionBlock,blockSizeCalculator1.TransactionBlockSizeCalculator());
+        byte[] tohash = serenc.encode(transactionBlock, blockSizeCalculator1.TransactionBlockSizeCalculator());
         transactionBlock.setHash(HashUtil.sha256_bytetoString(tohash));
 
         BlockSizeCalculator blockSizeCalculator = new BlockSizeCalculator();
@@ -220,8 +219,8 @@ public class ReceiptsTest {
     }
 
     @SneakyThrows
-//    @Test
-//    @Order(1)
+    @Test
+    @Order(1)
     public void serialize_test() throws InterruptedException {
         //Thread.sleep(2000);
         TransactionBlock transactionBlock = new TransactionBlock();
@@ -281,7 +280,7 @@ public class ReceiptsTest {
 //                                       forEach(receipt -> {
 //                                           System.out.println(receipt.getTransaction());})));
         for (int i = 0; i < 1000; i++) {
-            BlockSizeCalculator blockSizeCalculator=new BlockSizeCalculator();
+            BlockSizeCalculator blockSizeCalculator = new BlockSizeCalculator();
             blockSizeCalculator.setTransactionBlock(transactionBlock);
             byte[] buffer = serenc.encode(transactionBlock, blockSizeCalculator.TransactionBlockSizeCalculator());
             TransactionBlock clone2 = (TransactionBlock) transactionBlock.clone();
@@ -324,10 +323,10 @@ public class ReceiptsTest {
         OutBoundRelay outBoundRelay = new OutBoundRelay(map);
         transactionBlock.setOutbound(outBoundRelay);
 
-        BlockSizeCalculator blockSizeCalculator=new BlockSizeCalculator();
+        BlockSizeCalculator blockSizeCalculator = new BlockSizeCalculator();
         blockSizeCalculator.setTransactionBlock(transactionBlock);
         System.out.println(blockSizeCalculator.TransactionBlockSizeCalculator());
-        byte[] buffer = serenc.encode(transactionBlock,902816);//3768320
+        byte[] buffer = serenc.encode(transactionBlock);//3768320
         TransactionBlock clone = (TransactionBlock) serenc.decode(buffer);
         assertEquals(transactionBlock, clone);
 
@@ -340,8 +339,8 @@ public class ReceiptsTest {
         publisher.close();
     }
 
-//    @Test
-//    //@Order(2)
+    @Test
+    @Order(2)
     public void outbound_test2() throws Exception {
         BlockSizeCalculator blockSizeCalculator = new BlockSizeCalculator();
         BlockEventPublisher publisher = new BlockEventPublisher(1024);
@@ -379,7 +378,7 @@ public class ReceiptsTest {
         publisher.start();
         publisher.publish(transactionBlock);
         blockSizeCalculator.setTransactionBlock(transactionBlock);
-        byte[] buffer =  serenc.encode(transactionBlock, blockSizeCalculator.TransactionBlockSizeCalculator());
+        byte[] buffer = serenc.encode(transactionBlock);
         TransactionBlock clonem = (TransactionBlock) serenc.decode(buffer);
         assertEquals(clonem, transactionBlock);
         publisher.publish(clonem);
@@ -394,8 +393,8 @@ public class ReceiptsTest {
 //        assertEquals(transactionBlock.getOutbound().getMap_receipts().get(1).values().stream().findFirst().get().stream().findFirst().get().getReceiptBlock().getBlock_hash(), HashUtil.sha256_bytetoString(tohash));
     }
 
-//    @Test
-//    @Order(3)
+    @Test
+    @Order(3)
     public void inbound_test() throws Exception {
         IDatabase<String, TransactionBlock> database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.ZONE_0_TRANSACTION_BLOCK);
         database.save(String.valueOf(transactionBlock.getHeight()), transactionBlock);
@@ -450,9 +449,9 @@ public class ReceiptsTest {
                         MemoryReceiptPool.getInstance().delete(receipt);
                     });
                 });
-        BlockSizeCalculator blockSizeCalculator=new BlockSizeCalculator();
+        BlockSizeCalculator blockSizeCalculator = new BlockSizeCalculator();
         blockSizeCalculator.setTransactionBlock(transactionBlock);
-        byte[] buffer = serenc.encode(transactionBlock, blockSizeCalculator.TransactionBlockSizeCalculator());
+        byte[] buffer = serenc.encode(transactionBlock);
         TransactionBlock clone = (TransactionBlock) serenc.decode(buffer);
         assertEquals(transactionBlock, clone);
 

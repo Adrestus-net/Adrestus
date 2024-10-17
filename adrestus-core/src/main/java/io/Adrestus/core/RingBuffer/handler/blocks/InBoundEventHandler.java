@@ -1,7 +1,7 @@
 package io.Adrestus.core.RingBuffer.handler.blocks;
 
 import io.Adrestus.Trie.MerkleNode;
-import io.Adrestus.Trie.MerkleTreeImp;
+import io.Adrestus.Trie.MerkleTreeOldImp;
 import io.Adrestus.core.*;
 import io.Adrestus.core.Resourses.CachedInboundTransactionBlocks;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
@@ -192,7 +192,7 @@ public class InBoundEventHandler implements BlockEventHandler<AbstractBlockEvent
 
     @SneakyThrows
     public boolean PreConditionsChecks(final Receipt receipt, final Receipt.ReceiptBlock receiptBlock, final TransactionBlock transactionBlock, Transaction transaction, int index) {
-        final MerkleTreeImp outer_tree = new MerkleTreeImp();
+        final MerkleTreeOldImp outer_tree = new MerkleTreeOldImp();
         final ArrayList<MerkleNode> merkleNodeArrayList = new ArrayList<>();
         transactionBlock.getTransactionList().forEach(val -> merkleNodeArrayList.add(new MerkleNode(val.getHash())));
         outer_tree.my_generate2(merkleNodeArrayList);
