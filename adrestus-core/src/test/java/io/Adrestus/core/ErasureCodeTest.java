@@ -2,7 +2,7 @@ package io.Adrestus.core;
 
 import com.google.common.collect.Lists;
 import io.Adrestus.Trie.MerkleNode;
-import io.Adrestus.Trie.MerkleTreeOldImp;
+import io.Adrestus.Trie.MerkleTreeOptimizedImp;
 import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.core.Util.BlockSizeCalculator;
@@ -85,7 +85,7 @@ public class ErasureCodeTest {
         list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
         encode = new SerializationUtil<TransactionBlock>(TransactionBlock.class, list);
         serenc = new SerializationUtil<Transaction>(Transaction.class, list);
-        serenc_erasure = new SerializationUtil<SerializableErasureObject>(SerializableErasureObject.class);
+        serenc_erasure = new SerializationUtil<SerializableErasureObject>(SerializableErasureObject.class,list);
 
         ArrayList<String> addreses = new ArrayList<>();
         ArrayList<Transaction> transactions = new ArrayList<>();
@@ -562,17 +562,17 @@ public class ErasureCodeTest {
                 n.add(srcPacket);
             }
         }
-        MerkleTreeOldImp tree = new MerkleTreeOldImp();
+        MerkleTreeOptimizedImp tree = new MerkleTreeOptimizedImp();
         ArrayList<MerkleNode> merkleNodes = new ArrayList<MerkleNode>();
         for (int i = 0; i < n.size(); i++) {
             SerializableErasureObject serializableErasureObject = new SerializableErasureObject(object, n.get(i).asArray());
             merkleNodes.add(new MerkleNode(HashUtil.sha256_bytetoString(serializableErasureObject.getOriginalPacketChunks())));
             serializableErasureObjects.add(serializableErasureObject);
         }
-        tree.my_generate2(merkleNodes);
+        tree.constructTree(merkleNodes);
         String original_hash = tree.getRootHash();
         for (int j = 0; j < serializableErasureObjects.size(); j++) {
-            tree.build_proofs2(merkleNodes, new MerkleNode(HashUtil.sha256_bytetoString(serializableErasureObjects.get(j).getOriginalPacketChunks())));
+            tree.build_proofs(new MerkleNode(HashUtil.sha256_bytetoString(serializableErasureObjects.get(j).getOriginalPacketChunks())));
             serializableErasureObjects.get(j).setProofs(tree.getMerkleeproofs());
             serializableErasureObjects.get(j).setRootMerkleHash(tree.getRootHash());
         }

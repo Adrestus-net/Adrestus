@@ -1,8 +1,7 @@
 package io.Adrestus.core;
 
-import io.Adrestus.Trie.MerkleNode;
-import io.Adrestus.Trie.MerkleProofsCached;
-import io.Adrestus.Trie.MerkleTreeOldImp;
+import io.Adrestus.Trie.MerkleProofs;
+import io.Adrestus.Trie.MerkleTreeOptimizedImp;
 import io.Adrestus.erasure.code.parameters.FECParameterObject;
 import io.activej.serializer.annotations.Serialize;
 
@@ -18,7 +17,7 @@ public class SerializableErasureObject {
 
     private ArrayList<byte[]> repairPacketChunks;
 
-    private MerkleProofsCached proofs;
+    private MerkleProofs proofs;
 
 
     public SerializableErasureObject() {
@@ -29,7 +28,7 @@ public class SerializableErasureObject {
         this.originalPacketChunks = originalPacketChunks;
         this.repairPacketChunks = new ArrayList<>();
         this.rootMerkleHash = "";
-        this.proofs = new MerkleProofsCached();
+        this.proofs = new MerkleProofs();
     }
 
     public SerializableErasureObject(FECParameterObject fecParameterObject, byte[] originalPacketChunks, ArrayList<byte[]> repairPacketChunks) {
@@ -37,10 +36,10 @@ public class SerializableErasureObject {
         this.originalPacketChunks = originalPacketChunks;
         this.repairPacketChunks = repairPacketChunks;
         this.rootMerkleHash = "";
-        this.proofs = new MerkleProofsCached();
+        this.proofs = new MerkleProofs();
     }
 
-    public SerializableErasureObject(FECParameterObject fecParameterObject, byte[] originalPacketChunks, MerkleProofsCached proofs) {
+    public SerializableErasureObject(FECParameterObject fecParameterObject, byte[] originalPacketChunks, MerkleProofs proofs) {
         this.fecParameterObject = fecParameterObject;
         this.originalPacketChunks = originalPacketChunks;
         this.repairPacketChunks = new ArrayList<>();
@@ -48,7 +47,7 @@ public class SerializableErasureObject {
         this.proofs = proofs;
     }
 
-    public SerializableErasureObject(FECParameterObject fecParameterObject, byte[] originalPacketChunks, ArrayList<byte[]> repairPacketChunks, MerkleProofsCached proofs) {
+    public SerializableErasureObject(FECParameterObject fecParameterObject, byte[] originalPacketChunks, ArrayList<byte[]> repairPacketChunks, MerkleProofs proofs) {
         this.fecParameterObject = fecParameterObject;
         this.originalPacketChunks = originalPacketChunks;
         this.repairPacketChunks = repairPacketChunks;
@@ -94,17 +93,17 @@ public class SerializableErasureObject {
 
 
     @Serialize
-    public MerkleProofsCached getProofs() {
+    public MerkleProofs getProofs() {
         return proofs;
     }
 
-    public void setProofs(MerkleProofsCached proofs) {
+    public void setProofs(MerkleProofs proofs) {
         this.proofs = proofs;
     }
 
     public int getSize() {
         double SumOfrepairPacketChunk = repairPacketChunks.stream().mapToDouble(this::sum).sum();
-        double SumOMerkleNodes = getProofs().getList_builder().stream().mapToInt(MerkleNode::getLength).sum();
+        double SumOMerkleNodes = getProofs().getLength();
         return (int) (this.fecParameterObject.getSize() + originalPacketChunks.length + SumOfrepairPacketChunk + SumOMerkleNodes) + 1024;
     }
 
@@ -117,14 +116,14 @@ public class SerializableErasureObject {
     }
 
     public boolean CheckChunksValidity(String OriginalHash) {
-        MerkleTreeOldImp tree = new MerkleTreeOldImp();
-        String hash1 = tree.GenerateRoot(this.proofs);
+        MerkleTreeOptimizedImp tree = new MerkleTreeOptimizedImp();
+        String hash1 = tree.generateRoot(this.proofs);
         return OriginalHash.equals(hash1) && OriginalHash.equals(rootMerkleHash);
     }
 
     public boolean CheckChunksWithRepairValidity(String OriginalHash) {
-        MerkleTreeOldImp tree = new MerkleTreeOldImp();
-        String hash1 = tree.GenerateRoot(this.proofs);
+        MerkleTreeOptimizedImp tree = new MerkleTreeOptimizedImp();
+        String hash1 = tree.generateRoot(this.proofs);
         return OriginalHash.equals(hash1);
 
 //        MerkleTreeImp tree = new MerkleTreeImp();

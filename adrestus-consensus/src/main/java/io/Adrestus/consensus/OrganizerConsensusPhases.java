@@ -2,7 +2,7 @@ package io.Adrestus.consensus;
 
 import com.google.common.reflect.TypeToken;
 import io.Adrestus.Trie.MerkleNode;
-import io.Adrestus.Trie.MerkleTreeOldImp;
+import io.Adrestus.Trie.MerkleTreeOptimizedImp;
 import io.Adrestus.core.*;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedLeaderIndex;
@@ -188,16 +188,16 @@ public class OrganizerConsensusPhases {
                     n.add(srcPacket);
                 }
             }
-            MerkleTreeOldImp tree = new MerkleTreeOldImp();
+            MerkleTreeOptimizedImp tree = new MerkleTreeOptimizedImp();
             ArrayList<MerkleNode> merkleNodes = new ArrayList<MerkleNode>();
             for (int i = 0; i < n.size(); i++) {
                 SerializableErasureObject serializableErasureObject = new SerializableErasureObject(object, n.get(i).asArray(), new ArrayList<byte[]>());
                 serializableErasureObjects.add(serializableErasureObject);
                 merkleNodes.add(new MerkleNode(HashUtil.sha256_bytetoString(serializableErasureObject.getOriginalPacketChunks())));
             }
-            tree.my_generate2(merkleNodes);
+            tree.constructTree(merkleNodes);
             for (int j = 0; j < serializableErasureObjects.size(); j++) {
-                tree.build_proofs2(merkleNodes, new MerkleNode(HashUtil.sha256_bytetoString(serializableErasureObjects.get(j).getOriginalPacketChunks())));
+                tree.build_proofs(new MerkleNode(HashUtil.sha256_bytetoString(serializableErasureObjects.get(j).getOriginalPacketChunks())));
                 serializableErasureObjects.get(j).setProofs(tree.getMerkleeproofs());
                 serializableErasureObjects.get(j).setRootMerkleHash(tree.getRootHash());
             }

@@ -1,9 +1,12 @@
 package io.Adrestus.core.Resourses;
 
 import io.Adrestus.core.Receipt;
+import io.activej.serializer.annotations.Deserialize;
+import io.activej.serializer.annotations.Serialize;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -16,7 +19,7 @@ public class MemoryReceiptPool implements IMemoryPool<Receipt> {
 
     private static volatile IMemoryPool instance;
 
-    private static List<Receipt> memorypool;
+    private static Map<CompositeKey, Receipt> memorypool;
     private static ReentrantReadWriteLock rwl;
     private static Lock r;
     private static Lock w;
@@ -26,7 +29,7 @@ public class MemoryReceiptPool implements IMemoryPool<Receipt> {
         if (instance != null) {
             throw new IllegalStateException("Already initialized.");
         } else {
-            this.memorypool = new ArrayList<>();
+            this.memorypool = new HashMap<>();
             this.equalityComparator = new ReceiptEqualityComparator();
             this.rwl = new ReentrantReadWriteLock();
             this.r = rwl.readLock();
@@ -51,7 +54,7 @@ public class MemoryReceiptPool implements IMemoryPool<Receipt> {
     public Stream<Receipt> getAllStream() throws Exception {
         r.lock();
         try {
-            return memorypool.stream();
+            return memorypool.values().stream();
         } finally {
             r.unlock();
         }
@@ -61,7 +64,7 @@ public class MemoryReceiptPool implements IMemoryPool<Receipt> {
     public ArrayList<Receipt> getAll() throws Exception {
         r.lock();
         try {
-            return (ArrayList<Receipt>) memorypool;
+            return (ArrayList<Receipt>) memorypool.values().stream().collect(Collectors.toList());
         } finally {
             r.unlock();
         }
@@ -100,20 +103,13 @@ public class MemoryReceiptPool implements IMemoryPool<Receipt> {
     @Override
     public Optional<Receipt> getObjectByHash(String hash) throws Exception {
         return null;
-//        r.lock();
-//        try {
-//            Optional<Receipt> result = memorypool.stream().filter(val -> val.getTransaction().getHash().equals(hash)).findFirst();
-//            return result;
-//        } finally {
-//            r.unlock();
-//        }
     }
 
     @Override
     public List<Receipt> getListByZone(int zone) throws Exception {
         r.lock();
         try {
-            List<Receipt> result = memorypool.stream().filter(val -> val.getZoneFrom() == zone).collect(Collectors.toList());
+            List<Receipt> result = memorypool.values().parallelStream().filter(val -> val.getZoneFrom() == zone).collect(Collectors.toList());
             return result;
         } finally {
             r.unlock();
@@ -124,7 +120,7 @@ public class MemoryReceiptPool implements IMemoryPool<Receipt> {
     public List<Receipt> getOutBoundList(int zone) throws Exception {
         r.lock();
         try {
-            List<Receipt> result = memorypool.stream().filter(val -> val.getZoneFrom() == zone && val.getZoneTo() != zone).collect(Collectors.toList());
+            List<Receipt> result = memorypool.values().stream().filter(val -> val.getZoneFrom() == zone && val.getZoneTo() != zone).collect(Collectors.toList());
             return result;
         } finally {
             r.unlock();
@@ -135,7 +131,7 @@ public class MemoryReceiptPool implements IMemoryPool<Receipt> {
     public List<Receipt> getInboundList(int zone) throws Exception {
         r.lock();
         try {
-            List<Receipt> result = memorypool.stream().filter(val -> val.getZoneFrom() != zone && val.getZoneTo() == zone).collect(Collectors.toList());
+            List<Receipt> result = memorypool.values().parallelStream().filter(val -> val.getZoneFrom() != zone && val.getZoneTo() == zone).collect(Collectors.toList());
             return result;
         } finally {
             r.unlock();
@@ -146,7 +142,7 @@ public class MemoryReceiptPool implements IMemoryPool<Receipt> {
     public List<Receipt> getListToDelete(int zone) throws Exception {
         r.lock();
         try {
-            List<Receipt> result = memorypool.stream().filter(val -> val.getZoneFrom() != zone && val.getZoneTo() != zone).collect(Collectors.toList());
+            List<Receipt> result = memorypool.values().parallelStream().filter(val -> val.getZoneFrom() != zone && val.getZoneTo() != zone).collect(Collectors.toList());
             return result;
         } finally {
             r.unlock();
@@ -167,7 +163,7 @@ public class MemoryReceiptPool implements IMemoryPool<Receipt> {
     public void delete(List<Receipt> list_transaction) {
         w.lock();
         try {
-            memorypool.removeAll(list_transaction);
+            list_transaction.forEach(receipt -> memorypool.remove(new CompositeKey(receipt.getZoneFrom(), receipt.getReceiptBlock().getGeneration(), receipt.getReceiptBlock().getHeight(), receipt.getPosition())));
         } finally {
             w.unlock();
         }
@@ -177,9 +173,7 @@ public class MemoryReceiptPool implements IMemoryPool<Receipt> {
     public void delete(Receipt receipt) {
         w.lock();
         try {
-            int index = Collections.binarySearch(memorypool, receipt, equalityComparator);
-            if (index >= 0)
-                memorypool.remove(index);
+            memorypool.remove(new CompositeKey(receipt.getZoneFrom(), receipt.getReceiptBlock().getGeneration(), receipt.getReceiptBlock().getHeight(), receipt.getPosition()));
         } finally {
             w.unlock();
         }
@@ -195,11 +189,7 @@ public class MemoryReceiptPool implements IMemoryPool<Receipt> {
     public boolean checkHashExists(Receipt receipt) throws Exception {
         r.lock();
         try {
-            int index = Collections.binarySearch(memorypool, receipt, equalityComparator);
-            if (index >= 0)
-                return true;
-            else
-                return false;
+            return memorypool.containsKey(new CompositeKey(receipt.getZoneFrom(), receipt.getReceiptBlock().getGeneration(), receipt.getReceiptBlock().getHeight(), receipt.getPosition()));
         } finally {
             r.unlock();
         }
@@ -214,9 +204,7 @@ public class MemoryReceiptPool implements IMemoryPool<Receipt> {
     public void printAll() throws Exception {
         r.lock();
         try {
-            for (int i = 0; i < memorypool.size(); i++) {
-                LOG.info(memorypool.get(i).toString());
-            }
+            memorypool.values().stream().forEach(val -> LOG.info(val.toString()));
         } finally {
             r.unlock();
         }
@@ -227,12 +215,12 @@ public class MemoryReceiptPool implements IMemoryPool<Receipt> {
         memorypool.clear();
     }
 
-    private boolean check_add(Receipt transaction) {
-        int index = Collections.binarySearch(memorypool, transaction, equalityComparator);
-        if (index >= 0)
+    private boolean check_add(Receipt receipt) {
+        CompositeKey compositeKey = new CompositeKey(receipt.getZoneFrom(), receipt.getReceiptBlock().getGeneration(), receipt.getReceiptBlock().getHeight(), receipt.getPosition());
+        boolean isExist = memorypool.containsKey(compositeKey);
+        if (isExist)
             return true;
-        else if (index < 0) index = ~index;
-        memorypool.add(index, transaction);
+        memorypool.put(compositeKey, receipt);
         return false;
     }
 
@@ -244,6 +232,44 @@ public class MemoryReceiptPool implements IMemoryPool<Receipt> {
                     .thenComparingInt(val -> val.getReceiptBlock().getHeight())
                     .thenComparingInt(Receipt::getPosition)
                     .compare(t1, t2);
+        }
+    }
+
+
+    private static final class CompositeKey implements Serializable,Cloneable {
+        public final int zoneFrom;
+        public final int generation;
+        public final int height;
+        public final int position;
+
+        public CompositeKey(@Deserialize("zoneFrom") int zoneFrom, @Deserialize("generation") int generation, @Deserialize("height") int height, @Deserialize("position") int position) {
+            this.zoneFrom = zoneFrom;
+            this.generation = generation;
+            this.height = height;
+            this.position = position;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            CompositeKey that = (CompositeKey) o;
+            return zoneFrom == that.zoneFrom && generation == that.generation && height == that.height && position == that.position;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(zoneFrom, generation, height, position);
+        }
+
+        @Override
+        public String toString() {
+            return "CompositeKey{" +
+                    "zoneFrom=" + zoneFrom +
+                    ", generation=" + generation +
+                    ", height=" + height +
+                    ", position=" + position +
+                    '}';
         }
     }
 }

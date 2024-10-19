@@ -2,7 +2,7 @@ package io.Adrestus.core;
 
 import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.MerkleNode;
-import io.Adrestus.Trie.MerkleTreeOldImp;
+import io.Adrestus.Trie.MerkleTreeOptimizedImp;
 import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.Trie.PatriciaTreeTransactionType;
 import io.Adrestus.config.AdrestusConfiguration;
@@ -74,7 +74,7 @@ public class ReceiptsTest {
     private static BLSPublicKey vk6;
     private static SerializationUtil<AbstractBlock> serenc;
     private static ArrayList<MerkleNode> merkleNodeArrayList;
-    private static MerkleTreeOldImp tree;
+    private static MerkleTreeOptimizedImp tree;
 
     @BeforeAll
     public static void setup() throws Exception {
@@ -194,7 +194,7 @@ public class ReceiptsTest {
         committeeBlock.getStructureMap().get(1).put(vk6, "192.168.1.118");
         CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
         CachedZoneIndex.getInstance().setZoneIndexInternalIP();
-        tree = new MerkleTreeOldImp();
+        tree = new MerkleTreeOptimizedImp();
         transactionBlock = new TransactionBlock();
         transactionBlock.setGeneration(4);
         transactionBlock.setHeight(100);
@@ -203,7 +203,7 @@ public class ReceiptsTest {
         transactionBlock.getTransactionList().stream().forEach(x -> {
             merkleNodeArrayList.add(new MerkleNode(x.getHash()));
         });
-        tree.my_generate2(merkleNodeArrayList);
+        tree.constructTree(merkleNodeArrayList);
         transactionBlock.setMerkleRoot(tree.getRootHash());
         BlockSizeCalculator blockSizeCalculator1 = new BlockSizeCalculator();
         blockSizeCalculator1.setTransactionBlock(transactionBlock);
@@ -306,7 +306,7 @@ public class ReceiptsTest {
         for (int i = 0; i < transactionBlock.getTransactionList().size(); i++) {
             Transaction transaction = transactionBlock.getTransactionList().get(i);
             MerkleNode node = new MerkleNode(transaction.getHash());
-            tree.build_proofs2(merkleNodeArrayList, node);
+            tree.build_proofs(node);
             receiptList.add(new Receipt(transaction.getZoneFrom(), transaction.getZoneTo(), receiptBlock, i, tree.getMerkleeproofs()));
         }
 
@@ -316,7 +316,7 @@ public class ReceiptsTest {
 
         for (Integer key : map.keySet()) {
             map.get(key).entrySet().stream().forEach(val -> {
-                val.getValue().stream().forEach(x -> assertEquals(OriginalRootHash, tree.GenerateRoot(x.getProofs())));
+                val.getValue().stream().forEach(x -> assertEquals(OriginalRootHash, tree.generateRoot(x.getProofs())));
             });
         }
 
@@ -325,8 +325,7 @@ public class ReceiptsTest {
 
         BlockSizeCalculator blockSizeCalculator = new BlockSizeCalculator();
         blockSizeCalculator.setTransactionBlock(transactionBlock);
-        System.out.println(blockSizeCalculator.TransactionBlockSizeCalculator());
-        byte[] buffer = serenc.encode(transactionBlock);//3768320
+        byte[] buffer = serenc.encode(transactionBlock,blockSizeCalculator.TransactionBlockSizeCalculator());//3768320
         TransactionBlock clone = (TransactionBlock) serenc.decode(buffer);
         assertEquals(transactionBlock, clone);
 
@@ -416,7 +415,7 @@ public class ReceiptsTest {
         for (int i = 0; i < transactionBlock.getTransactionList().size(); i++) {
             Transaction transaction = transactionBlock.getTransactionList().get(i);
             MerkleNode node = new MerkleNode(transaction.getHash());
-            tree.build_proofs2(merkleNodeArrayList, node);
+            tree.build_proofs(node);
             if (CachedZoneIndex.getInstance().getZoneIndex() == transaction.getZoneTo())
                 MemoryReceiptPool.getInstance().add(new Receipt(transaction.getZoneFrom(), transaction.getZoneTo(), receiptBlock, tree.getMerkleeproofs(), i));
         }
@@ -429,7 +428,7 @@ public class ReceiptsTest {
 
         for (Integer key : map.keySet()) {
             map.get(key).entrySet().stream().forEach(val -> {
-                val.getValue().stream().forEach(x -> assertEquals(OriginalRootHash, tree.GenerateRoot(x.getProofs())));
+                val.getValue().stream().forEach(x -> assertEquals(OriginalRootHash, tree.generateRoot(x.getProofs())));
             });
         }
 
@@ -451,7 +450,7 @@ public class ReceiptsTest {
                 });
         BlockSizeCalculator blockSizeCalculator = new BlockSizeCalculator();
         blockSizeCalculator.setTransactionBlock(transactionBlock);
-        byte[] buffer = serenc.encode(transactionBlock);
+        byte[] buffer = serenc.encode(transactionBlock,blockSizeCalculator.TransactionBlockSizeCalculator());
         TransactionBlock clone = (TransactionBlock) serenc.decode(buffer);
         assertEquals(transactionBlock, clone);
 

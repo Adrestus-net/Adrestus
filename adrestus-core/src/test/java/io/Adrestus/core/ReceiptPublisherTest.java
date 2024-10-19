@@ -2,7 +2,7 @@ package io.Adrestus.core;
 
 import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.MerkleNode;
-import io.Adrestus.Trie.MerkleTreeOldImp;
+import io.Adrestus.Trie.MerkleTreeOptimizedImp;
 import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
@@ -70,7 +70,7 @@ public class ReceiptPublisherTest {
     private static BLSPublicKey vk6;
     private static SerializationUtil<AbstractBlock> serenc;
     private static ArrayList<MerkleNode> merkleNodeArrayList;
-    private static MerkleTreeOldImp tree;
+    private static MerkleTreeOptimizedImp tree;
 
     @BeforeAll
     public static void setup() throws Exception {
@@ -189,7 +189,7 @@ public class ReceiptPublisherTest {
         committeeBlock.getStructureMap().get(1).put(vk2, "192.168.1.116");
         CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
 
-        tree = new MerkleTreeOldImp();
+        tree = new MerkleTreeOptimizedImp();
         transactionBlock = new TransactionBlock();
         transactionBlock.setGeneration(4);
         transactionBlock.setHeight(100);
@@ -198,7 +198,7 @@ public class ReceiptPublisherTest {
         transactionBlock.getTransactionList().stream().forEach(x -> {
             merkleNodeArrayList.add(new MerkleNode(x.getHash()));
         });
-        tree.my_generate2(merkleNodeArrayList);
+        tree.constructTree(merkleNodeArrayList);
         transactionBlock.setMerkleRoot(tree.getRootHash());
         byte[] tohash = serenc.encode(transactionBlock);
         transactionBlock.setHash(HashUtil.sha256_bytetoString(tohash));
@@ -213,7 +213,7 @@ public class ReceiptPublisherTest {
         RpcAdrestusServer<AbstractBlock> example = new RpcAdrestusServer<AbstractBlock>(new TransactionBlock(), DatabaseInstance.ZONE_0_TRANSACTION_BLOCK, "localhost", ZoneDatabaseFactory.getDatabaseRPCPort(CachedZoneIndex.getInstance().getZoneIndex()), CachedEventLoop.getInstance().getEventloop());
         new Thread(example).start();
         CachedEventLoop.getInstance().start();
-
+        Thread.sleep(1200);
 
         String OriginalRootHash = transactionBlock.getMerkleRoot();
         Receipt.ReceiptBlock receiptBlock = new Receipt.ReceiptBlock(transactionBlock.getHeight(), transactionBlock.getGeneration(), transactionBlock.getMerkleRoot());
@@ -234,7 +234,7 @@ public class ReceiptPublisherTest {
         for (int i = 0; i < transactionBlock.getTransactionList().size(); i++) {
             Transaction transaction = transactionBlock.getTransactionList().get(i);
             MerkleNode node = new MerkleNode(transaction.getHash());
-            tree.build_proofs2(merkleNodeArrayList, node);
+            tree.build_proofs(node);
             if (CachedZoneIndex.getInstance().getZoneIndex() == transaction.getZoneTo()) {
                 Receipt receipt = new Receipt(transaction.getZoneFrom(), transaction.getZoneTo(), receiptBlock, tree.getMerkleeproofs(), i);
 

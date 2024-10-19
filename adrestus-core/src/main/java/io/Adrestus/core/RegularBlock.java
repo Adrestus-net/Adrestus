@@ -5,7 +5,7 @@ import com.google.common.reflect.TypeToken;
 import io.Adrestus.MemoryTreePool;
 import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.MerkleNode;
-import io.Adrestus.Trie.MerkleTreeOldImp;
+import io.Adrestus.Trie.MerkleTreeOptimizedImp;
 import io.Adrestus.Trie.PatriciaTreeTransactionType;
 import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.config.RewardConfiguration;
@@ -108,7 +108,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
 
     @Override
     public void forgeTransactionBlock(TransactionBlock transactionBlock) throws Exception {
-        MerkleTreeOldImp tree = new MerkleTreeOldImp();
+        MerkleTreeOptimizedImp tree = new MerkleTreeOptimizedImp();
         ArrayList<MerkleNode> merkleNodeArrayList = new ArrayList<>();
         transactionBlock.getHeaderData().setPreviousHash(CachedLatestBlocks.getInstance().getTransactionBlock().getHash());
         transactionBlock.getHeaderData().setVersion(AdrestusConfiguration.version);
@@ -137,7 +137,6 @@ public class RegularBlock implements BlockForge, BlockInvent {
 
         if (!transactionBlock.getTransactionList().isEmpty()) {
             BigDecimal sum = transactionBlock.getTransactionList().parallelStream().filter(val -> !val.getType().equals(TransactionType.UNCLAIMED_FEE_REWARD)).map(Transaction::getAmountWithTransactionFee).reduce(BigDecimal.ZERO, BigDecimal::add);
-            ;
             try {
                 transactionBlock.getTransactionList().add(0, new UnclaimedFeeRewardTransaction(TransactionType.UNCLAIMED_FEE_REWARD, this.blockIndex.getAddressByPublicKey(CachedBLSKeyPair.getInstance().getPublicKey()), sum));
             } catch (NoSuchElementException e) {
@@ -146,7 +145,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
         }
 
         transactionBlock.getTransactionList().forEach(transaction -> merkleNodeArrayList.add(new MerkleNode(transaction.getHash())));
-        tree.my_generate2(merkleNodeArrayList);
+        tree.constructTree(merkleNodeArrayList);
         transactionBlock.setMerkleRoot(tree.getRootHash());
 
         //##########OutBound############
@@ -156,7 +155,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
             Transaction transaction = transactionBlock.getTransactionList().get(i);
             if (transaction.getZoneFrom() != transaction.getZoneTo()) {
                 MerkleNode node = new MerkleNode(transaction.getHash());
-                tree.build_proofs2(merkleNodeArrayList, node);
+                tree.build_proofs(node);
                 receiptList.add(new Receipt(transaction.getZoneFrom(), transaction.getZoneTo(), receiptBlock, tree.getMerkleeproofs(), i));
             }
         }

@@ -1,6 +1,6 @@
 package io.Adrestus.core;
 
-import io.Adrestus.Trie.MerkleProofsCached;
+import io.Adrestus.Trie.MerkleProofs;
 import io.activej.serializer.annotations.Deserialize;
 import io.activej.serializer.annotations.Serialize;
 import io.activej.serializer.annotations.SerializeNullable;
@@ -14,7 +14,7 @@ public class Receipt implements Serializable, Cloneable {
     private int zoneTo;
     private ReceiptBlock receiptBlock;
     private int position;
-    private MerkleProofsCached proofs;
+    private MerkleProofs proofs;
 
 
     public Receipt() {
@@ -22,14 +22,14 @@ public class Receipt implements Serializable, Cloneable {
         this.zoneTo = 0;
         this.receiptBlock = new ReceiptBlock();
         this.position = 0;
-        this.proofs = new MerkleProofsCached();
+        this.proofs = new MerkleProofs();
     }
 
     public Receipt(int zoneFrom,
                    int zoneTo,
                    ReceiptBlock receiptBlock,
                    int position,
-                   MerkleProofsCached proofs) {
+                   MerkleProofs proofs) {
         this.zoneFrom = zoneFrom;
         this.zoneTo = zoneTo;
         this.receiptBlock = receiptBlock;
@@ -38,7 +38,7 @@ public class Receipt implements Serializable, Cloneable {
 
     }
 
-    public Receipt(int zoneFrom, int zoneTo, int position, MerkleProofsCached proof) {
+    public Receipt(int zoneFrom, int zoneTo, int position, MerkleProofs proof) {
         this.zoneFrom = zoneFrom;
         this.zoneTo = zoneTo;
         this.position = position;
@@ -48,14 +48,14 @@ public class Receipt implements Serializable, Cloneable {
     public Receipt(int zoneFrom, int zoneTo) {
         this.zoneFrom = zoneFrom;
         this.zoneTo = zoneTo;
-        this.proofs = new MerkleProofsCached();
+        this.proofs = new MerkleProofs();
         this.position = 0;
     }
 
     public Receipt(@Deserialize("zoneFrom") int zoneFrom,
                    @Deserialize("zoneTo") int zoneTo,
                    @Deserialize("receiptBlock") ReceiptBlock receiptBlock,
-                   @Deserialize("proofs") MerkleProofsCached proofs,
+                   @Deserialize("proofs") MerkleProofs proofs,
                    @Deserialize("position") int position) {
         this.zoneFrom = zoneFrom;
         this.zoneTo = zoneTo;
@@ -71,7 +71,7 @@ public class Receipt implements Serializable, Cloneable {
         this.zoneFrom = zoneFrom;
         this.zoneTo = zoneTo;
         this.receiptBlock = receiptBlock;
-        this.proofs = new MerkleProofsCached();
+        this.proofs = new MerkleProofs();
         this.position = 0;
     }
 
@@ -116,14 +116,13 @@ public class Receipt implements Serializable, Cloneable {
 
     @Serialize
     @SerializeNullable
-    public MerkleProofsCached getProofs() {
+    public MerkleProofs getProofs() {
         return proofs;
     }
 
-    public void setProofs(MerkleProofsCached proofs) {
+    public void setProofs(MerkleProofs proofs) {
         this.proofs = proofs;
     }
-
 
     public static Receipt merge(Receipt receipt) {
         return new Receipt(

@@ -641,6 +641,22 @@ public class ByteUtil {
         return result;
     }
 
+    public static int nextPowerOfTwo(int n) {
+        if (n <= 0) {
+            throw new IllegalArgumentException("Input must be a positive integer");
+        }
+
+        if ((n & (n - 1)) == 0)
+            return n;
+
+        int power = 1;
+        while (power <= n) {
+            power *= 2;
+        }
+
+        return power;
+    }
+
     public static byte[] parseWord(byte[] input, int idx) {
         return parseBytes(input, 32 * idx, 32);
     }

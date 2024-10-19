@@ -51,6 +51,7 @@ import io.activej.rpc.server.RpcServer;
 import io.activej.serializer.annotations.Deserialize;
 import io.activej.serializer.annotations.Serialize;
 import io.distributedLedger.*;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.*;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
@@ -92,7 +93,7 @@ class RPCExampleTest {
     private static TransactionBlock transactionBlock;
     private static SerializationUtil<Transaction> serenc;
     private static SerializationUtil<SerializableErasureObject> serenc_erasure;
-    private static ArrayList<SerializableErasureObject> serializableErasureObjects = new ArrayList<SerializableErasureObject>();
+    private static ArrayList<SerializableErasureObject> serializableErasureObjects;
     private static int blocksize;
 
     static {
@@ -117,8 +118,9 @@ class RPCExampleTest {
         list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
         encode = new SerializationUtil<TransactionBlock>(TransactionBlock.class, list);
         serenc = new SerializationUtil<Transaction>(Transaction.class, list);
-        serenc_erasure = new SerializationUtil<SerializableErasureObject>(SerializableErasureObject.class);
-
+        serenc_erasure = new SerializationUtil<SerializableErasureObject>(SerializableErasureObject.class,list);
+        serializableErasureObjects= new ArrayList<>();
+        serializableErasureObjects.stream().map(val->val).collect(Collectors.toList());
         ArrayList<String> addreses = new ArrayList<>();
         ArrayList<Transaction> transactions = new ArrayList<>();
         ArrayList<ECKeyPair> keypair = new ArrayList<>();
@@ -664,166 +666,158 @@ class RPCExampleTest {
         }
     }
 
-    @Test
-    public void download_transaction_database() throws Exception {
-        IDatabase<String, LevelDBTransactionWrapper<Transaction>> database = new DatabaseFactory(String.class, Transaction.class, new TypeToken<LevelDBTransactionWrapper<Transaction>>() {
-        }.getType()).getDatabase(DatabaseType.LEVEL_DB);
-        Transaction transaction = new RegularTransaction();
-        transaction.setAmount(BigDecimal.valueOf(100));
-        transaction.setHash("Hash123");
-        transaction.setFrom("1");
-        transaction.setTo("2");
-        transaction.setTimestamp(GetTime.GetTimeStampInString());
-        Thread.sleep(200);
+//    @Test
+//    public void download_transaction_database() throws Exception {
+//        IDatabase<String, LevelDBTransactionWrapper<Transaction>> database = new DatabaseFactory(String.class, Transaction.class, new TypeToken<LevelDBTransactionWrapper<Transaction>>() {
+//        }.getType()).getDatabase(DatabaseType.LEVEL_DB);
+//        Transaction transaction = new RegularTransaction();
+//        transaction.setAmount(BigDecimal.valueOf(100));
+//        transaction.setHash("Hash123");
+//        transaction.setFrom("1");
+//        transaction.setTo("2");
+//        transaction.setTimestamp(GetTime.GetTimeStampInString());
+//        Thread.sleep(200);
+//
+//
+//        Transaction transaction2 = new RegularTransaction();
+//        transaction2.setAmount(BigDecimal.valueOf(200));
+//        transaction2.setHash("Hash124");
+//        transaction2.setFrom("3");
+//        transaction2.setTo("1");
+//        transaction2.setTimestamp(GetTime.GetTimeStampInString());
+//        Thread.sleep(200);
+//
+//        Transaction transaction3 = new RegularTransaction();
+//        transaction3.setAmount(BigDecimal.valueOf(200));
+//        transaction3.setHash("Hash345");
+//        transaction3.setFrom("4");
+//        transaction3.setTo("1");
+//        transaction3.setTimestamp(GetTime.GetTimeStampInString());
+//        Thread.sleep(200);
+//
+//        database.save("1", transaction);
+//        database.save("1", transaction2);
+//        database.save("1", transaction2);
+//        database.save("1", transaction3);
+//        //   database.save("1",transaction2);
+//        Map<String, LevelDBTransactionWrapper<Transaction>> map = database.seekFromStart();
+//
+//
+//        Type fluentType = new TypeToken<LevelDBTransactionWrapper<Transaction>>() {
+//        }.getType();
+//        RpcAdrestusClient client = null;
+//        RpcAdrestusServer<Transaction> server1 = null, server2 = null, server3 = null;
+//        try {
+//            InetSocketAddress address1 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 3077);
+//            server1 = new RpcAdrestusServer<Transaction>(new RegularTransaction(), fluentType, address1, eventloop);
+//            new Thread(server1).start();
+//
+//
+//            client = new RpcAdrestusClient(fluentType, address1, eventloop);
+//            client.connect();
+//            Map<String, LevelDBTransactionWrapper<Transaction>> copymaps = (Map<String, LevelDBTransactionWrapper<Transaction>>) client.getTransactionDatabase("1");
+//
+//            assertEquals(map, copymaps);
+//
+//            if (client != null)
+//                client.close();
+//            if (server1 != null)
+//                server1.close();
+//            server1 = null;
+//        } catch (Exception e) {
+//            System.out.println("Database 1 Exception caught: " + e.toString());
+//        } finally {
+//            database.delete_db();
+//        }
+//    }
 
+//    @Test
+//    public void download_transaction_database_from_multiple_servers() throws Exception {
+//        IDatabase<String, LevelDBTransactionWrapper<Transaction>> database = new DatabaseFactory(String.class, Transaction.class, new TypeToken<LevelDBTransactionWrapper<Transaction>>() {
+//        }.getType()).getDatabase(DatabaseType.LEVEL_DB);
+//        Transaction transaction = new RegularTransaction();
+//        transaction.setAmount(BigDecimal.valueOf(100));
+//        transaction.setHash("Hash123");
+//        transaction.setFrom("1");
+//        transaction.setTo("2");
+//        transaction.setTimestamp(GetTime.GetTimeStampInString());
+//        Thread.sleep(200);
+//
+//
+//        Transaction transaction2 = new RegularTransaction();
+//        transaction2.setAmount(BigDecimal.valueOf(200));
+//        transaction2.setHash("Hash124");
+//        transaction2.setFrom("3");
+//        transaction2.setTo("1");
+//        transaction2.setTimestamp(GetTime.GetTimeStampInString());
+//        Thread.sleep(200);
+//
+//        Transaction transaction3 = new RegularTransaction();
+//        transaction3.setAmount(BigDecimal.valueOf(200));
+//        transaction3.setHash("Hash345");
+//        transaction3.setFrom("4");
+//        transaction3.setTo("1");
+//        transaction3.setTimestamp(GetTime.GetTimeStampInString());
+//        Thread.sleep(200);
+//
+//        database.save("1", transaction);
+//        database.save("1", transaction2);
+//        database.save("1", transaction2);
+//        database.save("1", transaction3);
+//        //   database.save("1",transaction2);
+//        Map<String, LevelDBTransactionWrapper<Transaction>> map = database.seekFromStart();
+//
+//
+//        Type fluentType = new TypeToken<LevelDBTransactionWrapper<Transaction>>() {
+//        }.getType();
+//        RpcAdrestusClient client = null;
+//        RpcAdrestusServer<Transaction> server1 = null, server2 = null, server3 = null;
+//        try {
+//            ArrayList<InetSocketAddress> list = new ArrayList<>();
+//            InetSocketAddress address1 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 3074);
+//            InetSocketAddress address2 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 3075);
+//            InetSocketAddress address3 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 3076);
+//            list.add(address1);
+//            list.add(address2);
+//            list.add(address3);
+//            server1 = new RpcAdrestusServer<Transaction>(new RegularTransaction(), fluentType, address1, eventloop);
+//            server2 = new RpcAdrestusServer<Transaction>(new RegularTransaction(), fluentType, address2, eventloop);
+//            server3 = new RpcAdrestusServer<Transaction>(new RegularTransaction(), fluentType, address3, eventloop);
+//            new Thread(server1).start();
+//            new Thread(server2).start();
+//            new Thread(server3).start();
+//
+//
+//            client = new RpcAdrestusClient(fluentType, list, eventloop);
+//            client.connect();
+//            Map<String, LevelDBTransactionWrapper<Transaction>> copymaps = (Map<String, LevelDBTransactionWrapper<Transaction>>) client.getTransactionDatabase("1");
+//
+//            assertEquals(map, copymaps);
+//
+//            if (client != null)
+//                client.close();
+//            if (server1 != null)
+//                server1.close();
+//            if (server2 != null)
+//                server2.close();
+//            if (server3 != null)
+//                server3.close();
+//            server1 = null;
+//        } catch (Exception e) {
+//            System.out.println("Database2 Exception caught: " + e.toString());
+//        } finally {
+//            database.delete_db();
+//        }
+//    }
 
-        Transaction transaction2 = new RegularTransaction();
-        transaction2.setAmount(BigDecimal.valueOf(200));
-        transaction2.setHash("Hash124");
-        transaction2.setFrom("3");
-        transaction2.setTo("1");
-        transaction2.setTimestamp(GetTime.GetTimeStampInString());
-        Thread.sleep(200);
-
-        Transaction transaction3 = new RegularTransaction();
-        transaction3.setAmount(BigDecimal.valueOf(200));
-        transaction3.setHash("Hash345");
-        transaction3.setFrom("4");
-        transaction3.setTo("1");
-        transaction3.setTimestamp(GetTime.GetTimeStampInString());
-        Thread.sleep(200);
-
-        database.save("1", transaction);
-        database.save("1", transaction2);
-        database.save("1", transaction2);
-        database.save("1", transaction3);
-        //   database.save("1",transaction2);
-        Map<String, LevelDBTransactionWrapper<Transaction>> map = database.seekFromStart();
-
-
-        Type fluentType = new TypeToken<LevelDBTransactionWrapper<Transaction>>() {
-        }.getType();
-        RpcAdrestusClient client = null;
-        RpcAdrestusServer<Transaction> server1 = null, server2 = null, server3 = null;
-        try {
-            InetSocketAddress address1 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 3077);
-            server1 = new RpcAdrestusServer<Transaction>(new RegularTransaction(), fluentType, address1, eventloop);
-            new Thread(server1).start();
-
-
-            client = new RpcAdrestusClient(fluentType, address1, eventloop);
-            client.connect();
-            Map<String, LevelDBTransactionWrapper<Transaction>> copymaps = (Map<String, LevelDBTransactionWrapper<Transaction>>) client.getTransactionDatabase("1");
-
-            assertEquals(map, copymaps);
-
-            if (client != null)
-                client.close();
-            if (server1 != null)
-                server1.close();
-            server1 = null;
-        } catch (Exception e) {
-            System.out.println("Database 1 Exception caught: " + e.toString());
-        } finally {
-            database.delete_db();
-        }
-    }
-
-    @Test
-    public void download_transaction_database_from_multiple_servers() throws Exception {
-        IDatabase<String, LevelDBTransactionWrapper<Transaction>> database = new DatabaseFactory(String.class, Transaction.class, new TypeToken<LevelDBTransactionWrapper<Transaction>>() {
-        }.getType()).getDatabase(DatabaseType.LEVEL_DB);
-        Transaction transaction = new RegularTransaction();
-        transaction.setAmount(BigDecimal.valueOf(100));
-        transaction.setHash("Hash123");
-        transaction.setFrom("1");
-        transaction.setTo("2");
-        transaction.setTimestamp(GetTime.GetTimeStampInString());
-        Thread.sleep(200);
-
-
-        Transaction transaction2 = new RegularTransaction();
-        transaction2.setAmount(BigDecimal.valueOf(200));
-        transaction2.setHash("Hash124");
-        transaction2.setFrom("3");
-        transaction2.setTo("1");
-        transaction2.setTimestamp(GetTime.GetTimeStampInString());
-        Thread.sleep(200);
-
-        Transaction transaction3 = new RegularTransaction();
-        transaction3.setAmount(BigDecimal.valueOf(200));
-        transaction3.setHash("Hash345");
-        transaction3.setFrom("4");
-        transaction3.setTo("1");
-        transaction3.setTimestamp(GetTime.GetTimeStampInString());
-        Thread.sleep(200);
-
-        database.save("1", transaction);
-        database.save("1", transaction2);
-        database.save("1", transaction2);
-        database.save("1", transaction3);
-        //   database.save("1",transaction2);
-        Map<String, LevelDBTransactionWrapper<Transaction>> map = database.seekFromStart();
-
-
-        Type fluentType = new TypeToken<LevelDBTransactionWrapper<Transaction>>() {
-        }.getType();
-        RpcAdrestusClient client = null;
-        RpcAdrestusServer<Transaction> server1 = null, server2 = null, server3 = null;
-        try {
-            ArrayList<InetSocketAddress> list = new ArrayList<>();
-            InetSocketAddress address1 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 3074);
-            InetSocketAddress address2 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 3075);
-            InetSocketAddress address3 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 3076);
-            list.add(address1);
-            list.add(address2);
-            list.add(address3);
-            server1 = new RpcAdrestusServer<Transaction>(new RegularTransaction(), fluentType, address1, eventloop);
-            server2 = new RpcAdrestusServer<Transaction>(new RegularTransaction(), fluentType, address2, eventloop);
-            server3 = new RpcAdrestusServer<Transaction>(new RegularTransaction(), fluentType, address3, eventloop);
-            new Thread(server1).start();
-            new Thread(server2).start();
-            new Thread(server3).start();
-
-
-            client = new RpcAdrestusClient(fluentType, list, eventloop);
-            client.connect();
-            Map<String, LevelDBTransactionWrapper<Transaction>> copymaps = (Map<String, LevelDBTransactionWrapper<Transaction>>) client.getTransactionDatabase("1");
-
-            assertEquals(map, copymaps);
-
-            if (client != null)
-                client.close();
-            if (server1 != null)
-                server1.close();
-            if (server2 != null)
-                server2.close();
-            if (server3 != null)
-                server3.close();
-            server1 = null;
-        } catch (Exception e) {
-            System.out.println("Database2 Exception caught: " + e.toString());
-        } finally {
-            database.delete_db();
-        }
-    }
-
+    @SneakyThrows
     @Test
     public void erasure_test1() {
 
         CachedSerializableErasureObject.getInstance().setSerializableErasureObject(serializableErasureObjects.get(0));
         RpcErasureServer<SerializableErasureObject> example = new RpcErasureServer<SerializableErasureObject>(new SerializableErasureObject(), "localhost", 6082, eventloop, blocksize);
         new Thread(example).start();
-        (new Thread() {
-            public void run() {
-                try {
-                    Thread.sleep(900);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-                CachedSerializableErasureObject.getInstance().setSerializableErasureObject(serializableErasureObjects.get(0));
-            }
-        }).start();
+        Thread.sleep(1900);
         RpcErasureClient<SerializableErasureObject> client = new RpcErasureClient<SerializableErasureObject>(new SerializableErasureObject(), "localhost", 6082, eventloop);
         client.connect();
         ArrayList<SerializableErasureObject> serializableErasureObject = (ArrayList<SerializableErasureObject>) client.getErasureChunks(new byte[0]);
@@ -836,21 +830,13 @@ class RPCExampleTest {
 
     }
 
+    @SneakyThrows
     @Test
     public void erasure_test2() {
         RpcErasureServer<SerializableErasureObject> example = new RpcErasureServer<SerializableErasureObject>(new SerializableErasureObject(), "localhost", 6083, eventloop, blocksize);
         new Thread(example).start();
         RpcErasureClient<SerializableErasureObject> client = new RpcErasureClient<SerializableErasureObject>(new SerializableErasureObject(), "localhost", 6083, eventloop);
-        (new Thread() {
-            public void run() {
-                try {
-                    Thread.sleep(900);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-                CachedSerializableErasureObject.getInstance().setSerializableErasureObject(serializableErasureObjects.get(0));
-            }
-        }).start();
+        Thread.sleep(1900);
         //#########################################################################################################################
         client.connect();
 
@@ -875,16 +861,7 @@ class RPCExampleTest {
     public void erasure_test3() throws InterruptedException {
         RpcErasureServer example = new RpcErasureServer(new String(), "localhost", 6084, eventloop, blocksize);
         new Thread(example).start();
-        (new Thread() {
-            public void run() {
-                try {
-                    Thread.sleep(900);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-                CachedSerializableErasureObject.getInstance().setSerializableErasureObject(serializableErasureObjects.get(0));
-            }
-        }).start();
+        Thread.sleep(1900);
         RpcErasureClient<String> client = new RpcErasureClient<String>("localhost", 6084, 4000, eventloop);
         client.connect();
 

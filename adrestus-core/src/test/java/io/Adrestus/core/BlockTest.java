@@ -4,7 +4,7 @@ import com.google.common.primitives.Ints;
 import io.Adrestus.MemoryTreePool;
 import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.MerkleNode;
-import io.Adrestus.Trie.MerkleTreeOldImp;
+import io.Adrestus.Trie.MerkleTreeOptimizedImp;
 import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.config.KademliaConfiguration;
@@ -441,7 +441,7 @@ public class BlockTest {
         int count = 0;
         while (count < 100) {
             TransactionBlock transactionBlock = new TransactionBlock();
-            MerkleTreeOldImp tree = new MerkleTreeOldImp();
+            MerkleTreeOptimizedImp tree = new MerkleTreeOptimizedImp();
             ArrayList<MerkleNode> merkleNodeArrayList = new ArrayList<>();
             transactionBlock.getHeaderData().setPreviousHash(CachedLatestBlocks.getInstance().getTransactionBlock().getHash());
             transactionBlock.getHeaderData().setVersion(AdrestusConfiguration.version);
@@ -457,7 +457,7 @@ public class BlockTest {
 
 
             transactionBlock.getTransactionList().forEach(transaction -> merkleNodeArrayList.add(new MerkleNode(transaction.getHash())));
-            tree.my_generate2(merkleNodeArrayList);
+            tree.constructTree(merkleNodeArrayList);
             transactionBlock.setMerkleRoot(tree.getRootHash());
 
             //##########OutBound############
@@ -467,7 +467,7 @@ public class BlockTest {
                 Transaction transaction = transactionBlock.getTransactionList().get(i);
                 if (transaction.getZoneFrom() != transaction.getZoneTo()) {
                     MerkleNode node = new MerkleNode(transaction.getHash());
-                    tree.build_proofs2(merkleNodeArrayList, node);
+                    tree.build_proofs(node);
                     receiptList.add(new Receipt(transaction.getZoneFrom(), transaction.getZoneTo(), receiptBlock, tree.getMerkleeproofs(), i));
                 }
             }
@@ -570,7 +570,7 @@ public class BlockTest {
         int count = 0;
         while (count < 100) {
             TransactionBlock transactionBlock = new TransactionBlock();
-            MerkleTreeOldImp tree = new MerkleTreeOldImp();
+            MerkleTreeOptimizedImp tree = new MerkleTreeOptimizedImp();
             ArrayList<MerkleNode> merkleNodeArrayList = new ArrayList<>();
             transactionBlock.getHeaderData().setPreviousHash(CachedLatestBlocks.getInstance().getTransactionBlock().getHash());
             transactionBlock.getHeaderData().setVersion(AdrestusConfiguration.version);
@@ -586,7 +586,7 @@ public class BlockTest {
 
 
             transactionBlock.getTransactionList().forEach(transaction -> merkleNodeArrayList.add(new MerkleNode(transaction.getHash())));
-            tree.my_generate2(merkleNodeArrayList);
+            tree.constructTree(merkleNodeArrayList);
             transactionBlock.setMerkleRoot(tree.getRootHash());
 
             //##########OutBound############
@@ -596,7 +596,7 @@ public class BlockTest {
                 Transaction transaction = transactionBlock.getTransactionList().get(i);
                 if (transaction.getZoneFrom() != transaction.getZoneTo()) {
                     MerkleNode node = new MerkleNode(transaction.getHash());
-                    tree.build_proofs2(merkleNodeArrayList, node);
+                    tree.build_proofs(node);
                     receiptList.add(new Receipt(transaction.getZoneFrom(), transaction.getZoneTo(), receiptBlock, tree.getMerkleeproofs(), i));
                 }
             }

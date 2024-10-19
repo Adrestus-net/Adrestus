@@ -1,7 +1,7 @@
 package io.Adrestus.core.RingBuffer.handler.blocks;
 
 import io.Adrestus.Trie.MerkleNode;
-import io.Adrestus.Trie.MerkleTreeOldImp;
+import io.Adrestus.Trie.MerkleTreeOptimizedImp;
 import io.Adrestus.core.Receipt;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.core.RingBuffer.event.AbstractBlockEvent;
@@ -108,12 +108,12 @@ public class OutBoundEventHandler implements BlockEventHandler<AbstractBlockEven
     }
 
     public boolean PreconditionsChecks(final Receipt receipt, final Receipt.ReceiptBlock receiptBlock, final TransactionBlock transactionBlock, Transaction transaction, int index) {
-        final MerkleTreeOldImp outer_tree = new MerkleTreeOldImp();
+        final MerkleTreeOptimizedImp outer_tree = new MerkleTreeOptimizedImp();
         final ArrayList<MerkleNode> merkleNodeArrayList = new ArrayList<>();
         transactionBlock.getTransactionList().forEach(val -> merkleNodeArrayList.add(new MerkleNode(val.getHash())));
-        outer_tree.my_generate2(merkleNodeArrayList);
-        boolean bool3 = StringUtils.equals(transactionBlock.getMerkleRoot(), outer_tree.GenerateRoot(receipt.getProofs()));
-        boolean bool5 = StringUtils.equals(receiptBlock.getOutboundMerkleRoot(), outer_tree.GenerateRoot(receipt.getProofs()));
+        outer_tree.constructTree(merkleNodeArrayList);
+        boolean bool3 = StringUtils.equals(transactionBlock.getMerkleRoot(), outer_tree.generateRoot(receipt.getProofs()));
+        boolean bool5 = StringUtils.equals(receiptBlock.getOutboundMerkleRoot(), outer_tree.generateRoot(receipt.getProofs()));
         int val3 = Integer.compare(index, receipt.getPosition());
         int val4 = Integer.compare(transactionBlock.getHeight(), receiptBlock.getHeight());
         int val5 = Integer.compare(transactionBlock.getGeneration(), receiptBlock.getGeneration());

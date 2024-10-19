@@ -24,17 +24,19 @@ public class BlockSizeCalculator extends AbstractBlockSizeCalculator {
         final int[] InboundSize = {0};
         transactionBlock.getInbound().getMap_receipts().values().stream().forEach(value -> {
             value.entrySet().forEach(receipt -> {
+                int SumMerkleProofs = receipt.getValue().stream().filter(element -> element.getProofs() != null).mapToInt(proof -> proof.getProofs().getLength()).sum();
                 int ReceiptListSize = receipt.getValue().size() == 0 ? 1024 : receipt.getValue().size() * 1024;
                 int ReceiptBlockSize = 1024;
-                InboundSize[0] = InboundSize[0] + (ReceiptListSize + ReceiptBlockSize);
+                InboundSize[0] = InboundSize[0] + (ReceiptListSize + ReceiptBlockSize + SumMerkleProofs);
             });
         });
         final int[] OutBoundSize = {0};
         transactionBlock.getOutbound().getMap_receipts().values().stream().forEach(value -> {
             value.entrySet().forEach(receipt -> {
+                int SumMerkleProofs = receipt.getValue().stream().filter(element -> element.getProofs() != null).mapToInt(proof -> proof.getProofs().getLength()).sum();
                 int ReceiptListSize = receipt.getValue().size() == 0 ? 1024 : receipt.getValue().size() * 1024;
                 int ReceiptBlockSize = 1024;
-                OutBoundSize[0] = OutBoundSize[0] + (ReceiptListSize + ReceiptBlockSize);
+                OutBoundSize[0] = OutBoundSize[0] + (ReceiptListSize + ReceiptBlockSize + SumMerkleProofs);
             });
         });
         int totalsize = 1024 + (TransactionListSize + StakingTransactionListSize + InboundSize[0] + OutBoundSize[0]) + super.AbstractTransactionBlockSizeCalculator();

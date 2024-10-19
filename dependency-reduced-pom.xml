@@ -305,7 +305,7 @@
         <logback.version>1.4.14</logback.version>
         <lz4.version>1.8.0</lz4.version>
         <awaitutility.version>4.2.0</awaitutility.version>
-        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.source>11</maven.compiler.source>
         <fury_core.version>0.8.0</fury_core.version>
         <jmh.version>1.34</jmh.version>
         <commons_net.version>3.9.0</commons_net.version>

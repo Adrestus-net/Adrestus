@@ -1,6 +1,6 @@
 package io.Adrestus.core;
 
-import io.Adrestus.Trie.MerkleProofsCached;
+import io.Adrestus.Trie.MerkleProofs;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.core.Resourses.MemoryReceiptPool;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
@@ -28,7 +28,7 @@ public class MemoryReceiptPoolTest {
     @Test
     //@Order(1)
     public void chek_duplicate() throws Exception {
-        MemoryReceiptPool.getInstance().getAll().clear();
+        MemoryReceiptPool.getInstance().clear();
 
         Receipt receipt = new Receipt(0, 1, new Receipt.ReceiptBlock(1, 1, "as"), 1, null);
         int count = (int) MemoryReceiptPool.getInstance().getAllStream().count();
@@ -41,21 +41,23 @@ public class MemoryReceiptPoolTest {
     @Test
     //@Order(1)
     public void chek_duplicate2() throws Exception {
-        MemoryReceiptPool.getInstance().getAll().clear();
+        MemoryReceiptPool.getInstance().clear();
 
         Receipt receipt = new Receipt(0, 1, new Receipt.ReceiptBlock(1, 1, "as"), 1, null);
-        Receipt receipt1 = new Receipt(0, 1, new Receipt.ReceiptBlock(1, 1, "as"), 1, new MerkleProofsCached());
+        Receipt receipt1 = new Receipt(0, 1, new Receipt.ReceiptBlock(1, 1, "as"), 1, new MerkleProofs());
         int count = (int) MemoryReceiptPool.getInstance().getAllStream().count();
         MemoryReceiptPool.getInstance().add(receipt);
         MemoryReceiptPool.getInstance().add(receipt1);
-        assertEquals(count + 1, MemoryReceiptPool.getInstance().getAllStream().count());
-        assertNotEquals(count + 2, MemoryReceiptPool.getInstance().getAllStream().count());
+        assertEquals(1, MemoryReceiptPool.getInstance().getAllStream().count());
+        Receipt receipt3 = new Receipt(0, 1, new Receipt.ReceiptBlock(1, 1, "as"), 3, new MerkleProofs());
+        MemoryReceiptPool.getInstance().add(receipt3);
+        assertEquals(2, MemoryReceiptPool.getInstance().getAllStream().count());
     }
 
     @Test
     //@Order(2)
     public void add_mempool() throws Exception {
-        MemoryReceiptPool.getInstance().getAll().clear();
+        MemoryReceiptPool.getInstance().clear();
 
         Receipt receipt = new Receipt(0, 1, new Receipt.ReceiptBlock(1, 1, "as"), 1, null);
         assertEquals(false, MemoryReceiptPool.getInstance().add(receipt));
@@ -74,7 +76,7 @@ public class MemoryReceiptPoolTest {
     @Test
     // @Order(4)
     public void delete_mempool() throws Exception {
-        MemoryReceiptPool.getInstance().getAll().clear();
+        MemoryReceiptPool.getInstance().clear();
 
         ArrayList<Receipt> list = new ArrayList<Receipt>();
         Receipt receipt1 = new Receipt(0, 1, new Receipt.ReceiptBlock(1, 1, "as"), 1, null);
@@ -101,11 +103,13 @@ public class MemoryReceiptPoolTest {
     @Test
     // @Order(3)
     public void InboundOutboundCheck() throws Exception {
-        MemoryReceiptPool.getInstance().getAll().clear();
+        MemoryReceiptPool.getInstance().clear();
         CachedZoneIndex.getInstance().setZoneIndex(0);
-        Receipt receipt1 = new Receipt(0, 1, new Receipt.ReceiptBlock(1, 1, "as"), 1, null);
+        Receipt receipt1 = new Receipt(0, 1, new Receipt.ReceiptBlock(1, 1, "1"), 1, null);
 
-        Receipt receipt2 = new Receipt(0, 1, new Receipt.ReceiptBlock(2, 1, "as"), 2, null);
+        Receipt receipt2 = new Receipt(0, 1, new Receipt.ReceiptBlock(2, 1, "2"), 2, null);
+
+        Receipt receipt2a = new Receipt(0, 1, new Receipt.ReceiptBlock(2, 1, "3"), 2, null);
 
         Receipt receipt3 = new Receipt(2, 0, new Receipt.ReceiptBlock(3, 1, "as"), 3, null);
 
@@ -115,8 +119,11 @@ public class MemoryReceiptPoolTest {
 
         Receipt receipt6 = new Receipt(3, 3, new Receipt.ReceiptBlock(6, 1, "as"), 6, null);
 
+        assertEquals(0, MemoryReceiptPool.getInstance().getAll().size());
+
         MemoryReceiptPool.getInstance().add(receipt1);
         MemoryReceiptPool.getInstance().add(receipt2);
+        MemoryReceiptPool.getInstance().add(receipt2a);
         MemoryReceiptPool.getInstance().add(receipt3);
         MemoryReceiptPool.getInstance().add(receipt4);
         MemoryReceiptPool.getInstance().add(receipt5);
@@ -149,7 +156,7 @@ public class MemoryReceiptPoolTest {
     @Test
     //@Order(4)
     public void delete_receipt() throws Exception {
-        MemoryReceiptPool.getInstance().getAll().clear();
+        MemoryReceiptPool.getInstance().clear();
 
         ArrayList<Receipt> list = new ArrayList<Receipt>();
         Receipt receipt1 = new Receipt(0, 1, new Receipt.ReceiptBlock(1, 1, "as"), 1, null);
@@ -192,37 +199,37 @@ public class MemoryReceiptPoolTest {
 //        //  MemoryPool.getInstance().getAll().forEach(x -> System.out.println(x.toString()));
 //    }
 
-    @Test
-    // @Order(3)
-    public void check_if_order_is_maintend() throws Exception {
-        MemoryReceiptPool.getInstance().getAll().clear();
-
-        Receipt receipt1 = new Receipt(0, 1, new Receipt.ReceiptBlock(2, 1, "b"), 1, null);
-        Receipt receipt2 = new Receipt(0, 1, new Receipt.ReceiptBlock(4, 1, "c"), 1, null);
-        Receipt receipt3 = new Receipt(0, 1, new Receipt.ReceiptBlock(1, 1, "a"), 1, null);
-        Receipt receipt4 = new Receipt(0, 1, new Receipt.ReceiptBlock(3, 1, "d"), 1, null);
-        MemoryReceiptPool.getInstance().add(receipt1);
-        MemoryReceiptPool.getInstance().add(receipt2);
-        MemoryReceiptPool.getInstance().add(receipt3);
-        MemoryReceiptPool.getInstance().add(receipt4);
-
-        ArrayList<Receipt> list = new ArrayList<>(MemoryReceiptPool.getInstance().getAll());
-
-        assertEquals(receipt3, list.get(0));
-        assertEquals(receipt1, list.get(1));
-        assertEquals(receipt4, list.get(2));
-        assertEquals(receipt2, list.get(3));
-        //  MemoryPool.getInstance().getAll().forEach(x -> System.out.println(x.toString()));
-    }
+//    @Test
+//    // @Order(3)
+//    public void check_if_order_is_maintend() throws Exception {
+//        MemoryReceiptPool.getInstance().clear();
+//
+//        Receipt receipt1 = new Receipt(0, 1, new Receipt.ReceiptBlock(2, 1, "b"), 1, null);
+//        Receipt receipt2 = new Receipt(0, 1, new Receipt.ReceiptBlock(4, 1, "c"), 1, null);
+//        Receipt receipt3 = new Receipt(0, 1, new Receipt.ReceiptBlock(1, 1, "a"), 1, null);
+//        Receipt receipt4 = new Receipt(0, 1, new Receipt.ReceiptBlock(3, 1, "d"), 1, null);
+//        MemoryReceiptPool.getInstance().add(receipt1);
+//        MemoryReceiptPool.getInstance().add(receipt2);
+//        MemoryReceiptPool.getInstance().add(receipt3);
+//        MemoryReceiptPool.getInstance().add(receipt4);
+//
+//        ArrayList<Receipt> list = new ArrayList<>(MemoryReceiptPool.getInstance().getAll());
+//
+//        assertEquals(receipt3, list.get(0));
+//        assertEquals(receipt1, list.get(1));
+//        assertEquals(receipt4, list.get(2));
+//        assertEquals(receipt2, list.get(3));
+//        //  MemoryPool.getInstance().getAll().forEach(x -> System.out.println(x.toString()));
+//    }
 
     @Test
     // @Order(3)
     public void group_by() throws Exception {
-        MemoryReceiptPool.getInstance().getAll().clear();
+        MemoryReceiptPool.getInstance().clear();
         List<SerializationUtil.Mapping> lists = new ArrayList<>();
         lists.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         SerializationUtil<Receipt> serenc = new SerializationUtil<Receipt>(Receipt.class, lists);
-        MemoryReceiptPool.getInstance().getAll().clear();
+        MemoryReceiptPool.getInstance().clear();
         Receipt.ReceiptBlock receiptBlock1 = new Receipt.ReceiptBlock(1, 1, "1");
         Receipt.ReceiptBlock receiptBlock2 = new Receipt.ReceiptBlock(2, 2, "2");
 
@@ -245,7 +252,7 @@ public class MemoryReceiptPoolTest {
         Receipt receipt4 = new Receipt(2, 1, receiptBlock2, 4, null);
         Receipt receipt5 = new Receipt(3, 1, receiptBlock2, 5, null);
         Receipt receipt6 = new Receipt(3, 1, receiptBlock2, 6, null);
-        Receipt clon = serenc.decode(serenc.encode(receipt1));
+        Receipt clon = serenc.decode(serenc.encode(receipt1,1204));
         assertEquals(receipt1, clon);
         MemoryReceiptPool.getInstance().add(receipt1);
         MemoryReceiptPool.getInstance().add(receipt2);

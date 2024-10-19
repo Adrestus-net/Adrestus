@@ -128,7 +128,7 @@
         </dependency>
     </dependencies>
     <properties>
-        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.source>11</maven.compiler.source>
         <network.version>1.0-SNAPSHOT</network.version>
         <crypto.version>1.0-SNAPSHOT</crypto.version>
         <consenus.version>1.0-SNAPSHOT</consenus.version>

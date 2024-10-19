@@ -1,23 +1,26 @@
 package io.Adrestus.Trie;
 
+import io.Adrestus.Trie.optimize64_trie.ProfKey;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.util.ByteUtil;
+import io.activej.serializer.annotations.Serialize;
 import lombok.Getter;
 import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Serializable;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
-public class MerkleTreeOptimizedImp implements MerkleTree {
+public class MerkleTreeOptimizedImp implements Serializable, MerkleTree {
     private static Logger LOG = LoggerFactory.getLogger(MerkleTreeOptimizedImp.class);
+    private static final String DUPLICATE = "_DUPLICATE";
     private static int LOWEST_INDEX_LEFT = 201;
     private static int LOWEST_INDEX_RIGHT = 202;
 
+    @Setter
     @Getter
-    private final MerkleProofs MerkleProofs;
+    private MerkleProofs MerkleProofs;
     @Setter
     @Getter
     private ArrayList<Map<String, MerkleNode>> merkleNodeHashMapByHash;
@@ -47,11 +50,59 @@ public class MerkleTreeOptimizedImp implements MerkleTree {
             return;
         }
 
-        if (dataBlocks.size() % 2 == 0) {
-            this.capacity = ByteUtil.log2(dataBlocks.size());
-        } else {
-            this.capacity = ByteUtil.log2(dataBlocks.size() + 1);
+        if (dataBlocks.size() == 1) {
+            this.capacity = 1;
+            this.merkleNodeHashMapByHash = new ArrayList<>(this.capacity);
+            this.merkleNodeHashMapByIndex = new ArrayList<>(this.capacity);
+            for (int i = 0; i < this.capacity; i++) {
+                this.merkleNodeHashMapByHash.add(new HashMap<>());
+                this.merkleNodeHashMapByIndex.add(new HashMap<>());
+            }
+            String left = HashUtil.XXH3(dataBlocks.get(0).getTransactionHash());
+            String right = HashUtil.XXH3(dataBlocks.get(0).getTransactionHash());
+            String hash = HashUtil.XXH3(left + right);
+            MerkleNode leftMerkleNode = new MerkleNode(left);
+            MerkleNode rightMerkleNode = new MerkleNode(right);
+            leftMerkleNode.setRoot(this.root);
+            rightMerkleNode.setRoot(this.root);
+            this.root.setTransactionHash(hash);
+            this.root.setLeft(leftMerkleNode);
+            this.root.setRight(rightMerkleNode);
+
+            this.merkleNodeHashMapByHash.get(0).put(leftMerkleNode.getTransactionHash(), leftMerkleNode);
+            this.merkleNodeHashMapByIndex.get(0).put(0, leftMerkleNode);
+            this.merkleNodeHashMapByHash.get(0).put(rightMerkleNode.getTransactionHash() + DUPLICATE, rightMerkleNode);
+            this.merkleNodeHashMapByIndex.get(0).put(1, rightMerkleNode);
+
+            return;
+        } else if (dataBlocks.size() == 2) {
+            this.capacity = 1;
+            this.merkleNodeHashMapByHash = new ArrayList<>(this.capacity);
+            this.merkleNodeHashMapByIndex = new ArrayList<>(this.capacity);
+            for (int i = 0; i < this.capacity; i++) {
+                this.merkleNodeHashMapByHash.add(new HashMap<>());
+                this.merkleNodeHashMapByIndex.add(new HashMap<>());
+            }
+            String left = HashUtil.XXH3(dataBlocks.get(0).getTransactionHash());
+            String right = HashUtil.XXH3(dataBlocks.get(1).getTransactionHash());
+            String hash = HashUtil.XXH3(left + right);
+            MerkleNode leftMerkleNode = new MerkleNode(left);
+            MerkleNode rightMerkleNode = new MerkleNode(right);
+            leftMerkleNode.setRoot(this.root);
+            rightMerkleNode.setRoot(this.root);
+            this.root.setTransactionHash(hash);
+            this.root.setLeft(leftMerkleNode);
+            this.root.setRight(rightMerkleNode);
+
+            this.merkleNodeHashMapByHash.get(0).put(leftMerkleNode.getTransactionHash(), leftMerkleNode);
+            this.merkleNodeHashMapByIndex.get(0).put(0, leftMerkleNode);
+            this.merkleNodeHashMapByHash.get(0).put(rightMerkleNode.getTransactionHash() + DUPLICATE, rightMerkleNode);
+            this.merkleNodeHashMapByIndex.get(0).put(1, rightMerkleNode);
+
+            return;
         }
+
+        this.capacity = ByteUtil.log2(ByteUtil.nextPowerOfTwo((dataBlocks.size())));
         this.merkleNodeHashMapByHash = new ArrayList<>(this.capacity);
         this.merkleNodeHashMapByIndex = new ArrayList<>(this.capacity);
         for (int i = 0; i < this.capacity; i++) {
@@ -59,30 +110,19 @@ public class MerkleTreeOptimizedImp implements MerkleTree {
             this.merkleNodeHashMapByIndex.add(new HashMap<>());
         }
 
-        AtomicInteger counter = new AtomicInteger(0);
-        dataBlocks
-                .stream()
-                .peek(node -> node.setTransactionHash(HashUtil.XXH3(node.getTransactionHash())))
-                .collect(Collectors.teeing(
-                        Collectors.toMap(
-                                item -> counter.getAndIncrement(),
-                                item -> item,
-                                (oldValue, newValue) -> oldValue,
-                                () -> merkleNodeHashMapByIndex.get(this.capacity - 1)
-                        ),
-                        Collectors.toMap(
-                                item -> item.getTransactionHash(),
-                                item -> item,
-                                (oldValue, newValue) -> oldValue,
-                                () -> merkleNodeHashMapByHash.get(this.capacity - 1)
-                        ),
-                        (m1, m2) -> {
-                            merkleNodeHashMapByIndex.get(this.capacity - 1).putAll(m1);
-                            merkleNodeHashMapByHash.get(this.capacity - 1).putAll(m2);
-                            return null;
-                        }
-                ));
+        for (int i = 0; i < dataBlocks.size(); i++) {
+            MerkleNode node = dataBlocks.get(i).clone();
+            node.setTransactionHash(HashUtil.XXH3(node.getTransactionHash()));
+            this.merkleNodeHashMapByIndex.get(this.capacity - 1).put(i, node);
+            this.merkleNodeHashMapByHash.get(this.capacity - 1).put(node.getTransactionHash(), node);
+        }
 
+        int looper = ByteUtil.nextPowerOfTwo(dataBlocks.size()) - dataBlocks.size();
+        for (int i = 0; i < looper; i++) {
+            MerkleNode node = new MerkleNode(DUPLICATE + "_" + String.valueOf(i));
+            merkleNodeHashMapByHash.get(this.capacity - 1).put(node.getTransactionHash(), node);
+            merkleNodeHashMapByIndex.get(this.capacity - 1).put(merkleNodeHashMapByIndex.get(this.capacity - 1).size(), node);
+        }
         ConstructMap(this.capacity - 1).result();
     }
 
@@ -97,10 +137,10 @@ public class MerkleTreeOptimizedImp implements MerkleTree {
 
         int looper = 0;
         for (int i = 0; i < this.merkleNodeHashMapByIndex.get(iterate).size(); i += 2) {
-            String hash = HashUtil.XXH3(this.merkleNodeHashMapByIndex.get(iterate).get(i).getTransactionHash() + this.merkleNodeHashMapByIndex.get(iterate).get(i + 1).getTransactionHash());
-            MerkleNode root = new MerkleNode(hash);
             MerkleNode left = this.merkleNodeHashMapByIndex.get(iterate).get(i);
             MerkleNode right = this.merkleNodeHashMapByIndex.get(iterate).get(i + 1);
+            String hash = HashUtil.XXH3(left.getTransactionHash() + right.getTransactionHash());
+            MerkleNode root = new MerkleNode(hash);
             root.setTransactionHash(hash);
             root.setLeft(left);
             root.setRight(right);
@@ -120,42 +160,45 @@ public class MerkleTreeOptimizedImp implements MerkleTree {
         if (current == null) {
             throw new IllegalArgumentException("MerkleNode is null");
         }
-        current.setTransactionHash(HashUtil.XXH3(current.getTransactionHash()));
         if (merkleNodeHashMapByHash.get(this.capacity - 1).isEmpty()) {
             LOG.info("MerkleNodeHashMap is empty");
             return;
         }
 
+        current.setTransactionHash(HashUtil.XXH3(current.getTransactionHash()));
         if (merkleNodeHashMapByHash.get(this.capacity - 1).get(current.getTransactionHash()) == null) {
             LOG.info("MerkleNode is not found with hash: " + current.getTransactionHash());
             return;
         }
 
         if (merkleNodeHashMapByHash.get(this.capacity - 1).size() == 1) {
-            MerkleProofs.getProofs().put(LOWEST_INDEX_LEFT, current);
+            MerkleProofs.getProofs().put(new ProfKey(LOWEST_INDEX_LEFT, true), current);
             return;
         }
 
+        this.MerkleProofs = new MerkleProofs();
         int iteration = this.capacity - 1;
         MerkleNode low_root = this.merkleNodeHashMapByHash.get(iteration).get(current.getTransactionHash()).getRoot();
-        MerkleProofs.getProofs().put(LOWEST_INDEX_LEFT, low_root.getLeft());
-        MerkleProofs.getProofs().put(LOWEST_INDEX_RIGHT, low_root.getRight());
+        MerkleProofs.getProofs().put(new ProfKey(LOWEST_INDEX_LEFT, true), new MerkleNode(low_root.getLeft().getTransactionHash()));
+        MerkleProofs.getProofs().put(new ProfKey(LOWEST_INDEX_RIGHT, false), new MerkleNode(low_root.getRight().getTransactionHash()));
+        if (this.capacity < 2)
+            return;
         iteration--;
         MerkleNode search = low_root;
         while (search.getRoot() != null) {
             MerkleNode root = this.merkleNodeHashMapByHash.get(iteration).get(search.getTransactionHash()).getRoot();
             if (root.getLeft().equals(search)) {
-                MerkleProofs.getProofs().put(iteration, root.getRight());
+                MerkleProofs.getProofs().put(new ProfKey(iteration, false), new MerkleNode(root.getRight().getTransactionHash()));
             } else {
-                MerkleProofs.getProofs().put(iteration, root.getLeft());
+                MerkleProofs.getProofs().put(new ProfKey(iteration, true), new MerkleNode(root.getLeft().getTransactionHash()));
             }
             iteration--;
             search = root;
         }
         if (root.getLeft().equals(search)) {
-            MerkleProofs.getProofs().put(iteration, root.getRight());
+            MerkleProofs.getProofs().put(new ProfKey(iteration, false), new MerkleNode(root.getRight().getTransactionHash()));
         } else {
-            MerkleProofs.getProofs().put(iteration, root.getLeft());
+            MerkleProofs.getProofs().put(new ProfKey(iteration, true), new MerkleNode(root.getLeft().getTransactionHash()));
         }
     }
 
@@ -187,26 +230,27 @@ public class MerkleTreeOptimizedImp implements MerkleTree {
             throw new IllegalArgumentException("Proofs is empty");
         }
         if (proofs.getProofs().size() == 1) {
-            return proofs.getProofs().get(LOWEST_INDEX_LEFT).getTransactionHash();
+            return proofs.getProofs().get(new ProfKey(LOWEST_INDEX_LEFT, true)).getTransactionHash();
         }
-        String hash = HashUtil.XXH3(proofs.getProofs().get(LOWEST_INDEX_LEFT).getTransactionHash() + proofs.getProofs().get(LOWEST_INDEX_RIGHT).getTransactionHash());
+        String hash = HashUtil.XXH3(proofs.getProofs().get(new ProfKey(LOWEST_INDEX_LEFT, true)).getTransactionHash() + proofs.getProofs().get(new ProfKey(LOWEST_INDEX_RIGHT, false)).getTransactionHash());
 
-        if (proofs.getProofs().size() == 2) {
+        if (proofs.getProofs().size() < 2) {
             return hash;
         }
-        MerkleNode root = proofs.getProofs().get(LOWEST_INDEX_LEFT).getRoot().getRoot();
-        for (int i = proofs.getProofs().size() - 3; i > 0; i--) {
-            if (proofs.getProofs().get(i).equals(root.getLeft())) {
-                hash = HashUtil.XXH3(proofs.getProofs().get(i).getTransactionHash() + hash);
-            } else {
-                hash = HashUtil.XXH3(hash + proofs.getProofs().get(i).getTransactionHash());
+
+        int skip = 0;
+        for (Map.Entry<ProfKey, MerkleNode> entry : proofs.getProofs().entrySet()) {
+            if (skip < 2) {
+                skip++;
+                continue;
             }
-            root = root.getRoot();
-        }
-        if (this.root.getLeft().equals(proofs.getProofs().get(0))) {
-            hash = HashUtil.XXH3(proofs.getProofs().get(0).getTransactionHash() + hash);
-        } else {
-            hash = HashUtil.XXH3(hash + proofs.getProofs().get(0).getTransactionHash());
+            ProfKey key = entry.getKey();
+            MerkleNode node = entry.getValue();
+            if (key.isLeft()) {
+                hash = HashUtil.XXH3(node.getTransactionHash() + hash);
+            } else {
+                hash = HashUtil.XXH3(hash + node.getTransactionHash());
+            }
         }
         return hash;
     }
@@ -217,11 +261,85 @@ public class MerkleTreeOptimizedImp implements MerkleTree {
     }
 
 
+    @Serialize
+    public static Logger getLOG() {
+        return LOG;
+    }
+
+    public static void setLOG(Logger LOG) {
+        MerkleTreeOptimizedImp.LOG = LOG;
+    }
+
+    @Serialize
+    public int getCapacity() {
+        return capacity;
+    }
+
+    public void setCapacity(int capacity) {
+        this.capacity = capacity;
+    }
+
+    @Serialize
+    public MerkleNode getRoot() {
+        return root;
+    }
+
+    public void setRoot(MerkleNode root) {
+        this.root = root;
+    }
+
+    @Serialize
+    public ArrayList<Map<Integer, MerkleNode>> getMerkleNodeHashMapByIndex() {
+        return merkleNodeHashMapByIndex;
+    }
+
+    public void setMerkleNodeHashMapByIndex(ArrayList<Map<Integer, MerkleNode>> merkleNodeHashMapByIndex) {
+        this.merkleNodeHashMapByIndex = merkleNodeHashMapByIndex;
+    }
+
+    @Serialize
+    public ArrayList<Map<String, MerkleNode>> getMerkleNodeHashMapByHash() {
+        return merkleNodeHashMapByHash;
+    }
+
+    public void setMerkleNodeHashMapByHash(ArrayList<Map<String, MerkleNode>> merkleNodeHashMapByHash) {
+        this.merkleNodeHashMapByHash = merkleNodeHashMapByHash;
+    }
+
+    @Serialize
+    public MerkleProofs getMerkleProofs() {
+        return MerkleProofs;
+    }
+
+    public void setMerkleProofs(io.Adrestus.Trie.MerkleProofs merkleProofs) {
+        MerkleProofs = merkleProofs;
+    }
+
+    @Serialize
+    public static int getLowestIndexRight() {
+        return LOWEST_INDEX_RIGHT;
+    }
+
+    public static void setLowestIndexRight(int lowestIndexRight) {
+        LOWEST_INDEX_RIGHT = lowestIndexRight;
+    }
+
+    @Serialize
+    public static int getLowestIndexLeft() {
+        return LOWEST_INDEX_LEFT;
+    }
+
+    public static void setLowestIndexLeft(int lowestIndexLeft) {
+        LOWEST_INDEX_LEFT = lowestIndexLeft;
+    }
+
+    @Serialize
     @Override
     public MerkleProofs getMerkleeproofs() {
         return this.MerkleProofs;
     }
 
+    @Serialize
     @Override
     public String getRootHash() {
         return this.root.getTransactionHash();
@@ -240,13 +358,14 @@ public class MerkleTreeOptimizedImp implements MerkleTree {
         return Objects.hash(MerkleProofs, merkleNodeHashMapByHash, merkleNodeHashMapByIndex, root, capacity);
     }
 
+    //Never Delete it
     @Override
     public String toString() {
-        return "MerkleTreeSha256Imp{" +
-                "MerkleProofs=" + MerkleProofs +
-                ", merkleNodeHashMapByHash=" + merkleNodeHashMapByHash +
-                ", merkleNodeHashMapByIndex=" + merkleNodeHashMapByIndex +
-                ", root=" + root +
+        return "MerkleTreePlainImp{" +
+                "MerkleProofs=" + (MerkleProofs != null ? MerkleProofs.hashCode() : "null") +
+                ", merkleNodeHashMapByHash size=" + (merkleNodeHashMapByHash != null ? merkleNodeHashMapByHash.size() : "null") +
+                ", merkleNodeHashMapByIndex size=" + (merkleNodeHashMapByIndex != null ? merkleNodeHashMapByIndex.size() : "null") +
+                ", root transactionHash=" + (root != null ? root.getTransactionHash() : "null") +
                 ", capacity=" + capacity +
                 '}';
     }

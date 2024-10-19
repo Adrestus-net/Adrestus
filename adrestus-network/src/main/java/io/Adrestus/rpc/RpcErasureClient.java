@@ -1,5 +1,12 @@
 package io.Adrestus.rpc;
 
+import io.Adrestus.crypto.bls.BLS381.ECP;
+import io.Adrestus.crypto.bls.BLS381.ECP2;
+import io.Adrestus.crypto.bls.mapper.ECP2mapper;
+import io.Adrestus.crypto.bls.mapper.ECPmapper;
+import io.Adrestus.crypto.elliptic.mapper.BigDecimalSerializer;
+import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
+import io.Adrestus.crypto.elliptic.mapper.CustomSerializerTreeMap;
 import io.Adrestus.util.SerializationUtil;
 import io.activej.eventloop.Eventloop;
 import io.activej.rpc.client.RpcClient;
@@ -11,14 +18,20 @@ import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.net.InetSocketAddress;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.TreeMap;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.stream.IntStream;
 
 import static io.activej.rpc.client.sender.RpcStrategies.server;
 
@@ -45,25 +58,43 @@ public class RpcErasureClient<T> {
     }
 
     public RpcErasureClient(T typeParameterClass, InetSocketAddress inetSocketAddress, Eventloop eventloop) {
+        List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
+        list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
+        list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
+        list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
+        list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
         this.rpcSerialize = SerializerBuilder.create();
         this.typeParameterClass = typeParameterClass;
         this.inetSocketAddress = inetSocketAddress;
         this.eventloop = eventloop;
         this.serializationUtil = new SerializationUtil<ErasureResponse>(ErasureResponse.class);
-        this.valueMapper = new SerializationUtil(this.typeParameterClass.getClass());
+        this.valueMapper = new SerializationUtil(this.typeParameterClass.getClass(),list);
     }
 
     public RpcErasureClient(T typeParameterClass, String host, int port, Eventloop eventloop) {
+        List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
+        list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
+        list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
+        list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
+        list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
         this.rpcSerialize = SerializerBuilder.create();
         this.typeParameterClass = typeParameterClass;
         this.host = host;
         this.port = port;
         this.eventloop = eventloop;
         this.serializationUtil = new SerializationUtil<ErasureResponse>(ErasureResponse.class);
-        this.valueMapper = new SerializationUtil(this.typeParameterClass.getClass());
+        this.valueMapper = new SerializationUtil(this.typeParameterClass.getClass(),list);
     }
 
     public RpcErasureClient(T typeParameterClass, String host, int port, int timeout, Eventloop eventloop) {
+        List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
+        list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
+        list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
+        list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
+        list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
         this.rpcSerialize = SerializerBuilder.create();
         this.typeParameterClass = typeParameterClass;
         this.host = host;
@@ -71,7 +102,7 @@ public class RpcErasureClient<T> {
         this.eventloop = eventloop;
         this.TIMEOUT = timeout;
         this.serializationUtil = new SerializationUtil<ErasureResponse>(ErasureResponse.class);
-        this.valueMapper = new SerializationUtil(this.typeParameterClass.getClass());
+        this.valueMapper = new SerializationUtil(this.typeParameterClass.getClass(),list);
     }
 
     public RpcErasureClient(String host, int port, int timeout, Eventloop eventloop) {
@@ -84,22 +115,34 @@ public class RpcErasureClient<T> {
     }
 
     public RpcErasureClient(T typeParameterClass, List<InetSocketAddress> inetSocketAddresses, Eventloop eventloop) {
+        List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
+        list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
+        list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
+        list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
+        list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
         this.rpcSerialize = SerializerBuilder.create();
         this.typeParameterClass = typeParameterClass;
         this.inetSocketAddresses = inetSocketAddresses;
         this.eventloop = eventloop;
         this.serializationUtil = new SerializationUtil<ErasureResponse>(ErasureResponse.class);
-        this.valueMapper = new SerializationUtil(this.typeParameterClass.getClass());
+        this.valueMapper = new SerializationUtil(this.typeParameterClass.getClass(),list);
     }
 
     public RpcErasureClient(T typeParameterClass, List<InetSocketAddress> inetSocketAddresses, int port, Eventloop eventloop) {
+        List<SerializationUtil.Mapping> list = new ArrayList<>();
+        list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
+        list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
+        list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
+        list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
+        list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
         this.rpcSerialize = SerializerBuilder.create();
         this.typeParameterClass = typeParameterClass;
         this.port = port;
         this.inetSocketAddresses = inetSocketAddresses;
         this.eventloop = eventloop;
         this.serializationUtil = new SerializationUtil<ErasureResponse>(ErasureResponse.class);
-        this.valueMapper = new SerializationUtil(this.typeParameterClass.getClass());
+        this.valueMapper = new SerializationUtil(this.typeParameterClass.getClass(),list);
     }
 
     public void connect() {

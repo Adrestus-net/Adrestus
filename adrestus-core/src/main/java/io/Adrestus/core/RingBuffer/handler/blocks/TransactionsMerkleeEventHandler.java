@@ -1,7 +1,7 @@
 package io.Adrestus.core.RingBuffer.handler.blocks;
 
 import io.Adrestus.Trie.MerkleNode;
-import io.Adrestus.Trie.MerkleTreeOldImp;
+import io.Adrestus.Trie.MerkleTreeOptimizedImp;
 import io.Adrestus.core.RingBuffer.event.AbstractBlockEvent;
 import io.Adrestus.core.StatusType;
 import io.Adrestus.core.TransactionBlock;
@@ -13,10 +13,10 @@ import java.util.List;
 
 public class TransactionsMerkleeEventHandler implements BlockEventHandler<AbstractBlockEvent> {
     private static Logger LOG = LoggerFactory.getLogger(TransactionsMerkleeEventHandler.class);
-    private final MerkleTreeOldImp tree;
+    private final MerkleTreeOptimizedImp tree;
 
     public TransactionsMerkleeEventHandler() {
-        this.tree = new MerkleTreeOldImp();
+        this.tree = new MerkleTreeOptimizedImp();
     }
 
     @Override
@@ -34,7 +34,7 @@ public class TransactionsMerkleeEventHandler implements BlockEventHandler<Abstra
                 list.add(new MerkleNode(x.getHash()));
             });
 
-            tree.my_generate2(list);
+            tree.constructTree(list);
 
 
             if (!tree.getRootHash().equals(transactionBlock.getMerkleRoot())) {

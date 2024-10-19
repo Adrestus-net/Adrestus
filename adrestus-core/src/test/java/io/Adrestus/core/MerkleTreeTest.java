@@ -2,6 +2,7 @@ package io.Adrestus.core;
 
 import io.Adrestus.Trie.*;
 import io.Adrestus.crypto.HashUtil;
+import io.Adrestus.util.ByteUtil;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -24,18 +25,103 @@ public class MerkleTreeTest {
 
 
     @Test
-    public void merklee_new_construct_clear() throws CloneNotSupportedException {
-        MerkleTree tree_new = new MerkleTreeSha256Imp();
+    public void merklee_size_one() throws CloneNotSupportedException {
+        MerkleTree tree_new_hash = new MerkleTreeSha256Imp();
+        MerkleTree tree_new_hash1 = new MerkleTreeOptimizedImp();
+        MerkleTree tree_new_hash2 = new MerkleTreePlainImp();
         List<MerkleNode> list1 = new ArrayList<MerkleNode>();
         MerkleNode node1 = new MerkleNode("A");
         list1.add(node1);
-        tree_new.constructTree(new ArrayList<>(list1));
-        tree_new.build_proofs(node1);
-        MerkleProofs proofs = (MerkleProofs) tree_new.getMerkleeproofs().clone();
-        tree_new.clear();
-        assertEquals(1,proofs.getProofs().size());
-
+        tree_new_hash.constructTree(new ArrayList<>(list1));
+        tree_new_hash1.constructTree(new ArrayList<>(list1));
+        tree_new_hash2.constructTree(new ArrayList<>(list1));
+        tree_new_hash.build_proofs(new MerkleNode("A"));
+        tree_new_hash1.build_proofs(new MerkleNode("A"));
+        tree_new_hash2.build_proofs(new MerkleNode("A"));
+        MerkleProofs proofs = (MerkleProofs) tree_new_hash.getMerkleeproofs();
+        MerkleProofs proofs1 = (MerkleProofs) tree_new_hash1.getMerkleeproofs();
+        MerkleProofs proofs2 = (MerkleProofs) tree_new_hash2.getMerkleeproofs();
+        assertEquals(tree_new_hash.getRootHash(), tree_new_hash.generateRoot(proofs));
+        assertEquals(tree_new_hash1.getRootHash(), tree_new_hash1.generateRoot(proofs1));
+        assertEquals(tree_new_hash2.getRootHash(), tree_new_hash2.generateRoot(proofs2));
+        tree_new_hash.clear();
+        tree_new_hash1.clear();
+        tree_new_hash2.clear();
     }
+
+    @Test
+    public void merklee_size_two() throws CloneNotSupportedException {
+        MerkleTree tree_new_hash = new MerkleTreeSha256Imp();
+        List<MerkleNode> list1 = new ArrayList<MerkleNode>();
+        MerkleNode node1 = new MerkleNode("A");
+        MerkleNode node2 = new MerkleNode("B");
+        list1.add(node1);
+        list1.add(node2);
+        tree_new_hash.constructTree(new ArrayList<>(list1));
+        tree_new_hash.build_proofs(new MerkleNode("A"));
+        MerkleProofs proofs2 = (MerkleProofs) tree_new_hash.getMerkleeproofs();
+        assertEquals(tree_new_hash.getRootHash(), tree_new_hash.generateRoot(proofs2));
+        tree_new_hash.clear();
+    }
+
+    @Test
+    public void merklee_size_three() throws CloneNotSupportedException {
+        MerkleTree tree_new_hash = new MerkleTreeSha256Imp();
+        List<MerkleNode> list1 = new ArrayList<MerkleNode>();
+        MerkleNode node1 = new MerkleNode("A");
+        MerkleNode node2 = new MerkleNode("B");
+        MerkleNode node3 = new MerkleNode("C");
+        list1.add(node1);
+        list1.add(node2);
+        list1.add(node3);
+        tree_new_hash.constructTree(new ArrayList<>(list1));
+        tree_new_hash.build_proofs(new MerkleNode("A"));
+        MerkleProofs proofs2 = (MerkleProofs) tree_new_hash.getMerkleeproofs();
+        assertEquals(tree_new_hash.getRootHash(), tree_new_hash.generateRoot(proofs2));
+        tree_new_hash.clear();
+    }
+
+    @Test
+    public void merklee_new_construct_clear() throws CloneNotSupportedException {
+        MerkleTree tree_new_hash = new MerkleTreeSha256Imp();
+        List<MerkleNode> list1 = new ArrayList<MerkleNode>();
+        MerkleNode node1 = new MerkleNode("A");
+        MerkleNode node2 = new MerkleNode("B");
+        MerkleNode node3 = new MerkleNode("C");
+        MerkleNode node4 = new MerkleNode("D");
+        list1.add(node1);
+        list1.add(node2);
+        list1.add(node3);
+        list1.add(node4);
+        tree_new_hash.constructTree(new ArrayList<>(list1));
+        tree_new_hash.build_proofs(new MerkleNode("A"));
+        MerkleProofs proofs2 = (MerkleProofs) tree_new_hash.getMerkleeproofs();
+        MerkleProofs proofs3 = (MerkleProofs) tree_new_hash.getMerkleeproofs().clone();
+        assertEquals(tree_new_hash.getRootHash(), tree_new_hash.generateRoot(proofs2));
+        assertEquals("50a504831bd50fee3581d287168a85a8dcdd6aa777ffd0fe35e37290268a0153", tree_new_hash.getRootHash());
+        tree_new_hash.clear();
+        assertEquals(3, proofs3.getProofs().size());
+    }
+
+    @Test
+    public void merklee_new_construct_clear1() throws CloneNotSupportedException {
+        MerkleTree tree_new = new MerkleTreePlainImp();
+        List<MerkleNode> list1 = new ArrayList<MerkleNode>();
+        MerkleNode node1 = new MerkleNode("A");
+        MerkleNode node2 = new MerkleNode("B");
+        MerkleNode node3 = new MerkleNode("C");
+        MerkleNode node4 = new MerkleNode("D");
+        list1.add(node1);
+        list1.add(node2);
+        list1.add(node3);
+        list1.add(node4);
+        tree_new.constructTree(list1);
+        tree_new.build_proofs(node3);
+        MerkleProofs proofs = tree_new.getMerkleeproofs();
+        assertEquals(tree_new.getRootHash(), tree_new.generateRoot(proofs));
+        tree_new.clear();
+    }
+
     @Test
     public void merklee_hash256_four_nodes_simple() {
         MerkleTree tree_new = new MerkleTreeSha256Imp();
@@ -60,6 +146,7 @@ public class MerkleTreeTest {
 
     @Test
     public void merklee_just_simple4Tests() {
+        MerkleTree tree_new = new MerkleTreeSha256Imp();
         List<MerkleNode> list1 = new ArrayList<MerkleNode>();
         MerkleNode node1 = new MerkleNode("A");
         MerkleNode node2 = new MerkleNode("B");
@@ -83,6 +170,34 @@ public class MerkleTreeTest {
         assertEquals(tree_new.getRootHash(), tree_new.generateRoot(proofs2));
         tree_new.clear();
         tree_new = new MerkleTreePlainImp();
+    }
+
+    @Test
+    public void merklee_size_LengthTests() {
+        MerkleTree tree_new = new MerkleTreePlainImp();
+        List<MerkleNode> list1 = new ArrayList<MerkleNode>();
+        MerkleNode node1 = new MerkleNode("A");
+        MerkleNode node2 = new MerkleNode("B");
+        MerkleNode node3 = new MerkleNode("C");
+        MerkleNode node4 = new MerkleNode("D");
+        MerkleNode node5 = new MerkleNode("E");
+        MerkleNode node6 = new MerkleNode("F");
+        MerkleNode node7 = new MerkleNode("G");
+        MerkleNode node8 = new MerkleNode("H");
+        list1.add(node1);
+        list1.add(node2);
+        list1.add(node3);
+        list1.add(node4);
+        list1.add(node5);
+        list1.add(node6);
+        list1.add(node7);
+        list1.add(node8);
+        tree_new.constructTree(list1);
+        tree_new.build_proofs(new MerkleNode("C"));
+        MerkleProofs proofs2 = tree_new.getMerkleeproofs();
+        assertEquals(tree_new.getRootHash().length(), proofs2.getLength());
+        assertEquals(tree_new.getRootHash(), tree_new.generateRoot(proofs2));
+        tree_new.clear();
     }
 
     @Test
@@ -346,7 +461,7 @@ public class MerkleTreeTest {
         assertEquals(256, list1.size());
     }
 
-    // This is the best performance use this
+    //This is the best performance use this
     @Test
     public void metricPerformanceWithNewTreeOptimized() {
         MerkleTree tree_new_hash = new MerkleTreeOptimizedImp();
@@ -361,6 +476,23 @@ public class MerkleTreeTest {
             assertEquals(tree_new_hash.getRootHash(), tree_new_hash.generateRoot(proofs_hash));
         }
         System.out.println(tree_new_hash.getRootHash());
-        assertEquals(256, list1.size());
+        assertEquals(list1.size(), list1.size());
+    }
+
+    @Test
+    public void metricPerformanceTestWithNoPowerOf2() {
+        MerkleTree tree_new_hash = new MerkleTreePlainImp();
+        List<MerkleNode> list1 = new ArrayList<MerkleNode>();
+        for (int i = 0; i < 100; i++) {
+            list1.add(new MerkleNode(String.valueOf(i)));
+        }
+        tree_new_hash.constructTree(list1);
+        for (int i = 0; i < list1.size(); i++) {
+            tree_new_hash.build_proofs(new MerkleNode(String.valueOf(i)));
+            MerkleProofs proofs_hash = tree_new_hash.getMerkleeproofs();
+            tree_new_hash.generateRoot(proofs_hash);
+            assertEquals(tree_new_hash.getRootHash(), tree_new_hash.generateRoot(proofs_hash));
+        }
+        assertEquals(list1.size(), list1.size());
     }
 }

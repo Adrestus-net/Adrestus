@@ -6,7 +6,7 @@ import io.activej.serializer.annotations.SerializeNullable;
 
 import java.io.Serializable;
 
-public class MerkleNode implements Serializable {
+public class MerkleNode implements Serializable,Cloneable {
     private String transactionHash;
     private MerkleNode root;
     private MerkleNode left;
@@ -82,7 +82,17 @@ public class MerkleNode implements Serializable {
     }
 
     public int getLength() {
-        return transactionHash.length() + root.transactionHash.length() + left.transactionHash.length() + right.transactionHash.length();
+        if (this == null) {
+            return 0;
+        }
+        int length = transactionHash.length();
+        if (left != null) {
+            length += left.getLength();
+        }
+        if (right != null) {
+            length += right.getLength();
+        }
+        return length;
     }
 
     @Override
@@ -91,12 +101,32 @@ public class MerkleNode implements Serializable {
     }
 
     @Override
+    public MerkleNode clone() {
+        try {
+            MerkleNode cloned = (MerkleNode) super.clone();
+            if (this.left != null) {
+                cloned.left = this.left.clone();
+            }
+            if (this.right != null) {
+                cloned.right = this.right.clone();
+            }
+            if (this.root != null) {
+                cloned.root = this.root.clone();
+            }
+            return cloned;
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError(); // Should never happen
+        }
+    }
+
+    //Never Delete it
+    @Override
     public String toString() {
         return "MerkleNode{" +
                 "transactionHash='" + transactionHash + '\'' +
-                ", root=" + root +
-                ", left=" + left +
-                ", right=" + right +
+                ", rootTransactionHash=" + (root != null ? root.transactionHash : "null") +
+                ", leftTransactionHash=" + (left != null ? left.transactionHash : "null") +
+                ", rightTransactionHash=" + (right != null ? right.transactionHash : "null") +
                 '}';
     }
 }

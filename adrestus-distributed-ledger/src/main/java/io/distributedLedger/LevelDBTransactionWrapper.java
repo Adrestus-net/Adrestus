@@ -7,6 +7,7 @@ import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.*;
 
+// This class is useless and should be removed in the future
 public class LevelDBTransactionWrapper<T> implements Serializable {
     private final LevelDBTransactionWrapper.TransactionHashComparator fromhashComparator;
     private final LevelDBTransactionWrapper.TransactionHashComparator tohashComparator;
