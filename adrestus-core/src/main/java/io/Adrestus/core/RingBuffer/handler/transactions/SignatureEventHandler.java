@@ -16,6 +16,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.stream.IntStream;
 
 public class SignatureEventHandler extends TransactionEventHandler implements TransactionUnitVisitor {
     private static Logger LOG = LoggerFactory.getLogger(SignatureEventHandler.class);
@@ -24,12 +26,10 @@ public class SignatureEventHandler extends TransactionEventHandler implements Tr
     private final SignatureBehaviorType type;
 
 
-    private ExecutorService executorService;
     private CountDownLatch latch;
 
 
-    public SignatureEventHandler(ExecutorService executorService) {
-        this.executorService = executorService;
+    public SignatureEventHandler() {
         this.ecdsaSign = new ECDSASign();
         this.type = SignatureBehaviorType.SIMPLE_TRANSACTIONS;
     }
@@ -55,13 +55,6 @@ public class SignatureEventHandler extends TransactionEventHandler implements Tr
         this.latch = latch;
     }
 
-    public ExecutorService getExecutorService() {
-        return executorService;
-    }
-
-    public void setExecutorService(ExecutorService executorService) {
-        this.executorService = executorService;
-    }
 
     @Override
     public void onEvent(TransactionEvent transactionEvent, long l, boolean b) throws Exception {
@@ -85,25 +78,26 @@ public class SignatureEventHandler extends TransactionEventHandler implements Tr
     @Override
     public void visit(RegularTransaction regularTransaction) {
         FinalizeTask task = new FinalizeTask(regularTransaction, regularTransaction.getFrom());
-        executorService.submit(task);
+        Thread.ofVirtual().start(task);
+        latch.countDown();
     }
 
     @Override
     public void visit(RewardsTransaction rewardsTransaction) {
         FinalizeTask task = new FinalizeTask(rewardsTransaction, rewardsTransaction.getRecipientAddress());
-        executorService.submit(task);
+        Thread.ofVirtual().start(task);
     }
 
     @Override
     public void visit(StakingTransaction stakingTransaction) {
         FinalizeTask task = new FinalizeTask(stakingTransaction, stakingTransaction.getValidatorAddress());
-        executorService.submit(task);
+        Thread.ofVirtual().start(task);
     }
 
     @Override
     public void visit(DelegateTransaction delegateTransaction) {
         FinalizeTask task = new FinalizeTask(delegateTransaction, delegateTransaction.getDelegatorAddress());
-        executorService.submit(task);
+        Thread.ofVirtual().start(task);
     }
 
     @Override
@@ -114,13 +108,13 @@ public class SignatureEventHandler extends TransactionEventHandler implements Tr
     @Override
     public void visit(UnDelegateTransaction unDelegateTransaction) {
         FinalizeTask task = new FinalizeTask(unDelegateTransaction, unDelegateTransaction.getDelegatorAddress());
-        executorService.submit(task);
+        Thread.ofVirtual().start(task);
     }
 
     @Override
     public void visit(UnstakingTransaction unstakingTransaction) {
         FinalizeTask task = new FinalizeTask(unstakingTransaction, unstakingTransaction.getValidatorAddress());
-        executorService.submit(task);
+        Thread.ofVirtual().start(task);
     }
 
 

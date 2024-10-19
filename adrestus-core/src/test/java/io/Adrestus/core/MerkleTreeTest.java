@@ -21,6 +21,7 @@ public class MerkleTreeTest {
     public static void setUp() throws Exception {
         tree = new MerkleTreeOldImp();
         tree_new = new MerkleTreePlainImp();
+        HashUtil.XXH3(String.valueOf("1").getBytes(StandardCharsets.UTF_8));
     }
 
 
@@ -268,7 +269,7 @@ public class MerkleTreeTest {
         }
     }
 
-    //25ms
+//    //25ms
     @Test
     public void xx3() {
         for (int i = 0; i < 1000000; i++) {
@@ -466,7 +467,7 @@ public class MerkleTreeTest {
     public void metricPerformanceWithNewTreeOptimized() {
         MerkleTree tree_new_hash = new MerkleTreeOptimizedImp();
         List<MerkleNode> list1 = new ArrayList<MerkleNode>();
-        for (int i = 0; i < 256; i++) {
+        for (int i = 0; i < 32768; i++) {
             list1.add(new MerkleNode(String.valueOf(i)));
         }
         tree_new_hash.constructTree(list1);

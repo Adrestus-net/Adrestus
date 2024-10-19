@@ -20,7 +20,7 @@
         <maven.compiler.target>11</maven.compiler.target>
         <spongycastle.version>1.58.0.0</spongycastle.version>
         <util.version>1.0-SNAPSHOT</util.version>
-        <bcprov.version>1.70</bcprov.version>
+        <bcprov.version>1.78.1</bcprov.version>
         <codec.version>1.15</codec.version>
         <jna.version>5.12.1</jna.version>
         <milagro.version>0.4.0</milagro.version>
@@ -28,6 +28,7 @@
         <config.version>1.0-SNAPSHOT</config.version>
         <http.components>5.2.1</http.components>
         <openhft.version>0.15</openhft.version>
+        <conscrypt.version>2.5.2</conscrypt.version>
     </properties>
     <repositories>
         <repository>
@@ -41,6 +42,11 @@
         </repository>
     </repositories>
     <dependencies>
+        <dependency>
+            <groupId>org.conscrypt</groupId>
+            <artifactId>conscrypt-openjdk-uber</artifactId>
+            <version>${conscrypt.version}</version>
+        </dependency>
         <dependency>
             <groupId>net.openhft</groupId>
             <artifactId>zero-allocation-hashing</artifactId>
@@ -68,7 +74,7 @@
         </dependency>
         <dependency>
             <groupId>org.bouncycastle</groupId>
-            <artifactId>bcprov-jdk15on</artifactId>
+            <artifactId>bcprov-jdk18on</artifactId>
             <version>${bcprov.version}</version>
         </dependency>
         <dependency>

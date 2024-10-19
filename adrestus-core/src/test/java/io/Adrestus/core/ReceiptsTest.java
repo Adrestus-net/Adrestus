@@ -402,6 +402,7 @@ public class ReceiptsTest {
         RpcAdrestusServer<AbstractBlock> example = new RpcAdrestusServer<AbstractBlock>(new TransactionBlock(), DatabaseInstance.ZONE_0_TRANSACTION_BLOCK, IPFinder.getLocal_address(), ZoneDatabaseFactory.getDatabaseRPCPort(CachedZoneIndex.getInstance().getZoneIndex()), CachedEventLoop.getInstance().getEventloop());
         new Thread(example).start();
         CachedEventLoop.getInstance().start();
+        Thread.sleep(1200);
 
         BlockEventPublisher publisher = new BlockEventPublisher(1024);
         CachedZoneIndex.getInstance().setZoneIndex(1);
