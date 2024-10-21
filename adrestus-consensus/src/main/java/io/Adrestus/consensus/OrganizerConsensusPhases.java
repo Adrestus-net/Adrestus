@@ -202,7 +202,6 @@ public class OrganizerConsensusPhases {
                 serializableErasureObjects.get(j).setProofs(tree.getMerkleeproofs());
                 serializableErasureObjects.get(j).setRootMerkleHash(tree.getRootHash());
             }
-            tree.clear();
             ArrayList<byte[]> toSend = new ArrayList<>();
             for (SerializableErasureObject obj : serializableErasureObjects) {
                 toSend.add(serenc_erasure.encode(obj));
@@ -240,6 +239,7 @@ public class OrganizerConsensusPhases {
             for (int i = 0; i < valid; i++) {
                 ConsensusServer.getInstance().setErasureMessage(toSend.get(i), identities.get(i));
             }
+
             long Dispersefinish = System.currentTimeMillis();
             long DispersetimeElapsed = Dispersefinish - Dispersestart;
             System.out.println("Organizer Disperse: " + DispersetimeElapsed);

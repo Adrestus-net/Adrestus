@@ -158,8 +158,6 @@ public class RegularBlock implements BlockForge, BlockInvent {
             }
         }
 
-        tree.clear();
-
         Map<Integer, Map<Receipt.ReceiptBlock, List<Receipt>>> outbound = receiptList
                 .stream()
                 .collect(Collectors.groupingBy(Receipt::getZoneTo, Collectors.groupingBy(Receipt::getReceiptBlock)));
@@ -405,7 +403,9 @@ public class RegularBlock implements BlockForge, BlockInvent {
     public void InventTransactionBlock(TransactionBlock transactionBlock) {
         Thread.ofVirtual().start(() -> {
             IDatabase<String, TransactionBlock> block_database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
-            block_database.save(String.valueOf(transactionBlock.getHeight()), transactionBlock);
+            BlockSizeCalculator blockSizeCalculator=new BlockSizeCalculator();
+            blockSizeCalculator.setTransactionBlock(transactionBlock);
+            block_database.save(String.valueOf(transactionBlock.getHeight()), transactionBlock,blockSizeCalculator.TransactionBlockSizeCalculator());
         });
         transactionBlock.setStatustype(StatusType.SUCCES);
         transactionBlock.getTransactionList().forEach(val -> val.setStatus(StatusType.SUCCES));

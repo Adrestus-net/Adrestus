@@ -118,14 +118,12 @@ public class SerializableErasureObject {
     public boolean CheckChunksValidity(String OriginalHash) {
         MerkleTreeOptimizedImp tree = new MerkleTreeOptimizedImp();
         String hash1 = tree.generateRoot(this.proofs);
-        tree.clear();
         return OriginalHash.equals(hash1) && OriginalHash.equals(rootMerkleHash);
     }
 
     public boolean CheckChunksWithRepairValidity(String OriginalHash) {
         MerkleTreeOptimizedImp tree = new MerkleTreeOptimizedImp();
         String hash1 = tree.generateRoot(this.proofs);
-        tree.clear();
         return OriginalHash.equals(hash1);
 
 //        MerkleTreeImp tree = new MerkleTreeImp();

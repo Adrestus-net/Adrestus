@@ -216,7 +216,6 @@ public class InBoundEventHandler implements BlockEventHandler<AbstractBlockEvent
                 publisher.getLatch().await();
                 publisher.getJobSyncUntilRemainingCapacityZero();
             }
-            outer_tree.clear();
         }
     }
 

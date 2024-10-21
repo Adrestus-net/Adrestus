@@ -222,6 +222,28 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
 
     @SneakyThrows
     @Override
+    public void save(K key, Object value, int length) {
+        w.lock();
+        try {
+            byte[] serializedkey = keyMapper.encode(key);
+            byte[] serializedValue = valueMapper.encode(value, length);
+            rocksDB.put(serializedkey, serializedValue);
+        } catch (NullPointerException exception) {
+            LOGGER.error("NullPointer exception occurred during save operation. {}", exception.getMessage());
+            throw exception;
+        } catch (final SerializationException exception) {
+            LOGGER.error("Serialization exception occurred during save operation. {}", exception.getMessage());
+            throw exception;
+        } catch (final RocksDBException exception) {
+            LOGGER.error("RocksDBException occurred during save operation. {}", exception.getMessage());
+            throw new SaveFailedException(exception.getMessage(), exception);
+        } finally {
+            w.unlock();
+        }
+    }
+
+    @SneakyThrows
+    @Override
     public void saveAll(Map<K, V> map) {
         w.lock();
         try {
