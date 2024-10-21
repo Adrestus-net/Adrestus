@@ -16,17 +16,13 @@ import io.Adrestus.core.RewardMechanism.Request;
 import io.Adrestus.core.RewardMechanism.RequestType;
 import io.Adrestus.core.RewardMechanism.RewardChainBuilder;
 import io.Adrestus.core.Util.BlockSizeCalculator;
-import io.Adrestus.core.mapper.CustomSerializerTreeMap;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.bls.BLS381.ECP;
 import io.Adrestus.crypto.bls.BLS381.ECP2;
 import io.Adrestus.crypto.bls.mapper.ECP2mapper;
 import io.Adrestus.crypto.bls.mapper.ECPmapper;
 import io.Adrestus.crypto.bls.model.CachedBLSKeyPair;
-import io.Adrestus.crypto.elliptic.mapper.BigDecimalSerializer;
-import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
-import io.Adrestus.crypto.elliptic.mapper.CustomFurySerializer;
-import io.Adrestus.crypto.elliptic.mapper.StakingData;
+import io.Adrestus.crypto.elliptic.mapper.*;
 import io.Adrestus.mapper.MemoryTreePoolSerializer;
 import io.Adrestus.network.AsyncService;
 import io.Adrestus.network.CachedEventLoop;
@@ -408,7 +404,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
         transactionBlock.setStatustype(StatusType.SUCCES);
         transactionBlock.getTransactionList().forEach(val -> val.setStatus(StatusType.SUCCES));
 
-        
+
         if (!transactionBlock.getTransactionList().isEmpty()) {
             TreePoolConstructBlock.getInstance().visitInventTreePool(transactionBlock, TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()));
         }

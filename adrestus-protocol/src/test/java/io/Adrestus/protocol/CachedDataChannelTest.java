@@ -4,7 +4,6 @@ import io.Adrestus.consensus.CachedConsensusState;
 import io.Adrestus.core.CommitteeBlock;
 import io.Adrestus.core.Resourses.*;
 import io.Adrestus.core.TransactionBlock;
-import io.Adrestus.core.mapper.CustomSerializerTreeMap;
 import io.Adrestus.crypto.SecurityHeader;
 import io.Adrestus.crypto.bls.BLS381.ECP;
 import io.Adrestus.crypto.bls.BLS381.ECP2;

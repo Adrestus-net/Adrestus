@@ -9,7 +9,6 @@ import io.Adrestus.core.Resourses.CachedLeaderIndex;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.core.Resourses.ErasureServerInstance;
 import io.Adrestus.core.Util.BlockSizeCalculator;
-import io.Adrestus.core.mapper.CustomSerializerTreeMap;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.bls.BLS381.ECP;
 import io.Adrestus.crypto.bls.BLS381.ECP2;
@@ -22,6 +21,7 @@ import io.Adrestus.crypto.bls.model.CachedBLSKeyPair;
 import io.Adrestus.crypto.bls.model.Signature;
 import io.Adrestus.crypto.elliptic.mapper.BigDecimalSerializer;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
+import io.Adrestus.crypto.elliptic.mapper.CustomSerializerTreeMap;
 import io.Adrestus.erasure.code.ArrayDataEncoder;
 import io.Adrestus.erasure.code.EncodingPacket;
 import io.Adrestus.erasure.code.OpenRQ;
@@ -91,7 +91,7 @@ public class OrganizerConsensusPhases {
             this.consensus_serialize = new SerializationUtil<ConsensusMessage>(fluentType, list);
             this.sizeCalculator = new BlockSizeCalculator();
             this.signatureMapper = new SerializationUtil<Signature>(Signature.class, list);
-            this.serenc_erasure = new SerializationUtil<SerializableErasureObject>(SerializableErasureObject.class);
+            this.serenc_erasure = new SerializationUtil<SerializableErasureObject>(SerializableErasureObject.class,list);
             ErasureServerInstance.getInstance();
         }
 
@@ -193,11 +193,11 @@ public class OrganizerConsensusPhases {
             for (int i = 0; i < n.size(); i++) {
                 SerializableErasureObject serializableErasureObject = new SerializableErasureObject(object, n.get(i).asArray(), new ArrayList<byte[]>());
                 serializableErasureObjects.add(serializableErasureObject);
-                merkleNodes.add(new MerkleNode(HashUtil.sha256_bytetoString(serializableErasureObject.getOriginalPacketChunks())));
+                merkleNodes.add(new MerkleNode(Hex.encodeHexString(serializableErasureObject.getOriginalPacketChunks())));
             }
             tree.constructTree(merkleNodes);
             for (int j = 0; j < serializableErasureObjects.size(); j++) {
-                tree.build_proofs(new MerkleNode(HashUtil.sha256_bytetoString(serializableErasureObjects.get(j).getOriginalPacketChunks())));
+                tree.build_proofs(new MerkleNode(Hex.encodeHexString(serializableErasureObjects.get(j).getOriginalPacketChunks())));
                 serializableErasureObjects.get(j).setProofs(tree.getMerkleeproofs());
                 serializableErasureObjects.get(j).setRootMerkleHash(tree.getRootHash());
             }

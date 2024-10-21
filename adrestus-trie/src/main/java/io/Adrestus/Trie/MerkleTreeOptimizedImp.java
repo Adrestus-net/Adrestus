@@ -168,7 +168,7 @@ public class MerkleTreeOptimizedImp implements Serializable, MerkleTree {
         current.setTransactionHash(HashUtil.XXH3(current.getTransactionHash()));
         if (merkleNodeHashMapByHash.get(this.capacity - 1).get(current.getTransactionHash()) == null) {
             LOG.info("MerkleNode is not found with hash: " + current.getTransactionHash());
-            return;
+            throw new IllegalArgumentException("MerkleNode is not found with hash: " + current.getTransactionHash());
         }
 
         if (merkleNodeHashMapByHash.get(this.capacity - 1).size() == 1) {

@@ -1,13 +1,13 @@
 package io.Adrestus.core;
 
 import io.Adrestus.core.Util.BlockSizeCalculator;
-import io.Adrestus.core.mapper.CustomSerializerTreeMap;
 import io.Adrestus.crypto.bls.BLS381.ECP;
 import io.Adrestus.crypto.bls.BLS381.ECP2;
 import io.Adrestus.crypto.bls.mapper.ECP2mapper;
 import io.Adrestus.crypto.bls.mapper.ECPmapper;
 import io.Adrestus.crypto.elliptic.mapper.BigDecimalSerializer;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
+import io.Adrestus.crypto.elliptic.mapper.CustomSerializerTreeMap;
 import io.Adrestus.util.SerializationUtil;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeAll;

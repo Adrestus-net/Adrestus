@@ -3,7 +3,6 @@ package io.Adrestus.protocol;
 import io.Adrestus.config.SocketConfigOptions;
 import io.Adrestus.consensus.CachedConsensusState;
 import io.Adrestus.core.Resourses.*;
-import io.Adrestus.core.mapper.CustomSerializerTreeMap;
 import io.Adrestus.crypto.bls.BLS381.ECP;
 import io.Adrestus.crypto.bls.BLS381.ECP2;
 import io.Adrestus.crypto.bls.mapper.ECP2mapper;

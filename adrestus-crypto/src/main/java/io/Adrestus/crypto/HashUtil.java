@@ -223,8 +223,8 @@ public class HashUtil {
     }
 
     @SneakyThrows
-    public static long XXH3(byte[] data) {
-        return LongHashFunction.xx3().hashBytes(data);
+    public static String XXH3(byte[] data) {
+        return String.valueOf(LongHashFunction.xx3().hashBytes(data));
     }
 
     @SneakyThrows
