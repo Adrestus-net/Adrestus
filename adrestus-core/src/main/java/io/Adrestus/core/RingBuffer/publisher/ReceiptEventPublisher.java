@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -28,16 +29,20 @@ public class ReceiptEventPublisher implements Publisher<ReceiptBlock> {
     private final int jobQueueSize;
     private final AtomicBoolean isRunning;
     private final List<ReceiptEventHandler> group;
-
+    private CountDownLatch latch;
     public ReceiptEventPublisher(int jobQueueSize) {
         this.isRunning = new AtomicBoolean(true);
         this.jobQueueSize = jobQueueSize;
         this.bufferSize = BufferCapacity.nextPowerOf2(this.jobQueueSize);
         this.group = new ArrayList<ReceiptEventHandler>();
-        disruptor = new Disruptor<ReceiptBlockEvent>(new ReceiptBlockEventFactory(), bufferSize, DaemonThreadFactory.INSTANCE, ProducerType.SINGLE, new BlockingWaitStrategy());
+        this.disruptor = new Disruptor<ReceiptBlockEvent>(new ReceiptBlockEventFactory(), bufferSize, DaemonThreadFactory.INSTANCE, ProducerType.SINGLE, new BlockingWaitStrategy());
     }
 
 
+    public ReceiptEventPublisher withReceiptCountDownLatchSize(int size) {
+        latch= new CountDownLatch(size);
+        return this;
+    }
     public ReceiptEventPublisher withEmptyEventHandler() {
         group.add(new EmptyEventHandler());
         return this;
@@ -114,8 +119,10 @@ public class ReceiptEventPublisher implements Publisher<ReceiptBlock> {
 
     @Override
     public void publish(ReceiptBlock receiptBlock) {
-        long sequence = this.disruptor.getRingBuffer().next();  // Grab the next sequence
+        long sequence = this.disruptor.getRingBuffer().next();// Grab the next sequence
         try {
+            if(this.latch!=null)
+                this.latch.countDown();
             ReceiptBlockEvent event = (ReceiptBlockEvent) this.disruptor.getRingBuffer().get(sequence); // Get the entry in the Disruptor
             event.setReceiptBlock(receiptBlock);
         } finally {
@@ -136,9 +143,14 @@ public class ReceiptEventPublisher implements Publisher<ReceiptBlock> {
     @Override
     public void getJobSyncUntilRemainingCapacityZero() throws InterruptedException {
         while (disruptor.getRingBuffer().remainingCapacity() != bufferSize) {
-            Thread.sleep(10);
+            Thread.sleep(1);
         }
     }
+
+    public CountDownLatch getLatch() {
+        return latch;
+    }
+
 
     @Override
     public void close() {

@@ -2,6 +2,7 @@ package io.Adrestus.core.RingBuffer.handler.blocks;
 
 import io.Adrestus.Trie.MerkleNode;
 import io.Adrestus.Trie.MerkleTreeOptimizedImp;
+import io.Adrestus.config.NetworkConfiguration;
 import io.Adrestus.core.*;
 import io.Adrestus.core.Resourses.CachedInboundTransactionBlocks;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
@@ -27,9 +28,11 @@ import java.util.stream.IntStream;
 
 public class InBoundEventHandler implements BlockEventHandler<AbstractBlockEvent> {
     private static Logger LOG = LoggerFactory.getLogger(InBoundEventHandler.class);
+    private static final int INBOUND_TIMEOUT = 400;
+
     private final IBlockIndex blockIndex;
     private final ReceiptEventPublisher publisher;
-
+    private final RpcAdrestusClient<TransactionBlock> client_zone0,client_zone1, client_zone2, client_zone3;
     private TransactionBlock transactionBlock, transactionBlockClonable;
     private CommitteeBlock committeeBlock;
     private LinkedHashMap<Integer, LinkedHashMap<Receipt.ReceiptBlock, List<Receipt>>> inner_receipts;
@@ -51,6 +54,10 @@ public class InBoundEventHandler implements BlockEventHandler<AbstractBlockEvent
                 .mergeEventsWithNoInsert();
         this.publisher.start();
         this.blockIndex = new BlockIndex();
+        this.client_zone0 = new RpcAdrestusClient<TransactionBlock>(new TransactionBlock(), "", 0, INBOUND_TIMEOUT, CachedEventLoop.getInstance().getEventloop());
+        this.client_zone1 = new RpcAdrestusClient<TransactionBlock>(new TransactionBlock(), "", 0, INBOUND_TIMEOUT, CachedEventLoop.getInstance().getEventloop());
+        this.client_zone2 = new RpcAdrestusClient<TransactionBlock>(new TransactionBlock(), "", 0, INBOUND_TIMEOUT, CachedEventLoop.getInstance().getEventloop());
+        this.client_zone3 = new RpcAdrestusClient<TransactionBlock>(new TransactionBlock(), "", 0, INBOUND_TIMEOUT, CachedEventLoop.getInstance().getEventloop());
     }
 
     @SneakyThrows
@@ -92,7 +99,19 @@ public class InBoundEventHandler implements BlockEventHandler<AbstractBlockEvent
             finalService.submit(() -> {
                 try {
                     Map<Receipt.ReceiptBlock, List<Receipt>> zone = inner_receipts.get(key);
-                    ServiceSubmit(key, zone);
+                    switch (key) {
+                        case 0:
+                            ServiceSubmit(client_zone0,key, zone);
+                            break;
+                        case 1:
+                            ServiceSubmit(client_zone1,key, zone);
+                        case 2:
+                            ServiceSubmit(client_zone2,key, zone);
+                        case 3:
+                            ServiceSubmit(client_zone3,key, zone);
+                        default:
+                            ServiceSubmit(client_zone0,key, zone);
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 } finally {
@@ -113,13 +132,14 @@ public class InBoundEventHandler implements BlockEventHandler<AbstractBlockEvent
     }
 
 
-    public void ServiceSubmit(int zoneIndex, Map<Receipt.ReceiptBlock, List<Receipt>> zone) {
+    @SneakyThrows
+    public void ServiceSubmit(RpcAdrestusClient client,int zoneIndex, Map<Receipt.ReceiptBlock, List<Receipt>> zone) {
 
         //find validator position in structure map
         Integer my_pos = blockIndex.getPublicKeyIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedBLSKeyPair.getInstance().getPublicKey());
         boolean bError = false;
         Integer receiptZoneIndex = 0;
-        List<TransactionBlock> current = null;
+        List<TransactionBlock> current_transaction_block = null;
         do {
             try {
                 // get first zone index from inner receipts and search in foor loop in which zone index of structure map belongs
@@ -152,13 +172,15 @@ public class InBoundEventHandler implements BlockEventHandler<AbstractBlockEvent
                 for (Receipt.ReceiptBlock receiptBlock : zone.keySet()) {
                     to_search.add(String.valueOf(receiptBlock.getHeight()));
                 }
-                RpcAdrestusClient<TransactionBlock> client = new RpcAdrestusClient<TransactionBlock>(new TransactionBlock(), IP, ZoneDatabaseFactory.getDatabaseRPCPort(blockIndex.getZone(IP)), 400, CachedEventLoop.getInstance().getEventloop());
+
+                client.setHost(IP);
+                client.setPort(ZoneDatabaseFactory.getDatabaseRPCPort(blockIndex.getZone(IP)));
                 client.connect();
 
-                current = client.getBlock(to_search);
+                current_transaction_block = client.getBlock(to_search);
                 bError = false;
                 HashMap<Integer, TransactionBlock> trxtosave = new HashMap<>();
-                current.stream().forEach(val -> trxtosave.put(val.getHeight(), val));
+                current_transaction_block.stream().forEach(val -> trxtosave.put(val.getHeight(), val));
                 CachedInboundTransactionBlocks.getInstance().store(zoneIndex, trxtosave);
             } catch (IllegalArgumentException e) {
                 bError = true;
@@ -169,33 +191,36 @@ public class InBoundEventHandler implements BlockEventHandler<AbstractBlockEvent
                 }
             }
         } while (bError);
-        int position = -1;
-        for (Map.Entry<Receipt.ReceiptBlock, List<Receipt>> entry : zone.entrySet()) {
-            position++;
-            int finalPosition = position;
-            List<TransactionBlock> finalCurrent = current;
-            entry.getValue().stream().forEach(receipt -> {
-                int index = receipt.getPosition();
-                if (index < 0) {
-                    LOG.info("Cannot find transaction in Transaction Block");
-                    transactionBlock.setStatustype(StatusType.ABORT);
-                    return;
+        for (int j = 0; j < current_transaction_block.size(); j++) {
+            final MerkleTreeOptimizedImp outer_tree = new MerkleTreeOptimizedImp();
+            final ArrayList<MerkleNode> merkleNodeArrayList = new ArrayList<>();
+            current_transaction_block.get(j).getTransactionList().forEach(val -> merkleNodeArrayList.add(new MerkleNode(val.getHash())));
+            outer_tree.constructTree(merkleNodeArrayList);
+            for (Map.Entry<Receipt.ReceiptBlock, List<Receipt>> entry : zone.entrySet()) {
+                ArrayList<Receipt> receipt_list = (ArrayList<Receipt>) entry.getValue();
+                publisher.withReceiptCountDownLatchSize(receipt_list.size());
+                for (int i = 0; i < receipt_list.size(); i++) {
+                    Receipt receipt = receipt_list.get(i);
+                    int index = receipt.getPosition();
+                    if (index < 0) {
+                        LOG.info("Cannot find transaction in Transaction Block");
+                        transactionBlock.setStatustype(StatusType.ABORT);
+                        return;
+                    }
+                    Transaction transaction = current_transaction_block.get(j).getTransactionList().get(index);
+                    boolean check = PreConditionsChecks(receipt, entry.getKey(), outer_tree, current_transaction_block.get(j), transaction, index);
+                    boolean cross_check = CrossZoneConditionsChecks(current_transaction_block.get(j), entry.getKey());
+                    if (!check || !cross_check)
+                        atomicInteger.decrementAndGet();
                 }
-                Transaction transaction = finalCurrent.get(finalPosition).getTransactionList().get(index);
-                boolean check = PreConditionsChecks(receipt, entry.getKey(), finalCurrent.get(finalPosition), transaction, index);
-                boolean cross_check = CrossZoneConditionsChecks(finalCurrent.get(finalPosition), entry.getKey());
-                if (!check || !cross_check)
-                    atomicInteger.decrementAndGet();
-            });
+                publisher.getLatch().await();
+                publisher.getJobSyncUntilRemainingCapacityZero();
+            }
         }
     }
 
     @SneakyThrows
-    public boolean PreConditionsChecks(final Receipt receipt, final Receipt.ReceiptBlock receiptBlock, final TransactionBlock transactionBlock, Transaction transaction, int index) {
-        final MerkleTreeOptimizedImp outer_tree = new MerkleTreeOptimizedImp();
-        final ArrayList<MerkleNode> merkleNodeArrayList = new ArrayList<>();
-        transactionBlock.getTransactionList().forEach(val -> merkleNodeArrayList.add(new MerkleNode(val.getHash())));
-        outer_tree.constructTree(merkleNodeArrayList);
+    public boolean PreConditionsChecks(final Receipt receipt, final Receipt.ReceiptBlock receiptBlock, final MerkleTreeOptimizedImp outer_tree, final TransactionBlock transactionBlock, Transaction transaction, int index) {
         boolean bool3 = StringUtils.equals(transactionBlock.getMerkleRoot(), outer_tree.generateRoot(receipt.getProofs()));
         boolean bool5 = StringUtils.equals(receiptBlock.getOutboundMerkleRoot(), outer_tree.generateRoot(receipt.getProofs()));
         int val3 = Integer.compare(index, receipt.getPosition());
@@ -205,7 +230,6 @@ public class InBoundEventHandler implements BlockEventHandler<AbstractBlockEvent
 
         ReceiptBlock rcpBlock = new ReceiptBlock(StatusType.PENDING, receipt, transactionBlock, transaction);
         publisher.publish(rcpBlock);
-        publisher.getJobSyncUntilRemainingCapacityZero();
 
         if (rcpBlock.getStatusType().equals(StatusType.ABORT)) {
             LOG.info("Receipt has errors aborted");

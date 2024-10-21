@@ -212,8 +212,8 @@ public class ReceiptPublisherTest {
 
         RpcAdrestusServer<AbstractBlock> example = new RpcAdrestusServer<AbstractBlock>(new TransactionBlock(), DatabaseInstance.ZONE_0_TRANSACTION_BLOCK, "localhost", ZoneDatabaseFactory.getDatabaseRPCPort(CachedZoneIndex.getInstance().getZoneIndex()), CachedEventLoop.getInstance().getEventloop());
         new Thread(example).start();
-        CachedEventLoop.getInstance().start();
         Thread.sleep(1200);
+        CachedEventLoop.getInstance().start();
 
         String OriginalRootHash = transactionBlock.getMerkleRoot();
         Receipt.ReceiptBlock receiptBlock = new Receipt.ReceiptBlock(transactionBlock.getHeight(), transactionBlock.getGeneration(), transactionBlock.getMerkleRoot());
@@ -229,6 +229,7 @@ public class ReceiptPublisherTest {
                 withPublicKeyEventHandler()
                 .withSignatureEventHandler()
                 .withZoneFromEventHandler()
+                .withReceiptCountDownLatchSize(transactionBlock.getTransactionList().size())
                 .mergeEvents();
         publisher.start();
         for (int i = 0; i < transactionBlock.getTransactionList().size(); i++) {

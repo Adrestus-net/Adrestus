@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class OutBoundEventHandler implements BlockEventHandler<AbstractBlockEvent> {
     private static Logger LOG = LoggerFactory.getLogger(OutBoundEventHandler.class);
-
+    private AtomicInteger atomicInteger;
     @Override
     public void onEvent(AbstractBlockEvent blockEvent, long l, boolean b) throws Exception {
         TransactionBlock transactionBlock = (TransactionBlock) blockEvent.getBlock();
@@ -47,19 +47,12 @@ public class OutBoundEventHandler implements BlockEventHandler<AbstractBlockEven
         Set<Integer> keyset = outer_receipts.keySet();
 
 
-        AtomicInteger atomicInteger = new AtomicInteger(3);
+        atomicInteger = new AtomicInteger(3);
         CountDownLatch latch = new CountDownLatch(3);
         try {
             Map<Receipt.ReceiptBlock, List<Receipt>> zone_1 = outer_receipts.get(keyset.toArray()[0]);
             service.submit(() -> {
-                for (Map.Entry<Receipt.ReceiptBlock, List<Receipt>> entry : zone_1.entrySet()) {
-                    entry.getValue().stream().forEach(receipt -> {
-                        Transaction transaction = transactionBlockclonable.getTransactionList().get(receipt.getPosition());
-                        boolean check = PreconditionsChecks(receipt, entry.getKey(), transactionBlockclonable, transaction, receipt.getPosition());
-                        if (!check)
-                            atomicInteger.decrementAndGet();
-                    });
-                }
+                ServiceSubmit(zone_1, transactionBlockclonable);
                 latch.countDown();
             });
         } catch (Exception e) {
@@ -68,14 +61,7 @@ public class OutBoundEventHandler implements BlockEventHandler<AbstractBlockEven
         try {
             Map<Receipt.ReceiptBlock, List<Receipt>> zone_2 = outer_receipts.get(keyset.toArray()[1]);
             service.submit(() -> {
-                for (Map.Entry<Receipt.ReceiptBlock, List<Receipt>> entry : zone_2.entrySet()) {
-                    entry.getValue().stream().forEach(receipt -> {
-                        Transaction transaction = transactionBlockclonable.getTransactionList().get(receipt.getPosition());
-                        boolean check = PreconditionsChecks(receipt, entry.getKey(), transactionBlockclonable, transaction, receipt.getPosition());
-                        if (!check)
-                            atomicInteger.decrementAndGet();
-                    });
-                }
+                ServiceSubmit(zone_2, transactionBlockclonable);
                 latch.countDown();
             });
         } catch (Exception e) {
@@ -84,14 +70,7 @@ public class OutBoundEventHandler implements BlockEventHandler<AbstractBlockEven
         try {
             Map<Receipt.ReceiptBlock, List<Receipt>> zone_3 = outer_receipts.get(keyset.toArray()[2]);
             service.submit(() -> {
-                for (Map.Entry<Receipt.ReceiptBlock, List<Receipt>> entry : zone_3.entrySet()) {
-                    entry.getValue().stream().forEach(receipt -> {
-                        Transaction transaction = transactionBlockclonable.getTransactionList().get(receipt.getPosition());
-                        boolean check = PreconditionsChecks(receipt, entry.getKey(), transactionBlockclonable, transaction, receipt.getPosition());
-                        if (!check)
-                            atomicInteger.decrementAndGet();
-                    });
-                }
+                ServiceSubmit(zone_3, transactionBlockclonable);
                 latch.countDown();
             });
         } catch (Exception e) {
@@ -107,13 +86,24 @@ public class OutBoundEventHandler implements BlockEventHandler<AbstractBlockEven
         }
     }
 
-    public boolean PreconditionsChecks(final Receipt receipt, final Receipt.ReceiptBlock receiptBlock, final TransactionBlock transactionBlock, Transaction transaction, int index) {
-        final MerkleTreeOptimizedImp outer_tree = new MerkleTreeOptimizedImp();
-        final ArrayList<MerkleNode> merkleNodeArrayList = new ArrayList<>();
-        transactionBlock.getTransactionList().forEach(val -> merkleNodeArrayList.add(new MerkleNode(val.getHash())));
-        outer_tree.constructTree(merkleNodeArrayList);
-        boolean bool3 = StringUtils.equals(transactionBlock.getMerkleRoot(), outer_tree.generateRoot(receipt.getProofs()));
-        boolean bool5 = StringUtils.equals(receiptBlock.getOutboundMerkleRoot(), outer_tree.generateRoot(receipt.getProofs()));
+    public void ServiceSubmit(Map<Receipt.ReceiptBlock, List<Receipt>> zone, TransactionBlock transactionBlock) {
+        for (Map.Entry<Receipt.ReceiptBlock, List<Receipt>> entry : zone.entrySet()) {
+            entry.getValue().stream().forEach(receipt -> {
+                Transaction transaction = transactionBlock.getTransactionList().get(receipt.getPosition());
+                final MerkleTreeOptimizedImp outer_tree = new MerkleTreeOptimizedImp();
+                final ArrayList<MerkleNode> merkleNodeArrayList = new ArrayList<>();
+                transactionBlock.getTransactionList().forEach(val -> merkleNodeArrayList.add(new MerkleNode(val.getHash())));
+                outer_tree.constructTree(merkleNodeArrayList);
+                boolean check = PreconditionsChecks(receipt, entry.getKey(), outer_tree, transactionBlock, transaction, receipt.getPosition());
+                if (!check)
+                    atomicInteger.decrementAndGet();
+            });
+        }
+    }
+    public boolean PreconditionsChecks(final Receipt receipt, final Receipt.ReceiptBlock receiptBlock, final MerkleTreeOptimizedImp outer_tree, final TransactionBlock transactionBlock, Transaction transaction, int index) {
+        String root = outer_tree.generateRoot(receipt.getProofs());
+        boolean bool3 = StringUtils.equals(transactionBlock.getMerkleRoot(), root);
+        boolean bool5 = StringUtils.equals(receiptBlock.getOutboundMerkleRoot(), root);
         int val3 = Integer.compare(index, receipt.getPosition());
         int val4 = Integer.compare(transactionBlock.getHeight(), receiptBlock.getHeight());
         int val5 = Integer.compare(transactionBlock.getGeneration(), receiptBlock.getGeneration());

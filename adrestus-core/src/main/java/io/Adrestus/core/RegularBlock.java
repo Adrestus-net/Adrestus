@@ -124,12 +124,14 @@ public class RegularBlock implements BlockForge, BlockInvent {
         ArrayList<Transaction> todelete = new ArrayList<>(MemoryTransactionPool.getInstance().getListToDelete(CachedZoneIndex.getInstance().getZoneIndex()));
         todelete.stream().forEach(transaction -> {
             if (transaction.getZoneFrom() != CachedZoneIndex.getInstance().getZoneIndex()) {
-                List<String> ips = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(transaction.getZoneFrom()).values().stream().collect(Collectors.toList());
-                var executor = new AsyncService<Long>(ips, transaction_encode.encode(transaction, 1024), SocketConfigOptions.TRANSACTION_PORT);
+                Thread.ofVirtual().start(() -> {
+                    List<String> ips = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(transaction.getZoneFrom()).values().stream().collect(Collectors.toList());
+                    var executor = new AsyncService<Long>(ips, transaction_encode.encode(transaction, 1024), SocketConfigOptions.TRANSACTION_PORT);
 
-                var asyncResult1 = executor.startProcess(300L);
-                final var result1 = executor.endProcess(asyncResult1);
-                executor = null;
+                    var asyncResult1 = executor.startProcess(300L);
+                    final var result1 = executor.endProcess(asyncResult1);
+                    executor = null;
+                });
             }
         });
         MemoryTransactionPool.getInstance().delete(todelete);
@@ -180,11 +182,13 @@ public class RegularBlock implements BlockForge, BlockInvent {
                     entry.getValue().stream().forEach(receipt -> toSendReceipt.add(receipt_encode.encode(receipt, 1024)));
 
                     if (!toSendReceipt.isEmpty()) {
-                        var executor = new AsyncService<Long>(ReceiptIPWorkers, toSendReceipt, SocketConfigOptions.RECEIPT_PORT);
+                        Thread.ofVirtual().start(() -> {
+                            var executor = new AsyncService<Long>(ReceiptIPWorkers, toSendReceipt, SocketConfigOptions.RECEIPT_PORT);
 
-                        var asyncResult = executor.startListProcess(300L);
-                        var result = executor.endProcess(asyncResult);
-                        MemoryReceiptPool.getInstance().delete(entry.getValue());
+                            var asyncResult = executor.startListProcess(300L);
+                            var result = executor.endProcess(asyncResult);
+                            MemoryReceiptPool.getInstance().delete(entry.getValue());
+                        });
                     }
                 }
             }
@@ -401,29 +405,10 @@ public class RegularBlock implements BlockForge, BlockInvent {
     @SneakyThrows
     @Override
     public void InventTransactionBlock(TransactionBlock transactionBlock) {
-
-        IDatabase<String, TransactionBlock> block_database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
-        IDatabase<String, byte[]> tree_database = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getPatriciaTreeZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
-
         transactionBlock.setStatustype(StatusType.SUCCES);
         transactionBlock.getTransactionList().forEach(val -> val.setStatus(StatusType.SUCCES));
 
-        block_database.save(String.valueOf(transactionBlock.getHeight()), transactionBlock);
-
-
-
-
-       /* Optional<TransactionBlock> val=block_database.findByKey(transactionBlock.getHash());
-        TransactionBlock blockclone= (TransactionBlock) val.get().clone();
-        blockclone.setSignatureData(new HashMap<BLSPublicKey, SignatureData>());
-        val.get().getSignatureData().entrySet().forEach(vall->{
-            boolean res1=BLSSignature.verify(vall.getValue().getSignature()[0],encode.encode(blockclone),vall.getKey());
-            boolean res2=BLSSignature.verify(vall.getValue().getSignature()[1],encode.encode(blockclone),vall.getKey());
-            if(!res1||!res2)
-                System.out.println("false");
-        });*/
-
-
+        
         if (!transactionBlock.getTransactionList().isEmpty()) {
             TreePoolConstructBlock.getInstance().visitInventTreePool(transactionBlock, TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()));
         }
@@ -448,7 +433,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
                             }));
 
         if (!transactionBlock.getOutbound().getMap_receipts().isEmpty()) {
-            (new Thread(() -> {
+            Thread.ofVirtual().start(() -> {
                 for (Map.Entry<Integer, LinkedHashMap<Receipt.ReceiptBlock, List<Receipt>>> entry : transactionBlock.getOutbound().getMap_receipts().entrySet()) {
                     List<String> ReceiptIPWorkers = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(entry.getKey()).values().stream().collect(Collectors.toList());
                     List<byte[]> toSendReceipt = new ArrayList<>();
@@ -459,7 +444,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
                     var asyncResult = executor.startListProcess(300L);
                     var result = executor.endProcess(asyncResult);
                 }
-            })).start();
+            });
         }
 
         if (CachedZoneIndex.getInstance().getZoneIndex() == 0 && transactionBlock.getHeight() % RewardConfiguration.BLOCK_REWARD_HEIGHT == 0) {
@@ -469,7 +454,12 @@ public class RegularBlock implements BlockForge, BlockInvent {
             CachedStartHeightRewards.getInstance().setRewardsCommitteeEnabled(false);
             CachedStartHeightRewards.getInstance().setHeight(transactionBlock.getHeight());
         }
-        tree_database.save(String.valueOf(CachedZoneIndex.getInstance().getZoneIndex()), patricia_tree_wrapper.encode_special(TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()), CustomFurySerializer.getInstance().getFury().serialize(TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex())).length));
+        Thread.ofVirtual().start(() -> {
+            IDatabase<String, TransactionBlock> block_database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
+            IDatabase<String, byte[]> tree_database = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getPatriciaTreeZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
+            block_database.save(String.valueOf(transactionBlock.getHeight()), transactionBlock);
+            tree_database.save(String.valueOf(CachedZoneIndex.getInstance().getZoneIndex()), patricia_tree_wrapper.encode_special(TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()), CustomFurySerializer.getInstance().getFury().serialize(TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex())).length));
+        });
         CachedLatestBlocks.getInstance().setTransactionBlock(transactionBlock);
         MemoryTransactionPool.getInstance().delete(transactionBlock.getTransactionList());
 

@@ -410,4 +410,116 @@ public class RpcAdrestusClient<T> {
         }
         return new PatriciaTreeResponse(null);
     }
+
+    public int getPort() {
+        return port;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
+    }
+
+    public String getHost() {
+        return host;
+    }
+
+    public void setHost(String host) {
+        this.host = host;
+    }
+
+    public static Logger getLOG() {
+        return LOG;
+    }
+
+    public static void setLOG(Logger LOG) {
+        RpcAdrestusClient.LOG = LOG;
+    }
+
+    public RpcClient getClient() {
+        return client;
+    }
+
+    public void setClient(RpcClient client) {
+        this.client = client;
+    }
+
+    public InetSocketAddress getInetSocketAddress() {
+        return inetSocketAddress;
+    }
+
+    public void setInetSocketAddress(InetSocketAddress inetSocketAddress) {
+        this.inetSocketAddress = inetSocketAddress;
+    }
+
+    public List<InetSocketAddress> getInetSocketAddresses() {
+        return inetSocketAddresses;
+    }
+
+    public void setInetSocketAddresses(List<InetSocketAddress> inetSocketAddresses) {
+        this.inetSocketAddresses = inetSocketAddresses;
+    }
+
+    public SerializationUtil getTransactionvalueMapper() {
+        return transactionvalueMapper;
+    }
+
+    public void setTransactionvalueMapper(SerializationUtil transactionvalueMapper) {
+        this.transactionvalueMapper = transactionvalueMapper;
+    }
+
+    public SerializationUtil getValueMapper2() {
+        return valueMapper2;
+    }
+
+    public void setValueMapper2(SerializationUtil valueMapper2) {
+        this.valueMapper2 = valueMapper2;
+    }
+
+    public SerializationUtil getValueMapper() {
+        return valueMapper;
+    }
+
+    public void setValueMapper(SerializationUtil valueMapper) {
+        this.valueMapper = valueMapper;
+    }
+
+    public T getTypeParameterClass() {
+        return typeParameterClass;
+    }
+
+    public void setTypeParameterClass(T typeParameterClass) {
+        this.typeParameterClass = typeParameterClass;
+    }
+
+    public Eventloop getEventloop() {
+        return eventloop;
+    }
+
+    public SerializerBuilder getRpc_serialize() {
+        return rpc_serialize;
+    }
+
+    public SerializationUtil<PatriciaTreeResponse> getSerializationUtil2() {
+        return serializationUtil2;
+    }
+
+    public void setSerializationUtil2(SerializationUtil<PatriciaTreeResponse> serializationUtil2) {
+        this.serializationUtil2 = serializationUtil2;
+    }
+
+    public SerializationUtil<ListBlockResponse> getSerializationUtil() {
+        return serializationUtil;
+    }
+
+    public void setSerializationUtil(SerializationUtil<ListBlockResponse> serializationUtil) {
+        this.serializationUtil = serializationUtil;
+    }
+
+    public int getTIMEOUT() {
+        return TIMEOUT;
+    }
+
+    public void setTIMEOUT(int TIMEOUT) {
+        this.TIMEOUT = TIMEOUT;
+    }
 }
