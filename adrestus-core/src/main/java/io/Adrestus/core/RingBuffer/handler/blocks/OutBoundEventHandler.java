@@ -97,6 +97,7 @@ public class OutBoundEventHandler implements BlockEventHandler<AbstractBlockEven
                 boolean check = PreconditionsChecks(receipt, entry.getKey(), outer_tree, transactionBlock, transaction, receipt.getPosition());
                 if (!check)
                     atomicInteger.decrementAndGet();
+                outer_tree.clear();
             });
         }
     }

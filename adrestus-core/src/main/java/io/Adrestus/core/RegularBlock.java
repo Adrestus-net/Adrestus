@@ -158,6 +158,8 @@ public class RegularBlock implements BlockForge, BlockInvent {
             }
         }
 
+        tree.clear();
+
         Map<Integer, Map<Receipt.ReceiptBlock, List<Receipt>>> outbound = receiptList
                 .stream()
                 .collect(Collectors.groupingBy(Receipt::getZoneTo, Collectors.groupingBy(Receipt::getReceiptBlock)));

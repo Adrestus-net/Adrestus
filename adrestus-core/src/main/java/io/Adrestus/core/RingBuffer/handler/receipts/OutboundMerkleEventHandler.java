@@ -31,5 +31,6 @@ public class OutboundMerkleEventHandler implements ReceiptEventHandler<ReceiptBl
             receiptBlockEvent.getReceiptBlock().setStatusType(StatusType.ABORT);
             return;
         }
+        outer_tree.clear();
     }
 }
