@@ -220,6 +220,75 @@ public class LevelDBConnectionManager<K, V> implements IDatabase<K, V> {
 
     @SneakyThrows
     @Override
+    public void save(K key, Object value, int length) {
+        w.lock();
+        try {
+            if (value instanceof String) {
+                byte[] serializedkey = keyMapper.encode(key);
+                byte[] serializedValue = valueMapper.encode(value);
+                level_db.put(serializedkey, serializedValue);
+            } else if (CONNECTION_NAME.contains("ReceiptDatabase")) {
+                final Optional<V> obj = findByKey(key);
+                final String str_key = (String) key;
+                final LevelDBReceiptWrapper<Object> wrapper;
+                if (obj == null) {
+                    wrapper = new LevelDBReceiptWrapper();
+                    wrapper.addTo(value);
+                } else if (obj.isEmpty()) {
+                    wrapper = new LevelDBReceiptWrapper();
+                    wrapper.addTo(value);
+                } else {
+                    wrapper = (LevelDBReceiptWrapper) obj.get();
+                    wrapper.addTo(value);
+                }
+                byte[] serializedkey = keyMapper.encode(key);
+                byte[] serializedValue = valueMapper.encode(wrapper);
+                level_db.put(serializedkey, serializedValue);
+                return;
+            } else {
+                final Optional<V> obj = findByKey(key);
+                final String str_key = (String) key;
+                final LevelDBTransactionWrapper<Object> wrapper;
+                Method m1 = value.getClass().getDeclaredMethod("getFrom", value.getClass().getClasses());
+                if (((String) m1.invoke(value)).equals(str_key)) {
+                    if (obj.isEmpty()) {
+                        wrapper = new LevelDBTransactionWrapper<Object>();
+                        wrapper.addFrom(value);
+                    } else {
+                        wrapper = (LevelDBTransactionWrapper) obj.get();
+                        wrapper.addFrom(value);
+                    }
+                } else {
+                    if (obj == null) {
+                        wrapper = new LevelDBTransactionWrapper();
+                        wrapper.addTo(value);
+                    } else if (obj.isEmpty()) {
+                        wrapper = new LevelDBTransactionWrapper();
+                        wrapper.addTo(value);
+                    } else {
+                        wrapper = (LevelDBTransactionWrapper) obj.get();
+                        wrapper.addTo(value);
+                    }
+                }
+                byte[] serializedkey = keyMapper.encode(key);
+                byte[] serializedValue = valueMapper.encode(wrapper);
+                level_db.put(serializedkey, serializedValue);
+                return;
+            }
+
+        } catch (final SerializationException exception) {
+            LOGGER.error("Serialization exception occurred during save operation. {}", exception.getMessage());
+            throw exception;
+        } catch (final Exception exception) {
+            LOGGER.error("Exception occurred during save operation. {}", exception.getMessage());
+            throw new SaveFailedException(exception.getMessage(), exception);
+        } finally {
+            w.unlock();
+        }
+    }
+
+    @SneakyThrows
+    @Override
     public void saveAll(Map<K, V> map) {
         w.lock();
         try {
