@@ -95,7 +95,7 @@ public class MerkleTreePlainImp implements Serializable, MerkleTree {
 
             this.merkleNodeHashMapByHash.get(0).put(leftMerkleNode.getTransactionHash(), leftMerkleNode);
             this.merkleNodeHashMapByIndex.get(0).put(0, leftMerkleNode);
-            this.merkleNodeHashMapByHash.get(0).put(rightMerkleNode.getTransactionHash() + DUPLICATE, rightMerkleNode);
+            this.merkleNodeHashMapByHash.get(0).put(rightMerkleNode.getTransactionHash(), rightMerkleNode);
             this.merkleNodeHashMapByIndex.get(0).put(1, rightMerkleNode);
 
             return;

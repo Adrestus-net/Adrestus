@@ -281,6 +281,11 @@ public class FullExampleErasureTest {
             System.out.println("Request with name \"" + currentName + "\": " + currentResponse);
             assertEquals("Hello Hello Hello, " + currentName + "!", currentResponse);
 
+            HashUtil.XXH3("Hello Hello Hello, " + currentName + "!");
+            BlockSizeCalculator blockSizeCalculator = new BlockSizeCalculator();
+            blockSizeCalculator.setTransactionBlock(transactionBlock);
+            byte[] buffer = encode.encode(transactionBlock, blockSizeCalculator.TransactionBlockSizeCalculator());
+            byte[] buffer2=serenc_erasure.encode(new SerializableErasureObject(new FECParameterObject(), buffer, new ArrayList<byte[]>()));
         } catch (Exception e) {
             // e.printStackTrace();
         }
@@ -434,12 +439,12 @@ public class FullExampleErasureTest {
         for (int i = 0; i < n.size(); i++) {
             SerializableErasureObject serializableErasureObject = new SerializableErasureObject(object, n.get(i).asArray(), new ArrayList<byte[]>());
             serializableErasureObjects.add(serializableErasureObject);
-            merkleNodes.add(new MerkleNode(HashUtil.sha256_bytetoString(serializableErasureObject.getOriginalPacketChunks())));
+            merkleNodes.add(new MerkleNode(HashUtil.XXH3(serializableErasureObject.getOriginalPacketChunks())));
         }
         tree.constructTree(merkleNodes);
         String original_hash = tree.getRootHash();
         for (int j = 0; j < serializableErasureObjects.size(); j++) {
-            tree.build_proofs(new MerkleNode(HashUtil.sha256_bytetoString(serializableErasureObjects.get(j).getOriginalPacketChunks())));
+            tree.build_proofs(new MerkleNode(HashUtil.XXH3(serializableErasureObjects.get(j).getOriginalPacketChunks())));
             serializableErasureObjects.get(j).setProofs(tree.getMerkleeproofs());
             serializableErasureObjects.get(j).setRootMerkleHash(tree.getRootHash());
         }

@@ -3,6 +3,7 @@ package io.Adrestus.consensus;
 import com.google.common.reflect.TypeToken;
 import io.Adrestus.Trie.MerkleNode;
 import io.Adrestus.Trie.MerkleTreeOptimizedImp;
+import io.Adrestus.Trie.MerkleTreePlainImp;
 import io.Adrestus.core.*;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedLeaderIndex;
@@ -193,11 +194,11 @@ public class OrganizerConsensusPhases {
             for (int i = 0; i < n.size(); i++) {
                 SerializableErasureObject serializableErasureObject = new SerializableErasureObject(object, n.get(i).asArray(), new ArrayList<byte[]>());
                 serializableErasureObjects.add(serializableErasureObject);
-                merkleNodes.add(new MerkleNode(Hex.encodeHexString(serializableErasureObject.getOriginalPacketChunks())));
+                merkleNodes.add(new MerkleNode(HashUtil.XXH3(serializableErasureObject.getOriginalPacketChunks())));
             }
             tree.constructTree(merkleNodes);
             for (int j = 0; j < serializableErasureObjects.size(); j++) {
-                tree.build_proofs(new MerkleNode(Hex.encodeHexString(serializableErasureObjects.get(j).getOriginalPacketChunks())));
+                tree.build_proofs(new MerkleNode(HashUtil.XXH3(serializableErasureObjects.get(j).getOriginalPacketChunks())));
                 serializableErasureObjects.get(j).setProofs(tree.getMerkleeproofs());
                 serializableErasureObjects.get(j).setRootMerkleHash(tree.getRootHash());
             }
