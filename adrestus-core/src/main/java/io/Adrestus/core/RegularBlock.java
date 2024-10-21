@@ -401,6 +401,10 @@ public class RegularBlock implements BlockForge, BlockInvent {
     @SneakyThrows
     @Override
     public void InventTransactionBlock(TransactionBlock transactionBlock) {
+        Thread.ofVirtual().start(() -> {
+            IDatabase<String, TransactionBlock> block_database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
+            block_database.save(String.valueOf(transactionBlock.getHeight()), transactionBlock);
+        });
         transactionBlock.setStatustype(StatusType.SUCCES);
         transactionBlock.getTransactionList().forEach(val -> val.setStatus(StatusType.SUCCES));
 
@@ -451,12 +455,10 @@ public class RegularBlock implements BlockForge, BlockInvent {
             CachedStartHeightRewards.getInstance().setHeight(transactionBlock.getHeight());
         }
         Thread.ofVirtual().start(() -> {
-            IDatabase<String, TransactionBlock> block_database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
             IDatabase<String, byte[]> tree_database = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getPatriciaTreeZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
-            block_database.save(String.valueOf(transactionBlock.getHeight()), transactionBlock);
             tree_database.save(String.valueOf(CachedZoneIndex.getInstance().getZoneIndex()), patricia_tree_wrapper.encode_special(TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()), CustomFurySerializer.getInstance().getFury().serialize(TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex())).length));
         });
-        CachedLatestBlocks.getInstance().setTransactionBlock(transactionBlock);
+        CachedLatestBlocks.getInstance().setTransactionBlock((TransactionBlock) transactionBlock.clone());
         MemoryTransactionPool.getInstance().delete(transactionBlock.getTransactionList());
 
         //Sync committee block from zone0

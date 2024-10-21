@@ -64,8 +64,6 @@ public class ValidatorRewardCalculator implements RewardHandler {
         });
 
 
-        Map<String, RewardObject> maps = CachedRewardMapData.getInstance().getEffective_stakes_map();
-
         for (Map.Entry<String, RewardObject> entry : CachedRewardMapData.getInstance().getEffective_stakes_map().entrySet()) {
             PatriciaTreeNode patriciaTreeNode = TreeFactory.getMemoryTree(0).getByaddress(entry.getKey()).get();
             BigDecimal block_reward = CustomBigDecimal.valueOf(entry.getValue().getBlock_participation()).multiply(CustomBigDecimal.valueOf(RewardConfiguration.TRANSACTION_REWARD_PER_BLOCK)).multiply(entry.getValue().getEffective_stake_ratio()).setScale(RewardConfiguration.DECIMAL_PRECISION, RewardConfiguration.ROUNDING);
