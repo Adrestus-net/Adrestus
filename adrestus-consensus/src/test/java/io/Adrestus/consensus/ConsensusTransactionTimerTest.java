@@ -4,6 +4,7 @@ import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.config.KademliaConfiguration;
+import io.Adrestus.config.RewardConfiguration;
 import io.Adrestus.consensus.helper.ConsensusTransactionTimer;
 import io.Adrestus.core.CommitteeBlock;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
@@ -337,23 +338,24 @@ public class ConsensusTransactionTimerTest {
                 claimed.put(address, sum.add(claimed.get(address)));
         }
 
-        assertEquals(TreeFactory.getMemoryTree(0).getByaddress("ADR-AB2W-RIQY-LSIH-CXQQ-FGRV-AINR-57RO-NFXU-IWM5-IANJ").get().getUnclaimed_reward(), TreeFactory.getMemoryTree(0).getByaddress("ADR-AB2W-RIQY-LSIH-CXQQ-FGRV-AINR-57RO-NFXU-IWM5-IANJ").get().getUnclaimed_reward().subtract(claimed.get("ADR-AB2W-RIQY-LSIH-CXQQ-FGRV-AINR-57RO-NFXU-IWM5-IANJ")));
-        assertEquals(TreeFactory.getMemoryTree(0).getByaddress("ADR-ACAO-BKTC-CFKG-VXWF-PSI2-QHWR-ZIGK-CCOL-LGJN-CM3U").get().getUnclaimed_reward(), TreeFactory.getMemoryTree(0).getByaddress("ADR-ACAO-BKTC-CFKG-VXWF-PSI2-QHWR-ZIGK-CCOL-LGJN-CM3U").get().getUnclaimed_reward().subtract(claimed.get("ADR-ACAO-BKTC-CFKG-VXWF-PSI2-QHWR-ZIGK-CCOL-LGJN-CM3U")));
-        assertEquals(TreeFactory.getMemoryTree(0).getByaddress("ADR-AB2W-RIQY-LSIH-CXQQ-FGRV-AINR-57RO-NFXU-IWM5-IANJ").get().getUnclaimed_reward(), TreeFactory.getMemoryTree(0).getByaddress("address").get().getUnclaimed_reward().subtract(claimed.get("ADR-AB2W-RIQY-LSIH-CXQQ-FGRV-AINR-57RO-NFXU-IWM5-IANJ")));
+        //be aware that print functionality is  different it works only for latch 5
+        assertEquals(1.784998, TreeFactory.getMemoryTree(0).getByaddress("ADR-ACAO-BKTC-CFKG-VXWF-PSI2-QHWR-ZIGK-CCOL-LGJN-CM3U").get().getUnclaimed_reward().subtract(claimed.get("ADR-ACAO-BKTC-CFKG-VXWF-PSI2-QHWR-ZIGK-CCOL-LGJN-CM3U")).doubleValue());
+        assertEquals(1.190001, TreeFactory.getMemoryTree(0).getByaddress("ADR-AADE-ROH3-CAFV-XK5V-2NKZ-QMTG-SFMC-37W5-SHUV-2T46").get().getUnclaimed_reward().subtract(claimed.get("ADR-AADE-ROH3-CAFV-XK5V-2NKZ-QMTG-SFMC-37W5-SHUV-2T46")).doubleValue());
+        assertEquals(BigDecimal.valueOf(2.473339-0.10).setScale(RewardConfiguration.DECIMAL_PRECISION,RewardConfiguration.ROUNDING), TreeFactory.getMemoryTree(0).getByaddress("ADR-AB2W-RIQY-LSIH-CXQQ-FGRV-AINR-57RO-NFXU-IWM5-IANJ").get().getUnclaimed_reward().subtract(claimed.get("ADR-AB2W-RIQY-LSIH-CXQQ-FGRV-AINR-57RO-NFXU-IWM5-IANJ")));
 
-        assertEquals(1.190001, TreeFactory.getMemoryTree(0).getByaddress("ADR-AADE-ROH3-CAFV-XK5V-2NKZ-QMTG-SFMC-37W5-SHUV-2T46").get().getUnclaimed_reward().subtract(claimed.get("ADR-AADE-ROH3-CAFV-XK5V-2NKZ-QMTG-SFMC-37W5-SHUV-2T46")));
-        assertEquals(1.784998, TreeFactory.getMemoryTree(0).getByaddress("ADR-ACAO-BKTC-CFKG-VXWF-PSI2-QHWR-ZIGK-CCOL-LGJN-CM3U").get().getUnclaimed_reward().subtract(claimed.get("ADR-ACAO-BKTC-CFKG-VXWF-PSI2-QHWR-ZIGK-CCOL-LGJN-CM3U")));
-        assertEquals(2.473339, TreeFactory.getMemoryTree(0).getByaddress("ADR-AB2W-RIQY-LSIH-CXQQ-FGRV-AINR-57RO-NFXU-IWM5-IANJ").get().getUnclaimed_reward().subtract(claimed.get("ADR-AB2W-RIQY-LSIH-CXQQ-FGRV-AINR-57RO-NFXU-IWM5-IANJ")));
-        //be aware that print functionality is  different
-        assertEquals(992.219993, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(0)).get().getAmount());
-        assertEquals(984.8, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(1)).get().getAmount());
-        assertEquals(993.3999999999999, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(2)).get().getAmount());
-        assertEquals(993.0, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(3)).get().getAmount());
-        assertEquals(1008.0000000000001, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(4)).get().getAmount());
-        assertEquals(996.1, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(5)).get().getAmount());
-        assertEquals(1013.5, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(6)).get().getAmount());
-        assertEquals(1000.0, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(7)).get().getAmount());
-        assertEquals(1000.0, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(8)).get().getAmount());
+        assertEquals(1.190001, TreeFactory.getMemoryTree(0).getByaddress("ADR-AADE-ROH3-CAFV-XK5V-2NKZ-QMTG-SFMC-37W5-SHUV-2T46").get().getUnclaimed_reward().subtract(claimed.get("ADR-AADE-ROH3-CAFV-XK5V-2NKZ-QMTG-SFMC-37W5-SHUV-2T46")).doubleValue());
+        assertEquals(1.784998, TreeFactory.getMemoryTree(0).getByaddress("ADR-ACAO-BKTC-CFKG-VXWF-PSI2-QHWR-ZIGK-CCOL-LGJN-CM3U").get().getUnclaimed_reward().subtract(claimed.get("ADR-ACAO-BKTC-CFKG-VXWF-PSI2-QHWR-ZIGK-CCOL-LGJN-CM3U")).doubleValue());
+        assertEquals(BigDecimal.valueOf(2.473339-0.10).setScale(RewardConfiguration.DECIMAL_PRECISION,RewardConfiguration.ROUNDING), TreeFactory.getMemoryTree(0).getByaddress("ADR-AB2W-RIQY-LSIH-CXQQ-FGRV-AINR-57RO-NFXU-IWM5-IANJ").get().getUnclaimed_reward().subtract(claimed.get("ADR-AB2W-RIQY-LSIH-CXQQ-FGRV-AINR-57RO-NFXU-IWM5-IANJ")));
+
+        assertEquals(989.1, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(0)).get().getAmount().doubleValue());
+        assertEquals(984.8, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(1)).get().getAmount().doubleValue());
+        assertEquals(993.4, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(2)).get().getAmount().doubleValue());
+        assertEquals(993.0, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(3)).get().getAmount().doubleValue());
+        assertEquals(1008.0, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(4)).get().getAmount().doubleValue());
+        assertEquals(996.1, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(5)).get().getAmount().doubleValue());
+        assertEquals(1013.5, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(6)).get().getAmount().doubleValue());
+        assertEquals(1000.0, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(7)).get().getAmount().doubleValue());
+        assertEquals(1000.0, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(8)).get().getAmount().doubleValue());
 
 
     }

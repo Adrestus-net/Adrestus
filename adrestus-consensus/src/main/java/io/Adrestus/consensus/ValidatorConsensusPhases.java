@@ -31,6 +31,7 @@ import io.Adrestus.erasure.code.parameters.FECParameterObject;
 import io.Adrestus.erasure.code.parameters.FECParameters;
 import io.Adrestus.network.CachedEventLoop;
 import io.Adrestus.network.ConsensusClient;
+import io.Adrestus.network.ConsensusServer;
 import io.Adrestus.rpc.CachedSerializableErasureObject;
 import io.Adrestus.rpc.RpcErasureClient;
 import io.Adrestus.util.ByteUtil;

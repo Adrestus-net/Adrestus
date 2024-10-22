@@ -40,10 +40,11 @@ public class TransactionsMerkleeEventHandler implements BlockEventHandler<Abstra
             if (!tree.getRootHash().equals(transactionBlock.getMerkleRoot())) {
                 LOG.info("Transaction Merklee root is not valid");
                 transactionBlock.setStatustype(StatusType.ABORT);
+                tree.clear();
                 return;
             }
 
-
+         tree.clear();
         } catch (NullPointerException ex) {
             LOG.info("Block is empty");
         }

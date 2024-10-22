@@ -98,6 +98,7 @@ public class OutBoundEventHandler implements BlockEventHandler<AbstractBlockEven
                 if (!check)
                     atomicInteger.decrementAndGet();
 
+                outer_tree.clear();
             });
         }
     }

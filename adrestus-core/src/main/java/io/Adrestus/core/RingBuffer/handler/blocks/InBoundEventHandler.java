@@ -2,7 +2,6 @@ package io.Adrestus.core.RingBuffer.handler.blocks;
 
 import io.Adrestus.Trie.MerkleNode;
 import io.Adrestus.Trie.MerkleTreeOptimizedImp;
-import io.Adrestus.config.NetworkConfiguration;
 import io.Adrestus.core.*;
 import io.Adrestus.core.Resourses.CachedInboundTransactionBlocks;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
@@ -32,7 +31,7 @@ public class InBoundEventHandler implements BlockEventHandler<AbstractBlockEvent
 
     private final IBlockIndex blockIndex;
     private final ReceiptEventPublisher publisher;
-    private final RpcAdrestusClient<TransactionBlock> client_zone0,client_zone1, client_zone2, client_zone3;
+    private final RpcAdrestusClient<TransactionBlock> client_zone0, client_zone1, client_zone2, client_zone3;
     private TransactionBlock transactionBlock, transactionBlockClonable;
     private CommitteeBlock committeeBlock;
     private LinkedHashMap<Integer, LinkedHashMap<Receipt.ReceiptBlock, List<Receipt>>> inner_receipts;
@@ -101,16 +100,16 @@ public class InBoundEventHandler implements BlockEventHandler<AbstractBlockEvent
                     Map<Receipt.ReceiptBlock, List<Receipt>> zone = inner_receipts.get(key);
                     switch (key) {
                         case 0:
-                            ServiceSubmit(client_zone0,key, zone);
+                            ServiceSubmit(client_zone0, key, zone);
                             break;
                         case 1:
-                            ServiceSubmit(client_zone1,key, zone);
+                            ServiceSubmit(client_zone1, key, zone);
                         case 2:
-                            ServiceSubmit(client_zone2,key, zone);
+                            ServiceSubmit(client_zone2, key, zone);
                         case 3:
-                            ServiceSubmit(client_zone3,key, zone);
+                            ServiceSubmit(client_zone3, key, zone);
                         default:
-                            ServiceSubmit(client_zone0,key, zone);
+                            ServiceSubmit(client_zone0, key, zone);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -133,7 +132,7 @@ public class InBoundEventHandler implements BlockEventHandler<AbstractBlockEvent
 
 
     @SneakyThrows
-    public void ServiceSubmit(RpcAdrestusClient client,int zoneIndex, Map<Receipt.ReceiptBlock, List<Receipt>> zone) {
+    public void ServiceSubmit(RpcAdrestusClient client, int zoneIndex, Map<Receipt.ReceiptBlock, List<Receipt>> zone) {
 
         //find validator position in structure map
         Integer my_pos = blockIndex.getPublicKeyIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedBLSKeyPair.getInstance().getPublicKey());
@@ -216,6 +215,7 @@ public class InBoundEventHandler implements BlockEventHandler<AbstractBlockEvent
                 publisher.getLatch().await();
                 publisher.getJobSyncUntilRemainingCapacityZero();
             }
+            outer_tree.clear();
         }
     }
 

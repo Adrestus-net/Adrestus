@@ -1,9 +1,12 @@
 package io.Adrestus.network;
 
 import io.Adrestus.config.ConsensusConfiguration;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.spongycastle.util.encoders.Hex;
 import org.zeromq.SocketType;
 import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
@@ -12,16 +15,14 @@ import org.zeromq.ZMQException;
 import java.nio.charset.StandardCharsets;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.*;
 
 import static io.Adrestus.config.ConsensusConfiguration.*;
 
 public class ConsensusServer {
 
     private static Logger LOG = LoggerFactory.getLogger(ConsensusServer.class);
+    private static final int PHASES = 2;
     private static volatile ConsensusServer instance;
 
     private final ZContext ctx;
@@ -39,137 +40,14 @@ public class ConsensusServer {
     private CountDownLatch latch;
     private CountDownLatch receive_latch;
     private int peers_not_connected;
+    private SharedResource sharedResource;
 
     private int MAX_MESSAGES;
     private final ExecutorService executorService;
 
-    private final LinkedBlockingDeque<byte[]> message_deque;
-
-//    public ConsensusServer(String IP, CountDownLatch latch) {
-//        this.executorService = Executors.newSingleThreadExecutor();
-//        this.message_deque = new LinkedBlockingDeque<>();
-//        this.peers_not_connected = 0;
-//        this.terminate = false;
-//        this.IP = IP;
-//        this.latch = latch;
-//        this.ctx = new ZContext();
-//        this.publisher = ctx.createSocket(SocketType.PUB);
-//        this.collector = ctx.createSocket(SocketType.PULL);
-//        this.connected = ctx.createSocket(SocketType.REP);
-//        this.chunksCollector = ctx.createSocket(SocketType.ROUTER);
-//
-//        this.connected.setLinger(200);
-//        this.connected.setHWM(1);
-//        this.connected.setConflate(true);
-//        this.publisher.setLinger(200);
-//        this.publisher.setHWM(3);
-//        this.publisher.setConflate(true);
-////        this.chunksCollector.setHWM(10000);
-//
-//        this.chunksCollector.bind("tcp://" + IP + ":" + CHUNKS_COLLECTOR_PORT);
-//        this.publisher.bind("tcp://" + IP + ":" + PUBLISHER_PORT);
-//        this.collector.bind("tcp://" + IP + ":" + COLLECTOR_PORT);
-//        this.connected.bind("tcp://" + IP + ":" + CONNECTED_PORT);
-//
-//        this.collector.setReceiveTimeOut(CONSENSUS_COLLECTED_TIMEOUT);
-//        this.publisher.setSendTimeOut(CONSENSUS_PUBLISHER_TIMEOUT);
-//
-//        this.connected.setSendTimeOut(CONSENSUS_CONNECTED_SEND_TIMEOUT);
-//        this.connected.setReceiveTimeOut(CONSENSUS_CONNECTED_RECEIVE_TIMEOUT);
-//
-//        this.chunksCollector.setSendTimeOut(CONSENSUS_CONNECTED_SEND_TIMEOUT);
-//        this.chunksCollector.setReceiveTimeOut(CONSENSUS_CONNECTED_RECEIVE_TIMEOUT);
-//        this.chunksCollector.setSndHWM(0);
-//
-//        this.timer = new Timer(ConsensusConfiguration.CONSENSUS);
-//        this.task = new ConnectedTaskTimeout();
-//        this.BlockUntilConnected();
-//    }
-
-//    public ConsensusServer(String IP, CountDownLatch latch, int random) {
-//        this.executorService = Executors.newSingleThreadExecutor();
-//        this.message_deque = new LinkedBlockingDeque<>();
-//        this.peers_not_connected = 0;
-//        this.terminate = false;
-//        this.IP = IP;
-//        this.latch = latch;
-//        this.ctx = new ZContext();
-//        this.publisher = ctx.createSocket(SocketType.PUB);
-//        this.collector = ctx.createSocket(SocketType.PULL);
-//        this.connected = ctx.createSocket(SocketType.REP);
-//        this.chunksCollector = ctx.createSocket(SocketType.ROUTER);
-//
-//        this.connected.setLinger(200);
-//        this.connected.setHWM(1);
-//        this.connected.setConflate(true);
-//        this.publisher.setLinger(200);
-//        this.publisher.setHWM(3);
-//        this.publisher.setConflate(true);
-////        this.chunksCollector.setHWM(10000);
-//
-//        this.chunksCollector.bind("tcp://" + IP + ":" + CHUNKS_COLLECTOR_PORT);
-//        this.publisher.bind("tcp://" + IP + ":" + PUBLISHER_PORT);
-//        this.collector.bind("tcp://" + IP + ":" + COLLECTOR_PORT);
-//        this.connected.bind("tcp://" + IP + ":" + CONNECTED_PORT);
-//
-//        this.collector.setReceiveTimeOut(CONSENSUS_COLLECTED_TIMEOUT);
-//        this.publisher.setSendTimeOut(CONSENSUS_PUBLISHER_TIMEOUT);
-//
-//        this.connected.setSendTimeOut(CONSENSUS_CONNECTED_SEND_TIMEOUT);
-//        this.connected.setReceiveTimeOut(CONSENSUS_CONNECTED_RECEIVE_TIMEOUT);
-//
-//        this.chunksCollector.setSendTimeOut(CONSENSUS_CONNECTED_SEND_TIMEOUT);
-//        this.chunksCollector.setReceiveTimeOut(CONSENSUS_CONNECTED_RECEIVE_TIMEOUT);
-//        this.chunksCollector.setSndHWM(0);
-//
-//        this.timer = new Timer(ConsensusConfiguration.CONSENSUS);
-//        this.task = new ConnectedTaskTimeout();
-//    }
-
-//    public ConsensusServer(String IP, CountDownLatch latch, int collector_timeout, int connected_timeout) {
-//        this.executorService = Executors.newSingleThreadExecutor();
-//        this.message_deque = new LinkedBlockingDeque<>();
-//        this.peers_not_connected = 0;
-//        this.terminate = false;
-//        this.IP = IP;
-//        this.latch = latch;
-//        this.ctx = new ZContext();
-//        this.publisher = ctx.createSocket(SocketType.PUB);
-//        this.collector = ctx.createSocket(SocketType.PULL);
-//        this.connected = ctx.createSocket(SocketType.REP);
-//        this.chunksCollector = ctx.createSocket(SocketType.ROUTER);
-//
-//        this.connected.setLinger(200);
-//        this.connected.setHWM(1);
-//        this.connected.setConflate(true);
-//        this.publisher.setLinger(200);
-//        this.publisher.setHWM(3);
-//        this.publisher.setConflate(true);
-////        this.chunksCollector.setHWM(10000);
-//
-//        this.chunksCollector.bind("tcp://" + IP + ":" + CHUNKS_COLLECTOR_PORT);
-//        this.publisher.bind("tcp://" + IP + ":" + PUBLISHER_PORT);
-//        this.collector.bind("tcp://" + IP + ":" + COLLECTOR_PORT);
-//        this.connected.bind("tcp://" + IP + ":" + CONNECTED_PORT);
-//
-//        this.collector.setReceiveTimeOut(collector_timeout);
-//        this.publisher.setSendTimeOut(CONSENSUS_TIMEOUT);
-//
-//        this.connected.setSendTimeOut(connected_timeout);
-//        this.connected.setReceiveTimeOut(connected_timeout);
-//
-//        this.chunksCollector.setSendTimeOut(connected_timeout);
-//        this.chunksCollector.setReceiveTimeOut(connected_timeout);
-//        this.chunksCollector.setSndHWM(0);
-//
-//        this.timer = new Timer(ConsensusConfiguration.CONSENSUS);
-//        this.task = new ConnectedTaskTimeout();
-//        this.BlockUntilConnected();
-//    }
 
     private ConsensusServer(String IP) {
         this.executorService = Executors.newSingleThreadExecutor();
-        this.message_deque = new LinkedBlockingDeque<>();
         this.IP = IP;
         this.receive_latch = new CountDownLatch(1);
         this.peers_not_connected = 0;
@@ -182,10 +60,11 @@ public class ConsensusServer {
 
 
         this.connected.setLinger(200);
-        this.connected.setHWM(1);
         this.connected.setConflate(true);
         this.publisher.setLinger(200);
-        this.publisher.setHWM(3);
+        this.publisher.setHWM(1000);
+        this.connected.setHWM(1000);
+        this.collector.setHWM(1000);
         this.publisher.setConflate(true);
 
         this.chunksCollector.bind("tcp://" + IP + ":" + CHUNKS_COLLECTOR_PORT);
@@ -208,7 +87,6 @@ public class ConsensusServer {
     private ConsensusServer(String IP, int MAX_MESSAGES) {
         this.MAX_MESSAGES = MAX_MESSAGES;
         this.executorService = Executors.newSingleThreadExecutor();
-        this.message_deque = new LinkedBlockingDeque<>();
         this.IP = IP;
         this.receive_latch = new CountDownLatch(1);
         this.ctx = new ZContext();
@@ -219,7 +97,9 @@ public class ConsensusServer {
 
 
         this.publisher.setLinger(200);
-        this.publisher.setHWM(3);
+        this.publisher.setHWM(1000);
+        this.connected.setHWM(1000);
+        this.collector.setHWM(1000);
         this.publisher.setConflate(true);
 
         this.chunksCollector.bind("tcp://" + IP + ":" + CHUNKS_COLLECTOR_PORT);
@@ -235,7 +115,6 @@ public class ConsensusServer {
 
     private ConsensusServer() {
         this.executorService = Executors.newSingleThreadExecutor();
-        this.message_deque = new LinkedBlockingDeque<>();
         this.IP = IPFinder.getLocalIP();
         this.receive_latch = new CountDownLatch(1);
         this.peers_not_connected = 0;
@@ -247,10 +126,11 @@ public class ConsensusServer {
         this.chunksCollector = ctx.createSocket(SocketType.ROUTER);
 
         this.connected.setLinger(200);
-        this.connected.setHWM(1);
         this.connected.setConflate(true);
         this.publisher.setLinger(200);
-        this.publisher.setHWM(3);
+        this.publisher.setHWM(1000);
+        this.connected.setHWM(1000);
+        this.collector.setHWM(1000);
         this.publisher.setConflate(true);
 
         this.chunksCollector.bind("tcp://" + IP + ":" + CHUNKS_COLLECTOR_PORT);
@@ -272,13 +152,11 @@ public class ConsensusServer {
     public static ConsensusServer getInstance() {
         var result = instance;
         if (result == null) {
-            synchronized (ConsensusServer.class) {
                 result = instance;
                 if (result == null) {
                     result = new ConsensusServer();
                     instance = result;
                 }
-            }
         }
         return result;
     }
@@ -368,43 +246,27 @@ public class ConsensusServer {
 
     @SneakyThrows
     public byte[] receiveData() {
-        while (message_deque.isEmpty()) {
-            this.receive_latch.await();
-            this.receive_latch = new CountDownLatch(1);
+        Consumer task = new Consumer(this.sharedResource);
+        task.setFinish(-1);
+        Thread vThreadExecution = Thread.ofVirtual().start(task);
+        vThreadExecution.join();
+        byte[] data = null;
+        if (!task.resource.message_deque.isEmpty()) {
+            data = task.resource.message_deque.pollFirst();
+            System.out.println("Data received"+task.resource.message_deque.size());
+            if (task.resource.message_deque.isEmpty()) {
+                task.setFinish(0);
+                Thread vThreadFinishConsumeExecution = Thread.ofVirtual().start(task);
+                vThreadFinishConsumeExecution.join();
+            }
         }
-        // System.out.println("take");
-        return message_deque.pollFirst();
+        return data;
     }
 
+    @SneakyThrows
     public void receive_handler() {
-        Runnable runnableTask = () -> {
-            byte[] data = {1};
-            while (MAX_MESSAGES > 0) {
-                //available.acquire();
-                //         System.out.println("acquire");
-                try {
-                    data = collector.recv(0);
-                } catch (ZMQException e) {
-                    if (e.getErrorCode() != 156384765) {
-                        LOG.info("ZMQ EXCEPTION caught");
-                    }
-                } catch (NullPointerException exception) {
-                    LOG.info("NullPointerException caught " + exception.toString());
-                }
-                if (data != null) {
-                    message_deque.add(data);
-                    MAX_MESSAGES--;
-                } else {
-                    message_deque.add(new byte[0]);
-                    MAX_MESSAGES--;
-                }
-                this.receive_latch.countDown();
-                // System.out.println("receive" + MESSAGES);
-                // System.out.println("receive" + MESSAGES);
-                // available.release();
-            }
-        };
-        this.executorService.execute(runnableTask);
+        Producer task = new Producer(this.sharedResource);
+        Thread.ofVirtual().start(task);
     }
 
     public String receiveStringData() {
@@ -429,8 +291,9 @@ public class ConsensusServer {
             byte[] recv2 = chunksCollector.recv();
             return recv2;
         } catch (NullPointerException e) {
-            //e.printStackTrace();
+            e.printStackTrace();
         } catch (ZMQException e) {
+            e.printStackTrace();
             if (e.getErrorCode() == 156384765) {
             } else {
                 LOG.info("ZMQException" + e.toString());
@@ -487,8 +350,13 @@ public class ConsensusServer {
         this.latch = latch;
     }
 
+    public void resetSharedResource() {
+        this.sharedResource = new SharedResource();
+    }
+
     public void close() {
         instance = null;
+        this.sharedResource.clear();
         if (this.executorService != null) {
             this.executorService.shutdownNow().clear();
         }
@@ -546,6 +414,126 @@ public class ConsensusServer {
         public boolean cancel() {
             super.cancel();
             return true;
+        }
+    }
+
+    private final class Consumer implements Runnable {
+        private final SharedResource resource;
+        private int finish;
+
+        public Consumer(SharedResource resource) {
+            this.resource = resource;
+        }
+
+
+        @SneakyThrows
+        @Override
+        public void run() {
+            this.resource.consume(finish);
+        }
+
+        public SharedResource getResource() {
+            return resource;
+        }
+
+        public int getFinish() {
+            return finish;
+        }
+
+        public void setFinish(int finish) {
+            this.finish = finish;
+        }
+    }
+
+    private final class Producer implements Runnable {
+        private final SharedResource resource;
+
+        public Producer(SharedResource resource) {
+            this.resource = resource;
+        }
+
+        @SneakyThrows
+        @Override
+        public void run() {
+            int connected_validators = MAX_MESSAGES / 2;
+            for (int i = 0; i < PHASES; i++) {
+                this.resource.produce(0);
+                System.out.println("after_prd_release "+resource.isProduced());
+                int unique = 0;
+                ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
+                while (unique < connected_validators) {
+                    Runnable task = () -> {
+                        byte[] data = {1};
+                        try {
+                            System.out.println("before rec");
+                            data = collector.recv(0);
+                            System.out.println("Rec" + Hex.toHexString(data));
+                        } catch (ZMQException e) {
+                            if (e.getErrorCode() != 156384765) {
+                                LOG.info("ZMQ EXCEPTION caught");
+                            }
+                        } catch (NullPointerException exception) {
+                            LOG.info("NullPointerException caught " + exception.toString());
+                        }
+                        if (data != null) {
+                            this.resource.getMessage_deque().add(data);
+                        } else {
+                            this.resource.getMessage_deque().add(new byte[0]);
+                        }
+                    };
+                    executor.submit(task);
+                    unique++;
+                }
+                executor.shutdown();
+                try {
+                    executor.awaitTermination(CONSENSUS_CONNECTED_RECEIVE_TIMEOUT, TimeUnit.SECONDS);
+                } catch (InterruptedException e) {
+
+                }
+                System.out.println();
+                this.resource.produce(1);
+                executor.shutdownNow();
+                executor.close();
+            }
+        }
+    }
+
+    private final class SharedResource {
+        @Getter
+        private final LinkedBlockingDeque<byte[]> message_deque;
+        @Getter
+        @Setter
+        private boolean isProduced = true;
+
+        public SharedResource() {
+            this.message_deque = new LinkedBlockingDeque<>();
+        }
+
+        public synchronized void produce(int finish) throws InterruptedException {
+            while (!isProduced) {
+                wait();
+                System.out.println("Prod release" + finish);
+            }
+            if (finish == 1) {
+                isProduced = false;
+                notify();
+            }
+        }
+
+        public synchronized void consume(int finish) throws InterruptedException {
+            while (isProduced) {
+                wait();
+            }
+            if (finish == 0) {
+                System.out.println("Consume release" + finish);
+                isProduced = true;
+                notify();
+            }
+        }
+
+        public void clear() {
+            this.message_deque.clear();
+            this.isProduced = true;
         }
     }
 }

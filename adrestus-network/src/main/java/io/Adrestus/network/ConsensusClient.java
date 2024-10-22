@@ -18,9 +18,7 @@ import static io.Adrestus.config.ConsensusConfiguration.*;
 public class ConsensusClient {
 
     private static Logger LOG = LoggerFactory.getLogger(ConsensusClient.class);
-    private int MESSAGES = 6;
     private int MAX_MESSAGES = 6;
-    private static final int MAX_AVAILABLE = 6;
     private ZContext ctx;
     private final ZMQ.Socket subscriber;
     private final ZMQ.Socket push;
@@ -203,7 +201,7 @@ public class ConsensusClient {
     public void receive_handler() {
         Runnable runnableTask = () -> {
             byte[] data = {1};
-            while (MESSAGES > 0 && MAX_MESSAGES > 0) {
+            while (MAX_MESSAGES > 0) {
                 //available.acquire();
                 //         System.out.println("acquire");
                 try {
@@ -220,7 +218,6 @@ public class ConsensusClient {
                 } else {
                     message_deque.add(new byte[0]);
                 }
-                MESSAGES--;
                 MAX_MESSAGES--;
                 receive_latch.countDown();
             }

@@ -1,6 +1,9 @@
 package io.Adrestus.crypto;
 
 import io.Adrestus.config.AdrestusConfiguration;
+import io.Adrestus.crypto.bls.model.BLSPrivateKey;
+import io.Adrestus.crypto.bls.model.BLSPublicKey;
+import io.Adrestus.crypto.bls.model.BLSSignature;
 import io.Adrestus.crypto.elliptic.*;
 import org.conscrypt.Conscrypt;
 import org.junit.jupiter.api.Test;
@@ -10,10 +13,12 @@ import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 import org.spongycastle.util.encoders.Hex;
+
 import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.security.spec.ECGenParameterSpec;
 import java.util.concurrent.TimeUnit;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @BenchmarkMode({Mode.Throughput})
@@ -30,10 +35,12 @@ public class ECKeyPaiMeasurementsTest {
     private static byte[] signature2;
     private static KeyPair keyPair;
     private static Signature ecdsaVerify;
+    private static io.Adrestus.crypto.bls.model.Signature bls_sig;
+    private static BLSPublicKey vk;
 
     static {
         Security.addProvider(Conscrypt.newProvider());
-        Security.insertProviderAt(Conscrypt.newProvider(),0);
+        Security.insertProviderAt(Conscrypt.newProvider(), 0);
     }
 
     @Setup(Level.Trial)
@@ -42,6 +49,12 @@ public class ECKeyPaiMeasurementsTest {
         SecureRandom random = SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
         random.setSeed(Hex.decode(mnemonic_code));
 
+        //Bls Test speed//////////////////////////////////////////
+        BLSPrivateKey sk = new BLSPrivateKey(42);
+        vk = new BLSPublicKey(sk);
+
+        bls_sig = BLSSignature.sign(message.getBytes(StandardCharsets.UTF_8), sk);
+        //Bls Test speed//////////////////////////////////////////
         //Adrestus Implementation//////////////////////////////////////////
         ecKeyPair = Keys.createEcKeyPair(random);
         ecdsaSign = new ECDSASign();
@@ -72,6 +85,11 @@ public class ECKeyPaiMeasurementsTest {
         ecdsaVerify = Signature.getInstance("SHA256withECDSA", "Conscrypt");
         //ConscryptImplementation//////////////////////////////////////////
 
+    }
+
+    @Benchmark
+    public static void BLS() {
+        assertEquals(true, BLSSignature.verify(bls_sig, message.getBytes(StandardCharsets.UTF_8), vk));
     }
 
     @Threads(24)

@@ -27,6 +27,8 @@ public class ConsensusConfiguration {
     public static final int CONSENSUS_WAIT_TIMEOUT = 2 * 1000;
     public static int CHANGE_VIEW_STATE_TRANSITION = 4;
 
+    public static final int DATABASE_SAVE_WAIT_TIMEOUT = 10 * 1000;
+
     public static int EPOCH_TRANSITION = 15;
 
     public static final String CONSENSUS = "CONSENSUS";

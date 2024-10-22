@@ -46,8 +46,14 @@ import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.security.SecureRandom;
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static io.Adrestus.config.ConsensusConfiguration.CONSENSUS_CONNECTED_RECEIVE_TIMEOUT;
+import static io.Adrestus.config.ConsensusConfiguration.DATABASE_SAVE_WAIT_TIMEOUT;
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toCollection;
@@ -66,6 +72,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
 
     private final BlockSizeCalculator blockSizeCalculator;
 
+    private MerkleTreeOptimizedImp tree;
     private RegularBlock() {
         if (instance != null) {
             throw new IllegalStateException("Already initialized.");
@@ -104,7 +111,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
 
     @Override
     public void forgeTransactionBlock(TransactionBlock transactionBlock) throws Exception {
-        MerkleTreeOptimizedImp tree = new MerkleTreeOptimizedImp();
+        tree = new MerkleTreeOptimizedImp();
         ArrayList<MerkleNode> merkleNodeArrayList = new ArrayList<>();
         transactionBlock.getHeaderData().setPreviousHash(CachedLatestBlocks.getInstance().getTransactionBlock().getHash());
         transactionBlock.getHeaderData().setVersion(AdrestusConfiguration.version);
@@ -401,12 +408,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
     @SneakyThrows
     @Override
     public void InventTransactionBlock(TransactionBlock transactionBlock) {
-        Thread.ofVirtual().start(() -> {
-            IDatabase<String, TransactionBlock> block_database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
-            BlockSizeCalculator blockSizeCalculator=new BlockSizeCalculator();
-            blockSizeCalculator.setTransactionBlock(transactionBlock);
-            block_database.save(String.valueOf(transactionBlock.getHeight()), transactionBlock,blockSizeCalculator.TransactionBlockSizeCalculator());
-        });
+
         transactionBlock.setStatustype(StatusType.SUCCES);
         transactionBlock.getTransactionList().forEach(val -> val.setStatus(StatusType.SUCCES));
 
@@ -456,12 +458,30 @@ public class RegularBlock implements BlockForge, BlockInvent {
             CachedStartHeightRewards.getInstance().setRewardsCommitteeEnabled(false);
             CachedStartHeightRewards.getInstance().setHeight(transactionBlock.getHeight());
         }
-        Thread.ofVirtual().start(() -> {
+        ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
+        CountDownLatch countDownLatch=new CountDownLatch(2);
+        Runnable TransactionSave = () -> {
+            IDatabase<String, TransactionBlock> block_database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
+            BlockSizeCalculator blockSizeCalculator=new BlockSizeCalculator();
+            blockSizeCalculator.setTransactionBlock(transactionBlock);
+            block_database.save(String.valueOf(transactionBlock.getHeight()), transactionBlock,blockSizeCalculator.TransactionBlockSizeCalculator());
+            countDownLatch.countDown();
+        };
+        Runnable TreeSave = () -> {
             IDatabase<String, byte[]> tree_database = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getPatriciaTreeZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
             tree_database.save(String.valueOf(CachedZoneIndex.getInstance().getZoneIndex()), patricia_tree_wrapper.encode_special(TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()), CustomFurySerializer.getInstance().getFury().serialize(TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex())).length));
-        });
-        CachedLatestBlocks.getInstance().setTransactionBlock((TransactionBlock) transactionBlock.clone());
-        MemoryTransactionPool.getInstance().delete(transactionBlock.getTransactionList());
+            countDownLatch.countDown();
+        };
+        executor.submit(TransactionSave);
+        executor.submit(TreeSave);
+        countDownLatch.await();
+        executor.shutdownNow();
+        executor.close();
+
+        tree.clear();
+        TransactionBlock clonable = (TransactionBlock) transactionBlock.clone();
+        CachedLatestBlocks.getInstance().setTransactionBlock(clonable);
+        MemoryTransactionPool.getInstance().delete(clonable.getTransactionList());
 
         //Sync committee block from zone0
       /*  if (CachedZoneIndex.getInstance().getZoneIndex() != 0) {

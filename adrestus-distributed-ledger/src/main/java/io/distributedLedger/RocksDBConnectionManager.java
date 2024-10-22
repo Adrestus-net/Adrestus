@@ -226,7 +226,7 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
         w.lock();
         try {
             byte[] serializedkey = keyMapper.encode(key);
-            byte[] serializedValue = valueMapper.encode(value, length);
+            byte[] serializedValue = valueMapper.encode_special(value, length);
             rocksDB.put(serializedkey, serializedValue);
         } catch (NullPointerException exception) {
             LOGGER.error("NullPointer exception occurred during save operation. {}", exception.getMessage());

@@ -39,7 +39,8 @@ public class BlockSizeCalculator extends AbstractBlockSizeCalculator {
                 OutBoundSize[0] = OutBoundSize[0] + (ReceiptListSize + ReceiptBlockSize + SumMerkleProofs);
             });
         });
-        int totalsize = 1024 + (TransactionListSize + StakingTransactionListSize + InboundSize[0] + OutBoundSize[0]) + super.AbstractTransactionBlockSizeCalculator();
+        int SignatureDataSize = 2048 * transactionBlock.getSignatureData().size();
+        int totalsize = 1024 + (TransactionListSize + StakingTransactionListSize + InboundSize[0] + OutBoundSize[0]) + SignatureDataSize + super.AbstractTransactionBlockSizeCalculator();
         this.transactionBlock = null;
         return totalsize;
     }

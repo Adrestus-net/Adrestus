@@ -100,7 +100,7 @@ public class ConsensusTransactionTimer {
                 rewardsTransaction.setTimestamp(GetTime.GetTimeStampInString());
                 rewardsTransaction.setZoneFrom(0);
                 rewardsTransaction.setZoneTo(0);
-                rewardsTransaction.setAmount(TreeFactory.getMemoryTree(0).getByaddress(addreses.get(0)).get().getUnclaimed_reward());
+                rewardsTransaction.setAmount(BigDecimal.valueOf(0.10));
                 rewardsTransaction.setAmountWithTransactionFee(BigDecimal.ZERO);
                 rewardsTransaction.setNonce(nonce);
                 byte byf[] = serenc.encode(rewardsTransaction, 1024);

@@ -3,7 +3,6 @@ package io.Adrestus.consensus;
 import com.google.common.reflect.TypeToken;
 import io.Adrestus.Trie.MerkleNode;
 import io.Adrestus.Trie.MerkleTreeOptimizedImp;
-import io.Adrestus.Trie.MerkleTreePlainImp;
 import io.Adrestus.core.*;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedLeaderIndex;
@@ -34,6 +33,7 @@ import io.Adrestus.network.ConsensusServer;
 import io.Adrestus.rpc.CachedConsensusPublisherData;
 import io.Adrestus.util.GetTime;
 import io.Adrestus.util.SerializationUtil;
+import lombok.SneakyThrows;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -48,7 +48,12 @@ import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+
+import static io.Adrestus.config.ConsensusConfiguration.CONSENSUS_CONNECTED_RECEIVE_TIMEOUT;
 
 public class OrganizerConsensusPhases {
 
@@ -73,15 +78,19 @@ public class OrganizerConsensusPhases {
         private int N, N_COPY;
         private int F;
 
+        private MerkleTreeOptimizedImp tree;
         private BLSPublicKey leader_bls;
         private int current;
         private TransactionBlock original_copy;
 
 
+        @SneakyThrows
         public ProposeTransactionBlock(boolean DEBUG) {
             this.DEBUG = DEBUG;
             this.blockIndex = new BlockIndex();
             this.factory = new DefaultFactory();
+            this.factory.getBlock(BlockType.GENESIS);
+            this.original_copy = (TransactionBlock) new TransactionBlock().clone();
             List<SerializationUtil.Mapping> list = new ArrayList<>();
             list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
             list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
@@ -92,7 +101,7 @@ public class OrganizerConsensusPhases {
             this.consensus_serialize = new SerializationUtil<ConsensusMessage>(fluentType, list);
             this.sizeCalculator = new BlockSizeCalculator();
             this.signatureMapper = new SerializationUtil<Signature>(Signature.class, list);
-            this.serenc_erasure = new SerializationUtil<SerializableErasureObject>(SerializableErasureObject.class,list);
+            this.serenc_erasure = new SerializationUtil<SerializableErasureObject>(SerializableErasureObject.class, list);
             ErasureServerInstance.getInstance();
         }
 
@@ -118,6 +127,7 @@ public class OrganizerConsensusPhases {
                     }
                     this.N_COPY = (this.N - 1) - ConsensusServer.getInstance().getPeers_not_connected();
                     ConsensusServer.getInstance().setMAX_MESSAGES(this.N_COPY * 2);
+                    ConsensusServer.getInstance().resetSharedResource();
                     ConsensusServer.getInstance().receive_handler();
                     long finish = System.currentTimeMillis();
                     long timeElapsed = finish - start;
@@ -142,15 +152,24 @@ public class OrganizerConsensusPhases {
             ArrayList<String> proofs = new ArrayList<>();
             ArrayList<String> existed = new ArrayList<>();
 
+            ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
             int unique = 0;
             while (unique < N_COPY) {
-                String rec = new String(ConsensusServer.getInstance().receiveErasureData(), StandardCharsets.UTF_8);
-                if (!existed.contains(rec)) {
-                    existed.add(rec);
-                    unique++;
-                    proofs.add(rec);
-                }
+                Runnable task = () -> {
+                    String rec = new String(ConsensusServer.getInstance().receiveErasureData(), StandardCharsets.UTF_8);
+                    if (!existed.contains(rec)) {
+                        existed.add(rec);
+                        proofs.add(rec);
+                    }
+                };
+                executor.submit(task);
+                unique++;
             }
+
+            executor.shutdown();
+            executor.awaitTermination(CONSENSUS_CONNECTED_RECEIVE_TIMEOUT, TimeUnit.MILLISECONDS);
+            executor.shutdownNow();
+            executor.close();
 
             if (proofs.size() < N_COPY - F) {
                 cleanup();
@@ -189,7 +208,7 @@ public class OrganizerConsensusPhases {
                     n.add(srcPacket);
                 }
             }
-            MerkleTreeOptimizedImp tree = new MerkleTreeOptimizedImp();
+            tree = new MerkleTreeOptimizedImp();
             ArrayList<MerkleNode> merkleNodes = new ArrayList<MerkleNode>();
             for (int i = 0; i < n.size(); i++) {
                 SerializableErasureObject serializableErasureObject = new SerializableErasureObject(object, n.get(i).asArray(), new ArrayList<byte[]>());
@@ -500,6 +519,7 @@ public class OrganizerConsensusPhases {
             BLSPublicKey next_key = blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedLeaderIndex.getInstance().getTransactionPositionLeader());
             CachedLatestBlocks.getInstance().getTransactionBlock().setBlockProposer(next_key.toRaw());
             CachedLatestBlocks.getInstance().getTransactionBlock().setLeaderPublicKey(next_key);
+            tree.clear();
             long Commiteefinish = System.currentTimeMillis();
             long timeElapsed = Commiteefinish - Commiteerestart;
             System.out.println("Organizer committee " + timeElapsed);

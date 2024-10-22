@@ -29,7 +29,9 @@ public class OutboundMerkleEventHandler implements ReceiptEventHandler<ReceiptBl
         if (!bool1 || !bool2) {
             LOG.info("Merkle tree is not valid abort");
             receiptBlockEvent.getReceiptBlock().setStatusType(StatusType.ABORT);
+            outer_tree.clear();
             return;
         }
+        outer_tree.clear();
     }
 }
