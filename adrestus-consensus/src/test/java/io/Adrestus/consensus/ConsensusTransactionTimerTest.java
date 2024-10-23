@@ -341,11 +341,11 @@ public class ConsensusTransactionTimerTest {
         //be aware that print functionality is  different it works only for latch 5
         assertEquals(1.784998, TreeFactory.getMemoryTree(0).getByaddress("ADR-ACAO-BKTC-CFKG-VXWF-PSI2-QHWR-ZIGK-CCOL-LGJN-CM3U").get().getUnclaimed_reward().subtract(claimed.get("ADR-ACAO-BKTC-CFKG-VXWF-PSI2-QHWR-ZIGK-CCOL-LGJN-CM3U")).doubleValue());
         assertEquals(1.190001, TreeFactory.getMemoryTree(0).getByaddress("ADR-AADE-ROH3-CAFV-XK5V-2NKZ-QMTG-SFMC-37W5-SHUV-2T46").get().getUnclaimed_reward().subtract(claimed.get("ADR-AADE-ROH3-CAFV-XK5V-2NKZ-QMTG-SFMC-37W5-SHUV-2T46")).doubleValue());
-        assertEquals(BigDecimal.valueOf(2.473339-0.10).setScale(RewardConfiguration.DECIMAL_PRECISION,RewardConfiguration.ROUNDING), TreeFactory.getMemoryTree(0).getByaddress("ADR-AB2W-RIQY-LSIH-CXQQ-FGRV-AINR-57RO-NFXU-IWM5-IANJ").get().getUnclaimed_reward().subtract(claimed.get("ADR-AB2W-RIQY-LSIH-CXQQ-FGRV-AINR-57RO-NFXU-IWM5-IANJ")));
+        assertEquals(BigDecimal.valueOf(2.473339 - 0.10).setScale(RewardConfiguration.DECIMAL_PRECISION, RewardConfiguration.ROUNDING), TreeFactory.getMemoryTree(0).getByaddress("ADR-AB2W-RIQY-LSIH-CXQQ-FGRV-AINR-57RO-NFXU-IWM5-IANJ").get().getUnclaimed_reward().subtract(claimed.get("ADR-AB2W-RIQY-LSIH-CXQQ-FGRV-AINR-57RO-NFXU-IWM5-IANJ")));
 
         assertEquals(1.190001, TreeFactory.getMemoryTree(0).getByaddress("ADR-AADE-ROH3-CAFV-XK5V-2NKZ-QMTG-SFMC-37W5-SHUV-2T46").get().getUnclaimed_reward().subtract(claimed.get("ADR-AADE-ROH3-CAFV-XK5V-2NKZ-QMTG-SFMC-37W5-SHUV-2T46")).doubleValue());
         assertEquals(1.784998, TreeFactory.getMemoryTree(0).getByaddress("ADR-ACAO-BKTC-CFKG-VXWF-PSI2-QHWR-ZIGK-CCOL-LGJN-CM3U").get().getUnclaimed_reward().subtract(claimed.get("ADR-ACAO-BKTC-CFKG-VXWF-PSI2-QHWR-ZIGK-CCOL-LGJN-CM3U")).doubleValue());
-        assertEquals(BigDecimal.valueOf(2.473339-0.10).setScale(RewardConfiguration.DECIMAL_PRECISION,RewardConfiguration.ROUNDING), TreeFactory.getMemoryTree(0).getByaddress("ADR-AB2W-RIQY-LSIH-CXQQ-FGRV-AINR-57RO-NFXU-IWM5-IANJ").get().getUnclaimed_reward().subtract(claimed.get("ADR-AB2W-RIQY-LSIH-CXQQ-FGRV-AINR-57RO-NFXU-IWM5-IANJ")));
+        assertEquals(BigDecimal.valueOf(2.473339 - 0.10).setScale(RewardConfiguration.DECIMAL_PRECISION, RewardConfiguration.ROUNDING), TreeFactory.getMemoryTree(0).getByaddress("ADR-AB2W-RIQY-LSIH-CXQQ-FGRV-AINR-57RO-NFXU-IWM5-IANJ").get().getUnclaimed_reward().subtract(claimed.get("ADR-AB2W-RIQY-LSIH-CXQQ-FGRV-AINR-57RO-NFXU-IWM5-IANJ")));
 
         assertEquals(989.1, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(0)).get().getAmount().doubleValue());
         assertEquals(984.8, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(1)).get().getAmount().doubleValue());

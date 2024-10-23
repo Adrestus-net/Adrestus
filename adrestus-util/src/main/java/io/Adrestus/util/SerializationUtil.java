@@ -204,14 +204,22 @@ public class SerializationUtil<T> {
 
     public synchronized byte[] encode(T value, int size) {
         buffer = new byte[size];
-        serializer.encode(buffer, 0, value);
+        try {
+            serializer.encode(buffer, 0, value);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return buffer;
     }
 
     public byte[] encode_special(T value, int size) {
         int buff_size = search(size);
         buffer = new byte[buff_size];
-        serializer.encode(buffer, 0, value);
+        try {
+            serializer.encode(buffer, 0, value);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return buffer;
     }
 

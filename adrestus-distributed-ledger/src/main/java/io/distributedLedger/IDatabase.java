@@ -22,7 +22,7 @@ public interface IDatabase<K, V> {
      */
     void save(K key, Object value);
 
-    void save(K key, Object value,int length);
+    void save(K key, Object value, int length);
 
     void saveAll(Map<K, V> map);
 

@@ -2,7 +2,6 @@ package io.Adrestus.core.Resourses;
 
 import io.Adrestus.core.Receipt;
 import io.activej.serializer.annotations.Deserialize;
-import io.activej.serializer.annotations.Serialize;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -236,7 +235,7 @@ public class MemoryReceiptPool implements IMemoryPool<Receipt> {
     }
 
 
-    private static final class CompositeKey implements Serializable,Cloneable {
+    private static final class CompositeKey implements Serializable, Cloneable {
         public final int zoneFrom;
         public final int generation;
         public final int height;

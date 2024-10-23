@@ -9,7 +9,7 @@ import org.apache.fury.logging.LoggerFactory;
 
 public class CustomFurySerializer {
     @Getter
-    private final Fury fury;
+    private static Fury fury;
     private static volatile CustomFurySerializer instance;
 
     static {
@@ -20,7 +20,7 @@ public class CustomFurySerializer {
         if (instance != null) {
             throw new IllegalStateException("Already initialized.");
         }
-        this.fury = Fury.builder()
+        fury = Fury.builder()
                 .withLanguage(Language.JAVA)
                 .withRefTracking(false)
                 .withClassVersionCheck(true)
@@ -43,6 +43,11 @@ public class CustomFurySerializer {
                     instance = result;
                 }
             }
+        } else {
+            fury.reset();
+            fury.resetBuffer();
+            fury.resetRead();
+            fury.resetWrite();
         }
         return result;
     }

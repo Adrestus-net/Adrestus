@@ -63,10 +63,10 @@ public class MerkleProofs implements Serializable, Cloneable {
     }
 
     public int getLength() {
-        if(proofs == null) {
+        if (proofs == null) {
             return 0;
         }
-        if(proofs.isEmpty()) {
+        if (proofs.isEmpty()) {
             return 0;
         }
         return proofs.values().stream()
@@ -78,6 +78,7 @@ public class MerkleProofs implements Serializable, Cloneable {
     public int hashCode() {
         return Objects.hashCode(proofs);
     }
+
     private static class CustomComparator implements Comparator<ProfKey>, Serializable {
         @Override
         public int compare(ProfKey o1, ProfKey o2) {

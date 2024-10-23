@@ -85,7 +85,7 @@ public class ErasureCodeTest {
         list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
         encode = new SerializationUtil<TransactionBlock>(TransactionBlock.class, list);
         serenc = new SerializationUtil<Transaction>(Transaction.class, list);
-        serenc_erasure = new SerializationUtil<SerializableErasureObject>(SerializableErasureObject.class,list);
+        serenc_erasure = new SerializationUtil<SerializableErasureObject>(SerializableErasureObject.class, list);
 
         ArrayList<String> addreses = new ArrayList<>();
         ArrayList<Transaction> transactions = new ArrayList<>();

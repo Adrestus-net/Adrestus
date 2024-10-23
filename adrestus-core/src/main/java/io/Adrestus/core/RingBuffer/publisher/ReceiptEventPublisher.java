@@ -30,6 +30,7 @@ public class ReceiptEventPublisher implements Publisher<ReceiptBlock> {
     private final AtomicBoolean isRunning;
     private final List<ReceiptEventHandler> group;
     private CountDownLatch latch;
+
     public ReceiptEventPublisher(int jobQueueSize) {
         this.isRunning = new AtomicBoolean(true);
         this.jobQueueSize = jobQueueSize;
@@ -40,9 +41,10 @@ public class ReceiptEventPublisher implements Publisher<ReceiptBlock> {
 
 
     public ReceiptEventPublisher withReceiptCountDownLatchSize(int size) {
-        latch= new CountDownLatch(size);
+        latch = new CountDownLatch(size);
         return this;
     }
+
     public ReceiptEventPublisher withEmptyEventHandler() {
         group.add(new EmptyEventHandler());
         return this;
@@ -121,7 +123,7 @@ public class ReceiptEventPublisher implements Publisher<ReceiptBlock> {
     public void publish(ReceiptBlock receiptBlock) {
         long sequence = this.disruptor.getRingBuffer().next();// Grab the next sequence
         try {
-            if(this.latch!=null)
+            if (this.latch != null)
                 this.latch.countDown();
             ReceiptBlockEvent event = (ReceiptBlockEvent) this.disruptor.getRingBuffer().get(sequence); // Get the entry in the Disruptor
             event.setReceiptBlock(receiptBlock);

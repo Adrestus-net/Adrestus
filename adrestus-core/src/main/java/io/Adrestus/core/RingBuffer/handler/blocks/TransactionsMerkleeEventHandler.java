@@ -44,7 +44,7 @@ public class TransactionsMerkleeEventHandler implements BlockEventHandler<Abstra
                 return;
             }
 
-         tree.clear();
+            tree.clear();
         } catch (NullPointerException ex) {
             LOG.info("Block is empty");
         }

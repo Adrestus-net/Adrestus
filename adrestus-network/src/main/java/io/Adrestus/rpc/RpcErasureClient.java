@@ -21,17 +21,14 @@ import org.slf4j.LoggerFactory;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
-import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.TreeMap;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.stream.IntStream;
 
 import static io.activej.rpc.client.sender.RpcStrategies.server;
 
@@ -69,7 +66,7 @@ public class RpcErasureClient<T> {
         this.inetSocketAddress = inetSocketAddress;
         this.eventloop = eventloop;
         this.serializationUtil = new SerializationUtil<ErasureResponse>(ErasureResponse.class);
-        this.valueMapper = new SerializationUtil(this.typeParameterClass.getClass(),list);
+        this.valueMapper = new SerializationUtil(this.typeParameterClass.getClass(), list);
     }
 
     public RpcErasureClient(T typeParameterClass, String host, int port, Eventloop eventloop) {
@@ -85,7 +82,7 @@ public class RpcErasureClient<T> {
         this.port = port;
         this.eventloop = eventloop;
         this.serializationUtil = new SerializationUtil<ErasureResponse>(ErasureResponse.class);
-        this.valueMapper = new SerializationUtil(this.typeParameterClass.getClass(),list);
+        this.valueMapper = new SerializationUtil(this.typeParameterClass.getClass(), list);
     }
 
     public RpcErasureClient(T typeParameterClass, String host, int port, int timeout, Eventloop eventloop) {
@@ -102,7 +99,7 @@ public class RpcErasureClient<T> {
         this.eventloop = eventloop;
         this.TIMEOUT = timeout;
         this.serializationUtil = new SerializationUtil<ErasureResponse>(ErasureResponse.class);
-        this.valueMapper = new SerializationUtil(this.typeParameterClass.getClass(),list);
+        this.valueMapper = new SerializationUtil(this.typeParameterClass.getClass(), list);
     }
 
     public RpcErasureClient(String host, int port, int timeout, Eventloop eventloop) {
@@ -126,7 +123,7 @@ public class RpcErasureClient<T> {
         this.inetSocketAddresses = inetSocketAddresses;
         this.eventloop = eventloop;
         this.serializationUtil = new SerializationUtil<ErasureResponse>(ErasureResponse.class);
-        this.valueMapper = new SerializationUtil(this.typeParameterClass.getClass(),list);
+        this.valueMapper = new SerializationUtil(this.typeParameterClass.getClass(), list);
     }
 
     public RpcErasureClient(T typeParameterClass, List<InetSocketAddress> inetSocketAddresses, int port, Eventloop eventloop) {
@@ -142,7 +139,7 @@ public class RpcErasureClient<T> {
         this.inetSocketAddresses = inetSocketAddresses;
         this.eventloop = eventloop;
         this.serializationUtil = new SerializationUtil<ErasureResponse>(ErasureResponse.class);
-        this.valueMapper = new SerializationUtil(this.typeParameterClass.getClass(),list);
+        this.valueMapper = new SerializationUtil(this.typeParameterClass.getClass(), list);
     }
 
     public void connect() {

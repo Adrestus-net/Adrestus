@@ -2,7 +2,6 @@ package io.Adrestus.core;
 
 import io.Adrestus.Trie.*;
 import io.Adrestus.crypto.HashUtil;
-import io.Adrestus.util.ByteUtil;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -269,7 +268,7 @@ public class MerkleTreeTest {
         }
     }
 
-//    //25ms
+    //    //25ms
     @Test
     public void xx3() {
         for (int i = 0; i < 1000000; i++) {

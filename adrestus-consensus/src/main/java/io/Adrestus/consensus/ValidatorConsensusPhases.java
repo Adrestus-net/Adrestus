@@ -31,7 +31,6 @@ import io.Adrestus.erasure.code.parameters.FECParameterObject;
 import io.Adrestus.erasure.code.parameters.FECParameters;
 import io.Adrestus.network.CachedEventLoop;
 import io.Adrestus.network.ConsensusClient;
-import io.Adrestus.network.ConsensusServer;
 import io.Adrestus.rpc.CachedSerializableErasureObject;
 import io.Adrestus.rpc.RpcErasureClient;
 import io.Adrestus.util.ByteUtil;
@@ -969,7 +968,7 @@ public class ValidatorConsensusPhases {
             this.consensus_serialize = new SerializationUtil<ConsensusMessage>(fluentType, list);
             this.sizeCalculator = new BlockSizeCalculator();
             this.signatureMapper = new SerializationUtil<Signature>(Signature.class, list);
-            this.serenc_erasure = new SerializationUtil<SerializableErasureObject>(SerializableErasureObject.class,list);
+            this.serenc_erasure = new SerializationUtil<SerializableErasureObject>(SerializableErasureObject.class, list);
             this.Shake256Hash = new String[2];
             this.prevAgreegation = new ArrayList<>(2);
             ErasureServerInstance.getInstance();

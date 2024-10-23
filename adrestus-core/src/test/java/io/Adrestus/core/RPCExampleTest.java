@@ -118,9 +118,9 @@ class RPCExampleTest {
         list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
         encode = new SerializationUtil<TransactionBlock>(TransactionBlock.class, list);
         serenc = new SerializationUtil<Transaction>(Transaction.class, list);
-        serenc_erasure = new SerializationUtil<SerializableErasureObject>(SerializableErasureObject.class,list);
-        serializableErasureObjects= new ArrayList<>();
-        serializableErasureObjects.stream().map(val->val).collect(Collectors.toList());
+        serenc_erasure = new SerializationUtil<SerializableErasureObject>(SerializableErasureObject.class, list);
+        serializableErasureObjects = new ArrayList<>();
+        serializableErasureObjects.stream().map(val -> val).collect(Collectors.toList());
         ArrayList<String> addreses = new ArrayList<>();
         ArrayList<Transaction> transactions = new ArrayList<>();
         ArrayList<ECKeyPair> keypair = new ArrayList<>();

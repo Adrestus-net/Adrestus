@@ -49,11 +49,8 @@ import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static io.Adrestus.config.ConsensusConfiguration.CONSENSUS_CONNECTED_RECEIVE_TIMEOUT;
-import static io.Adrestus.config.ConsensusConfiguration.DATABASE_SAVE_WAIT_TIMEOUT;
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toCollection;
@@ -73,6 +70,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
     private final BlockSizeCalculator blockSizeCalculator;
 
     private MerkleTreeOptimizedImp tree;
+
     private RegularBlock() {
         if (instance != null) {
             throw new IllegalStateException("Already initialized.");
@@ -459,12 +457,12 @@ public class RegularBlock implements BlockForge, BlockInvent {
             CachedStartHeightRewards.getInstance().setHeight(transactionBlock.getHeight());
         }
         ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
-        CountDownLatch countDownLatch=new CountDownLatch(2);
+        CountDownLatch countDownLatch = new CountDownLatch(2);
         Runnable TransactionSave = () -> {
             IDatabase<String, TransactionBlock> block_database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
-            BlockSizeCalculator blockSizeCalculator=new BlockSizeCalculator();
+            BlockSizeCalculator blockSizeCalculator = new BlockSizeCalculator();
             blockSizeCalculator.setTransactionBlock(transactionBlock);
-            block_database.save(String.valueOf(transactionBlock.getHeight()), transactionBlock,blockSizeCalculator.TransactionBlockSizeCalculator());
+            block_database.save(String.valueOf(transactionBlock.getHeight()), transactionBlock, blockSizeCalculator.TransactionBlockSizeCalculator());
             countDownLatch.countDown();
         };
         Runnable TreeSave = () -> {
@@ -478,7 +476,8 @@ public class RegularBlock implements BlockForge, BlockInvent {
         executor.shutdownNow();
         executor.close();
 
-        tree.clear();
+        if (tree != null)
+            tree.clear();
         TransactionBlock clonable = (TransactionBlock) transactionBlock.clone();
         CachedLatestBlocks.getInstance().setTransactionBlock(clonable);
         MemoryTransactionPool.getInstance().delete(clonable.getTransactionList());

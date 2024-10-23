@@ -252,7 +252,7 @@ public class MemoryReceiptPoolTest {
         Receipt receipt4 = new Receipt(2, 1, receiptBlock2, 4, null);
         Receipt receipt5 = new Receipt(3, 1, receiptBlock2, 5, null);
         Receipt receipt6 = new Receipt(3, 1, receiptBlock2, 6, null);
-        Receipt clon = serenc.decode(serenc.encode(receipt1,1204));
+        Receipt clon = serenc.decode(serenc.encode(receipt1, 1204));
         assertEquals(receipt1, clon);
         MemoryReceiptPool.getInstance().add(receipt1);
         MemoryReceiptPool.getInstance().add(receipt2);

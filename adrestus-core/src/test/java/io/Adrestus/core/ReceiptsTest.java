@@ -325,7 +325,7 @@ public class ReceiptsTest {
 
         BlockSizeCalculator blockSizeCalculator = new BlockSizeCalculator();
         blockSizeCalculator.setTransactionBlock(transactionBlock);
-        byte[] buffer = serenc.encode(transactionBlock,blockSizeCalculator.TransactionBlockSizeCalculator());//3768320
+        byte[] buffer = serenc.encode(transactionBlock, blockSizeCalculator.TransactionBlockSizeCalculator());//3768320
         TransactionBlock clone = (TransactionBlock) serenc.decode(buffer);
         assertEquals(transactionBlock, clone);
 
@@ -451,7 +451,7 @@ public class ReceiptsTest {
                 });
         BlockSizeCalculator blockSizeCalculator = new BlockSizeCalculator();
         blockSizeCalculator.setTransactionBlock(transactionBlock);
-        byte[] buffer = serenc.encode(transactionBlock,blockSizeCalculator.TransactionBlockSizeCalculator());
+        byte[] buffer = serenc.encode(transactionBlock, blockSizeCalculator.TransactionBlockSizeCalculator());
         TransactionBlock clone = (TransactionBlock) serenc.decode(buffer);
         assertEquals(transactionBlock, clone);
 

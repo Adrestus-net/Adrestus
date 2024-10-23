@@ -48,13 +48,13 @@ public class ConsensusClient {
         this.erasure = ctx.createSocket(SocketType.DEALER);
         this.erasure.setReceiveTimeOut(CONSENSUS_ERASURE_RECEIVE_TIMEOUT);
         this.erasure.setSendTimeOut(CONSENSUS_ERASURE_SEND_TIMEOUT);
-        this.erasure.setSndHWM(0);
 
 
-        this.connected.setHWM(1);
+        this.connected.setHWM(1000);
+        this.subscriber.setHWM(1000);
+        this.erasure.setHWM(1000);
         this.connected.setLinger(200);
         this.subscriber.setLinger(200);
-        this.subscriber.setHWM(3);
 
         this.subscriber.connect("tcp://" + IP + ":" + SUBSCRIBER_PORT);
         this.connected.connect("tcp://" + IP + ":" + CONNECTED_PORT);
@@ -84,13 +84,13 @@ public class ConsensusClient {
         this.erasure = ctx.createSocket(SocketType.DEALER);
         this.erasure.setReceiveTimeOut(CONSENSUS_ERASURE_RECEIVE_TIMEOUT);
         this.erasure.setSendTimeOut(CONSENSUS_ERASURE_SEND_TIMEOUT);
-        this.erasure.setSndHWM(0);
 
 
-        this.connected.setHWM(1);
+        this.connected.setHWM(1000);
+        this.subscriber.setHWM(1000);
+        this.erasure.setHWM(1000);
         this.connected.setLinger(200);
         this.subscriber.setLinger(200);
-        this.subscriber.setHWM(3);
 
         this.subscriber.connect("tcp://" + IP + ":" + SUBSCRIBER_PORT);
         this.connected.connect("tcp://" + IP + ":" + CONNECTED_PORT);
@@ -122,12 +122,12 @@ public class ConsensusClient {
         this.erasure.setIdentity(identity.getBytes(ZMQ.CHARSET));
         this.erasure.setReceiveTimeOut(CONSENSUS_ERASURE_RECEIVE_TIMEOUT);
         this.erasure.setSendTimeOut(CONSENSUS_ERASURE_SEND_TIMEOUT);
-        this.erasure.setSndHWM(0);
 
-        this.connected.setHWM(1);
+        this.connected.setHWM(1000);
+        this.subscriber.setHWM(1000);
+        this.erasure.setHWM(1000);
         this.connected.setLinger(200);
         this.subscriber.setLinger(200);
-        this.subscriber.setHWM(3);
 
         this.subscriber.connect("tcp://" + IP + ":" + SUBSCRIBER_PORT);
         this.connected.connect("tcp://" + IP + ":" + CONNECTED_PORT);

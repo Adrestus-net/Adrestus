@@ -6,7 +6,7 @@ import io.activej.serializer.annotations.SerializeNullable;
 
 import java.io.Serializable;
 
-public class MerkleNode implements Serializable,Cloneable {
+public class MerkleNode implements Serializable, Cloneable {
     private String transactionHash;
     private MerkleNode root;
     private MerkleNode left;

@@ -83,7 +83,7 @@ public class RpcErasureServer<T> implements Runnable {
         this.eventloop = eventloop;
         this.serializable_length = serializable_length;
         this.typeParameterClass = typeParameterClass;
-        this.valueMapper = new SerializationUtil<T>(this.typeParameterClass.getClass(),list);
+        this.valueMapper = new SerializationUtil<T>(this.typeParameterClass.getClass(), list);
         this.service = new ChunksService<T>();
     }
 

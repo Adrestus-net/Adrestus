@@ -9,9 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
 
 public class MerkleTreeSha256Imp implements MerkleTree {
     private static Logger LOG = LoggerFactory.getLogger(MerkleTreeSha256Imp.class);
@@ -52,7 +49,7 @@ public class MerkleTreeSha256Imp implements MerkleTree {
         }
 
         if (dataBlocks.size() == 1) {
-            this.capacity =1;
+            this.capacity = 1;
             this.merkleNodeHashMapByHash = new ArrayList<>(this.capacity);
             this.merkleNodeHashMapByIndex = new ArrayList<>(this.capacity);
             for (int i = 0; i < this.capacity; i++) {
@@ -77,7 +74,7 @@ public class MerkleTreeSha256Imp implements MerkleTree {
 
             return;
         } else if (dataBlocks.size() == 2) {
-            this.capacity =1;
+            this.capacity = 1;
             this.merkleNodeHashMapByHash = new ArrayList<>(this.capacity);
             this.merkleNodeHashMapByIndex = new ArrayList<>(this.capacity);
             for (int i = 0; i < this.capacity; i++) {

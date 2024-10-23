@@ -38,6 +38,7 @@ public class SocketChannelTest {
     private static Receipt receipt;
     private static ArrayList<Receipt> receiptArrayList;
     private static ArrayList<Transaction> transactionArrayList;
+
     @BeforeAll
     public static void setup() {
         List<SerializationUtil.Mapping> list = new ArrayList<>();
@@ -50,7 +51,7 @@ public class SocketChannelTest {
         recep = new SerializationUtil<Receipt>(Receipt.class, list);
         receipt = new Receipt(1, 1);
         receiptArrayList = new ArrayList<>();
-        transactionArrayList=new ArrayList<>();
+        transactionArrayList = new ArrayList<>();
     }
 
     @Test

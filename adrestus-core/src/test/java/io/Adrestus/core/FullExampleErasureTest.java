@@ -150,7 +150,7 @@ public class FullExampleErasureTest {
         encode = new SerializationUtil<TransactionBlock>(TransactionBlock.class, list);
         encode2 = new SerializationUtil<TransactionBlock>(TransactionBlock.class, list);
         serenc = new SerializationUtil<Transaction>(Transaction.class, list);
-        serenc_erasure = new SerializationUtil<SerializableErasureObject>(SerializableErasureObject.class,list);
+        serenc_erasure = new SerializationUtil<SerializableErasureObject>(SerializableErasureObject.class, list);
         valueMapper = new SerializationUtil<Signature>(Signature.class, list);
 
         ArrayList<String> addreses = new ArrayList<>();
@@ -285,7 +285,7 @@ public class FullExampleErasureTest {
             BlockSizeCalculator blockSizeCalculator = new BlockSizeCalculator();
             blockSizeCalculator.setTransactionBlock(transactionBlock);
             byte[] buffer = encode.encode(transactionBlock, blockSizeCalculator.TransactionBlockSizeCalculator());
-            byte[] buffer2=serenc_erasure.encode(new SerializableErasureObject(new FECParameterObject(), buffer, new ArrayList<byte[]>()));
+            byte[] buffer2 = serenc_erasure.encode(new SerializableErasureObject(new FECParameterObject(), buffer, new ArrayList<byte[]>()));
         } catch (Exception e) {
             // e.printStackTrace();
         }

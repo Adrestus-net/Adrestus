@@ -21,6 +21,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class OutBoundEventHandler implements BlockEventHandler<AbstractBlockEvent> {
     private static Logger LOG = LoggerFactory.getLogger(OutBoundEventHandler.class);
     private AtomicInteger atomicInteger;
+
     @Override
     public void onEvent(AbstractBlockEvent blockEvent, long l, boolean b) throws Exception {
         TransactionBlock transactionBlock = (TransactionBlock) blockEvent.getBlock();
@@ -102,6 +103,7 @@ public class OutBoundEventHandler implements BlockEventHandler<AbstractBlockEven
             });
         }
     }
+
     public boolean PreconditionsChecks(final Receipt receipt, final Receipt.ReceiptBlock receiptBlock, final MerkleTreeOptimizedImp outer_tree, final TransactionBlock transactionBlock, Transaction transaction, int index) {
         String root = outer_tree.generateRoot(receipt.getProofs());
         boolean bool3 = StringUtils.equals(transactionBlock.getMerkleRoot(), root);

@@ -67,7 +67,6 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
         list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
-        //list.add(new SerializationUtil.Mapping(MemoryTreePool.class, ctx->new MemoryTreePoolSerializer()));
         list.add(new SerializationUtil.Mapping(Bytes.class, ctx -> new BytesSerializer()));
         list.add(new SerializationUtil.Mapping(Bytes32.class, ctx -> new Bytes32Serializer()));
         list.add(new SerializationUtil.Mapping(MutableBytes.class, ctx -> new MutableBytesSerializer()));
@@ -139,11 +138,7 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
 
         options.setCreateIfMissing(true);
         options.setUseFsync(false);
-        options.setCompressionType(
-                enableDbCompression
-                        ? CompressionType.LZ4_COMPRESSION
-                        : CompressionType.NO_COMPRESSION);
-
+        options.setCompressionType(enableDbCompression ? CompressionType.LZ4_COMPRESSION : CompressionType.NO_COMPRESSION);
         options.setBottommostCompressionType(CompressionType.ZLIB_COMPRESSION);
         options.setMinWriteBufferNumberToMerge(MIN_WRITE_BUFFER_NUMBER_TOMERGE);
         options.setLevel0StopWritesTrigger(LEVEL0_STOP_WRITES_TRIGGER);
@@ -226,7 +221,7 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
         w.lock();
         try {
             byte[] serializedkey = keyMapper.encode(key);
-            byte[] serializedValue = valueMapper.encode_special(value, length);
+            byte[] serializedValue = valueMapper.encode(value, length);
             rocksDB.put(serializedkey, serializedValue);
         } catch (NullPointerException exception) {
             LOGGER.error("NullPointer exception occurred during save operation. {}", exception.getMessage());

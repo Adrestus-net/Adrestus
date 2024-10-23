@@ -6,7 +6,6 @@ import lombok.Setter;
 import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.spongycastle.util.encoders.Hex;
 import org.zeromq.SocketType;
 import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
@@ -152,11 +151,11 @@ public class ConsensusServer {
     public static ConsensusServer getInstance() {
         var result = instance;
         if (result == null) {
-                result = instance;
-                if (result == null) {
-                    result = new ConsensusServer();
-                    instance = result;
-                }
+            result = instance;
+            if (result == null) {
+                result = new ConsensusServer();
+                instance = result;
+            }
         }
         return result;
     }
@@ -253,7 +252,7 @@ public class ConsensusServer {
         byte[] data = null;
         if (!task.resource.message_deque.isEmpty()) {
             data = task.resource.message_deque.pollFirst();
-            System.out.println("Data received"+task.resource.message_deque.size());
+            System.out.println("Data received" + task.resource.message_deque.size());
             if (task.resource.message_deque.isEmpty()) {
                 task.setFinish(0);
                 Thread vThreadFinishConsumeExecution = Thread.ofVirtual().start(task);
@@ -458,16 +457,13 @@ public class ConsensusServer {
             int connected_validators = MAX_MESSAGES / 2;
             for (int i = 0; i < PHASES; i++) {
                 this.resource.produce(0);
-                System.out.println("after_prd_release "+resource.isProduced());
                 int unique = 0;
                 ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
                 while (unique < connected_validators) {
                     Runnable task = () -> {
                         byte[] data = {1};
                         try {
-                            System.out.println("before rec");
                             data = collector.recv(0);
-                            System.out.println("Rec" + Hex.toHexString(data));
                         } catch (ZMQException e) {
                             if (e.getErrorCode() != 156384765) {
                                 LOG.info("ZMQ EXCEPTION caught");
@@ -490,7 +486,6 @@ public class ConsensusServer {
                 } catch (InterruptedException e) {
 
                 }
-                System.out.println();
                 this.resource.produce(1);
                 executor.shutdownNow();
                 executor.close();
@@ -512,7 +507,6 @@ public class ConsensusServer {
         public synchronized void produce(int finish) throws InterruptedException {
             while (!isProduced) {
                 wait();
-                System.out.println("Prod release" + finish);
             }
             if (finish == 1) {
                 isProduced = false;
@@ -525,7 +519,6 @@ public class ConsensusServer {
                 wait();
             }
             if (finish == 0) {
-                System.out.println("Consume release" + finish);
                 isProduced = true;
                 notify();
             }
