@@ -102,13 +102,7 @@ public class TransactionStrategyTest {
 
 
         CachedZoneIndex.getInstance().setZoneIndex(0);
-        ArrayList<String> mesages = new ArrayList<>();
-        TransactionCallback transactionCallback = new TransactionCallback() {
-            @Override
-            public void call(String value) {
-                mesages.add(value);
-            }
-        };
+        Callback transactionCallback = new TransactionCallback();
         SignatureEventHandler eventHandler = new SignatureEventHandler(SignatureEventHandler.SignatureBehaviorType.SIMPLE_TRANSACTIONS, new CountDownLatch(end - 1));
         TransactionEventPublisher publisher = new TransactionEventPublisher(4096);
         publisher

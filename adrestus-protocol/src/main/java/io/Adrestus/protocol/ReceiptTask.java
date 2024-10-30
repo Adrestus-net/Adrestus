@@ -11,8 +11,8 @@ import io.Adrestus.util.SerializationUtil;
 import io.activej.bytebuf.ByteBuf;
 import io.activej.bytebuf.ByteBufPool;
 import io.activej.eventloop.Eventloop;
-import io.activej.net.socket.tcp.AsyncTcpSocket;
-import io.activej.net.socket.tcp.AsyncTcpSocketNio;
+import io.activej.net.socket.tcp.ITcpSocket;
+import io.activej.net.socket.tcp.TcpSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +24,8 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-import static io.activej.eventloop.Eventloop.getCurrentEventloop;
+import static io.activej.reactor.Reactor.getCurrentReactor;
+
 
 public class ReceiptTask extends AdrestusTask {
     private static Logger LOG = LoggerFactory.getLogger(ReceiptTask.class);
@@ -33,7 +34,7 @@ public class ReceiptTask extends AdrestusTask {
 
     private volatile boolean runner;
     private Eventloop eventloop;
-    private AsyncTcpSocket socket;
+    private ITcpSocket socket;
 
     private TransactionBlock transactionBlockPrev;
 
@@ -41,7 +42,7 @@ public class ReceiptTask extends AdrestusTask {
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
-        this.eventloop = Eventloop.create().withCurrentThread();
+        this.eventloop = Eventloop.builder().withCurrentThread().build();
         this.recep = new SerializationUtil<Receipt>(Receipt.class, list);
         this.runner = false;
         this.transactionBlockPrev = null;
@@ -63,7 +64,7 @@ public class ReceiptTask extends AdrestusTask {
                                         if (e == null) {
                                             // System.out.println("Connected to server, enter some text and send it by pressing 'Enter'.");
                                             try {
-                                                socket = AsyncTcpSocketNio.wrapChannel(getCurrentEventloop(), socketChannel, null);
+                                                socket = TcpSocket.wrapChannel(getCurrentReactor(), socketChannel, null);
                                             } catch (IOException ioException) {
                                                 throw new RuntimeException(ioException);
                                             }

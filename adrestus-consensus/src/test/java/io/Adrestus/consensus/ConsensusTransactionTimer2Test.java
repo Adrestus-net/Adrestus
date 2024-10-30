@@ -43,8 +43,8 @@ import io.Adrestus.util.SerializationUtil;
 import io.activej.bytebuf.ByteBuf;
 import io.activej.bytebuf.ByteBufPool;
 import io.activej.eventloop.Eventloop;
-import io.activej.net.socket.tcp.AsyncTcpSocket;
-import io.activej.net.socket.tcp.AsyncTcpSocketNio;
+import io.activej.net.socket.tcp.ITcpSocket;
+import io.activej.net.socket.tcp.TcpSocket;
 import io.distributedLedger.*;
 import org.apache.commons.codec.binary.StringUtils;
 import org.junit.jupiter.api.BeforeAll;
@@ -65,7 +65,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static io.activej.eventloop.Eventloop.getCurrentEventloop;
+import static io.activej.reactor.Reactor.getCurrentReactor;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ConsensusTransactionTimer2Test {
@@ -97,7 +97,7 @@ public class ConsensusTransactionTimer2Test {
 
     private static SerializationUtil<Receipt> recep;
     private static IBlockIndex blockIndex;
-    private static AsyncTcpSocket socket;
+    private static ITcpSocket socket;
     private static boolean variable = false;
     private static KademliaData kad1, kad2, kad3, kad4, kad5, kad6;
     private static ReceiptEventPublisher publisher;
@@ -378,7 +378,7 @@ public class ConsensusTransactionTimer2Test {
         transactionChannelHandler.BindServerAndReceive(callback);
         (new Thread() {
             public void run() {
-                Eventloop eventloop = Eventloop.create().withCurrentThread();
+                Eventloop eventloop = Eventloop.builder().withCurrentThread().build();
                 while (!variable) {
                     try {
                         if (!CachedLatestBlocks.getInstance().getTransactionBlock().getOutbound().getMap_receipts().isEmpty()) {
@@ -387,7 +387,7 @@ public class ConsensusTransactionTimer2Test {
                                     if (e == null) {
                                         // System.out.println("Connected to server, enter some text and send it by pressing 'Enter'.");
                                         try {
-                                            socket = AsyncTcpSocketNio.wrapChannel(getCurrentEventloop(), socketChannel, null);
+                                            socket = TcpSocket.wrapChannel(getCurrentReactor(), socketChannel, null);
                                         } catch (IOException ioException) {
                                             throw new RuntimeException(ioException);
                                         }

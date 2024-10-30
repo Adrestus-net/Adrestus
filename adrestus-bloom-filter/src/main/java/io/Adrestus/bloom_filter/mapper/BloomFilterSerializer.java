@@ -2,6 +2,7 @@ package io.Adrestus.bloom_filter.mapper;
 
 import io.Adrestus.bloom_filter.BloomFilter;
 import io.activej.serializer.*;
+import io.activej.serializer.def.SimpleSerializerDef;
 import lombok.SneakyThrows;
 
 import java.io.ByteArrayInputStream;

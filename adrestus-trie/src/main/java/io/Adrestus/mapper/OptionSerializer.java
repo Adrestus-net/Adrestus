@@ -2,6 +2,7 @@ package io.Adrestus.mapper;
 
 import io.Adrestus.Trie.PatriciaTreeNode;
 import io.activej.serializer.*;
+import io.activej.serializer.def.SimpleSerializerDef;
 import io.vavr.control.Option;
 import lombok.SneakyThrows;
 

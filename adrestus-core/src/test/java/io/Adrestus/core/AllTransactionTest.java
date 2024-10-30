@@ -40,8 +40,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class AllTransactionTest {
 
@@ -116,13 +115,7 @@ public class AllTransactionTest {
     @Test
     public void rewards_test() throws InterruptedException {
         MemoryTransactionPool.getInstance().clear();
-        ArrayList<String> mesages = new ArrayList<>();
-        TransactionCallback transactionCallback = new TransactionCallback() {
-            @Override
-            public void call(String value) {
-                mesages.add(value);
-            }
-        };
+        Callback transactionCallback = new TransactionCallback();
         signatureEventHandler.setLatch(new CountDownLatch(1));
         RewardsTransaction rewardsTransaction = new RewardsTransaction();
         rewardsTransaction.setType(TransactionType.REWARDS);
@@ -143,7 +136,7 @@ public class AllTransactionTest {
         publisher.publish(rewardsTransaction);
         signatureEventHandler.getLatch().await();
         publisher.getJobSyncUntilRemainingCapacityZero();
-        assertTrue(mesages.isEmpty());
+        assertTrue(((TransactionCallback)transactionCallback).getMessages().isEmpty());
     }
 
     @SneakyThrows
@@ -151,13 +144,7 @@ public class AllTransactionTest {
     public void staking_test() throws InterruptedException {
         MemoryTransactionPool.getInstance().clear();
         signatureEventHandler.setLatch(new CountDownLatch(1));
-        ArrayList<String> mesages = new ArrayList<>();
-        TransactionCallback transactionCallback = new TransactionCallback() {
-            @Override
-            public void call(String value) {
-                mesages.add(value);
-            }
-        };
+        Callback transactionCallback = new TransactionCallback();
         StakingTransaction stakingTransaction = new StakingTransaction();
         stakingTransaction.setValidatorAddress(address1);
         stakingTransaction.setType(TransactionType.STAKING);
@@ -181,20 +168,14 @@ public class AllTransactionTest {
         publisher.publish(stakingTransaction);
         signatureEventHandler.getLatch().await();
         publisher.getJobSyncUntilRemainingCapacityZero();
-        assertTrue(mesages.isEmpty());
+        assertTrue(((TransactionCallback)transactionCallback).getMessages().isEmpty());
     }
 
     @SneakyThrows
     @Test
     public void un_staking_test() throws InterruptedException {
         MemoryTransactionPool.getInstance().clear();
-        ArrayList<String> mesages = new ArrayList<>();
-        TransactionCallback transactionCallback = new TransactionCallback() {
-            @Override
-            public void call(String value) {
-                mesages.add(value);
-            }
-        };
+        Callback transactionCallback = new TransactionCallback();
         signatureEventHandler.setLatch(new CountDownLatch(1));
         UnstakingTransaction unstakingTransaction = new UnstakingTransaction();
         unstakingTransaction.setValidatorAddress(address1);
@@ -219,20 +200,14 @@ public class AllTransactionTest {
         publisher.publish(unstakingTransaction);
         signatureEventHandler.getLatch().await();
         publisher.getJobSyncUntilRemainingCapacityZero();
-        assertTrue(mesages.isEmpty());
+        assertTrue(((TransactionCallback)transactionCallback).getMessages().isEmpty());
     }
 
     @Test
     public void delegate_test() throws InterruptedException {
         MemoryTransactionPool.getInstance().clear();
         signatureEventHandler.setLatch(new CountDownLatch(1));
-        ArrayList<String> mesages = new ArrayList<>();
-        TransactionCallback transactionCallback = new TransactionCallback() {
-            @Override
-            public void call(String value) {
-                mesages.add(value);
-            }
-        };
+        Callback transactionCallback = new TransactionCallback();
         DelegateTransaction delegateTransaction = new DelegateTransaction();
         delegateTransaction.setDelegatorAddress(address1);
         delegateTransaction.setValidatorAddress(address2);
@@ -252,7 +227,7 @@ public class AllTransactionTest {
         publisher.publish(delegateTransaction);
         signatureEventHandler.getLatch().await();
         publisher.getJobSyncUntilRemainingCapacityZero();
-        assertTrue(mesages.isEmpty());
+        assertTrue(((TransactionCallback)transactionCallback).getMessages().isEmpty());
     }
 
     @Test
@@ -275,13 +250,7 @@ public class AllTransactionTest {
         TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(address1).get().addTransactionPosition(PatriciaTreeTransactionType.DELEGATE, delegateTransaction.getHash(), 0, transactionBlock1.getHeight(), position);
         TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(address2).get().addTransactionPosition(PatriciaTreeTransactionType.DELEGATE, delegateTransaction.getHash(), 0, transactionBlock1.getHeight(), position);
         signatureEventHandler.setLatch(new CountDownLatch(1));
-        ArrayList<String> mesages = new ArrayList<>();
-        TransactionCallback transactionCallback = new TransactionCallback() {
-            @Override
-            public void call(String value) {
-                mesages.add(value);
-            }
-        };
+        Callback transactionCallback = new TransactionCallback();
         UnDelegateTransaction unDelegateTransaction = new UnDelegateTransaction();
         unDelegateTransaction.setDelegatorAddress(address1);
         unDelegateTransaction.setValidatorAddress(address2);
@@ -316,13 +285,7 @@ public class AllTransactionTest {
         Thread.sleep(500);
         String time2 = GetTime.GetTimeStampInString();
         signatureEventHandler.setLatch(new CountDownLatch(1));
-        ArrayList<String> mesages = new ArrayList<>();
-        TransactionCallback transactionCallback = new TransactionCallback() {
-            @Override
-            public void call(String value) {
-                mesages.add(value);
-            }
-        };
+        Callback transactionCallback = new TransactionCallback();
         DelegateTransaction delegateTransaction = new DelegateTransaction();
         delegateTransaction.setDelegatorAddress(address1);
         delegateTransaction.setValidatorAddress(address2);
@@ -364,7 +327,7 @@ public class AllTransactionTest {
         publisher.publish(delegateTransaction2);
         signatureEventHandler.getLatch().await();
         publisher.getJobSyncUntilRemainingCapacityZero();
-        assertEquals(2, mesages.size());
+        assertEquals(2,((TransactionCallback)transactionCallback).getMessages().size());
 
     }
 

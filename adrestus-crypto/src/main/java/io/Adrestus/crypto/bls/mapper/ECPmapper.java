@@ -3,6 +3,7 @@ package io.Adrestus.crypto.bls.mapper;
 import io.Adrestus.crypto.bls.BLS381.BIG;
 import io.Adrestus.crypto.bls.BLS381.ECP;
 import io.activej.serializer.*;
+import io.activej.serializer.def.SimpleSerializerDef;
 
 public class ECPmapper extends SimpleSerializerDef<ECP> {
     private static final int ARRAY_LEN = 2 * (BIG.MODBYTES + 1);

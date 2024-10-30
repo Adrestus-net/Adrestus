@@ -76,7 +76,6 @@ public class SignatureEventHandler extends TransactionEventHandler implements Tr
     public void visit(RegularTransaction regularTransaction) {
         FinalizeTask task = new FinalizeTask(regularTransaction, regularTransaction.getFrom());
         Thread.ofVirtual().start(task);
-        latch.countDown();
     }
 
     @Override

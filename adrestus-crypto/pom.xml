@@ -16,8 +16,8 @@
     <url>http://www.example.com</url>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
         <spongycastle.version>1.58.0.0</spongycastle.version>
         <util.version>1.0-SNAPSHOT</util.version>
         <bcprov.version>1.78.1</bcprov.version>
@@ -105,16 +105,30 @@
         <dependency>
             <groupId>io.activej</groupId>
             <artifactId>activej-serializer</artifactId>
-            <version>${serializer.version}</version>
+            <version>${activej.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.activej</groupId>
+            <artifactId>activej-codegen</artifactId>
+            <version>${activej.version}</version>
         </dependency>
         <dependency>
             <groupId>io.activej</groupId>
             <artifactId>activej-bytebuf</artifactId>
-            <version>${serializer.version}</version>
+            <version>${activej.version}</version>
         </dependency>
     </dependencies>
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.13.0</version>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
@@ -177,7 +191,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.5.0</version>
+                <version>3.6.0</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -200,7 +214,8 @@
                                         <exclude>META-INF/*.MF</exclude>
                                         <exclude>META-INF/*.SF</exclude>
                                         <exclude>META-INF/*.DSA</exclude>
-                                        <exclude>META-INF/*.RSA</exclude><!-- Exclude current ASM version -->
+                                        <exclude>META-INF/*.RSA</exclude>
+                                        <exclude>META-INF/versions/21/**</exclude>
                                     </excludes>
                                 </filter>
                             </filters>

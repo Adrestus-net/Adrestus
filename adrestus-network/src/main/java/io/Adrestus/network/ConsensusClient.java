@@ -15,10 +15,15 @@ import java.util.concurrent.LinkedBlockingDeque;
 
 import static io.Adrestus.config.ConsensusConfiguration.*;
 
+
+// If you want synchronization code reset here Fixes synchronization and parallelizes the whole process e8698f68
+//or in this commit Zermq old configuration you can reset here in this commit 5571828
 public class ConsensusClient {
 
     private static Logger LOG = LoggerFactory.getLogger(ConsensusClient.class);
+    private int MESSAGES = 6;
     private int MAX_MESSAGES = 6;
+    private static final int MAX_AVAILABLE = 6;
     private ZContext ctx;
     private final ZMQ.Socket subscriber;
     private final ZMQ.Socket push;
@@ -48,13 +53,13 @@ public class ConsensusClient {
         this.erasure = ctx.createSocket(SocketType.DEALER);
         this.erasure.setReceiveTimeOut(CONSENSUS_ERASURE_RECEIVE_TIMEOUT);
         this.erasure.setSendTimeOut(CONSENSUS_ERASURE_SEND_TIMEOUT);
+        this.erasure.setSndHWM(0);
 
 
-        this.connected.setHWM(1000);
-        this.subscriber.setHWM(1000);
-        this.erasure.setHWM(1000);
+        this.connected.setHWM(1);
         this.connected.setLinger(200);
         this.subscriber.setLinger(200);
+        this.subscriber.setHWM(3);
 
         this.subscriber.connect("tcp://" + IP + ":" + SUBSCRIBER_PORT);
         this.connected.connect("tcp://" + IP + ":" + CONNECTED_PORT);
@@ -84,13 +89,13 @@ public class ConsensusClient {
         this.erasure = ctx.createSocket(SocketType.DEALER);
         this.erasure.setReceiveTimeOut(CONSENSUS_ERASURE_RECEIVE_TIMEOUT);
         this.erasure.setSendTimeOut(CONSENSUS_ERASURE_SEND_TIMEOUT);
+        this.erasure.setSndHWM(0);
 
 
-        this.connected.setHWM(1000);
-        this.subscriber.setHWM(1000);
-        this.erasure.setHWM(1000);
+        this.connected.setHWM(1);
         this.connected.setLinger(200);
         this.subscriber.setLinger(200);
+        this.subscriber.setHWM(3);
 
         this.subscriber.connect("tcp://" + IP + ":" + SUBSCRIBER_PORT);
         this.connected.connect("tcp://" + IP + ":" + CONNECTED_PORT);
@@ -122,12 +127,12 @@ public class ConsensusClient {
         this.erasure.setIdentity(identity.getBytes(ZMQ.CHARSET));
         this.erasure.setReceiveTimeOut(CONSENSUS_ERASURE_RECEIVE_TIMEOUT);
         this.erasure.setSendTimeOut(CONSENSUS_ERASURE_SEND_TIMEOUT);
+        this.erasure.setSndHWM(0);
 
-        this.connected.setHWM(1000);
-        this.subscriber.setHWM(1000);
-        this.erasure.setHWM(1000);
+        this.connected.setHWM(1);
         this.connected.setLinger(200);
         this.subscriber.setLinger(200);
+        this.subscriber.setHWM(3);
 
         this.subscriber.connect("tcp://" + IP + ":" + SUBSCRIBER_PORT);
         this.connected.connect("tcp://" + IP + ":" + CONNECTED_PORT);
@@ -201,7 +206,7 @@ public class ConsensusClient {
     public void receive_handler() {
         Runnable runnableTask = () -> {
             byte[] data = {1};
-            while (MAX_MESSAGES > 0) {
+            while (MESSAGES > 0 && MAX_MESSAGES > 0) {
                 //available.acquire();
                 //         System.out.println("acquire");
                 try {
@@ -218,6 +223,7 @@ public class ConsensusClient {
                 } else {
                     message_deque.add(new byte[0]);
                 }
+                MESSAGES--;
                 MAX_MESSAGES--;
                 receive_latch.countDown();
             }

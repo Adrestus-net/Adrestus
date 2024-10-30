@@ -3,9 +3,11 @@ package io.Adrestus.util;
 import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
 import io.Adrestus.config.AdrestusConfiguration;
+import io.activej.codegen.DefiningClassLoader;
 import io.activej.serializer.BinarySerializer;
-import io.activej.serializer.SerializerBuilder;
-import io.activej.serializer.SerializerDef;
+import io.activej.serializer.CompatibilityLevel;
+import io.activej.serializer.SerializerFactory;
+import io.activej.serializer.def.SerializerDef;
 import io.activej.types.scanner.TypeScannerRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,58 +19,60 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class SerializationUtil<T> {
-    private static Logger LOG = LoggerFactory.getLogger(SerializationUtil.class);
-
+    private static final Logger LOG = LoggerFactory.getLogger(SerializationUtil.class);
+    private static final DefiningClassLoader DEFINING_CLASS_LOADER = DefiningClassLoader.create();
     private static final byte[] END_BYTES = "\r\n".getBytes(UTF_8);
-    private Class type;
-    private BinarySerializer<T> serializer;
-    private BinarySerializer<List<T>> list_serializer;
+    private static Integer[] size;
+
+    private final Class<T> type;
+    private final BinarySerializer<T> serializer;
+    private final BinarySerializer<List<T>> listSerializer;
     private byte[] buffer;
-    private static Integer size[];
 
     static {
         ObjectSizeCalculator.disableAccessWarnings();
         Init();
     }
 
-    public SerializationUtil(Class type) {
+    public SerializationUtil(Class<T> type) {
         this.type = type;
-        serializer = SerializerBuilder.create().build(this.type);
+        this.serializer = SerializerFactory.defaultInstance().create(this.type);
+        this.listSerializer = null;
     }
 
 
     public SerializationUtil(Type type) {
-        serializer = SerializerBuilder.create().build(type);
+        this.serializer = SerializerFactory.builder().build().create(type);
+        this.listSerializer = null;
+        this.type = null;
     }
 
     public SerializationUtil(Class cls, List<Mapping> list, boolean bool) {
+        this.type = cls;
+        var factory = SerializerFactory.builder();
+        list.forEach(val -> factory.with(val.getType(), val.getSerializerDefMapping()));
+        var f = setModelAndGetCorrespondingList2(cls);
+        this.listSerializer = factory.build().create(f);
         this.serializer = null;
-        SerializerBuilder builder = SerializerBuilder.create();
-        list.forEach(val -> {
-            builder.with(val.type, val.serializerDefMapping);
-        });
-        Type f = setModelAndGetCorrespondingList2(cls);
-        list_serializer = builder.build(f);
     }
 
     public SerializationUtil(Type type, List<Mapping> list) {
-        SerializerBuilder builder = SerializerBuilder.create();
-        list.forEach(val -> {
-            builder.with(val.type, val.serializerDefMapping);
-        });
-        serializer = builder.build(type);
+        this.type = null;
+        var factory = SerializerFactory.builder();
+        list.forEach(val -> factory.with(val.getType(), val.getSerializerDefMapping()));
+        this.serializer = factory.build().create(type);
+        this.listSerializer = null;
     }
 
-    public SerializationUtil(Class clas, List<Mapping> list) {
-        SerializerBuilder builder = SerializerBuilder.create();
-        list.forEach(val -> {
-            builder.with(val.type, val.serializerDefMapping);
-        });
-        serializer = builder.build(clas);
+    public SerializationUtil(Class<T> cls, List<Mapping> list) {
+        this.type = cls;
+        var factory = SerializerFactory.builder();
+        list.forEach(val -> factory.with(val.getType(), val.getSerializerDefMapping()));
+        this.serializer = factory.build().create(cls);
+        this.listSerializer = null;
     }
 
 
@@ -159,10 +163,6 @@ public class SerializationUtil<T> {
         return type;
     }
 
-    public void setType(Class type) {
-        this.type = type;
-    }
-
 
     public synchronized byte[] encode(T value) {
         // int buff_size2 = search((int) (ObjectSizer.retainedSize(value)));
@@ -193,7 +193,7 @@ public class SerializationUtil<T> {
         try {
             int buff_size = search((int) (ObjectSizeCalculator.getObjectSize(value)));
             buffer = new byte[buff_size];
-            list_serializer.encode(buffer, 0, value);
+            listSerializer.encode(buffer, 0, value);
             return buffer;
         } catch (Exception e) {
             e.printStackTrace();
@@ -265,7 +265,7 @@ public class SerializationUtil<T> {
     }
 
     public List<T> decode_list(byte[] buffer) {
-        return list_serializer.decode(buffer, 0);
+        return listSerializer.decode(buffer, 0);
     }
 
     public BinarySerializer<T> getSerializer() {
@@ -274,14 +274,12 @@ public class SerializationUtil<T> {
 
 
     public static int sizeof(Object obj) throws IOException {
-        ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
-        ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteOutputStream);
-
-        objectOutputStream.writeObject(obj);
-        objectOutputStream.flush();
-        objectOutputStream.close();
-
-        return byteOutputStream.toByteArray().length;
+        try (var byteOutputStream = new ByteArrayOutputStream();
+             var objectOutputStream = new ObjectOutputStream(byteOutputStream)) {
+            objectOutputStream.writeObject(obj);
+            objectOutputStream.flush();
+            return byteOutputStream.toByteArray().length;
+        }
     }
 
     public static final class Mapping {

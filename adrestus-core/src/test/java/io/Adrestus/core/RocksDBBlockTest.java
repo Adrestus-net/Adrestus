@@ -33,8 +33,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class RocksDBBlockTest {
     private static ArrayList<String> addreses = new ArrayList<>();
@@ -75,8 +74,7 @@ public class RocksDBBlockTest {
     private static BlockSizeCalculator sizeCalculator;
     private static KademliaData kad1, kad2, kad3, kad4, kad5, kad6;
     private static ECDSASignatureData signatureData1, signatureData2, signatureData3;
-    private static TransactionCallback transactionCallback;
-    private static ArrayList<String> mesages = new ArrayList<>();
+    private static Callback transactionCallback;
     private static int version = 0x00;
     private static int size = 5;
     private static ECKeyPair ecKeyPair1, ecKeyPair2, ecKeyPair3;
@@ -152,11 +150,17 @@ public class RocksDBBlockTest {
         IDatabase<String, AbstractBlock> database = new DatabaseFactory(String.class, AbstractBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.ZONE_1_TRANSACTION_BLOCK);
         String hash = "Hash";
         TransactionBlock prevblock = new TransactionBlock();
+        Callback transactionCallback = new TransactionCallback();
+        Transaction transaction=new RegularTransaction("1");
+        transaction.setTransactionCallback(transactionCallback);
+        transaction.infos("erro");
+        assertFalse(((TransactionCallback)transactionCallback).getMessages().isEmpty());
         CommitteeBlock committeeBlock = new CommitteeBlock();
         committeeBlock.setGeneration(1);
         committeeBlock.setViewID(1);
         prevblock.setHeight(1);
         prevblock.setHash(hash);
+        prevblock.getTransactionList().add(transaction);
         database.save(hash, prevblock);
         TransactionBlock copy = (TransactionBlock) database.findByKey(hash).get();
         assertEquals(prevblock, copy);

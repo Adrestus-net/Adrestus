@@ -47,7 +47,7 @@ public class BlockSizeCalculatorTest {
         map.put(receipt2, list2);
         b.getInbound().getMap_receipts().put(1, map);
         BlockSizeCalculator blockSizeCalculator = new BlockSizeCalculator(b);
-        assertEquals(13312, blockSizeCalculator.TransactionBlockSizeCalculator());
+        assertEquals(14336, blockSizeCalculator.TransactionBlockSizeCalculator());
     }
 
     @Test
@@ -103,7 +103,7 @@ public class BlockSizeCalculatorTest {
         b.getInbound().getMap_receipts().put(1, map);
         b.getOutbound().getMap_receipts().put(0, out_map);
         BlockSizeCalculator blockSizeCalculator = new BlockSizeCalculator(b);
-        assertEquals(17408, blockSizeCalculator.TransactionBlockSizeCalculator());
+        assertEquals(18432, blockSizeCalculator.TransactionBlockSizeCalculator());
     }
 
     @Test
@@ -131,7 +131,7 @@ public class BlockSizeCalculatorTest {
         b.getInbound().getMap_receipts().put(0, map1);
         b.getInbound().getMap_receipts().put(1, map2);
         BlockSizeCalculator blockSizeCalculator = new BlockSizeCalculator(b);
-        assertEquals(13312, blockSizeCalculator.TransactionBlockSizeCalculator());
+        assertEquals(14336, blockSizeCalculator.TransactionBlockSizeCalculator());
     }
 
     @Test

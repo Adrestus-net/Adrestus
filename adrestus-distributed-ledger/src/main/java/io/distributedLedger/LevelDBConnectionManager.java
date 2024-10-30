@@ -35,13 +35,13 @@ public class LevelDBConnectionManager<K, V> implements IDatabase<K, V> {
     private String CONNECTION_NAME = "TransactionDatabase";
 
     private static volatile LevelDBConnectionManager instance;
-    private final SerializationUtil valueMapper;
-    private final SerializationUtil keyMapper;
+    private final SerializationUtil<V> valueMapper;
+    private final SerializationUtil<K> keyMapper;
     private final Class<K> keyClass;
     private final ReentrantReadWriteLock rwl;
     private final Lock r;
     private final Lock w;
-
+    private final String path;
 
     private Class<V> valueClass;
     private File dbFile;
@@ -53,7 +53,8 @@ public class LevelDBConnectionManager<K, V> implements IDatabase<K, V> {
         this.rwl = new ReentrantReadWriteLock();
         this.r = rwl.readLock();
         this.w = rwl.writeLock();
-        this.dbFile = new File(Directory.getConfigPath() + CONNECTION_NAME);
+        this.path= Directory.getConfigPathPlusPathName(CONNECTION_NAME);
+        this.dbFile = new File(this.path);
         this.valueClass = valueClass;
         this.keyClass = keyClass;
         this.keyMapper = new SerializationUtil<>(this.keyClass);
@@ -74,7 +75,7 @@ public class LevelDBConnectionManager<K, V> implements IDatabase<K, V> {
         } else {
             this.CONNECTION_NAME = "TransactionDatabase";
         }
-        String path = Paths.get(Directory.getConfigPath(), CONNECTION_NAME).toString();
+        this.path=Directory.getConfigPathPlusPathName(CONNECTION_NAME);
         this.dbFile = new File(path);
         this.keyClass = keyClass;
         this.keyMapper = new SerializationUtil<>(this.keyClass);
@@ -156,7 +157,7 @@ public class LevelDBConnectionManager<K, V> implements IDatabase<K, V> {
         try {
             if (value instanceof String) {
                 byte[] serializedkey = keyMapper.encode(key);
-                byte[] serializedValue = valueMapper.encode(value);
+                byte[] serializedValue = valueMapper.encode((V) value);
                 level_db.put(serializedkey, serializedValue);
             } else if (CONNECTION_NAME.contains("ReceiptDatabase")) {
                 final Optional<V> obj = findByKey(key);
@@ -172,8 +173,8 @@ public class LevelDBConnectionManager<K, V> implements IDatabase<K, V> {
                     wrapper = (LevelDBReceiptWrapper) obj.get();
                     wrapper.addTo(value);
                 }
-                byte[] serializedkey = keyMapper.encode(key);
-                byte[] serializedValue = valueMapper.encode(wrapper);
+                byte[] serializedkey = keyMapper.encode((key));
+                byte[] serializedValue = valueMapper.encode((V) wrapper);
                 level_db.put(serializedkey, serializedValue);
                 return;
             } else {
@@ -202,7 +203,7 @@ public class LevelDBConnectionManager<K, V> implements IDatabase<K, V> {
                     }
                 }
                 byte[] serializedkey = keyMapper.encode(key);
-                byte[] serializedValue = valueMapper.encode(wrapper);
+                byte[] serializedValue = valueMapper.encode((V) wrapper);
                 level_db.put(serializedkey, serializedValue);
                 return;
             }
@@ -224,8 +225,8 @@ public class LevelDBConnectionManager<K, V> implements IDatabase<K, V> {
         w.lock();
         try {
             if (value instanceof String) {
-                byte[] serializedkey = keyMapper.encode(key);
-                byte[] serializedValue = valueMapper.encode(value);
+                byte[] serializedkey = keyMapper.encode((key));
+                byte[] serializedValue = valueMapper.encode((V) value);
                 level_db.put(serializedkey, serializedValue);
             } else if (CONNECTION_NAME.contains("ReceiptDatabase")) {
                 final Optional<V> obj = findByKey(key);
@@ -242,7 +243,7 @@ public class LevelDBConnectionManager<K, V> implements IDatabase<K, V> {
                     wrapper.addTo(value);
                 }
                 byte[] serializedkey = keyMapper.encode(key);
-                byte[] serializedValue = valueMapper.encode(wrapper);
+                byte[] serializedValue = valueMapper.encode((V) wrapper);
                 level_db.put(serializedkey, serializedValue);
                 return;
             } else {
@@ -271,7 +272,7 @@ public class LevelDBConnectionManager<K, V> implements IDatabase<K, V> {
                     }
                 }
                 byte[] serializedkey = keyMapper.encode(key);
-                byte[] serializedValue = valueMapper.encode(wrapper);
+                byte[] serializedValue = valueMapper.encode((V) wrapper);
                 level_db.put(serializedkey, serializedValue);
                 return;
             }

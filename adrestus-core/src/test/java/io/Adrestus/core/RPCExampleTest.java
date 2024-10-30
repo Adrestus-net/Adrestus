@@ -42,10 +42,11 @@ import io.Adrestus.util.GetTime;
 import io.Adrestus.util.SerializationUtil;
 import io.activej.eventloop.Eventloop;
 import io.activej.promise.Promise;
+import io.activej.reactor.Reactor;
+import io.activej.reactor.nio.NioReactor;
 import io.activej.rpc.client.RpcClient;
-import io.activej.rpc.client.sender.RpcStrategy;
-import io.activej.rpc.client.sender.RpcStrategyList;
-import io.activej.rpc.client.sender.RpcStrategyRoundRobin;
+import io.activej.rpc.client.sender.strategy.RpcStrategies;
+import io.activej.rpc.client.sender.strategy.RpcStrategy;
 import io.activej.rpc.server.RpcRequestHandler;
 import io.activej.rpc.server.RpcServer;
 import io.activej.serializer.annotations.Deserialize;
@@ -71,7 +72,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static io.activej.rpc.client.sender.RpcStrategies.server;
+import static io.activej.rpc.client.sender.strategy.RpcStrategies.server;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -82,7 +83,7 @@ class RPCExampleTest {
     private static final int TIMEOUT = 1500;
     private static RpcServer serverOne, serverTwo, serverThree;
     private static Thread thread;
-    private static Eventloop eventloop = CachedEventLoop.getInstance().getEventloop();
+    private static Eventloop eventloop=CachedEventLoop.getInstance().getEventloop();
     private static InetSocketAddress address1, address2, address3;
     private static SerializationUtil<TransactionBlock> encode;
 
@@ -223,43 +224,42 @@ class RPCExampleTest {
         address1 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 8080);
         address2 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 8081);
         address3 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 8084);
-        Eventloop eventloop = Eventloop.getCurrentEventloop();
-        serverOne = RpcServer.create(eventloop)
+        Eventloop eventloop = CachedEventLoop.getInstance().getEventloop();
+        serverOne = RpcServer.builder(eventloop)
                 .withMessageTypes(HelloRequest.class, HelloResponse.class)
-                .withHandler(HelloRequest.class,
-                        helloServiceRequestHandler(new HelloServiceImplOne()))
-                .withListenAddress(address1);
+                .withHandler(HelloRequest.class, helloServiceRequestHandler(new HelloServiceImplOne()))
+                .withListenAddress(address1).build();
         serverOne.listen();
 
 
-        serverTwo = RpcServer.create(eventloop)
+        serverTwo = RpcServer.builder(eventloop)
                 .withMessageTypes(HelloRequest.class, HelloResponse.class)
-                .withHandler(HelloRequest.class,
-                        helloServiceRequestHandler(new HelloServiceImplTwo()))
-                .withListenAddress(address2);
+                .withHandler(HelloRequest.class, helloServiceRequestHandler(new HelloServiceImplTwo()))
+                .withListenAddress(address2)
+                .build();
 
         serverTwo.listen();
 
-        serverThree = RpcServer.create(eventloop)
+        serverThree = RpcServer.builder(eventloop)
                 .withMessageTypes(HelloRequest.class, HelloResponse.class)
                 .withHandler(HelloRequest.class,
                         helloServiceRequestHandler(new HelloServiceImplThree()))
-                .withListenAddress(address3);
+                .withListenAddress(address3)
+                .build();
 
         serverThree.listen();
-        thread = new Thread(eventloop);
-        thread.start();
+        CachedEventLoop.getInstance().start();
 
 
         ArrayList<RpcStrategy> list = new ArrayList<>();
         list.add(server(address1));
         list.add(server(address2));
         list.add(server(address3));
-        RpcStrategyList rpcStrategyList = RpcStrategyList.ofStrategies(list);
 
-        RpcClient client = RpcClient.create(eventloop)
+        RpcClient client = RpcClient.builder(eventloop)
                 .withMessageTypes(HelloRequest.class, HelloResponse.class)
-                .withStrategy(RpcStrategyRoundRobin.create(rpcStrategyList));
+                .withStrategy(RpcStrategies.roundRobin(list))
+                .build();
 
         try {
             client.startFuture().get(5, TimeUnit.SECONDS);
@@ -290,13 +290,22 @@ class RPCExampleTest {
 
     @AfterAll
     public static void after() {
-        serverOne.close();
-        serverTwo.close();
-        serverThree.close();
-
-//        serverOne = null;
-//        serverTwo = null;
-//        serverThree = null;
+        serverOne.closeFuture().cancel(true);
+        serverTwo.closeFuture().cancel(true);
+        serverThree.closeFuture().cancel(true);
+        try {
+            serverOne.closeFuture().get(10000, TimeUnit.MILLISECONDS);
+            serverTwo.closeFuture().get(10000, TimeUnit.MILLISECONDS);
+            serverThree.closeFuture().get(10000, TimeUnit.MILLISECONDS);
+            serverOne.stopMonitoring();
+            serverTwo.stopMonitoring();
+            serverThree.stopMonitoring();
+            serverOne = null;
+            serverTwo = null;
+            serverThree = null;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test
@@ -346,6 +355,7 @@ class RPCExampleTest {
 
             database.delete_db();
         } catch (Exception e) {
+            e.printStackTrace();
             System.out.println("Exception caught: " + e.toString());
         }
     }
@@ -382,6 +392,7 @@ class RPCExampleTest {
             example = null;
             database.delete_db();
         } catch (Exception e) {
+            e.printStackTrace();
             System.out.println("Exception caught: " + e.toString());
         }
     }
@@ -415,6 +426,7 @@ class RPCExampleTest {
             example = null;
             database.delete_db();
         } catch (Exception e) {
+            e.printStackTrace();
             System.out.println("Exception caught: " + e.toString());
         }
     }
@@ -441,7 +453,7 @@ class RPCExampleTest {
 
 
             ArrayList<InetSocketAddress> list = new ArrayList<>();
-            InetSocketAddress address1 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 3070);
+            InetSocketAddress address1 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 6073);
             InetSocketAddress address2 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 6071);
             InetSocketAddress address3 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 6072);
             list.add(address1);
@@ -471,6 +483,7 @@ class RPCExampleTest {
             server3 = null;
             database.delete_db();
         } catch (Exception e) {
+            e.printStackTrace();
             System.out.println("Exception caught: " + e.toString());
         }
 
@@ -479,9 +492,8 @@ class RPCExampleTest {
     @Test
     @Order(2)
     public void myBmultiple_download_patricia_tree() throws Exception {
+        IDatabase<String, byte[]> tree_datasbase = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getPatriciaTreeZoneInstance(0));
         try {
-            IDatabase<String, byte[]> tree_datasbase = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getPatriciaTreeZoneInstance(0));
-
             Type fluentType = new TypeToken<MemoryTreePool>() {
             }.getType();
             List<SerializationUtil.Mapping> seri = new ArrayList<>();
@@ -505,13 +517,14 @@ class RPCExampleTest {
             list.add(address1);
             list.add(address2);
             list.add(address3);
-            RpcAdrestusServer server1 = new RpcAdrestusServer(new byte[]{}, ZoneDatabaseFactory.getPatriciaTreeZoneInstance(0), address1, eventloop);
-            RpcAdrestusServer server2 = new RpcAdrestusServer(new byte[]{}, ZoneDatabaseFactory.getPatriciaTreeZoneInstance(0), address2, eventloop);
-            RpcAdrestusServer server3 = new RpcAdrestusServer(new byte[]{}, ZoneDatabaseFactory.getPatriciaTreeZoneInstance(0), address3, eventloop);
+            RpcAdrestusServer server1 = new RpcAdrestusServer(new byte[]{}, ZoneDatabaseFactory.getPatriciaTreeZoneInstance(0), address1, CachedEventLoop.getInstance().getEventloop());
+            RpcAdrestusServer server2 = new RpcAdrestusServer(new byte[]{}, ZoneDatabaseFactory.getPatriciaTreeZoneInstance(0), address2, CachedEventLoop.getInstance().getEventloop());
+            RpcAdrestusServer server3 = new RpcAdrestusServer(new byte[]{}, ZoneDatabaseFactory.getPatriciaTreeZoneInstance(0), address3, CachedEventLoop.getInstance().getEventloop());
             new Thread(server1).start();
             new Thread(server2).start();
             new Thread(server3).start();
-            RpcAdrestusClient client = new RpcAdrestusClient(new byte[]{}, list, eventloop);
+
+            RpcAdrestusClient client = new RpcAdrestusClient(new byte[]{}, list, CachedEventLoop.getInstance().getEventloop());
             client.connect();
             List<byte[]> trees = client.getPatriciaTreeList("patricia_tree_root");
 
@@ -524,9 +537,12 @@ class RPCExampleTest {
             server1 = null;
             server2 = null;
             server3 = null;
-            tree_datasbase.delete_db();
         } catch (Exception e) {
+            e.printStackTrace();
             System.out.println("Exception caught: " + e.toString());
+        }
+        finally {
+            tree_datasbase.delete_db();
         }
     }
 
@@ -552,6 +568,7 @@ class RPCExampleTest {
             } catch (IllegalArgumentException e) {
             }
         } catch (Exception e) {
+            e.printStackTrace();
             System.out.println("Exception caught: " + e.toString());
         }
 
@@ -587,6 +604,7 @@ class RPCExampleTest {
             }
 
         } catch (Exception e) {
+            e.printStackTrace();
             System.out.println("Exception caught: " + e.toString());
         }
     }
@@ -620,6 +638,7 @@ class RPCExampleTest {
             server1 = null;
             database.delete_db();
         } catch (Exception e) {
+            e.printStackTrace();
             System.out.println("Exception caught: " + e.toString());
         }
     }
@@ -662,6 +681,7 @@ class RPCExampleTest {
             server1 = null;
             database.delete_db();
         } catch (Exception e) {
+            e.printStackTrace();
             System.out.println("Exception caught: " + e.toString());
         }
     }
@@ -817,7 +837,6 @@ class RPCExampleTest {
         CachedSerializableErasureObject.getInstance().setSerializableErasureObject(serializableErasureObjects.get(0));
         RpcErasureServer<SerializableErasureObject> example = new RpcErasureServer<SerializableErasureObject>(new SerializableErasureObject(), "localhost", 6082, eventloop, blocksize);
         new Thread(example).start();
-        Thread.sleep(1900);
         RpcErasureClient<SerializableErasureObject> client = new RpcErasureClient<SerializableErasureObject>(new SerializableErasureObject(), "localhost", 6082, eventloop);
         client.connect();
         ArrayList<SerializableErasureObject> serializableErasureObject = (ArrayList<SerializableErasureObject>) client.getErasureChunks(new byte[0]);
@@ -887,9 +906,11 @@ class RPCExampleTest {
     public void test3() throws Exception {
         Eventloop eventloop = Eventloop.create();
         new Thread(eventloop).start();
-        RpcClient client = RpcClient.create(eventloop)
+        RpcClient client = RpcClient
+                .builder(eventloop)
                 .withMessageTypes(HelloRequest.class, HelloResponse.class)
-                .withStrategy(server(new InetSocketAddress("127.0.0.1", 8085)));
+                .withStrategy(server(new InetSocketAddress("127.0.0.1", 8085)))
+                .build();
 
         try {
             client.startFuture().get();
@@ -973,7 +994,7 @@ class RPCExampleTest {
 
     private static String blockingRequest(RpcClient rpcClient, String name) throws Exception {
         try {
-            return rpcClient.getEventloop().submit(
+            return rpcClient.getReactor().submit(
                             () -> rpcClient
                                     .<HelloRequest, HelloResponse>sendRequest(new HelloRequest(name), TIMEOUT))
                     .get(5, TimeUnit.SECONDS)

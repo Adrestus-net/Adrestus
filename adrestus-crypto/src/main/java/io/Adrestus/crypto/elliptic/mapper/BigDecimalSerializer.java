@@ -1,6 +1,7 @@
 package io.Adrestus.crypto.elliptic.mapper;
 
 import io.activej.serializer.*;
+import io.activej.serializer.def.SimpleSerializerDef;
 
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;

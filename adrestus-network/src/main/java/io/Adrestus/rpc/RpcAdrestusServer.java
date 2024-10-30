@@ -14,14 +14,19 @@ import io.Adrestus.mapper.MemoryTreePoolSerializer;
 import io.Adrestus.util.SerializationUtil;
 import io.activej.eventloop.Eventloop;
 import io.activej.promise.Promise;
+import io.activej.reactor.AbstractNioReactive;
+import io.activej.reactor.Reactor;
+import io.activej.rpc.protocol.RpcMessage;
 import io.activej.rpc.server.RpcRequestHandler;
 import io.activej.rpc.server.RpcServer;
-import io.activej.serializer.SerializerBuilder;
+import io.activej.serializer.BinarySerializer;
+import io.activej.serializer.SerializerFactory;
 import io.distributedLedger.DatabaseInstance;
 import io.distributedLedger.LevelDBTransactionWrapper;
 import io.distributedLedger.PatriciaTreeInstance;
 import lombok.SneakyThrows;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
@@ -34,9 +39,9 @@ import java.util.TreeMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
-public class RpcAdrestusServer<T> implements Runnable {
+public class RpcAdrestusServer<T> extends AbstractNioReactive implements AutoCloseable,Runnable {
 
-    private final SerializerBuilder rpcserialize;
+    private final BinarySerializer<RpcMessage> rpcserialize;
     private final Eventloop eventloop;
     private final T typeParameterClass;
 
@@ -59,7 +64,8 @@ public class RpcAdrestusServer<T> implements Runnable {
 
 
     public RpcAdrestusServer(T typeParameterClass, String host, int port, Eventloop eventloop) {
-        this.rpcserialize = SerializerBuilder.create();
+        super(eventloop.getReactor());
+        this.rpcserialize = SerializerFactory.defaultInstance().create((RpcMessage.class));
         this.host = host;
         this.port = port;
         this.eventloop = eventloop;
@@ -77,7 +83,8 @@ public class RpcAdrestusServer<T> implements Runnable {
     }
 
     public RpcAdrestusServer(T typeParameterClass, InetSocketAddress inetSocketAddress, Eventloop eventloop) {
-        this.rpcserialize = SerializerBuilder.create();
+        super(eventloop.getReactor());
+        this.rpcserialize = SerializerFactory.defaultInstance().create((RpcMessage.class));
         this.inetSocketAddress = inetSocketAddress;
         this.eventloop = eventloop;
         this.typeParameterClass = typeParameterClass;
@@ -94,8 +101,9 @@ public class RpcAdrestusServer<T> implements Runnable {
     }
 
     public RpcAdrestusServer(T typeParameterClass, Type fluentType, InetSocketAddress inetSocketAddress, Eventloop eventloop) {
+        super(eventloop.getReactor());
         this.fluentType = fluentType;
-        this.rpcserialize = SerializerBuilder.create();
+        this.rpcserialize = SerializerFactory.defaultInstance().create((RpcMessage.class));
         this.inetSocketAddress = inetSocketAddress;
         this.eventloop = eventloop;
         this.typeParameterClass = typeParameterClass;
@@ -110,7 +118,8 @@ public class RpcAdrestusServer<T> implements Runnable {
     }
 
     public RpcAdrestusServer(T typeParameterClass, DatabaseInstance instance, InetSocketAddress inetSocketAddress, Eventloop eventloop) {
-        this.rpcserialize = SerializerBuilder.create();
+        super(eventloop.getReactor());
+        this.rpcserialize = SerializerFactory.defaultInstance().create((RpcMessage.class));
         this.instance = instance;
         this.inetSocketAddress = inetSocketAddress;
         this.eventloop = eventloop;
@@ -128,7 +137,8 @@ public class RpcAdrestusServer<T> implements Runnable {
     }
 
     public RpcAdrestusServer(T typeParameterClass, PatriciaTreeInstance patriciaTreeInstance, InetSocketAddress inetSocketAddress, Eventloop eventloop) {
-        this.rpcserialize = SerializerBuilder.create();
+        super(eventloop.getReactor());
+        this.rpcserialize = SerializerFactory.defaultInstance().create((RpcMessage.class));
         this.patriciaTreeInstance = patriciaTreeInstance;
         this.inetSocketAddress = inetSocketAddress;
         this.eventloop = eventloop;
@@ -146,7 +156,8 @@ public class RpcAdrestusServer<T> implements Runnable {
     }
 
     public RpcAdrestusServer(T typeParameterClass, DatabaseInstance instance, String host, int port, Eventloop eventloop) {
-        this.rpcserialize = SerializerBuilder.create();
+        super(eventloop.getReactor());
+        this.rpcserialize = SerializerFactory.defaultInstance().create((RpcMessage.class));
         this.instance = instance;
         this.host = host;
         this.port = port;
@@ -166,7 +177,8 @@ public class RpcAdrestusServer<T> implements Runnable {
 
 
     public RpcAdrestusServer(T typeParameterClass, PatriciaTreeInstance patriciaTreeInstance, String host, int port, Eventloop eventloop) {
-        this.rpcserialize = SerializerBuilder.create();
+        super(eventloop.getReactor());
+        this.rpcserialize = SerializerFactory.defaultInstance().create((RpcMessage.class));
         this.patriciaTreeInstance = patriciaTreeInstance;
         this.host = host;
         this.port = port;
@@ -198,25 +210,31 @@ public class RpcAdrestusServer<T> implements Runnable {
             service = new Service(typeParameterClass.getClass());
         }
         if (inetSocketAddress != null) {
-            rpcServer = RpcServer.create(eventloop)
+            rpcServer = RpcServer.builder(eventloop)
                     .withMessageTypes(TransactionRequest.class, TransactionResponse.class, BlockRequest.class, ListBlockResponse.class, BlockRequest2.class, BlockResponse.class, PatriciaTreeRequest.class, PatriciaTreeResponse.class)
-                    .withSerializerBuilder(this.rpcserialize)
                     .withHandler(BlockRequest.class, download_blocks(service))
                     .withHandler(BlockRequest2.class, migrate_block(service))
                     .withHandler(PatriciaTreeRequest.class, downloadPatriciaTree(service))
                     .withHandler(TransactionRequest.class, downloadTransactionDatabase(service))
-                    .withListenAddress(inetSocketAddress);
+                    .withListenAddress(inetSocketAddress)
+                    .build();
         } else {
-            rpcServer = RpcServer.create(eventloop)
+            rpcServer = RpcServer.builder(eventloop)
                     .withMessageTypes(TransactionRequest.class, TransactionResponse.class, BlockRequest.class, ListBlockResponse.class, BlockRequest2.class, BlockResponse.class, PatriciaTreeRequest.class, PatriciaTreeResponse.class)
-                    .withSerializerBuilder(this.rpcserialize)
                     .withHandler(BlockRequest.class, download_blocks(service))
                     .withHandler(BlockRequest2.class, migrate_block(service))
                     .withHandler(PatriciaTreeRequest.class, downloadPatriciaTree(service))
                     .withHandler(TransactionRequest.class, downloadTransactionDatabase(service))
-                    .withListenAddress(new InetSocketAddress(host, port));
+                    .withListenAddress(new InetSocketAddress(host, port))
+                    .build();
         }
-        rpcServer.listen();
+        eventloop.submit(() -> {
+            try {
+                rpcServer.listen();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     private RpcRequestHandler<BlockRequest, ListBlockResponse> download_blocks(IService<T> service) {
@@ -282,14 +300,11 @@ public class RpcAdrestusServer<T> implements Runnable {
     public void close() {
         rpcServer.closeFuture().cancel(true);
         try {
-            rpcServer.closeFuture().get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        } catch (ExecutionException e) {
+            rpcServer.closeFuture().get(10000, TimeUnit.MILLISECONDS);
+            rpcServer.stopMonitoring();
+            rpcServer = null;
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        rpcServer.close();
-        rpcServer.stopMonitoring();
-        rpcServer = null;
     }
 }

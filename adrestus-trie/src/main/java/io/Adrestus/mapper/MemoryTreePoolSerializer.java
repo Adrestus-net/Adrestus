@@ -2,6 +2,7 @@ package io.Adrestus.mapper;
 
 import io.Adrestus.MemoryTreePool;
 import io.activej.serializer.*;
+import io.activej.serializer.def.SimpleSerializerDef;
 import lombok.SneakyThrows;
 import org.apache.fury.Fury;
 import org.apache.fury.config.CompatibleMode;

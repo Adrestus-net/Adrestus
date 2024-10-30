@@ -15,14 +15,15 @@
     <url>http://www.example.com</url>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>1.7</maven.compiler.source>
-        <maven.compiler.target>1.7</maven.compiler.target>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
         <crypto.version>1.0-SNAPSHOT</crypto.version>
         <jol.version>0.16</jol.version>
         <identity.version>0.4.3</identity.version>
         <vertx.core>4.3.7</vertx.core>
         <jupiter.version>5.9.2</jupiter.version>
         <mockito.version>4.11.0</mockito.version>
+        <activej.version>6.0-beta2</activej.version>
     </properties>
     <dependencies>
         <dependency>
@@ -79,9 +80,28 @@
             <artifactId>jamm</artifactId>
             <version>0.3.3</version>
         </dependency>
+        <dependency>
+            <groupId>io.activej</groupId>
+            <artifactId>activej-serializer</artifactId>
+            <version>${activej.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.activej</groupId>
+            <artifactId>activej-launchers-common</artifactId>
+            <version>${activej.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.13.0</version>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -96,16 +116,6 @@
                         --add-opens java.base/java.util=ALL-UNNAMED
                         --add-opens java.base/java.math=ALL-UNNAMED
                     </argLine>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>2.4</version>
-                <configuration>
-                    <archive>
-                        <index>true</index>
-                    </archive>
                 </configuration>
             </plugin>
             <plugin>
@@ -134,7 +144,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.5.0</version>
+                <version>3.6.0</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -158,6 +168,7 @@
                                         <exclude>META-INF/*.SF</exclude>
                                         <exclude>META-INF/*.DSA</exclude>
                                         <exclude>META-INF/*.RSA</exclude><!-- Exclude current ASM version -->
+                                        <exclude>META-INF/versions/21/**</exclude>
                                     </excludes>
                                 </filter>
                             </filters>

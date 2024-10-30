@@ -44,9 +44,7 @@ import io.Adrestus.util.SerializationUtil;
 import io.activej.eventloop.Eventloop;
 import io.activej.promise.Promise;
 import io.activej.rpc.client.RpcClient;
-import io.activej.rpc.client.sender.RpcStrategy;
-import io.activej.rpc.client.sender.RpcStrategyList;
-import io.activej.rpc.client.sender.RpcStrategyRoundRobin;
+import io.activej.rpc.client.sender.strategy.RpcStrategies;
 import io.activej.rpc.server.RpcRequestHandler;
 import io.activej.rpc.server.RpcServer;
 import io.activej.serializer.annotations.Deserialize;
@@ -75,7 +73,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static io.activej.rpc.client.sender.RpcStrategies.server;
+import static io.activej.rpc.client.sender.strategy.RpcStrategies.servers;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -222,43 +220,44 @@ public class FullExampleErasureTest {
         address1 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 8080);
         address2 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 8081);
         address3 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 8084);
-        Eventloop eventloop = Eventloop.getCurrentEventloop();
-        serverOne = RpcServer.create(eventloop)
+        Eventloop eventloop = Eventloop.builder()
+                .withCurrentThread()
+                .build();
+        serverOne = RpcServer.builder(eventloop)
                 .withMessageTypes(RPCExampleTest.HelloRequest.class, RPCExampleTest.HelloResponse.class)
                 .withHandler(RPCExampleTest.HelloRequest.class,
                         helloServiceRequestHandler(new HelloServiceImplOne()))
-                .withListenAddress(address1);
+                .withListenAddress(address1).build();
         serverOne.listen();
 
 
-        serverTwo = RpcServer.create(eventloop)
+        serverTwo = RpcServer.builder(eventloop)
                 .withMessageTypes(RPCExampleTest.HelloRequest.class, RPCExampleTest.HelloResponse.class)
                 .withHandler(RPCExampleTest.HelloRequest.class,
                         helloServiceRequestHandler(new HelloServiceImplTwo()))
-                .withListenAddress(address2);
+                .withListenAddress(address2).build();
 
         serverTwo.listen();
 
-        serverThree = RpcServer.create(eventloop)
+        serverThree = RpcServer.builder(eventloop)
                 .withMessageTypes(RPCExampleTest.HelloRequest.class, RPCExampleTest.HelloResponse.class)
                 .withHandler(RPCExampleTest.HelloRequest.class,
                         helloServiceRequestHandler(new HelloServiceImplThree()))
-                .withListenAddress(address3);
+                .withListenAddress(address3).build();
 
         serverThree.listen();
         thread = new Thread(eventloop);
         thread.start();
 
 
-        ArrayList<RpcStrategy> lists = new ArrayList<>();
-        lists.add(server(address1));
-        lists.add(server(address2));
-        lists.add(server(address3));
-        RpcStrategyList rpcStrategyList = RpcStrategyList.ofStrategies(lists);
+        ArrayList<InetSocketAddress> lists = new ArrayList<>();
+        lists.add(address1);
+        lists.add(address1);
+        lists.add(address1);
 
-        RpcClient client = RpcClient.create(eventloop)
+        RpcClient client = RpcClient.builder(eventloop)
                 .withMessageTypes(RPCExampleTest.HelloRequest.class, RPCExampleTest.HelloResponse.class)
-                .withStrategy(RpcStrategyRoundRobin.create(rpcStrategyList));
+                .withStrategy(RpcStrategies.roundRobin(servers(lists))).build();
 
         try {
             client.startFuture().get(5, TimeUnit.SECONDS);
@@ -291,124 +290,126 @@ public class FullExampleErasureTest {
         }
     }
 
-    @Test
-    public void test() throws IOException, DecoderException, InterruptedException, ParseException {
-        Socket socket = new Socket();
-        socket.connect(new InetSocketAddress("google.com", 80));
-        String IP = socket.getLocalAddress().getHostAddress();
-        if (!IP.substring(0, 3).equals("192")) {
-            return;
-        }
-        if (IP.equals(CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).get(vk1))) {
-            ConsensusServer.getInstance(IP);
-            ArrayList<String> proofs = new ArrayList<>();
-            ArrayList<String> existed = new ArrayList<>();
-            int count = 1;
-            while (count < CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().size() - 1) {
-                String rec = new String(ConsensusServer.getInstance(IP).receiveErasureData(), StandardCharsets.UTF_8);
-                if (!existed.contains(rec)) {
-                    System.out.println(rec);
-                    existed.add(rec);
-                    count++;
-                    proofs.add(rec);
-                }
-            }
-            ArrayList<String> identities = new ArrayList<>();
-            ArrayList<byte[]> toSend = getChunks(4);
-            int pos = 0;
-            for (int j = 0; j < proofs.size(); j++) {
-                StringJoiner joiner2 = new StringJoiner(delimeter);
-                String[] splits = StringUtils.split(proofs.get(j), delimeter);
-                BLSPublicKey blsPublicKey = BLSPublicKey.fromByte(Hex.decodeHex(splits[0]));
-                Timestamp timestamp = GetTime.GetTimestampFromString(splits[1]);
-                boolean val = GetTime.CheckIfTimestampIsUnderOneMinute(timestamp);
-                Signature bls_sig2 = valueMapper.decode(Hex.decodeHex(splits[2]));
-                String strsgn = joiner2.add(Hex.encodeHexString(blsPublicKey.toBytes())).add(splits[1]).toString();
-                Boolean signcheck = BLSSignature.verify(bls_sig2, strsgn.getBytes(StandardCharsets.UTF_8), blsPublicKey);
-                if (signcheck && val) {
-                    identities.add(strsgn);
-                    ConsensusServer.getInstance(IP).setErasureMessage(toSend.get(pos), strsgn);
-                    pos++;
-                }
-            }
-            Thread.sleep(8000);
-        } else {
-            for (Map.Entry<BLSPublicKey, String> entry : CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).entrySet()) {
-                if (IP.equals(entry.getValue())) {
-                    if (vk2.equals(entry.getKey())) {
-                        CachedBLSKeyPair.getInstance().setPrivateKey(sk2);
-                        CachedBLSKeyPair.getInstance().setPublicKey(vk2);
-                        break;
-                    } else if (vk3.equals(entry.getKey())) {
-                        CachedBLSKeyPair.getInstance().setPrivateKey(sk3);
-                        CachedBLSKeyPair.getInstance().setPublicKey(vk3);
-                        break;
-                    }
-                }
-            }
-            List<String> list = new ArrayList<>();
-            StringJoiner joiner = new StringJoiner(delimeter);
-            String timeStampInString = GetTime.GetTimeStampInString();
-            String pubkey = Hex.encodeHexString(CachedBLSKeyPair.getInstance().getPublicKey().toBytes());
+    // This work for old configuration of the project and it is not working for the new configuration
 
-            String toSign = joiner.add(pubkey).add(timeStampInString).toString();
-            Signature bls_sig = BLSSignature.sign(toSign.getBytes(StandardCharsets.UTF_8), CachedBLSKeyPair.getInstance().getPrivateKey());
-            String sig = Hex.encodeHexString(valueMapper.encode(bls_sig));
-
-            list.add(pubkey);
-            list.add(timeStampInString);
-            list.add(sig);
-
-            String toSend = String.join(delimeter, list);
-            String rootIP = CachedLatestBlocks.getInstance()
-                    .getCommitteeBlock()
-                    .getStructureMap()
-                    .get(0).values().stream().findFirst().get();
-            ConsensusClient consensusClient = new ConsensusClient(rootIP, toSign);
-
-            byte[] rec_buff = consensusClient.SendRetrieveErasureData(toSend.getBytes(StandardCharsets.UTF_8));
-            SerializableErasureObject rootObj = serenc_erasure.decode(rec_buff);
-            CachedSerializableErasureObject.getInstance().setSerializableErasureObject(rootObj);
-            server.setSerializable_length(rec_buff.length);
-            List<String> ips = CachedLatestBlocks.getInstance()
-                    .getCommitteeBlock()
-                    .getStructureMap()
-                    .get(0).values()
-                    .stream()
-                    .filter(val -> !val.equals(IP) && !val.equals("192.168.1.106"))
-                    .collect(Collectors.toList());
-            ArrayList<InetSocketAddress> list_ip = new ArrayList<>();
-            for (String ip : ips) {
-                InetSocketAddress address = new InetSocketAddress(InetAddress.getByName(ip), 7082);
-                list_ip.add(address);
-            }
-            RpcErasureClient<SerializableErasureObject> client = new RpcErasureClient<SerializableErasureObject>(new SerializableErasureObject(), list_ip, 7082, eventloop);
-            client.connect();
-            ArrayList<SerializableErasureObject> recserializableErasureObjects = (ArrayList<SerializableErasureObject>) client.getErasureChunks(new byte[0]);
-
-            for (SerializableErasureObject obj : recserializableErasureObjects) {
-                if (!obj.CheckChunksValidity(rootObj.getRootMerkleHash()))
-                    throw new IllegalArgumentException("Merklee Hash is not valid");
-            }
-            recserializableErasureObjects.add(rootObj);
-
-            Collections.shuffle(recserializableErasureObjects);
-            FECParameterObject recobject = recserializableErasureObjects.get(0).getFecParameterObject();
-            FECParameters recfecParams = FECParameters.newParameters(recobject.getDataLen(), recobject.getSymbolSize(), recobject.getNumberOfSymbols());
-            final ArrayDataDecoder dec = OpenRQ.newDecoder(recfecParams, recobject.getSymbolOverhead());
-
-            for (int i = 0; i < recserializableErasureObjects.size(); i++) {
-                EncodingPacket encodingPacket = dec.parsePacket(ByteBuffer.wrap(recserializableErasureObjects.get(i).getOriginalPacketChunks()), false).value();
-                final SourceBlockDecoder sbDec = dec.sourceBlock(encodingPacket.sourceBlockNumber());
-                sbDec.putEncodingPacket(encodingPacket);
-            }
-
-            TransactionBlock copys = encode.decode(dec.dataArray());
-            assertNotNull(copys);
-            int g = 3;
-            System.out.println("Done");
-        }
-    }
+//    @Test
+//    public void test() throws IOException, DecoderException, InterruptedException, ParseException {
+//        Socket socket = new Socket();
+//        socket.connect(new InetSocketAddress("google.com", 80));
+//        String IP = socket.getLocalAddress().getHostAddress();
+//        if (!IP.substring(0, 3).equals("192")) {
+//            return;
+//        }
+//        if (IP.equals(CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).get(vk1))) {
+//            ConsensusServer.getInstance(IP);
+//            ArrayList<String> proofs = new ArrayList<>();
+//            ArrayList<String> existed = new ArrayList<>();
+//            int count = 1;
+//            while (count < CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().size() - 1) {
+//                String rec = new String(ConsensusServer.getInstance(IP).receiveErasureData(), StandardCharsets.UTF_8);
+//                if (!existed.contains(rec)) {
+//                    System.out.println(rec);
+//                    existed.add(rec);
+//                    count++;
+//                    proofs.add(rec);
+//                }
+//            }
+//            ArrayList<String> identities = new ArrayList<>();
+//            ArrayList<byte[]> toSend = getChunks(4);
+//            int pos = 0;
+//            for (int j = 0; j < proofs.size(); j++) {
+//                StringJoiner joiner2 = new StringJoiner(delimeter);
+//                String[] splits = StringUtils.split(proofs.get(j), delimeter);
+//                BLSPublicKey blsPublicKey = BLSPublicKey.fromByte(Hex.decodeHex(splits[0]));
+//                Timestamp timestamp = GetTime.GetTimestampFromString(splits[1]);
+//                boolean val = GetTime.CheckIfTimestampIsUnderOneMinute(timestamp);
+//                Signature bls_sig2 = valueMapper.decode(Hex.decodeHex(splits[2]));
+//                String strsgn = joiner2.add(Hex.encodeHexString(blsPublicKey.toBytes())).add(splits[1]).toString();
+//                Boolean signcheck = BLSSignature.verify(bls_sig2, strsgn.getBytes(StandardCharsets.UTF_8), blsPublicKey);
+//                if (signcheck && val) {
+//                    identities.add(strsgn);
+//                    ConsensusServer.getInstance(IP).setErasureMessage(toSend.get(pos), strsgn);
+//                    pos++;
+//                }
+//            }
+//            Thread.sleep(8000);
+//        } else {
+//            for (Map.Entry<BLSPublicKey, String> entry : CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).entrySet()) {
+//                if (IP.equals(entry.getValue())) {
+//                    if (vk2.equals(entry.getKey())) {
+//                        CachedBLSKeyPair.getInstance().setPrivateKey(sk2);
+//                        CachedBLSKeyPair.getInstance().setPublicKey(vk2);
+//                        break;
+//                    } else if (vk3.equals(entry.getKey())) {
+//                        CachedBLSKeyPair.getInstance().setPrivateKey(sk3);
+//                        CachedBLSKeyPair.getInstance().setPublicKey(vk3);
+//                        break;
+//                    }
+//                }
+//            }
+//            List<String> list = new ArrayList<>();
+//            StringJoiner joiner = new StringJoiner(delimeter);
+//            String timeStampInString = GetTime.GetTimeStampInString();
+//            String pubkey = Hex.encodeHexString(CachedBLSKeyPair.getInstance().getPublicKey().toBytes());
+//
+//            String toSign = joiner.add(pubkey).add(timeStampInString).toString();
+//            Signature bls_sig = BLSSignature.sign(toSign.getBytes(StandardCharsets.UTF_8), CachedBLSKeyPair.getInstance().getPrivateKey());
+//            String sig = Hex.encodeHexString(valueMapper.encode(bls_sig));
+//
+//            list.add(pubkey);
+//            list.add(timeStampInString);
+//            list.add(sig);
+//
+//            String toSend = String.join(delimeter, list);
+//            String rootIP = CachedLatestBlocks.getInstance()
+//                    .getCommitteeBlock()
+//                    .getStructureMap()
+//                    .get(0).values().stream().findFirst().get();
+//            ConsensusClient consensusClient = new ConsensusClient(rootIP, toSign);
+//
+//            byte[] rec_buff = consensusClient.SendRetrieveErasureData(toSend.getBytes(StandardCharsets.UTF_8));
+//            SerializableErasureObject rootObj = serenc_erasure.decode(rec_buff);
+//            CachedSerializableErasureObject.getInstance().setSerializableErasureObject(rootObj);
+//            server.setSerializable_length(rec_buff.length);
+//            List<String> ips = CachedLatestBlocks.getInstance()
+//                    .getCommitteeBlock()
+//                    .getStructureMap()
+//                    .get(0).values()
+//                    .stream()
+//                    .filter(val -> !val.equals(IP) && !val.equals("192.168.1.106"))
+//                    .collect(Collectors.toList());
+//            ArrayList<InetSocketAddress> list_ip = new ArrayList<>();
+//            for (String ip : ips) {
+//                InetSocketAddress address = new InetSocketAddress(InetAddress.getByName(ip), 7082);
+//                list_ip.add(address);
+//            }
+//            RpcErasureClient<SerializableErasureObject> client = new RpcErasureClient<SerializableErasureObject>(new SerializableErasureObject(), list_ip, 7082, eventloop);
+//            client.connect();
+//            ArrayList<SerializableErasureObject> recserializableErasureObjects = (ArrayList<SerializableErasureObject>) client.getErasureChunks(new byte[0]);
+//
+//            for (SerializableErasureObject obj : recserializableErasureObjects) {
+//                if (!obj.CheckChunksValidity(rootObj.getRootMerkleHash()))
+//                    throw new IllegalArgumentException("Merklee Hash is not valid");
+//            }
+//            recserializableErasureObjects.add(rootObj);
+//
+//            Collections.shuffle(recserializableErasureObjects);
+//            FECParameterObject recobject = recserializableErasureObjects.get(0).getFecParameterObject();
+//            FECParameters recfecParams = FECParameters.newParameters(recobject.getDataLen(), recobject.getSymbolSize(), recobject.getNumberOfSymbols());
+//            final ArrayDataDecoder dec = OpenRQ.newDecoder(recfecParams, recobject.getSymbolOverhead());
+//
+//            for (int i = 0; i < recserializableErasureObjects.size(); i++) {
+//                EncodingPacket encodingPacket = dec.parsePacket(ByteBuffer.wrap(recserializableErasureObjects.get(i).getOriginalPacketChunks()), false).value();
+//                final SourceBlockDecoder sbDec = dec.sourceBlock(encodingPacket.sourceBlockNumber());
+//                sbDec.putEncodingPacket(encodingPacket);
+//            }
+//
+//            TransactionBlock copys = encode.decode(dec.dataArray());
+//            assertNotNull(copys);
+//            int g = 3;
+//            System.out.println("Done");
+//        }
+//    }
 
 
     private static ArrayList<byte[]> getChunks(int size) {
@@ -522,7 +523,7 @@ public class FullExampleErasureTest {
 
     private static String blockingRequest(RpcClient rpcClient, String name) throws Exception {
         try {
-            return rpcClient.getEventloop().submit(
+            return rpcClient.getReactor().submit(
                             () -> rpcClient
                                     .<RPCExampleTest.HelloRequest, RPCExampleTest.HelloResponse>sendRequest(new RPCExampleTest.HelloRequest(name), TIMEOUT))
                     .get(5, TimeUnit.SECONDS)

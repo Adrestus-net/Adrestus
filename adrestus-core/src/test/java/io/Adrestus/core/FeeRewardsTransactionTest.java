@@ -387,13 +387,7 @@ public class FeeRewardsTransactionTest {
         publisher.start();
 
 
-        ArrayList<String> mesages = new ArrayList<>();
-        TransactionCallback transactionCallback = new TransactionCallback() {
-            @Override
-            public void call(String value) {
-                mesages.add(value);
-            }
-        };
+        Callback transactionCallback = new TransactionCallback();
         signatureEventHandler.setLatch(new CountDownLatch(1));
         RewardsTransaction rewardsTransaction = new RewardsTransaction();
         rewardsTransaction.setRecipientAddress(address1);
@@ -413,7 +407,7 @@ public class FeeRewardsTransactionTest {
         rewardsTransaction.setSignature(signatureData);
         publisher.publish(rewardsTransaction);
         signatureEventHandler.getLatch().await();
-        assertTrue(mesages.isEmpty());
+        assertTrue(((TransactionCallback)transactionCallback).getMessages().isEmpty());
         publisher.getJobSyncUntilRemainingCapacityZero();
         publisher.close();
     }

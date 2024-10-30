@@ -14,8 +14,7 @@ import io.Adrestus.util.SerializationUtil;
 import io.activej.bytebuf.ByteBuf;
 import io.activej.bytebuf.ByteBufPool;
 import io.activej.eventloop.Eventloop;
-import io.activej.net.socket.tcp.AsyncTcpSocket;
-import io.activej.net.socket.tcp.AsyncTcpSocketNio;
+import io.activej.net.socket.tcp.TcpSocket;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -27,12 +26,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
 
-import static io.activej.eventloop.Eventloop.getCurrentEventloop;
+
+import static io.activej.reactor.Reactor.getCurrentReactor;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class SocketChannelTest {
-    private Eventloop eventloop = Eventloop.create().withCurrentThread();
-    private static AsyncTcpSocket socket;
+    private Eventloop eventloop = Eventloop.builder().withCurrentThread().build();
+    private static TcpSocket socket;
     private static SerializationUtil<Receipt> recep;
     private static SerializationUtil<Transaction> trans;
     private static Receipt receipt;
@@ -70,7 +70,7 @@ public class SocketChannelTest {
             if (e == null) {
                 System.out.println("Connected to server, enter some text and send it by pressing 'Enter'.");
                 try {
-                    socket = AsyncTcpSocketNio.wrapChannel(getCurrentEventloop(), socketChannel, null);
+                    socket = TcpSocket.wrapChannel(getCurrentReactor(), socketChannel, null);
                 } catch (IOException ioException) {
                     throw new RuntimeException(ioException);
                 }
@@ -107,12 +107,12 @@ public class SocketChannelTest {
         System.out.println("Connecting to server at localhost (port 9922)...");
         (new Thread() {
             public void run() {
-                Eventloop eventloop = Eventloop.create().withCurrentThread();
+                Eventloop eventloop = Eventloop.builder().withCurrentThread().build();
                 eventloop.connect(new InetSocketAddress("localhost", SocketConfigOptions.TRANSACTION_PORT + 1), (socketChannel, e) -> {
                     if (e == null) {
                         System.out.println("Connected to server, enter some text and send it by pressing 'Enter'.");
                         try {
-                            socket = AsyncTcpSocketNio.wrapChannel(getCurrentEventloop(), socketChannel, null);
+                            socket = TcpSocket.wrapChannel(getCurrentReactor(), socketChannel, null);
                         } catch (IOException ioException) {
                             throw new RuntimeException(ioException);
                         }
@@ -156,7 +156,7 @@ public class SocketChannelTest {
             if (e == null) {
                 System.out.println("Connected to server, enter some text and send it by pressing 'Enter'.");
                 try {
-                    socket = AsyncTcpSocketNio.wrapChannel(getCurrentEventloop(), socketChannel, null);
+                    socket = TcpSocket.wrapChannel(getCurrentReactor(), socketChannel, null);
                 } catch (IOException ioException) {
                     throw new RuntimeException(ioException);
                 }

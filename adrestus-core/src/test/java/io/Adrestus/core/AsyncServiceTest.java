@@ -142,13 +142,7 @@ public class AsyncServiceTest {
         listss.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
         listss.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         serenc = new SerializationUtil<Transaction>(Transaction.class, listss);
-        ArrayList<String> mesages = new ArrayList<>();
-        TransactionCallback transactionCallback = new TransactionCallback() {
-            @Override
-            public void call(String value) {
-                mesages.add(value);
-            }
-        };
+        Callback transactionCallback = new TransactionCallback();
         signatureEventHandler.setLatch(new CountDownLatch(end - 1));
         for (int i = start; i < end - 1; i++) {
             Transaction transaction = new RegularTransaction();
@@ -174,7 +168,7 @@ public class AsyncServiceTest {
         }
         publisher.getJobSyncUntilRemainingCapacityZero();
         signatureEventHandler.getLatch().await();
-        assertTrue(mesages.isEmpty());
+        assertTrue(((TransactionCallback)transactionCallback).getMessages().isEmpty());
         CommitteeBlock committeeBlock = new CommitteeBlock();
         committeeBlock.getHeaderData().setTimestamp("2022-11-18 15:01:29.304");
         committeeBlock.getStructureMap().get(0).put(vk1, "192.168.1.116");

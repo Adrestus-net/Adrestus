@@ -6,13 +6,14 @@ import io.activej.bytebuf.ByteBufPool;
 import io.activej.bytebuf.ByteBufStrings;
 import io.activej.bytebuf.ByteBufs;
 import io.activej.common.exception.MalformedDataException;
-import io.activej.csp.ChannelConsumer;
-import io.activej.csp.ChannelSupplier;
 import io.activej.csp.binary.BinaryChannelSupplier;
-import io.activej.csp.binary.ByteBufsDecoder;
+import io.activej.csp.binary.decoder.ByteBufsDecoder;
+import io.activej.csp.binary.decoder.ByteBufsDecoders;
+import io.activej.csp.consumer.ChannelConsumers;
+import io.activej.csp.supplier.ChannelSuppliers;
 import io.activej.eventloop.Eventloop;
-import io.activej.eventloop.net.SocketSettings;
 import io.activej.net.SimpleServer;
+import io.activej.reactor.net.SocketSettings;
 import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +29,7 @@ import static io.activej.promise.Promises.repeat;
 
 public class TransactionChannelHandler<T> {
     private static Logger LOG = LoggerFactory.getLogger(TransactionChannelHandler.class);
-    private static final ByteBufsDecoder<ByteBuf> DECODER = ByteBufsDecoder.ofVarIntSizePrefixedBytes();
+    private static final ByteBufsDecoder<ByteBuf> DECODER = ByteBufsDecoders.ofVarIntSizePrefixedBytes();
 
     private static final byte[] CRLF = {CR, LF};
     private String IP;
@@ -41,48 +42,50 @@ public class TransactionChannelHandler<T> {
 
     public TransactionChannelHandler(String IP) {
         this.IP = IP;
-        this.eventloop = Eventloop.create().withCurrentThread();
+        this.eventloop = Eventloop.builder().withCurrentThread().build();
         this.ADDRESS = new InetSocketAddress(IP, SocketConfigOptions.TRANSACTION_PORT);
-        this.settings = SocketSettings.create().withImplReadTimeout(Duration.ofSeconds(3)).withImplWriteTimeout(Duration.ofSeconds(3));
+        this.settings = SocketSettings.builder().withImplReadTimeout(Duration.ofSeconds(3)).withImplWriteTimeout(Duration.ofSeconds(3)).build();
     }
 
     public TransactionChannelHandler(String IP, int port) {
         this.IP = IP;
-        this.eventloop = Eventloop.create().withCurrentThread();
+        this.eventloop = Eventloop.builder().withCurrentThread().build();
         this.ADDRESS = new InetSocketAddress(IP, port);
-        this.settings = SocketSettings.create().withImplReadTimeout(Duration.ofSeconds(3)).withImplWriteTimeout(Duration.ofSeconds(3));
+        this.settings = SocketSettings.builder().withImplReadTimeout(Duration.ofSeconds(3)).withImplWriteTimeout(Duration.ofSeconds(3)).build();
     }
 
 
     public void BindServerAndReceive(TCPTransactionConsumer<T> callback) throws Exception {
-        server = SimpleServer.create(socket ->
-                {
-                    BinaryChannelSupplier bufsSupplier = BinaryChannelSupplier.of(ChannelSupplier.ofSocket(socket));
-                    AtomicReference<String> msg = new AtomicReference<>();
-                    repeat(() ->
-                            bufsSupplier
-                                    .decodeStream(DECODER)
-                                    .peek(buf -> {
-                                        try {
-                                            msg.set(callback.accept((T) buf.getArray()));
-                                        } catch (NullPointerException e) {
-                                            LOG.info("Null Transaction: " + e.toString());
-                                            // e.printStackTrace();
-                                        } catch (Exception e) {
-                                            //LOG.info("General Exception: " + e.toString());
-                                            e.printStackTrace();
-                                        }
-                                    })
-                                    .map(buf -> {
-                                        ByteBuf serverBuf = ByteBufStrings.wrapUtf8(msg.get());
-                                        return ByteBufPool.append(serverBuf, CRLF);
-                                    })
-                                    .streamTo(ChannelConsumer.ofSocket(socket))
-                                    .map($ -> true)
-                                    .whenComplete(socket::close));
-                })
+        server = SimpleServer.builder(
+                        eventloop,
+                        socket -> {
+                            BinaryChannelSupplier bufsSupplier = BinaryChannelSupplier.of(ChannelSuppliers.ofSocket(socket));
+                            AtomicReference<String> msg = new AtomicReference<>();
+                            repeat(() ->
+                                    bufsSupplier
+                                            .decodeStream(DECODER)
+                                            .peek(buf -> {
+                                                try {
+                                                    msg.set(callback.accept((T) buf.getArray()));
+                                                } catch (NullPointerException e) {
+                                                    LOG.info("Null Transaction: " + e.toString());
+                                                    // e.printStackTrace();
+                                                } catch (Exception e) {
+                                                    //LOG.info("General Exception: " + e.toString());
+                                                    e.printStackTrace();
+                                                }
+                                            })
+                                            .map(buf -> {
+                                                ByteBuf serverBuf = ByteBufStrings.wrapUtf8(msg.get());
+                                                return ByteBufPool.append(serverBuf, CRLF);
+                                            })
+                                            .streamTo(ChannelConsumers.ofSocket(socket))
+                                            .map($ -> true)
+                                            .whenComplete(socket::close));
+                        })
                 .withSocketSettings(settings)
-                .withListenAddress(this.ADDRESS);
+                .withListenAddress(this.ADDRESS)
+                .build();
         //.withListenPort(TransactionConfigOptions.TRANSACTION_PORT);
 
         server.listen();
@@ -105,12 +108,13 @@ public class TransactionChannelHandler<T> {
 
     @SneakyThrows
     public void close() {
-        this.server.closeFuture().get(10, TimeUnit.SECONDS);
-        if (server != null) {
-            this.server.close();
-            this.server = null;
+        if (this.server != null) {
+            this.server.closeFuture().get(10, TimeUnit.SECONDS);
         }
-        this.eventloop.breakEventloop();
+        if (this.eventloop != null) {
+            this.eventloop.breakEventloop();
+        }
+        this.server = null;
     }
 
 }

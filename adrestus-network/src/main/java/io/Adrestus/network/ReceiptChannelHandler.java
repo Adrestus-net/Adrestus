@@ -4,13 +4,14 @@ import io.Adrestus.config.SocketConfigOptions;
 import io.activej.bytebuf.ByteBuf;
 import io.activej.bytebuf.ByteBufs;
 import io.activej.common.exception.MalformedDataException;
-import io.activej.csp.ChannelConsumer;
-import io.activej.csp.ChannelSupplier;
 import io.activej.csp.binary.BinaryChannelSupplier;
-import io.activej.csp.binary.ByteBufsDecoder;
+import io.activej.csp.binary.decoder.ByteBufsDecoder;
+import io.activej.csp.binary.decoder.ByteBufsDecoders;
+import io.activej.csp.consumer.ChannelConsumers;
+import io.activej.csp.supplier.ChannelSuppliers;
 import io.activej.eventloop.Eventloop;
-import io.activej.eventloop.net.SocketSettings;
 import io.activej.net.SimpleServer;
+import io.activej.reactor.net.SocketSettings;
 import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +25,7 @@ import static io.activej.promise.Promises.repeat;
 public class ReceiptChannelHandler<T> {
 
     private static Logger LOG = LoggerFactory.getLogger(TransactionChannelHandler.class);
-    private static final ByteBufsDecoder<ByteBuf> DECODER = ByteBufsDecoder.ofVarIntSizePrefixedBytes();
+    private static final ByteBufsDecoder<ByteBuf> DECODER = ByteBufsDecoders.ofVarIntSizePrefixedBytes();
     private String IP;
     private final InetSocketAddress ADDRESS;
     private final Eventloop eventloop;
@@ -35,43 +36,45 @@ public class ReceiptChannelHandler<T> {
 
     public ReceiptChannelHandler(String IP) {
         this.IP = IP;
-        this.eventloop = Eventloop.create().withCurrentThread();
+        this.eventloop = Eventloop.builder().withCurrentThread().build();
         this.ADDRESS = new InetSocketAddress(IP, SocketConfigOptions.TRANSACTION_PORT);
-        this.settings = SocketSettings.create().withImplReadTimeout(Duration.ofSeconds(3)).withImplWriteTimeout(Duration.ofSeconds(3));
+        this.settings = SocketSettings.builder().withImplReadTimeout(Duration.ofSeconds(3)).withImplWriteTimeout(Duration.ofSeconds(3)).build();
     }
 
     public ReceiptChannelHandler(String IP, int port) {
         this.IP = IP;
-        this.eventloop = Eventloop.create().withCurrentThread();
+        this.eventloop = Eventloop.builder().withCurrentThread().build();
         this.ADDRESS = new InetSocketAddress(IP, port);
-        this.settings = SocketSettings.create().withImplReadTimeout(Duration.ofSeconds(3)).withImplWriteTimeout(Duration.ofSeconds(3));
+        this.settings = SocketSettings.builder().withImplReadTimeout(Duration.ofSeconds(3)).withImplWriteTimeout(Duration.ofSeconds(3)).build();
     }
 
 
     public void BindServerAndReceive(TCPTransactionConsumer<T> callback) throws Exception {
-        server = SimpleServer.create(socket ->
-                {
-                    BinaryChannelSupplier bufsSupplier = BinaryChannelSupplier.of(ChannelSupplier.ofSocket(socket));
-                    repeat(() ->
-                            bufsSupplier
-                                    .decodeStream(DECODER)
-                                    .peek(buf -> {
-                                        try {
-                                            callback.accept((T) buf.getArray());
-                                        } catch (NullPointerException e) {
-                                            LOG.info("Null Transaction: " + e.toString());
-                                            // e.printStackTrace();
-                                        } catch (Exception e) {
-                                            //LOG.info("General Exception: " + e.toString());
-                                            e.printStackTrace();
-                                        }
-                                    })
-                                    .streamTo(ChannelConsumer.ofSocket(socket))
-                                    .map($ -> true)
-                                    .whenComplete(socket::close));
-                })
+        server = SimpleServer.builder(
+                        eventloop,
+                        socket -> {
+                            BinaryChannelSupplier bufsSupplier = BinaryChannelSupplier.of(ChannelSuppliers.ofSocket(socket));
+                            repeat(() ->
+                                    bufsSupplier
+                                            .decodeStream(DECODER)
+                                            .peek(buf -> {
+                                                try {
+                                                    callback.accept((T) buf.getArray());
+                                                } catch (NullPointerException e) {
+                                                    LOG.info("Null Transaction: " + e.toString());
+                                                    // e.printStackTrace();
+                                                } catch (Exception e) {
+                                                    //LOG.info("General Exception: " + e.toString());
+                                                    e.printStackTrace();
+                                                }
+                                            })
+                                            .streamTo(ChannelConsumers.ofSocket(socket))
+                                            .map($ -> true)
+                                            .whenComplete(socket::close));
+                        })
                 .withSocketSettings(settings)
-                .withListenAddress(this.ADDRESS);
+                .withListenAddress(this.ADDRESS)
+                .build();
         //.withListenPort(TransactionConfigOptions.TRANSACTION_PORT);
 
         server.listen();
@@ -94,9 +97,12 @@ public class ReceiptChannelHandler<T> {
 
     @SneakyThrows
     public void close() {
-        this.server.closeFuture().get(10, TimeUnit.SECONDS);
-        this.server.close();
+        if (this.server != null) {
+            this.server.closeFuture().get(10, TimeUnit.SECONDS);
+        }
+        if (this.eventloop != null) {
+            this.eventloop.breakEventloop();
+        }
         this.server = null;
-        this.eventloop.breakEventloop();
     }
 }

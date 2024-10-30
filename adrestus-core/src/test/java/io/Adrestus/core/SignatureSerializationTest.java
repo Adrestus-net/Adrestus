@@ -16,7 +16,7 @@ import io.Adrestus.crypto.mnemonic.WordList;
 import io.Adrestus.util.GetTime;
 import io.Adrestus.util.SerializationUtil;
 import io.activej.serializer.BinarySerializer;
-import io.activej.serializer.SerializerBuilder;
+import io.activej.serializer.SerializerFactory;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.spongycastle.util.encoders.Hex;
@@ -35,12 +35,13 @@ public class SignatureSerializationTest {
     static ArrayList<ECKeyPair> keypair = new ArrayList<>();
     static int start = 0;
     static int end = 10000;
-    static BinarySerializer<Transaction> enc = SerializerBuilder
-            .create()
+    static BinarySerializer<Transaction> enc = SerializerFactory.defaultInstance().builder()
             .with(ECDSASignatureData.class, ctx -> new SignatureDataSerializer())
             .with(BigDecimal.class, ctx -> new BigDecimalSerializer())
             .with(BigInteger.class, ctx -> new BigIntegerSerializer())
-            .build(Transaction.class);
+            .build()
+            .create(Transaction.class);
+
     static SerializationUtil<Transaction> serenc;
     static ECDSASign ecdsaSign = new ECDSASign();
 

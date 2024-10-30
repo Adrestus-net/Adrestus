@@ -1,11 +1,20 @@
 package io.Adrestus.network;
 
 import io.activej.eventloop.Eventloop;
+import io.activej.promise.Promise;
+import io.activej.reactor.Reactor;
+import io.activej.rpc.server.RpcRequestHandler;
 import io.activej.rpc.server.RpcServer;
+import io.activej.serializer.annotations.SerializeRecord;
 import lombok.SneakyThrows;
+import org.identityconnectors.framework.impl.api.remote.messages.HelloRequest;
+import org.identityconnectors.framework.impl.api.remote.messages.HelloResponse;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+
+import static io.activej.common.exception.FatalErrorHandlers.rethrow;
 
 public class CachedEventLoop {
     private static volatile CachedEventLoop instance;
@@ -16,7 +25,10 @@ public class CachedEventLoop {
         if (instance != null) {
             throw new IllegalStateException("Already initialized.");
         }
-        eventloop = Eventloop.create().withCurrentThread();
+        eventloop =Eventloop.builder()
+                .withCurrentThread()
+                .withFatalErrorHandler(rethrow())
+                .build();
     }
 
     /**
@@ -48,10 +60,51 @@ public class CachedEventLoop {
 
     @SneakyThrows
     public void start() {
-        RpcServer.create(eventloop)
+        RpcServer.builder(eventloop)
                 .withMessageTypes(String.class)
-                .withListenAddress(new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 6100)).listen();
+                .withHandler(HelloRequest.class, helloServiceRequestHandler(new HelloServiceImplOne()))
+                .withListenAddress(new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 6100))
+                .build()
+                .listen();
         new Thread(eventloop).start();
     }
+    private interface HelloService {
+        String hello(String name) throws Exception;
+    }
 
+
+    private static class HelloServiceImplOne implements HelloService {
+        @Override
+        public String hello(String name) throws Exception {
+            if (name.equals("--")) {
+                throw new Exception("Illegal name");
+            }
+            return "Hello, " + name + "!";
+        }
+    }
+
+    private static RpcRequestHandler<HelloRequest, HelloResponse> helloServiceRequestHandler(HelloService helloService) {
+        return request -> {
+            String result;
+            try {
+                result = helloService.hello(request.name);
+            } catch (Exception e) {
+                return Promise.ofException(e);
+            }
+            return Promise.of(new HelloResponse(result));
+        };
+    }
+
+    private static final class HelloRequest{
+        public String name;
+
+    }
+    private static final class HelloResponse{
+        public String message;
+
+        public HelloResponse(String message){
+            this.message = message;
+        }
+
+    }
 }

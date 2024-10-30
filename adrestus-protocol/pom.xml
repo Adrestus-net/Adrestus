@@ -17,8 +17,8 @@
     <url>http://maven.apache.org</url>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
         <crypto.version>1.0-SNAPSHOT</crypto.version>
         <core.version>1.1-SNAPSHOT</core.version>
         <consenus.version>1.0-SNAPSHOT</consenus.version>
@@ -121,6 +121,7 @@
                                         <exclude>META-INF/*.SF</exclude>
                                         <exclude>META-INF/*.DSA</exclude>
                                         <exclude>META-INF/*.RSA</exclude><!-- Exclude current ASM version -->
+                                        <exclude>META-INF/versions/21/**</exclude>
                                     </excludes>
                                 </filter>
                             </filters>

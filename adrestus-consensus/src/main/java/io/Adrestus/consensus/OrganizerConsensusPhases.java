@@ -127,7 +127,6 @@ public class OrganizerConsensusPhases {
                     }
                     this.N_COPY = (this.N - 1) - ConsensusServer.getInstance().getPeers_not_connected();
                     ConsensusServer.getInstance().setMAX_MESSAGES(this.N_COPY * 2);
-                    ConsensusServer.getInstance().resetSharedResource();
                     ConsensusServer.getInstance().receive_handler();
                     long finish = System.currentTimeMillis();
                     long timeElapsed = finish - start;

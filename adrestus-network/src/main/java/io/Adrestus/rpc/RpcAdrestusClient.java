@@ -12,11 +12,14 @@ import io.Adrestus.crypto.elliptic.mapper.CustomSerializerTreeMap;
 import io.Adrestus.mapper.MemoryTreePoolSerializer;
 import io.Adrestus.util.SerializationUtil;
 import io.activej.eventloop.Eventloop;
+import io.activej.reactor.AbstractNioReactive;
+import io.activej.reactor.Reactor;
 import io.activej.rpc.client.RpcClient;
-import io.activej.rpc.client.sender.RpcStrategy;
-import io.activej.rpc.client.sender.RpcStrategyList;
-import io.activej.rpc.client.sender.RpcStrategyRoundRobin;
-import io.activej.serializer.SerializerBuilder;
+import io.activej.rpc.client.sender.strategy.RpcStrategies;
+import io.activej.rpc.client.sender.strategy.RpcStrategy;
+import io.activej.rpc.protocol.RpcMessage;
+import io.activej.serializer.BinarySerializer;
+import io.activej.serializer.SerializerFactory;
 import io.distributedLedger.LevelDBTransactionWrapper;
 import lombok.SneakyThrows;
 import org.slf4j.Logger;
@@ -35,22 +38,23 @@ import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static io.activej.rpc.client.sender.RpcStrategies.server;
+import static io.activej.rpc.client.sender.strategy.RpcStrategies.firstAvailable;
+import static io.activej.rpc.client.sender.strategy.RpcStrategies.server;
 
-public class RpcAdrestusClient<T> {
+public class RpcAdrestusClient<T> extends AbstractNioReactive implements AutoCloseable {
     private static Logger LOG = LoggerFactory.getLogger(RpcAdrestusClient.class);
 
     private int TIMEOUT = 4000;
 
     private SerializationUtil<ListBlockResponse> serializationUtil;
     private SerializationUtil<PatriciaTreeResponse> serializationUtil2;
-    private final SerializerBuilder rpc_serialize;
+    private final BinarySerializer<RpcMessage> rpc_serialize;
     private final Eventloop eventloop;
     private T typeParameterClass;
-    private SerializationUtil valueMapper;
-    private SerializationUtil valueMapper2;
+    private SerializationUtil<T> valueMapper;
+    private SerializationUtil<T> valueMapper2;
 
-    private SerializationUtil transactionvalueMapper;
+    private SerializationUtil<T> transactionvalueMapper;
     private List<InetSocketAddress> inetSocketAddresses;
     private InetSocketAddress inetSocketAddress;
     private String host;
@@ -63,7 +67,8 @@ public class RpcAdrestusClient<T> {
 
 
     public RpcAdrestusClient(T typeParameterClass, InetSocketAddress inetSocketAddress, Eventloop eventloop) {
-        this.rpc_serialize = SerializerBuilder.create();
+        super(eventloop.getReactor());
+        this.rpc_serialize = SerializerFactory.defaultInstance().create((RpcMessage.class));
         this.typeParameterClass = typeParameterClass;
         this.inetSocketAddress = inetSocketAddress;
         this.eventloop = eventloop;
@@ -81,7 +86,8 @@ public class RpcAdrestusClient<T> {
     }
 
     public RpcAdrestusClient(T typeParameterClass, String host, int port, Eventloop eventloop) {
-        this.rpc_serialize = SerializerBuilder.create();
+        super(eventloop.getReactor());
+        this.rpc_serialize = SerializerFactory.defaultInstance().create((RpcMessage.class));
         this.typeParameterClass = typeParameterClass;
         this.host = host;
         this.port = port;
@@ -100,7 +106,8 @@ public class RpcAdrestusClient<T> {
     }
 
     public RpcAdrestusClient(T typeParameterClass, String host, int port, int timeout, Eventloop eventloop) {
-        this.rpc_serialize = SerializerBuilder.create();
+        super(eventloop.getReactor());
+        this.rpc_serialize = SerializerFactory.defaultInstance().create((RpcMessage.class));
         this.typeParameterClass = typeParameterClass;
         this.host = host;
         this.port = port;
@@ -113,17 +120,18 @@ public class RpcAdrestusClient<T> {
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
         list.add(new SerializationUtil.Mapping(MemoryTreePool.class, ctx -> new MemoryTreePoolSerializer()));
-        this.serializationUtil2 = new SerializationUtil<PatriciaTreeResponse>(PatriciaTreeResponse.class, list);
         this.serializationUtil = new SerializationUtil<ListBlockResponse>(ListBlockResponse.class, list);
+        this.serializationUtil2 = new SerializationUtil<PatriciaTreeResponse>(PatriciaTreeResponse.class, list);
         this.valueMapper = new SerializationUtil(typeParameterClass.getClass(), list, true);
         this.valueMapper2 = new SerializationUtil(typeParameterClass.getClass(), list, true);
     }
 
     public RpcAdrestusClient(T typeParameterClass, List<InetSocketAddress> inetSocketAddresses) {
-        this.rpc_serialize = SerializerBuilder.create();
+        super(Reactor.getCurrentReactor());
+        this.rpc_serialize = SerializerFactory.defaultInstance().create((RpcMessage.class));
         this.typeParameterClass = typeParameterClass;
         this.inetSocketAddresses = inetSocketAddresses;
-        this.eventloop = Eventloop.create();
+        this.eventloop = Reactor.getCurrentReactor();
         new Thread(eventloop).start();
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
@@ -139,7 +147,8 @@ public class RpcAdrestusClient<T> {
     }
 
     public RpcAdrestusClient(T typeParameterClass, List<InetSocketAddress> inetSocketAddresses, Eventloop eventloop) {
-        this.rpc_serialize = SerializerBuilder.create();
+        super(eventloop.getReactor());
+        this.rpc_serialize = SerializerFactory.defaultInstance().create((RpcMessage.class));
         this.typeParameterClass = typeParameterClass;
         this.inetSocketAddresses = inetSocketAddresses;
         this.eventloop = eventloop;
@@ -157,7 +166,8 @@ public class RpcAdrestusClient<T> {
     }
 
     public RpcAdrestusClient(Type fluentType, List<InetSocketAddress> inetSocketAddresses, Eventloop eventloop) {
-        this.rpc_serialize = SerializerBuilder.create();
+        super(eventloop.getReactor());
+        this.rpc_serialize = SerializerFactory.defaultInstance().create((RpcMessage.class));
         this.inetSocketAddresses = inetSocketAddresses;
         this.eventloop = eventloop;
         List<SerializationUtil.Mapping> list = new ArrayList<>();
@@ -171,7 +181,8 @@ public class RpcAdrestusClient<T> {
     }
 
     public RpcAdrestusClient(Type fluentType, InetSocketAddress inetSocketAddress, Eventloop eventloop) {
-        this.rpc_serialize = SerializerBuilder.create();
+        super(eventloop.getReactor());
+        this.rpc_serialize = SerializerFactory.defaultInstance().create((RpcMessage.class));
         this.inetSocketAddress = inetSocketAddress;
         this.eventloop = eventloop;
         List<SerializationUtil.Mapping> list = new ArrayList<>();
@@ -186,30 +197,33 @@ public class RpcAdrestusClient<T> {
 
     public void connect() {
         if (inetSocketAddresses != null) {
-            ArrayList<RpcStrategy> strategies = new ArrayList<>();
-            inetSocketAddresses.forEach(x -> strategies.add(server(x)));
-            RpcStrategyList rpcStrategyList = RpcStrategyList.ofStrategies(strategies);
-            client = RpcClient.create(eventloop)
-                    .withSerializerBuilder(this.rpc_serialize)
+            ArrayList<RpcStrategy> rpcStrategy = new ArrayList<>();
+            inetSocketAddresses.forEach(val -> rpcStrategy.add(firstAvailable(server(val))));
+            client = RpcClient.builder(eventloop)
+                    .withSerializer(this.rpc_serialize)
                     .withMessageTypes(TransactionRequest.class, TransactionResponse.class, BlockRequest.class, ListBlockResponse.class, BlockRequest2.class, BlockResponse.class, PatriciaTreeRequest.class, PatriciaTreeResponse.class)
-                    .withStrategy(RpcStrategyRoundRobin.create(rpcStrategyList))
+                    .withStrategy(RpcStrategies.roundRobin(rpcStrategy))
                     .withKeepAlive(Duration.ofMillis(TIMEOUT))
-                    .withConnectTimeout(Duration.ofMillis(TIMEOUT));
+                    .withConnectTimeout(Duration.ofMillis(TIMEOUT))
+                    .build();
         } else {
             if (inetSocketAddress != null) {
-                client = RpcClient.create(eventloop)
-                        .withSerializerBuilder(this.rpc_serialize)
+                client = RpcClient.builder(eventloop)
+                        .withSerializer(this.rpc_serialize)
                         .withMessageTypes(TransactionRequest.class, TransactionResponse.class, BlockRequest.class, ListBlockResponse.class, BlockRequest2.class, BlockResponse.class, PatriciaTreeRequest.class, PatriciaTreeResponse.class)
                         .withKeepAlive(Duration.ofMillis(TIMEOUT))
                         .withStrategy(server(inetSocketAddress))
-                        .withConnectTimeout(Duration.ofMillis(TIMEOUT));
+                        .withConnectTimeout(Duration.ofMillis(TIMEOUT))
+                        .build();
+                ;
             } else {
-                client = RpcClient.create(eventloop)
-                        .withSerializerBuilder(this.rpc_serialize)
+                client = RpcClient.builder(eventloop)
+                        .withSerializer(this.rpc_serialize)
                         .withMessageTypes(TransactionRequest.class, TransactionResponse.class, BlockRequest.class, ListBlockResponse.class, BlockRequest2.class, BlockResponse.class, PatriciaTreeRequest.class, PatriciaTreeResponse.class)
                         .withStrategy(server(new InetSocketAddress(host, port)))
                         .withKeepAlive(Duration.ofMillis(TIMEOUT))
-                        .withConnectTimeout(Duration.ofMillis(TIMEOUT));
+                        .withConnectTimeout(Duration.ofMillis(TIMEOUT))
+                        .build();
 
             }
         }
@@ -253,7 +267,7 @@ public class RpcAdrestusClient<T> {
     @SneakyThrows
     private Optional<TransactionResponse> getTransactionDatabase(RpcClient rpcClient, String hash) {
         try {
-            TransactionResponse response = rpcClient.getEventloop().submit(
+            TransactionResponse response = rpcClient.getReactor().submit(
                             () -> rpcClient
                                     .<TransactionRequest, TransactionResponse>sendRequest(new TransactionRequest(hash)))
                     .get(TIMEOUT, TimeUnit.MILLISECONDS);
@@ -343,20 +357,18 @@ public class RpcAdrestusClient<T> {
     public void close() {
         try {
             if (client != null) {
-                client.stopFuture().get(TIMEOUT, TimeUnit.MILLISECONDS);
-                client.stop();
+                client.stopFuture().get(10000, TimeUnit.MILLISECONDS);
                 client = null;
             }
-        } catch (InterruptedException e) {
-        } catch (ExecutionException e) {
-        } catch (TimeoutException e) {
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
     @SneakyThrows
     private Optional<BlockResponse> getBlockResponse(RpcClient rpcClient, List<String> hashes) {
         try {
-            BlockResponse response = rpcClient.getEventloop().submit(
+            BlockResponse response = rpcClient.getReactor().submit(
                             () -> rpcClient
                                     .<BlockRequest2, BlockResponse>sendRequest(new BlockRequest2(hashes)))
                     .get(TIMEOUT, TimeUnit.MILLISECONDS);
@@ -374,7 +386,7 @@ public class RpcAdrestusClient<T> {
     //IF DOWNLOAD NOT PRINT PROBABLY EXCEPTION CAUGHT ADD LOG.INFO
     private ListBlockResponse getBlockListResponse(RpcClient rpcClient, String hash) {
         try {
-            ListBlockResponse response = rpcClient.getEventloop().submit(
+            ListBlockResponse response = rpcClient.getReactor().submit(
                             () -> rpcClient
                                     .<BlockRequest, ListBlockResponse>sendRequest(new BlockRequest(hash), TIMEOUT))
                     .get(TIMEOUT, TimeUnit.MILLISECONDS);
@@ -395,7 +407,7 @@ public class RpcAdrestusClient<T> {
 
     private PatriciaTreeResponse getPatriciaTreeListResponse(RpcClient rpcClient, String hash) {
         try {
-            PatriciaTreeResponse response = rpcClient.getEventloop().submit(
+            PatriciaTreeResponse response = rpcClient.getReactor().submit(
                             () -> rpcClient
                                     .<PatriciaTreeRequest, PatriciaTreeResponse>sendRequest(new PatriciaTreeRequest(hash), TIMEOUT))
                     .get(TIMEOUT, TimeUnit.MILLISECONDS);
@@ -493,10 +505,6 @@ public class RpcAdrestusClient<T> {
 
     public Eventloop getEventloop() {
         return eventloop;
-    }
-
-    public SerializerBuilder getRpc_serialize() {
-        return rpc_serialize;
     }
 
     public SerializationUtil<PatriciaTreeResponse> getSerializationUtil2() {

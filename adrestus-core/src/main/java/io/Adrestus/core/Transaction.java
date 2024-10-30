@@ -38,7 +38,7 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
     protected BigInteger YAxis;
     protected ECDSASignatureData Signature;
 
-    protected TransactionCallback transactionCallback;
+    protected Callback transactionCallback;
 
 
     public Transaction() {
@@ -57,7 +57,7 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
         this.XAxis = new BigInteger("0");
         this.YAxis = new BigInteger("0");
         this.Signature = new ECDSASignatureData();
-        this.transactionCallback = null;
+        this.transactionCallback = new TransactionCallback();
     }
 
     public Transaction(TransactionType transactionType, BigDecimal amount) {
@@ -76,7 +76,7 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
         this.XAxis = new BigInteger("0");
         this.YAxis = new BigInteger("0");
         this.Signature = new ECDSASignatureData();
-        this.transactionCallback = null;
+        this.transactionCallback = new TransactionCallback();
     }
 
     public Transaction(TransactionType type, Transaction... children) {
@@ -95,7 +95,7 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
         this.XAxis = new BigInteger("0");
         this.YAxis = new BigInteger("0");
         this.Signature = new ECDSASignatureData();
-        this.transactionCallback = null;
+        this.transactionCallback = new TransactionCallback();
     }
 
     public Transaction(String hash) {
@@ -114,7 +114,7 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
         this.XAxis = new BigInteger("0");
         this.YAxis = new BigInteger("0");
         this.Signature = new ECDSASignatureData();
-        this.transactionCallback = null;
+        this.transactionCallback = new TransactionCallback();
     }
 
     public Transaction(String hash, TransactionType type, StatusType status, int zoneFrom, int zoneTo, String timestamp, int blockNumber, String from, String to, BigDecimal amount, BigDecimal AmountWithTransactionFee, int nonce, ECDSASignatureData signature) {
@@ -131,7 +131,7 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
         this.AmountWithTransactionFee = AmountWithTransactionFee;
         this.Nonce = nonce;
         this.Signature = signature;
-        this.transactionCallback = null;
+        this.transactionCallback = new TransactionCallback();
     }
 
     public Transaction(String hash, TransactionType type, StatusType status, int zoneFrom, int zoneTo, String timestamp, String from, String to, BigDecimal amount, BigDecimal AmountWithTransactionFee, int nonce, ECDSASignatureData signature) {
@@ -147,7 +147,7 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
         this.AmountWithTransactionFee = AmountWithTransactionFee;
         this.Nonce = nonce;
         this.Signature = signature;
-        this.transactionCallback = null;
+        this.transactionCallback = new TransactionCallback();
     }
 
     public Transaction(String hash, TransactionType type, StatusType status, int zoneFrom, int zoneTo, String timestamp, int blockNumber, String from, String to, BigDecimal amount, BigDecimal amountWithTransactionFee, int nonce, BigInteger XAxis, BigInteger YAxis, ECDSASignatureData signature) {
@@ -166,7 +166,7 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
         this.XAxis = XAxis;
         this.YAxis = YAxis;
         this.Signature = signature;
-        this.transactionCallback = null;
+        this.transactionCallback = new TransactionCallback();
     }
 
     public void accept(TransactionUnitVisitor visitor) {
@@ -310,12 +310,11 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
 
 
     @Serialize
-    @SerializeNullable
-    public TransactionCallback getTransactionCallback() {
+    public Callback getTransactionCallback() {
         return transactionCallback;
     }
 
-    public void setTransactionCallback(TransactionCallback transactionCallback) {
+    public void setTransactionCallback(Callback transactionCallback) {
         this.transactionCallback = transactionCallback;
     }
 

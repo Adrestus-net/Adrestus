@@ -10,11 +10,11 @@ import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.util.SerializationUtil;
 import io.activej.bytebuf.ByteBuf;
 import io.activej.bytebuf.ByteBufPool;
-import io.activej.csp.ChannelSupplier;
 import io.activej.csp.binary.BinaryChannelSupplier;
+import io.activej.csp.supplier.ChannelSuppliers;
 import io.activej.eventloop.Eventloop;
-import io.activej.net.socket.tcp.AsyncTcpSocket;
-import io.activej.net.socket.tcp.AsyncTcpSocketNio;
+import io.activej.net.socket.tcp.ITcpSocket;
+import io.activej.net.socket.tcp.TcpSocket;
 import io.activej.promise.Promise;
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
@@ -29,8 +29,8 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
-import static io.activej.eventloop.Eventloop.getCurrentEventloop;
 import static io.activej.promise.Promises.loop;
+import static io.activej.reactor.Reactor.getCurrentReactor;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class TransactionStrategy implements IStrategy {
@@ -58,7 +58,7 @@ public class TransactionStrategy implements IStrategy {
         this.transaction = transaction;
         this.executorService = Executors.newFixedThreadPool(AdrestusConfiguration.CORES);
         this.list_ip = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).values().stream().collect(Collectors.toList());
-        this.eventloop = Eventloop.create().withCurrentThread();
+        this.eventloop = Eventloop.builder().withCurrentThread().build();
         this.transaction_encode = new SerializationUtil<Transaction>(Transaction.class, list);
     }
 
@@ -72,7 +72,7 @@ public class TransactionStrategy implements IStrategy {
         this.list_ip = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).values().stream().collect(Collectors.toList());
         this.local_termination = new CountDownLatch[list_ip.size()];
         this.available = new Semaphore[list_ip.size()];
-        this.eventloop = Eventloop.create().withCurrentThread();
+        this.eventloop = Eventloop.builder().withCurrentThread().build();
         this.transaction_encode = new SerializationUtil<Transaction>(Transaction.class, list);
         this.transaction = null;
     }
@@ -97,7 +97,7 @@ public class TransactionStrategy implements IStrategy {
                 for (int i = 0; i < list_ip.size(); i++) {
                     int finalI = i;
                     executorService.submit(() -> {
-                        Eventloop eventloop = Eventloop.create().withCurrentThread();
+                        Eventloop eventloop = Eventloop.builder().withCurrentThread().build();
                         MultipleAsync(list_ip.get(finalI), eventloop, finalI, entry.getValue());
                         eventloop.run();
 
@@ -113,7 +113,7 @@ public class TransactionStrategy implements IStrategy {
             for (int i = 0; i < list_ip.size(); i++) {
                 int finalI = i;
                 executorService.submit(() -> {
-                    Eventloop eventloop = Eventloop.create().withCurrentThread();
+                    Eventloop  eventloop = Eventloop.builder().withCurrentThread().build();
                     SingleAsync(list_ip.get(finalI), eventloop);
                     eventloop.run();
 
@@ -133,7 +133,7 @@ public class TransactionStrategy implements IStrategy {
         eventloop.connect(new InetSocketAddress(ip, SocketConfigOptions.TRANSACTION_PORT), CONNECT_TIMER_DELAY_TIMEOUT, (socketChannel, e) -> {
             if (e == null) {
                 try {
-                    AsyncTcpSocket socket = AsyncTcpSocketNio.wrapChannel(getCurrentEventloop(), socketChannel, null);
+                    ITcpSocket  socket = TcpSocket.wrapChannel(getCurrentReactor(), socketChannel, null);
 
                     byte[] data = transaction_encode.encode(transaction, 1024);
                     ByteBuf sizeBuf = ByteBufPool.allocate(2); // enough to serialize size 1024
@@ -154,8 +154,8 @@ public class TransactionStrategy implements IStrategy {
             if (e == null) {
                 try {
                     available[pos].acquire();
-                    AsyncTcpSocket socket = AsyncTcpSocketNio.wrapChannel(getCurrentEventloop(), socketChannel, null);
-                    BinaryChannelSupplier bufsSupplier = BinaryChannelSupplier.of(ChannelSupplier.ofSocket(socket));
+                    ITcpSocket  socket = TcpSocket.wrapChannel(getCurrentReactor(), socketChannel, null);
+                    BinaryChannelSupplier bufsSupplier = BinaryChannelSupplier.of(ChannelSuppliers.ofSocket(socket));
                     loop(0,
                             i -> i < transaction_list.size(),
                             i -> loadData(transaction_list.get(i))

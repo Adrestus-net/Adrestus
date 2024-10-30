@@ -9,17 +9,19 @@ import io.Adrestus.crypto.bls.mapper.ECP2mapper;
 import io.Adrestus.crypto.bls.mapper.ECPmapper;
 import io.Adrestus.crypto.elliptic.mapper.BigDecimalSerializer;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
+import io.Adrestus.crypto.elliptic.mapper.CustomSerializerTreeMap;
 import io.Adrestus.network.IPFinder;
 import io.Adrestus.util.SerializationUtil;
 import io.activej.bytebuf.ByteBuf;
 import io.activej.bytebuf.ByteBufPool;
-import io.activej.csp.ChannelSupplier;
 import io.activej.csp.binary.BinaryChannelSupplier;
-import io.activej.csp.binary.ByteBufsDecoder;
+import io.activej.csp.binary.decoder.ByteBufsDecoder;
+import io.activej.csp.binary.decoder.ByteBufsDecoders;
+import io.activej.csp.supplier.ChannelSuppliers;
 import io.activej.eventloop.Eventloop;
-import io.activej.eventloop.net.SocketSettings;
 import io.activej.net.SimpleServer;
 import io.activej.promise.Promise;
+import io.activej.reactor.net.SocketSettings;
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -38,7 +40,7 @@ import static io.activej.promise.Promises.repeat;
 
 public class BindServerCachedTask extends AdrestusTask {
     private static Logger LOG = LoggerFactory.getLogger(BindServerCachedTask.class);
-    private static final ByteBufsDecoder<ByteBuf> DECODER = ByteBufsDecoder.ofVarIntSizePrefixedBytes();
+    private static final ByteBufsDecoder<ByteBuf> DECODER = ByteBufsDecoders.ofVarIntSizePrefixedBytes();
     private final InetSocketAddress ADDRESS;
 
     private final SocketSettings settings;
@@ -48,7 +50,7 @@ public class BindServerCachedTask extends AdrestusTask {
 
     public BindServerCachedTask() {
         this.ADDRESS = new InetSocketAddress(IPFinder.getLocal_address(), SocketConfigOptions.CACHED_DATA_PORT);
-        this.settings = SocketSettings.create().withImplReadTimeout(Duration.ofSeconds(3)).withImplWriteTimeout(Duration.ofSeconds(3));
+        this.settings = SocketSettings.builder().withImplReadTimeout(Duration.ofSeconds(3)).withImplWriteTimeout(Duration.ofSeconds(3)).build();
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
         list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
@@ -61,10 +63,11 @@ public class BindServerCachedTask extends AdrestusTask {
     @SneakyThrows
     @Override
     public void execute() {
-        eventloop = Eventloop.create().withCurrentThread();
-        this.server = SimpleServer.create(
+        eventloop = Eventloop.builder().withCurrentThread().build();
+        this.server = SimpleServer.builder(
+                        eventloop,
                         socket -> {
-                            BinaryChannelSupplier bufsSupplier = BinaryChannelSupplier.of(ChannelSupplier.ofSocket(socket));
+                            BinaryChannelSupplier bufsSupplier = BinaryChannelSupplier.of(ChannelSuppliers.ofSocket(socket));
                             repeat(() ->
                                     bufsSupplier.decode(DECODER)
                                             .whenResult(x -> System.out.println(x))
@@ -74,7 +77,8 @@ public class BindServerCachedTask extends AdrestusTask {
                                     .whenComplete(socket::close);
                         })
                 .withListenAddress(ADDRESS)
-                .withSocketSettings(settings);
+                .withSocketSettings(settings)
+                .build();
         server.listen();
         (new Thread() {
             public void run() {

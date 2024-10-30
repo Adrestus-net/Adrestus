@@ -245,13 +245,7 @@ public class TransactionTest {
 
 
         signatureEventHandler.setLatch(new CountDownLatch(size - 1));
-        ArrayList<String> mesages = new ArrayList<>();
-        TransactionCallback transactionCallback = new TransactionCallback() {
-            @Override
-            public void call(String value) {
-                mesages.add(value);
-            }
-        };
+        Callback transactionCallback = new TransactionCallback();
         for (int i = 0; i < size - 1; i++) {
             Transaction transaction = new RegularTransaction();
             transaction.setFrom(addreses.get(i));
@@ -274,7 +268,7 @@ public class TransactionTest {
             await().atMost(100, TimeUnit.MILLISECONDS);
             //publisher.publish(transaction);
         }
-        assertTrue(mesages.isEmpty());
+        assertTrue(((TransactionCallback)transactionCallback).getMessages().isEmpty());
         publisher.getJobSyncUntilRemainingCapacityZero();
         signatureEventHandler.getLatch().await();
         publisher.close();

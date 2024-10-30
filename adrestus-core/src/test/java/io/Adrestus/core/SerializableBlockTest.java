@@ -24,10 +24,7 @@ import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.TreeMap;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -70,8 +67,7 @@ public class SerializableBlockTest {
     private static BlockSizeCalculator sizeCalculator;
     private static KademliaData kad1, kad2, kad3, kad4, kad5, kad6;
     private static ECDSASignatureData signatureData1, signatureData2, signatureData3;
-    private static TransactionCallback transactionCallback;
-    private static ArrayList<String> mesages = new ArrayList<>();
+    private static Callback transactionCallback;
     private static int version = 0x00;
     private static int size = 5;
     private static ECKeyPair ecKeyPair1, ecKeyPair2, ecKeyPair3;

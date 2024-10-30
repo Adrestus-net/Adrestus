@@ -100,11 +100,10 @@
         </dependency>
     </dependencies>
     <properties>
-        <java.version>11</java.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
         <network.version>1.0-SNAPSHOT</network.version>
         <config.version>1.0-SNAPSHOT</config.version>
-        <maven.compiler.target>${java.version}</maven.compiler.target>
         <core.version>1.1-SNAPSHOT</core.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>

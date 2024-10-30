@@ -95,8 +95,7 @@ public class BlockTest {
     private static BlockSizeCalculator sizeCalculator;
     private static KademliaData kad1, kad2, kad3, kad4, kad5, kad6;
     private static ECDSASignatureData signatureData1, signatureData2, signatureData3;
-    private static TransactionCallback transactionCallback;
-    private static ArrayList<String> mesages = new ArrayList<>();
+    private static Callback transactionCallback;
     private static int version = 0x00;
     private static int size = 5;
 
@@ -205,12 +204,7 @@ public class BlockTest {
         signatureData2 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(addreses.get(1))), keypair.get(1));
         signatureData3 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(addreses.get(2))), keypair.get(2));
 
-        transactionCallback = new TransactionCallback() {
-            @Override
-            public void call(String value) {
-                mesages.add(value);
-            }
-        };
+        transactionCallback = new TransactionCallback();
 
         for (int i = 0; i < size - 1; i++) {
             Transaction transaction = new RegularTransaction();
@@ -254,6 +248,8 @@ public class BlockTest {
             outer_transactions.add(transaction);
         }
 
+        byte[]data=trx_serence.encode(transactions.get(0),1024);
+        Transaction cloned=trx_serence.decode(data);
     }
 
     @Test
@@ -359,7 +355,7 @@ public class BlockTest {
         publisher.getJobSyncUntilRemainingCapacityZero();
         signatureEventHandler.getLatch().await();
         assertEquals(size - 1, MemoryTransactionPool.getInstance().getSize());
-        assertTrue(mesages.isEmpty());
+        assertTrue(((TransactionCallback)transactionCallback).getMessages().isEmpty());
         publisher.close();
 
 

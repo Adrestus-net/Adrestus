@@ -3,12 +3,13 @@ package io.Adrestus.network;
 import io.Adrestus.config.SocketConfigOptions;
 import io.activej.bytebuf.ByteBuf;
 import io.activej.bytebuf.ByteBufPool;
-import io.activej.csp.ChannelSupplier;
 import io.activej.csp.binary.BinaryChannelSupplier;
-import io.activej.csp.binary.ByteBufsDecoder;
+import io.activej.csp.binary.decoder.ByteBufsDecoder;
+import io.activej.csp.binary.decoder.ByteBufsDecoders;
+import io.activej.csp.supplier.ChannelSuppliers;
 import io.activej.eventloop.Eventloop;
-import io.activej.net.socket.tcp.AsyncTcpSocket;
-import io.activej.net.socket.tcp.AsyncTcpSocketNio;
+import io.activej.net.socket.tcp.ITcpSocket;
+import io.activej.net.socket.tcp.TcpSocket;
 import io.activej.promise.Promise;
 import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
@@ -18,18 +19,18 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.concurrent.CountDownLatch;
 
-import static io.activej.eventloop.Eventloop.getCurrentEventloop;
 import static io.activej.promise.Promises.loop;
+import static io.activej.reactor.Reactor.getCurrentReactor;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class ReceiptChannelTest {
-    Eventloop eventloop = Eventloop.create().withCurrentThread();
-    private static final ByteBufsDecoder<byte[]> DECODER = ByteBufsDecoder.ofNullTerminatedBytes().andThen(buf -> buf.asArray());
+    Eventloop eventloop = Eventloop.builder().withCurrentThread().build();
+    private static final ByteBufsDecoder<byte[]> DECODER = ByteBufsDecoders.ofNullTerminatedBytes().andThen(buf -> buf.asArray());
     private static final String REQUEST_MSG = "03e4c11dd892a055a201a22e915aa2e762676b8d2c9524289b2ee3b9d6a592b1";
     private static final InetSocketAddress ADDRESS = new InetSocketAddress("localhost", SocketConfigOptions.TRANSACTION_PORT);
     private static final int ITERATIONS = 10;
     static CountDownLatch latch;
-    static AsyncTcpSocket socket;
+    static ITcpSocket socket;
 
     @Test
     public void simple_test() throws Exception {
@@ -48,14 +49,14 @@ public class ReceiptChannelTest {
             if (e == null) {
                 System.out.println("Connected to server, enter some text and send it by pressing 'Enter'.");
                 try {
-                    socket = AsyncTcpSocketNio.wrapChannel(getCurrentEventloop(), socketChannel, null);
+                    socket = TcpSocket.wrapChannel(eventloop, socketChannel, null);
                 } catch (IOException ioException) {
                     throw new RuntimeException(ioException);
                 }
 
 
                 latch = new CountDownLatch(ITERATIONS);
-                BinaryChannelSupplier bufsSupplier = BinaryChannelSupplier.of(ChannelSupplier.ofSocket(socket));
+                BinaryChannelSupplier bufsSupplier =  BinaryChannelSupplier.of(ChannelSuppliers.ofSocket(socket));
                 loop(0,
                         i -> i <= ITERATIONS,
                         i -> loadData(i).then(bytes -> socket.write(bytes)).then(() -> bufsSupplier.needMoreData())
@@ -91,7 +92,7 @@ public class ReceiptChannelTest {
         eventloop.connect(new InetSocketAddress("localhost", SocketConfigOptions.TRANSACTION_PORT + 1), (socketChannel, e) -> {
             if (e == null) {
                 try {
-                    socket = AsyncTcpSocketNio.wrapChannel(getCurrentEventloop(), socketChannel, null);
+                    socket = TcpSocket.wrapChannel(getCurrentReactor(), socketChannel, null);
                 } catch (IOException ioException) {
                     throw new RuntimeException(ioException);
                 }

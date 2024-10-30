@@ -11,11 +11,15 @@ import io.Adrestus.crypto.elliptic.mapper.CustomSerializerTreeMap;
 import io.Adrestus.util.SerializationUtil;
 import io.activej.eventloop.Eventloop;
 import io.activej.promise.Promises;
+import io.activej.reactor.AbstractNioReactive;
+import io.activej.rpc.protocol.RpcMessage;
 import io.activej.rpc.server.RpcRequestHandler;
 import io.activej.rpc.server.RpcServer;
-import io.activej.serializer.SerializerBuilder;
+import io.activej.serializer.BinarySerializer;
+import io.activej.serializer.SerializerFactory;
 import lombok.SneakyThrows;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
@@ -25,8 +29,8 @@ import java.util.TreeMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
-public class RpcErasureServer<T> implements Runnable {
-    private final SerializerBuilder rpcSerialize;
+public class RpcErasureServer<T> extends AbstractNioReactive implements AutoCloseable,Runnable {
+    private final BinarySerializer<RpcMessage> rpcSerialize;
 
     private final Eventloop eventloop;
     private final T typeParameterClass;
@@ -41,17 +45,18 @@ public class RpcErasureServer<T> implements Runnable {
     private RpcServer rpcServer;
 
     static {
-        RPCLogger.setLevelOff();
+//        RPCLogger.setLevelOff();
     }
 
     public RpcErasureServer(T typeParameterClass, String host, int port, Eventloop eventloop, int serializable_length) {
+        super(eventloop.getReactor());
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
         list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
         list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
-        this.rpcSerialize = SerializerBuilder.create();
+        this.rpcSerialize = SerializerFactory.defaultInstance().create((RpcMessage.class));
         this.host = host;
         this.port = port;
         this.serializable_length = serializable_length;
@@ -61,24 +66,15 @@ public class RpcErasureServer<T> implements Runnable {
         this.service = new ChunksService<T>();
     }
 
-    public RpcErasureServer(String host, int port, Eventloop eventloop) {
-        this.rpcSerialize = SerializerBuilder.create();
-        this.host = host;
-        this.port = port;
-        this.eventloop = eventloop;
-        this.service = new ChunksService<T>();
-        this.inetSocketAddress = null;
-        this.typeParameterClass = null;
-    }
-
     public RpcErasureServer(T typeParameterClass, InetSocketAddress inetSocketAddress, Eventloop eventloop, int serializable_length) {
+        super(eventloop.getReactor());
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
         list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
         list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
-        this.rpcSerialize = SerializerBuilder.create();
+        this.rpcSerialize = SerializerFactory.defaultInstance().create((RpcMessage.class));
         this.inetSocketAddress = inetSocketAddress;
         this.eventloop = eventloop;
         this.serializable_length = serializable_length;
@@ -91,23 +87,28 @@ public class RpcErasureServer<T> implements Runnable {
     @Override
     public void run() {
         if (inetSocketAddress != null) {
-            rpcServer = RpcServer.create(eventloop)
+            rpcServer = RpcServer.builder(eventloop)
                     .withMessageTypes(ErasureRequest.class, ErasureResponse.class)
-                    .withSerializerBuilder(this.rpcSerialize)
                     .withHandler(ErasureRequest.class, downloadErasureChunks(service))
-                    .withListenAddress(inetSocketAddress);
+                    .withListenAddress(inetSocketAddress)
+                    .build();
         } else {
-            rpcServer = RpcServer.create(eventloop)
+            rpcServer = RpcServer.builder(eventloop)
                     .withMessageTypes(ErasureRequest.class, ErasureResponse.class, ConsensusChunksRequest.class, ConsensusChunksRequest2.class, ConsensusChunksRequest3.class, ConsensusChunksRequest4.class, ConsensusChunksResponse.class)
-                    .withSerializerBuilder(this.rpcSerialize)
                     .withHandler(ErasureRequest.class, downloadErasureChunks(service))
                     .withHandler(ConsensusChunksRequest.class, downloadAnnounceConsensusChunks(service))
                     .withHandler(ConsensusChunksRequest2.class, downloadPrepareConsensusChunks(service))
                     .withHandler(ConsensusChunksRequest3.class, downloadCommitConsensusChunks(service))
                     .withHandler(ConsensusChunksRequest4.class, downloadVrfAggregateConsensusChunks(service))
-                    .withListenAddress(new InetSocketAddress(host, port));
+                    .withListenAddress(new InetSocketAddress(host, port))
+                    .build();
         }
-        rpcServer.listen();
+        eventloop.submit(() -> {
+            try {
+                rpcServer.listen();
+            } catch (IOException ignore) {
+            }
+        });
     }
 
     public int getSerializable_length() {
@@ -183,14 +184,11 @@ public class RpcErasureServer<T> implements Runnable {
     public void close() {
         rpcServer.closeFuture().cancel(true);
         try {
-            rpcServer.closeFuture().get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        } catch (ExecutionException e) {
+            rpcServer.closeFuture().get(10000, TimeUnit.MILLISECONDS);
+            rpcServer.stopMonitoring();
+            rpcServer = null;
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        rpcServer.close();
-        rpcServer.stopMonitoring();
-        rpcServer = null;
     }
 }

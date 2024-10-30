@@ -2,11 +2,11 @@ package io.Adrestus.network;
 
 import io.activej.bytebuf.ByteBuf;
 import io.activej.bytebuf.ByteBufPool;
-import io.activej.csp.ChannelSupplier;
 import io.activej.csp.binary.BinaryChannelSupplier;
+import io.activej.csp.supplier.ChannelSuppliers;
 import io.activej.eventloop.Eventloop;
-import io.activej.net.socket.tcp.AsyncTcpSocket;
-import io.activej.net.socket.tcp.AsyncTcpSocketNio;
+import io.activej.net.socket.tcp.ITcpSocket;
+import io.activej.net.socket.tcp.TcpSocket;
 import io.activej.promise.Promise;
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
@@ -23,8 +23,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 
-import static io.activej.eventloop.Eventloop.getCurrentEventloop;
 import static io.activej.promise.Promises.loop;
+import static io.activej.reactor.Reactor.getCurrentReactor;
 
 public class AsyncService<T> {
     private static Logger LOG = LoggerFactory.getLogger(AsyncService.class);
@@ -98,11 +98,11 @@ public class AsyncService<T> {
 
     private <T> Callable<T> AsyncCall(T value, String ip) {
         return () -> {
-            Eventloop eventloop = Eventloop.create().withCurrentThread();
+            Eventloop eventloop = Eventloop.builder().withCurrentThread().build();
             eventloop.connect(new InetSocketAddress(ip, port), TIMER_DELAY_TIMEOUT, (socketChannel, e) -> {
                 if (e == null) {
                     try {
-                        AsyncTcpSocket socket = AsyncTcpSocketNio.wrapChannel(getCurrentEventloop(), socketChannel, null);
+                        ITcpSocket socket = TcpSocket.wrapChannel(getCurrentReactor(), socketChannel, null);
                         ByteBuf sizeBuf = ByteBufPool.allocate(2); // enough to serialize size 1024
                         sizeBuf.writeVarInt(toSend.length);
                         ByteBuf appendedBuf = ByteBufPool.append(sizeBuf, ByteBuf.wrapForReading(toSend));
@@ -127,12 +127,12 @@ public class AsyncService<T> {
 
     private <T> Callable<T> AsyncListCall(T value, String ip, int pos) {
         return () -> {
-            Eventloop eventloop = Eventloop.create().withCurrentThread();
+            Eventloop eventloop = Eventloop.builder().withCurrentThread().build();
             eventloop.connect(new InetSocketAddress(ip, this.port), TIMER_DELAY_TIMEOUT, (socketChannel, e) -> {
                 if (e == null) {
                     try {
-                        AsyncTcpSocket socket = AsyncTcpSocketNio.wrapChannel(getCurrentEventloop(), socketChannel, null);
-                        BinaryChannelSupplier bufsSupplier = BinaryChannelSupplier.of(ChannelSupplier.ofSocket(socket));
+                        ITcpSocket socket = TcpSocket.wrapChannel(getCurrentReactor(), socketChannel, null);
+                        BinaryChannelSupplier bufsSupplier = BinaryChannelSupplier.of(ChannelSuppliers.ofSocket(socket));
                         loop(0,
                                 i -> i < listToSend.size(),
                                 i -> loadData(listToSend.get(i))

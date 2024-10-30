@@ -90,8 +90,7 @@ public class BlockPerformanceTest {
     private static BlockSizeCalculator sizeCalculator;
     private static KademliaData kad1, kad2, kad3, kad4, kad5, kad6;
     private static ECDSASignatureData signatureData1, signatureData2, signatureData3;
-    private static TransactionCallback transactionCallback;
-    private static ArrayList<String> mesages = new ArrayList<>();
+    private static Callback transactionCallback;
     private static int version = 0x00;
     private static int size = 10000;
     private static TransactionEventPublisher publisher;
@@ -202,12 +201,7 @@ public class BlockPerformanceTest {
         signatureData2 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(addreses.get(1))), keypair.get(1));
         signatureData3 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(addreses.get(2))), keypair.get(2));
 
-        transactionCallback = new TransactionCallback() {
-            @Override
-            public void call(String value) {
-                mesages.add(value);
-            }
-        };
+        transactionCallback = new TransactionCallback();
 
         for (int i = 0; i < size - 1; i++) {
             Transaction transaction = new RegularTransaction();
@@ -287,7 +281,7 @@ public class BlockPerformanceTest {
         long finish = System.currentTimeMillis();
         long timeElapsed = finish - start;
         assertEquals(size - 1, MemoryTransactionPool.getInstance().getSize());
-        assertTrue(mesages.isEmpty());
+        assertTrue(((TransactionCallback)transactionCallback).getMessages().isEmpty());
         // 100,000 tansactions should be done in 1 sec 10,000 transaction should be 100 ms and when use profiler total time of verify signature should be around 1000ms
         assertTrue(timeElapsed < 500, "Assert true");
         publisher.getJobSyncUntilRemainingCapacityZero();

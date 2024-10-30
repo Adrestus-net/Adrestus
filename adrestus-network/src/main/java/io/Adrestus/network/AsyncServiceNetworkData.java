@@ -3,12 +3,13 @@ package io.Adrestus.network;
 import io.Adrestus.config.SocketConfigOptions;
 import io.activej.bytebuf.ByteBuf;
 import io.activej.bytebuf.ByteBufPool;
-import io.activej.csp.ChannelSupplier;
 import io.activej.csp.binary.BinaryChannelSupplier;
-import io.activej.csp.binary.ByteBufsDecoder;
+import io.activej.csp.binary.decoder.ByteBufsDecoder;
+import io.activej.csp.binary.decoder.ByteBufsDecoders;
+import io.activej.csp.supplier.ChannelSuppliers;
 import io.activej.eventloop.Eventloop;
-import io.activej.net.socket.tcp.AsyncTcpSocket;
-import io.activej.net.socket.tcp.AsyncTcpSocketNio;
+import io.activej.net.socket.tcp.ITcpSocket;
+import io.activej.net.socket.tcp.TcpSocket;
 import io.activej.promise.Promise;
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
@@ -26,15 +27,15 @@ import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static io.activej.eventloop.Eventloop.getCurrentEventloop;
 import static io.activej.promise.Promises.loop;
+import static io.activej.reactor.Reactor.getCurrentReactor;
 
 public class AsyncServiceNetworkData<T> {
     private static Logger LOG = LoggerFactory.getLogger(AsyncServiceNetworkData.class);
 
     private static final int TIMER_DELAY_TIMEOUT = 3000;
     private static final int EVENTLOOP_TIMER_DELAY_TIMEOUT = 1000;
-    private static final ByteBufsDecoder<ByteBuf> DECODER = ByteBufsDecoder.ofVarIntSizePrefixedBytes();
+    private static final ByteBufsDecoder<ByteBuf> DECODER = ByteBufsDecoders.ofVarIntSizePrefixedBytes();
     private List<String> list_ip;
 
     private List<byte[]> data_bytes;
@@ -83,13 +84,13 @@ public class AsyncServiceNetworkData<T> {
     private <T> Callable<T> AsyncCall(T value, String ip, int pos) {
         return () -> {
             Timer receivetimer = new Timer();
-            Eventloop eventloop = Eventloop.create().withCurrentThread();
+            Eventloop eventloop = Eventloop.builder().withCurrentThread().build();
             Eventloop finalEventloop = eventloop;
             eventloop.connect(new InetSocketAddress(ip, SocketConfigOptions.CACHED_DATA_PORT), EVENTLOOP_TIMER_DELAY_TIMEOUT, (socketChannel, e) -> {
                 if (e == null) {
                     try {
-                        AsyncTcpSocket socket = AsyncTcpSocketNio.wrapChannel(getCurrentEventloop(), socketChannel, null);
-                        BinaryChannelSupplier bufsSupplier = BinaryChannelSupplier.of(ChannelSupplier.ofSocket(socket));
+                        ITcpSocket socket = TcpSocket.wrapChannel(getCurrentReactor(), socketChannel, null);
+                        BinaryChannelSupplier bufsSupplier = BinaryChannelSupplier.of(ChannelSuppliers.ofSocket(socket));
                         loop(0,
                                 i -> i < 1,
                                 i -> loadData()

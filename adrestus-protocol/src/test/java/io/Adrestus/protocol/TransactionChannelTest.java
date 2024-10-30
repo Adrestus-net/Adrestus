@@ -23,11 +23,11 @@ import io.Adrestus.util.GetTime;
 import io.Adrestus.util.SerializationUtil;
 import io.activej.bytebuf.ByteBuf;
 import io.activej.bytebuf.ByteBufPool;
-import io.activej.csp.ChannelSupplier;
 import io.activej.csp.binary.BinaryChannelSupplier;
+import io.activej.csp.supplier.ChannelSuppliers;
 import io.activej.eventloop.Eventloop;
-import io.activej.net.socket.tcp.AsyncTcpSocket;
-import io.activej.net.socket.tcp.AsyncTcpSocketNio;
+import io.activej.net.socket.tcp.ITcpSocket;
+import io.activej.net.socket.tcp.TcpSocket;
 import io.activej.promise.Promise;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeAll;
@@ -45,14 +45,14 @@ import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 
-import static io.activej.eventloop.Eventloop.getCurrentEventloop;
 import static io.activej.promise.Promises.loop;
+import static io.activej.reactor.Reactor.getCurrentReactor;
 
 public class TransactionChannelTest {
-    private static Eventloop eventloop = Eventloop.create().withCurrentThread();
+    private static Eventloop eventloop = Eventloop.builder().withCurrentThread().build();
     private static SerializationUtil<Transaction> encode;
     private static SerializationUtil<Transaction> decode;
-    static AsyncTcpSocket socket;
+    static ITcpSocket socket;;
     static int counter;
     private static ArrayList<Transaction> toSendlist = new ArrayList<>();
     private static ArrayList<String> addreses = new ArrayList<>();
@@ -133,11 +133,11 @@ public class TransactionChannelTest {
             if (e == null) {
                 System.out.println("Connected to server, enter some text and send it by pressing 'Enter'.");
                 try {
-                    socket = AsyncTcpSocketNio.wrapChannel(getCurrentEventloop(), socketChannel, null);
+                    socket = TcpSocket.wrapChannel(getCurrentReactor(), socketChannel, null);
                 } catch (IOException ioException) {
                     throw new RuntimeException(ioException);
                 }
-                BinaryChannelSupplier bufsSupplier = BinaryChannelSupplier.of(ChannelSupplier.ofSocket(socket));
+                BinaryChannelSupplier bufsSupplier = BinaryChannelSupplier.of(ChannelSuppliers.ofSocket(socket));
                 loop(0,
                         i -> i < toSendlist.size(),
                         i -> loadData(toSendlist.get(i))
