@@ -59,7 +59,7 @@ public class RpcAdrestusServer<T> extends AbstractNioReactive implements AutoClo
     private Type fluentType;
 
     static {
-        RPCLogger.setLevelOff();
+        RPCLogger.getInstance();
     }
 
 

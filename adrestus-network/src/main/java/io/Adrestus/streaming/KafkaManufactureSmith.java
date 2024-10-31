@@ -1,5 +1,7 @@
 package io.Adrestus.streaming;
 
+import io.Adrestus.rpc.RPCLogger;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumMap;
@@ -10,12 +12,17 @@ import static io.Adrestus.streaming.KafkaKingdomType.*;
 public class KafkaManufactureSmith implements KafkaSmith {
     private final Map<KafkaKingdomType, IKafkaComponent> map;
 
-    public KafkaManufactureSmith(ArrayList<String> ipAddresses) {
-        map = new EnumMap<>(KafkaKingdomType.class);
-        Arrays.stream(KafkaKingdomType.values()).filter(val->!val.equals(CONSUMER_SAME)).forEach(type -> Init(type,ipAddresses));
+    static {
+        RPCLogger.getInstance();
     }
 
-    private void Init(KafkaKingdomType type,ArrayList<String> ipAddresses){
+    public KafkaManufactureSmith(ArrayList<String> ipAddresses) {
+        this.map = new EnumMap<>(KafkaKingdomType.class);
+        Arrays.stream(KafkaKingdomType.values()).filter(val -> !val.equals(CONSUMER_SAME)).forEach(type -> Init(type, ipAddresses));
+    }
+
+
+    private void Init(KafkaKingdomType type, ArrayList<String> ipAddresses) {
         switch (type) {
             case PRODUCER:
                 map.put(type, new KafkaProducer());
@@ -27,7 +34,7 @@ public class KafkaManufactureSmith implements KafkaSmith {
                 map.put(type, new KafkaZookeeper());
                 break;
             case CONSUMER_PRIVATE:
-                map.put(type,new KafkaConsumerPrivateGroup(ipAddresses));
+                map.put(type, new KafkaConsumerPrivateGroup(ipAddresses));
                 break;
             case TOPIC_CREATOR:
                 map.put(type, new KafkaCreatorTopic(ipAddresses.size()));
@@ -36,9 +43,10 @@ public class KafkaManufactureSmith implements KafkaSmith {
                 throw new IllegalArgumentException("Invalid KafkaKingdomType");
         }
     }
+
     @Override
-    public void updateLeaderHost(KafkaKingdomType type,ArrayList<String> ipAddresses, String leader_host,int partition, boolean isClose) {
-        if(isClose)
+    public void updateLeaderHost(KafkaKingdomType type, ArrayList<String> ipAddresses, String leader_host, int partition, boolean isClose) {
+        if (isClose)
             map.get(KafkaKingdomType.CONSUMER_SAME).Shutdown();
         map.put(type, new KafkaConsumerSameGroup(leader_host, partition));
         map.get(KafkaKingdomType.CONSUMER_SAME).constructKafkaComponentType();

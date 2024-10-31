@@ -45,7 +45,7 @@ public class RpcErasureServer<T> extends AbstractNioReactive implements AutoClos
     private RpcServer rpcServer;
 
     static {
-//        RPCLogger.setLevelOff();
+        RPCLogger.getInstance();
     }
 
     public RpcErasureServer(T typeParameterClass, String host, int port, Eventloop eventloop, int serializable_length) {

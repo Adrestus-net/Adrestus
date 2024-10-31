@@ -62,7 +62,7 @@ public class RpcAdrestusClient<T> extends AbstractNioReactive implements AutoClo
     private RpcClient client;
 
     static {
-        RPCLogger.setLevelOff();
+        RPCLogger.getInstance();
     }
 
 
