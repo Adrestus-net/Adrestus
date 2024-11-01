@@ -19,12 +19,14 @@ public class ConsensusBroker {
     private final ArrayList<String> ipAddresses;
     private final KafkaSmith kafkaManufactureSmith;
     private final ConcurrentHashMap<TopicType, TreeMap<Integer, Map<Integer, String>>> sequencedMap;
+    private final String currentIP;
     private String leader_host;
     private int partition;
 
     public ConsensusBroker(ArrayList<String> ipAddresses, String leader_host, int partition) {
+        this.currentIP = IPFinder.getLocalIP();
         this.ipAddresses = ipAddresses;
-        this.ipAddresses.remove(IPFinder.getLocalIP());
+        this.ipAddresses.remove(this.currentIP);
         this.leader_host = leader_host;
         this.partition = partition;
         this.kafkaManufactureSmith = new KafkaManufactureSmith(ipAddresses);
@@ -42,7 +44,9 @@ public class ConsensusBroker {
         this.kafkaManufactureSmith.manufactureKafkaComponent(KafkaKingdomType.TOPIC_CREATOR);
         this.kafkaManufactureSmith.manufactureKafkaComponent(KafkaKingdomType.PRODUCER);
         this.kafkaManufactureSmith.manufactureKafkaComponent(KafkaKingdomType.CONSUMER_PRIVATE);
-        this.kafkaManufactureSmith.updateLeaderHost(KafkaKingdomType.CONSUMER_SAME, this.ipAddresses, this.leader_host, this.partition, false);
+        if(!currentIP.equals(leader_host)) {
+            this.kafkaManufactureSmith.updateLeaderHost(KafkaKingdomType.CONSUMER_SAME, this.ipAddresses, this.leader_host, this.partition, false);
+        }
     }
 
 

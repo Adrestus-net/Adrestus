@@ -11,7 +11,7 @@ public class CommitPhaseTopic implements ITopic {
 
     @Override
     public void constructTopicName(int numPartitions) {
-        topicName = new NewTopic(KafkaConfiguration.COMMIT_PHASE_TOPIC, numPartitions, KafkaConfiguration.KAFKA_REPLICATION_FACTOR);
+        topicName = new NewTopic(TopicType.COMMITTEE_PHASE.name(), numPartitions, KafkaConfiguration.KAFKA_REPLICATION_FACTOR);
     }
 
     @Override

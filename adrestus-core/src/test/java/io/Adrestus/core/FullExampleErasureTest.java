@@ -292,124 +292,127 @@ public class FullExampleErasureTest {
 
     // This work for old configuration of the project and it is not working for the new configuration
 
-//    @Test
-//    public void test() throws IOException, DecoderException, InterruptedException, ParseException {
-//        Socket socket = new Socket();
-//        socket.connect(new InetSocketAddress("google.com", 80));
-//        String IP = socket.getLocalAddress().getHostAddress();
-//        if (!IP.substring(0, 3).equals("192")) {
-//            return;
-//        }
-//        if (IP.equals(CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).get(vk1))) {
-//            ConsensusServer.getInstance(IP);
-//            ArrayList<String> proofs = new ArrayList<>();
-//            ArrayList<String> existed = new ArrayList<>();
-//            int count = 1;
-//            while (count < CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().size() - 1) {
-//                String rec = new String(ConsensusServer.getInstance(IP).receiveErasureData(), StandardCharsets.UTF_8);
-//                if (!existed.contains(rec)) {
-//                    System.out.println(rec);
-//                    existed.add(rec);
-//                    count++;
-//                    proofs.add(rec);
-//                }
-//            }
-//            ArrayList<String> identities = new ArrayList<>();
-//            ArrayList<byte[]> toSend = getChunks(4);
-//            int pos = 0;
-//            for (int j = 0; j < proofs.size(); j++) {
-//                StringJoiner joiner2 = new StringJoiner(delimeter);
-//                String[] splits = StringUtils.split(proofs.get(j), delimeter);
-//                BLSPublicKey blsPublicKey = BLSPublicKey.fromByte(Hex.decodeHex(splits[0]));
-//                Timestamp timestamp = GetTime.GetTimestampFromString(splits[1]);
-//                boolean val = GetTime.CheckIfTimestampIsUnderOneMinute(timestamp);
-//                Signature bls_sig2 = valueMapper.decode(Hex.decodeHex(splits[2]));
-//                String strsgn = joiner2.add(Hex.encodeHexString(blsPublicKey.toBytes())).add(splits[1]).toString();
-//                Boolean signcheck = BLSSignature.verify(bls_sig2, strsgn.getBytes(StandardCharsets.UTF_8), blsPublicKey);
-//                if (signcheck && val) {
-//                    identities.add(strsgn);
-//                    ConsensusServer.getInstance(IP).setErasureMessage(toSend.get(pos), strsgn);
-//                    pos++;
-//                }
-//            }
-//            Thread.sleep(8000);
-//        } else {
-//            for (Map.Entry<BLSPublicKey, String> entry : CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).entrySet()) {
-//                if (IP.equals(entry.getValue())) {
-//                    if (vk2.equals(entry.getKey())) {
-//                        CachedBLSKeyPair.getInstance().setPrivateKey(sk2);
-//                        CachedBLSKeyPair.getInstance().setPublicKey(vk2);
-//                        break;
-//                    } else if (vk3.equals(entry.getKey())) {
-//                        CachedBLSKeyPair.getInstance().setPrivateKey(sk3);
-//                        CachedBLSKeyPair.getInstance().setPublicKey(vk3);
-//                        break;
-//                    }
-//                }
-//            }
-//            List<String> list = new ArrayList<>();
-//            StringJoiner joiner = new StringJoiner(delimeter);
-//            String timeStampInString = GetTime.GetTimeStampInString();
-//            String pubkey = Hex.encodeHexString(CachedBLSKeyPair.getInstance().getPublicKey().toBytes());
-//
-//            String toSign = joiner.add(pubkey).add(timeStampInString).toString();
-//            Signature bls_sig = BLSSignature.sign(toSign.getBytes(StandardCharsets.UTF_8), CachedBLSKeyPair.getInstance().getPrivateKey());
-//            String sig = Hex.encodeHexString(valueMapper.encode(bls_sig));
-//
-//            list.add(pubkey);
-//            list.add(timeStampInString);
-//            list.add(sig);
-//
-//            String toSend = String.join(delimeter, list);
-//            String rootIP = CachedLatestBlocks.getInstance()
-//                    .getCommitteeBlock()
-//                    .getStructureMap()
-//                    .get(0).values().stream().findFirst().get();
-//            ConsensusClient consensusClient = new ConsensusClient(rootIP, toSign);
-//
-//            byte[] rec_buff = consensusClient.SendRetrieveErasureData(toSend.getBytes(StandardCharsets.UTF_8));
-//            SerializableErasureObject rootObj = serenc_erasure.decode(rec_buff);
-//            CachedSerializableErasureObject.getInstance().setSerializableErasureObject(rootObj);
-//            server.setSerializable_length(rec_buff.length);
-//            List<String> ips = CachedLatestBlocks.getInstance()
-//                    .getCommitteeBlock()
-//                    .getStructureMap()
-//                    .get(0).values()
-//                    .stream()
-//                    .filter(val -> !val.equals(IP) && !val.equals("192.168.1.106"))
-//                    .collect(Collectors.toList());
-//            ArrayList<InetSocketAddress> list_ip = new ArrayList<>();
-//            for (String ip : ips) {
-//                InetSocketAddress address = new InetSocketAddress(InetAddress.getByName(ip), 7082);
-//                list_ip.add(address);
-//            }
-//            RpcErasureClient<SerializableErasureObject> client = new RpcErasureClient<SerializableErasureObject>(new SerializableErasureObject(), list_ip, 7082, eventloop);
-//            client.connect();
-//            ArrayList<SerializableErasureObject> recserializableErasureObjects = (ArrayList<SerializableErasureObject>) client.getErasureChunks(new byte[0]);
-//
-//            for (SerializableErasureObject obj : recserializableErasureObjects) {
-//                if (!obj.CheckChunksValidity(rootObj.getRootMerkleHash()))
-//                    throw new IllegalArgumentException("Merklee Hash is not valid");
-//            }
-//            recserializableErasureObjects.add(rootObj);
-//
-//            Collections.shuffle(recserializableErasureObjects);
-//            FECParameterObject recobject = recserializableErasureObjects.get(0).getFecParameterObject();
-//            FECParameters recfecParams = FECParameters.newParameters(recobject.getDataLen(), recobject.getSymbolSize(), recobject.getNumberOfSymbols());
-//            final ArrayDataDecoder dec = OpenRQ.newDecoder(recfecParams, recobject.getSymbolOverhead());
-//
-//            for (int i = 0; i < recserializableErasureObjects.size(); i++) {
-//                EncodingPacket encodingPacket = dec.parsePacket(ByteBuffer.wrap(recserializableErasureObjects.get(i).getOriginalPacketChunks()), false).value();
-//                final SourceBlockDecoder sbDec = dec.sourceBlock(encodingPacket.sourceBlockNumber());
-//                sbDec.putEncodingPacket(encodingPacket);
-//            }
-//
-//            TransactionBlock copys = encode.decode(dec.dataArray());
-//            assertNotNull(copys);
-//            int g = 3;
-//            System.out.println("Done");
-//        }
-//    }
+    @Test
+    public void test() throws IOException, DecoderException, InterruptedException, ParseException {
+        if (System.getenv("MAVEN_OPTS") != null) {
+            return;
+        }
+        Socket socket = new Socket();
+        socket.connect(new InetSocketAddress("google.com", 80));
+        String IP = socket.getLocalAddress().getHostAddress();
+        if (!IP.substring(0, 3).equals("192")) {
+            return;
+        }
+        if (IP.equals(CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).get(vk1))) {
+            ConsensusServer.getInstance(IP);
+            ArrayList<String> proofs = new ArrayList<>();
+            ArrayList<String> existed = new ArrayList<>();
+            int count = 1;
+            while (count < CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().size() - 1) {
+                String rec = new String(ConsensusServer.getInstance(IP).receiveErasureData(), StandardCharsets.UTF_8);
+                if (!existed.contains(rec)) {
+                    System.out.println(rec);
+                    existed.add(rec);
+                    count++;
+                    proofs.add(rec);
+                }
+            }
+            ArrayList<String> identities = new ArrayList<>();
+            ArrayList<byte[]> toSend = getChunks(4);
+            int pos = 0;
+            for (int j = 0; j < proofs.size(); j++) {
+                StringJoiner joiner2 = new StringJoiner(delimeter);
+                String[] splits = StringUtils.split(proofs.get(j), delimeter);
+                BLSPublicKey blsPublicKey = BLSPublicKey.fromByte(Hex.decodeHex(splits[0]));
+                Timestamp timestamp = GetTime.GetTimestampFromString(splits[1]);
+                boolean val = GetTime.CheckIfTimestampIsUnderOneMinute(timestamp);
+                Signature bls_sig2 = valueMapper.decode(Hex.decodeHex(splits[2]));
+                String strsgn = joiner2.add(Hex.encodeHexString(blsPublicKey.toBytes())).add(splits[1]).toString();
+                Boolean signcheck = BLSSignature.verify(bls_sig2, strsgn.getBytes(StandardCharsets.UTF_8), blsPublicKey);
+                if (signcheck && val) {
+                    identities.add(strsgn);
+                    ConsensusServer.getInstance(IP).setErasureMessage(toSend.get(pos), strsgn);
+                    pos++;
+                }
+            }
+            Thread.sleep(8000);
+        } else {
+            for (Map.Entry<BLSPublicKey, String> entry : CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).entrySet()) {
+                if (IP.equals(entry.getValue())) {
+                    if (vk2.equals(entry.getKey())) {
+                        CachedBLSKeyPair.getInstance().setPrivateKey(sk2);
+                        CachedBLSKeyPair.getInstance().setPublicKey(vk2);
+                        break;
+                    } else if (vk3.equals(entry.getKey())) {
+                        CachedBLSKeyPair.getInstance().setPrivateKey(sk3);
+                        CachedBLSKeyPair.getInstance().setPublicKey(vk3);
+                        break;
+                    }
+                }
+            }
+            List<String> list = new ArrayList<>();
+            StringJoiner joiner = new StringJoiner(delimeter);
+            String timeStampInString = GetTime.GetTimeStampInString();
+            String pubkey = Hex.encodeHexString(CachedBLSKeyPair.getInstance().getPublicKey().toBytes());
+
+            String toSign = joiner.add(pubkey).add(timeStampInString).toString();
+            Signature bls_sig = BLSSignature.sign(toSign.getBytes(StandardCharsets.UTF_8), CachedBLSKeyPair.getInstance().getPrivateKey());
+            String sig = Hex.encodeHexString(valueMapper.encode(bls_sig));
+
+            list.add(pubkey);
+            list.add(timeStampInString);
+            list.add(sig);
+
+            String toSend = String.join(delimeter, list);
+            String rootIP = CachedLatestBlocks.getInstance()
+                    .getCommitteeBlock()
+                    .getStructureMap()
+                    .get(0).values().stream().findFirst().get();
+            ConsensusClient consensusClient = new ConsensusClient(rootIP, toSign);
+
+            byte[] rec_buff = consensusClient.SendRetrieveErasureData(toSend.getBytes(StandardCharsets.UTF_8));
+            SerializableErasureObject rootObj = serenc_erasure.decode(rec_buff);
+            CachedSerializableErasureObject.getInstance().setSerializableErasureObject(rootObj);
+            server.setSerializable_length(rec_buff.length);
+            List<String> ips = CachedLatestBlocks.getInstance()
+                    .getCommitteeBlock()
+                    .getStructureMap()
+                    .get(0).values()
+                    .stream()
+                    .filter(val -> !val.equals(IP) && !val.equals("192.168.1.106"))
+                    .collect(Collectors.toList());
+            ArrayList<InetSocketAddress> list_ip = new ArrayList<>();
+            for (String ip : ips) {
+                InetSocketAddress address = new InetSocketAddress(InetAddress.getByName(ip), 7082);
+                list_ip.add(address);
+            }
+            RpcErasureClient<SerializableErasureObject> client = new RpcErasureClient<SerializableErasureObject>(new SerializableErasureObject(), list_ip, 7082, eventloop);
+            client.connect();
+            ArrayList<SerializableErasureObject> recserializableErasureObjects = (ArrayList<SerializableErasureObject>) client.getErasureChunks(new byte[0]);
+
+            for (SerializableErasureObject obj : recserializableErasureObjects) {
+                if (!obj.CheckChunksValidity(rootObj.getRootMerkleHash()))
+                    throw new IllegalArgumentException("Merklee Hash is not valid");
+            }
+            recserializableErasureObjects.add(rootObj);
+
+            Collections.shuffle(recserializableErasureObjects);
+            FECParameterObject recobject = recserializableErasureObjects.get(0).getFecParameterObject();
+            FECParameters recfecParams = FECParameters.newParameters(recobject.getDataLen(), recobject.getSymbolSize(), recobject.getNumberOfSymbols());
+            final ArrayDataDecoder dec = OpenRQ.newDecoder(recfecParams, recobject.getSymbolOverhead());
+
+            for (int i = 0; i < recserializableErasureObjects.size(); i++) {
+                EncodingPacket encodingPacket = dec.parsePacket(ByteBuffer.wrap(recserializableErasureObjects.get(i).getOriginalPacketChunks()), false).value();
+                final SourceBlockDecoder sbDec = dec.sourceBlock(encodingPacket.sourceBlockNumber());
+                sbDec.putEncodingPacket(encodingPacket);
+            }
+
+            TransactionBlock copys = encode.decode(dec.dataArray());
+            assertNotNull(copys);
+            int g = 3;
+            System.out.println("Done");
+        }
+    }
 
 
     private static ArrayList<byte[]> getChunks(int size) {

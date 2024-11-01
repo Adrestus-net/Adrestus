@@ -11,7 +11,7 @@ public class DispersePhase2Topic implements ITopic {
 
     @Override
     public void constructTopicName(int numPartitions) {
-        topicName = new NewTopic(KafkaConfiguration.DISPERSE_PHASE_2_TOPIC, numPartitions, KafkaConfiguration.KAFKA_REPLICATION_FACTOR);
+        topicName = new NewTopic(TopicType.DISPERSE_PHASE2.name(), numPartitions, KafkaConfiguration.KAFKA_REPLICATION_FACTOR);
     }
 
     @Override

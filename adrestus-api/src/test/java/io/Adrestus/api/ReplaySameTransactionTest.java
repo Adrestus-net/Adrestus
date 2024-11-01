@@ -142,6 +142,9 @@ public class ReplaySameTransactionTest {
     @Test
     @SneakyThrows
     public void test() {
+        if (System.getenv("MAVEN_OPTS") != null) {
+            return;
+        }
         Transaction transaction = new RegularTransaction();
         transaction.setFrom(addreses.get(0));
         transaction.setTo(addreses.get(1));

@@ -2,8 +2,13 @@ package io.Adrestus.streaming;
 
 import io.Adrestus.config.KafkaConfiguration;
 import org.apache.kafka.clients.admin.AdminClient;
+import org.apache.kafka.clients.admin.NewTopic;
+import org.apache.kafka.clients.admin.TopicListing;
 
 import java.util.Properties;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 public class KafkaCreatorTopic implements IKafkaComponent {
 
@@ -22,10 +27,26 @@ public class KafkaCreatorTopic implements IKafkaComponent {
     @Override
     public void constructKafkaComponentType() {
         props = new Properties();
-        props.put("bootstrap.servers", "localhost:9092");
+        props.put("bootstrap.servers", KafkaConfiguration.KAFKA_HOST + ":" + "9092");
         props.put("group.id", KafkaConfiguration.TOPIC_GROUP_ID + "-" + KafkaConfiguration.KAFKA_HOST);
+
         try (AdminClient adminClient = AdminClient.create(props)) {
-            adminClient.createTopics(TopicFactory.getInstance().getCollectionTopics()).all().get();
+            Set<String> existingTopics = adminClient
+                    .listTopics().listings().get().stream()
+                    .map(TopicListing::name)
+                    .collect(Collectors.toSet());
+
+            for (NewTopic topic : TopicFactory.getInstance().getCollectionTopics()) {
+                if (!existingTopics.contains(topic.name())) {
+                    adminClient.createTopics(Set.of(topic)).all().get();
+                }
+            }
+        } catch (ExecutionException e) {
+            if (e.getCause() instanceof org.apache.kafka.common.errors.TopicExistsException) {
+                System.out.println("Topic already exists: " + e.getCause().getMessage());
+            } else {
+                e.printStackTrace();
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -38,7 +59,7 @@ public class KafkaCreatorTopic implements IKafkaComponent {
 
     @Override
     public void Shutdown() {
-        if(props == null) {
+        if (props == null) {
             return;
         }
         try (AdminClient adminClient = AdminClient.create(props)) {

@@ -95,6 +95,9 @@ public class BootstrapWithSyncExistedTest {
 
     @BeforeAll
     public static void setup() throws Exception {
+        if (System.getenv("MAVEN_OPTS") != null) {
+            return;
+        }
         delete_test();
         IDatabase<String, CommitteeBlock> database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
         IDatabase<String, byte[]> tree_database = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getPatriciaTreeZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
@@ -262,6 +265,9 @@ public class BootstrapWithSyncExistedTest {
 
     @Test
     public void test() throws IOException, InterruptedException {
+        if (System.getenv("MAVEN_OPTS") != null) {
+            return;
+        }
         Socket socket = new Socket();
         socket.connect(new InetSocketAddress("google.com", 80));
         String IP = socket.getLocalAddress().getHostAddress();

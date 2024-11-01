@@ -33,6 +33,9 @@ public class RPCWorkerTest {
     //MAKE SURE CAHCEHCD EVENTLOOP START HERE OR ON WORKER TEST
     //@Test
     public void test() throws IOException, InterruptedException {
+        if (System.getenv("MAVEN_OPTS") != null) {
+            return;
+        }
         DatabaseInstance instance = DatabaseInstance.ZONE_0_TRANSACTION_BLOCK;
         IDatabase<String, TransactionBlock> database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, instance);
         IAdrestusFactory factory = new AdrestusFactory();

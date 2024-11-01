@@ -62,7 +62,7 @@ public class TopicFactory {
                     .values()
                     .stream()
                     .map(topic -> topic.getTopicName().name())
-                    .filter(topic_name -> !topic_name.equals(KafkaConfiguration.DISPERSE_PHASE_1_TOPIC)).collect(Collectors.toUnmodifiableList());
+                    .filter(topic_name -> !topic_name.equals(TopicType.DISPERSE_PHASE1.name())).collect(Collectors.toUnmodifiableList());
         return listTopicNames;
     }
 

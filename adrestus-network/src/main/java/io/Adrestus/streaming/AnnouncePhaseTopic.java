@@ -17,7 +17,7 @@ public class AnnouncePhaseTopic implements ITopic {
 
     @Override
     public void constructTopicName(int numPartitions) {
-        topicName = new NewTopic(KafkaConfiguration.ANNOUNCE_TOPIC, numPartitions, KafkaConfiguration.KAFKA_REPLICATION_FACTOR);
+        topicName = new NewTopic(TopicType.ANNOUNCE_PHASE.name(), numPartitions, KafkaConfiguration.KAFKA_REPLICATION_FACTOR);
     }
 
     @Override

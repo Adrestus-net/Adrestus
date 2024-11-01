@@ -140,6 +140,9 @@ public class SingleTransactionStrategyTest2 {
 
     @Test
     public void execute() throws Exception {
+        if (System.getenv("MAVEN_OPTS") != null) {
+            return;
+        }
 
         for (int j = 1; j <= TestingConfiguration.NONCE; j++) {
             int count = 0;

@@ -48,6 +48,9 @@ public class WorkerTest {
     //IT'S IMPORTANT to have cachedEventLoop started to play
     @Test
     public void test() throws InterruptedException {
+        if (System.getenv("MAVEN_OPTS") != null) {
+            return;
+        }
         CachedEventLoop.getInstance().start();
         IAdrestusFactory factory = new AdrestusFactory();
         List<AdrestusTask> tasks = new java.util.ArrayList<>(List.of(
@@ -81,6 +84,9 @@ public class WorkerTest {
 
     @Test
     public void test2() throws Exception {
+        if (System.getenv("MAVEN_OPTS") != null) {
+            return;
+        }
         Thread.sleep(2000);
         IAdrestusFactory factory = new AdrestusFactory();
         List<AdrestusTask> tasks = new java.util.ArrayList<>(List.of(

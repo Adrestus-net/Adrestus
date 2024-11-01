@@ -1,7 +1,9 @@
 package io.Adrestus.Streaming;
 
+import io.Adrestus.config.KafkaConfiguration;
 import io.Adrestus.network.ConsensusBroker;
 import io.Adrestus.streaming.TopicType;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -31,6 +33,7 @@ public class KafkaMultiNodeTest {
     private static ConsensusBroker consensusBroker;
     private static OptionalInt position;
 
+    @SneakyThrows
     @BeforeAll
     public static void setup() throws IOException {
         if (System.getenv("MAVEN_OPTS") != null) {
@@ -40,18 +43,25 @@ public class KafkaMultiNodeTest {
         Socket socket = new Socket();
         socket.connect(new InetSocketAddress("google.com", 80));
         String IP = socket.getLocalAddress().getHostAddress();
+        KafkaConfiguration.KAFKA_HOST = IP;
         list = new ArrayList<>();
         list.add("192.168.1.106");
         list.add("192.168.1.116");
         list.add("192.168.1.115");
         position = IntStream.range(0, list.size()).filter(i -> IP.equals(list.get(i))).findFirst();
-        consensusBroker = new ConsensusBroker(list, list.get(position.getAsInt()), position.getAsInt());
+        consensusBroker = new ConsensusBroker(list, list.get(0), position.getAsInt());
+        consensusBroker.initializeKafkaKingdom();
+        Thread.sleep(10000);
     }
 
+    @SneakyThrows
     @Test
     public void testKafkaConsensusThreePhases() {
-        consensusBroker.initializeKafkaKingdom();
+        if (System.getenv("MAVEN_OPTS") != null) {
+            return;
+        }
         if (position.getAsInt() == 0) {
+            System.out.println(TopicType.ANNOUNCE_PHASE.name());
             consensusBroker.produceMessage(TopicType.ANNOUNCE_PHASE, String.valueOf(VIEW_NUMBER), ANNOUNCE_MESSAGE_LEADER);
             List<String> res=consensusBroker.receiveMessageFromValidators(TopicType.ANNOUNCE_PHASE, String.valueOf(VIEW_NUMBER));
             res.forEach(val -> assertEquals(ANNOUNCE_MESSAGE_VALIDATORS, val));

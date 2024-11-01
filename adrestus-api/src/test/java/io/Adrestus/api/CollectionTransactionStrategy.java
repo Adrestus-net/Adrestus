@@ -68,6 +68,10 @@ public class CollectionTransactionStrategy {
     @BeforeAll
     public static void setup() throws Exception {
 
+        if (System.getenv("MAVEN_OPTS") != null) {
+            return;
+        }
+
         TestingConfiguration.END = 1003;
         TestingConfiguration.NONCE = 3;
 

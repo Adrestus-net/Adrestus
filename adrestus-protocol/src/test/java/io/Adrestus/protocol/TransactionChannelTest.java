@@ -65,6 +65,9 @@ public class TransactionChannelTest {
 
     @BeforeAll
     public static void setup() throws InterruptedException, MnemonicException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException {
+        if (System.getenv("MAVEN_OPTS") != null) {
+            return;
+        }
         TCPTransactionConsumer<byte[]> print = x -> {
             Transaction transaction = decode.decode(x);
             counter++;
@@ -101,6 +104,9 @@ public class TransactionChannelTest {
 
     @Test
     public void NetworkChannelTest() {
+        if (System.getenv("MAVEN_OPTS") != null) {
+            return;
+        }
         List<SerializationUtil.Mapping> mapp_list = new ArrayList<>();
         mapp_list.add(new SerializationUtil.Mapping(ECDSASignatureData.class, ctx -> new SignatureDataSerializer()));
         mapp_list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));

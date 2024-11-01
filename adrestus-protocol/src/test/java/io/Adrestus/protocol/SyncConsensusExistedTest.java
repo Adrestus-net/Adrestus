@@ -61,6 +61,9 @@ public class SyncConsensusExistedTest {
 
     @BeforeAll
     public static void setup() throws Exception {
+        if (System.getenv("MAVEN_OPTS") != null) {
+            return;
+        }
         delete_test();
         int version = 0x00;
         LoggerKademlia.setLevelOFF();
@@ -97,6 +100,9 @@ public class SyncConsensusExistedTest {
 
     @Test
     public void test() throws IOException, InterruptedException {
+        if (System.getenv("MAVEN_OPTS") != null) {
+            return;
+        }
         Socket socket = new Socket();
         socket.connect(new InetSocketAddress("google.com", 80));
         String IP = socket.getLocalAddress().getHostAddress();

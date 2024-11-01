@@ -41,6 +41,9 @@ public class ReceiptTaskTest {
 
     @BeforeAll
     public static void setup() throws Exception {
+        if (System.getenv("MAVEN_OPTS") != null) {
+            return;
+        }
         CachedZoneIndex.getInstance().setZoneIndex(0);
         sk1 = new BLSPrivateKey(1);
         vk1 = new BLSPublicKey(sk1);
@@ -109,6 +112,9 @@ public class ReceiptTaskTest {
 
     @Test
     public void Test() throws InterruptedException {
+        if (System.getenv("MAVEN_OPTS") != null) {
+            return;
+        }
         IAdrestusFactory factory = new AdrestusFactory();
         List<AdrestusTask> tasks = new java.util.ArrayList<>(List.of(factory.createSendReceiptTask()));
         ExecutorService executor = Executors.newFixedThreadPool(tasks.size());

@@ -22,7 +22,6 @@ import java.util.stream.Collectors;
 public class KafkaConsumerPrivateGroup implements IKafkaComponent {
 
     private ArrayList<String> ipAddresses;
-    private Properties props;
     private HashMap<String, Consumer<String, String>> consumer_map;
 
     public KafkaConsumerPrivateGroup() {
@@ -39,7 +38,7 @@ public class KafkaConsumerPrivateGroup implements IKafkaComponent {
     @Override
     public void constructKafkaComponentType() {
         for (int i = 0; i < ipAddresses.size(); i++) {
-            props = new Properties();
+            Properties props = new Properties();
             props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, this.ipAddresses.get(i) + ":" + KafkaConfiguration.KAFKA_PORT);
             props.put(ConsumerConfig.GROUP_ID_CONFIG, KafkaConfiguration.CONSUMER_PRIVATE_GROUP_ID + "-" + i + "-" + KafkaConfiguration.KAFKA_HOST);
             props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
@@ -64,6 +63,14 @@ public class KafkaConsumerPrivateGroup implements IKafkaComponent {
         }
     }
 
+    private String getConnecntionString() {
+       StringBuilder stringBuilder = new StringBuilder();
+        for (int i = 0; i < ipAddresses.size(); i++) {
+            stringBuilder.append(this.ipAddresses.get(i) + ":" + KafkaConfiguration.KAFKA_PORT+ ",");
+        }
+        stringBuilder.deleteCharAt(stringBuilder.length() - 1);
+        return stringBuilder.toString();
+    }
     public List<Consumer<String, String>> receiveAllBrokerConsumersExceptLeader() {
         return consumer_map.entrySet().stream()
                 .map(HashMap.Entry::getValue)
@@ -96,9 +103,6 @@ public class KafkaConsumerPrivateGroup implements IKafkaComponent {
             });
             this.consumer_map.clear();
         }
-        if (this.props != null) {
-            this.props.clear();
-        }
     }
 
     @Override
@@ -113,14 +117,6 @@ public class KafkaConsumerPrivateGroup implements IKafkaComponent {
     public void setIpAddresses(ArrayList<String> ipAddresses) {
         this.ipAddresses = ipAddresses;
         this.ipAddresses.remove(IPFinder.getLocalIP());
-    }
-
-    public Properties getProps() {
-        return props;
-    }
-
-    public void setProps(Properties props) {
-        this.props = props;
     }
 
     public HashMap<String, Consumer<String, String>> getConsumer_map() {

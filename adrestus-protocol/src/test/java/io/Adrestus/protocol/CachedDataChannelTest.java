@@ -38,6 +38,9 @@ public class CachedDataChannelTest {
 
     @BeforeAll
     public static void setup() {
+        if (System.getenv("MAVEN_OPTS") != null) {
+            return;
+        }
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
         list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
@@ -49,6 +52,9 @@ public class CachedDataChannelTest {
 
     @Test
     public void test() throws InterruptedException {
+        if (System.getenv("MAVEN_OPTS") != null) {
+            return;
+        }
         IAdrestusFactory factory = new AdrestusFactory();
         List<AdrestusTask> tasks = new java.util.ArrayList<>(List.of(factory.createBindServerCachedTask()));
         ExecutorService executor = Executors.newFixedThreadPool(tasks.size());

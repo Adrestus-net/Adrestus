@@ -36,11 +36,13 @@ public class KafkaProducer implements IKafkaComponent {
     public void produceMessage(String topic, String key, String value) {
         ProducerRecord<String, String> record = new ProducerRecord<>(topic, key, value);
         producer.send(record);
+        producer.flush();
     }
 
     public void produceMessage(String topic, int partition, String key, String value) {
         ProducerRecord<String, String> record = new ProducerRecord<>(topic, partition, key, value);
         producer.send(record);
+        producer.flush();
     }
 
     @Override
@@ -50,6 +52,8 @@ public class KafkaProducer implements IKafkaComponent {
 
     @Override
     public void Shutdown() {
+        if(this.producer == null)
+            return;
         this.producer.close();
         this.props.clear();
     }

@@ -54,6 +54,9 @@ public class KafkaManufactureSmith implements KafkaSmith {
 
     @Override
     public void shutDownGracefully() {
+        if(map.isEmpty())
+            return;
+
         map.get(CONSUMER_SAME).Shutdown();
         map.get(CONSUMER_PRIVATE).Shutdown();
         map.get(PRODUCER).Shutdown();
