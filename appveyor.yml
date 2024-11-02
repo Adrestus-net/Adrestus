@@ -50,11 +50,18 @@ install:
   #    mkdir -p $(dirname ${SETTINGS_GLOBAL_XML});
   #    curl -L "${SETTINGS_GLOBAL_XML_URL}" 2>/dev/null | dd of=${SETTINGS_GLOBAL_XML}; cat ${SETTINGS_GLOBAL_XML};
   #    export MAVEN_GLOBAL_SETTINGS="--global-settings ${SETTINGS_GLOBAL_XML}";
-  - sh: |
-      if [[ -z "${MAVEN_OPTS}" ]]; then export MAVEN_OPTS="-XX:+UseParallelGC -Dmaven.repo.local=.m2/repository -Dprofile=title -DprofileFormat=JSON,HTML"; fi;
-      if [[ -d ${HOME}/.m2 ]]; then rm -rf ${HOME}/.m2/repository/top/infra/maven; ls -ahl ${HOME}/.m2; fi;
-      export MAVEN_USER_HOME="${PWD}/.m2";
+#  - sh: |
+#      if [[ -z "${MAVEN_OPTS}" ]]; then export MAVEN_OPTS="-XX:+UseParallelGC -Dmaven.repo.local=.m2/repository -Dprofile=title -DprofileFormat=JSON,HTML"; fi;
+#      if [[ -d ${HOME}/.m2 ]]; then rm -rf ${HOME}/.m2/repository/top/infra/maven; ls -ahl ${HOME}/.m2; fi;
+#      export MAVEN_USER_HOME="${PWD}/.m2";
   #      ./mvnw ${MAVEN_GLOBAL_SETTINGS} -version;
+-sh: |
+    mvn -v
+    wget https://downloads.apache.org/maven/maven-3/3.9.9/binaries/apache-maven-3.9.9-bin.tar.gz
+    tar -xzf apache-maven-3.9.9-bin.tar.gz
+    sudo mv apache-maven-3.9.9 /opt/maven
+    export PATH=/opt/maven/bin:$PATH
+    mvn -v
 #  - sh: |
 #      unset M2_HOME;
 #      sudo mkdir -p /opt/maven;
