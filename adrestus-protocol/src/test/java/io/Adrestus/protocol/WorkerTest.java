@@ -28,6 +28,9 @@ public class WorkerTest {
 
     @BeforeAll
     public static void setup() throws Exception {
+        if (System.out.getClass().getName().contains("maven")) {
+            return;
+        }
         int version = 0x00;
         int size = 105;
         for (int i = 0; i < size; i++) {
@@ -48,7 +51,7 @@ public class WorkerTest {
     //IT'S IMPORTANT to have cachedEventLoop started to play
     @Test
     public void test() throws InterruptedException {
-        if (System.getenv("MAVEN_OPTS") != null) {
+        if (System.out.getClass().getName().contains("maven")) {
             return;
         }
         CachedEventLoop.getInstance().start();
@@ -84,7 +87,7 @@ public class WorkerTest {
 
     @Test
     public void test2() throws Exception {
-        if (System.getenv("MAVEN_OPTS") != null) {
+        if (System.out.getClass().getName().contains("maven")) {
             return;
         }
         Thread.sleep(2000);

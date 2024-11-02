@@ -54,6 +54,10 @@ public class ConsensusTransactionTimer3Test {
 
     @BeforeAll
     public static void construct() throws Exception {
+        if (System.out.getClass().getName().contains("maven")) {
+            return;
+        }
+
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
@@ -120,7 +124,7 @@ public class ConsensusTransactionTimer3Test {
 
     @Test
     public void consensus_timer_test() throws Exception {
-        if (System.getenv("MAVEN_OPTS") != null) {
+        if (System.out.getClass().getName().contains("maven")) {
             return;
         }
         Socket socket = new Socket();

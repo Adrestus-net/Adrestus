@@ -68,6 +68,9 @@ public class TransactionStrategyTest {
 
     @BeforeAll
     public static void setup() throws Exception {
+        if (System.out.getClass().getName().contains("maven")) {
+            return;
+        }
         List<SerializationUtil.Mapping> lists = new ArrayList<>();
         lists.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
         serenc = new SerializationUtil<Transaction>(Transaction.class, lists);
@@ -181,7 +184,7 @@ public class TransactionStrategyTest {
     //I am not sure but this maybe need WorkerTest from protocols tests
     @Test
     public void transaction_list() throws Exception {
-        if (System.getenv("MAVEN_OPTS") != null) {
+        if (System.out.getClass().getName().contains("maven")) {
             return;
         }
         ArrayList<Transaction> list = new ArrayList<>(MemoryTransactionPool.getInstance().getAll());
@@ -196,7 +199,7 @@ public class TransactionStrategyTest {
     //Worker Test runs on 106
     @Test
     public void transaction_list2() throws Exception {
-        if (System.getenv("MAVEN_OPTS") != null) {
+        if (System.out.getClass().getName().contains("maven")) {
             return;
         }
         int count = 0;
@@ -233,7 +236,7 @@ public class TransactionStrategyTest {
 
     @Test
     public void single_transaction() throws Exception {
-        if (System.getenv("MAVEN_OPTS") != null) {
+        if (System.out.getClass().getName().contains("maven")) {
             return;
         }
         MessageListener messageListener = new MessageListener();

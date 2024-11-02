@@ -90,7 +90,7 @@ public class BootstrapConsensusTest {
 
     @BeforeAll
     public static void setup() throws Exception {
-        if (System.getenv("MAVEN_OPTS") != null) {
+        if (System.out.getClass().getName().contains("maven")) {
             return;
         }
         delete_test();
@@ -365,7 +365,7 @@ public class BootstrapConsensusTest {
 
     @Test
     public void test() throws IOException, InterruptedException {
-        if (System.getenv("MAVEN_OPTS") != null) {
+        if (System.out.getClass().getName().contains("maven")) {
             return;
         }
         Socket socket = new Socket();

@@ -105,6 +105,10 @@ public class ConsensusTransactionTimer2Test {
 
     @BeforeAll
     public static void construct() throws Exception {
+        if (System.out.getClass().getName().contains("maven")) {
+            return;
+        }
+
         delete_test();
         IDatabase<String, CommitteeBlock> commit = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
         List<SerializationUtil.Mapping> list = new ArrayList<>();
@@ -426,7 +430,7 @@ public class ConsensusTransactionTimer2Test {
 
     @Test
     public void consensus_timer_test() throws Exception {
-        if (System.getenv("MAVEN_OPTS") != null) {
+        if (System.out.getClass().getName().contains("maven")) {
             return;
         }
         Socket socket = new Socket();

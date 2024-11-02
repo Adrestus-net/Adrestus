@@ -108,6 +108,9 @@ public class FullExampleErasureTest {
 
     @BeforeAll
     public static void setup() throws IOException, MnemonicException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException, CloneNotSupportedException, DecoderException {
+        if (System.out.getClass().getName().contains("maven")) {
+            return;
+        }
         Socket socket = new Socket();
         socket.connect(new InetSocketAddress("google.com", 80));
         String IP = socket.getLocalAddress().getHostAddress();
@@ -294,7 +297,7 @@ public class FullExampleErasureTest {
 
     @Test
     public void test() throws IOException, DecoderException, InterruptedException, ParseException {
-        if (System.getenv("MAVEN_OPTS") != null) {
+        if (System.out.getClass().getName().contains("maven")) {
             return;
         }
         Socket socket = new Socket();

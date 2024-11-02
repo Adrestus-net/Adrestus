@@ -38,7 +38,7 @@ public class CachedDataChannelTest {
 
     @BeforeAll
     public static void setup() {
-        if (System.getenv("MAVEN_OPTS") != null) {
+        if (System.out.getClass().getName().contains("maven")) {
             return;
         }
         List<SerializationUtil.Mapping> list = new ArrayList<>();
@@ -52,7 +52,7 @@ public class CachedDataChannelTest {
 
     @Test
     public void test() throws InterruptedException {
-        if (System.getenv("MAVEN_OPTS") != null) {
+        if (System.out.getClass().getName().contains("maven")) {
             return;
         }
         IAdrestusFactory factory = new AdrestusFactory();

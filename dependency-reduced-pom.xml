@@ -315,7 +315,7 @@
     <commonos_lang.version>3.12.0</commonos_lang.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <jupiter.version>5.3.0</jupiter.version>
-    <java.version>21</java.version>
+    <java.version>11</java.version>
     <lombok.version>1.18.32</lombok.version>
     <maven.compiler.target>${java.version}</maven.compiler.target>
     <comons_collections4.version>4.5.0-M2</comons_collections4.version>

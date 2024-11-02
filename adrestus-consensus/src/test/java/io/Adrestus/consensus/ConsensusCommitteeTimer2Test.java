@@ -61,6 +61,9 @@ public class ConsensusCommitteeTimer2Test {
 
     @BeforeAll
     public static void setup() throws Exception {
+        if (System.out.getClass().getName().contains("maven")) {
+            return;
+        }
 
         IDatabase<String, CommitteeBlock> db = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
         db.delete_db();
@@ -171,7 +174,7 @@ public class ConsensusCommitteeTimer2Test {
 
     @Test
     public void committe_test() throws Exception {
-        if (System.getenv("MAVEN_OPTS") != null) {
+        if (System.out.getClass().getName().contains("maven")) {
             return;
         }
         Socket socket = new Socket();

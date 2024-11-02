@@ -68,7 +68,7 @@ public class CollectionTransactionStrategy {
     @BeforeAll
     public static void setup() throws Exception {
 
-        if (System.getenv("MAVEN_OPTS") != null) {
+        if (System.out.getClass().getName().contains("maven")) {
             return;
         }
 

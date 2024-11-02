@@ -65,7 +65,7 @@ public class TransactionChannelTest {
 
     @BeforeAll
     public static void setup() throws InterruptedException, MnemonicException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException {
-        if (System.getenv("MAVEN_OPTS") != null) {
+        if (System.out.getClass().getName().contains("maven")) {
             return;
         }
         TCPTransactionConsumer<byte[]> print = x -> {
@@ -104,7 +104,7 @@ public class TransactionChannelTest {
 
     @Test
     public void NetworkChannelTest() {
-        if (System.getenv("MAVEN_OPTS") != null) {
+        if (System.out.getClass().getName().contains("maven")) {
             return;
         }
         List<SerializationUtil.Mapping> mapp_list = new ArrayList<>();

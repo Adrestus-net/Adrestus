@@ -41,7 +41,7 @@ public class ReceiptTaskTest {
 
     @BeforeAll
     public static void setup() throws Exception {
-        if (System.getenv("MAVEN_OPTS") != null) {
+        if (System.out.getClass().getName().contains("maven")) {
             return;
         }
         CachedZoneIndex.getInstance().setZoneIndex(0);
@@ -112,7 +112,7 @@ public class ReceiptTaskTest {
 
     @Test
     public void Test() throws InterruptedException {
-        if (System.getenv("MAVEN_OPTS") != null) {
+        if (System.out.getClass().getName().contains("maven")) {
             return;
         }
         IAdrestusFactory factory = new AdrestusFactory();

@@ -11,7 +11,6 @@ import io.Adrestus.streaming.TopicType;
 import io.Adrestus.streaming.KafkaConsumerSameGroup;
 import io.Adrestus.streaming.KafkaConsumerPrivateGroup;
 import io.Adrestus.streaming.KafkaProducer;
-import jnr.ffi.annotations.In;
 import lombok.SneakyThrows;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.consumer.Consumer;
@@ -20,6 +19,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.junit.jupiter.api.*;
 
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.*;
@@ -59,18 +59,18 @@ public class KaFkaTest {
 //        KafkaCreatorTopic topic_creator=kafkaSmith.getKafkaComponent(KafkaKingdomType.TOPIC_CREATOR);
         KafkaProducer producer = kafkaSmith.getKafkaComponent(KafkaKingdomType.PRODUCER);
         KafkaProducer producer1 = kafkaSmith.getKafkaComponent(KafkaKingdomType.PRODUCER);
-        ProducerRecord<String, String> record = new ProducerRecord<>(TopicFactory.getInstance().getTopicName(TopicType.COMMITTEE_PHASE).name(), "key-" + 01, "value-" + 0);
-        ProducerRecord<String, String> record1 = new ProducerRecord<>(TopicFactory.getInstance().getTopicName(TopicType.COMMITTEE_PHASE).name(), "key-" + 02, "value-" + 0);
+        ProducerRecord<String, byte[]> record = new ProducerRecord<>(TopicFactory.getInstance().getTopicName(TopicType.COMMITTEE_PHASE).name(), "key-" + 01, new String("value-" + 0).getBytes(StandardCharsets.UTF_8));
+        ProducerRecord<String, byte[]> record1 = new ProducerRecord<>(TopicFactory.getInstance().getTopicName(TopicType.COMMITTEE_PHASE).name(), "key-" + 02, new String("value-" + 0).getBytes(StandardCharsets.UTF_8));
         producer.getProducer().send(record);
         producer.getProducer().send(record1);
         KafkaConsumerPrivateGroup consumerPrivate = kafkaSmith.getKafkaComponent(KafkaKingdomType.CONSUMER_PRIVATE);
         KafkaConsumerPrivateGroup consumerPrivate1 = kafkaSmith.getKafkaComponent(KafkaKingdomType.CONSUMER_PRIVATE);
         //KafkaConsumerSameGroup consumerSame = kafkaSmith.getKafkaComponent(KafkaKingdomType.CONSUMER_SAME);
-        ConsumerRecords<String, String> res1 = consumerPrivate.getConsumer_map().get("localhost").poll(Duration.ofMillis(15000));
-        ConsumerRecords<String, String> res2 = consumerPrivate.getConsumer_map().get("localhost1").poll(Duration.ofMillis(15000));
-        ConsumerRecords<String, String> res3 = consumerPrivate.getConsumer_map().get("localhost2").poll(Duration.ofMillis(15000));
-        ConsumerRecords<String, String> res4 = consumerPrivate.getConsumer_map().get("localhost3").poll(Duration.ofMillis(15000));
-        ConsumerRecords<String, String> res5 = consumerPrivate.getConsumer_map().get("localhost4").poll(Duration.ofMillis(15000));
+        ConsumerRecords<String, byte[]> res1 = consumerPrivate.getConsumer_map().get("localhost").poll(Duration.ofMillis(15000));
+        ConsumerRecords<String, byte[]> res2 = consumerPrivate.getConsumer_map().get("localhost1").poll(Duration.ofMillis(15000));
+        ConsumerRecords<String, byte[]> res3 = consumerPrivate.getConsumer_map().get("localhost2").poll(Duration.ofMillis(15000));
+        ConsumerRecords<String, byte[]> res4 = consumerPrivate.getConsumer_map().get("localhost3").poll(Duration.ofMillis(15000));
+        ConsumerRecords<String, byte[]> res5 = consumerPrivate.getConsumer_map().get("localhost4").poll(Duration.ofMillis(15000));
         //ConsumerRecords<String, String> res6 = consumerSame.getConsumer().poll(Duration.ofMillis(1000));
         int g = 3;
     }
@@ -78,22 +78,22 @@ public class KaFkaTest {
     @Test
     @Order(4)
     public void testNoParallel() throws ExecutionException, InterruptedException {
-        Map<String, String> map = new HashMap<>();
+        Map<String, byte[]> map = new HashMap<>();
         KafkaProducer producer = kafkaSmith.getKafkaComponent(KafkaKingdomType.PRODUCER);
         KafkaConsumerPrivateGroup consumerPrivate = kafkaSmith.getKafkaComponent(KafkaKingdomType.CONSUMER_PRIVATE);
-        Consumer<String, String> consumer = consumerPrivate.getConsumer_map().get("localhost");
+        Consumer<String, byte[]> consumer = consumerPrivate.getConsumer_map().get("localhost");
 
         int size = 100000;
         for (int i = 0; i < size; i++) {
-            producer.getProducer().send(new ProducerRecord<>(TopicFactory.getInstance().getTopicName(TopicType.PREPARE_PHASE).name(), "key-" + i, "value-" + i));
+            producer.getProducer().send(new ProducerRecord<>(TopicFactory.getInstance().getTopicName(TopicType.PREPARE_PHASE).name(), "key-" + i, ("value-" + i).getBytes(StandardCharsets.UTF_8)));
         }
 
         long start = System.currentTimeMillis();
         int count = 0;
         while (count < size) {
-            ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(10000));
+            ConsumerRecords<String, byte[]> records = consumer.poll(Duration.ofMillis(10000));
             count += records.count();
-            for (ConsumerRecord<String, String> recordf : records) {
+            for (ConsumerRecord<String, byte[]> recordf : records) {
                 map.put(recordf.key(), recordf.value());
             }
 
@@ -113,16 +113,16 @@ public class KaFkaTest {
         KafkaConsumerPrivateGroup consumerPrivate = kafkaSmith.getKafkaComponent(KafkaKingdomType.CONSUMER_PRIVATE);
         int size = 1;
         for (int i = 0; i < size; i++) {
-            producer.getProducer().send(new ProducerRecord<>(TopicFactory.getInstance().getTopicName(TopicType.DISPERSE_PHASE2).name(), "key-" + i, "value-" + i));
+            producer.getProducer().send(new ProducerRecord<>(TopicFactory.getInstance().getTopicName(TopicType.DISPERSE_PHASE2).name(), "key-" + i, ("value-" + i).getBytes(StandardCharsets.UTF_8)));
         }
 
-        HashMap<String, Consumer<String, String>> map = consumerPrivate.getConsumer_map();
+        HashMap<String, Consumer<String, byte[]>> map = consumerPrivate.getConsumer_map();
         CountDownLatch latch = new CountDownLatch(map.size());
-        for (Map.Entry<String, Consumer<String, String>> entry : map.entrySet()) {
+        for (Map.Entry<String, Consumer<String, byte[]>> entry : map.entrySet()) {
             Thread.ofVirtual().start(() -> {
                 int count = 0;
                 while (count < size) {
-                    ConsumerRecords<String, String> records = entry.getValue().poll(Duration.ofMillis(10));
+                    ConsumerRecords<String, byte[]> records = entry.getValue().poll(Duration.ofMillis(10));
                     count += records.count();
                 }
                 assertEquals(size, count);
@@ -135,21 +135,21 @@ public class KaFkaTest {
     @Test
     @Order(3)
     public void testMultiDataConsumers() throws ExecutionException, InterruptedException {
-        Map<String, String> map1 = new HashMap<>();
-        Map<String, String> map2 = new HashMap<>();
-        Map<String, String> map3 = new HashMap<>();
-        Map<String, String> map4 = new HashMap<>();
-        Map<String, String> map5 = new HashMap<>();
+        Map<String, byte[]> map1 = new HashMap<>();
+        Map<String, byte[]> map2 = new HashMap<>();
+        Map<String, byte[]> map3 = new HashMap<>();
+        Map<String, byte[]> map4 = new HashMap<>();
+        Map<String, byte[]> map5 = new HashMap<>();
         KafkaConsumerPrivateGroup consumerPrivate = kafkaSmith.getKafkaComponent(KafkaKingdomType.CONSUMER_PRIVATE);
-        Consumer<String, String> consumer1 = consumerPrivate.getConsumer_map().get("localhost");
-        Consumer<String, String> consumer2 = consumerPrivate.getConsumer_map().get("localhost1");
-        Consumer<String, String> consumer3 = consumerPrivate.getConsumer_map().get("localhost2");
-        Consumer<String, String> consumer4 = consumerPrivate.getConsumer_map().get("localhost3");
-        Consumer<String, String> consumer5 = consumerPrivate.getConsumer_map().get("localhost4");
+        Consumer<String, byte[]> consumer1 = consumerPrivate.getConsumer_map().get("localhost");
+        Consumer<String, byte[]> consumer2 = consumerPrivate.getConsumer_map().get("localhost1");
+        Consumer<String, byte[]> consumer3 = consumerPrivate.getConsumer_map().get("localhost2");
+        Consumer<String, byte[]> consumer4 = consumerPrivate.getConsumer_map().get("localhost3");
+        Consumer<String, byte[]> consumer5 = consumerPrivate.getConsumer_map().get("localhost4");
         KafkaProducer producer = kafkaSmith.getKafkaComponent(KafkaKingdomType.PRODUCER);
         int size = 100000;
         for (int i = 0; i < size; i++) {
-            producer.getProducer().send(new ProducerRecord<>(TopicFactory.getInstance().getTopicName(TopicType.DISPERSE_PHASE2).name(), "key-" + i, "value-" + i));
+            producer.getProducer().send(new ProducerRecord<>(TopicFactory.getInstance().getTopicName(TopicType.DISPERSE_PHASE2).name(), "key-" + i, ("value-" + i).getBytes(StandardCharsets.UTF_8)));
         }
 
         long start = System.currentTimeMillis();
@@ -157,9 +157,9 @@ public class KaFkaTest {
         Thread.ofVirtual().start(() -> {
             int count = 0;
             while (count <= size) {
-                ConsumerRecords<String, String> records = consumer1.poll(Duration.ofMillis(10000));
+                ConsumerRecords<String, byte[]> records = consumer1.poll(Duration.ofMillis(10000));
                 count += records.count();
-                for (ConsumerRecord<String, String> recordf : records) {
+                for (ConsumerRecord<String, byte[]> recordf : records) {
                     map1.put(recordf.key(), recordf.value());
                 }
             }
@@ -168,9 +168,9 @@ public class KaFkaTest {
         Thread.ofVirtual().start(() -> {
             int count = 0;
             while (count <= size) {
-                ConsumerRecords<String, String> records = consumer2.poll(Duration.ofMillis(10000));
+                ConsumerRecords<String, byte[]> records = consumer2.poll(Duration.ofMillis(10000));
                 count += records.count();
-                for (ConsumerRecord<String, String> recordf : records) {
+                for (ConsumerRecord<String, byte[]> recordf : records) {
                     map2.put(recordf.key(), recordf.value());
                 }
 
@@ -180,9 +180,9 @@ public class KaFkaTest {
         Thread.ofVirtual().start(() -> {
             int count = 0;
             while (count <= size) {
-                ConsumerRecords<String, String> records = consumer3.poll(Duration.ofMillis(10000));
+                ConsumerRecords<String, byte[]> records = consumer3.poll(Duration.ofMillis(10000));
                 count += records.count();
-                for (ConsumerRecord<String, String> recordf : records) {
+                for (ConsumerRecord<String, byte[]> recordf : records) {
                     map3.put(recordf.key(), recordf.value());
                 }
 
@@ -192,9 +192,9 @@ public class KaFkaTest {
         Thread.ofVirtual().start(() -> {
             int count = 0;
             while (count <= size) {
-                ConsumerRecords<String, String> records = consumer4.poll(Duration.ofMillis(10000));
+                ConsumerRecords<String, byte[]> records = consumer4.poll(Duration.ofMillis(10000));
                 count += records.count();
-                for (ConsumerRecord<String, String> recordf : records) {
+                for (ConsumerRecord<String, byte[]> recordf : records) {
                     map4.put(recordf.key(), recordf.value());
                 }
 
@@ -204,9 +204,9 @@ public class KaFkaTest {
         Thread.ofVirtual().start(() -> {
             int count = 0;
             while (count <= size) {
-                ConsumerRecords<String, String> records = consumer5.poll(Duration.ofMillis(10000));
+                ConsumerRecords<String, byte[]> records = consumer5.poll(Duration.ofMillis(10000));
                 count += records.count();
-                for (ConsumerRecord<String, String> recordf : records) {
+                for (ConsumerRecord<String, byte[]> recordf : records) {
                     map5.put(recordf.key(), recordf.value());
                 }
 
@@ -232,7 +232,7 @@ public class KaFkaTest {
         CopyOnWriteArrayList<String> list = new CopyOnWriteArrayList<>();
         KafkaProducer producer = kafkaSmith.getKafkaComponent(KafkaKingdomType.PRODUCER);
 
-        CopyOnWriteArrayList<Consumer<String, String>> iterate = new CopyOnWriteArrayList<>();
+        CopyOnWriteArrayList<Consumer<String, byte[]>> iterate = new CopyOnWriteArrayList<>();
         kafkaSmith.updateLeaderHost(KafkaKingdomType.CONSUMER_SAME, null, "localhost", 0, false);
         KafkaConsumerSameGroup consumerSameGroup = kafkaSmith.getKafkaComponent(KafkaKingdomType.CONSUMER_SAME);
         iterate.add(consumerSameGroup.getConsumer());
@@ -251,7 +251,7 @@ public class KaFkaTest {
 
         int size = 5;
         for (int i = 0; i < size; i++) {
-            producer.getProducer().send(new ProducerRecord<>(TopicFactory.getInstance().getTopicName(TopicType.DISPERSE_PHASE1).name(),i, "key-" + i, "value-" + i));
+            producer.getProducer().send(new ProducerRecord<>(TopicFactory.getInstance().getTopicName(TopicType.DISPERSE_PHASE1).name(), i, "key-" + i, ("value-" + i).getBytes(StandardCharsets.UTF_8)));
         }
 
         producer.getProducer().flush();
@@ -260,10 +260,10 @@ public class KaFkaTest {
         for (int i = 0; i < iterate.size(); i++) {
             int finalI = i;
             Runnable task = () -> {
-                ConsumerRecords<String, String> records = iterate.get(finalI).poll(Duration.ofMillis(10000));
+                ConsumerRecords<String, byte[]> records = iterate.get(finalI).poll(Duration.ofMillis(10000));
                 System.out.println(finalI + " " + records.count());
                 assertEquals(1, records.count());
-                for (ConsumerRecord<String, String> recordf : records) {
+                for (ConsumerRecord<String, byte[]> recordf : records) {
                     list.add(recordf.key());
                 }
             };
@@ -284,11 +284,11 @@ public class KaFkaTest {
     public void testParallel() throws ExecutionException, InterruptedException {
         KafkaProducer producer = kafkaSmith.getKafkaComponent(KafkaKingdomType.PRODUCER);
         KafkaConsumerPrivateGroup consumerPrivate = kafkaSmith.getKafkaComponent(KafkaKingdomType.CONSUMER_PRIVATE);
-        Consumer<String, String> consumer = consumerPrivate.getConsumer_map().get("localhost");
+        Consumer<String, byte[]> consumer = consumerPrivate.getConsumer_map().get("localhost");
 
         int size = 100000;
         for (int i = 0; i < size; i++) {
-            producer.getProducer().send(new ProducerRecord<>(TopicFactory.getInstance().getTopicName(TopicType.ANNOUNCE_PHASE).name(), "key-" + i, "value-" + i));
+            producer.getProducer().send(new ProducerRecord<>(TopicFactory.getInstance().getTopicName(TopicType.ANNOUNCE_PHASE).name(), "key-" + i, ("value-" + i).getBytes(StandardCharsets.UTF_8)));
         }
 
 
@@ -297,7 +297,7 @@ public class KaFkaTest {
         long start = System.currentTimeMillis();
         while (latch.getCount() > 0) {
             executorService.submit(() -> {
-                ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(10000));
+                ConsumerRecords<String, byte[]> records = consumer.poll(Duration.ofMillis(10000));
                 records.forEach(record -> {
                     latch.countDown();
                 });
@@ -319,7 +319,7 @@ public class KaFkaTest {
         CopyOnWriteArrayList<String> list = new CopyOnWriteArrayList<>();
         KafkaProducer producer = kafkaSmith.getKafkaComponent(KafkaKingdomType.PRODUCER);
 
-        CopyOnWriteArrayList<Consumer<String, String>> iterate = new CopyOnWriteArrayList<>();
+        CopyOnWriteArrayList<Consumer<String, byte[]>> iterate = new CopyOnWriteArrayList<>();
         kafkaSmith.updateLeaderHost(KafkaKingdomType.CONSUMER_SAME, null, "localhost", 0, false);
         KafkaConsumerSameGroup consumerSameGroup = kafkaSmith.getKafkaComponent(KafkaKingdomType.CONSUMER_SAME);
         iterate.add(consumerSameGroup.getConsumer());
@@ -335,7 +335,7 @@ public class KaFkaTest {
 
         int size = 5;
         for (int i = 0; i < size; i++) {
-            producer.getProducer().send(new ProducerRecord<>(TopicFactory.getInstance().getTopicName(TopicType.DISPERSE_PHASE1).name(),i, "key-" + i, "value-" + i));
+            producer.getProducer().send(new ProducerRecord<>(TopicFactory.getInstance().getTopicName(TopicType.DISPERSE_PHASE1).name(), i, "key-" + i, ("value-" + i).getBytes(StandardCharsets.UTF_8)));
         }
 
         producer.getProducer().flush();
@@ -344,10 +344,10 @@ public class KaFkaTest {
         for (int i = 0; i < iterate.size(); i++) {
             int finalI = i;
             Runnable task = () -> {
-                ConsumerRecords<String, String> records = iterate.get(finalI).poll(Duration.ofMillis(10000));
+                ConsumerRecords<String, byte[]> records = iterate.get(finalI).poll(Duration.ofMillis(10000));
                 System.out.println(finalI + " " + records.count());
                 assertEquals(2, records.count());
-                for (ConsumerRecord<String, String> recordf : records) {
+                for (ConsumerRecord<String, byte[]> recordf : records) {
                     list.add(recordf.key());
                 }
             };
@@ -376,7 +376,7 @@ public class KaFkaTest {
         Map<Integer, Integer> equal_partitions = new HashMap<>();
         KafkaProducer producer = kafkaSmith.getKafkaComponent(KafkaKingdomType.PRODUCER);
 
-        CopyOnWriteArrayList<Consumer<String, String>> iterate = new CopyOnWriteArrayList<>();
+        CopyOnWriteArrayList<Consumer<String, byte[]>> iterate = new CopyOnWriteArrayList<>();
         kafkaSmith.updateLeaderHost(KafkaKingdomType.CONSUMER_SAME, null, "localhost", 0, false);
         KafkaConsumerSameGroup consumerSameGroup = kafkaSmith.getKafkaComponent(KafkaKingdomType.CONSUMER_SAME);
         iterate.add(consumerSameGroup.getConsumer());
@@ -395,7 +395,7 @@ public class KaFkaTest {
 
         int size = 5;
         for (int i = 0; i < size; i++) {
-            producer.getProducer().send(new ProducerRecord<>(TopicFactory.getInstance().getTopicName(TopicType.DISPERSE_PHASE1).name(),i, "key-" + i, "value-" + i));
+            producer.getProducer().send(new ProducerRecord<>(TopicFactory.getInstance().getTopicName(TopicType.DISPERSE_PHASE1).name(), i, "key-" + i, ("value-" + i).getBytes(StandardCharsets.UTF_8)));
         }
 
         producer.getProducer().flush();
@@ -404,11 +404,11 @@ public class KaFkaTest {
         for (int i = 0; i < iterate.size(); i++) {
             int finalI = i;
             Runnable task = () -> {
-                ConsumerRecords<String, String> records = iterate.get(finalI).poll(Duration.ofMillis(10000));
+                ConsumerRecords<String, byte[]> records = iterate.get(finalI).poll(Duration.ofMillis(10000));
                 System.out.println(finalI + " " + records.count());
                 assertEquals(3, records.count());
                 list.add(String.valueOf(records.count()));
-                if(finalI==3 || finalI==4){
+                if (finalI == 3 || finalI == 4) {
                     records.partitions().forEach(partition -> {
                         equal_partitions.put(finalI, partition.partition());
                     });
@@ -429,9 +429,9 @@ public class KaFkaTest {
         });
         assertEquals(5, list.size());
         assertEquals(15, list.stream().mapToInt(Integer::parseInt).sum());
-        assertEquals(2,equal_partitions.size());
-        assertEquals(equal_partitions.get(3),equal_partitions.get(4));
-        assertEquals(Integer.valueOf(3),equal_partitions.get(3));
+        assertEquals(2, equal_partitions.size());
+        assertEquals(equal_partitions.get(3), equal_partitions.get(4));
+        assertEquals(Integer.valueOf(3), equal_partitions.get(3));
 
     }
 

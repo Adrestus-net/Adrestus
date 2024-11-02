@@ -14,5 +14,5 @@ public class KafkaConfiguration {
 
 
     public static final int RECEIVE_TIMEOUT = 4000;
-    public static final int EXECUTOR_TIMEOUT = 17 * 1000;
+    public static final int EXECUTOR_TIMEOUT = 12;
 }

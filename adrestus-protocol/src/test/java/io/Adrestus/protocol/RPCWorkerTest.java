@@ -33,7 +33,7 @@ public class RPCWorkerTest {
     //MAKE SURE CAHCEHCD EVENTLOOP START HERE OR ON WORKER TEST
     //@Test
     public void test() throws IOException, InterruptedException {
-        if (System.getenv("MAVEN_OPTS") != null) {
+        if (System.out.getClass().getName().contains("maven")) {
             return;
         }
         DatabaseInstance instance = DatabaseInstance.ZONE_0_TRANSACTION_BLOCK;

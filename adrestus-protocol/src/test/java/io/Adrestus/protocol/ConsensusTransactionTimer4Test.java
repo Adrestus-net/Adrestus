@@ -70,7 +70,7 @@ public class ConsensusTransactionTimer4Test {
     //YOU NEED TO RUN COLLECTION STRATEGY FROM API
     @BeforeAll
     public static void construct() throws Exception {
-        if (System.getenv("MAVEN_OPTS") != null) {
+        if (System.out.getClass().getName().contains("maven")) {
             return;
         }
         delete_test();
@@ -153,7 +153,7 @@ public class ConsensusTransactionTimer4Test {
 
     @Test
     public void consensus_timer_test() throws Exception {
-        if (System.getenv("MAVEN_OPTS") != null) {
+        if (System.out.getClass().getName().contains("maven")) {
             return;
         }
         Socket socket = new Socket();

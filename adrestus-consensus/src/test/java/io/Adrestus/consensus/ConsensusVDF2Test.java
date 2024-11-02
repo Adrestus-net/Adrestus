@@ -53,7 +53,7 @@ public class ConsensusVDF2Test {
 
     @Test
     public void vdf_test() throws Exception {
-        if (System.getenv("MAVEN_OPTS") != null) {
+        if (System.out.getClass().getName().contains("maven")) {
             return;
         }
         Socket socket = new Socket();

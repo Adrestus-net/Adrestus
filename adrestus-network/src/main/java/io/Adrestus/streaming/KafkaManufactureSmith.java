@@ -37,7 +37,7 @@ public class KafkaManufactureSmith implements KafkaSmith {
                 map.put(type, new KafkaConsumerPrivateGroup(ipAddresses));
                 break;
             case TOPIC_CREATOR:
-                map.put(type, new KafkaCreatorTopic(ipAddresses.size()));
+                map.put(type, new KafkaCreatorTopic(ipAddresses.size()+1));
                 break;
             default:
                 throw new IllegalArgumentException("Invalid KafkaKingdomType");
@@ -57,7 +57,9 @@ public class KafkaManufactureSmith implements KafkaSmith {
         if(map.isEmpty())
             return;
 
-        map.get(CONSUMER_SAME).Shutdown();
+        if(map.get(CONSUMER_SAME) != null)
+            map.get(CONSUMER_SAME).Shutdown();
+
         map.get(CONSUMER_PRIVATE).Shutdown();
         map.get(PRODUCER).Shutdown();
         map.get(BROKER).Shutdown();
