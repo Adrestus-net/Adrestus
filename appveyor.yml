@@ -57,7 +57,7 @@ install:
       unset M2_HOME;
       sudo mkdir -p /opt/maven;
       sudo aria2c --file-allocation=none -c -x 10 -s 10 -m 0 --console-log-level=notice --log-level=notice --summary-interval=0 -d /opt/maven -o apache-maven-3.6.1-bin.zip https://archive.apache.org/dist/maven/maven-3/3.6.1/binaries/apache-maven-3.6.1-bin.zip && sudo unzip /opt/maven/apache-maven-3.6.1-bin.zip -d /opt/maven > /dev/null;
-      sudo ln -sfn apache-maven-3.9.9 /opt/maven/latest;
+      sudo ln -sfn apache-maven-3.6.3 /opt/maven/latest;
       export M3_HOME="/opt/maven/latest";
       export PATH="$M3_HOME/bin:$PATH";
       echo "M3_HOME=$M3_HOME, PATH=$PATH";
