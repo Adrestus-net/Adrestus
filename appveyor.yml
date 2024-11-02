@@ -15,7 +15,7 @@ install:
   # Settings -> Environment -> Environment variables -> Add variable
   # CI_OPT_ORIGIN_REPO_SLUG
   - sh: |
-      sudo apt -y install openjdk-21-jdk;
+      sudo apt install openjdk-21-jdk;
       export JAVA_HOME="/usr/lib/jvm/java-21-openjdk";
       export PATH="$JAVA_HOME/bin:$PATH";
   - sh: |
