@@ -17,8 +17,7 @@
     <properties>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
-        <appdirs.version>1.2.1</appdirs.version>
-        <crypto.version>1.0-SNAPSHOT</crypto.version>
+        <appdirs.version>1.2.2</appdirs.version>
     </properties>
     <dependencies>
         <dependency>
