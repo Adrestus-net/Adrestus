@@ -1,4 +1,6 @@
 version: '{build}'
+environment:
+ MAVEN_VERSION: 3.9.9
 image: ubuntu
 branches:
   only:
@@ -48,19 +50,19 @@ install:
   #    mkdir -p $(dirname ${SETTINGS_GLOBAL_XML});
   #    curl -L "${SETTINGS_GLOBAL_XML_URL}" 2>/dev/null | dd of=${SETTINGS_GLOBAL_XML}; cat ${SETTINGS_GLOBAL_XML};
   #    export MAVEN_GLOBAL_SETTINGS="--global-settings ${SETTINGS_GLOBAL_XML}";
-#  - sh: |
-#      if [[ -z "${MAVEN_OPTS}" ]]; then export MAVEN_OPTS="-XX:+UseParallelGC -Dmaven.repo.local=.m2/repository -Dprofile=title -DprofileFormat=JSON,HTML"; fi;
-#      if [[ -d ${HOME}/.m2 ]]; then rm -rf ${HOME}/.m2/repository/top/infra/maven; ls -ahl ${HOME}/.m2; fi;
-#      export MAVEN_USER_HOME="${PWD}/.m2";
-  #      ./mvnw ${MAVEN_GLOBAL_SETTINGS} -version;
   - sh: |
-      unset M2_HOME;
-      sudo mkdir -p /opt/maven;
-      sudo aria2c --file-allocation=none -c -x 10 -s 10 -m 0 --console-log-level=notice --log-level=notice --summary-interval=0 -d /opt/maven -o apache-maven-3.6.1-bin.zip https://archive.apache.org/dist/maven/maven-3/3.6.1/binaries/apache-maven-3.6.1-bin.zip && sudo unzip /opt/maven/apache-maven-3.6.1-bin.zip -d /opt/maven > /dev/null;
-      sudo ln -sfn apache-maven-3.6.3 /opt/maven/latest;
-      export M3_HOME="/opt/maven/latest";
-      export PATH="$M3_HOME/bin:$PATH";
-      echo "M3_HOME=$M3_HOME, PATH=$PATH";
+      if [[ -z "${MAVEN_OPTS}" ]]; then export MAVEN_OPTS="-XX:+UseParallelGC -Dmaven.repo.local=.m2/repository -Dprofile=title -DprofileFormat=JSON,HTML"; fi;
+      if [[ -d ${HOME}/.m2 ]]; then rm -rf ${HOME}/.m2/repository/top/infra/maven; ls -ahl ${HOME}/.m2; fi;
+      export MAVEN_USER_HOME="${PWD}/.m2";
+  #      ./mvnw ${MAVEN_GLOBAL_SETTINGS} -version;
+#  - sh: |
+#      unset M2_HOME;
+#      sudo mkdir -p /opt/maven;
+#      sudo aria2c --file-allocation=none -c -x 10 -s 10 -m 0 --console-log-level=notice --log-level=notice --summary-interval=0 -d /opt/maven -o apache-maven-3.6.1-bin.zip https://archive.apache.org/dist/maven/maven-3/3.6.1/binaries/apache-maven-3.6.1-bin.zip && sudo unzip /opt/maven/apache-maven-3.6.1-bin.zip -d /opt/maven > /dev/null;
+#      sudo ln -sfn apache-maven-3.6.3 /opt/maven/latest;
+#      export M3_HOME="/opt/maven/latest";
+#      export PATH="$M3_HOME/bin:$PATH";
+#      echo "M3_HOME=$M3_HOME, PATH=$PATH";
   #- sh: |
   #    sudo mkdir -p /opt/gradle;
   #    sudo aria2c --file-allocation=none -c -x 10 -s 10 -m 0 --console-log-level=notice --log-level=notice --summary-interval=0 -d /opt/gradle -o gradle-5.2.1-all.zip https://services.gradle.org/distributions/gradle-5.2.1-all.zip && sudo unzip /opt/gradle/gradle-5.2.1-all.zip -d /opt/gradle > /dev/null;
