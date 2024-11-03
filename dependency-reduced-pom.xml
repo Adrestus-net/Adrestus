@@ -27,71 +27,10 @@
     </license>
   </licenses>
   <build>
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>org.jacoco</groupId>
-          <artifactId>jacoco-maven-plugin</artifactId>
-          <version>0.8.12</version>
-        </plugin>
-        <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>exec-maven-plugin</artifactId>
-          <version>3.0.0</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-surefire-plugin</artifactId>
-          <version>2.22.2</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-jar-plugin</artifactId>
-          <version>3.2.0</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.8.1</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-source-plugin</artifactId>
-          <version>3.2.1</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-shade-plugin</artifactId>
-          <version>3.2.4</version>
-        </plugin>
-        <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>buildnumber-maven-plugin</artifactId>
-          <version>1.4</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-javadoc-plugin</artifactId>
-          <version>3.3.1</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-gpg-plugin</artifactId>
-          <version>3.0.1</version>
-        </plugin>
-        <plugin>
-          <groupId>org.sonatype.plugins</groupId>
-          <artifactId>nexus-staging-maven-plugin</artifactId>
-          <version>1.6.8</version>
-        </plugin>
-        <plugin>
-          <groupId>com.github.os72</groupId>
-          <artifactId>protoc-jar-maven-plugin</artifactId>
-          <version>3.11.4</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-assembly-plugin</artifactId>
-          <version>3.2.0</version>
-        </plugin>
-      </plugins>
-    </pluginManagement>
     <plugins>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.8.0</version>
+        <version>3.13.0</version>
         <configuration>
           <source>${java.version}</source>
           <target>${java.version}</target>
@@ -315,7 +254,7 @@
     <commonos_lang.version>3.12.0</commonos_lang.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <jupiter.version>5.3.0</jupiter.version>
-    <java.version>21</java.version>
+    <java.version>17</java.version>
     <lombok.version>1.18.32</lombok.version>
     <maven.compiler.target>${java.version}</maven.compiler.target>
     <comons_collections4.version>4.5.0-M2</comons_collections4.version>

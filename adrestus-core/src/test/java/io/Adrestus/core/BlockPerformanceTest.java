@@ -284,6 +284,7 @@ public class BlockPerformanceTest {
         assertTrue(((TransactionCallback)transactionCallback).getMessages().isEmpty());
         // 100,000 tansactions should be done in 1 sec 10,000 transaction should be 100 ms and when use profiler total time of verify signature should be around 1000ms
         assertTrue(timeElapsed < 500, "Assert true");
+        System.out.println("Time elapsed: " + timeElapsed);
         publisher.getJobSyncUntilRemainingCapacityZero();
         publisher.close();
         outer_transactions.clear();
