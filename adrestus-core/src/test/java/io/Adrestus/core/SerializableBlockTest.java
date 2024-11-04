@@ -267,7 +267,7 @@ public class SerializableBlockTest {
             TransactionBlock clone = (TransactionBlock) block.clone();
             long finish = System.currentTimeMillis();
             long timeElapsed = finish - start;
-            if (System.out.getClass().getName().contains("maven")) {
+            if (!System.out.getClass().getName().contains("maven")) {
                 assertTrue(timeElapsed < 10, "Assert true");
             }
         }

@@ -283,7 +283,7 @@ public class BlockPerformanceTest {
         assertEquals(size - 1, MemoryTransactionPool.getInstance().getSize());
         assertTrue(((TransactionCallback)transactionCallback).getMessages().isEmpty());
         // 100,000 tansactions should be done in 1 sec 10,000 transaction should be 100 ms and when use profiler total time of verify signature should be around 1000ms
-        if (System.out.getClass().getName().contains("maven")) {
+        if (!System.out.getClass().getName().contains("maven")) {
             assertTrue(timeElapsed < 500, "Assert true");
         }
         System.out.println("Time elapsed: " + timeElapsed);
