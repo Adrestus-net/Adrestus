@@ -52,17 +52,26 @@ public class TopicFactory {
 
     public Collection<NewTopic> getCollectionTopics() {
         if (listTopic == null)
-            listTopic = Collections.unmodifiableCollection(topicMap.values().stream().map(topic -> topic.getTopicName()).collect(Collectors.toList()));
+            listTopic = topicMap.values().stream().map(ITopic::getTopicName).collect(Collectors.toSet());
         return listTopic;
     }
 
+    public Collection<String> getSingleTopicCollection(TopicType type){
+        if (listTopicNames == null)
+            listTopicNames = topicMap
+                    .values()
+                    .stream()
+                    .map(topic -> topic.getTopicName().name())
+                    .filter(topic_name -> topic_name.equals(type.name())).collect(Collectors.toSet());
+        return listTopicNames;
+    }
     public Collection<String> getCollectionTopicsNames() {
         if (listTopicNames == null)
             listTopicNames = topicMap
                     .values()
                     .stream()
                     .map(topic -> topic.getTopicName().name())
-                    .filter(topic_name -> !topic_name.equals(TopicType.DISPERSE_PHASE1.name())).collect(Collectors.toUnmodifiableList());
+                    .filter(topic_name -> !topic_name.equals(TopicType.DISPERSE_PHASE1.name())).collect(Collectors.toSet());
         return listTopicNames;
     }
 

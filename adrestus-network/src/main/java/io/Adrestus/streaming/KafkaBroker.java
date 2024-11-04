@@ -31,6 +31,8 @@ public class KafkaBroker implements IKafkaComponent {
         kafkaProps.setProperty("zookeeper.connect", KafkaConfiguration.ZOOKEEPER_HOST + ":" + KafkaConfiguration.ZOOKEEPER_PORT);
         kafkaProps.setProperty("offsets.topic.replication.factor", "1");
         kafkaProps.setProperty("listeners", "PLAINTEXT://" + KafkaConfiguration.KAFKA_HOST + ":" + KafkaConfiguration.KAFKA_PORT);
+        kafkaProps.setProperty("delete.topic.enable", "true");
+        kafkaProps.setProperty("auto.create.topics.enable", "false");
 
         KafkaConfig kafkaConfig = new KafkaConfig(kafkaProps);
         kafkaServer = new KafkaServer(kafkaConfig, Time.SYSTEM, Option.apply("kafka-server-startup"), false);

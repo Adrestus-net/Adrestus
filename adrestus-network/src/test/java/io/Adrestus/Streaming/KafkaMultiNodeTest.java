@@ -77,23 +77,24 @@ public class KafkaMultiNodeTest {
                 Optional<byte[]> message = consensusBroker.receiveDisperseMessageFromLeader(TopicType.DISPERSE_PHASE1, String.valueOf(VIEW_NUMBER)+1);
                 assert (message.isPresent());
                 System.out.println("received");
-                assertEquals(DISPERSE_MESSAGE_LEADER_CHUNK1.getBytes(StandardCharsets.UTF_8), message.get());
+                assertEquals(DISPERSE_MESSAGE_LEADER_CHUNK1, new String(message.get()));
                 consensusBroker.produceMessage(TopicType.DISPERSE_PHASE2, String.valueOf(VIEW_NUMBER), DISPERSE_MESSAGE_LEADER_CHUNK1.getBytes(StandardCharsets.UTF_8));
                 List<byte[]> res=consensusBroker.receiveMessageFromValidators(TopicType.DISPERSE_PHASE2, String.valueOf(VIEW_NUMBER));
                 System.out.println("received2");
                 assert (!res.isEmpty());
-                assertEquals(DISPERSE_MESSAGE_LEADER_CHUNK2.getBytes(StandardCharsets.UTF_8), res.get(0));
+                assertEquals(DISPERSE_MESSAGE_LEADER_CHUNK2, new String(res.get(0)));
             }
             else {
                 Optional<byte[]> message = consensusBroker.receiveDisperseMessageFromLeader(TopicType.DISPERSE_PHASE1, String.valueOf(VIEW_NUMBER)+2);
                 assert (message.isPresent());
                 System.out.println("received");
-                assertEquals(DISPERSE_MESSAGE_LEADER_CHUNK2.getBytes(StandardCharsets.UTF_8), message.get());
+                assertEquals(DISPERSE_MESSAGE_LEADER_CHUNK2,new String(message.get()));
                 consensusBroker.produceMessage(TopicType.DISPERSE_PHASE2, String.valueOf(VIEW_NUMBER), DISPERSE_MESSAGE_LEADER_CHUNK2.getBytes(StandardCharsets.UTF_8));
                 List<byte[]> res=consensusBroker.receiveMessageFromValidators(TopicType.DISPERSE_PHASE2, String.valueOf(VIEW_NUMBER));
                 System.out.println("received2");
                 assert (!res.isEmpty());
-                assertEquals(DISPERSE_MESSAGE_LEADER_CHUNK1.getBytes(StandardCharsets.UTF_8), res.get(0));
+                assertEquals(DISPERSE_MESSAGE_LEADER_CHUNK1, new String(res.get(0)));
+                Thread.sleep(4000);
             }
         }
     }
@@ -107,31 +108,31 @@ public class KafkaMultiNodeTest {
         if (position.getAsInt() == 0) {
             consensusBroker.produceMessage(TopicType.ANNOUNCE_PHASE, String.valueOf(VIEW_NUMBER), ANNOUNCE_MESSAGE_LEADER.getBytes(StandardCharsets.UTF_8));
             List<byte[]> res=consensusBroker.receiveMessageFromValidators(TopicType.ANNOUNCE_PHASE, String.valueOf(VIEW_NUMBER));
-            res.forEach(val -> assertEquals(ANNOUNCE_MESSAGE_VALIDATORS.getBytes(StandardCharsets.UTF_8), val));
+            res.forEach(val -> assertEquals(ANNOUNCE_MESSAGE_VALIDATORS, new String(val)));
             System.out.println(TopicType.ANNOUNCE_PHASE.name()+" Received from validators: " + res);
             consensusBroker.produceMessage(TopicType.PREPARE_PHASE, String.valueOf(VIEW_NUMBER), PREPARE_MESSAGE_LEADER.getBytes(StandardCharsets.UTF_8));
             List<byte[]> res1=consensusBroker.receiveMessageFromValidators(TopicType.PREPARE_PHASE, String.valueOf(VIEW_NUMBER));
-            res1.forEach(val -> assertEquals(PREPARE_MESSAGE_VALIDATORS.getBytes(StandardCharsets.UTF_8), val));
+            res1.forEach(val -> assertEquals(PREPARE_MESSAGE_VALIDATORS, new String(val)));
             System.out.println(TopicType.PREPARE_PHASE.name()+" Received from validators: " + res1);
             consensusBroker.produceMessage(TopicType.COMMITTEE_PHASE, String.valueOf(VIEW_NUMBER), COMMITTEE_MESSAGE_LEADER.getBytes(StandardCharsets.UTF_8));
             List<byte[]> res3=consensusBroker.receiveMessageFromValidators(TopicType.COMMITTEE_PHASE, String.valueOf(VIEW_NUMBER));
-            res3.forEach(val -> assertEquals(COMMITTEE_MESSAGE_VALIDATORS.getBytes(StandardCharsets.UTF_8), val));
+            res3.forEach(val -> assertEquals(COMMITTEE_MESSAGE_VALIDATORS, new String(val)));
             System.out.println(TopicType.COMMITTEE_PHASE.name()+" Received from validators: " + res3);
         } else {
             Optional<byte[]> message = consensusBroker.receiveMessageFromLeader(TopicType.ANNOUNCE_PHASE, String.valueOf(VIEW_NUMBER));
             assert (message.isPresent());
-            assertEquals(ANNOUNCE_MESSAGE_LEADER, message.get());
+            assertEquals(ANNOUNCE_MESSAGE_LEADER, new String(message.get()));
             consensusBroker.produceMessage(TopicType.ANNOUNCE_PHASE, String.valueOf(VIEW_NUMBER), ANNOUNCE_MESSAGE_VALIDATORS.getBytes(StandardCharsets.UTF_8));
 
             Optional<byte[]> message1 = consensusBroker.receiveMessageFromLeader(TopicType.PREPARE_PHASE, String.valueOf(VIEW_NUMBER));
             assert (message1.isPresent());
-            assertEquals(PREPARE_MESSAGE_LEADER.getBytes(StandardCharsets.UTF_8), message1.get());
+            assertEquals(PREPARE_MESSAGE_LEADER, new String(message1.get()));
             consensusBroker.produceMessage(TopicType.PREPARE_PHASE, String.valueOf(VIEW_NUMBER), PREPARE_MESSAGE_VALIDATORS.getBytes(StandardCharsets.UTF_8));
 
 
             Optional<byte[]> message2 = consensusBroker.receiveMessageFromLeader(TopicType.COMMITTEE_PHASE, String.valueOf(VIEW_NUMBER));
             assert (message2.isPresent());
-            assertEquals(COMMITTEE_MESSAGE_LEADER.getBytes(StandardCharsets.UTF_8), message2.get());
+            assertEquals(COMMITTEE_MESSAGE_LEADER, new String(message2.get()));
             consensusBroker.produceMessage(TopicType.COMMITTEE_PHASE, String.valueOf(VIEW_NUMBER), COMMITTEE_MESSAGE_VALIDATORS.getBytes(StandardCharsets.UTF_8));
         }
     }

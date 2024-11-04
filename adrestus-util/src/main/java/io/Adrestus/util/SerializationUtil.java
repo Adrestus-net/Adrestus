@@ -5,7 +5,6 @@ import com.google.common.reflect.TypeToken;
 import io.Adrestus.config.AdrestusConfiguration;
 import io.activej.codegen.DefiningClassLoader;
 import io.activej.serializer.BinarySerializer;
-import io.activej.serializer.CompatibilityLevel;
 import io.activej.serializer.SerializerFactory;
 import io.activej.serializer.def.SerializerDef;
 import io.activej.types.scanner.TypeScannerRegistry;
@@ -19,6 +18,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class SerializationUtil<T> {

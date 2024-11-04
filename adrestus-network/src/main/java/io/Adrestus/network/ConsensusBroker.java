@@ -43,6 +43,7 @@ public class ConsensusBroker {
         this.sequencedMap.put(TopicType.DISPERSE_PHASE2, new TreeMap<>(Collections.reverseOrder()));
     }
 
+    @SneakyThrows
     public void initializeKafkaKingdom() {
         this.kafkaManufactureSmith.manufactureKafkaComponent(KafkaKingdomType.ZOOKEEPER);
         this.kafkaManufactureSmith.manufactureKafkaComponent(KafkaKingdomType.BROKER);
@@ -56,23 +57,27 @@ public class ConsensusBroker {
     }
 
 
-    private void setupChannels() {
+    private void setupChannels() throws InterruptedException {
         if (currentIP.equals(leader_host)) {
+            for (int i = 0; i < this.prototypeIPAddresses.size(); i++) {
+                this.produceMessage(TopicType.DISPERSE_PHASE1, i, String.valueOf(i), "0".getBytes(StandardCharsets.UTF_8));
+            }
+            this.flush();
+
             this.produceMessage(TopicType.ANNOUNCE_PHASE, "0", "0".getBytes(StandardCharsets.UTF_8));
             this.receiveMessageFromValidators(TopicType.ANNOUNCE_PHASE, "0");
+            System.out.println("1");
             this.produceMessage(TopicType.PREPARE_PHASE, "0", "0".getBytes());
             this.receiveMessageFromValidators(TopicType.PREPARE_PHASE, "0");
+            System.out.println("2");
             this.produceMessage(TopicType.COMMITTEE_PHASE, "0", "0".getBytes(StandardCharsets.UTF_8));
             this.receiveMessageFromValidators(TopicType.COMMITTEE_PHASE, "0");
+            System.out.println("3");
             this.produceMessage(TopicType.DISPERSE_PHASE2, "0", "0".getBytes(StandardCharsets.UTF_8));
             this.receiveMessageFromValidators(TopicType.DISPERSE_PHASE2, "0");
-            for(int i=0;i<this.prototypeIPAddresses.size();i++){
-                if(prototypeIPAddresses.get(i).equals(currentIP))
-                    continue;
-                this.produceMessage(TopicType.DISPERSE_PHASE1, i, "0"+i, "0".getBytes(StandardCharsets.UTF_8));
-            }
-        }
-        else{
+            System.out.println("4");
+        } else {
+            this.receiveDisperseMessageFromLeader(TopicType.DISPERSE_PHASE1, String.valueOf(partition));
             this.receiveMessageFromLeader(TopicType.ANNOUNCE_PHASE, "0");
             this.produceMessage(TopicType.ANNOUNCE_PHASE, "0", "0".getBytes(StandardCharsets.UTF_8));
             this.receiveMessageFromLeader(TopicType.PREPARE_PHASE, "0");
@@ -81,7 +86,6 @@ public class ConsensusBroker {
             this.produceMessage(TopicType.COMMITTEE_PHASE, "0", "0".getBytes(StandardCharsets.UTF_8));
             this.receiveMessageFromLeader(TopicType.DISPERSE_PHASE2, "0");
             this.produceMessage(TopicType.DISPERSE_PHASE2, "0", "0".getBytes(StandardCharsets.UTF_8));
-            this.receiveDisperseMessageFromLeader(TopicType.DISPERSE_PHASE1, "0"+partition);
         }
     }
 
@@ -149,7 +153,7 @@ public class ConsensusBroker {
     public Optional<byte[]> receiveMessageFromLeader(TopicType topic, String key) {
         KafkaConsumerPrivateGroup leaderConsumeData = this.kafkaManufactureSmith.getKafkaComponent(KafkaKingdomType.CONSUMER_PRIVATE);
         ExecutorService executorService = Executors.newVirtualThreadPerTaskExecutor();
-        Consumer<String,byte[]> consumer = leaderConsumeData.receiveLeaderConsumer(leader_host);
+        Consumer<String, byte[]> consumer = leaderConsumeData.receiveLeaderConsumer(leader_host);
         CountDownLatch await_latch = new CountDownLatch(1);
         Runnable task = () -> {
             int timeout = 0;
