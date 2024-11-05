@@ -6,7 +6,7 @@ public class AdrestusConfiguration {
     public static final int PIERRZAK_BIT = 2048;
     public static final int CORES = 24;
 
-    public static final int MAXIMU_BLOCK_SIZE = 10000000;
+    public static final int MAXIMUM_BLOCK_SIZE = 1000000000;
 
     public static final int INIT_VDF_DIFFICULTY = 100;
 

@@ -1,4 +1,4 @@
-package io.Adrestus.streaming;
+package io.Adrestus.network;
 
 public enum KafkaKingdomType {
     ZOOKEEPER("ZOOKEEPER"),

@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.Adrestus.crypto.elliptic.ECDSASignatureData;
 import io.activej.serializer.annotations.Serialize;
 import io.activej.serializer.annotations.SerializeClass;
-import io.activej.serializer.annotations.SerializeNullable;
 
 import java.io.Serializable;
 import java.math.BigDecimal;

@@ -30,7 +30,8 @@ import java.util.Optional;
 import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 
-import static io.activej.rpc.client.sender.strategy.RpcStrategies.*;
+import static io.activej.rpc.client.sender.strategy.RpcStrategies.firstAvailable;
+import static io.activej.rpc.client.sender.strategy.RpcStrategies.server;
 
 public class RpcErasureClient<T> extends AbstractNioReactive implements AutoCloseable {
     private static Logger LOG = LoggerFactory.getLogger(RpcErasureClient.class);
@@ -66,7 +67,7 @@ public class RpcErasureClient<T> extends AbstractNioReactive implements AutoClos
         this.typeParameterClass = typeParameterClass;
         this.inetSocketAddress = inetSocketAddress;
         this.eventloop = eventloop;
-        this.serializationUtil = new SerializationUtil<ErasureResponse>(ErasureResponse.class,list);
+        this.serializationUtil = new SerializationUtil<ErasureResponse>(ErasureResponse.class, list);
         this.valueMapper = new SerializationUtil(this.typeParameterClass.getClass(), list);
     }
 
@@ -83,7 +84,7 @@ public class RpcErasureClient<T> extends AbstractNioReactive implements AutoClos
         this.host = host;
         this.port = port;
         this.eventloop = eventloop;
-        this.serializationUtil = new SerializationUtil<ErasureResponse>(ErasureResponse.class,list);
+        this.serializationUtil = new SerializationUtil<ErasureResponse>(ErasureResponse.class, list);
         this.valueMapper = new SerializationUtil(this.typeParameterClass.getClass(), list);
     }
 
@@ -101,7 +102,7 @@ public class RpcErasureClient<T> extends AbstractNioReactive implements AutoClos
         this.port = port;
         this.eventloop = eventloop;
         this.TIMEOUT = timeout;
-        this.serializationUtil = new SerializationUtil<ErasureResponse>(ErasureResponse.class,list);
+        this.serializationUtil = new SerializationUtil<ErasureResponse>(ErasureResponse.class, list);
         this.valueMapper = new SerializationUtil(this.typeParameterClass.getClass(), list);
     }
 

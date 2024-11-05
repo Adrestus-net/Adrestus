@@ -1,4 +1,4 @@
-package io.Adrestus.streaming;
+package io.Adrestus.network;
 
 import io.Adrestus.rpc.RPCLogger;
 
@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.Map;
 
-import static io.Adrestus.streaming.KafkaKingdomType.*;
+import static io.Adrestus.network.KafkaKingdomType.*;
 
 public class KafkaManufactureSmith implements KafkaSmith {
     private final Map<KafkaKingdomType, IKafkaComponent> map;
@@ -37,7 +37,7 @@ public class KafkaManufactureSmith implements KafkaSmith {
                 map.put(type, new KafkaConsumerPrivateGroup(ipAddresses));
                 break;
             case TOPIC_CREATOR:
-                map.put(type, new KafkaCreatorTopic(ipAddresses.size()+1));
+                map.put(type, new KafkaCreatorTopic(ipAddresses.size() + 1));
                 break;
             default:
                 throw new IllegalArgumentException("Invalid KafkaKingdomType");
@@ -54,10 +54,10 @@ public class KafkaManufactureSmith implements KafkaSmith {
 
     @Override
     public void shutDownGracefully() {
-        if(map.isEmpty())
+        if (map.isEmpty())
             return;
 
-        if(map.get(CONSUMER_SAME) != null)
+        if (map.get(CONSUMER_SAME) != null)
             map.get(CONSUMER_SAME).Shutdown();
 
         map.get(CONSUMER_PRIVATE).Shutdown();

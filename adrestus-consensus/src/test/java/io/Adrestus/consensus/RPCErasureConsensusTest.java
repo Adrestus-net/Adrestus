@@ -22,7 +22,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
@@ -36,6 +35,7 @@ public class RPCErasureConsensusTest {
     private static org.slf4j.Logger LOG = LoggerFactory.getLogger(RPCErasureConsensusTest.class);
     private static RpcServer serverOne, serverTwo, serverThree;
     private static InetSocketAddress address1, address2, address3;
+
     @BeforeAll
     public static void setup() throws IOException {
         LOG.info("Starting up");
@@ -104,6 +104,7 @@ public class RPCErasureConsensusTest {
             // e.printStackTrace();
         }
     }
+
     @Test
     public void test1() {
         ConsensusManager consensusManager = new ConsensusManager(true);

@@ -1,4 +1,4 @@
-package io.Adrestus.streaming;
+package io.Adrestus.network;
 
 import io.Adrestus.config.KafkaConfiguration;
 import org.apache.kafka.clients.admin.NewTopic;
@@ -6,6 +6,7 @@ import org.apache.kafka.clients.admin.NewTopic;
 public class CommitPhaseTopic implements ITopic {
 
     private NewTopic topicName;
+
     public CommitPhaseTopic() {
     }
 

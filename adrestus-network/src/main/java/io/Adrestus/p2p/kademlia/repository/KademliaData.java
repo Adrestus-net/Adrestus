@@ -19,7 +19,7 @@ public class KademliaData implements Serializable, Cloneable {
         this.nettyConnectionInfo = new NettyConnectionInfo("", 0);
     }
 
-    public KademliaData(String hash,NettyConnectionInfo nettyConnectionInfo) {
+    public KademliaData(String hash, NettyConnectionInfo nettyConnectionInfo) {
         this.Hash = hash;
         this.nettyConnectionInfo = nettyConnectionInfo;
     }
@@ -33,7 +33,7 @@ public class KademliaData implements Serializable, Cloneable {
         this.nettyConnectionInfo = nettyConnectionInfo;
     }
 
-    public KademliaData(SecurityAuditProofs addressData,NettyConnectionInfo nettyConnectionInfo) {
+    public KademliaData(SecurityAuditProofs addressData, NettyConnectionInfo nettyConnectionInfo) {
         this.Hash = "";
         this.addressData = addressData;
         this.nettyConnectionInfo = nettyConnectionInfo;

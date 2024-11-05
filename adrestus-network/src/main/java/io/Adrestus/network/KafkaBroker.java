@@ -1,4 +1,4 @@
-package io.Adrestus.streaming;
+package io.Adrestus.network;
 
 import io.Adrestus.config.Directory;
 import io.Adrestus.config.KafkaConfiguration;

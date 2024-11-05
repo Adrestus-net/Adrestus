@@ -26,10 +26,9 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
-public class RpcErasureServer<T> extends AbstractNioReactive implements AutoCloseable,Runnable {
+public class RpcErasureServer<T> extends AbstractNioReactive implements AutoCloseable, Runnable {
     private final BinarySerializer<RpcMessage> rpcSerialize;
 
     private final Eventloop eventloop;

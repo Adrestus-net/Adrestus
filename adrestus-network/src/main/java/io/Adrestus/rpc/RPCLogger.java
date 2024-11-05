@@ -29,6 +29,7 @@ public class RPCLogger {
         }
         return result;
     }
+
     private static void setLevelOff() {
         LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
         Logger rootLogger = loggerContext.getLogger("io.activej");

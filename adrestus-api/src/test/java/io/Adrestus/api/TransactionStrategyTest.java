@@ -165,7 +165,7 @@ public class TransactionStrategyTest {
         }
         publisher.getJobSyncUntilRemainingCapacityZero();
         eventHandler.getLatch().await();
-        assertTrue(((TransactionCallback)transactionCallback).getMessages().isEmpty());
+        assertTrue(((TransactionCallback) transactionCallback).getMessages().isEmpty());
         publisher.close();
         CommitteeBlock committeeBlock = new CommitteeBlock();
         committeeBlock.getHeaderData().setTimestamp("2022-11-18 15:01:29.304");

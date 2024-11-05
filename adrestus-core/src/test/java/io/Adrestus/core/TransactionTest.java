@@ -268,7 +268,7 @@ public class TransactionTest {
             await().atMost(100, TimeUnit.MILLISECONDS);
             //publisher.publish(transaction);
         }
-        assertTrue(((TransactionCallback)transactionCallback).getMessages().isEmpty());
+        assertTrue(((TransactionCallback) transactionCallback).getMessages().isEmpty());
         publisher.getJobSyncUntilRemainingCapacityZero();
         signatureEventHandler.getLatch().await();
         publisher.close();

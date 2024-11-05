@@ -1,17 +1,18 @@
-package io.Adrestus.streaming;
+package io.Adrestus.network;
 
 import io.Adrestus.config.KafkaConfiguration;
 import org.apache.kafka.clients.admin.NewTopic;
 
-public class DispersePhase2Topic implements ITopic {
+public class DispersePhase1Topic implements ITopic {
 
     private NewTopic topicName;
-    public DispersePhase2Topic() {
+
+    public DispersePhase1Topic() {
     }
 
     @Override
     public void constructTopicName(int numPartitions) {
-        topicName = new NewTopic(TopicType.DISPERSE_PHASE2.name(), numPartitions, KafkaConfiguration.KAFKA_REPLICATION_FACTOR);
+        topicName = new NewTopic(TopicType.DISPERSE_PHASE1.name(), numPartitions, KafkaConfiguration.KAFKA_REPLICATION_FACTOR);
     }
 
     @Override
@@ -21,6 +22,6 @@ public class DispersePhase2Topic implements ITopic {
 
     @Override
     public String toString() {
-        return "DispersePhase2Topic{}";
+        return "DispersePhase1Topic{}";
     }
 }

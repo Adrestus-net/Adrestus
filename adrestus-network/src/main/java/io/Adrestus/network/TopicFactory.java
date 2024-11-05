@@ -1,10 +1,8 @@
-package io.Adrestus.streaming;
+package io.Adrestus.network;
 
-import io.Adrestus.config.KafkaConfiguration;
 import org.apache.kafka.clients.admin.NewTopic;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -56,7 +54,7 @@ public class TopicFactory {
         return listTopic;
     }
 
-    public Collection<String> getSingleTopicCollection(TopicType type){
+    public Collection<String> getSingleTopicCollection(TopicType type) {
         if (listTopicNames == null)
             listTopicNames = topicMap
                     .values()
@@ -65,6 +63,7 @@ public class TopicFactory {
                     .filter(topic_name -> topic_name.equals(type.name())).collect(Collectors.toSet());
         return listTopicNames;
     }
+
     public Collection<String> getCollectionTopicsNames() {
         if (listTopicNames == null)
             listTopicNames = topicMap

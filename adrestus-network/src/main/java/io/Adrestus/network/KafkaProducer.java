@@ -1,4 +1,4 @@
-package io.Adrestus.streaming;
+package io.Adrestus.network;
 
 import io.Adrestus.config.KafkaConfiguration;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -6,7 +6,6 @@ import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.ByteArraySerializer;
-import org.apache.kafka.common.serialization.BytesDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 
 import java.util.Objects;
@@ -52,7 +51,7 @@ public class KafkaProducer implements IKafkaComponent {
 
     @Override
     public void Shutdown() {
-        if(this.producer == null)
+        if (this.producer == null)
             return;
         this.producer.close();
         this.props.clear();

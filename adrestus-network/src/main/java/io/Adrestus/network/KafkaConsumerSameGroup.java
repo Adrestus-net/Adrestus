@@ -1,19 +1,18 @@
-package io.Adrestus.streaming;
+package io.Adrestus.network;
 
 import io.Adrestus.config.KafkaConfiguration;
-import org.apache.kafka.clients.consumer.*;
+import org.apache.kafka.clients.consumer.Consumer;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.clients.consumer.RoundRobinAssignor;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.ByteArrayDeserializer;
-import org.apache.kafka.common.serialization.ByteArraySerializer;
-import org.apache.kafka.common.serialization.BytesDeserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 
-import java.time.Duration;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Properties;
-import java.util.Set;
 
 public class KafkaConsumerSameGroup implements IKafkaComponent, Cloneable {
     private final Properties props;

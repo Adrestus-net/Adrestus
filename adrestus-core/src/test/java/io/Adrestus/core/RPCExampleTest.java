@@ -42,8 +42,6 @@ import io.Adrestus.util.GetTime;
 import io.Adrestus.util.SerializationUtil;
 import io.activej.eventloop.Eventloop;
 import io.activej.promise.Promise;
-import io.activej.reactor.Reactor;
-import io.activej.reactor.nio.NioReactor;
 import io.activej.rpc.client.RpcClient;
 import io.activej.rpc.client.sender.strategy.RpcStrategies;
 import io.activej.rpc.client.sender.strategy.RpcStrategy;
@@ -83,7 +81,7 @@ class RPCExampleTest {
     private static final int TIMEOUT = 1500;
     private static RpcServer serverOne, serverTwo, serverThree;
     private static Thread thread;
-    private static Eventloop eventloop=CachedEventLoop.getInstance().getEventloop();
+    private static Eventloop eventloop = CachedEventLoop.getInstance().getEventloop();
     private static InetSocketAddress address1, address2, address3;
     private static SerializationUtil<TransactionBlock> encode;
 
@@ -540,8 +538,7 @@ class RPCExampleTest {
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("Exception caught: " + e.toString());
-        }
-        finally {
+        } finally {
             tree_datasbase.delete_db();
         }
     }

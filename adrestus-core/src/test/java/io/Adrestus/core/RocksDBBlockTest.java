@@ -151,10 +151,10 @@ public class RocksDBBlockTest {
         String hash = "Hash";
         TransactionBlock prevblock = new TransactionBlock();
         Callback transactionCallback = new TransactionCallback();
-        Transaction transaction=new RegularTransaction("1");
+        Transaction transaction = new RegularTransaction("1");
         transaction.setTransactionCallback(transactionCallback);
         transaction.infos("erro");
-        assertFalse(((TransactionCallback)transactionCallback).getMessages().isEmpty());
+        assertFalse(((TransactionCallback) transactionCallback).getMessages().isEmpty());
         CommitteeBlock committeeBlock = new CommitteeBlock();
         committeeBlock.setGeneration(1);
         committeeBlock.setViewID(1);

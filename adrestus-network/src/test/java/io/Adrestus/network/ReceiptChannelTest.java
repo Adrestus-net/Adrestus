@@ -56,7 +56,7 @@ public class ReceiptChannelTest {
 
 
                 latch = new CountDownLatch(ITERATIONS);
-                BinaryChannelSupplier bufsSupplier =  BinaryChannelSupplier.of(ChannelSuppliers.ofSocket(socket));
+                BinaryChannelSupplier bufsSupplier = BinaryChannelSupplier.of(ChannelSuppliers.ofSocket(socket));
                 loop(0,
                         i -> i <= ITERATIONS,
                         i -> loadData(i).then(bytes -> socket.write(bytes)).then(() -> bufsSupplier.needMoreData())

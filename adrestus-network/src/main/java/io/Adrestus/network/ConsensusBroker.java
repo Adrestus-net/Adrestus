@@ -1,7 +1,8 @@
 package io.Adrestus.network;
 
+import com.google.common.reflect.TypeToken;
 import io.Adrestus.config.KafkaConfiguration;
-import io.Adrestus.streaming.*;
+import io.Adrestus.util.SerializationUtil;
 import lombok.SneakyThrows;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -18,6 +19,7 @@ import java.util.stream.Collectors;
 
 public class ConsensusBroker {
     private final ArrayList<String> prototypeIPAddresses;
+    private final SerializationUtil<ArrayList<byte[]>> serenc_erasure;
     private final ArrayList<String> ipAddresses;
     private final KafkaSmith kafkaManufactureSmith;
     private final ConcurrentHashMap<TopicType, TreeMap<Integer, Map<Integer, byte[]>>> sequencedMap;
@@ -27,6 +29,8 @@ public class ConsensusBroker {
     private int partition;
 
     public ConsensusBroker(ArrayList<String> ipAddresses, String leader_host, int partition) {
+        this.serenc_erasure = new SerializationUtil<ArrayList<byte[]>>(new TypeToken<List<byte[]>>() {
+        }.getType());
         this.numThreads = Runtime.getRuntime().availableProcessors() * 2;
         this.currentIP = IPFinder.getLocalIP();
         this.ipAddresses = ipAddresses;
@@ -91,6 +95,41 @@ public class ConsensusBroker {
 
     public void updateLeaderHost(String leader_host, int partition) {
         this.kafkaManufactureSmith.updateLeaderHost(KafkaKingdomType.CONSUMER_SAME, this.ipAddresses, leader_host, partition, true);
+    }
+
+    public void distributeDisperseMessageFromLeader(ArrayList<ArrayList<byte[]>> data, String key) {
+        if (data.size() == this.prototypeIPAddresses.size())
+            throw new IllegalArgumentException("DisperseMessage Invalid data size");
+
+
+        for (int i = 0; i < this.prototypeIPAddresses.size(); i++) {
+            if (this.prototypeIPAddresses.get(i).equals(this.currentIP))
+                continue;
+            ArrayList<byte[]> toSend = data.get(i);
+            int sum = toSend.parallelStream().mapToInt(byteArray -> byteArray.length).sum() + 1024 * 6;
+            this.produceMessage(TopicType.DISPERSE_PHASE1, i, key + i, this.serenc_erasure.encode(toSend, sum));
+        }
+
+        this.flush();
+    }
+
+    public void distributeDisperseMessageToValidators(ArrayList<byte[]> data, String key) {
+        if (data.isEmpty())
+            throw new IllegalArgumentException("DisperseMessageToValidators Invalid data size");
+
+        this.produceMessage(TopicType.DISPERSE_PHASE2, key, this.serenc_erasure.encode(data, data.parallelStream().mapToInt(byteArray -> byteArray.length).sum() + 1024 * 6));
+        this.flush();
+    }
+
+    public ArrayList<ArrayList<byte[]>> retrieveDisperseMessageFromValidatorsAndConcatResponse(ArrayList<byte[]> leader_data, String key) {
+        List<byte[]> response = this.receiveMessageFromValidators(TopicType.DISPERSE_PHASE2, key);
+        if (response.isEmpty())
+            throw new IllegalArgumentException("DisperseMessageFromValidators Invalid data size");
+
+        ArrayList<ArrayList<byte[]>> concatResponse = new ArrayList<>();
+        response.forEach(val -> concatResponse.add(new ArrayList<>(this.serenc_erasure.decode(val))));
+        concatResponse.addFirst(leader_data);
+        return concatResponse;
     }
 
     public void produceMessage(TopicType topic, String key, byte[] data) {
@@ -182,6 +221,15 @@ public class ConsensusBroker {
         executorService.shutdownNow();
         executorService.close();
         return this.sequencedMap.get(topic).firstEntry().getValue().values().stream().findFirst();
+    }
+
+    @SneakyThrows
+    public ArrayList<byte[]> receiveDisperseHandledMessageFromLeader(TopicType topic, String key) {
+        Optional<byte[]> message = this.receiveDisperseMessageFromLeader(topic, key);
+        if (message.isEmpty())
+            throw new IllegalArgumentException("DisperseMessage not received correctly form leader aborting");
+
+        return this.serenc_erasure.decode(message.get());
     }
 
     @SneakyThrows

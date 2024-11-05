@@ -1,4 +1,4 @@
-package io.Adrestus.streaming;
+package io.Adrestus.network;
 
 import org.apache.kafka.clients.admin.NewTopic;
 

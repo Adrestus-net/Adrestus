@@ -57,7 +57,7 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
         this.rwl = new ReentrantReadWriteLock();
         this.r = rwl.readLock();
         this.w = rwl.writeLock();
-        this.path= Directory.getConfigPathPlusPathName(CONNECTION_NAME);
+        this.path = Directory.getConfigPathPlusPathName(CONNECTION_NAME);
         this.dbFile = new File(path);
         this.valueClass = valueClass;
         this.keyClass = keyClass;
@@ -83,7 +83,7 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
         this.r = rwl.readLock();
         this.w = rwl.writeLock();
         this.CONNECTION_NAME = databaseInstance.getTitle();
-        this.path=Directory.getConfigPathPlusPathName(CONNECTION_NAME);
+        this.path = Directory.getConfigPathPlusPathName(CONNECTION_NAME);
         this.dbFile = new File(path);
         this.valueClass = valueClass;
         this.keyClass = keyClass;
@@ -109,7 +109,7 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
         this.r = rwl.readLock();
         this.w = rwl.writeLock();
         this.CONNECTION_NAME = patriciaTreeInstance.getTitle();
-        this.path=Directory.getConfigPathPlusPathName(CONNECTION_NAME);
+        this.path = Directory.getConfigPathPlusPathName(CONNECTION_NAME);
         this.dbFile = new File(path);
         this.valueClass = valueClass;
         this.keyClass = keyClass;

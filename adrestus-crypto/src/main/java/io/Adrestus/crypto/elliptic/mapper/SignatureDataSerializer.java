@@ -2,7 +2,10 @@ package io.Adrestus.crypto.elliptic.mapper;
 
 import io.Adrestus.crypto.elliptic.ECDSASignatureData;
 import io.activej.bytebuf.ByteBuf;
-import io.activej.serializer.*;
+import io.activej.serializer.BinaryInput;
+import io.activej.serializer.BinaryOutput;
+import io.activej.serializer.BinarySerializer;
+import io.activej.serializer.CompatibilityLevel;
 import io.activej.serializer.def.SimpleSerializerDef;
 
 import java.nio.ByteBuffer;

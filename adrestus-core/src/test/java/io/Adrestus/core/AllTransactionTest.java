@@ -40,7 +40,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class AllTransactionTest {
 
@@ -136,7 +137,7 @@ public class AllTransactionTest {
         publisher.publish(rewardsTransaction);
         signatureEventHandler.getLatch().await();
         publisher.getJobSyncUntilRemainingCapacityZero();
-        assertTrue(((TransactionCallback)transactionCallback).getMessages().isEmpty());
+        assertTrue(((TransactionCallback) transactionCallback).getMessages().isEmpty());
     }
 
     @SneakyThrows
@@ -168,7 +169,7 @@ public class AllTransactionTest {
         publisher.publish(stakingTransaction);
         signatureEventHandler.getLatch().await();
         publisher.getJobSyncUntilRemainingCapacityZero();
-        assertTrue(((TransactionCallback)transactionCallback).getMessages().isEmpty());
+        assertTrue(((TransactionCallback) transactionCallback).getMessages().isEmpty());
     }
 
     @SneakyThrows
@@ -200,7 +201,7 @@ public class AllTransactionTest {
         publisher.publish(unstakingTransaction);
         signatureEventHandler.getLatch().await();
         publisher.getJobSyncUntilRemainingCapacityZero();
-        assertTrue(((TransactionCallback)transactionCallback).getMessages().isEmpty());
+        assertTrue(((TransactionCallback) transactionCallback).getMessages().isEmpty());
     }
 
     @Test
@@ -227,7 +228,7 @@ public class AllTransactionTest {
         publisher.publish(delegateTransaction);
         signatureEventHandler.getLatch().await();
         publisher.getJobSyncUntilRemainingCapacityZero();
-        assertTrue(((TransactionCallback)transactionCallback).getMessages().isEmpty());
+        assertTrue(((TransactionCallback) transactionCallback).getMessages().isEmpty());
     }
 
     @Test
@@ -327,7 +328,7 @@ public class AllTransactionTest {
         publisher.publish(delegateTransaction2);
         signatureEventHandler.getLatch().await();
         publisher.getJobSyncUntilRemainingCapacityZero();
-        assertEquals(2,((TransactionCallback)transactionCallback).getMessages().size());
+        assertEquals(2, ((TransactionCallback) transactionCallback).getMessages().size());
 
     }
 

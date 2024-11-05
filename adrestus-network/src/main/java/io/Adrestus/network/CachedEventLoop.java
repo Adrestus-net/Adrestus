@@ -2,15 +2,10 @@ package io.Adrestus.network;
 
 import io.activej.eventloop.Eventloop;
 import io.activej.promise.Promise;
-import io.activej.reactor.Reactor;
 import io.activej.rpc.server.RpcRequestHandler;
 import io.activej.rpc.server.RpcServer;
-import io.activej.serializer.annotations.SerializeRecord;
 import lombok.SneakyThrows;
-import org.identityconnectors.framework.impl.api.remote.messages.HelloRequest;
-import org.identityconnectors.framework.impl.api.remote.messages.HelloResponse;
 
-import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
@@ -25,7 +20,7 @@ public class CachedEventLoop {
         if (instance != null) {
             throw new IllegalStateException("Already initialized.");
         }
-        eventloop =Eventloop.builder()
+        eventloop = Eventloop.builder()
                 .withCurrentThread()
                 .withFatalErrorHandler(rethrow())
                 .build();
@@ -68,6 +63,7 @@ public class CachedEventLoop {
                 .listen();
         new Thread(eventloop).start();
     }
+
     private interface HelloService {
         String hello(String name) throws Exception;
     }
@@ -95,14 +91,15 @@ public class CachedEventLoop {
         };
     }
 
-    private static final class HelloRequest{
+    private static final class HelloRequest {
         public String name;
 
     }
-    private static final class HelloResponse{
+
+    private static final class HelloResponse {
         public String message;
 
-        public HelloResponse(String message){
+        public HelloResponse(String message) {
             this.message = message;
         }
 

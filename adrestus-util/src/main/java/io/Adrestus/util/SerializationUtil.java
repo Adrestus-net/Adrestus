@@ -82,7 +82,7 @@ public class SerializationUtil<T> {
         int count = 0;
         int mul = 8;
         list.add(1024);
-        while (sum <= AdrestusConfiguration.MAXIMU_BLOCK_SIZE) {
+        while (sum <= AdrestusConfiguration.MAXIMUM_BLOCK_SIZE) {
             list.add(list.get(0) * mul);
             sum = list.get(count);
             count++;
@@ -192,6 +192,17 @@ public class SerializationUtil<T> {
     public byte[] encode_list(List<T> value) {
         try {
             int buff_size = search((int) (ObjectSizeCalculator.getObjectSize(value)));
+            buffer = new byte[buff_size];
+            listSerializer.encode(buffer, 0, value);
+            return buffer;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        throw new RuntimeException("Error at serialization");
+    }
+
+    public byte[] encode_list(ArrayList<T> value, int buff_size) {
+        try {
             buffer = new byte[buff_size];
             listSerializer.encode(buffer, 0, value);
             return buffer;

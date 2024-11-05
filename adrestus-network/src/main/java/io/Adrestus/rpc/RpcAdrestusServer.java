@@ -15,7 +15,6 @@ import io.Adrestus.util.SerializationUtil;
 import io.activej.eventloop.Eventloop;
 import io.activej.promise.Promise;
 import io.activej.reactor.AbstractNioReactive;
-import io.activej.reactor.Reactor;
 import io.activej.rpc.protocol.RpcMessage;
 import io.activej.rpc.server.RpcRequestHandler;
 import io.activej.rpc.server.RpcServer;
@@ -36,10 +35,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
-public class RpcAdrestusServer<T> extends AbstractNioReactive implements AutoCloseable,Runnable {
+public class RpcAdrestusServer<T> extends AbstractNioReactive implements AutoCloseable, Runnable {
 
     private final BinarySerializer<RpcMessage> rpcserialize;
     private final Eventloop eventloop;

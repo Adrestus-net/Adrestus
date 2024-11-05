@@ -52,7 +52,8 @@ public class TransactionChannelTest {
     private static Eventloop eventloop = Eventloop.builder().withCurrentThread().build();
     private static SerializationUtil<Transaction> encode;
     private static SerializationUtil<Transaction> decode;
-    static ITcpSocket socket;;
+    static ITcpSocket socket;
+    ;
     static int counter;
     private static ArrayList<Transaction> toSendlist = new ArrayList<>();
     private static ArrayList<String> addreses = new ArrayList<>();

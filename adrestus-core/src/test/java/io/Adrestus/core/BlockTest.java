@@ -248,8 +248,8 @@ public class BlockTest {
             outer_transactions.add(transaction);
         }
 
-        byte[]data=trx_serence.encode(transactions.get(0),1024);
-        Transaction cloned=trx_serence.decode(data);
+        byte[] data = trx_serence.encode(transactions.get(0), 1024);
+        Transaction cloned = trx_serence.decode(data);
     }
 
     @Test
@@ -355,7 +355,7 @@ public class BlockTest {
         publisher.getJobSyncUntilRemainingCapacityZero();
         signatureEventHandler.getLatch().await();
         assertEquals(size - 1, MemoryTransactionPool.getInstance().getSize());
-        assertTrue(((TransactionCallback)transactionCallback).getMessages().isEmpty());
+        assertTrue(((TransactionCallback) transactionCallback).getMessages().isEmpty());
         publisher.close();
 
 

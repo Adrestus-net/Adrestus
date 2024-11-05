@@ -168,7 +168,7 @@ public class AsyncServiceTest {
         }
         publisher.getJobSyncUntilRemainingCapacityZero();
         signatureEventHandler.getLatch().await();
-        assertTrue(((TransactionCallback)transactionCallback).getMessages().isEmpty());
+        assertTrue(((TransactionCallback) transactionCallback).getMessages().isEmpty());
         CommitteeBlock committeeBlock = new CommitteeBlock();
         committeeBlock.getHeaderData().setTimestamp("2022-11-18 15:01:29.304");
         committeeBlock.getStructureMap().get(0).put(vk1, "192.168.1.116");

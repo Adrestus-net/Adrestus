@@ -113,7 +113,7 @@ public class TransactionStrategy implements IStrategy {
             for (int i = 0; i < list_ip.size(); i++) {
                 int finalI = i;
                 executorService.submit(() -> {
-                    Eventloop  eventloop = Eventloop.builder().withCurrentThread().build();
+                    Eventloop eventloop = Eventloop.builder().withCurrentThread().build();
                     SingleAsync(list_ip.get(finalI), eventloop);
                     eventloop.run();
 
@@ -133,7 +133,7 @@ public class TransactionStrategy implements IStrategy {
         eventloop.connect(new InetSocketAddress(ip, SocketConfigOptions.TRANSACTION_PORT), CONNECT_TIMER_DELAY_TIMEOUT, (socketChannel, e) -> {
             if (e == null) {
                 try {
-                    ITcpSocket  socket = TcpSocket.wrapChannel(getCurrentReactor(), socketChannel, null);
+                    ITcpSocket socket = TcpSocket.wrapChannel(getCurrentReactor(), socketChannel, null);
 
                     byte[] data = transaction_encode.encode(transaction, 1024);
                     ByteBuf sizeBuf = ByteBufPool.allocate(2); // enough to serialize size 1024
@@ -154,7 +154,7 @@ public class TransactionStrategy implements IStrategy {
             if (e == null) {
                 try {
                     available[pos].acquire();
-                    ITcpSocket  socket = TcpSocket.wrapChannel(getCurrentReactor(), socketChannel, null);
+                    ITcpSocket socket = TcpSocket.wrapChannel(getCurrentReactor(), socketChannel, null);
                     BinaryChannelSupplier bufsSupplier = BinaryChannelSupplier.of(ChannelSuppliers.ofSocket(socket));
                     loop(0,
                             i -> i < transaction_list.size(),

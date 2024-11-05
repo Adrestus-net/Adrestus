@@ -53,7 +53,7 @@ public class LevelDBConnectionManager<K, V> implements IDatabase<K, V> {
         this.rwl = new ReentrantReadWriteLock();
         this.r = rwl.readLock();
         this.w = rwl.writeLock();
-        this.path= Directory.getConfigPathPlusPathName(CONNECTION_NAME);
+        this.path = Directory.getConfigPathPlusPathName(CONNECTION_NAME);
         this.dbFile = new File(this.path);
         this.valueClass = valueClass;
         this.keyClass = keyClass;
@@ -75,7 +75,7 @@ public class LevelDBConnectionManager<K, V> implements IDatabase<K, V> {
         } else {
             this.CONNECTION_NAME = "TransactionDatabase";
         }
-        this.path=Directory.getConfigPathPlusPathName(CONNECTION_NAME);
+        this.path = Directory.getConfigPathPlusPathName(CONNECTION_NAME);
         this.dbFile = new File(path);
         this.keyClass = keyClass;
         this.keyMapper = new SerializationUtil<>(this.keyClass);

@@ -407,7 +407,7 @@ public class FeeRewardsTransactionTest {
         rewardsTransaction.setSignature(signatureData);
         publisher.publish(rewardsTransaction);
         signatureEventHandler.getLatch().await();
-        assertTrue(((TransactionCallback)transactionCallback).getMessages().isEmpty());
+        assertTrue(((TransactionCallback) transactionCallback).getMessages().isEmpty());
         publisher.getJobSyncUntilRemainingCapacityZero();
         publisher.close();
     }
