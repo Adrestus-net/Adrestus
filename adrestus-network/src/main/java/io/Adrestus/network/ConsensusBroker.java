@@ -98,16 +98,18 @@ public class ConsensusBroker {
     }
 
     public void distributeDisperseMessageFromLeader(ArrayList<ArrayList<byte[]>> data, String key) {
-        if (data.size() == this.prototypeIPAddresses.size())
+        if (data.size() != this.prototypeIPAddresses.size() - 1)
             throw new IllegalArgumentException("DisperseMessage Invalid data size");
 
 
+        int j = 0;
         for (int i = 0; i < this.prototypeIPAddresses.size(); i++) {
             if (this.prototypeIPAddresses.get(i).equals(this.currentIP))
                 continue;
-            ArrayList<byte[]> toSend = data.get(i);
+            ArrayList<byte[]> toSend = data.get(j);
             int sum = toSend.parallelStream().mapToInt(byteArray -> byteArray.length).sum() + 1024 * 6;
             this.produceMessage(TopicType.DISPERSE_PHASE1, i, key + i, this.serenc_erasure.encode(toSend, sum));
+            j++;
         }
 
         this.flush();
@@ -229,7 +231,7 @@ public class ConsensusBroker {
         if (message.isEmpty())
             throw new IllegalArgumentException("DisperseMessage not received correctly form leader aborting");
 
-        return this.serenc_erasure.decode(message.get());
+        return new ArrayList<>(this.serenc_erasure.decode(message.get()));
     }
 
     @SneakyThrows
