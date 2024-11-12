@@ -1,12 +1,14 @@
 package io.Adrestus.network;
 
 import io.Adrestus.config.KafkaConfiguration;
+import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.consumer.RoundRobinAssignor;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.TopicPartition;
+import org.apache.kafka.common.config.SaslConfigs;
 import org.apache.kafka.common.serialization.ByteArrayDeserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 
@@ -44,6 +46,9 @@ public class KafkaConsumerSameGroup implements IKafkaComponent, Cloneable {
         props.put(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, "100");
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         props.put(ConsumerConfig.PARTITION_ASSIGNMENT_STRATEGY_CONFIG, RoundRobinAssignor.class.getName());
+        props.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SASL_PLAINTEXT");
+        props.put(SaslConfigs.SASL_MECHANISM, "PLAIN");
+        props.put(SaslConfigs.SASL_JAAS_CONFIG, "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"" + "consumer" + this.partition + this.host + "\" password=\"consumer-secret\";");
         consumer = new KafkaConsumer<>(props);
         TopicPartition partition = new TopicPartition(TopicFactory.getInstance().getTopicName(TopicType.DISPERSE_PHASE1).name(), this.partition);
         consumer.assign(Collections.singleton(partition));

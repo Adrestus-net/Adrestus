@@ -1,10 +1,12 @@
 package io.Adrestus.network;
 
 import io.Adrestus.config.KafkaConfiguration;
+import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.config.SaslConfigs;
 import org.apache.kafka.common.serialization.ByteArraySerializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 
@@ -29,6 +31,9 @@ public class KafkaProducer implements IKafkaComponent {
         props.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, "lz4");
         props.put(ProducerConfig.BATCH_SIZE_CONFIG, "200000");
         props.put(ProducerConfig.LINGER_MS_CONFIG, "100");
+        props.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SASL_PLAINTEXT");
+        props.put(SaslConfigs.SASL_MECHANISM, "PLAIN");
+        props.put(SaslConfigs.SASL_JAAS_CONFIG, "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"producer\" password=\"producer-secret\";");
 //        props.put(ProducerConfig.PARTITIONER_CLASS_CONFIG, RoundRobinPartitioner.class.getName());
 //        props.put(ProducerConfig.MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION, 5);
         producer = new org.apache.kafka.clients.producer.KafkaProducer<>(props);

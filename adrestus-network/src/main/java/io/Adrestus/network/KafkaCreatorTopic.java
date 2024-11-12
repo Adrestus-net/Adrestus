@@ -1,13 +1,19 @@
 package io.Adrestus.network;
 
 import io.Adrestus.config.KafkaConfiguration;
+import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.admin.AdminClient;
+import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.admin.TopicListing;
+import org.apache.kafka.common.acl.*;
+import org.apache.kafka.common.config.SaslConfigs;
+import org.apache.kafka.common.resource.PatternType;
+import org.apache.kafka.common.resource.ResourcePattern;
+import org.apache.kafka.common.resource.ResourcePatternFilter;
+import org.apache.kafka.common.resource.ResourceType;
 
-import java.util.Collections;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
@@ -15,8 +21,10 @@ public class KafkaCreatorTopic implements IKafkaComponent {
 
     private Properties props;
     private final int DispersePartitionSize;
+    private final ArrayList<String> ipAddresses;
 
-    public KafkaCreatorTopic(int DispersePartitionSize) {
+    public KafkaCreatorTopic(ArrayList<String> ipAddresses, int DispersePartitionSize) {
+        this.ipAddresses = ipAddresses;
         this.DispersePartitionSize = DispersePartitionSize;
         TopicFactory.getInstance().constructTopicName(TopicType.PREPARE_PHASE, 1);
         TopicFactory.getInstance().constructTopicName(TopicType.COMMITTEE_PHASE, 1);
@@ -28,11 +36,35 @@ public class KafkaCreatorTopic implements IKafkaComponent {
     @Override
     public void constructKafkaComponentType() {
         props = new Properties();
-        props.put("bootstrap.servers", KafkaConfiguration.KAFKA_HOST + ":" + "9092");
+        props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, KafkaConfiguration.KAFKA_HOST + ":" + "9092");
+        props.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SASL_PLAINTEXT");
+        props.put(SaslConfigs.SASL_MECHANISM, "PLAIN");
+        props.put(SaslConfigs.SASL_JAAS_CONFIG, "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"admin\" password=\"admin-secret\";");
         props.put("group.id", KafkaConfiguration.TOPIC_GROUP_ID + "-" + KafkaConfiguration.KAFKA_HOST);
 
-        boolean isTopicExist = false;
+
         try (AdminClient adminClient = AdminClient.create(props)) {
+            // Grant `CREATE` permission on the Cluster level to allow topic creation
+            AclBinding clusterCreateAcl = new AclBinding(
+                    new ResourcePattern(ResourceType.CLUSTER, "kafka-cluster", PatternType.LITERAL),
+                    new org.apache.kafka.common.acl.AccessControlEntry("User:admin", "*", AclOperation.CREATE, AclPermissionType.ALLOW)
+            );
+
+            // Grant `CREATE` permission on all topics
+            AclBinding topicCreateAcl = new AclBinding(
+                    new ResourcePattern(ResourceType.TOPIC, "*", PatternType.LITERAL),
+                    new org.apache.kafka.common.acl.AccessControlEntry("User:admin", "*", AclOperation.CREATE, AclPermissionType.ALLOW)
+            );
+
+            // Optional: Grant `DESCRIBE` permission on the Cluster level to access metadata
+            AclBinding clusterDescribeAcl = new AclBinding(
+                    new ResourcePattern(ResourceType.CLUSTER, "kafka-cluster", PatternType.LITERAL),
+                    new org.apache.kafka.common.acl.AccessControlEntry("User:admin", "*", AclOperation.DESCRIBE, AclPermissionType.ALLOW)
+            );
+
+            // Apply ACLs
+            adminClient.createAcls(Arrays.asList(clusterCreateAcl, topicCreateAcl, clusterDescribeAcl)).all().get();
+
             Set<String> existingTopics = adminClient
                     .listTopics().listings().get().stream()
                     .map(TopicListing::name)
@@ -43,36 +75,48 @@ public class KafkaCreatorTopic implements IKafkaComponent {
                     adminClient.createTopics(Set.of(topic)).all().get();
                 }
             }
+
+            List<AclBinding> aclBindings = new ArrayList<>();
+            List<AclBindingFilter> aclFilters = new ArrayList<>();
+            for (NewTopic topic : TopicFactory.getInstance().getCollectionTopics()) {
+
+                ResourcePattern resourcePattern = new ResourcePattern(ResourceType.TOPIC, topic.name(), PatternType.LITERAL);
+                // Create ACL entries for a producer
+                AccessControlEntry producerWriteEntry = new AccessControlEntry("User:producer", "localhost", AclOperation.WRITE, AclPermissionType.ALLOW);
+                AccessControlEntry producerDescribeEntry = new AccessControlEntry("User:producer", "localhost", AclOperation.DESCRIBE, AclPermissionType.ALLOW);
+                AclBinding producerWriteAcl = new AclBinding(resourcePattern, producerWriteEntry);
+                AclBinding producerDescribeAcl = new AclBinding(resourcePattern, producerDescribeEntry);
+                aclBindings.add(producerWriteAcl);
+                aclBindings.add(producerDescribeAcl);
+
+                // Create ACL entries for a consumer
+                int count = 0;
+                for (String ip : ipAddresses) {
+                    AccessControlEntry consumerReadEntry = new AccessControlEntry("User:consumer" + count + ip, ip, AclOperation.READ, AclPermissionType.ALLOW);
+                    AccessControlEntry consumerDescribeEntry = new AccessControlEntry("User:consumer" + count + ip, ip, AclOperation.DESCRIBE, AclPermissionType.ALLOW);
+                    AclBinding consumerReadAcl = new AclBinding(resourcePattern, consumerReadEntry);
+                    AclBinding consumerDescribeAcl = new AclBinding(resourcePattern, consumerDescribeEntry);
+                    aclBindings.add(consumerReadAcl);
+                    aclBindings.add(consumerDescribeAcl);
+                    // Verify the ACLs
+                    AclBindingFilter filter = new AclBindingFilter(new ResourcePatternFilter(ResourceType.TOPIC, TopicType.DISPERSE_PHASE1.name(), PatternType.LITERAL), consumerReadEntry.toFilter());
+                    aclFilters.add(filter);
+                    count++;
+                }
+            }
+            adminClient.createAcls(aclBindings).all().get();
+            aclFilters.stream().forEach(filter -> {
+                //Print the ACLs
+                //adminClient.describeAcls(filter).values().get().forEach(System.out::println);
+            });
         } catch (ExecutionException e) {
             if (e.getCause() instanceof org.apache.kafka.common.errors.TopicExistsException) {
                 System.out.println("Topics already exist");
-                isTopicExist = true;
             } else {
                 e.printStackTrace();
             }
         } catch (Exception e) {
             e.printStackTrace();
-        }
-        if (isTopicExist) {
-            try (AdminClient adminClient = AdminClient.create(props)) {
-                adminClient.deleteTopics(Collections.singleton(TopicFactory.getInstance().getTopicName(TopicType.DISPERSE_PHASE1).name())).all().get();
-                boolean isDeleted = false;
-                while (!isDeleted) {
-                    Set<String> existingTopics = adminClient.listTopics().names().get();
-                    isDeleted = !existingTopics.contains(TopicFactory.getInstance().getTopicName(TopicType.DISPERSE_PHASE1).name());
-                    if (!isDeleted) {
-                        Thread.sleep(1000); // Wait for 100 milliseconds before checking again
-                    }
-                }
-            } catch (ExecutionException | InterruptedException ex) {
-                ex.printStackTrace();
-            }
-            try (AdminClient adminClient = AdminClient.create(props)) {
-                NewTopic topic = TopicFactory.getInstance().getTopicName(TopicType.DISPERSE_PHASE1);
-                adminClient.createTopics(Set.of(topic)).all().get();
-            } catch (ExecutionException | InterruptedException ex) {
-                ex.printStackTrace();
-            }
         }
     }
 
@@ -86,6 +130,29 @@ public class KafkaCreatorTopic implements IKafkaComponent {
         if (props == null) {
             return;
         }
+
+        //delete ACLS
+        try (AdminClient adminClient = AdminClient.create(props)) {
+            for (String topicName : TopicFactory.getInstance().getCollectionTopicsNames()) {
+                ResourcePatternFilter resourceFilter = new ResourcePatternFilter(ResourceType.TOPIC, topicName, PatternType.LITERAL);
+                AccessControlEntryFilter entryFilter = new AccessControlEntryFilter("User:producerUser", null, null, null);
+                ArrayList<AclBindingFilter> bindingFilters = new ArrayList<>();
+                AclBindingFilter filter = new AclBindingFilter(resourceFilter, entryFilter);
+                bindingFilters.add(filter);
+                for (String ip : ipAddresses) {
+                    AccessControlEntryFilter entryFilterConsumer = new AccessControlEntryFilter("User:" + ip, null, null, null);
+                    AclBindingFilter filterConsumer = new AclBindingFilter(resourceFilter, entryFilterConsumer);
+                    bindingFilters.add(filterConsumer);
+                }
+
+                // Delete the ACLs
+                adminClient.deleteAcls(bindingFilters).all().get();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+
+        }
+        //Delete topcis
         try (AdminClient adminClient = AdminClient.create(props)) {
             adminClient.deleteTopics(TopicFactory.getInstance().getCollectionTopicsNames()).all().get();
         } catch (Exception e) {
@@ -115,3 +182,5 @@ public class KafkaCreatorTopic implements IKafkaComponent {
         return super.equals(obj);
     }
 }
+
+

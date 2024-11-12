@@ -28,11 +28,11 @@
         <crypto.version>1.0-SNAPSHOT</crypto.version>
         <ledger.version>1.0-SNAPSHOT</ledger.version>
         <util.version>1.0-SNAPSHOT</util.version>
-        <kafka-clients.version>3.8.1</kafka-clients.version>
+        <kafka-clients.version>3.9.0</kafka-clients.version>
         <zookeeper.version>3.9.3</zookeeper.version>
-        <kafka_server.version>3.8.1</kafka_server.version>
-        <kafka_2.13.version>3.8.1</kafka_2.13.version>
-        <logback-core.version>1.5.12</logback-core.version>
+        <kafka_server.version>3.9.0</kafka_server.version>
+        <kafka_2.13.version>3.9.0</kafka_2.13.version>
+        <logback-core.version>1.5.11</logback-core.version>
         <logback.version>1.2.11</logback.version>
     </properties>
     <dependencies>

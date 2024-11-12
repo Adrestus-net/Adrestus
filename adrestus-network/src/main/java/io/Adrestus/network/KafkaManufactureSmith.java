@@ -28,7 +28,7 @@ public class KafkaManufactureSmith implements KafkaSmith {
                 map.put(type, new KafkaProducer());
                 break;
             case BROKER:
-                map.put(type, new KafkaBroker());
+                map.put(type, new KafkaBroker(ipAddresses));
                 break;
             case ZOOKEEPER:
                 map.put(type, new KafkaZookeeper());
@@ -37,7 +37,7 @@ public class KafkaManufactureSmith implements KafkaSmith {
                 map.put(type, new KafkaConsumerPrivateGroup(ipAddresses));
                 break;
             case TOPIC_CREATOR:
-                map.put(type, new KafkaCreatorTopic(ipAddresses.size() + 1));
+                map.put(type, new KafkaCreatorTopic(ipAddresses,ipAddresses.size() + 1));
                 break;
             default:
                 throw new IllegalArgumentException("Invalid KafkaKingdomType");

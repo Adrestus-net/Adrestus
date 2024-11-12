@@ -2,10 +2,12 @@ package io.Adrestus.network;
 
 import io.Adrestus.config.KafkaConfiguration;
 import lombok.SneakyThrows;
+import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.common.config.SaslConfigs;
 import org.apache.kafka.common.serialization.ByteArrayDeserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 
@@ -44,6 +46,9 @@ public class KafkaConsumerPrivateGroup implements IKafkaComponent {
             props.put(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, 10);
             props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 1);
             props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
+            props.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SASL_PLAINTEXT");
+            props.put(SaslConfigs.SASL_MECHANISM, "PLAIN");
+            props.put(SaslConfigs.SASL_JAAS_CONFIG, "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"" +"consumer"+i+ this.ipAddresses.get(i) + "\" password=\"consumer-secret\";");
 
             //This is for maximizing the throughput of the consumer but for large messages
 //            props.put(ConsumerConfig.FETCH_MIN_BYTES_CONFIG, "100000");
