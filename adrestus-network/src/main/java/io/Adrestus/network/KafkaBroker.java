@@ -57,7 +57,7 @@ public class KafkaBroker implements IKafkaComponent {
         superUsers.append("User:producer;");
         int count = 0;
         for (String ip : ipAddresses) {
-            superUsers.append("User:consumer").append(count).append(ip).append(";");
+            superUsers.append("User:consumer").append("-").append(count).append("-").append(ip).append(";");
             count++;
         }
         return superUsers.toString();
@@ -82,7 +82,7 @@ public class KafkaBroker implements IKafkaComponent {
             String[] parts = user.split(":");
             String username = parts[0];
             String password = parts[1];
-            jaasConfig.append("user_consumer").append(count).append(username).append("=\"").append(password).append("\"" + System.lineSeparator());
+            jaasConfig.append("user_consumer").append("-").append(count).append("-").append(username).append("=\"").append(password).append("\"" + System.lineSeparator());
             count++;
         }
 

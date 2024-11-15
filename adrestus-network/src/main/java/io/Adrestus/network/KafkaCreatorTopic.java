@@ -92,8 +92,8 @@ public class KafkaCreatorTopic implements IKafkaComponent {
                 // Create ACL entries for a consumer
                 int count = 0;
                 for (String ip : ipAddresses) {
-                    AccessControlEntry consumerReadEntry = new AccessControlEntry("User:consumer" + count + ip, ip, AclOperation.READ, AclPermissionType.ALLOW);
-                    AccessControlEntry consumerDescribeEntry = new AccessControlEntry("User:consumer" + count + ip, ip, AclOperation.DESCRIBE, AclPermissionType.ALLOW);
+                    AccessControlEntry consumerReadEntry = new AccessControlEntry("User:consumer" + "-" + count + "-" + ip, ip, AclOperation.READ, AclPermissionType.ALLOW);
+                    AccessControlEntry consumerDescribeEntry = new AccessControlEntry("User:consumer" + "-" + count + "-" + ip, ip, AclOperation.DESCRIBE, AclPermissionType.ALLOW);
                     AclBinding consumerReadAcl = new AclBinding(resourcePattern, consumerReadEntry);
                     AclBinding consumerDescribeAcl = new AclBinding(resourcePattern, consumerDescribeEntry);
                     aclBindings.add(consumerReadAcl);

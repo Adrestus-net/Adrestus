@@ -48,7 +48,7 @@ public class KafkaConsumerPrivateGroup implements IKafkaComponent {
             props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
             props.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SASL_PLAINTEXT");
             props.put(SaslConfigs.SASL_MECHANISM, "PLAIN");
-            props.put(SaslConfigs.SASL_JAAS_CONFIG, "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"" +"consumer"+i+ this.ipAddresses.get(i) + "\" password=\"consumer-secret\";");
+            props.put(SaslConfigs.SASL_JAAS_CONFIG, "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"" +"consumer"+"-"+i+"-"+ this.ipAddresses.get(i) + "\" password=\"consumer-secret\";");
 
             //This is for maximizing the throughput of the consumer but for large messages
 //            props.put(ConsumerConfig.FETCH_MIN_BYTES_CONFIG, "100000");

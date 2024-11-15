@@ -120,10 +120,10 @@
     <gson.version>2.9.0</gson.version>
     <util.version>1.0-SNAPSHOT</util.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <kafka-clients.version>3.8.1</kafka-clients.version>
+    <kafka-clients.version>3.9.0</kafka-clients.version>
     <ledger.version>1.0-SNAPSHOT</ledger.version>
-    <kafka_server.version>3.8.1</kafka_server.version>
-    <logback-core.version>1.5.12</logback-core.version>
+    <kafka_server.version>3.9.0</kafka_server.version>
+    <logback-core.version>1.5.11</logback-core.version>
     <logback.version>1.2.11</logback.version>
     <trie.version>1.0-SNAPSHOT</trie.version>
     <maven.compiler.source>${java.version}</maven.compiler.source>
@@ -131,6 +131,6 @@
     <config.version>1.0-SNAPSHOT</config.version>
     <maven.compiler.target>${java.version}</maven.compiler.target>
     <jeromq.version>0.5.3</jeromq.version>
-    <kafka_2.13.version>3.8.1</kafka_2.13.version>
+    <kafka_2.13.version>3.9.0</kafka_2.13.version>
   </properties>
 </project>
