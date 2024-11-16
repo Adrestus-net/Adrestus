@@ -40,10 +40,10 @@ public class KafkaConsumerSameGroup implements IKafkaComponent, Cloneable {
         props.put(ConsumerConfig.GROUP_ID_CONFIG, KafkaConfiguration.CONSUMER_SAME_GROUP_ID);
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ByteArrayDeserializer.class.getName());
-        props.put(ConsumerConfig.FETCH_MIN_BYTES_CONFIG, "100000");
-        props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, "500");
+        props.put(ConsumerConfig.FETCH_MIN_BYTES_CONFIG, 4098);
+        props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 10);
         props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
-        props.put(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, "100");
+        props.put(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, 10);
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         props.put(ConsumerConfig.PARTITION_ASSIGNMENT_STRATEGY_CONFIG, RoundRobinAssignor.class.getName());
         props.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SASL_PLAINTEXT");

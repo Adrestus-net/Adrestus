@@ -39,6 +39,7 @@ public class ConsensusBroker {
         this.leader_host = leader_host;
         this.partition = partition;
         this.kafkaManufactureSmith = new KafkaManufactureSmith(ipAddresses);
+        this.kafkaManufactureSmith.updateACLKafkaList(this.prototypeIPAddresses);
         this.sequencedMap = new ConcurrentHashMap<TopicType, TreeMap<Integer, Map<Integer, byte[]>>>();
         this.sequencedMap.put(TopicType.ANNOUNCE_PHASE, new TreeMap<>(Collections.reverseOrder()));
         this.sequencedMap.put(TopicType.PREPARE_PHASE, new TreeMap<>(Collections.reverseOrder()));

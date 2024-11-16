@@ -18,7 +18,7 @@ public class KafkaManufactureSmith implements KafkaSmith {
 
     public KafkaManufactureSmith(ArrayList<String> ipAddresses) {
         this.map = new EnumMap<>(KafkaKingdomType.class);
-        Arrays.stream(KafkaKingdomType.values()).filter(val -> !val.equals(CONSUMER_SAME)).forEach(type -> Init(type, ipAddresses));
+        Arrays.stream(KafkaKingdomType.values()).filter(val -> !val.equals(CONSUMER_SAME) && !val.equals(BROKER)).forEach(type -> Init(type, ipAddresses));
     }
 
 
@@ -27,9 +27,6 @@ public class KafkaManufactureSmith implements KafkaSmith {
             case PRODUCER:
                 map.put(type, new KafkaProducer());
                 break;
-            case BROKER:
-                map.put(type, new KafkaBroker(ipAddresses));
-                break;
             case ZOOKEEPER:
                 map.put(type, new KafkaZookeeper());
                 break;
@@ -37,11 +34,16 @@ public class KafkaManufactureSmith implements KafkaSmith {
                 map.put(type, new KafkaConsumerPrivateGroup(ipAddresses));
                 break;
             case TOPIC_CREATOR:
-                map.put(type, new KafkaCreatorTopic(ipAddresses,ipAddresses.size() + 1));
+                map.put(type, new KafkaCreatorTopic(ipAddresses, ipAddresses.size() + 1));
                 break;
             default:
                 throw new IllegalArgumentException("Invalid KafkaKingdomType");
         }
+    }
+
+    @Override
+    public void updateACLKafkaList(ArrayList<String> ipAddresses) {
+        map.put(BROKER, new KafkaBroker(ipAddresses));
     }
 
     @Override

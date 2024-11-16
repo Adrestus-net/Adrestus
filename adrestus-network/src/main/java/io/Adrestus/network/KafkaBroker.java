@@ -48,7 +48,6 @@ public class KafkaBroker implements IKafkaComponent {
         KafkaConfig kafkaConfig = new KafkaConfig(kafkaProps);
         kafkaServer = new KafkaServer(kafkaConfig, Time.SYSTEM, Option.apply("kafka-server-startup"), false);
         kafkaServer.startup();
-        int g = 3;
     }
 
     private String getSuperUsers() {

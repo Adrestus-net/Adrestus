@@ -8,6 +8,8 @@ public interface KafkaSmith {
 
     <T extends IKafkaComponent> T getKafkaComponent(KafkaKingdomType type);
 
+    void updateACLKafkaList(ArrayList<String> ipAddresses);
+
     void updateLeaderHost(KafkaKingdomType type, ArrayList<String> ipAddresses, String leader_host, int partition, boolean isClose);
 
     void shutDownGracefully();

@@ -39,6 +39,7 @@ public class KaFkaTest {
         TopicFactory.getInstance().constructTopicName(TopicType.ANNOUNCE_PHASE, 1);
         Collection<NewTopic> newTopics = Arrays.asList(TopicFactory.getInstance().getTopicName(TopicType.PREPARE_PHASE), TopicFactory.getInstance().getTopicName(TopicType.ANNOUNCE_PHASE), TopicFactory.getInstance().getTopicName(TopicType.COMMITTEE_PHASE), TopicFactory.getInstance().getTopicName(TopicType.DISPERSE_PHASE1), TopicFactory.getInstance().getTopicName(TopicType.DISPERSE_PHASE2));
         kafkaSmith = new KafkaManufactureSmith(ipList);
+        kafkaSmith.updateACLKafkaList(ipList);
         kafkaSmith.manufactureKafkaComponent(KafkaKingdomType.ZOOKEEPER);
         kafkaSmith.manufactureKafkaComponent(KafkaKingdomType.BROKER);
         kafkaSmith.manufactureKafkaComponent(KafkaKingdomType.TOPIC_CREATOR);
