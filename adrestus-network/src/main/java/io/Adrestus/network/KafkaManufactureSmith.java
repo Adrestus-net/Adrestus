@@ -16,13 +16,13 @@ public class KafkaManufactureSmith implements KafkaSmith {
         RPCLogger.getInstance();
     }
 
-    public KafkaManufactureSmith(ArrayList<String> ipAddresses) {
+    public KafkaManufactureSmith(ArrayList<String> ipAddresses,String leader_host,int position, int partition) {
         this.map = new EnumMap<>(KafkaKingdomType.class);
-        Arrays.stream(KafkaKingdomType.values()).filter(val -> !val.equals(CONSUMER_SAME) && !val.equals(BROKER)).forEach(type -> Init(type, ipAddresses));
+        Arrays.stream(KafkaKingdomType.values()).forEach(type -> Init(type,ipAddresses,leader_host,position, partition, false));
     }
 
 
-    private void Init(KafkaKingdomType type, ArrayList<String> ipAddresses) {
+    private void Init(KafkaKingdomType type, ArrayList<String> ipAddresses,String leader_host,int position, int partition, boolean isClose) {
         switch (type) {
             case PRODUCER:
                 map.put(type, new KafkaProducer());
@@ -30,11 +30,17 @@ public class KafkaManufactureSmith implements KafkaSmith {
             case ZOOKEEPER:
                 map.put(type, new KafkaZookeeper());
                 break;
+            case BROKER:
+                map.put(type, new KafkaBroker(ipAddresses));
+                break;
             case CONSUMER_PRIVATE:
                 map.put(type, new KafkaConsumerPrivateGroup(ipAddresses));
                 break;
+            case CONSUMER_SAME:
+                map.put(type, new KafkaConsumerSameGroup(leader_host,position, partition));
+                break;
             case TOPIC_CREATOR:
-                map.put(type, new KafkaCreatorTopic(ipAddresses, ipAddresses.size() + 1));
+                map.put(type, new KafkaCreatorTopic(ipAddresses,leader_host, ipAddresses.size()-1));
                 break;
             default:
                 throw new IllegalArgumentException("Invalid KafkaKingdomType");
@@ -42,15 +48,10 @@ public class KafkaManufactureSmith implements KafkaSmith {
     }
 
     @Override
-    public void updateACLKafkaList(ArrayList<String> ipAddresses) {
-        map.put(BROKER, new KafkaBroker(ipAddresses));
-    }
-
-    @Override
-    public void updateLeaderHost(KafkaKingdomType type, ArrayList<String> ipAddresses, String leader_host, int partition, boolean isClose) {
+    public void updateLeaderHost(KafkaKingdomType type,String leader_host,int position, int partition, boolean isClose) {
         if (isClose)
             map.get(KafkaKingdomType.CONSUMER_SAME).Shutdown();
-        map.put(type, new KafkaConsumerSameGroup(leader_host, partition));
+        map.put(type, new KafkaConsumerSameGroup(leader_host,position, partition));
         map.get(KafkaKingdomType.CONSUMER_SAME).constructKafkaComponentType();
     }
 
@@ -58,14 +59,10 @@ public class KafkaManufactureSmith implements KafkaSmith {
     public void shutDownGracefully() {
         if (map.isEmpty())
             return;
-
-        if (map.get(CONSUMER_SAME) != null)
-            map.get(CONSUMER_SAME).Shutdown();
-
-        map.get(CONSUMER_PRIVATE).Shutdown();
-        map.get(PRODUCER).Shutdown();
-        map.get(BROKER).Shutdown();
-        map.get(ZOOKEEPER).Shutdown();
+        map.entrySet()
+                .stream()
+                .filter(entry -> entry.getValue() != null)
+                .forEach(entry -> entry.getValue().Shutdown());
         map.clear();
     }
 

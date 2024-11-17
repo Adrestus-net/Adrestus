@@ -21,11 +21,13 @@ public class KafkaCreatorTopic implements IKafkaComponent {
 
     private Properties props;
     private final int DispersePartitionSize;
+    private final String leader_host;
     private final ArrayList<String> ipAddresses;
 
-    public KafkaCreatorTopic(ArrayList<String> ipAddresses, int DispersePartitionSize) {
+    public KafkaCreatorTopic(ArrayList<String> ipAddresses, String leader_host, int DispersePartitionSize) {
         this.ipAddresses = ipAddresses;
         this.DispersePartitionSize = DispersePartitionSize;
+        this.leader_host = leader_host;
         TopicFactory.getInstance().constructTopicName(TopicType.PREPARE_PHASE, 1);
         TopicFactory.getInstance().constructTopicName(TopicType.COMMITTEE_PHASE, 1);
         TopicFactory.getInstance().constructTopicName(TopicType.DISPERSE_PHASE1, this.DispersePartitionSize);
@@ -90,10 +92,12 @@ public class KafkaCreatorTopic implements IKafkaComponent {
                 aclBindings.add(producerDescribeAcl);
 
                 // Create ACL entries for a consumer
-                int count = 0;
-                for (String ip : ipAddresses) {
-                    AccessControlEntry consumerReadEntry = new AccessControlEntry("User:consumer" + "-" + count + "-" + ip, ip, AclOperation.READ, AclPermissionType.ALLOW);
-                    AccessControlEntry consumerDescribeEntry = new AccessControlEntry("User:consumer" + "-" + count + "-" + ip, ip, AclOperation.DESCRIBE, AclPermissionType.ALLOW);
+                for (int index = 0; index < ipAddresses.size(); index++) {
+                    String ip = ipAddresses.get(index);
+                    if(ip.equals(leader_host))
+                        continue;
+                    AccessControlEntry consumerReadEntry = new AccessControlEntry("User:consumer" + "-" + index + "-" + ip, ip, AclOperation.READ, AclPermissionType.ALLOW);
+                    AccessControlEntry consumerDescribeEntry = new AccessControlEntry("User:consumer" + "-" + index + "-" + ip, ip, AclOperation.DESCRIBE, AclPermissionType.ALLOW);
                     AclBinding consumerReadAcl = new AclBinding(resourcePattern, consumerReadEntry);
                     AclBinding consumerDescribeAcl = new AclBinding(resourcePattern, consumerDescribeEntry);
                     aclBindings.add(consumerReadAcl);
@@ -101,7 +105,6 @@ public class KafkaCreatorTopic implements IKafkaComponent {
                     // Verify the ACLs
                     AclBindingFilter filter = new AclBindingFilter(new ResourcePatternFilter(ResourceType.TOPIC, TopicType.DISPERSE_PHASE1.name(), PatternType.LITERAL), consumerReadEntry.toFilter());
                     aclFilters.add(filter);
-                    count++;
                 }
             }
             adminClient.createAcls(aclBindings).all().get();
@@ -140,6 +143,8 @@ public class KafkaCreatorTopic implements IKafkaComponent {
                 AclBindingFilter filter = new AclBindingFilter(resourceFilter, entryFilter);
                 bindingFilters.add(filter);
                 for (String ip : ipAddresses) {
+                    if(ip.equals(leader_host))
+                        continue;
                     AccessControlEntryFilter entryFilterConsumer = new AccessControlEntryFilter("User:" + ip, null, null, null);
                     AclBindingFilter filterConsumer = new AclBindingFilter(resourceFilter, entryFilterConsumer);
                     bindingFilters.add(filterConsumer);
@@ -147,14 +152,8 @@ public class KafkaCreatorTopic implements IKafkaComponent {
 
                 // Delete the ACLs
                 adminClient.deleteAcls(bindingFilters).all().get();
+                adminClient.deleteTopics(TopicFactory.getInstance().getAllCollectionTopicsNamesAsString()).all().get();
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-
-        }
-        //Delete topcis
-        try (AdminClient adminClient = AdminClient.create(props)) {
-            adminClient.deleteTopics(TopicFactory.getInstance().getCollectionTopicsNames()).all().get();
         } catch (Exception e) {
             e.printStackTrace();
 

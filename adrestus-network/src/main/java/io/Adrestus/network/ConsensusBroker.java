@@ -11,22 +11,19 @@ import org.apache.kafka.clients.consumer.ConsumerRecords;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 public class ConsensusBroker {
-    private final ArrayList<String> prototypeIPAddresses;
     private final SerializationUtil<ArrayList<byte[]>> serenc_erasure;
     private final ArrayList<String> ipAddresses;
     private final KafkaSmith kafkaManufactureSmith;
     private final ConcurrentHashMap<TopicType, TreeMap<Integer, Map<Integer, byte[]>>> sequencedMap;
     private final String currentIP;
     private final int numThreads;
-    private String leader_host;
-    private int partition;
+    private final String leader_host;
+    private final int leader_position;
+    private final int partition;
 
     public ConsensusBroker(ArrayList<String> ipAddresses, String leader_host, int partition) {
         this.serenc_erasure = new SerializationUtil<ArrayList<byte[]>>(new TypeToken<List<byte[]>>() {
@@ -34,12 +31,10 @@ public class ConsensusBroker {
         this.numThreads = Runtime.getRuntime().availableProcessors() * 2;
         this.currentIP = IPFinder.getLocalIP();
         this.ipAddresses = ipAddresses;
-        this.prototypeIPAddresses = new ArrayList<>(this.ipAddresses);
-        this.ipAddresses.remove(this.currentIP);
         this.leader_host = leader_host;
+        this.leader_position = this.ipAddresses.indexOf(leader_host);
         this.partition = partition;
-        this.kafkaManufactureSmith = new KafkaManufactureSmith(ipAddresses);
-        this.kafkaManufactureSmith.updateACLKafkaList(this.prototypeIPAddresses);
+        this.kafkaManufactureSmith = new KafkaManufactureSmith(ipAddresses,leader_host,leader_position, partition);
         this.sequencedMap = new ConcurrentHashMap<TopicType, TreeMap<Integer, Map<Integer, byte[]>>>();
         this.sequencedMap.put(TopicType.ANNOUNCE_PHASE, new TreeMap<>(Collections.reverseOrder()));
         this.sequencedMap.put(TopicType.PREPARE_PHASE, new TreeMap<>(Collections.reverseOrder()));
@@ -55,16 +50,15 @@ public class ConsensusBroker {
         this.kafkaManufactureSmith.manufactureKafkaComponent(KafkaKingdomType.TOPIC_CREATOR);
         this.kafkaManufactureSmith.manufactureKafkaComponent(KafkaKingdomType.PRODUCER);
         this.kafkaManufactureSmith.manufactureKafkaComponent(KafkaKingdomType.CONSUMER_PRIVATE);
-        if (!currentIP.equals(leader_host)) {
-            this.kafkaManufactureSmith.updateLeaderHost(KafkaKingdomType.CONSUMER_SAME, this.ipAddresses, this.leader_host, this.partition, false);
-        }
+        if(!this.currentIP.equals(leader_host))
+            this.kafkaManufactureSmith.manufactureKafkaComponent(KafkaKingdomType.CONSUMER_SAME);
         this.setupChannels();
     }
 
 
     private void setupChannels() throws InterruptedException {
         if (currentIP.equals(leader_host)) {
-            for (int i = 0; i < this.prototypeIPAddresses.size(); i++) {
+            for (int i = 0; i < this.ipAddresses.size(); i++) {
                 this.produceMessage(TopicType.DISPERSE_PHASE1, i, String.valueOf(i), "0".getBytes(StandardCharsets.UTF_8));
             }
             this.flush();
@@ -94,18 +88,18 @@ public class ConsensusBroker {
         }
     }
 
-    public void updateLeaderHost(String leader_host, int partition) {
-        this.kafkaManufactureSmith.updateLeaderHost(KafkaKingdomType.CONSUMER_SAME, this.ipAddresses, leader_host, partition, true);
+    public void updateLeaderHost(String leader_host,int leader_position, int partition) {
+        this.kafkaManufactureSmith.updateLeaderHost(KafkaKingdomType.CONSUMER_SAME, leader_host,leader_position, partition, true);
     }
 
     public void distributeDisperseMessageFromLeader(ArrayList<ArrayList<byte[]>> data, String key) {
-        if (data.size() != this.prototypeIPAddresses.size() - 1)
+        if (data.size() != this.ipAddresses.size())
             throw new IllegalArgumentException("DisperseMessage Invalid data size");
 
 
         int j = 0;
-        for (int i = 0; i < this.prototypeIPAddresses.size(); i++) {
-            if (this.prototypeIPAddresses.get(i).equals(this.currentIP))
+        for (int i = 0; i < this.ipAddresses.size(); i++) {
+            if (this.ipAddresses.get(i).equals(this.currentIP))
                 continue;
             ArrayList<byte[]> toSend = data.get(j);
             int sum = toSend.parallelStream().mapToInt(byteArray -> byteArray.length).sum() + 1024 * 6;
@@ -186,8 +180,17 @@ public class ConsensusBroker {
             executorService.submit(task);
         }
         await_latch.await();
-        executorService.shutdownNow();
-        executorService.close();
+        Thread.ofVirtual().start(() -> {
+            executorService.shutdown();
+            try {
+                if (!executorService.awaitTermination(100, TimeUnit.MILLISECONDS)) {
+                    executorService.shutdownNow();
+                }
+            } catch (InterruptedException e) {
+                executorService.shutdownNow();
+            }
+            executorService.close();
+        });
         return this.sequencedMap.get(topic).firstEntry().getValue().values().stream().collect(Collectors.toList());
     }
 
@@ -221,7 +224,17 @@ public class ConsensusBroker {
         };
         executorService.submit(task);
         await_latch.await();
-        executorService.shutdownNow();
+        Thread.ofVirtual().start(() -> {
+            executorService.shutdown();
+            try {
+                if (!executorService.awaitTermination(100, TimeUnit.MILLISECONDS)) {
+                    executorService.shutdownNow();
+                }
+            } catch (InterruptedException e) {
+                executorService.shutdownNow();
+            }
+            executorService.close();
+        });
         executorService.close();
         return this.sequencedMap.get(topic).firstEntry().getValue().values().stream().findFirst();
     }
@@ -265,7 +278,17 @@ public class ConsensusBroker {
         };
         executorService.submit(task);
         await_latch.await();
-        executorService.shutdownNow();
+        Thread.ofVirtual().start(() -> {
+            executorService.shutdown();
+            try {
+                if (!executorService.awaitTermination(100, TimeUnit.MILLISECONDS)) {
+                    executorService.shutdownNow();
+                }
+            } catch (InterruptedException e) {
+                executorService.shutdownNow();
+            }
+            executorService.close();
+        });
         executorService.close();
         return this.sequencedMap.get(topic).firstEntry().getValue().values().stream().findFirst();
     }
@@ -275,10 +298,9 @@ public class ConsensusBroker {
     }
 
     public void shutDownGracefully() {
-        this.ipAddresses.clear();
-        this.leader_host = null;
-        this.partition = 0;
         this.kafkaManufactureSmith.shutDownGracefully();
+        this.ipAddresses.clear();
+        this.sequencedMap.clear();
     }
 
     public ArrayList<String> getIpAddresses() {
@@ -293,18 +315,9 @@ public class ConsensusBroker {
         return leader_host;
     }
 
-    public void setLeader_host(String leader_host) {
-        this.leader_host = leader_host;
-    }
-
     public int getPartition() {
         return partition;
     }
-
-    public void setPartition(int partition) {
-        this.partition = partition;
-    }
-
 
     @Override
     public boolean equals(Object o) {

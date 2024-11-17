@@ -74,6 +74,16 @@ public class TopicFactory {
         return listTopicNames;
     }
 
+    public Collection<String> getAllCollectionTopicsNamesAsString() {
+        if (listTopicNames == null)
+            listTopicNames = topicMap
+                    .values()
+                    .stream()
+                    .map(topic -> topic.getTopicName().name())
+                    .collect(Collectors.toSet());
+        return listTopicNames;
+    }
+
     @Override
     public String toString() {
         return "TopicFactory{}";
