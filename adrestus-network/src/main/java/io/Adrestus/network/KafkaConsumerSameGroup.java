@@ -39,7 +39,7 @@ public class KafkaConsumerSameGroup implements IKafkaComponent, Cloneable {
 
     @Override
     public void constructKafkaComponentType() {
-        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, this.host + ":" + KafkaConfiguration.KAFKA_PORT);
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, this.host + ":" + KafkaConfiguration.KAFKA_PORT);
         props.put(ConsumerConfig.GROUP_ID_CONFIG, KafkaConfiguration.CONSUMER_SAME_GROUP_ID);
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ByteArrayDeserializer.class.getName());

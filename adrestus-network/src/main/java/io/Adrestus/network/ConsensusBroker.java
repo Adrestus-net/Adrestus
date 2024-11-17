@@ -235,7 +235,6 @@ public class ConsensusBroker {
             }
             executorService.close();
         });
-        executorService.close();
         return this.sequencedMap.get(topic).firstEntry().getValue().values().stream().findFirst();
     }
 
@@ -289,7 +288,6 @@ public class ConsensusBroker {
             }
             executorService.close();
         });
-        executorService.close();
         return this.sequencedMap.get(topic).firstEntry().getValue().values().stream().findFirst();
     }
 

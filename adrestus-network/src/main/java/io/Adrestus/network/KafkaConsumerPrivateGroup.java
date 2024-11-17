@@ -6,7 +6,6 @@ import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.config.SaslConfigs;
 import org.apache.kafka.common.serialization.ByteArrayDeserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -21,34 +20,49 @@ public class KafkaConsumerPrivateGroup implements IKafkaComponent {
 
     private ArrayList<String> ipAddresses;
     private HashMap<String, Consumer<String, byte[]>> consumer_map;
+    private String current_ip;
 
     public KafkaConsumerPrivateGroup() {
         this.ipAddresses = new ArrayList<>();
         this.consumer_map = new HashMap<>();
+        this.current_ip = IPFinder.getLocalIP();
     }
 
     public KafkaConsumerPrivateGroup(ArrayList<String> ipAddresses) {
         this.ipAddresses = ipAddresses;
         this.consumer_map = new HashMap<>();
+        this.current_ip = IPFinder.getLocalIP();
     }
 
     @SneakyThrows
     @Override
     public void constructKafkaComponentType() {
+        int position = ipAddresses.indexOf(current_ip);
+        boolean isTest = false;
+        if (position == -1) {
+            isTest = true;
+        }
         for (int i = 0; i < ipAddresses.size(); i++) {
+            String ip = this.ipAddresses.get(i);
+            if (ip.equals(current_ip) && !ip.equals("localhost"))
+                continue;
+            if (isTest) {
+                position = i;
+                current_ip = "localhost";
+            }
             Properties props = new Properties();
-            props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, this.ipAddresses.get(i) + ":" + KafkaConfiguration.KAFKA_PORT);
+            props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, ip + ":" + KafkaConfiguration.KAFKA_PORT);
             props.put(ConsumerConfig.GROUP_ID_CONFIG, KafkaConfiguration.CONSUMER_PRIVATE_GROUP_ID + "-" + i + "-" + KafkaConfiguration.KAFKA_HOST);
             props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
             props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ByteArrayDeserializer.class.getName());
             props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
             props.put(ConsumerConfig.FETCH_MIN_BYTES_CONFIG, 4098);
             props.put(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, 10);
-            props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 1);
+            //props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 1);
             props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
             props.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SASL_PLAINTEXT");
             props.put(SaslConfigs.SASL_MECHANISM, "PLAIN");
-            props.put(SaslConfigs.SASL_JAAS_CONFIG, "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"" +"consumer"+"-"+i+"-"+ this.ipAddresses.get(i) + "\" password=\"consumer-secret\";");
+            props.put(SaslConfigs.SASL_JAAS_CONFIG, "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"" + "consumer" + "-" + position + "-" + current_ip + "\" password=\"consumer-secret\";");
 
             //This is for maximizing the throughput of the consumer but for large messages
 //            props.put(ConsumerConfig.FETCH_MIN_BYTES_CONFIG, "100000");
@@ -56,12 +70,13 @@ public class KafkaConsumerPrivateGroup implements IKafkaComponent {
 //            props.put(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, "100");
             Consumer<String, byte[]> consumer = new KafkaConsumer<>(props);
             consumer.subscribe(TopicFactory.getInstance().getCollectionTopicsNames());
-            if (consumer_map.containsKey(ipAddresses.get(i))) {
-                consumer_map.put(ipAddresses.get(i) + String.valueOf(i), consumer);
+            if (consumer_map.containsKey(ip)) {
+                consumer_map.put(ip + String.valueOf(i), consumer);
             } else {
-                consumer_map.put(ipAddresses.get(i), consumer);
+                consumer_map.put(ip, consumer);
             }
         }
+        int g = 3;
     }
 
     private String getConnecntionString() {

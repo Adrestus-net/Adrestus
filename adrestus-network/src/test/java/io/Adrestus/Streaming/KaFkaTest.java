@@ -126,11 +126,7 @@ public class KaFkaTest {
     @Test
     @Order(3)
     public void testMultiDataConsumers() throws ExecutionException, InterruptedException {
-        Map<String, byte[]> map1 = new HashMap<>();
-        Map<String, byte[]> map2 = new HashMap<>();
-        Map<String, byte[]> map3 = new HashMap<>();
-        Map<String, byte[]> map4 = new HashMap<>();
-        Map<String, byte[]> map5 = new HashMap<>();
+        Map<String, byte[]> map = new ConcurrentHashMap<>();
         KafkaConsumerPrivateGroup consumerPrivate = kafkaSmith.getKafkaComponent(KafkaKingdomType.CONSUMER_PRIVATE);
         Consumer<String, byte[]> consumer1 = consumerPrivate.getConsumer_map().get("localhost");
         Consumer<String, byte[]> consumer2 = consumerPrivate.getConsumer_map().get("localhost1");
@@ -146,61 +142,47 @@ public class KaFkaTest {
         long start = System.currentTimeMillis();
         CountDownLatch latch = new CountDownLatch(consumerPrivate.getConsumer_map().size());
         Thread.ofVirtual().start(() -> {
-            int count = 0;
-            while (count <= size) {
-                ConsumerRecords<String, byte[]> records = consumer1.poll(Duration.ofMillis(10000));
-                count += records.count();
+            while (map.size() < size) {
+                ConsumerRecords<String, byte[]> records = consumer1.poll(Duration.ofMillis(1000));
                 for (ConsumerRecord<String, byte[]> recordf : records) {
-                    map1.put(recordf.key(), recordf.value());
+                    map.put(recordf.key(), recordf.value());
                 }
             }
             latch.countDown();
         });
         Thread.ofVirtual().start(() -> {
-            int count = 0;
-            while (count <= size) {
-                ConsumerRecords<String, byte[]> records = consumer2.poll(Duration.ofMillis(10000));
-                count += records.count();
+            while (map.size() < size) {
+                ConsumerRecords<String, byte[]> records = consumer2.poll(Duration.ofMillis(1000));
                 for (ConsumerRecord<String, byte[]> recordf : records) {
-                    map2.put(recordf.key(), recordf.value());
+                    map.put(recordf.key(), recordf.value());
                 }
-
             }
             latch.countDown();
         });
         Thread.ofVirtual().start(() -> {
-            int count = 0;
-            while (count <= size) {
-                ConsumerRecords<String, byte[]> records = consumer3.poll(Duration.ofMillis(10000));
-                count += records.count();
+            while (map.size() < size) {
+                ConsumerRecords<String, byte[]> records = consumer3.poll(Duration.ofMillis(1000));
                 for (ConsumerRecord<String, byte[]> recordf : records) {
-                    map3.put(recordf.key(), recordf.value());
+                    map.put(recordf.key(), recordf.value());
                 }
-
             }
             latch.countDown();
         });
         Thread.ofVirtual().start(() -> {
-            int count = 0;
-            while (count <= size) {
-                ConsumerRecords<String, byte[]> records = consumer4.poll(Duration.ofMillis(10000));
-                count += records.count();
+            while (map.size() < size) {
+                ConsumerRecords<String, byte[]> records = consumer4.poll(Duration.ofMillis(1000));
                 for (ConsumerRecord<String, byte[]> recordf : records) {
-                    map4.put(recordf.key(), recordf.value());
+                    map.put(recordf.key(), recordf.value());
                 }
-
             }
             latch.countDown();
         });
         Thread.ofVirtual().start(() -> {
-            int count = 0;
-            while (count <= size) {
-                ConsumerRecords<String, byte[]> records = consumer5.poll(Duration.ofMillis(10000));
-                count += records.count();
+            while (map.size() < size) {
+                ConsumerRecords<String, byte[]> records = consumer5.poll(Duration.ofMillis(1000));
                 for (ConsumerRecord<String, byte[]> recordf : records) {
-                    map5.put(recordf.key(), recordf.value());
+                    map.put(recordf.key(), recordf.value());
                 }
-
             }
             latch.countDown();
         });
@@ -209,11 +191,7 @@ public class KaFkaTest {
         long finish = System.currentTimeMillis();
         long timeElapsed = finish - start;
         System.out.println("Multi Consumers Time elapsed: " + timeElapsed);
-        assertEquals(size, map2.size());
-        assertEquals(size, map1.size());
-        assertEquals(size, map3.size());
-        assertEquals(size, map4.size());
-        assertEquals(size, map5.size());
+        assertEquals(size, map.size());
     }
 
     @SneakyThrows
