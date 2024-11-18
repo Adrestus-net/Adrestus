@@ -25,16 +25,16 @@ public class KafkaCreatorTopic implements IKafkaComponent {
 
     private Properties props;
     private final int DispersePartitionSize;
-    private final String leader_host;
+    private final String currentIP;
     private final ArrayList<String> ipAddresses;
     private final ArrayList<AclBindingFilter> bindingFilters;
     private final List<AclBinding> aclBindings;
     private AdminClient adminClient;
 
-    public KafkaCreatorTopic(ArrayList<String> ipAddresses, String leader_host, int DispersePartitionSize) {
+    public KafkaCreatorTopic(ArrayList<String> ipAddresses, String currentIP, int DispersePartitionSize) {
         this.ipAddresses = ipAddresses;
         this.DispersePartitionSize = DispersePartitionSize;
-        this.leader_host = leader_host;
+        this.currentIP = currentIP;
         this.bindingFilters = new ArrayList<>();
         this.aclBindings = new ArrayList<>();
         TopicFactory.getInstance().constructTopicName(TopicType.PREPARE_PHASE, 1);
@@ -59,23 +59,23 @@ public class KafkaCreatorTopic implements IKafkaComponent {
             // Grant `CREATE` permission on the Cluster level to allow topic creation
             AclBinding clusterCreateAcl = new AclBinding(
                     new ResourcePattern(ResourceType.CLUSTER, "kafka-cluster", PatternType.LITERAL),
-                    new org.apache.kafka.common.acl.AccessControlEntry("User:admin", "*", AclOperation.CREATE, AclPermissionType.ALLOW)
+                    new org.apache.kafka.common.acl.AccessControlEntry("User:admin", "127.0.0.1", AclOperation.CREATE, AclPermissionType.ALLOW)
             );
 
             // Grant `CREATE` permission on all topics
             AclBinding topicCreateAcl = new AclBinding(
                     new ResourcePattern(ResourceType.TOPIC, "*", PatternType.LITERAL),
-                    new org.apache.kafka.common.acl.AccessControlEntry("User:admin", "*", AclOperation.CREATE, AclPermissionType.ALLOW)
+                    new org.apache.kafka.common.acl.AccessControlEntry("User:admin", "127.0.0.1", AclOperation.CREATE, AclPermissionType.ALLOW)
             );
 
             // Optional: Grant `DESCRIBE` permission on the Cluster level to access metadata
             AclBinding clusterDescribeAcl = new AclBinding(
                     new ResourcePattern(ResourceType.CLUSTER, "kafka-cluster", PatternType.LITERAL),
-                    new org.apache.kafka.common.acl.AccessControlEntry("User:admin", "*", AclOperation.DESCRIBE, AclPermissionType.ALLOW)
+                    new org.apache.kafka.common.acl.AccessControlEntry("User:admin", "127.0.0.1", AclOperation.DESCRIBE, AclPermissionType.ALLOW)
             );
 
             // Apply ACLs
-            adminClient.createAcls(Arrays.asList(clusterCreateAcl, topicCreateAcl, clusterDescribeAcl)).all().get();
+            adminClient.createAcls(Arrays.asList(clusterCreateAcl, topicCreateAcl)).all().get();
 
             Set<String> existingTopics = adminClient
                     .listTopics().listings().get().stream()
@@ -92,8 +92,8 @@ public class KafkaCreatorTopic implements IKafkaComponent {
 
                 ResourcePattern resourcePattern = new ResourcePattern(ResourceType.TOPIC, topic.name(), PatternType.LITERAL);
                 // Create ACL entries for a producer
-                AccessControlEntry producerWriteEntry = new AccessControlEntry("User:producer", "localhost", AclOperation.WRITE, AclPermissionType.ALLOW);
-                AccessControlEntry producerDescribeEntry = new AccessControlEntry("User:producer", "localhost", AclOperation.DESCRIBE, AclPermissionType.ALLOW);
+                AccessControlEntry producerWriteEntry = new AccessControlEntry("User:producer", "127.0.0.1", AclOperation.WRITE, AclPermissionType.ALLOW);
+                AccessControlEntry producerDescribeEntry = new AccessControlEntry("User:producer", "127.0.0.1", AclOperation.DESCRIBE, AclPermissionType.ALLOW);
                 AclBinding producerWriteAcl = new AclBinding(resourcePattern, producerWriteEntry);
                 AclBinding producerDescribeAcl = new AclBinding(resourcePattern, producerDescribeEntry);
                 aclBindings.add(producerWriteAcl);
@@ -107,21 +107,40 @@ public class KafkaCreatorTopic implements IKafkaComponent {
                 // Create ACL entries for a consumer
                 for (int index = 0; index < ipAddresses.size(); index++) {
                     String ip = ipAddresses.get(index);
-                    if (ip.equals(leader_host) && !leader_host.equals("localhost"))
+                    if (ip.equals(this.currentIP) && !this.currentIP.equals("localhost"))
                         continue;
-                    AccessControlEntry consumerReadEntry = new AccessControlEntry("User:consumer" + "-" + index + "-" + ip, ip, AclOperation.READ, AclPermissionType.ALLOW);
-                    AccessControlEntry consumerDescribeEntry = new AccessControlEntry("User:consumer" + "-" + index + "-" + ip, ip, AclOperation.DESCRIBE, AclPermissionType.ALLOW);
+                    String host = this.currentIP.equals("localhost") ? "127.0.0.1" : this.currentIP;
+
+                    //KafkaConfiguration.CONSUMER_PRIVATE_GROUP_ID + "-" + i + "-" + KafkaConfiguration.KAFKA_HOST
+                    ResourcePattern resourcePrivateGroupPattern = new ResourcePattern(ResourceType.GROUP, KafkaConfiguration.CONSUMER_PRIVATE_GROUP_ID + "-" + index + "-" + KafkaConfiguration.KAFKA_HOST, PatternType.LITERAL);
+                    ResourcePattern resourceSameGroupPattern = new ResourcePattern(ResourceType.GROUP, KafkaConfiguration.CONSUMER_SAME_GROUP_ID, PatternType.LITERAL);
+                    AccessControlEntry consumerReadEntry = new AccessControlEntry("User:consumer" + "-" + index + "-" + ip, host, AclOperation.READ, AclPermissionType.ALLOW);
+                    AccessControlEntry consumerDescribeEntry = new AccessControlEntry("User:consumer" + "-" + index + "-" + ip, host, AclOperation.DESCRIBE, AclPermissionType.ALLOW);
                     AclBinding consumerReadAcl = new AclBinding(resourcePattern, consumerReadEntry);
                     AclBinding consumerDescribeAcl = new AclBinding(resourcePattern, consumerDescribeEntry);
+                    AclBinding consumerPrivateGroupReadAcl = new AclBinding(resourcePrivateGroupPattern, consumerReadEntry);
+                    AclBinding consumerPrivateGroupDescribeAcl = new AclBinding(resourcePrivateGroupPattern, consumerDescribeEntry);
+                    AclBinding consumerSameGroupReadAcl = new AclBinding(resourceSameGroupPattern, consumerReadEntry);
+                    AclBinding consumerSameGroupDescribeAcl = new AclBinding(resourceSameGroupPattern, consumerDescribeEntry);
                     aclBindings.add(consumerReadAcl);
                     aclBindings.add(consumerDescribeAcl);
+                    aclBindings.add(consumerPrivateGroupReadAcl);
+                    aclBindings.add(consumerPrivateGroupDescribeAcl);
+                    aclBindings.add(consumerSameGroupReadAcl);
+                    aclBindings.add(consumerSameGroupDescribeAcl);
                     // Verify the ACLs
                     AclBindingFilter Readfilter = new AclBindingFilter(new ResourcePatternFilter(ResourceType.TOPIC, topic.name(), PatternType.LITERAL), consumerReadEntry.toFilter());
                     AclBindingFilter Describefilter = new AclBindingFilter(new ResourcePatternFilter(ResourceType.TOPIC, topic.name(), PatternType.LITERAL), consumerDescribeEntry.toFilter());
                     bindingFilters.add(Readfilter);
                     bindingFilters.add(Describefilter);
+                    bindingFilters.add(consumerPrivateGroupReadAcl.toFilter());
+                    bindingFilters.add(consumerPrivateGroupDescribeAcl.toFilter());
+                    bindingFilters.add(consumerSameGroupReadAcl.toFilter());
+                    bindingFilters.add(consumerSameGroupDescribeAcl.toFilter());
                 }
             }
+
+
             adminClient.createAcls(aclBindings).all().get();
 //            bindingFilters.stream().forEach(filter -> {
 //                //Print the ACLs

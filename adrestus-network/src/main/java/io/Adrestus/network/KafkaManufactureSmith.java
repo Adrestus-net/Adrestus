@@ -10,19 +10,27 @@ import java.util.Map;
 public class KafkaManufactureSmith implements KafkaSmith {
     private final Map<KafkaKingdomType, IKafkaComponent> map;
     private final ArrayList<String> ipAddresses;
+    private final String leader_host;
+    private final String currentIP;
+    private final int position;
+    private final int partition;
 
     static {
         RPCLogger.getInstance();
     }
 
-    public KafkaManufactureSmith(ArrayList<String> ipAddresses, String leader_host, int position, int partition) {
+    public KafkaManufactureSmith(ArrayList<String> ipAddresses, String leader_host, String currentIP, int position, int partition) {
         this.ipAddresses = ipAddresses;
+        this.leader_host = leader_host;
+        this.currentIP = currentIP;
+        this.position = position;
+        this.partition = partition;
         this.map = new EnumMap<>(KafkaKingdomType.class);
-        Arrays.stream(KafkaKingdomType.values()).forEach(type -> Init(type, this.ipAddresses, leader_host, position, partition, false));
+        Arrays.stream(KafkaKingdomType.values()).forEach(type -> Init(type, this.ipAddresses, this.leader_host, this.currentIP, this.position, this.partition));
     }
 
 
-    private void Init(KafkaKingdomType type, ArrayList<String> ipAddresses, String leader_host, int position, int partition, boolean isClose) {
+    private void Init(KafkaKingdomType type, ArrayList<String> ipAddresses, String leader_host, String currentIP, int position, int partition) {
         switch (type) {
             case PRODUCER:
                 map.put(type, new KafkaProducer());
@@ -34,13 +42,13 @@ public class KafkaManufactureSmith implements KafkaSmith {
                 map.put(type, new KafkaBroker(ipAddresses));
                 break;
             case CONSUMER_PRIVATE:
-                map.put(type, new KafkaConsumerPrivateGroup(ipAddresses));
+                map.put(type, new KafkaConsumerPrivateGroup(ipAddresses, currentIP));
                 break;
             case CONSUMER_SAME:
                 map.put(type, new KafkaConsumerSameGroup(leader_host, position, partition));
                 break;
             case TOPIC_CREATOR:
-                map.put(type, new KafkaCreatorTopic(ipAddresses, leader_host, ipAddresses.size() - 1));
+                map.put(type, new KafkaCreatorTopic(ipAddresses, currentIP, ipAddresses.size()));
                 break;
             default:
                 throw new IllegalArgumentException("Invalid KafkaKingdomType");

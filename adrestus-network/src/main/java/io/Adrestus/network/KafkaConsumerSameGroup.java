@@ -18,28 +18,28 @@ import java.util.Properties;
 
 public class KafkaConsumerSameGroup implements IKafkaComponent, Cloneable {
     private final Properties props;
-    private final String host;
+    private final String leader_host;
     private final int position;
     private final int partition;
     private Consumer<String, byte[]> consumer;
 
     public KafkaConsumerSameGroup() {
         this.props = new Properties();
-        this.host = "";
+        this.leader_host = "";
         this.partition = 0;
         this.position = 0;
     }
 
-    public KafkaConsumerSameGroup(String host, int position, int partition) {
+    public KafkaConsumerSameGroup(String leader_host, int position, int partition) {
         this.props = new Properties();
-        this.host = host;
+        this.leader_host = leader_host;
         this.position = position;
         this.partition = partition;
     }
 
     @Override
     public void constructKafkaComponentType() {
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, this.host + ":" + KafkaConfiguration.KAFKA_PORT);
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, this.leader_host + ":" + KafkaConfiguration.KAFKA_PORT);
         props.put(ConsumerConfig.GROUP_ID_CONFIG, KafkaConfiguration.CONSUMER_SAME_GROUP_ID);
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ByteArrayDeserializer.class.getName());
@@ -51,7 +51,13 @@ public class KafkaConsumerSameGroup implements IKafkaComponent, Cloneable {
         props.put(ConsumerConfig.PARTITION_ASSIGNMENT_STRATEGY_CONFIG, RoundRobinAssignor.class.getName());
         props.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SASL_PLAINTEXT");
         props.put(SaslConfigs.SASL_MECHANISM, "PLAIN");
-        props.put(SaslConfigs.SASL_JAAS_CONFIG, "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"" + "consumer" + "-" + this.position + "-" + this.host + "\" password=\"consumer-secret\";");
+        props.put(SaslConfigs.SASL_JAAS_CONFIG, "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"" + "consumer" + "-" + this.position + "-" + this.leader_host + "\" password=\"consumer-secret\";");
+
+//        System.out.println("1 "+props.getProperty(SaslConfigs.SASL_JAAS_CONFIG));
+//        System.out.println("1 "+props.getProperty(ConsumerConfig.GROUP_ID_CONFIG));
+//        System.out.println("1 "+props.getProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG));
+//        System.out.println();
+
         consumer = new KafkaConsumer<>(props);
         TopicPartition partition = new TopicPartition(TopicFactory.getInstance().getTopicName(TopicType.DISPERSE_PHASE1).name(), this.partition);
         consumer.assign(Collections.singleton(partition));
@@ -103,7 +109,7 @@ public class KafkaConsumerSameGroup implements IKafkaComponent, Cloneable {
 
 
     public String getHost() {
-        return host;
+        return leader_host;
     }
 
     @Override
@@ -111,12 +117,12 @@ public class KafkaConsumerSameGroup implements IKafkaComponent, Cloneable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         KafkaConsumerSameGroup that = (KafkaConsumerSameGroup) o;
-        return Objects.equals(props, that.props) && Objects.equals(host, that.host) && Objects.equals(consumer, that.consumer);
+        return Objects.equals(props, that.props) && Objects.equals(leader_host, that.leader_host) && Objects.equals(consumer, that.consumer);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(props, host, consumer);
+        return Objects.hash(props, leader_host, consumer);
     }
 
 }

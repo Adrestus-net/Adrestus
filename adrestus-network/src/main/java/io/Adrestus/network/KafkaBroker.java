@@ -54,11 +54,11 @@ public class KafkaBroker implements IKafkaComponent {
         StringBuilder superUsers = new StringBuilder();
         superUsers.append("User:admin;");
         superUsers.append("User:producer;");
-        int count = 0;
-        for (String ip : ipAddresses) {
-            superUsers.append("User:consumer").append("-").append(count).append("-").append(ip).append(";");
-            count++;
-        }
+//        int count = 0;
+//        for (String ip : ipAddresses) {
+//            superUsers.append("User:consumer").append("-").append(count).append("-").append(ip).append(";");
+//            count++;
+//        }
         return superUsers.toString();
     }
 

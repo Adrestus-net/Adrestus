@@ -28,27 +28,22 @@ public class KafkaConsumerPrivateGroup implements IKafkaComponent {
         this.current_ip = IPFinder.getLocalIP();
     }
 
-    public KafkaConsumerPrivateGroup(ArrayList<String> ipAddresses) {
+    public KafkaConsumerPrivateGroup(ArrayList<String> ipAddresses, String current_ip) {
         this.ipAddresses = ipAddresses;
         this.consumer_map = new HashMap<>();
-        this.current_ip = IPFinder.getLocalIP();
+        this.current_ip = current_ip;
     }
 
     @SneakyThrows
     @Override
     public void constructKafkaComponentType() {
         int position = ipAddresses.indexOf(current_ip);
-        boolean isTest = false;
-        if (position == -1) {
-            isTest = true;
-        }
         for (int i = 0; i < ipAddresses.size(); i++) {
             String ip = this.ipAddresses.get(i);
             if (ip.equals(current_ip) && !ip.equals("localhost"))
                 continue;
-            if (isTest) {
+            if (ip.equals("localhost")) {
                 position = i;
-                current_ip = "localhost";
             }
             Properties props = new Properties();
             props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, ip + ":" + KafkaConfiguration.KAFKA_PORT);
@@ -64,6 +59,10 @@ public class KafkaConsumerPrivateGroup implements IKafkaComponent {
             props.put(SaslConfigs.SASL_MECHANISM, "PLAIN");
             props.put(SaslConfigs.SASL_JAAS_CONFIG, "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"" + "consumer" + "-" + position + "-" + current_ip + "\" password=\"consumer-secret\";");
 
+//            System.out.println("1 "+props.getProperty(SaslConfigs.SASL_JAAS_CONFIG));
+//            System.out.println("1 "+props.getProperty(ConsumerConfig.GROUP_ID_CONFIG));
+//            System.out.println("1 "+props.getProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG));
+//            System.out.println();
             //This is for maximizing the throughput of the consumer but for large messages
 //            props.put(ConsumerConfig.FETCH_MIN_BYTES_CONFIG, "100000");
 //            props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, "500");
