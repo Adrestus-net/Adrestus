@@ -31,7 +31,10 @@ public class KafkaProducer implements IKafkaComponent {
         props.put(ProducerConfig.ACKS_CONFIG, "1");
         props.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, "lz4");
         props.put(ProducerConfig.BATCH_SIZE_CONFIG, "200000");
-        props.put(ProducerConfig.LINGER_MS_CONFIG, "100");
+        props.put(ProducerConfig.LINGER_MS_CONFIG, "0");
+        props.put(ProducerConfig.REQUEST_TIMEOUT_MS_CONFIG, "1000");
+        props.put(ProducerConfig.METADATA_MAX_AGE_CONFIG, "1000");
+        props.put(ProducerConfig.RETRY_BACKOFF_MS_CONFIG, "100");
         props.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SASL_PLAINTEXT");
         props.put(SaslConfigs.SASL_MECHANISM, "PLAIN");
         props.put(SaslConfigs.SASL_JAAS_CONFIG, "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"producer\" password=\"producer-secret\";");

@@ -71,13 +71,12 @@ public class KafkaManufactureSmith implements KafkaSmith {
         if (!this.ipAddresses.isEmpty())
             this.ipAddresses.clear();
 
+        map.get(KafkaKingdomType.CONSUMER_PRIVATE).Shutdown();
+        map.get(KafkaKingdomType.CONSUMER_SAME).Shutdown();
+        map.get(KafkaKingdomType.PRODUCER).Shutdown();
         map.get(KafkaKingdomType.TOPIC_CREATOR).Shutdown();
-        map.remove(KafkaKingdomType.TOPIC_CREATOR);
-
-        map.entrySet()
-                .stream()
-                .filter(entry -> entry.getValue() != null)
-                .forEach(entry -> entry.getValue().Shutdown());
+        map.get(KafkaKingdomType.BROKER).Shutdown();
+        map.get(KafkaKingdomType.ZOOKEEPER).Shutdown();
         map.clear();
     }
 

@@ -12,7 +12,6 @@ import org.apache.kafka.common.errors.TopicDeletionDisabledException;
 import org.apache.kafka.common.errors.UnknownTopicOrPartitionException;
 import org.apache.kafka.common.resource.PatternType;
 import org.apache.kafka.common.resource.ResourcePattern;
-import org.apache.kafka.common.resource.ResourcePatternFilter;
 import org.apache.kafka.common.resource.ResourceType;
 
 import java.time.Duration;
@@ -75,7 +74,7 @@ public class KafkaCreatorTopic implements IKafkaComponent {
             );
 
             // Apply ACLs
-            adminClient.createAcls(Arrays.asList(clusterCreateAcl, topicCreateAcl)).all().get();
+            adminClient.createAcls(Arrays.asList(clusterCreateAcl, topicCreateAcl, clusterDescribeAcl)).all().get();
 
             Set<String> existingTopics = adminClient
                     .listTopics().listings().get().stream()
@@ -104,44 +103,68 @@ public class KafkaCreatorTopic implements IKafkaComponent {
                 bindingFilters.add(producerReadfilter);
                 bindingFilters.add(producerDescribefilter);
 
+                int position = ipAddresses.indexOf(this.currentIP);
                 // Create ACL entries for a consumer
                 for (int index = 0; index < ipAddresses.size(); index++) {
                     String ip = ipAddresses.get(index);
                     if (ip.equals(this.currentIP) && !this.currentIP.equals("localhost"))
                         continue;
-                    String host = this.currentIP.equals("localhost") ? "127.0.0.1" : this.currentIP;
+                    String host = this.currentIP.equals("localhost") ? "127.0.0.1" : ip;
 
                     //KafkaConfiguration.CONSUMER_PRIVATE_GROUP_ID + "-" + i + "-" + KafkaConfiguration.KAFKA_HOST
-                    ResourcePattern resourcePrivateGroupPattern = new ResourcePattern(ResourceType.GROUP, KafkaConfiguration.CONSUMER_PRIVATE_GROUP_ID + "-" + index + "-" + KafkaConfiguration.KAFKA_HOST, PatternType.LITERAL);
-                    ResourcePattern resourceSameGroupPattern = new ResourcePattern(ResourceType.GROUP, KafkaConfiguration.CONSUMER_SAME_GROUP_ID, PatternType.LITERAL);
-                    AccessControlEntry consumerReadEntry = new AccessControlEntry("User:consumer" + "-" + index + "-" + ip, host, AclOperation.READ, AclPermissionType.ALLOW);
-                    AccessControlEntry consumerDescribeEntry = new AccessControlEntry("User:consumer" + "-" + index + "-" + ip, host, AclOperation.DESCRIBE, AclPermissionType.ALLOW);
+                    AccessControlEntry consumerReadEntry, consumerDescribeEntry;
+                    if (topic.equals(TopicFactory.getInstance().getTopicName(TopicType.DISPERSE_PHASE1))) {
+                        consumerReadEntry = new AccessControlEntry("User:consumer" + "-" + position + "-" + this.currentIP, host, AclOperation.READ, AclPermissionType.ALLOW);
+                        consumerDescribeEntry = new AccessControlEntry("User:consumer" + "-" + position + "-" + this.currentIP, host, AclOperation.DESCRIBE, AclPermissionType.ALLOW);
+                    } else {
+                        consumerReadEntry = new AccessControlEntry("User:consumer" + "-" + index + "-" + ip, host, AclOperation.READ, AclPermissionType.ALLOW);
+                        consumerDescribeEntry = new AccessControlEntry("User:consumer" + "-" + index + "-" + ip, host, AclOperation.DESCRIBE, AclPermissionType.ALLOW);
+                    }
                     AclBinding consumerReadAcl = new AclBinding(resourcePattern, consumerReadEntry);
                     AclBinding consumerDescribeAcl = new AclBinding(resourcePattern, consumerDescribeEntry);
-                    AclBinding consumerPrivateGroupReadAcl = new AclBinding(resourcePrivateGroupPattern, consumerReadEntry);
-                    AclBinding consumerPrivateGroupDescribeAcl = new AclBinding(resourcePrivateGroupPattern, consumerDescribeEntry);
-                    AclBinding consumerSameGroupReadAcl = new AclBinding(resourceSameGroupPattern, consumerReadEntry);
-                    AclBinding consumerSameGroupDescribeAcl = new AclBinding(resourceSameGroupPattern, consumerDescribeEntry);
                     aclBindings.add(consumerReadAcl);
                     aclBindings.add(consumerDescribeAcl);
-                    aclBindings.add(consumerPrivateGroupReadAcl);
-                    aclBindings.add(consumerPrivateGroupDescribeAcl);
-                    aclBindings.add(consumerSameGroupReadAcl);
-                    aclBindings.add(consumerSameGroupDescribeAcl);
+
                     // Verify the ACLs
-                    AclBindingFilter Readfilter = new AclBindingFilter(new ResourcePatternFilter(ResourceType.TOPIC, topic.name(), PatternType.LITERAL), consumerReadEntry.toFilter());
-                    AclBindingFilter Describefilter = new AclBindingFilter(new ResourcePatternFilter(ResourceType.TOPIC, topic.name(), PatternType.LITERAL), consumerDescribeEntry.toFilter());
-                    bindingFilters.add(Readfilter);
-                    bindingFilters.add(Describefilter);
-                    bindingFilters.add(consumerPrivateGroupReadAcl.toFilter());
-                    bindingFilters.add(consumerPrivateGroupDescribeAcl.toFilter());
-                    bindingFilters.add(consumerSameGroupReadAcl.toFilter());
-                    bindingFilters.add(consumerSameGroupDescribeAcl.toFilter());
+                    bindingFilters.add(consumerReadAcl.toFilter());
+                    bindingFilters.add(consumerDescribeAcl.toFilter());
+                    if (topic.equals(TopicFactory.getInstance().getTopicName(TopicType.DISPERSE_PHASE1))) {
+                        ResourcePattern resourceSameGroupPattern = new ResourcePattern(ResourceType.GROUP, KafkaConfiguration.CONSUMER_SAME_GROUP_ID, PatternType.LITERAL);
+                        AclBinding consumerSameGroupReadAcl = new AclBinding(resourceSameGroupPattern, consumerReadEntry);
+                        AclBinding consumerSameGroupDescribeAcl = new AclBinding(resourceSameGroupPattern, consumerDescribeEntry);
+                        aclBindings.add(consumerSameGroupReadAcl);
+                        aclBindings.add(consumerSameGroupDescribeAcl);
+
+                        // Verify the ACLs
+                        bindingFilters.add(consumerSameGroupReadAcl.toFilter());
+                        bindingFilters.add(consumerSameGroupDescribeAcl.toFilter());
+                    } else {
+                        int count = 0;
+                        int local_position = ipAddresses.indexOf(ip);
+                        for (int j = 0; j < ipAddresses.size(); j++) {
+                            if (j == local_position && !this.currentIP.equals("localhost")) {
+                                count++;
+                                continue;
+                            }
+                            ResourcePattern resourcePrivateGroupPattern = new ResourcePattern(ResourceType.GROUP, KafkaConfiguration.CONSUMER_PRIVATE_GROUP_ID + "-" + count + "-" + ip, PatternType.LITERAL);
+                            AclBinding consumerPrivateGroupReadAcl = new AclBinding(resourcePrivateGroupPattern, consumerReadEntry);
+                            AclBinding consumerPrivateGroupDescribeAcl = new AclBinding(resourcePrivateGroupPattern, consumerDescribeEntry);
+                            aclBindings.add(consumerPrivateGroupReadAcl);
+                            aclBindings.add(consumerPrivateGroupDescribeAcl);
+
+                            // Verify the ACLs
+                            bindingFilters.add(consumerPrivateGroupReadAcl.toFilter());
+                            bindingFilters.add(consumerPrivateGroupDescribeAcl.toFilter());
+                            count++;
+                        }
+                    }
+
                 }
             }
 
 
             adminClient.createAcls(aclBindings).all().get();
+            System.out.println("ACLs created successfully");
 //            bindingFilters.stream().forEach(filter -> {
 //                //Print the ACLs
 //                try {
@@ -172,40 +195,38 @@ public class KafkaCreatorTopic implements IKafkaComponent {
 
     @Override
     public void Shutdown() {
+        try {
+            // Delete the ACLs
+            adminClient.deleteAcls(bindingFilters).all().get(2, TimeUnit.SECONDS);
+            final DeleteTopicsResult deleteTopicsResult = adminClient.deleteTopics(TopicFactory.getInstance().getCollectionTopicsNames());
+            final Map<String, KafkaFuture<Void>> results = deleteTopicsResult.topicNameValues();
+            for (final Map.Entry<String, KafkaFuture<Void>> entry : results.entrySet()) {
+                try {
+                    entry.getValue().get(300, TimeUnit.MILLISECONDS);
+                } catch (final Exception e) {
+                    final Throwable rootCause = ExceptionUtils.getRootCause(e);
 
-        // Delete the ACLs
-        adminClient.deleteAcls(bindingFilters).all().whenComplete((aVoid, throwable) -> {
-            if (throwable != null) {
-                throwable.printStackTrace();
-            }
-        });
+                    if (rootCause instanceof TopicDeletionDisabledException) {
+                        throw new TopicDeletionDisabledException("Topic deletion is disabled. "
+                                + "To delete the topic, you must set '" + "' to true in "
+                                + "the Kafka broker configuration.");
+                    } else if (rootCause instanceof TopicAuthorizationException) {
+                        e.printStackTrace();
+                    } else if (!(rootCause instanceof UnknownTopicOrPartitionException)) {
+                        e.printStackTrace();
+                    }
 
-        final DeleteTopicsResult deleteTopicsResult = adminClient.deleteTopics(TopicFactory.getInstance().getCollectionTopicsNames());
-        final Map<String, KafkaFuture<Void>> results = deleteTopicsResult.topicNameValues();
-        for (final Map.Entry<String, KafkaFuture<Void>> entry : results.entrySet()) {
-            try {
-                entry.getValue().get(10, TimeUnit.SECONDS);
-            } catch (final Exception e) {
-                final Throwable rootCause = ExceptionUtils.getRootCause(e);
-
-                if (rootCause instanceof TopicDeletionDisabledException) {
-                    throw new TopicDeletionDisabledException("Topic deletion is disabled. "
-                            + "To delete the topic, you must set '" + "' to true in "
-                            + "the Kafka broker configuration.");
-                } else if (rootCause instanceof TopicAuthorizationException) {
-                    e.printStackTrace();
-                } else if (!(rootCause instanceof UnknownTopicOrPartitionException)) {
-                    e.printStackTrace();
                 }
-            } finally {
-                adminClient.close(Duration.ofSeconds(5));
             }
-
-            this.bindingFilters.clear();
-            this.aclBindings.clear();
-            this.props.clear();
-            this.ipAddresses.clear();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            adminClient.close(Duration.ofSeconds(5));
         }
+        this.bindingFilters.clear();
+        this.aclBindings.clear();
+        this.props.clear();
+        this.ipAddresses.clear();
     }
 
 

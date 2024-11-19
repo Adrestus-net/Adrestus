@@ -14,30 +14,37 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 
 public class KafkaConsumerPrivateGroup implements IKafkaComponent {
 
-    private ArrayList<String> ipAddresses;
-    private HashMap<String, Consumer<String, byte[]>> consumer_map;
-    private String current_ip;
+    private final ArrayList<String> ipAddresses;
+    private final ConcurrentHashMap<String, Consumer<String, byte[]>> consumer_map;
+    private final String current_ip;
+    private final CountDownLatch latch;
+    private int position;
 
     public KafkaConsumerPrivateGroup() {
         this.ipAddresses = new ArrayList<>();
-        this.consumer_map = new HashMap<>();
+        this.consumer_map = new ConcurrentHashMap<>();
         this.current_ip = IPFinder.getLocalIP();
+        this.position = 0;
+        this.latch = null;
     }
 
     public KafkaConsumerPrivateGroup(ArrayList<String> ipAddresses, String current_ip) {
         this.ipAddresses = ipAddresses;
-        this.consumer_map = new HashMap<>();
+        this.consumer_map = new ConcurrentHashMap<>();
         this.current_ip = current_ip;
+        this.position = this.ipAddresses.indexOf(current_ip);
+        this.latch = this.position == -1 ? new CountDownLatch(this.ipAddresses.size()) : new CountDownLatch(this.ipAddresses.size() - 1);
     }
 
     @SneakyThrows
     @Override
     public void constructKafkaComponentType() {
-        int position = ipAddresses.indexOf(current_ip);
         for (int i = 0; i < ipAddresses.size(); i++) {
             String ip = this.ipAddresses.get(i);
             if (ip.equals(current_ip) && !ip.equals("localhost"))
@@ -52,8 +59,11 @@ public class KafkaConsumerPrivateGroup implements IKafkaComponent {
             props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ByteArrayDeserializer.class.getName());
             props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
             props.put(ConsumerConfig.FETCH_MIN_BYTES_CONFIG, 4098);
-            props.put(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, 10);
-            //props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 1);
+            props.put(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, 100);
+            props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 10);
+            props.put(ConsumerConfig.REQUEST_TIMEOUT_MS_CONFIG, "1000");
+            props.put(ConsumerConfig.METADATA_MAX_AGE_CONFIG, "1000");
+            props.put(ConsumerConfig.RETRY_BACKOFF_MS_CONFIG, "100");
             props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
             props.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SASL_PLAINTEXT");
             props.put(SaslConfigs.SASL_MECHANISM, "PLAIN");
@@ -68,13 +78,23 @@ public class KafkaConsumerPrivateGroup implements IKafkaComponent {
 //            props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, "500");
 //            props.put(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, "100");
             Consumer<String, byte[]> consumer = new KafkaConsumer<>(props);
-            consumer.subscribe(TopicFactory.getInstance().getCollectionTopicsNames());
-            if (consumer_map.containsKey(ip)) {
-                consumer_map.put(ip + String.valueOf(i), consumer);
-            } else {
-                consumer_map.put(ip, consumer);
-            }
+
+            int finalI = i;
+            Thread.ofVirtual().start(() -> {
+                consumer.partitionsFor(TopicType.ANNOUNCE_PHASE.name());
+                consumer.subscribe(TopicFactory.getInstance().getCollectionTopicsNames());
+
+                //Start Caching the messages
+                //consumer.poll(Duration.ofMillis(1000));
+                if (consumer_map.containsKey(ip)) {
+                    consumer_map.put(ip + String.valueOf(finalI), consumer);
+                } else {
+                    consumer_map.put(ip, consumer);
+                }
+                this.latch.countDown();
+            });
         }
+        this.latch.await();
         int g = 3;
     }
 
@@ -111,7 +131,6 @@ public class KafkaConsumerPrivateGroup implements IKafkaComponent {
     public void Shutdown() {
         if (ipAddresses != null) {
             this.ipAddresses.clear();
-            this.ipAddresses = null;
         }
         if (consumer_map != null) {
             this.consumer_map.forEach((k, v) -> {
@@ -131,16 +150,23 @@ public class KafkaConsumerPrivateGroup implements IKafkaComponent {
         return ipAddresses;
     }
 
-    public void setIpAddresses(ArrayList<String> ipAddresses) {
-        this.ipAddresses = ipAddresses;
-        this.ipAddresses.remove(IPFinder.getLocalIP());
+    public int getPosition() {
+        return position;
     }
 
-    public HashMap<String, Consumer<String, byte[]>> getConsumer_map() {
+    public void setPosition(int position) {
+        this.position = position;
+    }
+
+    public CountDownLatch getLatch() {
+        return latch;
+    }
+
+    public String getCurrent_ip() {
+        return current_ip;
+    }
+
+    public ConcurrentHashMap<String, Consumer<String,byte[]>> getConsumer_map() {
         return consumer_map;
-    }
-
-    public void setConsumer_map(HashMap<String, Consumer<String, byte[]>> consumer_map) {
-        this.consumer_map = consumer_map;
     }
 }

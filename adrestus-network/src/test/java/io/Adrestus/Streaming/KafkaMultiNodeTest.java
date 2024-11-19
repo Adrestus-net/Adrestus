@@ -70,7 +70,6 @@ public class KafkaMultiNodeTest {
         if (position.getAsInt() == 0) {
             consensusBroker.produceMessage(TopicType.DISPERSE_PHASE1, 1, String.valueOf(VIEW_NUMBER) + 1, DISPERSE_MESSAGE_LEADER_CHUNK1.getBytes(StandardCharsets.UTF_8));
             consensusBroker.produceMessage(TopicType.DISPERSE_PHASE1, 2, String.valueOf(VIEW_NUMBER) + 2, DISPERSE_MESSAGE_LEADER_CHUNK2.getBytes(StandardCharsets.UTF_8));
-            Thread.sleep(6000);
         } else {
             if (position.getAsInt() == 1) {
                 Optional<byte[]> message = consensusBroker.receiveDisperseMessageFromLeader(TopicType.DISPERSE_PHASE1, String.valueOf(VIEW_NUMBER) + 1);
@@ -92,9 +91,9 @@ public class KafkaMultiNodeTest {
                 System.out.println("received2");
                 assert (!res.isEmpty());
                 assertEquals(DISPERSE_MESSAGE_LEADER_CHUNK1, new String(res.get(0)));
-                Thread.sleep(4000);
             }
         }
+        System.out.println("Test Passed");
     }
 
     @SneakyThrows
@@ -134,6 +133,7 @@ public class KafkaMultiNodeTest {
             assertEquals(COMMITTEE_MESSAGE_LEADER, new String(message2.get()));
             consensusBroker.produceMessage(TopicType.COMMITTEE_PHASE, String.valueOf(VIEW_NUMBER), COMMITTEE_MESSAGE_VALIDATORS.getBytes(StandardCharsets.UTF_8));
         }
+        System.out.println("Test Passed");
     }
 
     @SneakyThrows
@@ -143,6 +143,7 @@ public class KafkaMultiNodeTest {
             System.out.println("Running from Maven: ");
             return;
         }
+        Thread.sleep(6000);
         consensusBroker.shutDownGracefully();
     }
 }
