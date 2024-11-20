@@ -96,13 +96,41 @@ public class Directory {
         throw new RuntimeException("Failed to create folder");
     }
 
-    public static void deleteKafkaLogFiles(File folder) {
-        if (folder.isDirectory()) {
-            for (File file : folder.listFiles()) {
-                deleteKafkaLogFiles(file);
+    public static synchronized File CreateFileFromPathName(String name) {
+        Path path = Paths.get(getConfigPathPlusPathName(name));
+        try {
+            if (Files.exists(path)) {
+                Files.walk(path)
+                        .sorted(Comparator.reverseOrder())
+                        .map(Path::toFile)
+                        .forEach(File::delete);
+            }
+
+            Path created = Files.createDirectories(path);
+            return created.toFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+
+        }
+        throw new RuntimeException("Failed to create folder");
+    }
+
+    public static void deleteKafkaLogFiles(File directory) {
+        if (!directory.exists()) {
+            return;
+        }
+
+        File[] files = directory.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                if (file.isDirectory()) {
+                    deleteKafkaLogFiles(file); // Recursive call
+                } else {
+                    file.delete();
+                }
             }
         }
-        folder.delete();
+        directory.delete(); // Delete the empty directory
     }
 
 }

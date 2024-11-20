@@ -3,20 +3,22 @@ package io.Adrestus.network;
 import io.Adrestus.config.Directory;
 import io.Adrestus.config.KafkaConfiguration;
 import lombok.SneakyThrows;
-import org.apache.zookeeper.server.ServerConfig;
-import org.apache.zookeeper.server.ZooKeeperServerMain;
-import org.apache.zookeeper.server.admin.AdminServer;
-import org.apache.zookeeper.server.quorum.QuorumPeerConfig;
+import org.apache.zookeeper.server.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.util.Objects;
-import java.util.Properties;
 
 public class KafkaZookeeper implements IKafkaComponent {
-    private static final String NAME = "Zookeeper";
-    private ZooKeeperServerMain zkServer;
-    private String zkDir;
+    private static final String ZOOKEEPER_SNAPSHOT = "embeeded-zk-snapshot";
+    private static final String ZOOKEEPER_LOG = "embeeded-zk-log";
+    private static final int tickTime = 100;
+    private ServerCnxnFactory factory;
+    private ZooKeeperServer zkServer;
+
+    private File snapshotDir;
+    private File logDir;
 
     public KafkaZookeeper() {
     }
@@ -24,32 +26,15 @@ public class KafkaZookeeper implements IKafkaComponent {
     @SneakyThrows
     @Override
     public void constructKafkaComponentType() {
-        zkDir = Directory.CreateFolderPath(NAME);
-        Properties zkProps = new Properties();
-        zkProps.setProperty("dataDir", zkDir);
-        zkProps.setProperty("clientPort", KafkaConfiguration.ZOOKEEPER_PORT);
-
-        QuorumPeerConfig quorumConfig = new QuorumPeerConfig();
+        this.factory = NIOServerCnxnFactory.createFactory(new InetSocketAddress("localhost", Integer.parseInt(KafkaConfiguration.ZOOKEEPER_PORT)), 1024);
+        this.snapshotDir = Directory.CreateFileFromPathName(ZOOKEEPER_SNAPSHOT);
+        this.logDir = Directory.CreateFileFromPathName(ZOOKEEPER_LOG);
+        this.zkServer = new ZooKeeperServer(this.snapshotDir, logDir, tickTime);
         try {
-            quorumConfig.parseProperties(zkProps);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+            factory.startup(zkServer);
+        } catch (InterruptedException e) {
+            throw new IllegalStateException("Interrupted during test startup: ");
         }
-
-        ServerConfig serverConfig = new ServerConfig();
-        serverConfig.readFrom(quorumConfig);
-
-
-        zkServer = new ZooKeeperServerMain();
-        new Thread(() -> {
-            try {
-                zkServer.runFromConfig(serverConfig);
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (AdminServer.AdminServerException e) {
-                throw new RuntimeException(e);
-            }
-        }).start();
     }
 
 
@@ -60,19 +45,34 @@ public class KafkaZookeeper implements IKafkaComponent {
 
     @Override
     public void Shutdown() {
-        if (zkServer != null) {
-            zkServer.close();
+        if (factory != null) {
+            try {
+                if (zkServer != null) {
+                    ZKDatabase zkDb = zkServer.getZKDatabase();
+                    zkDb.close();
+                    zkServer.shutdown(true);
+                }
+                factory.closeAll(ServerCnxn.DisconnectReason.CLEAN_UP);
+                factory.shutdown();
+                factory.join();
+            } catch (InterruptedException e) {
+                throw new IllegalStateException("Interrupted during test shutdown: ");
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            factory = null;
             zkServer = null;
-            if (zkDir != null)
-                Directory.deleteKafkaLogFiles(new File(zkDir));
         }
+        Directory.deleteKafkaLogFiles(logDir);
+        Directory.deleteKafkaLogFiles(snapshotDir);
     }
 
-    public ZooKeeperServerMain getZkServer() {
+
+    public ZooKeeperServer getZkServer() {
         return zkServer;
     }
 
-    public void setZkServer(ZooKeeperServerMain zkServer) {
+    public void setZkServer(ZooKeeperServer zkServer) {
         this.zkServer = zkServer;
     }
 
