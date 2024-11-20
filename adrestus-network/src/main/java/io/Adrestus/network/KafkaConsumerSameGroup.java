@@ -12,6 +12,7 @@ import org.apache.kafka.common.config.SaslConfigs;
 import org.apache.kafka.common.serialization.ByteArrayDeserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 
+import java.time.Duration;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Properties;
@@ -43,8 +44,8 @@ public class KafkaConsumerSameGroup implements IKafkaComponent, Cloneable {
         props.put(ConsumerConfig.GROUP_ID_CONFIG, KafkaConfiguration.CONSUMER_SAME_GROUP_ID);
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ByteArrayDeserializer.class.getName());
-        props.put(ConsumerConfig.FETCH_MIN_BYTES_CONFIG, 4098);
-        props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 10);
+        props.put(ConsumerConfig.FETCH_MIN_BYTES_CONFIG, 1);
+        props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 60000);
         props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
         props.put(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, 10);
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
@@ -60,6 +61,7 @@ public class KafkaConsumerSameGroup implements IKafkaComponent, Cloneable {
 
         consumer = new KafkaConsumer<>(props);
         TopicPartition partition = new TopicPartition(TopicFactory.getInstance().getTopicName(TopicType.DISPERSE_PHASE1).name(), this.partition);
+        consumer.partitionsFor(TopicFactory.getInstance().getTopicName(TopicType.DISPERSE_PHASE1).name(), Duration.ofMillis(KafkaConfiguration.PRIVATE_GROUP_METADATA_TIMEOUT));
         consumer.assign(Collections.singleton(partition));
 //        while (consumer.assignment().isEmpty()) {
 //            consumer.poll(Duration.ofMillis(100));

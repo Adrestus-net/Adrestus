@@ -6,16 +6,20 @@ import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.config.SaslConfigs;
 import org.apache.kafka.common.serialization.ByteArrayDeserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class KafkaConsumerPrivateGroup implements IKafkaComponent {
@@ -23,7 +27,7 @@ public class KafkaConsumerPrivateGroup implements IKafkaComponent {
     private final ArrayList<String> ipAddresses;
     private final ConcurrentHashMap<String, Consumer<String, byte[]>> consumer_map;
     private final String current_ip;
-    private final CountDownLatch latch;
+    private final ExecutorService executorService;
     private int position;
 
     public KafkaConsumerPrivateGroup() {
@@ -31,7 +35,7 @@ public class KafkaConsumerPrivateGroup implements IKafkaComponent {
         this.consumer_map = new ConcurrentHashMap<>();
         this.current_ip = IPFinder.getLocalIP();
         this.position = 0;
-        this.latch = null;
+        this.executorService = null;
     }
 
     public KafkaConsumerPrivateGroup(ArrayList<String> ipAddresses, String current_ip) {
@@ -39,7 +43,7 @@ public class KafkaConsumerPrivateGroup implements IKafkaComponent {
         this.consumer_map = new ConcurrentHashMap<>();
         this.current_ip = current_ip;
         this.position = this.ipAddresses.indexOf(current_ip);
-        this.latch = this.position == -1 ? new CountDownLatch(this.ipAddresses.size()) : new CountDownLatch(this.ipAddresses.size() - 1);
+        this.executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2);
     }
 
     @SneakyThrows
@@ -58,12 +62,15 @@ public class KafkaConsumerPrivateGroup implements IKafkaComponent {
             props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
             props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ByteArrayDeserializer.class.getName());
             props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-            props.put(ConsumerConfig.FETCH_MIN_BYTES_CONFIG, 4098);
-            props.put(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, 100);
-            props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 10);
+            props.put(ConsumerConfig.FETCH_MIN_BYTES_CONFIG, 1);
+            props.put(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, 10);
+            props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 60000);
+            props.put(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, "600000");
             props.put(ConsumerConfig.REQUEST_TIMEOUT_MS_CONFIG, "1000");
             props.put(ConsumerConfig.METADATA_MAX_AGE_CONFIG, "1000");
-            props.put(ConsumerConfig.RETRY_BACKOFF_MS_CONFIG, "100");
+            props.put(ConsumerConfig.RECONNECT_BACKOFF_MS_CONFIG, "500");
+            props.put(ConsumerConfig.RECONNECT_BACKOFF_MAX_MS_CONFIG, "8000");
+            props.put(ConsumerConfig.RETRY_BACKOFF_MS_CONFIG, "500");
             props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
             props.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SASL_PLAINTEXT");
             props.put(SaslConfigs.SASL_MECHANISM, "PLAIN");
@@ -80,21 +87,60 @@ public class KafkaConsumerPrivateGroup implements IKafkaComponent {
             Consumer<String, byte[]> consumer = new KafkaConsumer<>(props);
 
             int finalI = i;
-            Thread.ofVirtual().start(() -> {
-                consumer.partitionsFor(TopicType.ANNOUNCE_PHASE.name());
+            Runnable task = () -> {
+                for (String topic : TopicFactory.getInstance().getCollectionTopicsNames()) {
+                    int maxRetries = 5;
+                    int retryCount = 0;
+                    boolean success = false;
+
+                    while (retryCount < maxRetries && !success) {
+                        try {
+                            List<PartitionInfo> partitions = consumer.partitionsFor(topic);
+                            if (partitions != null) {
+                                success = true;
+                            }
+                        } catch (Exception e) {
+                            retryCount++;
+                            System.out.printf("Failed to fetch partition metadata. Attempt %d/%d%n", retryCount, maxRetries);
+                            try {
+                                Thread.sleep(2000); // Wait before retrying
+                            } catch (InterruptedException ie) {
+                                Thread.currentThread().interrupt();
+                            }
+                        }
+                    }
+                }
                 consumer.subscribe(TopicFactory.getInstance().getCollectionTopicsNames());
 
-                //Start Caching the messages
-                //consumer.poll(Duration.ofMillis(1000));
-                if (consumer_map.containsKey(ip)) {
-                    consumer_map.put(ip + String.valueOf(finalI), consumer);
+                if (ip.equals("localhost")) {
+                    if (finalI == 0) {
+                        consumer_map.put(ip, consumer);
+                    } else {
+                        consumer_map.put(ip + String.valueOf(finalI), consumer);
+                    }
                 } else {
                     consumer_map.put(ip, consumer);
                 }
-                this.latch.countDown();
-            });
+                //Start Caching the messages
+                consumer.poll(Duration.ofMillis(100));
+                System.out.println("Consumer " + ip + " " + finalI + " started and subscribed to topics: " + TopicFactory.getInstance().getCollectionTopicsNames());
+            };
+            executorService.submit(task);
         }
-        this.latch.await();
+        // Initiate shutdown
+        executorService.shutdown();
+        try {
+            // Wait for tasks to complete or timeout
+            if (!executorService.awaitTermination(KafkaConfiguration.PRIVATE_GROUP_METADATA_TIMEOUT, TimeUnit.MILLISECONDS)) {
+                System.out.println("Timeout reached before tasks completed");
+                executorService.shutdownNow();
+            } else {
+                System.out.println("All tasks completed");
+            }
+        } catch (InterruptedException e) {
+            executorService.shutdownNow();
+            Thread.currentThread().interrupt();
+        }
         int g = 3;
     }
 
@@ -158,15 +204,15 @@ public class KafkaConsumerPrivateGroup implements IKafkaComponent {
         this.position = position;
     }
 
-    public CountDownLatch getLatch() {
-        return latch;
-    }
-
     public String getCurrent_ip() {
         return current_ip;
     }
 
-    public ConcurrentHashMap<String, Consumer<String,byte[]>> getConsumer_map() {
+    public ConcurrentHashMap<String, Consumer<String, byte[]>> getConsumer_map() {
         return consumer_map;
+    }
+
+    public ExecutorService getExecutorService() {
+        return executorService;
     }
 }

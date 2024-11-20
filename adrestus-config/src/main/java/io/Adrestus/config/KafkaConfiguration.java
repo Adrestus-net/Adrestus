@@ -15,4 +15,6 @@ public class KafkaConfiguration {
 
     public static final int RECEIVE_TIMEOUT = 4000;
     public static final int EXECUTOR_TIMEOUT = 12;
+
+    public static final int PRIVATE_GROUP_METADATA_TIMEOUT = 65000;
 }

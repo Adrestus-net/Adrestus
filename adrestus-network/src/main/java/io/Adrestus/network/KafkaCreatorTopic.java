@@ -13,14 +13,18 @@ import org.apache.kafka.common.errors.UnknownTopicOrPartitionException;
 import org.apache.kafka.common.resource.PatternType;
 import org.apache.kafka.common.resource.ResourcePattern;
 import org.apache.kafka.common.resource.ResourceType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 public class KafkaCreatorTopic implements IKafkaComponent {
+    private static Logger LOG = LoggerFactory.getLogger(KafkaCreatorTopic.class);
 
     private Properties props;
     private final int DispersePartitionSize;
@@ -196,37 +200,24 @@ public class KafkaCreatorTopic implements IKafkaComponent {
     @Override
     public void Shutdown() {
         try {
+            if(adminClient == null)
+                return;
             // Delete the ACLs
             adminClient.deleteAcls(bindingFilters).all().get(2, TimeUnit.SECONDS);
-            final DeleteTopicsResult deleteTopicsResult = adminClient.deleteTopics(TopicFactory.getInstance().getCollectionTopicsNames());
-            final Map<String, KafkaFuture<Void>> results = deleteTopicsResult.topicNameValues();
-            for (final Map.Entry<String, KafkaFuture<Void>> entry : results.entrySet()) {
-                try {
-                    entry.getValue().get(300, TimeUnit.MILLISECONDS);
-                } catch (final Exception e) {
-                    final Throwable rootCause = ExceptionUtils.getRootCause(e);
 
-                    if (rootCause instanceof TopicDeletionDisabledException) {
-                        throw new TopicDeletionDisabledException("Topic deletion is disabled. "
-                                + "To delete the topic, you must set '" + "' to true in "
-                                + "the Kafka broker configuration.");
-                    } else if (rootCause instanceof TopicAuthorizationException) {
-                        e.printStackTrace();
-                    } else if (!(rootCause instanceof UnknownTopicOrPartitionException)) {
-                        e.printStackTrace();
-                    }
+//            // List all topics
+//            Set<String> topics = adminClient.listTopics().names().get();
+//
+//            if(topics.isEmpty())
+//                return;
+//            // Delete all topics
+//            DeleteTopicsResult deleteTopicsResult = adminClient.deleteTopics(topics);
+//            deleteTopicsResult.all().get(4, TimeUnit.SECONDS);
 
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            adminClient.close(Duration.ofSeconds(5));
+
+        } catch (ExecutionException | InterruptedException | TimeoutException e) {
+           LOG.error("Error while shutting down the KafkaCreatorTopic: {}", e.toString());
         }
-        this.bindingFilters.clear();
-        this.aclBindings.clear();
-        this.props.clear();
-        this.ipAddresses.clear();
     }
 
 

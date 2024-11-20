@@ -178,7 +178,7 @@ public class KaFkaTest {
         Thread.ofVirtual().start(() -> {
             int count = 0;
             while (count < size) {
-                ConsumerRecords<String, byte[]> records = consumer3.poll(Duration.ofMillis(100));
+                ConsumerRecords<String, byte[]> records = consumer3.poll(Duration.ofMillis(10));
                 count += records.count();
                 for (ConsumerRecord<String, byte[]> recordf : records) {
                     map3.put(recordf.key(), recordf.value());
@@ -191,7 +191,7 @@ public class KaFkaTest {
         Thread.ofVirtual().start(() -> {
             int count = 0;
             while (count < size) {
-                ConsumerRecords<String, byte[]> records = consumer4.poll(Duration.ofMillis(100));
+                ConsumerRecords<String, byte[]> records = consumer4.poll(Duration.ofMillis(10));
                 count += records.count();
                 for (ConsumerRecord<String, byte[]> recordf : records) {
                     map4.put(recordf.key(), recordf.value());
@@ -204,7 +204,7 @@ public class KaFkaTest {
         Thread.ofVirtual().start(() -> {
             int count = 0;
             while (count < size) {
-                ConsumerRecords<String, byte[]> records = consumer5.poll(Duration.ofMillis(100));
+                ConsumerRecords<String, byte[]> records = consumer5.poll(Duration.ofMillis(10));
                 count += records.count();
                 for (ConsumerRecord<String, byte[]> recordf : records) {
                     map5.put(recordf.key(), recordf.value());
@@ -378,7 +378,7 @@ public class KaFkaTest {
     @Order(7)
     public void testDisperseSamePartitionTestPartionSame() throws ExecutionException, InterruptedException {
         CopyOnWriteArrayList<String> list = new CopyOnWriteArrayList<>();
-        Map<Integer, Integer> equal_partitions = new HashMap<>();
+        ConcurrentHashMap<Integer, Integer> equal_partitions = new ConcurrentHashMap<>();
         KafkaProducer producer = kafkaSmith.getKafkaComponent(KafkaKingdomType.PRODUCER);
 
         CopyOnWriteArrayList<Consumer<String, byte[]>> iterate = new CopyOnWriteArrayList<>();
@@ -441,9 +441,9 @@ public class KaFkaTest {
     }
 
     @SneakyThrows
-    @AfterAll
-    public static void tearDown() {
-        Thread.sleep(1000);
+    @Test
+    @Order(8)
+    public void tearDown() {
         kafkaSmith.shutDownGracefully();
     }
 }

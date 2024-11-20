@@ -34,6 +34,9 @@ public class KafkaBroker implements IKafkaComponent {
         kafkaProps.setProperty("zookeeper.connect", KafkaConfiguration.ZOOKEEPER_HOST + ":" + KafkaConfiguration.ZOOKEEPER_PORT);
         kafkaProps.setProperty("offsets.topic.replication.factor", "1");
         kafkaProps.setProperty("delete.topic.enable", "true");
+        kafkaProps.setProperty("num.network.threads", String.valueOf(Runtime.getRuntime().availableProcessors()));
+        kafkaProps.setProperty("num.io.threads", String.valueOf(Runtime.getRuntime().availableProcessors()*2));
+        kafkaProps.setProperty("auto.delete.topics.enable", "true");
         kafkaProps.setProperty("auto.create.topics.enable", "false");
         kafkaProps.setProperty("authorizer.class.name", "kafka.security.authorizer.AclAuthorizer");
         kafkaProps.setProperty("listeners", "SASL_PLAINTEXT://" + KafkaConfiguration.KAFKA_HOST + ":" + KafkaConfiguration.KAFKA_PORT);
@@ -96,13 +99,13 @@ public class KafkaBroker implements IKafkaComponent {
 
     @Override
     public void Shutdown() {
-        if (kafkaServer == null) {
-            return;
+        if (kafkaServer != null) {
+            kafkaServer.shutdown();
+            kafkaServer.shutdown(Duration.ofMillis(1000));
+            kafkaServer = null;
+            if(zkDir != null)
+                Directory.deleteKafkaLogFiles(new File(zkDir));
         }
-        kafkaServer.shutdown();
-        kafkaServer.shutdown(Duration.ofMillis(1000));
-        kafkaServer = null;
-        Directory.deleteKafkaLogFiles(new File(zkDir));
     }
 
     public KafkaServer getKafkaServer() {

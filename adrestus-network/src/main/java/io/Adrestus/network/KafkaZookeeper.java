@@ -39,6 +39,7 @@ public class KafkaZookeeper implements IKafkaComponent {
         ServerConfig serverConfig = new ServerConfig();
         serverConfig.readFrom(quorumConfig);
 
+
         zkServer = new ZooKeeperServerMain();
         new Thread(() -> {
             try {
@@ -49,7 +50,6 @@ public class KafkaZookeeper implements IKafkaComponent {
                 throw new RuntimeException(e);
             }
         }).start();
-        Thread.sleep(4000);
     }
 
 
@@ -60,11 +60,12 @@ public class KafkaZookeeper implements IKafkaComponent {
 
     @Override
     public void Shutdown() {
-        if (zkServer == null)
-            return;
-        zkServer.close();
-        zkServer = null;
-        Directory.deleteKafkaLogFiles(new File(zkDir));
+        if (zkServer != null) {
+            zkServer.close();
+            zkServer = null;
+            if (zkDir != null)
+                Directory.deleteKafkaLogFiles(new File(zkDir));
+        }
     }
 
     public ZooKeeperServerMain getZkServer() {
