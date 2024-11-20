@@ -34,11 +34,11 @@ public class TopicFactory {
         return result;
     }
 
-    public void constructTopicName(TopicType type, int numPartitions) {
+    public void constructTopicName(TopicType type,Map<String,String> configs, int numPartitions) {
         if (topicMap.containsKey(type))
             return;
         ITopic topic = type.getConstructor().get();
-        topic.constructTopicName(numPartitions);
+        topic.constructTopicName(configs,numPartitions);
         topicMap.put(type, topic);
     }
 

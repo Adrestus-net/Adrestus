@@ -30,17 +30,27 @@ public class KafkaProducer implements IKafkaComponent {
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, ByteArraySerializer.class.getName());
         props.put(ProducerConfig.ACKS_CONFIG, "1");
         props.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, "lz4");
-        props.put(ProducerConfig.BATCH_SIZE_CONFIG, "1024");
-        props.put(ProducerConfig.LINGER_MS_CONFIG, "1");
+        props.put(ProducerConfig.BATCH_SIZE_CONFIG, "56384");
+        props.put(ProducerConfig.LINGER_MS_CONFIG, "0");
         props.put(ProducerConfig.REQUEST_TIMEOUT_MS_CONFIG, "1000");
         props.put(ProducerConfig.METADATA_MAX_AGE_CONFIG, "1000");
-        props.put(ProducerConfig.RETRY_BACKOFF_MS_CONFIG, "500");
+        props.put(ProducerConfig.RETRY_BACKOFF_MS_CONFIG, "300");
+        props.put(ProducerConfig.RETRY_BACKOFF_MAX_MS_CONFIG, "7000");
+        props.put(ProducerConfig.RECONNECT_BACKOFF_MS_CONFIG, "300");
+        props.put(ProducerConfig.RECONNECT_BACKOFF_MAX_MS_CONFIG, "7000");
+        props.put(ProducerConfig.BUFFER_MEMORY_CONFIG, "134217728");
+        props.put(ProducerConfig.MAX_REQUEST_SIZE_CONFIG, "2024000000");
+        props.put(ProducerConfig.RECEIVE_BUFFER_CONFIG, "-1");
+        props.put(ProducerConfig.SEND_BUFFER_CONFIG, "-1");
+        props.put(ProducerConfig.AUTO_INCLUDE_JMX_REPORTER_CONFIG, "false");
+        props.put(ProducerConfig.ENABLE_METRICS_PUSH_CONFIG, "false");
         props.put(ProducerConfig.RETRIES_CONFIG, "0");
+        props.put(ProducerConfig.MAX_BLOCK_MS_CONFIG, "600000");
         props.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SASL_PLAINTEXT");
         props.put(SaslConfigs.SASL_MECHANISM, "PLAIN");
         props.put(SaslConfigs.SASL_JAAS_CONFIG, "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"producer\" password=\"producer-secret\";");
         props.put(ProducerConfig.PARTITIONER_CLASS_CONFIG, RoundRobinPartitioner.class.getName());
-//        props.put(ProducerConfig.MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION, 5);
+        props.put(ProducerConfig.MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION, 1);
         producer = new org.apache.kafka.clients.producer.KafkaProducer<>(props);
     }
 

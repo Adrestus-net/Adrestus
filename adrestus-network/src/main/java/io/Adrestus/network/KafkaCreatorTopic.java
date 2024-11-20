@@ -1,22 +1,21 @@
 package io.Adrestus.network;
 
+import io.Adrestus.config.ConsensusConfiguration;
 import io.Adrestus.config.KafkaConfiguration;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.kafka.clients.CommonClientConfigs;
-import org.apache.kafka.clients.admin.*;
-import org.apache.kafka.common.KafkaFuture;
+import org.apache.kafka.clients.admin.AdminClient;
+import org.apache.kafka.clients.admin.AdminClientConfig;
+import org.apache.kafka.clients.admin.NewTopic;
+import org.apache.kafka.clients.admin.TopicListing;
+import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.acl.*;
 import org.apache.kafka.common.config.SaslConfigs;
-import org.apache.kafka.common.errors.TopicAuthorizationException;
-import org.apache.kafka.common.errors.TopicDeletionDisabledException;
-import org.apache.kafka.common.errors.UnknownTopicOrPartitionException;
 import org.apache.kafka.common.resource.PatternType;
 import org.apache.kafka.common.resource.ResourcePattern;
 import org.apache.kafka.common.resource.ResourceType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -32,6 +31,7 @@ public class KafkaCreatorTopic implements IKafkaComponent {
     private final ArrayList<String> ipAddresses;
     private final ArrayList<AclBindingFilter> bindingFilters;
     private final List<AclBinding> aclBindings;
+    private final Map<String, String> configs;
     private AdminClient adminClient;
 
     public KafkaCreatorTopic(ArrayList<String> ipAddresses, String currentIP, int DispersePartitionSize) {
@@ -40,17 +40,34 @@ public class KafkaCreatorTopic implements IKafkaComponent {
         this.currentIP = currentIP;
         this.bindingFilters = new ArrayList<>();
         this.aclBindings = new ArrayList<>();
-        TopicFactory.getInstance().constructTopicName(TopicType.PREPARE_PHASE, 1);
-        TopicFactory.getInstance().constructTopicName(TopicType.COMMITTEE_PHASE, 1);
-        TopicFactory.getInstance().constructTopicName(TopicType.DISPERSE_PHASE1, this.DispersePartitionSize);
-        TopicFactory.getInstance().constructTopicName(TopicType.DISPERSE_PHASE2, 1);
-        TopicFactory.getInstance().constructTopicName(TopicType.ANNOUNCE_PHASE, 1);
+        this.configs = new HashMap<>();
+        this.setConfigs();
+        TopicFactory.getInstance().constructTopicName(TopicType.PREPARE_PHASE, this.configs, 1);
+        TopicFactory.getInstance().constructTopicName(TopicType.COMMITTEE_PHASE, this.configs, 1);
+        TopicFactory.getInstance().constructTopicName(TopicType.DISPERSE_PHASE1, this.configs, this.DispersePartitionSize);
+        TopicFactory.getInstance().constructTopicName(TopicType.DISPERSE_PHASE2, this.configs, 1);
+        TopicFactory.getInstance().constructTopicName(TopicType.ANNOUNCE_PHASE, this.configs, 1);
     }
 
+    private void setConfigs() {
+        this.configs.put("cleanup.policy", "compact");
+        this.configs.put("compression.type", "lz4");
+        this.configs.put("index.interval.bytes", "40960");
+        this.configs.put("max.message.bytes", "2024000000");
+        this.configs.put("min.insync.replicas", "1");
+        this.configs.put("retention.ms",  String.valueOf(ConsensusConfiguration.EPOCH_TRANSITION * 2 * ConsensusConfiguration.CONSENSUS_TIMER));
+        this.configs.put("segment.ms", String.valueOf(ConsensusConfiguration.EPOCH_TRANSITION * 2 * ConsensusConfiguration.CONSENSUS_TIMER));
+        this.configs.put("segment.bytes", "1342177280");
+    }
     @Override
     public void constructKafkaComponentType() {
         props = new Properties();
         props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, KafkaConfiguration.KAFKA_HOST + ":" + "9092");
+        props.put(AdminClientConfig.RECEIVE_BUFFER_CONFIG, "-1");
+        props.put(AdminClientConfig.SEND_BUFFER_CONFIG, "-1");
+        props.put(AdminClientConfig.AUTO_INCLUDE_JMX_REPORTER_DOC, "false");
+        props.put(AdminClientConfig.ENABLE_METRICS_PUSH_CONFIG, "false");
+        props.put(AdminClientConfig.METADATA_RECOVERY_STRATEGY_CONFIG, "REBOOTSTRAP");
         props.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SASL_PLAINTEXT");
         props.put(SaslConfigs.SASL_MECHANISM, "PLAIN");
         props.put(SaslConfigs.SASL_JAAS_CONFIG, "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"admin\" password=\"admin-secret\";");
@@ -200,7 +217,7 @@ public class KafkaCreatorTopic implements IKafkaComponent {
     @Override
     public void Shutdown() {
         try {
-            if(adminClient == null)
+            if (adminClient == null)
                 return;
             // Delete the ACLs
             adminClient.deleteAcls(bindingFilters).all().get(2, TimeUnit.SECONDS);
@@ -213,10 +230,13 @@ public class KafkaCreatorTopic implements IKafkaComponent {
 //            // Delete all topics
 //            DeleteTopicsResult deleteTopicsResult = adminClient.deleteTopics(topics);
 //            deleteTopicsResult.all().get(4, TimeUnit.SECONDS);
-
-
+            this.aclBindings.clear();
+            this.bindingFilters.clear();
+            this.configs.clear();
+            this.ipAddresses.clear();
+            this.props.clear();
         } catch (ExecutionException | InterruptedException | TimeoutException e) {
-           LOG.error("Error while shutting down the KafkaCreatorTopic: {}", e.toString());
+            LOG.error("Error while shutting down the KafkaCreatorTopic: {}", e.toString());
         }
     }
 

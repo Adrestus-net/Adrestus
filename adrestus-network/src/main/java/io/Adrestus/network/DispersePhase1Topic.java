@@ -3,6 +3,8 @@ package io.Adrestus.network;
 import io.Adrestus.config.KafkaConfiguration;
 import org.apache.kafka.clients.admin.NewTopic;
 
+import java.util.Map;
+
 public class DispersePhase1Topic implements ITopic {
 
     private NewTopic topicName;
@@ -11,8 +13,9 @@ public class DispersePhase1Topic implements ITopic {
     }
 
     @Override
-    public void constructTopicName(int numPartitions) {
+    public void constructTopicName(Map<String,String> configs,int numPartitions) {
         topicName = new NewTopic(TopicType.DISPERSE_PHASE1.name(), numPartitions, KafkaConfiguration.KAFKA_REPLICATION_FACTOR);
+        topicName.configs(configs);
     }
 
     @Override

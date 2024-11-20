@@ -32,11 +32,12 @@ public class KaFkaTest {
         ipList.add(KafkaConfiguration.KAFKA_HOST);
         ipList.add(KafkaConfiguration.KAFKA_HOST);
         ipList.add(KafkaConfiguration.KAFKA_HOST);
-        TopicFactory.getInstance().constructTopicName(TopicType.PREPARE_PHASE, 1);
-        TopicFactory.getInstance().constructTopicName(TopicType.COMMITTEE_PHASE, 1);
-        TopicFactory.getInstance().constructTopicName(TopicType.DISPERSE_PHASE1, 5);
-        TopicFactory.getInstance().constructTopicName(TopicType.DISPERSE_PHASE2, 1);
-        TopicFactory.getInstance().constructTopicName(TopicType.ANNOUNCE_PHASE, 1);
+        HashMap<String,String>map=new HashMap<>();
+        TopicFactory.getInstance().constructTopicName(TopicType.PREPARE_PHASE, map,1);
+        TopicFactory.getInstance().constructTopicName(TopicType.COMMITTEE_PHASE,    map,1);
+        TopicFactory.getInstance().constructTopicName(TopicType.DISPERSE_PHASE1, map,5);
+        TopicFactory.getInstance().constructTopicName(TopicType.DISPERSE_PHASE2, map,1);
+        TopicFactory.getInstance().constructTopicName(TopicType.ANNOUNCE_PHASE, map,1);
         Collection<NewTopic> newTopics = Arrays.asList(TopicFactory.getInstance().getTopicName(TopicType.PREPARE_PHASE), TopicFactory.getInstance().getTopicName(TopicType.ANNOUNCE_PHASE), TopicFactory.getInstance().getTopicName(TopicType.COMMITTEE_PHASE), TopicFactory.getInstance().getTopicName(TopicType.DISPERSE_PHASE1), TopicFactory.getInstance().getTopicName(TopicType.DISPERSE_PHASE2));
         kafkaSmith = new KafkaManufactureSmith(ipList, "localhost", "localhost", 0, 0);
         kafkaSmith.manufactureKafkaComponent(KafkaKingdomType.ZOOKEEPER);

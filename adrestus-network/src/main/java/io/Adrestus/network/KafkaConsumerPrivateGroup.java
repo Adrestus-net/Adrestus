@@ -6,6 +6,7 @@ import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.config.SaslConfigs;
 import org.apache.kafka.common.serialization.ByteArrayDeserializer;
@@ -16,10 +17,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 public class KafkaConsumerPrivateGroup implements IKafkaComponent {
@@ -61,29 +61,29 @@ public class KafkaConsumerPrivateGroup implements IKafkaComponent {
             props.put(ConsumerConfig.GROUP_ID_CONFIG, KafkaConfiguration.CONSUMER_PRIVATE_GROUP_ID + "-" + i + "-" + KafkaConfiguration.KAFKA_HOST);
             props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
             props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ByteArrayDeserializer.class.getName());
+            props.put(ConsumerConfig.HEARTBEAT_INTERVAL_MS_CONFIG, "7000");
+            props.put(ConsumerConfig.MAX_PARTITION_FETCH_BYTES_CONFIG, "13107200");
+            props.put(ConsumerConfig.FETCH_MAX_BYTES_CONFIG, "536870912");
+            props.put(ConsumerConfig.RECEIVE_BUFFER_CONFIG, "-1");
+            props.put(ConsumerConfig.SEND_BUFFER_CONFIG, "-1");
             props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-            props.put(ConsumerConfig.FETCH_MIN_BYTES_CONFIG, 1);
-            props.put(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, 10);
-            props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 60000);
+            props.put(ConsumerConfig.FETCH_MIN_BYTES_CONFIG, "1");
+            props.put(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, "10");
+            props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, "60000");
             props.put(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, "600000");
+            props.put(ConsumerConfig.AUTO_INCLUDE_JMX_REPORTER_CONFIG, "false");
+            props.put(ConsumerConfig.ENABLE_METRICS_PUSH_CONFIG, "FALSE");
             props.put(ConsumerConfig.REQUEST_TIMEOUT_MS_CONFIG, "1000");
-            props.put(ConsumerConfig.METADATA_MAX_AGE_CONFIG, "1000");
-            props.put(ConsumerConfig.RECONNECT_BACKOFF_MS_CONFIG, "500");
-            props.put(ConsumerConfig.RECONNECT_BACKOFF_MAX_MS_CONFIG, "8000");
-            props.put(ConsumerConfig.RETRY_BACKOFF_MS_CONFIG, "500");
+            //props.put(ConsumerConfig.METADATA_MAX_AGE_CONFIG, "1000");
+            props.put(ConsumerConfig.RETRY_BACKOFF_MS_CONFIG, "300");
+            props.put(ConsumerConfig.RETRY_BACKOFF_MAX_MS_CONFIG, "7000");
+            props.put(ConsumerConfig.RECONNECT_BACKOFF_MS_CONFIG, "300");
+            props.put(ConsumerConfig.RECONNECT_BACKOFF_MAX_MS_CONFIG, "7000");
             props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
             props.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SASL_PLAINTEXT");
             props.put(SaslConfigs.SASL_MECHANISM, "PLAIN");
             props.put(SaslConfigs.SASL_JAAS_CONFIG, "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"" + "consumer" + "-" + position + "-" + current_ip + "\" password=\"consumer-secret\";");
 
-//            System.out.println("1 "+props.getProperty(SaslConfigs.SASL_JAAS_CONFIG));
-//            System.out.println("1 "+props.getProperty(ConsumerConfig.GROUP_ID_CONFIG));
-//            System.out.println("1 "+props.getProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG));
-//            System.out.println();
-            //This is for maximizing the throughput of the consumer but for large messages
-//            props.put(ConsumerConfig.FETCH_MIN_BYTES_CONFIG, "100000");
-//            props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, "500");
-//            props.put(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, "100");
             Consumer<String, byte[]> consumer = new KafkaConsumer<>(props);
 
             int finalI = i;
