@@ -45,7 +45,7 @@ public class KafkaManufactureSmith implements KafkaSmith {
                 map.put(type, new KafkaConsumerPrivateGroup(ipAddresses, currentIP));
                 break;
             case CONSUMER_SAME:
-                map.put(type, new KafkaConsumerSameGroup(leader_host, position, partition));
+                map.put(type, new KafkaConsumerSameGroup(leader_host, currentIP, partition));
                 break;
             case TOPIC_CREATOR:
                 map.put(type, new KafkaCreatorTopic(ipAddresses, currentIP, ipAddresses.size()));
@@ -56,10 +56,10 @@ public class KafkaManufactureSmith implements KafkaSmith {
     }
 
     @Override
-    public void updateLeaderHost(KafkaKingdomType type, String leader_host, int position, int partition, boolean isClose) {
+    public void updateLeaderHost(KafkaKingdomType type, String leader_host, String currentIP, int partition, boolean isClose) {
         if (isClose)
             map.get(KafkaKingdomType.CONSUMER_SAME).Shutdown();
-        map.put(type, new KafkaConsumerSameGroup(leader_host, position, partition));
+        map.put(type, new KafkaConsumerSameGroup(leader_host, currentIP, partition));
         map.get(KafkaKingdomType.CONSUMER_SAME).constructKafkaComponentType();
     }
 

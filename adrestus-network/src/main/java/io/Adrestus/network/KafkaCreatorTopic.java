@@ -7,7 +7,6 @@ import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.admin.TopicListing;
-import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.acl.*;
 import org.apache.kafka.common.config.SaslConfigs;
 import org.apache.kafka.common.resource.PatternType;
@@ -32,6 +31,7 @@ public class KafkaCreatorTopic implements IKafkaComponent {
     private final ArrayList<AclBindingFilter> bindingFilters;
     private final List<AclBinding> aclBindings;
     private final Map<String, String> configs;
+    private final Map<String, String> userAccounts;
     private AdminClient adminClient;
 
     public KafkaCreatorTopic(ArrayList<String> ipAddresses, String currentIP, int DispersePartitionSize) {
@@ -41,6 +41,7 @@ public class KafkaCreatorTopic implements IKafkaComponent {
         this.bindingFilters = new ArrayList<>();
         this.aclBindings = new ArrayList<>();
         this.configs = new HashMap<>();
+        this.userAccounts = new LinkedHashMap<>();
         this.setConfigs();
         TopicFactory.getInstance().constructTopicName(TopicType.PREPARE_PHASE, this.configs, 1);
         TopicFactory.getInstance().constructTopicName(TopicType.COMMITTEE_PHASE, this.configs, 1);
@@ -55,10 +56,11 @@ public class KafkaCreatorTopic implements IKafkaComponent {
         this.configs.put("index.interval.bytes", "40960");
         this.configs.put("max.message.bytes", "2024000000");
         this.configs.put("min.insync.replicas", "1");
-        this.configs.put("retention.ms",  String.valueOf(ConsensusConfiguration.EPOCH_TRANSITION * 2 * ConsensusConfiguration.CONSENSUS_TIMER));
+        this.configs.put("retention.ms", String.valueOf(ConsensusConfiguration.EPOCH_TRANSITION * 2 * ConsensusConfiguration.CONSENSUS_TIMER));
         this.configs.put("segment.ms", String.valueOf(ConsensusConfiguration.EPOCH_TRANSITION * 2 * ConsensusConfiguration.CONSENSUS_TIMER));
         this.configs.put("segment.bytes", "1342177280");
     }
+
     @Override
     public void constructKafkaComponentType() {
         props = new Properties();
@@ -107,7 +109,6 @@ public class KafkaCreatorTopic implements IKafkaComponent {
                     adminClient.createTopics(Set.of(topic)).all().get();
                 }
             }
-
             for (NewTopic topic : TopicFactory.getInstance().getCollectionTopics()) {
 
                 ResourcePattern resourcePattern = new ResourcePattern(ResourceType.TOPIC, topic.name(), PatternType.LITERAL);
@@ -132,15 +133,11 @@ public class KafkaCreatorTopic implements IKafkaComponent {
                         continue;
                     String host = this.currentIP.equals("localhost") ? "127.0.0.1" : ip;
 
-                    //KafkaConfiguration.CONSUMER_PRIVATE_GROUP_ID + "-" + i + "-" + KafkaConfiguration.KAFKA_HOST
-                    AccessControlEntry consumerReadEntry, consumerDescribeEntry;
-                    if (topic.equals(TopicFactory.getInstance().getTopicName(TopicType.DISPERSE_PHASE1))) {
-                        consumerReadEntry = new AccessControlEntry("User:consumer" + "-" + position + "-" + this.currentIP, host, AclOperation.READ, AclPermissionType.ALLOW);
-                        consumerDescribeEntry = new AccessControlEntry("User:consumer" + "-" + position + "-" + this.currentIP, host, AclOperation.DESCRIBE, AclPermissionType.ALLOW);
-                    } else {
-                        consumerReadEntry = new AccessControlEntry("User:consumer" + "-" + index + "-" + ip, host, AclOperation.READ, AclPermissionType.ALLOW);
-                        consumerDescribeEntry = new AccessControlEntry("User:consumer" + "-" + index + "-" + ip, host, AclOperation.DESCRIBE, AclPermissionType.ALLOW);
-                    }
+                    String userString = "User:consumer" + "-" + index + "-" + ip;
+                    userAccounts.put(host, userString);
+                    AccessControlEntry consumerReadEntry = new AccessControlEntry(userString, host, AclOperation.READ, AclPermissionType.ALLOW);
+                    AccessControlEntry consumerDescribeEntry = new AccessControlEntry(userString, host, AclOperation.DESCRIBE, AclPermissionType.ALLOW);
+
                     AclBinding consumerReadAcl = new AclBinding(resourcePattern, consumerReadEntry);
                     AclBinding consumerDescribeAcl = new AclBinding(resourcePattern, consumerDescribeEntry);
                     aclBindings.add(consumerReadAcl);
@@ -159,31 +156,29 @@ public class KafkaCreatorTopic implements IKafkaComponent {
                         // Verify the ACLs
                         bindingFilters.add(consumerSameGroupReadAcl.toFilter());
                         bindingFilters.add(consumerSameGroupDescribeAcl.toFilter());
-                    } else {
-                        int count = 0;
-                        int local_position = ipAddresses.indexOf(ip);
-                        for (int j = 0; j < ipAddresses.size(); j++) {
-                            if (j == local_position && !this.currentIP.equals("localhost")) {
-                                count++;
-                                continue;
-                            }
-                            ResourcePattern resourcePrivateGroupPattern = new ResourcePattern(ResourceType.GROUP, KafkaConfiguration.CONSUMER_PRIVATE_GROUP_ID + "-" + count + "-" + ip, PatternType.LITERAL);
-                            AclBinding consumerPrivateGroupReadAcl = new AclBinding(resourcePrivateGroupPattern, consumerReadEntry);
-                            AclBinding consumerPrivateGroupDescribeAcl = new AclBinding(resourcePrivateGroupPattern, consumerDescribeEntry);
-                            aclBindings.add(consumerPrivateGroupReadAcl);
-                            aclBindings.add(consumerPrivateGroupDescribeAcl);
-
-                            // Verify the ACLs
-                            bindingFilters.add(consumerPrivateGroupReadAcl.toFilter());
-                            bindingFilters.add(consumerPrivateGroupDescribeAcl.toFilter());
-                            count++;
-                        }
                     }
 
                 }
             }
 
+            for (Map.Entry<String, String> entry : userAccounts.entrySet()) {
+                String host = entry.getKey();
+                ResourcePattern resourcePrivateGroupPattern = new ResourcePattern(ResourceType.GROUP, KafkaConfiguration.CONSUMER_PRIVATE_GROUP_ID + "-" + currentIP + "-" + host, PatternType.LITERAL);
+                AccessControlEntry consumerReadEntry = new AccessControlEntry(entry.getValue(), host, AclOperation.READ, AclPermissionType.ALLOW);
+                AccessControlEntry consumerDescribeEntry = new AccessControlEntry(entry.getValue(), host, AclOperation.DESCRIBE, AclPermissionType.ALLOW);
+                AclBinding consumerPrivateGroupReadAcl = new AclBinding(resourcePrivateGroupPattern, consumerReadEntry);
+                AclBinding consumerPrivateGroupDescribeAcl = new AclBinding(resourcePrivateGroupPattern, consumerDescribeEntry);
+                aclBindings.add(consumerPrivateGroupReadAcl);
+                aclBindings.add(consumerPrivateGroupDescribeAcl);
 
+                // Verify the ACLs
+                bindingFilters.add(consumerPrivateGroupReadAcl.toFilter());
+                bindingFilters.add(consumerPrivateGroupDescribeAcl.toFilter());
+                if (currentIP.equals("localhost"))
+                    break;
+            }
+
+            // Create the ACLs
             adminClient.createAcls(aclBindings).all().get();
             System.out.println("ACLs created successfully");
 //            bindingFilters.stream().forEach(filter -> {
@@ -235,6 +230,7 @@ public class KafkaCreatorTopic implements IKafkaComponent {
             this.configs.clear();
             this.ipAddresses.clear();
             this.props.clear();
+            this.userAccounts.clear();
         } catch (ExecutionException | InterruptedException | TimeoutException e) {
             LOG.error("Error while shutting down the KafkaCreatorTopic: {}", e.toString());
         }

@@ -96,8 +96,8 @@ public class ConsensusBroker {
         }
     }
 
-    public void updateLeaderHost(String leader_host, int leader_position, int partition) {
-        this.kafkaManufactureSmith.updateLeaderHost(KafkaKingdomType.CONSUMER_SAME, leader_host, leader_position, partition, true);
+    public void updateLeaderHost(String leader_host, String currentIP, int partition) {
+        this.kafkaManufactureSmith.updateLeaderHost(KafkaKingdomType.CONSUMER_SAME, leader_host, currentIP, partition, true);
     }
 
     public void distributeDisperseMessageFromLeader(ArrayList<ArrayList<byte[]>> data, String key) {

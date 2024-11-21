@@ -6,20 +6,21 @@ import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.config.SaslConfigs;
 import org.apache.kafka.common.serialization.ByteArrayDeserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 
+import java.sql.SQLOutput;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class KafkaConsumerPrivateGroup implements IKafkaComponent {
@@ -58,7 +59,7 @@ public class KafkaConsumerPrivateGroup implements IKafkaComponent {
             }
             Properties props = new Properties();
             props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, ip + ":" + KafkaConfiguration.KAFKA_PORT);
-            props.put(ConsumerConfig.GROUP_ID_CONFIG, KafkaConfiguration.CONSUMER_PRIVATE_GROUP_ID + "-" + i + "-" + KafkaConfiguration.KAFKA_HOST);
+            props.put(ConsumerConfig.GROUP_ID_CONFIG, KafkaConfiguration.CONSUMER_PRIVATE_GROUP_ID + "-" + ip + "-" + KafkaConfiguration.KAFKA_HOST);
             props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
             props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ByteArrayDeserializer.class.getName());
             props.put(ConsumerConfig.HEARTBEAT_INTERVAL_MS_CONFIG, "7000");
@@ -88,7 +89,7 @@ public class KafkaConsumerPrivateGroup implements IKafkaComponent {
 
             int finalI = i;
             Runnable task = () -> {
-                for (String topic : TopicFactory.getInstance().getCollectionTopicsNames()) {
+                for (String topic : TopicFactory.getInstance().getAllCollectionTopicsNamesAsString()) {
                     int maxRetries = 5;
                     int retryCount = 0;
                     boolean success = false;
