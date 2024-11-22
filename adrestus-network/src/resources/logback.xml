@@ -1,0 +1,34 @@
+<configuration>
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>info</level>
+        </filter>
+    </appender>
+
+
+    <property name="org.slf4j.simpleLogger.showInitialization" value="false"/>
+
+
+
+    <!-- Suppress SLF4J informational messages -->
+    <root level="debug">
+        <appender-ref ref="CONSOLE" />
+    </root>
+
+    <!-- Disable logging-->
+    <logger name="org.slf4j.impl.StaticLoggerBinder" level="OFF"/>
+    <logger name="org.slf4j.simpleLogger.showInitialization" level="OFF"/>
+    <logger name="org.apache.zookeeper" level="OFF"/>
+    <logger name="org.apache.zookeeper.server" level="OFF"/>
+    <logger name="org.apache.zookeeper.client" level="OFF"/>
+    <logger name="org.apache.zookeeper.common" level="OFF"/>
+    <logger name="io.activej" level="OFF"/>
+<!--    <logger name="org.apache.kafka" level="OFF"/>-->
+<!--    <logger name="kafka" level="OFF"/>-->
+    <logger name="state.change.logger" level="OFF"/>
+    <logger name="io.Adrestus.network" level="OFF"/>
+    <logger name="io.netty" level="OFF"/>
+</configuration>

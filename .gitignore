@@ -30,7 +30,6 @@ bin/
 /tmp/
 .DS_Store
 .attach_pid*
-logback.xml
 *.effective.properties
 node_modules
 package-lock.json
