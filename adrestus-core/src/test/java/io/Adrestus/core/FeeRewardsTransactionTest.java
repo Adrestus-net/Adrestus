@@ -36,7 +36,6 @@ import io.Adrestus.mapper.MemoryTreePoolSerializer;
 import io.Adrestus.p2p.kademlia.common.NettyConnectionInfo;
 import io.Adrestus.p2p.kademlia.node.KeyHashGenerator;
 import io.Adrestus.p2p.kademlia.repository.KademliaData;
-import io.Adrestus.p2p.kademlia.util.LoggerKademlia;
 import io.Adrestus.util.GetTime;
 import io.Adrestus.util.SerializationUtil;
 import lombok.SneakyThrows;
@@ -99,7 +98,6 @@ public class FeeRewardsTransactionTest {
         SerializationUtil patricia_tree_wrapper = new SerializationUtil<>(fluentType, list2);
 
         int version = 0x00;
-        LoggerKademlia.setLevelOFF();
         int port = 1080;
         KademliaConfiguration.IDENTIFIER_SIZE = 4;
         ConsensusConfiguration.EPOCH_TRANSITION = 3;

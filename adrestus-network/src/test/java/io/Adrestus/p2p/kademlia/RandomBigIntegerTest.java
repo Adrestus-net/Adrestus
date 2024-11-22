@@ -16,7 +16,6 @@ import io.Adrestus.p2p.kademlia.table.DefaultRoutingTableFactory;
 import io.Adrestus.p2p.kademlia.table.RoutingTable;
 import io.Adrestus.p2p.kademlia.table.RoutingTableFactory;
 import io.Adrestus.p2p.kademlia.util.BoundedHashUtil;
-import io.Adrestus.p2p.kademlia.util.LoggerKademlia;
 import org.junit.jupiter.api.Test;
 import org.spongycastle.util.encoders.Hex;
 
@@ -36,7 +35,6 @@ public class RandomBigIntegerTest {
 
     //@Test
     public void randomID() throws InterruptedException, ExecutionException, FullBucketException, DuplicateStoreRequest {
-        LoggerKademlia.setLevelOFF();
         int port = 1080;
         //use this only for debug not for tests because nodesjoiningtest
         //produces error and need size of 4
@@ -92,7 +90,6 @@ public class RandomBigIntegerTest {
 
     @Test
     public void incrementID() throws InterruptedException, ExecutionException, FullBucketException, DuplicateStoreRequest {
-        LoggerKademlia.setLevelOFF();
         int port = 1070;
         //use this only for debug not for tests because nodesjoiningtest
         //produces error and need size of 4

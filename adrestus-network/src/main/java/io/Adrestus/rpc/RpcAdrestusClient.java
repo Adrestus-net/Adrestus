@@ -61,10 +61,6 @@ public class RpcAdrestusClient<T> extends AbstractNioReactive implements AutoClo
     private int port;
     private RpcClient client;
 
-    static {
-        RPCLogger.getInstance();
-    }
-
 
     public RpcAdrestusClient(T typeParameterClass, InetSocketAddress inetSocketAddress, Eventloop eventloop) {
         super(eventloop.getReactor());

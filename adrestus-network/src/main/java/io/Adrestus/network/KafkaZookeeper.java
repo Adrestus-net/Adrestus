@@ -26,10 +26,23 @@ public class KafkaZookeeper implements IKafkaComponent {
     @SneakyThrows
     @Override
     public void constructKafkaComponentType() {
-        this.factory = NIOServerCnxnFactory.createFactory(new InetSocketAddress("localhost", Integer.parseInt(KafkaConfiguration.ZOOKEEPER_PORT)), 1024);
+        this.factory = NIOServerCnxnFactory.createFactory(new InetSocketAddress(KafkaConfiguration.ZOOKEEPER_HOST, Integer.parseInt(KafkaConfiguration.ZOOKEEPER_PORT)), 1024);
         this.snapshotDir = Directory.CreateFileFromPathName(ZOOKEEPER_SNAPSHOT);
         this.logDir = Directory.CreateFileFromPathName(ZOOKEEPER_LOG);
         this.zkServer = new ZooKeeperServer(this.snapshotDir, logDir, tickTime);
+        this.zkServer.setTickTime(tickTime);
+        this.zkServer.setMinSessionTimeout(4000);
+        this.zkServer.setMaxSessionTimeout(30000);
+        this.zkServer.setLargeRequestMaxBytes(1024 * 1024 * 1024);
+        this.zkServer.setResponseCachingEnabled(true);
+
+        System.setProperty("zookeeper.globalOutstandingLimit", Integer.toString(1000));
+        System.setProperty("zookeeper.preAllocSize", Integer.toString(400*1024*1024));
+        System.setProperty("maxClientCnxns", Integer.toString(5));
+        System.setProperty("forceSync", "no");
+        System.setProperty("zookeeper.jute.maxbuffer", "53687091");
+
+
         try {
             factory.startup(zkServer);
         } catch (InterruptedException e) {

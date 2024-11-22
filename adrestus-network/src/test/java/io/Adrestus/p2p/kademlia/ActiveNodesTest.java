@@ -32,7 +32,6 @@ import io.Adrestus.p2p.kademlia.table.DefaultRoutingTableFactory;
 import io.Adrestus.p2p.kademlia.table.RoutingTable;
 import io.Adrestus.p2p.kademlia.table.RoutingTableFactory;
 import io.Adrestus.p2p.kademlia.util.BoundedHashUtil;
-import io.Adrestus.p2p.kademlia.util.LoggerKademlia;
 import org.apache.commons.codec.binary.StringUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -146,7 +145,6 @@ public class ActiveNodesTest {
 
     @Test
     public void test() throws FullBucketException, InterruptedException, DuplicateStoreRequest, ExecutionException, TimeoutException {
-        LoggerKademlia.setLevelOFF();
         int port = 1080;
         KademliaConfiguration.IDENTIFIER_SIZE = 3;
         NodeSettings.getInstance();

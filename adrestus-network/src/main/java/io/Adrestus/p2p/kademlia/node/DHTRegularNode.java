@@ -19,7 +19,6 @@ import io.Adrestus.p2p.kademlia.repository.KademliaRepositoryImp;
 import io.Adrestus.p2p.kademlia.table.Bucket;
 import io.Adrestus.p2p.kademlia.table.RoutingTable;
 import io.Adrestus.p2p.kademlia.util.BoundedHashUtil;
-import io.Adrestus.p2p.kademlia.util.LoggerKademlia;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -56,7 +55,6 @@ public class DHTRegularNode {
     private TimerTask task;
 
     public DHTRegularNode(NettyConnectionInfo nettyConnectionInfo) {
-        LoggerKademlia.setLevelOFF();
         this.nettyConnectionInfo = nettyConnectionInfo;
         this.keyHashGenerator = key -> {
             try {
@@ -72,7 +70,6 @@ public class DHTRegularNode {
     }
 
     public DHTRegularNode(NettyConnectionInfo nettyConnectionInfo, BigInteger ID) {
-        LoggerKademlia.setLevelOFF();
         this.ID = ID;
         this.nettyConnectionInfo = nettyConnectionInfo;
         this.keyHashGenerator = key -> {
@@ -88,7 +85,6 @@ public class DHTRegularNode {
     }
 
     public DHTRegularNode(NettyConnectionInfo nettyConnectionInfo, BigInteger ID, KeyHashGenerator<BigInteger, String> keyHashGenerator) {
-        LoggerKademlia.setLevelOFF();
         this.ID = ID;
         this.nettyConnectionInfo = nettyConnectionInfo;
         this.keyHashGenerator = keyHashGenerator;

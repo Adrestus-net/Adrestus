@@ -56,10 +56,6 @@ public class RpcAdrestusServer<T> extends AbstractNioReactive implements AutoClo
 
     private Type fluentType;
 
-    static {
-        RPCLogger.getInstance();
-    }
-
 
     public RpcAdrestusServer(T typeParameterClass, String host, int port, Eventloop eventloop) {
         super(eventloop.getReactor());

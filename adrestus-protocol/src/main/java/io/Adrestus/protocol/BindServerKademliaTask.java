@@ -28,7 +28,6 @@ import io.Adrestus.p2p.kademlia.node.DHTRegularNode;
 import io.Adrestus.p2p.kademlia.node.KeyHashGenerator;
 import io.Adrestus.p2p.kademlia.repository.KademliaData;
 import io.Adrestus.p2p.kademlia.util.BoundedHashUtil;
-import io.Adrestus.p2p.kademlia.util.LoggerKademlia;
 import lombok.SneakyThrows;
 import org.apache.commons.codec.binary.StringUtils;
 import org.slf4j.Logger;
@@ -56,7 +55,6 @@ public class BindServerKademliaTask extends AdrestusTask {
     private DHTRegularNode dhtRegularNode;
 
     static {
-        LoggerKademlia.setLevelOFF();
         NodeSettings.getInstance();
     }
 

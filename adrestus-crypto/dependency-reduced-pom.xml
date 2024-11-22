@@ -22,6 +22,18 @@
     </resources>
     <plugins>
       <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <forkCount>1</forkCount>
+          <threadCount>1</threadCount>
+          <reuseForks>false</reuseForks>
+          <runOrder>alphabetical</runOrder>
+          <argLine>--add-opens java.base/java.lang=ALL-UNNAMED
+                        --add-opens java.base/java.util=ALL-UNNAMED
+                        --add-opens java.base/java.math=ALL-UNNAMED</argLine>
+        </configuration>
+      </plugin>
+      <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
         <configuration>
           <source>${java.version}</source>
@@ -111,9 +123,45 @@
   </repositories>
   <dependencies>
     <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <version>5.11.3</version>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>junit-jupiter-params</artifactId>
+          <groupId>org.junit.jupiter</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>junit-jupiter-engine</artifactId>
+          <groupId>org.junit.jupiter</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-api</artifactId>
+      <version>5.11.3</version>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>opentest4j</artifactId>
+          <groupId>org.opentest4j</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>junit-platform-commons</artifactId>
+          <groupId>org.junit.platform</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>apiguardian-api</artifactId>
+          <groupId>org.apiguardian</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
       <groupId>org.awaitility</groupId>
       <artifactId>awaitility</artifactId>
-      <version>4.2.0</version>
+      <version>4.2.2</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>
@@ -125,7 +173,7 @@
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
-      <version>1.18.32</version>
+      <version>1.18.36</version>
       <scope>provided</scope>
     </dependency>
   </dependencies>
@@ -134,15 +182,15 @@
     <milagro.version>0.4.0</milagro.version>
     <util.version>1.0-SNAPSHOT</util.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <http.components>5.2.1</http.components>
-    <openhft.version>0.15</openhft.version>
-    <jna.version>5.12.1</jna.version>
-    <codec.version>1.15</codec.version>
-    <bcprov.version>1.78.1</bcprov.version>
+    <http.components>5.3.1</http.components>
+    <openhft.version>0.27ea0</openhft.version>
+    <jna.version>5.15.0</jna.version>
+    <codec.version>1.17.1</codec.version>
+    <bcprov.version>1.79</bcprov.version>
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <config.version>1.0-SNAPSHOT</config.version>
     <spongycastle.version>1.58.0.0</spongycastle.version>
     <maven.compiler.target>${java.version}</maven.compiler.target>
-    <jnr.version>2.2.12</jnr.version>
+    <jnr.version>2.2.17</jnr.version>
   </properties>
 </project>

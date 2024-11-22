@@ -1,7 +1,5 @@
 package io.Adrestus.network;
 
-import io.Adrestus.rpc.RPCLogger;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumMap;
@@ -15,9 +13,6 @@ public class KafkaManufactureSmith implements KafkaSmith {
     private final int position;
     private final int partition;
 
-    static {
-        RPCLogger.getInstance();
-    }
 
     public KafkaManufactureSmith(ArrayList<String> ipAddresses, String leader_host, String currentIP, int position, int partition) {
         this.ipAddresses = ipAddresses;

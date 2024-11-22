@@ -20,19 +20,13 @@
         <crypto.version>1.0-SNAPSHOT</crypto.version>
         <bloom.version>1.0-SNAPSHOT</bloom.version>
         <util.version>1.0-SNAPSHOT</util.version>
-        <vavr.version>0.10.4</vavr.version>
+        <vavr.version>0.10.5</vavr.version>
     </properties>
     <dependencies>
         <dependency>
             <groupId>io.vavr</groupId>
             <artifactId>vavr</artifactId>
             <version>${vavr.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.11</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>io.Adrestus.v1</groupId>

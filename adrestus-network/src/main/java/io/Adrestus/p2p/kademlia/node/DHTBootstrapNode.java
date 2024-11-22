@@ -20,7 +20,6 @@ import io.Adrestus.p2p.kademlia.repository.KademliaData;
 import io.Adrestus.p2p.kademlia.repository.KademliaRepository;
 import io.Adrestus.p2p.kademlia.repository.KademliaRepositoryImp;
 import io.Adrestus.p2p.kademlia.util.BoundedHashUtil;
-import io.Adrestus.p2p.kademlia.util.LoggerKademlia;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -58,7 +57,6 @@ public class DHTBootstrapNode {
 
 
     public DHTBootstrapNode(NettyConnectionInfo nettyConnectionInfo) {
-        LoggerKademlia.setLevelOFF();
         this.nettyConnectionInfo = nettyConnectionInfo;
         this.scheduledExecutorService = new Timer();
         this.keyHashGenerator = key -> {
@@ -74,7 +72,6 @@ public class DHTBootstrapNode {
     }
 
     public DHTBootstrapNode(NettyConnectionInfo nettyConnectionInfo, BigInteger ID) {
-        LoggerKademlia.setLevelOFF();
         this.ID = ID;
         this.nettyConnectionInfo = nettyConnectionInfo;
         this.scheduledExecutorService = new Timer();
@@ -91,7 +88,6 @@ public class DHTBootstrapNode {
     }
 
     public DHTBootstrapNode(NettyConnectionInfo nettyConnectionInfo, BigInteger ID, KeyHashGenerator<BigInteger, String> keyHashGenerator) {
-        LoggerKademlia.setLevelOFF();
         this.scheduledExecutorService = new Timer();
         this.ID = ID;
         this.nettyConnectionInfo = nettyConnectionInfo;

@@ -2,7 +2,7 @@ package io.Adrestus.config;
 
 public class KafkaConfiguration {
 
-    public static final String ZOOKEEPER_HOST = "localhost";
+    public static final String ZOOKEEPER_HOST = "127.0.0.1";
     public static String KAFKA_HOST = "";
     public static final String ZOOKEEPER_PORT = "2181";
     public static final String KAFKA_PORT = "9092";

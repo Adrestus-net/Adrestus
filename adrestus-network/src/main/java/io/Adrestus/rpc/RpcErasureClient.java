@@ -51,9 +51,6 @@ public class RpcErasureClient<T> extends AbstractNioReactive implements AutoClos
     private int port;
     private RpcClient client;
 
-    static {
-        RPCLogger.getInstance();
-    }
 
     public RpcErasureClient(T typeParameterClass, InetSocketAddress inetSocketAddress, Eventloop eventloop) {
         super(eventloop.getReactor());

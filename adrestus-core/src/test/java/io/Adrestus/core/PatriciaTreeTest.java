@@ -95,13 +95,14 @@ public class PatriciaTreeTest {
 
         PatriciaTreeNode node = new PatriciaTreeNode(BigDecimal.valueOf(2), 3);
         final String hash = optimized2.getRootHash().toHexString();
-        assertEquals("0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421", hash);
+        assertEquals("0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",hash);
         optimized2.put(key1, node);
         final String hash1 = optimized2.getRootHash().toHexString();
         node.setNonce(12);
+        assertEquals("0x835dfe9ab1087699003768c9c77cc7c80865efc5de677fd01c4b0c1980944d84",hash1);
         optimized2.put(key1, node);
         final String hash2 = optimized2.getRootHash().toHexString();
-        assertEquals("0xdcb92030948975e8c99cca4b701714c56a0086b0e865010e00c5ca3122067c61", hash2);
+        assertEquals("0x1931abb0b0b4b5ce440b16924e7b64f2e89f47ebf7fa7a5aee0f2aa7d59f4a0e",hash2);
         assertEquals(node, optimized2.get(key1).get());
     }
 

@@ -13,7 +13,6 @@ import io.Adrestus.p2p.kademlia.model.StoreAnswer;
 import io.Adrestus.p2p.kademlia.node.KeyHashGenerator;
 import io.Adrestus.p2p.kademlia.repository.KademliaRepository;
 import io.Adrestus.p2p.kademlia.util.BoundedHashUtil;
-import io.Adrestus.p2p.kademlia.util.LoggerKademlia;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
@@ -44,7 +43,6 @@ public class DHTTest {
         KademliaConfiguration.PING_SCHEDULE_TIME_VALUE = 5;
         NodeSettings.getInstance();
 
-        LoggerKademlia.setLevelOFF();
         KeyHashGenerator<BigInteger, String> keyHashGenerator = key -> {
             try {
                 return new BoundedHashUtil(NodeSettings.getInstance().getIdentifierSize()).hash(key.hashCode(), BigInteger.class);

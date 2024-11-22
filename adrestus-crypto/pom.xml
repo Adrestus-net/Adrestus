@@ -20,14 +20,14 @@
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <spongycastle.version>1.58.0.0</spongycastle.version>
         <util.version>1.0-SNAPSHOT</util.version>
-        <bcprov.version>1.78.1</bcprov.version>
-        <codec.version>1.15</codec.version>
-        <jna.version>5.12.1</jna.version>
+        <bcprov.version>1.79</bcprov.version>
+        <codec.version>1.17.1</codec.version>
+        <jna.version>5.15.0</jna.version>
         <milagro.version>0.4.0</milagro.version>
-        <jnr.version>2.2.12</jnr.version>
+        <jnr.version>2.2.17</jnr.version>
         <config.version>1.0-SNAPSHOT</config.version>
-        <http.components>5.2.1</http.components>
-        <openhft.version>0.15</openhft.version>
+        <http.components>5.3.1</http.components>
+        <openhft.version>0.27ea0</openhft.version>
         <conscrypt.version>2.5.2</conscrypt.version>
     </properties>
     <repositories>
@@ -57,11 +57,6 @@
             <artifactId>fst</artifactId>
             <version>2.56</version>
         </dependency>
-        <!--        <dependency>-->
-        <!--            <groupId>ch.qos.logback</groupId>-->
-        <!--            <artifactId>logback-classic</artifactId>-->
-        <!--            <version>${logback.version}</version>-->
-        <!--        </dependency>-->
         <dependency>
             <groupId>org.apache.httpcomponents.core5</groupId>
             <artifactId>httpcore5</artifactId>
@@ -104,11 +99,6 @@
         </dependency>
         <dependency>
             <groupId>io.activej</groupId>
-            <artifactId>activej-serializer</artifactId>
-            <version>${activej.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.activej</groupId>
             <artifactId>activej-codegen</artifactId>
             <version>${activej.version}</version>
         </dependency>
@@ -120,6 +110,21 @@
     </dependencies>
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <forkCount>1</forkCount>
+                    <threadCount>1</threadCount>
+                    <reuseForks>false</reuseForks>
+                    <runOrder>alphabetical</runOrder>
+                    <argLine>
+                        --add-opens java.base/java.lang=ALL-UNNAMED
+                        --add-opens java.base/java.util=ALL-UNNAMED
+                        --add-opens java.base/java.math=ALL-UNNAMED
+                    </argLine>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>

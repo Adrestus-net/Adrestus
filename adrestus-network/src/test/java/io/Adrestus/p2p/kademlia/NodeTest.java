@@ -54,10 +54,6 @@ public class NodeTest {
         KademliaConfiguration.PING_SCHEDULE_TIME_VALUE = 2;
         NodeSettings.getInstance();
 
-        LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
-        Logger rootLogger = loggerContext.getLogger("io.netty");
-        rootLogger.setLevel(ch.qos.logback.classic.Level.OFF);
-
         KeyHashGenerator<BigInteger, String> keyHashGenerator = key -> {
             try {
                 return new BoundedHashUtil(NodeSettings.getInstance().getIdentifierSize()).hash(new BigInteger(HashUtil.convertIPtoHex(String.valueOf(key.hashCode()), 16)), BigInteger.class);

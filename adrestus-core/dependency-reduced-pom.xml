@@ -101,9 +101,45 @@
   </repositories>
   <dependencies>
     <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <version>5.11.3</version>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>junit-jupiter-params</artifactId>
+          <groupId>org.junit.jupiter</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>junit-jupiter-engine</artifactId>
+          <groupId>org.junit.jupiter</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-api</artifactId>
+      <version>5.11.3</version>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>opentest4j</artifactId>
+          <groupId>org.opentest4j</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>junit-platform-commons</artifactId>
+          <groupId>org.junit.platform</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>apiguardian-api</artifactId>
+          <groupId>org.apiguardian</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
       <groupId>org.awaitility</groupId>
       <artifactId>awaitility</artifactId>
-      <version>4.2.0</version>
+      <version>4.2.2</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>
@@ -115,19 +151,18 @@
   </dependencies>
   <properties>
     <network.version>1.0-SNAPSHOT</network.version>
-    <trove4j.version>3.0.3</trove4j.version>
     <jakson.version>2.18.1</jakson.version>
     <erasure-code.version>1.0-SNAPSHOT</erasure-code.version>
     <util.version>1.0-SNAPSHOT</util.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <disruptor.version>3.4.4</disruptor.version>
+    <disruptor.version>4.0.0</disruptor.version>
     <ledger.version>1.0-SNAPSHOT</ledger.version>
     <trie.version>1.0-SNAPSHOT</trie.version>
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <crypto.version>1.0-SNAPSHOT</crypto.version>
     <config.version>1.0-SNAPSHOT</config.version>
-    <lombok.version>1.18.32</lombok.version>
+    <lombok.version>1.18.36</lombok.version>
     <maven.compiler.target>${java.version}</maven.compiler.target>
-    <cafeine.version>3.1.6</cafeine.version>
+    <cafeine.version>3.1.8</cafeine.version>
   </properties>
 </project>

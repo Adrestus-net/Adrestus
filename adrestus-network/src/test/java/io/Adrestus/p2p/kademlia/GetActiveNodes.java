@@ -9,7 +9,6 @@ import io.Adrestus.p2p.kademlia.exception.UnsupportedBoundingException;
 import io.Adrestus.p2p.kademlia.node.KeyHashGenerator;
 import io.Adrestus.p2p.kademlia.repository.KademliaRepository;
 import io.Adrestus.p2p.kademlia.util.BoundedHashUtil;
-import io.Adrestus.p2p.kademlia.util.LoggerKademlia;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.spongycastle.util.encoders.Hex;
@@ -35,7 +34,6 @@ public class GetActiveNodes {
 
     @Test
     public void test() throws ExecutionException, InterruptedException, DuplicateStoreRequest {
-        LoggerKademlia.setLevelOFF();
         int port = 1180;
         int size = 300;
         //use this only for debug not for tests because nodesjoiningtest

@@ -66,6 +66,8 @@ public class KafkaBroker implements IKafkaComponent {
         kafkaProps.setProperty("socket.receive.buffer.bytes", "-1");
         kafkaProps.setProperty("compression.type", "lz4");
         kafkaProps.setProperty("socket.send.buffer.bytes", "-1");
+        kafkaProps.setProperty("socket.connection.setup.timeout.ms", "15000");
+        kafkaProps.setProperty("metadata.max.idle.interval.ms", "1500");
         kafkaProps.setProperty("metadata.max.retention.ms", "60480000");
         kafkaProps.setProperty("producer.id.expiration.ms", String.valueOf(ConsensusConfiguration.EPOCH_TRANSITION * 2 * ConsensusConfiguration.CONSENSUS_TIMER));
         kafkaProps.setProperty("log.retention.ms", String.valueOf(ConsensusConfiguration.EPOCH_TRANSITION * 2 * ConsensusConfiguration.CONSENSUS_TIMER));

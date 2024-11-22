@@ -16,7 +16,6 @@ import io.Adrestus.p2p.kademlia.server.filter.KademliaMainHandlerFilter;
 import io.Adrestus.p2p.kademlia.server.filter.NettyKademliaServerFilter;
 import io.Adrestus.p2p.kademlia.server.filter.NettyKademliaServerFilterChain;
 import io.Adrestus.p2p.kademlia.util.BoundedHashUtil;
-import io.Adrestus.p2p.kademlia.util.LoggerKademlia;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
@@ -44,7 +43,6 @@ public class FilterChainTest {
     @SneakyThrows
     @BeforeAll
     public static void init() {
-        LoggerKademlia.setLevelOFF();
         KademliaConfiguration.IDENTIFIER_SIZE = 4;
         KademliaConfiguration.BUCKET_SIZE = 100;
         KademliaConfiguration.PING_SCHEDULE_TIME_VALUE = 5;

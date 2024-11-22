@@ -2,7 +2,6 @@ package io.Adrestus.util;
 
 import io.Adrestus.util.bytes.Bytes;
 import io.Adrestus.util.bytes.Bytes32;
-import org.apache.tuweni.units.bigints.UInt256;
 
 import java.math.BigInteger;
 import java.net.InetAddress;

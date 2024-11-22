@@ -18,42 +18,18 @@
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <crypto.version>1.0-SNAPSHOT</crypto.version>
-        <jol.version>0.16</jol.version>
+        <jol.version>0.17</jol.version>
         <identity.version>0.4.3</identity.version>
-        <vertx.core>4.3.7</vertx.core>
-        <jupiter.version>5.9.2</jupiter.version>
-        <mockito.version>4.11.0</mockito.version>
+        <vertx.core>4.5.11</vertx.core>
+        <mockito.version>5.14.2</mockito.version>
         <activej.version>6.0-beta2</activej.version>
+        <jbelis.version>0.4.0</jbelis.version>
     </properties>
     <dependencies>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-engine</artifactId>
-            <version>${jupiter.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-api</artifactId>
-            <version>${jupiter.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.platform</groupId>
-            <artifactId>junit-platform-commons</artifactId>
-            <version>1.9.2</version>
-        </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
             <version>${mockito.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-params</artifactId>
-            <version>${jupiter.version}</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>io.vertx</groupId>
@@ -78,12 +54,7 @@
         <dependency>
             <groupId>com.github.jbellis</groupId>
             <artifactId>jamm</artifactId>
-            <version>0.3.3</version>
-        </dependency>
-        <dependency>
-            <groupId>io.activej</groupId>
-            <artifactId>activej-serializer</artifactId>
-            <version>${activej.version}</version>
+            <version>${jbelis.version}</version>
         </dependency>
         <dependency>
             <groupId>io.activej</groupId>
@@ -96,7 +67,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.13.0</version>
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
@@ -105,7 +75,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.22.2</version>
                 <configuration>
                     <forkCount>1</forkCount>
                     <threadCount>1</threadCount>

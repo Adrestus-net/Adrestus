@@ -1,7 +1,7 @@
 package io.Adrestus.p2p.kademlia;
 
+import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import io.Adrestus.p2p.kademlia.common.NettyConnectionInfo;
 import io.Adrestus.p2p.kademlia.common.NettyExternalNode;
 import io.Adrestus.p2p.kademlia.factory.GsonFactory;

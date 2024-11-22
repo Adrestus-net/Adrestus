@@ -29,7 +29,6 @@ import io.Adrestus.p2p.kademlia.table.DefaultRoutingTableFactory;
 import io.Adrestus.p2p.kademlia.table.RoutingTable;
 import io.Adrestus.p2p.kademlia.table.RoutingTableFactory;
 import io.Adrestus.p2p.kademlia.util.BoundedHashUtil;
-import io.Adrestus.p2p.kademlia.util.LoggerKademlia;
 import org.apache.commons.codec.binary.StringUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -103,7 +102,6 @@ public class RandomIPTest {
 
     @Test
     public void shouldAnswerWithTrue() throws InterruptedException, ExecutionException {
-        LoggerKademlia.setLevelOFF();
         int port = 1080;
         //use this only for debug not for tests because nodesjoiningtest
         //produces error and need size of 4

@@ -4,13 +4,15 @@ import com.alibaba.fastjson2.JSON;
 import io.Adrestus.bloom_filter.Util.UtilConstants;
 import io.Adrestus.bloom_filter.core.BloomObject;
 import io.Adrestus.bloom_filter.impl.InMemoryBloomFilter;
-import junit.framework.Assert;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BloomFilterTest {
 
@@ -33,7 +35,7 @@ public class BloomFilterTest {
 
         // now start checking
         for (String uuid : contained) {
-            Assert.assertTrue(filter.contains(uuid));
+            assertTrue(filter.contains(uuid));
         }
     }
 
@@ -55,8 +57,8 @@ public class BloomFilterTest {
         matchfilter1.add(Adress1);
         int result[] = matchfilter1.toBitsetArray();
 
-        Assert.assertTrue(filter1.containsAddress(result));
-        Assert.assertFalse(filter2.containsAddress(result));
+        assertTrue(filter1.containsAddress(result));
+        assertFalse(filter2.containsAddress(result));
     }
 
     @Test
@@ -72,7 +74,7 @@ public class BloomFilterTest {
 
         BloomFilter<String> match_filter = new InMemoryBloomFilter<String>(object.getNumBitsRequired(), object.getHashFunctionNum(), object.getArray(), null);
         boolean res = match_filter.contains(Adress1);
-        Assert.assertTrue(res);
+        assertTrue(res);
         int g = 3;
     }
 

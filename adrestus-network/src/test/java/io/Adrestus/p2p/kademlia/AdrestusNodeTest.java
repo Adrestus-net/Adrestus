@@ -1,9 +1,7 @@
 package io.Adrestus.p2p.kademlia;
 
-import ch.qos.logback.classic.Logger;
-import ch.qos.logback.classic.LoggerContext;
-import com.google.common.net.InetAddresses;
 import com.google.gson.Gson;
+import com.google.common.net.InetAddresses;
 import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.config.AdrestusConfiguration;
@@ -45,11 +43,9 @@ import io.Adrestus.p2p.kademlia.table.DefaultRoutingTableFactory;
 import io.Adrestus.p2p.kademlia.table.RoutingTable;
 import io.Adrestus.p2p.kademlia.table.RoutingTableFactory;
 import io.Adrestus.p2p.kademlia.util.BoundedHashUtil;
-import io.Adrestus.p2p.kademlia.util.LoggerKademlia;
 import org.apache.commons.codec.binary.StringUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
 
 import java.math.BigDecimal;
@@ -122,7 +118,6 @@ public class AdrestusNodeTest {
 
     @Test
     public void shouldAnswerWithTrue() throws InterruptedException, ExecutionException, FullBucketException {
-        LoggerKademlia.setLevelOFF();
         int port = 1080;
         //use this only for debug not for tests because nodesjoiningtest
         //produces error and need size of 4
@@ -276,10 +271,6 @@ public class AdrestusNodeTest {
 
     //@Test
     public void test2() throws InterruptedException, DuplicateStoreRequest, ExecutionException, TimeoutException {
-        LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
-        Logger rootLogger = loggerContext.getLogger("io.netty");
-        rootLogger.setLevel(ch.qos.logback.classic.Level.OFF);
-
         KeyHashGenerator<BigInteger, String> keyHashGenerator = key -> {
             try {
                 return new BoundedHashUtil(NodeSettings.getInstance().getIdentifierSize()).hash(new BigInteger(HashUtil.convertIPtoHex(key, 16)), BigInteger.class);

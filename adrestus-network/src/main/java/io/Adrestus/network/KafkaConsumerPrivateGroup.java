@@ -11,7 +11,6 @@ import org.apache.kafka.common.config.SaslConfigs;
 import org.apache.kafka.common.serialization.ByteArrayDeserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 
-import java.sql.SQLOutput;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -52,14 +51,17 @@ public class KafkaConsumerPrivateGroup implements IKafkaComponent {
     public void constructKafkaComponentType() {
         for (int i = 0; i < ipAddresses.size(); i++) {
             String ip = this.ipAddresses.get(i);
-            if (ip.equals(current_ip) && !ip.equals("localhost"))
+            String groupID;
+            if (ip.equals(current_ip) && !ip.equals("127.0.0.1"))
                 continue;
-            if (ip.equals("localhost")) {
+            if (ip.equals("127.0.0.1")) {
                 position = i;
-            }
+                groupID = KafkaConfiguration.CONSUMER_PRIVATE_GROUP_ID + "-" + position + "-" + ip + "-" + KafkaConfiguration.KAFKA_HOST;
+            } else
+                groupID = KafkaConfiguration.CONSUMER_PRIVATE_GROUP_ID + "-" + ip + "-" + KafkaConfiguration.KAFKA_HOST;
             Properties props = new Properties();
             props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, ip + ":" + KafkaConfiguration.KAFKA_PORT);
-            props.put(ConsumerConfig.GROUP_ID_CONFIG, KafkaConfiguration.CONSUMER_PRIVATE_GROUP_ID + "-" + ip + "-" + KafkaConfiguration.KAFKA_HOST);
+            props.put(ConsumerConfig.GROUP_ID_CONFIG, groupID);
             props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
             props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ByteArrayDeserializer.class.getName());
             props.put(ConsumerConfig.HEARTBEAT_INTERVAL_MS_CONFIG, "7000");
@@ -75,11 +77,11 @@ public class KafkaConsumerPrivateGroup implements IKafkaComponent {
             props.put(ConsumerConfig.AUTO_INCLUDE_JMX_REPORTER_CONFIG, "false");
             props.put(ConsumerConfig.ENABLE_METRICS_PUSH_CONFIG, "FALSE");
             props.put(ConsumerConfig.REQUEST_TIMEOUT_MS_CONFIG, "1000");
-            //props.put(ConsumerConfig.METADATA_MAX_AGE_CONFIG, "1000");
             props.put(ConsumerConfig.RETRY_BACKOFF_MS_CONFIG, "300");
             props.put(ConsumerConfig.RETRY_BACKOFF_MAX_MS_CONFIG, "7000");
             props.put(ConsumerConfig.RECONNECT_BACKOFF_MS_CONFIG, "300");
             props.put(ConsumerConfig.RECONNECT_BACKOFF_MAX_MS_CONFIG, "7000");
+            props.put(ConsumerConfig.SOCKET_CONNECTION_SETUP_TIMEOUT_MS_CONFIG, "20000");
             props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
             props.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SASL_PLAINTEXT");
             props.put(SaslConfigs.SASL_MECHANISM, "PLAIN");
@@ -89,7 +91,7 @@ public class KafkaConsumerPrivateGroup implements IKafkaComponent {
 
             int finalI = i;
             Runnable task = () -> {
-                for (String topic : TopicFactory.getInstance().getAllCollectionTopicsNamesAsString()) {
+                for (String topic : TopicFactory.getInstance().getCollectionTopicsNames()) {
                     int maxRetries = 5;
                     int retryCount = 0;
                     boolean success = false;
@@ -113,7 +115,7 @@ public class KafkaConsumerPrivateGroup implements IKafkaComponent {
                 }
                 consumer.subscribe(TopicFactory.getInstance().getCollectionTopicsNames());
 
-                if (ip.equals("localhost")) {
+                if (ip.equals("127.0.0.1")) {
                     if (finalI == 0) {
                         consumer_map.put(ip, consumer);
                     } else {
