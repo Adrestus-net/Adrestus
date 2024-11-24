@@ -116,7 +116,9 @@ public class DHTBootstrapNode {
 
 
     public void Init() {
-        bootStrapNode = new NettyKademliaDHTNodeBuilder<>(
+        bootStrapNode = new NettyKademliaDHTNodeBuilder<String, KademliaData>(
+                String.class,
+                KademliaData.class,
                 this.ID,
                 this.nettyConnectionInfo,
                 this.repository,
@@ -125,7 +127,9 @@ public class DHTBootstrapNode {
     }
 
     public void start() {
-        bootStrapNode = new NettyKademliaDHTNodeBuilder<>(
+        bootStrapNode = new NettyKademliaDHTNodeBuilder<String, KademliaData>(
+                String.class,
+                KademliaData.class,
                 this.ID,
                 this.nettyConnectionInfo,
                 this.repository,

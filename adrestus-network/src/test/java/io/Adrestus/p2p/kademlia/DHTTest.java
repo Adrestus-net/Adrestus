@@ -51,10 +51,12 @@ public class DHTTest {
             }
         };
 
-        nettyMessageSender1 = new OkHttpMessageSender<>();
+        nettyMessageSender1 = new OkHttpMessageSender<>(String.class, String.class);
 
         // node 1
-        node1 = new NettyKademliaDHTNodeBuilder<>(
+        node1 = new NettyKademliaDHTNodeBuilder<String, String>(
+                String.class,
+                String.class,
                 BigInteger.valueOf(1),
                 new NettyConnectionInfo("127.0.0.1", 8081),
                 new SampleRepository(),
@@ -64,7 +66,9 @@ public class DHTTest {
 
 
         // node 2
-        node2 = new NettyKademliaDHTNodeBuilder<>(
+        node2 = new NettyKademliaDHTNodeBuilder<String, String>(
+                String.class,
+                String.class,
                 BigInteger.valueOf(2),
                 new NettyConnectionInfo("127.0.0.1", 8082),
                 new SampleRepository(),

@@ -164,7 +164,7 @@ public class KafkaCreatorTopic implements IKafkaComponent {
                 }
             }
 
-            int count=0;
+            int count = 0;
             for (Map.Entry<String, String> entry : userAccounts.entrySet()) {
                 String host;
                 ResourcePattern resourcePrivateGroupPattern;
@@ -172,10 +172,10 @@ public class KafkaCreatorTopic implements IKafkaComponent {
                     host = entry.getKey().substring(0, entry.getKey().length() - 1);
                     resourcePrivateGroupPattern = new ResourcePattern(ResourceType.GROUP, KafkaConfiguration.CONSUMER_PRIVATE_GROUP_ID + "-" + count + "-" + currentIP + "-" + currentIP, PatternType.LITERAL);
                     count++;
-                }else{
+                } else {
                     host = entry.getKey();
                     resourcePrivateGroupPattern = new ResourcePattern(ResourceType.GROUP, KafkaConfiguration.CONSUMER_PRIVATE_GROUP_ID + "-" + currentIP + "-" + host, PatternType.LITERAL);
-                    }
+                }
                 AccessControlEntry consumerReadEntry = new AccessControlEntry(entry.getValue(), host, AclOperation.READ, AclPermissionType.ALLOW);
                 AccessControlEntry consumerDescribeEntry = new AccessControlEntry(entry.getValue(), host, AclOperation.DESCRIBE, AclPermissionType.ALLOW);
                 AclBinding consumerPrivateGroupReadAcl = new AclBinding(resourcePrivateGroupPattern, consumerReadEntry);

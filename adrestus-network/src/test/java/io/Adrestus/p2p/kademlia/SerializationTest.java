@@ -26,7 +26,7 @@ public class SerializationTest {
 
     @BeforeAll
     public static void initGson() {
-        gson = new GsonFactory.DefaultGsonFactory<String, String>().gson();
+        gson = new GsonFactory.DefaultGsonFactory<String, String>(String.class, String.class).gson();
         node = NettyExternalNode.builder()
                 .id(BigInteger.valueOf(1))
                 .connectionInfo(new NettyConnectionInfo("localhost", 8000))

@@ -37,7 +37,7 @@ public class KafkaZookeeper implements IKafkaComponent {
         this.zkServer.setResponseCachingEnabled(true);
 
         System.setProperty("zookeeper.globalOutstandingLimit", Integer.toString(1000));
-        System.setProperty("zookeeper.preAllocSize", Integer.toString(400*1024*1024));
+        System.setProperty("zookeeper.preAllocSize", Integer.toString(400 * 1024 * 1024));
         System.setProperty("maxClientCnxns", Integer.toString(5));
         System.setProperty("forceSync", "no");
         System.setProperty("zookeeper.jute.maxbuffer", "53687091");

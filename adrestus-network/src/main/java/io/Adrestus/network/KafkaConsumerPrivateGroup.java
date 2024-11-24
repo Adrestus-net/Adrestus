@@ -62,9 +62,9 @@ public class KafkaConsumerPrivateGroup implements IKafkaComponent {
             Properties props = new Properties();
             props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, ip + ":" + KafkaConfiguration.KAFKA_PORT);
             props.put(ConsumerConfig.GROUP_ID_CONFIG, groupID);
+            props.put(ConsumerConfig.GROUP_INSTANCE_ID_CONFIG, groupID);
             props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
             props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ByteArrayDeserializer.class.getName());
-            props.put(ConsumerConfig.HEARTBEAT_INTERVAL_MS_CONFIG, "7000");
             props.put(ConsumerConfig.MAX_PARTITION_FETCH_BYTES_CONFIG, "13107200");
             props.put(ConsumerConfig.FETCH_MAX_BYTES_CONFIG, "536870912");
             props.put(ConsumerConfig.RECEIVE_BUFFER_CONFIG, "-1");
@@ -81,8 +81,11 @@ public class KafkaConsumerPrivateGroup implements IKafkaComponent {
             props.put(ConsumerConfig.RETRY_BACKOFF_MAX_MS_CONFIG, "7000");
             props.put(ConsumerConfig.RECONNECT_BACKOFF_MS_CONFIG, "300");
             props.put(ConsumerConfig.RECONNECT_BACKOFF_MAX_MS_CONFIG, "7000");
+            props.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, "11000");
+            props.put(ConsumerConfig.HEARTBEAT_INTERVAL_MS_CONFIG, "8000");
             props.put(ConsumerConfig.SOCKET_CONNECTION_SETUP_TIMEOUT_MS_CONFIG, "20000");
             props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
+            props.put(ConsumerConfig.PARTITION_ASSIGNMENT_STRATEGY_CONFIG, "org.apache.kafka.clients.consumer.StickyAssignor");
             props.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SASL_PLAINTEXT");
             props.put(SaslConfigs.SASL_MECHANISM, "PLAIN");
             props.put(SaslConfigs.SASL_JAAS_CONFIG, "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"" + "consumer" + "-" + position + "-" + current_ip + "\" password=\"consumer-secret\";");

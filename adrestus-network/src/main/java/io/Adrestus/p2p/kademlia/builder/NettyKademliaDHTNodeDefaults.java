@@ -27,12 +27,12 @@ public class NettyKademliaDHTNodeDefaults {
         void process(NettyKademliaDHTNodeBuilder<K, V> builder);
     }
 
-    public static <K extends Serializable, V extends Serializable> void run(NettyKademliaDHTNodeBuilder<K, V> builder) {
-        List<DefaultFillerPipeline<K, V>> pipeline = getPipeline();
+    public static <K extends Serializable, V extends Serializable> void run(Class<K> kClass, Class<V> vClass, NettyKademliaDHTNodeBuilder<K, V> builder) {
+        List<DefaultFillerPipeline<K, V>> pipeline = getPipeline(kClass, vClass);
         pipeline.forEach(pipe -> pipe.process(builder));
     }
 
-    private static <K extends Serializable, V extends Serializable> List<DefaultFillerPipeline<K, V>> getPipeline() {
+    private static <K extends Serializable, V extends Serializable> List<DefaultFillerPipeline<K, V>> getPipeline(Class<K> kClass, Class<V> vClass) {
         List<DefaultFillerPipeline<K, V>> pipelines = new ArrayList<>();
 
         pipelines.add(builder -> {
@@ -50,20 +50,20 @@ public class NettyKademliaDHTNodeDefaults {
 
         pipelines.add(builder -> {
             if (builder.getGsonFactory() == null) {
-                builder.gsonFactory(new GsonFactory.DefaultGsonFactory<>());
+                builder.gsonFactory(new GsonFactory.DefaultGsonFactory<>(kClass, vClass));
             }
         });
 
         pipelines.add(builder -> {
             if (builder.getMessageSender() == null) {
-                builder.messageSender(new OkHttpMessageSender<>(new GsonMessageSerializer<>(builder.getGsonFactory().gsonBuilder())));
+                builder.messageSender(new OkHttpMessageSender<>(new GsonMessageSerializer<>(kClass, vClass, builder.getGsonFactory().gsonBuilder())));
             }
         });
 
         pipelines.add(builder -> {
             if (builder.getKademliaMessageHandlerFactory() == null) {
                 NettyKademliaServerFilterChain<K, V> filterChain = new NettyKademliaServerFilterChain<>();
-                filterChain.addFilter(new KademliaMainHandlerFilter<>(new GsonMessageSerializer<>(builder.getGsonFactory().gsonBuilder())));
+                filterChain.addFilter(new KademliaMainHandlerFilter<>(new GsonMessageSerializer<>(kClass, vClass, builder.getGsonFactory().gsonBuilder())));
                 builder.kademliaMessageHandlerFactory(new KademliaMessageHandlerFactory.DefaultKademliaMessageHandlerFactory<>(filterChain));
             }
         });

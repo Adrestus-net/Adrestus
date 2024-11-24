@@ -1,7 +1,5 @@
 package io.Adrestus.network;
 
-import java.util.ArrayList;
-
 public interface KafkaSmith {
 
     void manufactureKafkaComponent(KafkaKingdomType kafkaKingdomType);

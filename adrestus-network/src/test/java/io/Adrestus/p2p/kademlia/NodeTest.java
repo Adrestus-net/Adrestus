@@ -1,7 +1,5 @@
 package io.Adrestus.p2p.kademlia;
 
-import ch.qos.logback.classic.Logger;
-import ch.qos.logback.classic.LoggerContext;
 import io.Adrestus.config.KademliaConfiguration;
 import io.Adrestus.config.NodeSettings;
 import io.Adrestus.crypto.HashUtil;
@@ -23,7 +21,6 @@ import io.Adrestus.p2p.kademlia.util.BoundedHashUtil;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.slf4j.LoggerFactory;
 
 import java.math.BigInteger;
 import java.util.HashMap;
@@ -70,9 +67,12 @@ public class NodeTest {
                 return (O) doHandle(kademliaNode, (PongKademliaMessage<BigInteger, NettyConnectionInfo>) message);
             }
         };
-        nettyMessageSender1 = new OkHttpMessageSender<>();
+        nettyMessageSender1 = new OkHttpMessageSender<>(String.class, String.class);
+        ;
 
-        node1 = new NettyKademliaDHTNodeBuilder<>(
+        node1 = new NettyKademliaDHTNodeBuilder<String, String>(
+                String.class,
+                String.class,
                 BigInteger.valueOf(1),
                 new NettyConnectionInfo("127.0.0.1", 8081),
                 new SampleRepository(),
@@ -83,7 +83,9 @@ public class NodeTest {
 
 
         // node 2
-        node2 = new NettyKademliaDHTNodeBuilder<>(
+        node2 = new NettyKademliaDHTNodeBuilder<String, String>(
+                String.class,
+                String.class,
                 BigInteger.valueOf(2),
                 new NettyConnectionInfo("127.0.0.1", 8082),
                 new SampleRepository(),
@@ -92,7 +94,9 @@ public class NodeTest {
 
         System.out.println("Bootstrapped? " + node2.start(node1).get(1, TimeUnit.SECONDS));
 
-        node3 = new NettyKademliaDHTNodeBuilder<>(
+        node3 = new NettyKademliaDHTNodeBuilder<String, String>(
+                String.class,
+                String.class,
                 BigInteger.valueOf(3),
                 new NettyConnectionInfo("127.0.0.1", 8083),
                 new SampleRepository(),
@@ -101,7 +105,9 @@ public class NodeTest {
 
         System.out.println("Bootstrapped? " + node3.start(node1).get(1, TimeUnit.SECONDS));
 
-        node4 = new NettyKademliaDHTNodeBuilder<>(
+        node4 = new NettyKademliaDHTNodeBuilder<String, String>(
+                String.class,
+                String.class,
                 BigInteger.valueOf(4),
                 new NettyConnectionInfo("127.0.0.1", 8084),
                 new SampleRepository(),
@@ -111,7 +117,9 @@ public class NodeTest {
         System.out.println("Bootstrapped? " + node4.start(node1).get(1, TimeUnit.SECONDS));
 
 
-        node5 = new NettyKademliaDHTNodeBuilder<>(
+        node5 = new NettyKademliaDHTNodeBuilder<String, String>(
+                String.class,
+                String.class,
                 BigInteger.valueOf(5),
                 new NettyConnectionInfo("127.0.0.1", 8085),
                 new SampleRepository(),

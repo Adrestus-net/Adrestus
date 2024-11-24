@@ -148,7 +148,8 @@ public class ConsensusServer {
 //        this.publisher.setLinger(200);
 //        this.publisher.setHWM(3);
 //        this.publisher.setConflate(true);
-////        this.chunksCollector.setHWM(10000);
+
+    /// /        this.chunksCollector.setHWM(10000);
 //
 //        this.chunksCollector.bind("tcp://" + IP + ":" + CHUNKS_COLLECTOR_PORT);
 //        this.publisher.bind("tcp://" + IP + ":" + PUBLISHER_PORT);
@@ -169,7 +170,6 @@ public class ConsensusServer {
 //        this.task = new ConnectedTaskTimeout();
 //        this.BlockUntilConnected();
 //    }
-
     private ConsensusServer(String IP) {
         this.executorService = Executors.newSingleThreadExecutor();
         this.message_deque = new LinkedBlockingDeque<>();

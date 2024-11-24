@@ -15,18 +15,23 @@ import java.math.BigInteger;
 
 public class DHTStoreDataDeserializer<K extends Serializable, V extends Serializable> implements JsonDeserializer<DHTStoreKademliaMessage.DHTData<BigInteger, NettyConnectionInfo, K, V>> {
 
+    private final Class<K> kClass;
+    private final Class<V> vClass;
+
+    public DHTStoreDataDeserializer(Class<K> kClass, Class<V> vClass) {
+        this.kClass = kClass;
+        this.vClass = vClass;
+    }
+
     @Override
     public DHTStoreKademliaMessage.DHTData<BigInteger, NettyConnectionInfo, K, V> deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
         DHTStoreKademliaMessage.DHTData<BigInteger, NettyConnectionInfo, K, V> dhtData = new DHTStoreKademliaMessage.DHTData<>();
         JsonObject jsonObject = jsonElement.getAsJsonObject();
-        dhtData.setKey(jsonDeserializationContext.deserialize(jsonObject.get("key"), new TypeToken<K>() {
-        }.getType()));
+        dhtData.setKey(jsonDeserializationContext.deserialize(jsonObject.get("key"), TypeToken.getParameterized(kClass).getType()));
         try {
-            dhtData.setValue(SingletonGsonFactory.getInstance().gson().fromJson(jsonObject.get("value"), new TypeToken<KademliaData>() {
-            }.getType()));
+            dhtData.setValue(SingletonGsonFactory.getInstance().gson().fromJson(jsonObject.get("value"), TypeToken.getParameterized(KademliaData.class).getType()));
         } catch (Exception e) {
-            dhtData.setValue(jsonDeserializationContext.deserialize(jsonObject.get("value"), new TypeToken<V>() {
-            }.getType()));
+            dhtData.setValue(jsonDeserializationContext.deserialize(jsonObject.get("value"), TypeToken.getParameterized(vClass).getType()));
         }
         dhtData.setRequester(jsonDeserializationContext.deserialize(jsonObject.getAsJsonObject("requester"), Node.class));
         return dhtData;

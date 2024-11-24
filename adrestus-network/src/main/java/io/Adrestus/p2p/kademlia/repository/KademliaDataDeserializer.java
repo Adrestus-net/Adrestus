@@ -1,7 +1,7 @@
 package io.Adrestus.p2p.kademlia.repository;
 
-import com.google.common.reflect.TypeToken;
 import com.google.gson.*;
+import com.google.gson.reflect.TypeToken;
 import io.Adrestus.crypto.SecurityAuditProofs;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.Adrestus.crypto.elliptic.ECDSASignatureData;
@@ -14,10 +14,8 @@ public class KademliaDataDeserializer implements JsonDeserializer<KademliaData> 
     @Override
     public KademliaData deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext context) throws JsonParseException {
         Gson gson = new Gson();
-        final Type blstoken = new TypeToken<BLSPublicKey>() {
-        }.getType();
-        final Type ecdsaSignatureData = new TypeToken<ECDSASignatureData>() {
-        }.getType();
+        final Type blstoken = TypeToken.getParameterized(BLSPublicKey.class).getType();
+        final Type ecdsaSignatureData = TypeToken.getParameterized(ECDSASignatureData.class).getType();
         final JsonObject resourceJson = jsonElement.getAsJsonObject();
 
         KademliaData kademliaData = new KademliaData();

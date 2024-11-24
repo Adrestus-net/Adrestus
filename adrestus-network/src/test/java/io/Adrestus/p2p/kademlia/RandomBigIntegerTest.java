@@ -52,7 +52,9 @@ public class RandomBigIntegerTest {
         String ipString = InetAddresses.fromInteger(random.nextInt()).getHostAddress();
         BigInteger id = new BigInteger(convertIPtoHex(ipString, 16));
         // node 1
-        NettyKademliaDHTNode<String, KademliaData> bootsrtap = new NettyKademliaDHTNodeBuilder<>(
+        NettyKademliaDHTNode<String, KademliaData> bootsrtap = new NettyKademliaDHTNodeBuilder<String, KademliaData>(
+                String.class,
+                KademliaData.class,
                 id,
                 new NettyConnectionInfo("127.0.0.1", port),
                 new AdrestusNodeTest.SampleRepository(),
@@ -68,7 +70,9 @@ public class RandomBigIntegerTest {
             String ipString1 = InetAddresses.fromInteger(random.nextInt()).getHostAddress();
             BigInteger id1 = new BigInteger(convertIPtoHex(ipString1, 16));
             RoutingTable<BigInteger, NettyConnectionInfo, Bucket<BigInteger, NettyConnectionInfo>> routingTable = routingTableFactory.getRoutingTable(BigInteger.valueOf(i));
-            NettyKademliaDHTNode<String, String> nextnode = new NettyKademliaDHTNodeBuilder<>(
+            NettyKademliaDHTNode<String, String> nextnode = new NettyKademliaDHTNodeBuilder<String, String>(
+                    String.class,
+                    String.class,
                     id1,
                     new NettyConnectionInfo("127.0.0.1", port + (int) i),
                     new SampleRepository(),
@@ -104,7 +108,9 @@ public class RandomBigIntegerTest {
         };
 
         // node 1
-        NettyKademliaDHTNode<String, KademliaData> bootsrtap = new NettyKademliaDHTNodeBuilder<>(
+        NettyKademliaDHTNode<String, KademliaData> bootsrtap = new NettyKademliaDHTNodeBuilder<String, KademliaData>(
+                String.class,
+                KademliaData.class,
                 BigInteger.valueOf(7L),
                 new NettyConnectionInfo("127.0.0.1", port),
                 new AdrestusNodeTest.SampleRepository(),
@@ -118,7 +124,9 @@ public class RandomBigIntegerTest {
         ArrayList<NettyKademliaDHTNode<String, String>> list = new ArrayList<>();
         for (int i = 0; i < 7; i++) {
             RoutingTable<BigInteger, NettyConnectionInfo, Bucket<BigInteger, NettyConnectionInfo>> routingTable = routingTableFactory.getRoutingTable(BigInteger.valueOf(i));
-            NettyKademliaDHTNode<String, String> nextnode = new NettyKademliaDHTNodeBuilder<>(
+            NettyKademliaDHTNode<String, String> nextnode = new NettyKademliaDHTNodeBuilder<String, String>(
+                    String.class,
+                    String.class,
                     BigInteger.valueOf(i),
                     new NettyConnectionInfo("127.0.0.1", port + (int) i),
                     new SampleRepository(),

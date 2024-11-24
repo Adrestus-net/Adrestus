@@ -51,7 +51,9 @@ public class GetActiveNodes {
         };
 
         // node 1
-        NettyKademliaDHTNode<String, String> bootsrtap = new NettyKademliaDHTNodeBuilder<>(
+        NettyKademliaDHTNode<String, String> bootsrtap = new NettyKademliaDHTNodeBuilder<String, String>(
+                String.class,
+                String.class,
                 BigInteger.valueOf(1L),
                 new NettyConnectionInfo("127.0.0.1", port),
                 new SampleRepository(),
@@ -64,14 +66,18 @@ public class GetActiveNodes {
             BigInteger id1 = new BigInteger(convertIPtoHex(ipString, 24));
             NettyKademliaDHTNode<String, String> nextnode = null;
             if (i == 0) {
-                nextnode = new NettyKademliaDHTNodeBuilder<>(
+                nextnode = new NettyKademliaDHTNodeBuilder<String, String>(
+                        String.class,
+                        String.class,
                         id1,
                         new NettyConnectionInfo("127.0.0.1", port - 1),
                         new SampleRepository(),
                         keyHashGenerator
                 ).withNodeSettings(NodeSettings.getInstance()).build();
             } else {
-                nextnode = new NettyKademliaDHTNodeBuilder<>(
+                nextnode = new NettyKademliaDHTNodeBuilder<String, String>(
+                        String.class,
+                        String.class,
                         id1,
                         new NettyConnectionInfo("127.0.0.1", port + (int) i),
                         new SampleRepository(),

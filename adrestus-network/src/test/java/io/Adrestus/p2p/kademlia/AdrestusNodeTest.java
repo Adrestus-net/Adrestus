@@ -1,7 +1,7 @@
 package io.Adrestus.p2p.kademlia;
 
-import com.google.gson.Gson;
 import com.google.common.net.InetAddresses;
+import com.google.gson.Gson;
 import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.config.AdrestusConfiguration;
@@ -132,7 +132,9 @@ public class AdrestusNodeTest {
         };
 
         // node 1
-        NettyKademliaDHTNode<String, KademliaData> bootsrtap = new NettyKademliaDHTNodeBuilder<>(
+        NettyKademliaDHTNode<String, KademliaData> bootsrtap = new NettyKademliaDHTNodeBuilder<String, KademliaData>(
+                String.class,
+                KademliaData.class,
                 BigInteger.valueOf(7L),
                 new NettyConnectionInfo("127.0.0.1", port),
                 new SampleRepository(),
@@ -147,6 +149,8 @@ public class AdrestusNodeTest {
         for (int i = 0; i < 7; i++) {
             RoutingTable<BigInteger, NettyConnectionInfo, Bucket<BigInteger, NettyConnectionInfo>> routingTable = routingTableFactory.getRoutingTable(BigInteger.valueOf(i));
             NettyKademliaDHTNode<String, KademliaData> nextnode = new NettyKademliaDHTNodeBuilder<>(
+                    String.class,
+                    KademliaData.class,
                     BigInteger.valueOf(i),
                     new NettyConnectionInfo("127.0.0.1", port + (int) i),
                     new SampleRepository(),
@@ -278,7 +282,7 @@ public class AdrestusNodeTest {
                 throw new IllegalArgumentException("Key hash generator not valid");
             }
         };
-        nettyMessageSender1 = new OkHttpMessageSender<>();
+        nettyMessageSender1 = new OkHttpMessageSender<>(String.class, String.class);
 
         MessageHandler<BigInteger, NettyConnectionInfo> handler = new PongMessageHandler<BigInteger, NettyConnectionInfo>() {
             @Override
@@ -288,7 +292,9 @@ public class AdrestusNodeTest {
             }
         };
 
-        node1 = new NettyKademliaDHTNodeBuilder<>(
+        node1 = new NettyKademliaDHTNodeBuilder<String, KademliaData>(
+                String.class,
+                KademliaData.class,
                 BigInteger.valueOf(1),
                 new NettyConnectionInfo("127.0.0.1", 8081),
                 new SampleRepository(),
@@ -296,7 +302,9 @@ public class AdrestusNodeTest {
         ).withNodeSettings(NodeSettings.getInstance()).build();
         node1.start();
         // node 2
-        node2 = new NettyKademliaDHTNodeBuilder<>(
+        node2 = new NettyKademliaDHTNodeBuilder<String, KademliaData>(
+                String.class,
+                KademliaData.class,
                 BigInteger.valueOf(2),
                 new NettyConnectionInfo("127.0.0.1", 8082),
                 new SampleRepository(),

@@ -61,10 +61,10 @@ public class KaFkaTest {
         //KafkaConsumerSameGroup consumerSame = kafkaSmith.getKafkaComponent(KafkaKingdomType.CONSUMER_SAME);
         try {
             ConsumerRecords<String, byte[]> res1 = consumerPrivate.getConsumer_map().get(KafkaConfiguration.KAFKA_HOST).poll(Duration.ofMillis(15000));
-            ConsumerRecords<String, byte[]> res2 = consumerPrivate.getConsumer_map().get(KafkaConfiguration.KAFKA_HOST+"1").poll(Duration.ofMillis(15000));
-            ConsumerRecords<String, byte[]> res3 = consumerPrivate.getConsumer_map().get(KafkaConfiguration.KAFKA_HOST+"2").poll(Duration.ofMillis(15000));
-            ConsumerRecords<String, byte[]> res4 = consumerPrivate.getConsumer_map().get(KafkaConfiguration.KAFKA_HOST+"3").poll(Duration.ofMillis(15000));
-            ConsumerRecords<String, byte[]> res5 = consumerPrivate.getConsumer_map().get(KafkaConfiguration.KAFKA_HOST+"4").poll(Duration.ofMillis(15000));
+            ConsumerRecords<String, byte[]> res2 = consumerPrivate.getConsumer_map().get(KafkaConfiguration.KAFKA_HOST + "1").poll(Duration.ofMillis(15000));
+            ConsumerRecords<String, byte[]> res3 = consumerPrivate.getConsumer_map().get(KafkaConfiguration.KAFKA_HOST + "2").poll(Duration.ofMillis(15000));
+            ConsumerRecords<String, byte[]> res4 = consumerPrivate.getConsumer_map().get(KafkaConfiguration.KAFKA_HOST + "3").poll(Duration.ofMillis(15000));
+            ConsumerRecords<String, byte[]> res5 = consumerPrivate.getConsumer_map().get(KafkaConfiguration.KAFKA_HOST + "4").poll(Duration.ofMillis(15000));
             assertEquals(2, res1.count());
             assertEquals(2, res2.count());
             assertEquals(2, res3.count());

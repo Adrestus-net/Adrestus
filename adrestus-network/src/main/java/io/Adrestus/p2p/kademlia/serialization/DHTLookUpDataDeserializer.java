@@ -13,15 +13,26 @@ import java.math.BigInteger;
 
 public class DHTLookUpDataDeserializer<K extends Serializable> implements JsonDeserializer<DHTLookupKademliaMessage.DHTLookup<BigInteger, NettyConnectionInfo, K>> {
 
+    private final Class<K> kClass;
+
+    public DHTLookUpDataDeserializer(Class<K> kClass) {
+        this.kClass = kClass;
+    }
+
     @Override
     public DHTLookupKademliaMessage.DHTLookup<BigInteger, NettyConnectionInfo, K> deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
         DHTLookupKademliaMessage.DHTLookup<BigInteger, NettyConnectionInfo, K> dhtLookup = new DHTLookupKademliaMessage.DHTLookup<>();
         JsonObject jsonObject = jsonElement.getAsJsonObject();
-        JsonObject requesterJsonObject = jsonObject.getAsJsonObject("requester");
+        JsonObject requesterJsonObject;
+        if (jsonObject.getAsJsonObject("requester") == null) {
+            jsonObject = jsonObject.getAsJsonObject("data");
+            requesterJsonObject = jsonObject.getAsJsonObject("requester");
+        } else {
+            requesterJsonObject = jsonObject.getAsJsonObject("requester");
+        }
         dhtLookup.setRequester(jsonDeserializationContext.deserialize(requesterJsonObject, Node.class));
         dhtLookup.setCurrentTry(jsonObject.get("current_try").getAsInt());
-        dhtLookup.setKey(jsonDeserializationContext.deserialize(jsonObject.get("key"), new TypeToken<K>() {
-        }.getType()));
+        dhtLookup.setKey(jsonDeserializationContext.deserialize(jsonObject.get("key"), TypeToken.getParameterized(kClass).getType()));
         return dhtLookup;
     }
 }

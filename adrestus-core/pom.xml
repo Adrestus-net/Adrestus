@@ -62,6 +62,12 @@
             <groupId>io.Adrestus.v1</groupId>
             <artifactId>adrestus-network</artifactId>
             <version>${network.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-classic</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>io.Adrestus.v1</groupId>

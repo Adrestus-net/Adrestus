@@ -116,7 +116,9 @@ public class RandomIPTest {
         };
 
         // node 1
-        NettyKademliaDHTNode<String, KademliaData> bootsrtap = new NettyKademliaDHTNodeBuilder<>(
+        NettyKademliaDHTNode<String, KademliaData> bootsrtap = new NettyKademliaDHTNodeBuilder<String, KademliaData>(
+                String.class,
+                KademliaData.class,
                 BigInteger.valueOf(10),
                 new NettyConnectionInfo("127.0.0.1", port),
                 new AdrestusNodeTest.SampleRepository(),
@@ -133,7 +135,9 @@ public class RandomIPTest {
             String ipString1 = InetAddresses.fromInteger(random.nextInt()).getHostAddress();
             BigInteger id1 = new BigInteger(HashUtil.convertIPtoHex(ipString1, 16));
             RoutingTable<BigInteger, NettyConnectionInfo, Bucket<BigInteger, NettyConnectionInfo>> routingTable = routingTableFactory.getRoutingTable(BigInteger.valueOf(i));
-            NettyKademliaDHTNode<String, KademliaData> nextnode = new NettyKademliaDHTNodeBuilder<>(
+            NettyKademliaDHTNode<String, KademliaData> nextnode = new NettyKademliaDHTNodeBuilder<String, KademliaData>(
+                    String.class,
+                    KademliaData.class,
                     id1,
                     new NettyConnectionInfo("127.0.0.1", port + (int) i),
                     new AdrestusNodeTest.SampleRepository(),

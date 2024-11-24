@@ -11,20 +11,24 @@ import java.io.Serializable;
 import java.lang.reflect.Type;
 
 public class DHTLookUpResultDeserializer<K extends Serializable, V extends Serializable> implements JsonDeserializer<DHTLookupResultKademliaMessage.DHTLookupResult<K, V>> {
+    private final Class<K> kClass;
+    private final Class<V> vClass;
+
+    public DHTLookUpResultDeserializer(Class<K> kClass, Class<V> vClass) {
+        this.kClass = kClass;
+        this.vClass = vClass;
+    }
 
     @Override
     public DHTLookupResultKademliaMessage.DHTLookupResult<K, V> deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
         DHTLookupResultKademliaMessage.DHTLookupResult<K, V> dhtLookupResult = new DHTLookupResultKademliaMessage.DHTLookupResult<>();
         JsonObject jsonObject = jsonElement.getAsJsonObject();
-        dhtLookupResult.setKey(jsonDeserializationContext.deserialize(jsonObject.get("key"), new TypeToken<K>() {
-        }.getType()));
+        dhtLookupResult.setKey(jsonDeserializationContext.deserialize(jsonObject.get("key"), TypeToken.getParameterized(kClass).getType()));
         try {
             dhtLookupResult.setValue(SingletonGsonFactory.getInstance().gson().fromJson(jsonObject.get("value"),
-                    new TypeToken<KademliaData>() {
-                    }.getType()));
+                    TypeToken.getParameterized(KademliaData.class).getType()));
         } catch (Exception e) {
-            dhtLookupResult.setValue(jsonDeserializationContext.deserialize(jsonObject.get("value"), new TypeToken<V>() {
-            }.getType()));
+            dhtLookupResult.setValue(jsonDeserializationContext.deserialize(jsonObject.get("value"), TypeToken.getParameterized(vClass).getType()));
         }
         dhtLookupResult.setResult(LookupAnswer.Result.valueOf(jsonObject.get("result").getAsString()));
         return dhtLookupResult;

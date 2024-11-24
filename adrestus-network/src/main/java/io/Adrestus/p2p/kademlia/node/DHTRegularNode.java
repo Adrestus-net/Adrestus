@@ -95,7 +95,9 @@ public class DHTRegularNode {
 
 
     public void start(DHTBootstrapNode bootstrap) {
-        regular_node = new NettyKademliaDHTNodeBuilder<>(
+        regular_node = new NettyKademliaDHTNodeBuilder<String, KademliaData>(
+                String.class,
+                KademliaData.class,
                 this.ID,
                 this.nettyConnectionInfo,
                 this.repository,
@@ -114,7 +116,9 @@ public class DHTRegularNode {
 
 
     public void start(DHTBootstrapNode bootstrap, RoutingTable<BigInteger, NettyConnectionInfo, Bucket<BigInteger, NettyConnectionInfo>> routingTable) {
-        regular_node = new NettyKademliaDHTNodeBuilder<>(
+        regular_node = new NettyKademliaDHTNodeBuilder<String, KademliaData>(
+                String.class,
+                KademliaData.class,
                 this.ID,
                 this.nettyConnectionInfo,
                 this.repository,

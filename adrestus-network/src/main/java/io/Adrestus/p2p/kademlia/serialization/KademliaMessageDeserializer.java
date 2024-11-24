@@ -19,37 +19,31 @@ import java.util.concurrent.ConcurrentHashMap;
 public class KademliaMessageDeserializer<K extends Serializable, V extends Serializable> implements JsonDeserializer<KademliaMessage<BigInteger, NettyConnectionInfo, Serializable>> {
     private final Map<String, Type> typeRegistry = new ConcurrentHashMap<>();
     private final Map<String, Class<?>> messageClassRegistry = new ConcurrentHashMap<>();
+    private final Class<K> kClass;
+    private final Class<V> vClass;
 
-    public KademliaMessageDeserializer() {
-        this.registerDataType(MessageType.DHT_LOOKUP, new TypeToken<DHTLookupKademliaMessage.DHTLookup<BigInteger, NettyConnectionInfo, K>>() {
-        }.getType());
+    public KademliaMessageDeserializer(Class<K> kClass, Class<V> vClass) {
+        this.kClass = kClass;
+        this.vClass = vClass;
+        this.registerDataType(MessageType.DHT_LOOKUP, TypeToken.getParameterized(DHTLookupKademliaMessage.DHTLookup.class, BigInteger.class, NettyConnectionInfo.class, kClass).getType());
         this.registerMessageClass(MessageType.DHT_LOOKUP, DHTLookupKademliaMessage.class);
-        this.registerDataType(MessageType.DHT_LOOKUP_RESULT, new TypeToken<DHTLookupResultKademliaMessage.DHTLookupResult<K, V>>() {
-        }.getType());
+        this.registerDataType(MessageType.DHT_LOOKUP_RESULT, TypeToken.getParameterized(DHTLookupResultKademliaMessage.DHTLookupResult.class, kClass, vClass).getType());
         this.registerMessageClass(MessageType.DHT_LOOKUP_RESULT, DHTLookupResultKademliaMessage.class);
-        this.registerDataType(MessageType.DHT_STORE, new TypeToken<DHTStoreKademliaMessage.DHTData<BigInteger, NettyConnectionInfo, K, V>>() {
-        }.getType());
+        this.registerDataType(MessageType.DHT_STORE, TypeToken.getParameterized(DHTStoreKademliaMessage.DHTData.class, BigInteger.class, NettyConnectionInfo.class, kClass, vClass).getType());
         this.registerMessageClass(MessageType.DHT_STORE, DHTStoreKademliaMessage.class);
-        this.registerDataType(MessageType.DHT_STORE_RESULT, new TypeToken<DHTStoreResultKademliaMessage.DHTStoreResult<K>>() {
-        }.getType());
+        this.registerDataType(MessageType.DHT_STORE_RESULT, TypeToken.getParameterized(DHTStoreResultKademliaMessage.DHTStoreResult.class, kClass).getType());
         this.registerMessageClass(MessageType.DHT_STORE_RESULT, DHTStoreResultKademliaMessage.class);
-        this.registerDataType(MessageType.FIND_NODE_REQ, new TypeToken<BigInteger>() {
-        }.getType());
+        this.registerDataType(MessageType.FIND_NODE_REQ, TypeToken.getParameterized(BigInteger.class).getType());
         this.registerMessageClass(MessageType.FIND_NODE_REQ, FindNodeRequestMessage.class);
-        this.registerDataType(MessageType.FIND_NODE_RES, new TypeToken<FindNodeAnswer<BigInteger, NettyConnectionInfo>>() {
-        }.getType());
+        this.registerDataType(MessageType.FIND_NODE_RES, TypeToken.getParameterized(FindNodeAnswer.class, BigInteger.class, NettyConnectionInfo.class).getType());
         this.registerMessageClass(MessageType.FIND_NODE_RES, FindNodeResponseMessage.class);
-        this.registerDataType(MessageType.PING, new TypeToken<String>() {
-        }.getType());
+        this.registerDataType(MessageType.PING, TypeToken.getParameterized(String.class).getType());
         this.registerMessageClass(MessageType.PING, PingKademliaMessage.class);
-        this.registerDataType(MessageType.PONG, new TypeToken<String>() {
-        }.getType());
+        this.registerDataType(MessageType.PONG, TypeToken.getParameterized(String.class).getType());
         this.registerMessageClass(MessageType.PONG, PongKademliaMessage.class);
-        this.registerDataType(MessageType.SHUTDOWN, new TypeToken<String>() {
-        }.getType());
+        this.registerDataType(MessageType.SHUTDOWN, TypeToken.getParameterized(String.class).getType());
         this.registerMessageClass(MessageType.SHUTDOWN, ShutdownKademliaMessage.class);
-        this.registerDataType(MessageType.EMPTY, new TypeToken<String>() {
-        }.getType());
+        this.registerDataType(MessageType.EMPTY, TypeToken.getParameterized(String.class).getType());
         this.registerMessageClass(MessageType.EMPTY, EmptyKademliaMessage.class);
     }
 

@@ -250,10 +250,11 @@ public class TreemapSerializationTest {
 //        long timeElapsed = finish - start;
 //        System.out.println("elapsed: " + timeElapsed);
 //        assertEquals(copy, copy2);
-////
-////        assertEquals(treeNode4, pat.get());
-////        assertEquals(15, copy2.getByaddress(address).get().getAmount().doubleValue());
-////        assertEquals(15, copy2.getByaddress(address).get().getAmount().doubleValue());
+
+    /// /
+    /// /        assertEquals(treeNode4, pat.get());
+    /// /        assertEquals(15, copy2.getByaddress(address).get().getAmount().doubleValue());
+    /// /        assertEquals(15, copy2.getByaddress(address).get().getAmount().doubleValue());
 //
 //        System.out.println(TreeFactory.getMemoryTree(0).getByaddress(address1).get().toString()+" "+TreeFactory.getMemoryTree(0).getRootHash());
 //        System.out.println(copy2.getByaddress(address1).get().toString()+" "+copy2.getRootHash());
@@ -277,7 +278,6 @@ public class TreemapSerializationTest {
 //        assertEquals(TreeFactory.getMemoryTree(0), copy);
 //        tree_datasbase.delete_db();
 //    }
-
     @Test
     public void treemap_database_test2() throws Exception {
         IDatabase<String, byte[]> tree_database = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getPatriciaTreeZoneInstance(0));

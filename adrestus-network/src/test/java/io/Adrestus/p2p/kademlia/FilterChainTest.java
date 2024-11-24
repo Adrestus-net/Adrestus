@@ -7,7 +7,6 @@ import io.Adrestus.p2p.kademlia.builder.NettyKademliaDHTNodeBuilder;
 import io.Adrestus.p2p.kademlia.client.OkHttpMessageSender;
 import io.Adrestus.p2p.kademlia.common.NettyConnectionInfo;
 import io.Adrestus.p2p.kademlia.exception.UnsupportedBoundingException;
-import io.Adrestus.p2p.kademlia.factory.GsonFactory;
 import io.Adrestus.p2p.kademlia.factory.KademliaMessageHandlerFactory;
 import io.Adrestus.p2p.kademlia.node.KeyHashGenerator;
 import io.Adrestus.p2p.kademlia.repository.KademliaRepository;
@@ -55,10 +54,12 @@ public class FilterChainTest {
             }
         };
 
-        nettyMessageSender1 = new OkHttpMessageSender<>();
+        nettyMessageSender1 = new OkHttpMessageSender<>(String.class, String.class);
 
         // node 1
-        node1 = new NettyKademliaDHTNodeBuilder<>(
+        node1 = new NettyKademliaDHTNodeBuilder<String, String>(
+                String.class,
+                String.class,
                 BigInteger.valueOf(1),
                 new NettyConnectionInfo("127.0.0.1", 8081),
                 new SampleRepository(),
@@ -81,10 +82,12 @@ public class FilterChainTest {
 
         NettyKademliaServerFilterChain<String, String> filterChain = new NettyKademliaServerFilterChain<>();
         filterChain.addFilter(new EmptyFilter());
-        filterChain.addFilter(new KademliaMainHandlerFilter<>(new GsonMessageSerializer<>(new GsonFactory.DefaultGsonFactory<>().gsonBuilder())));
+        filterChain.addFilter(new KademliaMainHandlerFilter<>(new GsonMessageSerializer<String, String>(String.class, String.class)));
 
 
         NettyKademliaDHTNode<String, String> node2 = new NettyKademliaDHTNodeBuilder<>(
+                String.class,
+                String.class,
                 BigInteger.valueOf(2),
                 new NettyConnectionInfo("127.0.0.1", 8082),
                 new SampleRepository(),

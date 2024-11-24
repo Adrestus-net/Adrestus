@@ -13,7 +13,7 @@ public class PreparePhaseTopic implements ITopic {
     }
 
     @Override
-    public void constructTopicName(Map<String,String> configs,int numPartitions) {
+    public void constructTopicName(Map<String, String> configs, int numPartitions) {
         topicName = new NewTopic(TopicType.PREPARE_PHASE.name(), numPartitions, KafkaConfiguration.KAFKA_REPLICATION_FACTOR);
         topicName.configs(configs);
     }

@@ -42,12 +42,12 @@ public class OkHttpMessageSender<K extends Serializable, V extends Serializable>
         this(messageSerializer, Executors.newSingleThreadExecutor());
     }
 
-    public OkHttpMessageSender(ExecutorService executorService) {
-        this(new GsonMessageSerializer<K, V>(), executorService);
+    public OkHttpMessageSender(ExecutorService executorService, Class<K> kClass, Class<V> vClass) {
+        this(new GsonMessageSerializer<K, V>(kClass, vClass), executorService);
     }
 
-    public OkHttpMessageSender() {
-        this(new GsonMessageSerializer<K, V>());
+    public OkHttpMessageSender(Class<K> kClass, Class<V> vClass) {
+        this(new GsonMessageSerializer<K, V>(kClass, vClass));
     }
 
     @Override

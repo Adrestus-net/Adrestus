@@ -170,7 +170,7 @@ public class ConsensusBroker {
                     try {
                         Consumer<String, byte[]> consumer = consumers.get(finalI);
                         ConsumerRecords<String, byte[]> records = consumer.poll(Duration.ofMillis(KafkaConfiguration.RECEIVE_TIMEOUT));
-                        System.out.println(Thread.currentThread().getName()+" "+topic.name()+" "+records.count());
+                        System.out.println(Thread.currentThread().getName() + " " + topic.name() + " " + records.count());
                         for (ConsumerRecord<String, byte[]> record : records) {
                             TopicType current = TopicType.valueOf(record.topic());
                             if (!this.sequencedMap.get(current).containsKey(Integer.parseInt(record.key()))) {
@@ -222,7 +222,7 @@ public class ConsensusBroker {
             while (timeout < KafkaConfiguration.EXECUTOR_TIMEOUT) {
                 try {
                     ConsumerRecords<String, byte[]> records = consumer.poll(Duration.ofMillis(KafkaConfiguration.RECEIVE_TIMEOUT));
-                    System.out.println(topic.name()+" "+records.count());
+                    System.out.println(topic.name() + " " + records.count());
                     for (ConsumerRecord<String, byte[]> record : records) {
                         TopicType current = TopicType.valueOf(record.topic());
                         if (!this.sequencedMap.get(current).containsKey(Integer.parseInt(record.key()))) {
@@ -268,6 +268,7 @@ public class ConsensusBroker {
 
         return new ArrayList<>(this.serenc_erasure.decode(message.get()));
     }
+
     @SneakyThrows
     public Optional<byte[]> receiveDisperseMessageFromLeader(TopicType topic, String key) {
         KafkaConsumerSameGroup leaderSameConsumeData = this.kafkaManufactureSmith.getKafkaComponent(KafkaKingdomType.CONSUMER_SAME);
@@ -281,7 +282,7 @@ public class ConsensusBroker {
             while (timeout < KafkaConfiguration.EXECUTOR_TIMEOUT) {
                 try {
                     ConsumerRecords<String, byte[]> records = consumer.poll(Duration.ofMillis(KafkaConfiguration.RECEIVE_TIMEOUT));
-                    System.out.println(topic.name()+" "+records.count());
+                    System.out.println(topic.name() + " " + records.count());
                     for (ConsumerRecord<String, byte[]> record : records) {
                         TopicType current = TopicType.valueOf(record.topic());
                         if (!this.sequencedMap.get(current).containsKey(Integer.parseInt(record.key()))) {
@@ -295,7 +296,7 @@ public class ConsensusBroker {
                         }
                     }
                     timeout++;
-                }catch (Exception e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                     throw new IllegalArgumentException("Error in receiving disperse message from leader" + e.getMessage());
                 }

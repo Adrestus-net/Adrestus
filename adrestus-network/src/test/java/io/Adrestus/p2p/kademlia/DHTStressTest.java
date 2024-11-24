@@ -122,11 +122,11 @@ public class DHTStressTest {
             BigInteger id4 = new BigInteger(HashUtil.convertIPtoHex(ipString4, 16));
 
 
-            nettyMessageSender1 = new OkHttpMessageSender<>();
-            nettyMessageSender2 = new OkHttpMessageSender<>();
-            nettyMessageSender3 = new OkHttpMessageSender<>();
-            nettyMessageSender4 = new OkHttpMessageSender<>();
-            nettyMessageSender5 = new OkHttpMessageSender<>();
+            nettyMessageSender1 = new OkHttpMessageSender<>(String.class, String.class);
+            nettyMessageSender2 = new OkHttpMessageSender<>(String.class, String.class);
+            nettyMessageSender3 = new OkHttpMessageSender<>(String.class, String.class);
+            nettyMessageSender4 = new OkHttpMessageSender<>(String.class, String.class);
+            nettyMessageSender5 = new OkHttpMessageSender<>(String.class, String.class);
 
             DHTBootstrapNode dhtBootstrapNode = new DHTBootstrapNode(
                     new NettyConnectionInfo(KademliaConfiguration.LOCAL_NODE_IP, KademliaConfiguration.BootstrapNodePORT), id1, keyHashGenerator);

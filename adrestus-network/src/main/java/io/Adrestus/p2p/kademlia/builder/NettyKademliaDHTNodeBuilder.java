@@ -26,6 +26,8 @@ import java.util.List;
 public class NettyKademliaDHTNodeBuilder<K extends Serializable, V extends Serializable> {
     private final BigInteger id;
     private final NettyConnectionInfo connectionInfo;
+    private final Class<K> kClass;
+    private final Class<V> vClass;
     private RoutingTable<BigInteger, NettyConnectionInfo, Bucket<BigInteger, NettyConnectionInfo>> routingTable;
     private MessageSender<BigInteger, NettyConnectionInfo> messageSender;
     private NodeSettings nodeSettings;
@@ -38,7 +40,9 @@ public class NettyKademliaDHTNodeBuilder<K extends Serializable, V extends Seria
 
     protected List<String> required = new ArrayList<>();
 
-    public NettyKademliaDHTNodeBuilder(BigInteger id, NettyConnectionInfo connectionInfo, KademliaRepository<K, V> repository, KeyHashGenerator<BigInteger, K> keyHashGenerator) {
+    public NettyKademliaDHTNodeBuilder(Class<K> kClass, Class<V> vClass, BigInteger id, NettyConnectionInfo connectionInfo, KademliaRepository<K, V> repository, KeyHashGenerator<BigInteger, K> keyHashGenerator) {
+        this.kClass = kClass;
+        this.vClass = vClass;
         this.id = id;
         this.connectionInfo = connectionInfo;
         this.repository = repository;
@@ -100,7 +104,7 @@ public class NettyKademliaDHTNodeBuilder<K extends Serializable, V extends Seria
     }
 
     protected void fillDefaults() {
-        NettyKademliaDHTNodeDefaults.run(this);
+        NettyKademliaDHTNodeDefaults.run(kClass, vClass, this);
     }
 
 

@@ -20,6 +20,14 @@ public interface GsonFactory {
 
     class DefaultGsonFactory<K extends Serializable, V extends Serializable> implements GsonFactory {
 
+        private final Class<K> kClass;
+        private final Class<V> vClass;
+
+        public DefaultGsonFactory(Class<K> kClass, Class<V> vClass) {
+            this.kClass = kClass;
+            this.vClass = vClass;
+        }
+
         @Override
         public GsonBuilder gsonBuilder() {
             GsonBuilder gsonBuilder = new GsonBuilder();
@@ -28,11 +36,11 @@ public interface GsonFactory {
                     .serializeNulls()
                     .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
 
-                    .registerTypeAdapter(KademliaMessage.class, new KademliaMessageDeserializer<K, V>())
-                    .registerTypeAdapter(DHTLookupKademliaMessage.DHTLookup.class, new DHTLookUpDataDeserializer<K>())
-                    .registerTypeAdapter(DHTLookupResultKademliaMessage.DHTLookupResult.class, new DHTLookUpResultDeserializer<K, V>())
-                    .registerTypeAdapter(DHTStoreKademliaMessage.DHTData.class, new DHTStoreDataDeserializer<K, V>())
-                    .registerTypeAdapter(DHTStoreResultKademliaMessage.DHTStoreResult.class, new DHTStoreResultDataDataDeserializer<K>())
+                    .registerTypeAdapter(KademliaMessage.class, new KademliaMessageDeserializer<K, V>(kClass, vClass))
+                    .registerTypeAdapter(DHTLookupKademliaMessage.DHTLookup.class, new DHTLookUpDataDeserializer<K>(kClass))
+                    .registerTypeAdapter(DHTLookupResultKademliaMessage.DHTLookupResult.class, new DHTLookUpResultDeserializer<K, V>(kClass, vClass))
+                    .registerTypeAdapter(DHTStoreKademliaMessage.DHTData.class, new DHTStoreDataDeserializer<K, V>(kClass, vClass))
+                    .registerTypeAdapter(DHTStoreResultKademliaMessage.DHTStoreResult.class, new DHTStoreResultDataDataDeserializer<K>(kClass))
                     .registerTypeAdapter(ExternalNode.class, new ExternalNodeDeserializer())
                     .registerTypeAdapter(FindNodeAnswer.class, new FindNodeAnswerDeserializer())
 //                    .registerTypeAdapter(Node.class, new NodeInstanceCreator())

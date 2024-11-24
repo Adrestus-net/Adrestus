@@ -20,9 +20,7 @@ public class FindNodeAnswerDeserializer implements JsonDeserializer<FindNodeAnsw
         findNodeAnswer.setDestinationId(jsonElement.getAsJsonObject().get("destination_id").getAsBigInteger());
         findNodeAnswer.setNodes(jsonDeserializationContext.deserialize(
                 jsonElement.getAsJsonObject().get("nodes").getAsJsonArray(),
-                new TypeToken<List<ExternalNode<BigInteger, NettyConnectionInfo>>>() {
-                }.getType()
-        ));
+                TypeToken.getParameterized(List.class, TypeToken.getParameterized(ExternalNode.class, BigInteger.class, NettyConnectionInfo.class).getType()).getType()));
         return findNodeAnswer;
     }
 }
