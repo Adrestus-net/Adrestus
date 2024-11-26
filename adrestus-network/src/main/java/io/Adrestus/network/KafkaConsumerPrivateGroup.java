@@ -16,10 +16,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 public class KafkaConsumerPrivateGroup implements IKafkaComponent {
@@ -71,9 +68,9 @@ public class KafkaConsumerPrivateGroup implements IKafkaComponent {
             props.put(ConsumerConfig.SEND_BUFFER_CONFIG, "-1");
             props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
             props.put(ConsumerConfig.FETCH_MIN_BYTES_CONFIG, "1");
-            props.put(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, "10");
-            props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, "60000");
-            props.put(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, "600000");
+            props.put(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, "500");
+            props.put(ConsumerConfig.METADATA_MAX_AGE_CONFIG, "1000");
+            props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, "90");
             props.put(ConsumerConfig.AUTO_INCLUDE_JMX_REPORTER_CONFIG, "false");
             props.put(ConsumerConfig.ENABLE_METRICS_PUSH_CONFIG, "FALSE");
             props.put(ConsumerConfig.REQUEST_TIMEOUT_MS_CONFIG, "1000");
@@ -81,8 +78,9 @@ public class KafkaConsumerPrivateGroup implements IKafkaComponent {
             props.put(ConsumerConfig.RETRY_BACKOFF_MAX_MS_CONFIG, "7000");
             props.put(ConsumerConfig.RECONNECT_BACKOFF_MS_CONFIG, "300");
             props.put(ConsumerConfig.RECONNECT_BACKOFF_MAX_MS_CONFIG, "7000");
-            props.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, "11000");
-            props.put(ConsumerConfig.HEARTBEAT_INTERVAL_MS_CONFIG, "8000");
+            props.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, "9000");
+            props.put(ConsumerConfig.HEARTBEAT_INTERVAL_MS_CONFIG, "3000");
+            props.put(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, "5000");
             props.put(ConsumerConfig.SOCKET_CONNECTION_SETUP_TIMEOUT_MS_CONFIG, "20000");
             props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
             props.put(ConsumerConfig.PARTITION_ASSIGNMENT_STRATEGY_CONFIG, "org.apache.kafka.clients.consumer.StickyAssignor");
@@ -93,28 +91,38 @@ public class KafkaConsumerPrivateGroup implements IKafkaComponent {
             Consumer<String, byte[]> consumer = new KafkaConsumer<>(props);
 
             int finalI = i;
+            CountDownLatch latch = new CountDownLatch(TopicFactory.getInstance().getCollectionTopicsNames().size());
             Runnable task = () -> {
                 for (String topic : TopicFactory.getInstance().getCollectionTopicsNames()) {
-                    int maxRetries = 5;
-                    int retryCount = 0;
-                    boolean success = false;
 
-                    while (retryCount < maxRetries && !success) {
-                        try {
-                            List<PartitionInfo> partitions = consumer.partitionsFor(topic);
-                            if (partitions != null) {
-                                success = true;
-                            }
-                        } catch (Exception e) {
-                            retryCount++;
-                            System.out.printf("Failed to fetch partition metadata. Attempt %d/%d%n", retryCount, maxRetries);
+                    Thread.Builder builder = Thread.ofVirtual().name(topic + "-metadata-fetcher");
+                    Runnable topic_task = () -> {
+                        int maxRetries = 5;
+                        int retryCount = 0;
+                        boolean success = false;
+                        while (retryCount < maxRetries && !success) {
                             try {
-                                Thread.sleep(2000); // Wait before retrying
-                            } catch (InterruptedException ie) {
-                                Thread.currentThread().interrupt();
+                                List<PartitionInfo> partitions = consumer.partitionsFor(topic);
+                                if (partitions != null) {
+                                    success = true;
+                                }
+                            } catch (Exception e) {
+                                retryCount++;
+                                //System.out.printf("Failed to fetch partition metadata. Attempt %d/%d%n", retryCount, maxRetries);
+                                try {
+                                    Thread.sleep(1000); // Wait before retrying
+                                } catch (InterruptedException ie) {
+                                }
                             }
                         }
-                    }
+                        latch.countDown();
+                    };
+                    builder.start(topic_task);
+                }
+                try {
+                    latch.await();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
                 }
                 consumer.subscribe(TopicFactory.getInstance().getCollectionTopicsNames());
 

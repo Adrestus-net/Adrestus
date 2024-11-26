@@ -4,9 +4,7 @@ import io.Adrestus.config.KafkaConfiguration;
 import io.Adrestus.network.ConsensusBroker;
 import io.Adrestus.network.TopicType;
 import lombok.SneakyThrows;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -20,6 +18,7 @@ import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class KafkaMultiNodeTest {
 
     private static final String ANNOUNCE_MESSAGE_VALIDATORS = "ANNOUNCE_MESSAGE_FROM_VALIDATORS";
@@ -62,6 +61,7 @@ public class KafkaMultiNodeTest {
 
     @SneakyThrows
     @Test
+    @Order(2)
     public void testKafkaConsensusDispersePhases() {
         if (System.out.getClass().getName().contains("maven")) {
             System.out.println("Running from Maven: ");
@@ -98,6 +98,7 @@ public class KafkaMultiNodeTest {
 
     @SneakyThrows
     @Test
+    @Order(1)
     public void testKafkaConsensusThreePhases() {
         if (System.out.getClass().getName().contains("maven")) {
             System.out.println("Running from Maven: ");

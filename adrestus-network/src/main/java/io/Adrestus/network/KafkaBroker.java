@@ -42,9 +42,12 @@ public class KafkaBroker implements IKafkaComponent {
         kafkaProps.setProperty("delete.topic.enable", "true");
         kafkaProps.setProperty("num.network.threads", String.valueOf(this.cores));
         kafkaProps.setProperty("num.io.threads", String.valueOf(this.cores * 2));
+        kafkaProps.setProperty("num.recovery.threads.per.data.dir", String.valueOf(this.cores));
+        kafkaProps.setProperty("num.replica.alter.log.dirs.threads", String.valueOf(this.cores));
+        kafkaProps.setProperty("replica.fetchers", String.valueOf(this.cores));
         kafkaProps.setProperty("auto.delete.topics.enable", "true");
         kafkaProps.setProperty("auto.create.topics.enable", "false");
-        kafkaProps.setProperty("auto.leader.rebalance.enable", "false");
+        kafkaProps.setProperty("auto.leader.rebalance.enable", "true");
         kafkaProps.setProperty("background.threads", String.valueOf(this.cores / 2));
         kafkaProps.setProperty("metrics.reporters", "");
         kafkaProps.setProperty("default.api.timeout.ms", "15000");
@@ -68,10 +71,9 @@ public class KafkaBroker implements IKafkaComponent {
         kafkaProps.setProperty("socket.send.buffer.bytes", "-1");
         kafkaProps.setProperty("socket.connection.setup.timeout.ms", "15000");
         kafkaProps.setProperty("group.initial.rebalance.delay.ms", "0");
-        kafkaProps.setProperty("metadata.max.idle.interval.ms", "1500");
         kafkaProps.setProperty("metadata.max.retention.ms", "60480000");
         kafkaProps.setProperty("session.timeout.ms", "9000");
-        kafkaProps.setProperty("heartbeat.interval.ms", "14000");
+        kafkaProps.setProperty("heartbeat.interval.ms", "3000");
         kafkaProps.setProperty("producer.id.expiration.ms", String.valueOf(ConsensusConfiguration.EPOCH_TRANSITION * 2 * ConsensusConfiguration.CONSENSUS_TIMER));
         kafkaProps.setProperty("log.retention.ms", String.valueOf(ConsensusConfiguration.EPOCH_TRANSITION * 2 * ConsensusConfiguration.CONSENSUS_TIMER));
         kafkaProps.setProperty("authorizer.class.name", "kafka.security.authorizer.AclAuthorizer");
