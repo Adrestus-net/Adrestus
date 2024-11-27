@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 public class TopicFactory {
     private static Map<TopicType, ITopic> topicMap;
+    private static Map<TopicType, TopicPartition> partiotinTopicMap;
     private static volatile TopicFactory instance;
     private static volatile Collection<NewTopic> listTopic;
     private static volatile Collection<String> listTopicNames;
@@ -41,6 +42,7 @@ public class TopicFactory {
         ITopic topic = type.getConstructor().get();
         topic.constructTopicName(configs, numPartitions);
         topicMap.put(type, topic);
+        partiotinTopicMap.put(type, topic.getTopicPartition());
     }
 
     public NewTopic getTopicName(TopicType type) {
@@ -75,6 +77,13 @@ public class TopicFactory {
         return listTopicNames;
     }
 
+    public Collection<TopicPartition> getCollectionTopicPartitions() {
+        return partiotinTopicMap
+                .values()
+                .stream()
+                .filter(topic -> !topic.topic().equals(TopicType.DISPERSE_PHASE1.name())).collect(Collectors.toSet());
+    }
+
     public Collection<String> getAllCollectionTopicsNamesAsString() {
         if (listTopicNames == null)
             listTopicNames = topicMap
@@ -83,6 +92,12 @@ public class TopicFactory {
                     .map(topic -> topic.getTopicName().name())
                     .collect(Collectors.toSet());
         return listTopicNames;
+    }
+
+    public TopicPartition getTopicPartition(TopicType type) {
+        if (!partiotinTopicMap.containsKey(type))
+            throw new IllegalArgumentException("Topic not found");
+        return partiotinTopicMap.get(type);
     }
 
     @Override

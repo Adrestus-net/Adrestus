@@ -186,8 +186,7 @@ public class ConsensusBroker {
             Runnable task = () -> {
                 int timeout = 0;
                 boolean flag = false;
-                Set<TopicPartition> partitions = consumers.get(finalI).assignment();
-                for (TopicPartition partition : partitions) {
+                for (TopicPartition partition : TopicFactory.getInstance().getCollectionTopicPartitions()) {
                     consumers.get(finalI).seek(partition, latestOffset.get(TopicType.valueOf(partition.topic())));
                 }
                 while (timeout < KafkaConfiguration.EXECUTOR_TIMEOUT) {
@@ -201,7 +200,9 @@ public class ConsensusBroker {
                                 this.sequencedMap.get(current).put(Integer.parseInt(record.key()), new HashMap<>());
                             }
                             this.sequencedMap.get(current).get(Integer.parseInt(record.key())).put(finalI, record.value());
-                            this.latestOffset.put(current, latestOffset.get(current) + 1);
+                            if(current.equals(TopicType.DISPERSE_PHASE2)){
+                               this.latestOffset.put(current, latestOffset.get(current) + 1);
+                            }
                             if (record.key().equals(key) && record.topic().equals(topic.name())) {
                                 flag = true;
                             }
@@ -259,6 +260,7 @@ public class ConsensusBroker {
                         if (!this.sequencedMap.get(current).containsKey(Integer.parseInt(record.key()))) {
                             this.sequencedMap.get(current).put(Integer.parseInt(record.key()), new HashMap<>());
                         }
+                        this.latestOffset.put(current, latestOffset.get(current) + 1);
                         this.sequencedMap.get(current).get(Integer.parseInt(record.key())).put(0, record.value());
                         if (record.key().equals(key) && record.topic().equals(topic.name())) {
                             flag = true;

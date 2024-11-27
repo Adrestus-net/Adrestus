@@ -15,7 +15,10 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class KafkaConsumerPrivateGroup implements IKafkaComponent {
@@ -91,40 +94,28 @@ public class KafkaConsumerPrivateGroup implements IKafkaComponent {
             Consumer<String, byte[]> consumer = new KafkaConsumer<>(props);
 
             int finalI = i;
-            CountDownLatch latch = new CountDownLatch(TopicFactory.getInstance().getCollectionTopicsNames().size());
             Runnable task = () -> {
                 for (String topic : TopicFactory.getInstance().getCollectionTopicsNames()) {
-
-                    Thread.Builder builder = Thread.ofVirtual().name(topic + "-metadata-fetcher");
-                    Runnable topic_task = () -> {
-                        int maxRetries = 5;
-                        int retryCount = 0;
-                        boolean success = false;
-                        while (retryCount < maxRetries && !success) {
+                    int maxRetries = 5;
+                    int retryCount = 0;
+                    boolean success = false;
+                    while (retryCount < maxRetries && !success) {
+                        try {
+                            List<PartitionInfo> partitions = consumer.partitionsFor(topic);
+                            if (partitions != null) {
+                                success = true;
+                            }
+                        } catch (Exception e) {
+                            retryCount++;
+                            //LOG.info("Failed to fetch partition metadata. Attempt %d/%d%n", retryCount, maxRetries);
                             try {
-                                List<PartitionInfo> partitions = consumer.partitionsFor(topic);
-                                if (partitions != null) {
-                                    success = true;
-                                }
-                            } catch (Exception e) {
-                                retryCount++;
-                                //LOG.info("Failed to fetch partition metadata. Attempt %d/%d%n", retryCount, maxRetries);
-                                try {
-                                    Thread.sleep(1000); // Wait before retrying
-                                } catch (InterruptedException ie) {
-                                }
+                                Thread.sleep(1000); // Wait before retrying
+                            } catch (InterruptedException ie) {
                             }
                         }
-                        latch.countDown();
-                    };
-                    builder.start(topic_task);
+                    }
                 }
-                try {
-                    latch.await();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-                consumer.subscribe(TopicFactory.getInstance().getCollectionTopicsNames());
+                consumer.assign(TopicFactory.getInstance().getCollectionTopicPartitions());
 
                 if (ip.equals("127.0.0.1")) {
                     if (finalI == 0) {
