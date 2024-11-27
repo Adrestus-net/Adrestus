@@ -1,6 +1,7 @@
 package io.Adrestus.network;
 
 import org.apache.kafka.clients.admin.NewTopic;
+import org.apache.kafka.common.TopicPartition;
 
 import java.util.Collection;
 import java.util.Map;

@@ -7,6 +7,9 @@ import lombok.SneakyThrows;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.common.TopicPartition;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -15,15 +18,19 @@ import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 public class ConsensusBroker {
+    private static final Logger LOG = LoggerFactory.getLogger(ConsensusBroker.class);
+
     private final SerializationUtil<ArrayList<byte[]>> serenc_erasure;
     private final ArrayList<String> ipAddresses;
     private final KafkaSmith kafkaManufactureSmith;
     private final ConcurrentHashMap<TopicType, TreeMap<Integer, Map<Integer, byte[]>>> sequencedMap;
+    private final Map<TopicType, Integer> latestOffset;
     private final String currentIP;
     private final int numThreads;
     private final String leader_host;
     private final int leader_position;
     private final int partition;
+
 
     public ConsensusBroker(ArrayList<String> ipAddresses, String leader_host, int partition) {
         this.serenc_erasure = new SerializationUtil<ArrayList<byte[]>>(new TypeToken<List<byte[]>>() {
@@ -32,6 +39,7 @@ public class ConsensusBroker {
         this.currentIP = IPFinder.getLocalIP();
         this.ipAddresses = ipAddresses;
         this.leader_host = leader_host;
+        this.latestOffset = new HashMap<>();
         this.leader_position = this.ipAddresses.indexOf(leader_host);
         this.partition = partition;
         this.kafkaManufactureSmith = new KafkaManufactureSmith(ipAddresses, leader_host, this.currentIP, leader_position, partition);
@@ -41,6 +49,10 @@ public class ConsensusBroker {
         this.sequencedMap.put(TopicType.COMMITTEE_PHASE, new TreeMap<>(Collections.reverseOrder()));
         this.sequencedMap.put(TopicType.DISPERSE_PHASE1, new TreeMap<>(Collections.reverseOrder()));
         this.sequencedMap.put(TopicType.DISPERSE_PHASE2, new TreeMap<>(Collections.reverseOrder()));
+        this.latestOffset.put(TopicType.ANNOUNCE_PHASE, 0);
+        this.latestOffset.put(TopicType.PREPARE_PHASE, 0);
+        this.latestOffset.put(TopicType.COMMITTEE_PHASE, 0);
+        this.latestOffset.put(TopicType.DISPERSE_PHASE2, 0);
     }
 
     @SneakyThrows
@@ -53,6 +65,7 @@ public class ConsensusBroker {
             this.kafkaManufactureSmith.manufactureKafkaComponent(KafkaKingdomType.CONSUMER_SAME);
         this.kafkaManufactureSmith.manufactureKafkaComponent(KafkaKingdomType.PRODUCER);
         this.setupChannels();
+        LOG.info("Kafka Kingdom initialized successfully");
     }
 
 
@@ -66,19 +79,15 @@ public class ConsensusBroker {
             this.produceMessage(TopicType.ANNOUNCE_PHASE, "0", "0".getBytes(StandardCharsets.UTF_8));
             this.flush();
             this.receiveMessageFromValidators(TopicType.ANNOUNCE_PHASE, "0");
-            System.out.println("1");
             this.produceMessage(TopicType.PREPARE_PHASE, "0", "0".getBytes());
             this.flush();
             this.receiveMessageFromValidators(TopicType.PREPARE_PHASE, "0");
-            System.out.println("2");
             this.produceMessage(TopicType.COMMITTEE_PHASE, "0", "0".getBytes(StandardCharsets.UTF_8));
             this.flush();
             this.receiveMessageFromValidators(TopicType.COMMITTEE_PHASE, "0");
-            System.out.println("3");
             this.produceMessage(TopicType.DISPERSE_PHASE2, "0", "0".getBytes(StandardCharsets.UTF_8));
             this.flush();
             this.receiveMessageFromValidators(TopicType.DISPERSE_PHASE2, "0");
-            System.out.println("4");
         } else {
             this.receiveDisperseMessageFromLeader(TopicType.DISPERSE_PHASE1, String.valueOf(partition));
             this.receiveMessageFromLeader(TopicType.ANNOUNCE_PHASE, "0");
@@ -92,6 +101,7 @@ public class ConsensusBroker {
             this.flush();
             this.receiveMessageFromLeader(TopicType.DISPERSE_PHASE2, "0");
             this.produceMessage(TopicType.DISPERSE_PHASE2, "0", "0".getBytes(StandardCharsets.UTF_8));
+            this.receiveMessageFromValidators(TopicType.DISPERSE_PHASE2, "0");
             this.flush();
         }
     }
@@ -158,30 +168,47 @@ public class ConsensusBroker {
     public List<byte[]> receiveMessageFromValidators(TopicType topic, String key) {
         KafkaConsumerPrivateGroup leaderConsumeData = this.kafkaManufactureSmith.getKafkaComponent(KafkaKingdomType.CONSUMER_PRIVATE);
         List<Consumer<String, byte[]>> consumers = leaderConsumeData.receiveAllBrokerConsumersExceptLeader(leader_host);
+        int size = consumers.size();
+
+        if (this.sequencedMap.get(topic).containsKey(Integer.parseInt(key))) {
+            if (this.sequencedMap.get(topic).get(Integer.parseInt(key)).size() == size) {
+                LOG.info("Returning from cache: " + topic.name() + " " + key);
+                return new ArrayList<>(this.sequencedMap.get(topic).get(Integer.parseInt(key)).values());
+            } else {
+                size = size - this.sequencedMap.get(topic).get(Integer.parseInt(key)).size();
+            }
+        }
+
         ExecutorService executorService = Executors.newFixedThreadPool(this.numThreads);
-        CountDownLatch await_latch = new CountDownLatch(consumers.size());
-        for (int i = 0; i < consumers.size(); i++) {
+        CountDownLatch await_latch = new CountDownLatch(size);
+        for (int i = 0; i < size; i++) {
             int finalI = i;
             Runnable task = () -> {
                 int timeout = 0;
                 boolean flag = false;
-                outerLoop:
+                Set<TopicPartition> partitions = consumers.get(finalI).assignment();
+                for (TopicPartition partition : partitions) {
+                    consumers.get(finalI).seek(partition, latestOffset.get(TopicType.valueOf(partition.topic())));
+                }
                 while (timeout < KafkaConfiguration.EXECUTOR_TIMEOUT) {
                     try {
                         Consumer<String, byte[]> consumer = consumers.get(finalI);
                         ConsumerRecords<String, byte[]> records = consumer.poll(Duration.ofMillis(KafkaConfiguration.RECEIVE_TIMEOUT));
-                        System.out.println(Thread.currentThread().getName() + " " + topic.name() + " " + records.count());
+                        LOG.info(Thread.currentThread().getName() + " " + topic.name() + " " + records.count());
                         for (ConsumerRecord<String, byte[]> record : records) {
                             TopicType current = TopicType.valueOf(record.topic());
                             if (!this.sequencedMap.get(current).containsKey(Integer.parseInt(record.key()))) {
                                 this.sequencedMap.get(current).put(Integer.parseInt(record.key()), new HashMap<>());
                             }
                             this.sequencedMap.get(current).get(Integer.parseInt(record.key())).put(finalI, record.value());
+                            this.latestOffset.put(current, latestOffset.get(current) + 1);
                             if (record.key().equals(key) && record.topic().equals(topic.name())) {
                                 flag = true;
-                                await_latch.countDown();
-                                break outerLoop;
                             }
+                        }
+                        if (flag) {
+                            await_latch.countDown();
+                            break;
                         }
                         timeout++;
                     } catch (Exception e) {
@@ -211,6 +238,11 @@ public class ConsensusBroker {
 
     @SneakyThrows
     public Optional<byte[]> receiveMessageFromLeader(TopicType topic, String key) {
+        if (this.sequencedMap.get(topic).containsKey(Integer.parseInt(key))) {
+            LOG.info("Returning from cache: " + topic.name() + " " + key);
+            return this.sequencedMap.get(topic).firstEntry().getValue().values().stream().findFirst();
+        }
+
         KafkaConsumerPrivateGroup leaderConsumeData = this.kafkaManufactureSmith.getKafkaComponent(KafkaKingdomType.CONSUMER_PRIVATE);
         ExecutorService executorService = Executors.newVirtualThreadPerTaskExecutor();
         Consumer<String, byte[]> consumer = leaderConsumeData.receiveLeaderConsumer(leader_host);
@@ -218,11 +250,10 @@ public class ConsensusBroker {
         Runnable task = () -> {
             int timeout = 0;
             boolean flag = false;
-            outerloop:
             while (timeout < KafkaConfiguration.EXECUTOR_TIMEOUT) {
                 try {
                     ConsumerRecords<String, byte[]> records = consumer.poll(Duration.ofMillis(KafkaConfiguration.RECEIVE_TIMEOUT));
-                    System.out.println(topic.name() + " " + records.count());
+                    LOG.info(topic.name() + " " + records.count());
                     for (ConsumerRecord<String, byte[]> record : records) {
                         TopicType current = TopicType.valueOf(record.topic());
                         if (!this.sequencedMap.get(current).containsKey(Integer.parseInt(record.key()))) {
@@ -231,9 +262,11 @@ public class ConsensusBroker {
                         this.sequencedMap.get(current).get(Integer.parseInt(record.key())).put(0, record.value());
                         if (record.key().equals(key) && record.topic().equals(topic.name())) {
                             flag = true;
-                            await_latch.countDown();
-                            break outerloop;
                         }
+                    }
+                    if (flag) {
+                        await_latch.countDown();
+                        break;
                     }
                     timeout++;
                 } catch (Exception e) {
@@ -271,6 +304,11 @@ public class ConsensusBroker {
 
     @SneakyThrows
     public Optional<byte[]> receiveDisperseMessageFromLeader(TopicType topic, String key) {
+        if (this.sequencedMap.get(topic).containsKey(Integer.parseInt(key))) {
+            LOG.info("Returning from cache: " + topic.name() + " " + key);
+            return this.sequencedMap.get(topic).firstEntry().getValue().values().stream().findFirst();
+        }
+
         KafkaConsumerSameGroup leaderSameConsumeData = this.kafkaManufactureSmith.getKafkaComponent(KafkaKingdomType.CONSUMER_SAME);
         ExecutorService executorService = Executors.newVirtualThreadPerTaskExecutor();
         Consumer<String, byte[]> consumer = leaderSameConsumeData.getConsumer();
@@ -282,7 +320,7 @@ public class ConsensusBroker {
             while (timeout < KafkaConfiguration.EXECUTOR_TIMEOUT) {
                 try {
                     ConsumerRecords<String, byte[]> records = consumer.poll(Duration.ofMillis(KafkaConfiguration.RECEIVE_TIMEOUT));
-                    System.out.println(topic.name() + " " + records.count());
+                    LOG.info(topic.name() + " " + records.count());
                     for (ConsumerRecord<String, byte[]> record : records) {
                         TopicType current = TopicType.valueOf(record.topic());
                         if (!this.sequencedMap.get(current).containsKey(Integer.parseInt(record.key()))) {

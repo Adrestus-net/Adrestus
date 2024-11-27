@@ -13,8 +13,8 @@ public class KafkaConfiguration {
     public static final String CONSUMER_PRIVATE_GROUP_ID = "CONSUMER_PRIVATE_GROUP_ID";
 
 
-    public static final int RECEIVE_TIMEOUT = 4000;
-    public static final int EXECUTOR_TIMEOUT = 12;
+    public static final int RECEIVE_TIMEOUT = 4500;
+    public static final int EXECUTOR_TIMEOUT = 32;
 
     public static final int PRIVATE_GROUP_METADATA_TIMEOUT = 65000;
 }

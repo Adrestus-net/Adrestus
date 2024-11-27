@@ -10,6 +10,8 @@ import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.config.SaslConfigs;
 import org.apache.kafka.common.serialization.ByteArrayDeserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.util.Collections;
@@ -17,6 +19,8 @@ import java.util.Objects;
 import java.util.Properties;
 
 public class KafkaConsumerSameGroup implements IKafkaComponent, Cloneable {
+    private static final Logger LOG = LoggerFactory.getLogger(KafkaConsumerSameGroup.class);
+
     private final Properties props;
     private final String leader_host;
     private final String currentIP;
@@ -67,22 +71,11 @@ public class KafkaConsumerSameGroup implements IKafkaComponent, Cloneable {
         props.put(SaslConfigs.SASL_MECHANISM, "PLAIN");
         props.put(SaslConfigs.SASL_JAAS_CONFIG, "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"" + "consumer" + "-" + this.partition + "-" + this.currentIP + "\" password=\"consumer-secret\";");
 
-//        System.out.println("1 "+props.getProperty(SaslConfigs.SASL_JAAS_CONFIG));
-//        System.out.println("1 "+props.getProperty(ConsumerConfig.GROUP_ID_CONFIG));
-//        System.out.println("1 "+props.getProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG));
-//        System.out.println();
-
         consumer = new KafkaConsumer<>(props);
         TopicPartition partition = new TopicPartition(TopicFactory.getInstance().getTopicName(TopicType.DISPERSE_PHASE1).name(), this.partition);
-        consumer.partitionsFor(TopicFactory.getInstance().getTopicName(TopicType.DISPERSE_PHASE1).name(), Duration.ofMillis(KafkaConfiguration.PRIVATE_GROUP_METADATA_TIMEOUT));
+        consumer.partitionsFor(TopicType.DISPERSE_PHASE1.name());
         consumer.assign(Collections.singleton(partition));
-//        while (consumer.assignment().isEmpty()) {
-//            consumer.poll(Duration.ofMillis(100));
-//        }
-//        Set<TopicPartition> assignedPartitions = consumer.assignment();
-//        for (TopicPartition partition1 : assignedPartitions) {
-//            System.out.println("Node "+this.partition+" "+"Assigned to partition: " + partition1.partition());
-//        }
+        LOG.info("Node " + this.partition + " " + "Subscribing to partition: " + partition.partition());
     }
 
 

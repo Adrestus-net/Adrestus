@@ -10,16 +10,16 @@ import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.config.SaslConfigs;
 import org.apache.kafka.common.serialization.ByteArrayDeserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 public class KafkaConsumerPrivateGroup implements IKafkaComponent {
+    private static final Logger LOG = LoggerFactory.getLogger(KafkaConsumerPrivateGroup.class);
 
     private final ArrayList<String> ipAddresses;
     private final ConcurrentHashMap<String, Consumer<String, byte[]>> consumer_map;
@@ -108,7 +108,7 @@ public class KafkaConsumerPrivateGroup implements IKafkaComponent {
                                 }
                             } catch (Exception e) {
                                 retryCount++;
-                                //System.out.printf("Failed to fetch partition metadata. Attempt %d/%d%n", retryCount, maxRetries);
+                                //LOG.info("Failed to fetch partition metadata. Attempt %d/%d%n", retryCount, maxRetries);
                                 try {
                                     Thread.sleep(1000); // Wait before retrying
                                 } catch (InterruptedException ie) {
@@ -137,7 +137,7 @@ public class KafkaConsumerPrivateGroup implements IKafkaComponent {
                 }
                 //Start Caching the messages
                 consumer.poll(Duration.ofMillis(100));
-                System.out.println("Consumer " + ip + " " + finalI + " started and subscribed to topics: " + TopicFactory.getInstance().getCollectionTopicsNames());
+                LOG.info("Consumer " + ip + " " + finalI + " started and subscribed to topics: " + TopicFactory.getInstance().getCollectionTopicsNames());
             };
             executorService.submit(task);
         }
@@ -146,10 +146,10 @@ public class KafkaConsumerPrivateGroup implements IKafkaComponent {
         try {
             // Wait for tasks to complete or timeout
             if (!executorService.awaitTermination(KafkaConfiguration.PRIVATE_GROUP_METADATA_TIMEOUT, TimeUnit.MILLISECONDS)) {
-                System.out.println("Timeout reached before tasks completed");
+                LOG.info("Timeout reached before tasks completed");
                 executorService.shutdownNow();
             } else {
-                System.out.println("All tasks completed");
+                LOG.info("All tasks completed");
             }
         } catch (InterruptedException e) {
             executorService.shutdownNow();
@@ -180,6 +180,13 @@ public class KafkaConsumerPrivateGroup implements IKafkaComponent {
                 .map(HashMap.Entry::getValue)
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("Consumer not found"));
+    }
+
+    public Optional<Integer> getPositionOfElement(String key) {
+        List<String> keys = new ArrayList<>(consumer_map.keySet());
+        int position = keys.indexOf(key);
+        keys.clear();
+        return position >= 0 ? Optional.of(position) : Optional.empty();
     }
 
     @Override

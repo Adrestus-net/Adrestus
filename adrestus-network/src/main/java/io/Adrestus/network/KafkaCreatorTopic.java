@@ -22,7 +22,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 public class KafkaCreatorTopic implements IKafkaComponent {
-    private static Logger LOG = LoggerFactory.getLogger(KafkaCreatorTopic.class);
+    private static final Logger LOG = LoggerFactory.getLogger(KafkaConsumerPrivateGroup.class);
 
     private Properties props;
     private final int DispersePartitionSize;
@@ -190,7 +190,7 @@ public class KafkaCreatorTopic implements IKafkaComponent {
 
             // Create the ACLs
             adminClient.createAcls(aclBindings).all().get();
-            System.out.println("ACLs created successfully");
+            LOG.info("ACLs created successfully");
 //            bindingFilters.stream().forEach(filter -> {
 //                //Print the ACLs
 //                try {
