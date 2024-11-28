@@ -44,7 +44,7 @@ public class KafkaProducer implements IKafkaComponent {
         props.put(ProducerConfig.SEND_BUFFER_CONFIG, "-1");
         props.put(ProducerConfig.AUTO_INCLUDE_JMX_REPORTER_CONFIG, "false");
         props.put(ProducerConfig.ENABLE_METRICS_PUSH_CONFIG, "false");
-        props.put(ProducerConfig.RETRIES_CONFIG, "0");
+        props.put(ProducerConfig.RETRIES_CONFIG, "5");
         props.put(ProducerConfig.MAX_BLOCK_MS_CONFIG, "600000");
         props.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SASL_PLAINTEXT");
         props.put(SaslConfigs.SASL_MECHANISM, "PLAIN");

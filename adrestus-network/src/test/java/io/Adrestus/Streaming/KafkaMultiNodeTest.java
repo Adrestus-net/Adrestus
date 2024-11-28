@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -60,6 +61,7 @@ public class KafkaMultiNodeTest {
     }
 
 
+    // This is the daufault test you can test speed and if everything runs fine
     @SneakyThrows
     @Test
     @Order(2)
@@ -68,6 +70,7 @@ public class KafkaMultiNodeTest {
             System.out.println("Running from Maven: ");
             return;
         }
+
         if (position.getAsInt() == 0) {
             consensusBroker.produceMessage(TopicType.DISPERSE_PHASE1, 1, String.valueOf(DISPERSE_VIEW_NUMBER) + 1, DISPERSE_MESSAGE_LEADER_CHUNK1.getBytes(StandardCharsets.UTF_8));
             consensusBroker.produceMessage(TopicType.DISPERSE_PHASE1, 2, String.valueOf(DISPERSE_VIEW_NUMBER) + 2, DISPERSE_MESSAGE_LEADER_CHUNK2.getBytes(StandardCharsets.UTF_8));
@@ -79,6 +82,7 @@ public class KafkaMultiNodeTest {
                 System.out.println("received");
                 assertEquals(DISPERSE_MESSAGE_LEADER_CHUNK1, new String(message.get()));
                 consensusBroker.produceMessage(TopicType.DISPERSE_PHASE2, String.valueOf(DISPERSE_VIEW_NUMBER), DISPERSE_MESSAGE_LEADER_CHUNK1.getBytes(StandardCharsets.UTF_8));
+                consensusBroker.flush();
                 List<byte[]> res = consensusBroker.receiveMessageFromValidators(TopicType.DISPERSE_PHASE2, String.valueOf(DISPERSE_VIEW_NUMBER));
                 System.out.println("received2");
                 assert (!res.isEmpty());
@@ -89,6 +93,7 @@ public class KafkaMultiNodeTest {
                 System.out.println("received");
                 assertEquals(DISPERSE_MESSAGE_LEADER_CHUNK2, new String(message.get()));
                 consensusBroker.produceMessage(TopicType.DISPERSE_PHASE2, String.valueOf(DISPERSE_VIEW_NUMBER), DISPERSE_MESSAGE_LEADER_CHUNK2.getBytes(StandardCharsets.UTF_8));
+                consensusBroker.flush();
                 List<byte[]> res = consensusBroker.receiveMessageFromValidators(TopicType.DISPERSE_PHASE2, String.valueOf(DISPERSE_VIEW_NUMBER));
                 System.out.println("received2");
                 assert (!res.isEmpty());
@@ -108,6 +113,26 @@ public class KafkaMultiNodeTest {
             return;
         }
         if (position.getAsInt() == 0) {
+            assertEquals(1,consensusBroker.getSequencedMap().get(TopicType.ANNOUNCE_PHASE).size());
+            assertEquals(1,consensusBroker.getSequencedMap().get(TopicType.PREPARE_PHASE).size());
+            assertEquals(1,consensusBroker.getSequencedMap().get(TopicType.COMMITTEE_PHASE).size());
+            assertEquals(1,consensusBroker.getSequencedMap().get(TopicType.DISPERSE_PHASE2).size());
+
+            assertEquals(0,consensusBroker.getSequencedMap().get(TopicType.ANNOUNCE_PHASE).firstEntry().getKey());
+            assertEquals(0,consensusBroker.getSequencedMap().get(TopicType.PREPARE_PHASE).firstEntry().getKey());
+            assertEquals(0,consensusBroker.getSequencedMap().get(TopicType.COMMITTEE_PHASE).firstEntry().getKey());
+            assertEquals(0,consensusBroker.getSequencedMap().get(TopicType.DISPERSE_PHASE2).firstEntry().getKey());
+
+            assertEquals(2,consensusBroker.getSequencedMap().get(TopicType.ANNOUNCE_PHASE).firstEntry().getValue().size());
+            assertEquals(2,consensusBroker.getSequencedMap().get(TopicType.PREPARE_PHASE).firstEntry().getValue().size());
+            assertEquals(2,consensusBroker.getSequencedMap().get(TopicType.COMMITTEE_PHASE).firstEntry().getValue().size());
+            assertEquals(2,consensusBroker.getSequencedMap().get(TopicType.DISPERSE_PHASE2).firstEntry().getValue().size());
+
+            consensusBroker.getSequencedMap().get(TopicType.ANNOUNCE_PHASE).firstEntry().getValue().values().forEach(value -> assertEquals("0", new String(value)));
+            consensusBroker.getSequencedMap().get(TopicType.PREPARE_PHASE).firstEntry().getValue().values().forEach(value -> assertEquals("0", new String(value)));
+            consensusBroker.getSequencedMap().get(TopicType.COMMITTEE_PHASE).firstEntry().getValue().values().forEach(value -> assertEquals("0", new String(value)));
+            consensusBroker.getSequencedMap().get(TopicType.DISPERSE_PHASE2).firstEntry().getValue().values().forEach(value -> assertEquals("0", new String(value)));
+
             consensusBroker.produceMessage(TopicType.ANNOUNCE_PHASE, String.valueOf(CONSENSUS_VIEW_NUMBER), ANNOUNCE_MESSAGE_LEADER.getBytes(StandardCharsets.UTF_8));
             List<byte[]> res = consensusBroker.receiveMessageFromValidators(TopicType.ANNOUNCE_PHASE, String.valueOf(CONSENSUS_VIEW_NUMBER));
             res.forEach(val -> assertEquals(ANNOUNCE_MESSAGE_VALIDATORS, new String(val)));
@@ -120,7 +145,42 @@ public class KafkaMultiNodeTest {
             List<byte[]> res3 = consensusBroker.receiveMessageFromValidators(TopicType.COMMITTEE_PHASE, String.valueOf(CONSENSUS_VIEW_NUMBER));
             res3.forEach(val -> assertEquals(COMMITTEE_MESSAGE_VALIDATORS, new String(val)));
             System.out.println(TopicType.COMMITTEE_PHASE.name() + " Received from validators: " + res3);
+
+            assertEquals(2,consensusBroker.getSequencedMap().get(TopicType.ANNOUNCE_PHASE).size());
+            assertEquals(2,consensusBroker.getSequencedMap().get(TopicType.PREPARE_PHASE).size());
+            assertEquals(2,consensusBroker.getSequencedMap().get(TopicType.COMMITTEE_PHASE).size());
+            assertEquals(1,consensusBroker.getSequencedMap().get(TopicType.DISPERSE_PHASE2).size());
+
+            assertEquals(1,consensusBroker.getSequencedMap().get(TopicType.ANNOUNCE_PHASE).firstEntry().getKey());
+            assertEquals(1,consensusBroker.getSequencedMap().get(TopicType.PREPARE_PHASE).firstEntry().getKey());
+            assertEquals(1,consensusBroker.getSequencedMap().get(TopicType.COMMITTEE_PHASE).firstEntry().getKey());
+            assertEquals(0,consensusBroker.getSequencedMap().get(TopicType.DISPERSE_PHASE2).firstEntry().getKey());
+
+            assertEquals(2,consensusBroker.getSequencedMap().get(TopicType.ANNOUNCE_PHASE).firstEntry().getValue().size());
+            assertEquals(2,consensusBroker.getSequencedMap().get(TopicType.PREPARE_PHASE).firstEntry().getValue().size());
+            assertEquals(2,consensusBroker.getSequencedMap().get(TopicType.COMMITTEE_PHASE).firstEntry().getValue().size());
+            assertEquals(2,consensusBroker.getSequencedMap().get(TopicType.DISPERSE_PHASE2).firstEntry().getValue().size());
+
+            consensusBroker.getSequencedMap().get(TopicType.ANNOUNCE_PHASE).firstEntry().getValue().values().forEach(value -> assertEquals(ANNOUNCE_MESSAGE_VALIDATORS, new String(value)));
+            consensusBroker.getSequencedMap().get(TopicType.PREPARE_PHASE).firstEntry().getValue().values().forEach(value -> assertEquals(PREPARE_MESSAGE_VALIDATORS, new String(value)));
+            consensusBroker.getSequencedMap().get(TopicType.COMMITTEE_PHASE).firstEntry().getValue().values().forEach(value -> assertEquals(COMMITTEE_MESSAGE_VALIDATORS, new String(value)));
+            consensusBroker.getSequencedMap().get(TopicType.DISPERSE_PHASE2).firstEntry().getValue().values().forEach(value -> assertEquals("0", new String(value)));
         } else {
+            assertEquals(1,consensusBroker.getSequencedMap().get(TopicType.ANNOUNCE_PHASE).size());
+            assertEquals(1,consensusBroker.getSequencedMap().get(TopicType.PREPARE_PHASE).size());
+            assertEquals(1,consensusBroker.getSequencedMap().get(TopicType.COMMITTEE_PHASE).size());
+            assertEquals(1,consensusBroker.getSequencedMap().get(TopicType.DISPERSE_PHASE2).size());
+
+            assertEquals(0,consensusBroker.getSequencedMap().get(TopicType.ANNOUNCE_PHASE).firstEntry().getKey());
+            assertEquals(0,consensusBroker.getSequencedMap().get(TopicType.PREPARE_PHASE).firstEntry().getKey());
+            assertEquals(0,consensusBroker.getSequencedMap().get(TopicType.COMMITTEE_PHASE).firstEntry().getKey());
+            assertEquals(0,consensusBroker.getSequencedMap().get(TopicType.DISPERSE_PHASE2).firstEntry().getKey());
+
+            assertEquals(1,consensusBroker.getSequencedMap().get(TopicType.ANNOUNCE_PHASE).firstEntry().getValue().size());
+            assertEquals(1,consensusBroker.getSequencedMap().get(TopicType.PREPARE_PHASE).firstEntry().getValue().size());
+            assertEquals(1,consensusBroker.getSequencedMap().get(TopicType.COMMITTEE_PHASE).firstEntry().getValue().size());
+            assertEquals(1,consensusBroker.getSequencedMap().get(TopicType.DISPERSE_PHASE2).firstEntry().getValue().size());
+
             Optional<byte[]> message = consensusBroker.receiveMessageFromLeader(TopicType.ANNOUNCE_PHASE, String.valueOf(CONSENSUS_VIEW_NUMBER));
             assert (message.isPresent());
             assertEquals(ANNOUNCE_MESSAGE_LEADER, new String(message.get()));
@@ -136,6 +196,21 @@ public class KafkaMultiNodeTest {
             assert (message2.isPresent());
             assertEquals(COMMITTEE_MESSAGE_LEADER, new String(message2.get()));
             consensusBroker.produceMessage(TopicType.COMMITTEE_PHASE, String.valueOf(CONSENSUS_VIEW_NUMBER), COMMITTEE_MESSAGE_VALIDATORS.getBytes(StandardCharsets.UTF_8));
+
+            assertEquals(1,consensusBroker.getSequencedMap().get(TopicType.ANNOUNCE_PHASE).firstEntry().getKey());
+            assertEquals(1,consensusBroker.getSequencedMap().get(TopicType.PREPARE_PHASE).firstEntry().getKey());
+            assertEquals(1,consensusBroker.getSequencedMap().get(TopicType.COMMITTEE_PHASE).firstEntry().getKey());
+            assertEquals(0,consensusBroker.getSequencedMap().get(TopicType.DISPERSE_PHASE2).firstEntry().getKey());
+
+            assertEquals(1,consensusBroker.getSequencedMap().get(TopicType.ANNOUNCE_PHASE).firstEntry().getValue().size());
+            assertEquals(1,consensusBroker.getSequencedMap().get(TopicType.PREPARE_PHASE).firstEntry().getValue().size());
+            assertEquals(1,consensusBroker.getSequencedMap().get(TopicType.COMMITTEE_PHASE).firstEntry().getValue().size());
+            assertEquals(1,consensusBroker.getSequencedMap().get(TopicType.DISPERSE_PHASE2).firstEntry().getValue().size());
+
+            consensusBroker.getSequencedMap().get(TopicType.ANNOUNCE_PHASE).firstEntry().getValue().values().forEach(value -> assertEquals(ANNOUNCE_MESSAGE_LEADER, new String(value)));
+            consensusBroker.getSequencedMap().get(TopicType.PREPARE_PHASE).firstEntry().getValue().values().forEach(value -> assertEquals(PREPARE_MESSAGE_LEADER, new String(value)));
+            consensusBroker.getSequencedMap().get(TopicType.COMMITTEE_PHASE).firstEntry().getValue().values().forEach(value -> assertEquals(COMMITTEE_MESSAGE_LEADER, new String(value)));
+            consensusBroker.getSequencedMap().get(TopicType.DISPERSE_PHASE2).firstEntry().getValue().values().forEach(value -> assertEquals("0", new String(value)));
         }
         System.out.println("Test Passed");
     }
@@ -147,7 +222,7 @@ public class KafkaMultiNodeTest {
             System.out.println("Running from Maven: ");
             return;
         }
-        Thread.sleep(6000);
+        Thread.sleep(8000);
         consensusBroker.shutDownGracefully();
     }
 }

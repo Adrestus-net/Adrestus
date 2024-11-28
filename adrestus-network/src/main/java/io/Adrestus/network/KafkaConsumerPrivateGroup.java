@@ -70,10 +70,11 @@ public class KafkaConsumerPrivateGroup implements IKafkaComponent {
             props.put(ConsumerConfig.RECEIVE_BUFFER_CONFIG, "-1");
             props.put(ConsumerConfig.SEND_BUFFER_CONFIG, "-1");
             props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+            props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
             props.put(ConsumerConfig.FETCH_MIN_BYTES_CONFIG, "1");
-            props.put(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, "500");
+            props.put(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, "10");
             props.put(ConsumerConfig.METADATA_MAX_AGE_CONFIG, "1000");
-            props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, "90");
+            props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, "690");
             props.put(ConsumerConfig.AUTO_INCLUDE_JMX_REPORTER_CONFIG, "false");
             props.put(ConsumerConfig.ENABLE_METRICS_PUSH_CONFIG, "FALSE");
             props.put(ConsumerConfig.REQUEST_TIMEOUT_MS_CONFIG, "1000");
@@ -85,7 +86,6 @@ public class KafkaConsumerPrivateGroup implements IKafkaComponent {
             props.put(ConsumerConfig.HEARTBEAT_INTERVAL_MS_CONFIG, "3000");
             props.put(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, "5000");
             props.put(ConsumerConfig.SOCKET_CONNECTION_SETUP_TIMEOUT_MS_CONFIG, "20000");
-            props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
             props.put(ConsumerConfig.PARTITION_ASSIGNMENT_STRATEGY_CONFIG, "org.apache.kafka.clients.consumer.StickyAssignor");
             props.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SASL_PLAINTEXT");
             props.put(SaslConfigs.SASL_MECHANISM, "PLAIN");
@@ -115,7 +115,9 @@ public class KafkaConsumerPrivateGroup implements IKafkaComponent {
                         }
                     }
                 }
+
                 consumer.assign(TopicFactory.getInstance().getCollectionTopicPartitions());
+                consumer.seekToBeginning(TopicFactory.getInstance().getCollectionTopicPartitions());
 
                 if (ip.equals("127.0.0.1")) {
                     if (finalI == 0) {
@@ -127,7 +129,10 @@ public class KafkaConsumerPrivateGroup implements IKafkaComponent {
                     consumer_map.put(ip, consumer);
                 }
                 //Start Caching the messages
-                consumer.poll(Duration.ofMillis(100));
+                // Wait for partitions to be assigned
+                while (consumer.assignment().isEmpty()) {
+                    consumer.poll(Duration.ofMillis(100)); // Trigger partition assignment
+                }
                 LOG.info("Consumer " + ip + " " + finalI + " started and subscribed to topics: " + TopicFactory.getInstance().getCollectionTopicsNames());
             };
             executorService.submit(task);
@@ -173,9 +178,9 @@ public class KafkaConsumerPrivateGroup implements IKafkaComponent {
                 .orElseThrow(() -> new RuntimeException("Consumer not found"));
     }
 
-    public Optional<Integer> getPositionOfElement(String key) {
+    public Optional<Integer> getPositionOfElement(String host) {
         List<String> keys = new ArrayList<>(consumer_map.keySet());
-        int position = keys.indexOf(key);
+        int position = keys.indexOf(host);
         keys.clear();
         return position >= 0 ? Optional.of(position) : Optional.empty();
     }
@@ -192,8 +197,11 @@ public class KafkaConsumerPrivateGroup implements IKafkaComponent {
         }
         if (consumer_map != null) {
             this.consumer_map.forEach((k, v) -> {
-                v.wakeup();
-                v.close();
+                try {
+                    v.wakeup();
+                    v.close();
+                } catch (Exception e) {
+                }
             });
             this.consumer_map.clear();
         }

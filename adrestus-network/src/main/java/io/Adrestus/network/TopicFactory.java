@@ -11,14 +11,13 @@ public class TopicFactory {
     private static Map<TopicType, ITopic> topicMap;
     private static Map<TopicType, TopicPartition> partiotinTopicMap;
     private static volatile TopicFactory instance;
-    private static volatile Collection<NewTopic> listTopic;
-    private static volatile Collection<String> listTopicNames;
 
     private TopicFactory() {
         if (instance != null) {
             throw new IllegalStateException("Already initialized.");
         }
         topicMap = new java.util.HashMap<>();
+        partiotinTopicMap = new java.util.HashMap<>();
     }
 
     public static TopicFactory getInstance() {
@@ -52,46 +51,38 @@ public class TopicFactory {
     }
 
     public Collection<NewTopic> getCollectionTopics() {
-        if (listTopic == null)
-            listTopic = topicMap.values().stream().map(ITopic::getTopicName).collect(Collectors.toSet());
-        return listTopic;
+        return topicMap.values().stream().map(ITopic::getTopicName).collect(Collectors.toSet());
     }
 
     public Collection<String> getSingleTopicCollection(TopicType type) {
-        if (listTopicNames == null)
-            listTopicNames = topicMap
-                    .values()
-                    .stream()
-                    .map(topic -> topic.getTopicName().name())
-                    .filter(topic_name -> topic_name.equals(type.name())).collect(Collectors.toSet());
-        return listTopicNames;
+        return topicMap
+                .values()
+                .stream()
+                .map(topic -> topic.getTopicName().name())
+                .filter(topic_name -> topic_name.equals(type.name())).collect(Collectors.toSet());
     }
 
     public Collection<String> getCollectionTopicsNames() {
-        if (listTopicNames == null)
-            listTopicNames = topicMap
-                    .values()
-                    .stream()
-                    .map(topic -> topic.getTopicName().name())
-                    .filter(topic_name -> !topic_name.equals(TopicType.DISPERSE_PHASE1.name())).collect(Collectors.toSet());
-        return listTopicNames;
+        return topicMap
+                .values()
+                .stream()
+                .map(topic -> topic.getTopicName().name())
+                .filter(topic_name -> !topic_name.equals(TopicType.DISPERSE_PHASE1.name())).collect(Collectors.toSet());
     }
 
     public Collection<TopicPartition> getCollectionTopicPartitions() {
         return partiotinTopicMap
                 .values()
                 .stream()
-                .filter(topic -> !topic.topic().equals(TopicType.DISPERSE_PHASE1.name())).collect(Collectors.toSet());
+                .filter(topic -> !topic.topic().equals(TopicType.DISPERSE_PHASE1.name())).collect(Collectors.toList());
     }
 
     public Collection<String> getAllCollectionTopicsNamesAsString() {
-        if (listTopicNames == null)
-            listTopicNames = topicMap
-                    .values()
-                    .stream()
-                    .map(topic -> topic.getTopicName().name())
-                    .collect(Collectors.toSet());
-        return listTopicNames;
+        return topicMap
+                .values()
+                .stream()
+                .map(topic -> topic.getTopicName().name())
+                .collect(Collectors.toSet());
     }
 
     public TopicPartition getTopicPartition(TopicType type) {

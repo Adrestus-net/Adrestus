@@ -57,6 +57,7 @@ public class KafkaMultiNodeTest2 {
     }
 
 
+    // This is the test increase message size you can test speed and if everything runs fine
     @SneakyThrows
     @Test
     public void testKafkaConsensusDispersePhases() {

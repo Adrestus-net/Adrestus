@@ -72,7 +72,7 @@ public class KafkaConsumerSameGroup implements IKafkaComponent, Cloneable {
         props.put(SaslConfigs.SASL_JAAS_CONFIG, "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"" + "consumer" + "-" + this.partition + "-" + this.currentIP + "\" password=\"consumer-secret\";");
 
         consumer = new KafkaConsumer<>(props);
-        TopicPartition partition = new TopicPartition(TopicFactory.getInstance().getTopicName(TopicType.DISPERSE_PHASE1).name(), this.partition);
+        TopicPartition partition = new TopicPartition(TopicType.DISPERSE_PHASE1.name(), this.partition);
         consumer.partitionsFor(TopicType.DISPERSE_PHASE1.name());
         consumer.assign(Collections.singleton(partition));
         LOG.info("Node " + this.partition + " " + "Subscribing to partition: " + partition.partition());
