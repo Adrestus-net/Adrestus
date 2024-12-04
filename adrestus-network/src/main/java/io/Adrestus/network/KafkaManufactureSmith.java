@@ -10,22 +10,20 @@ public class KafkaManufactureSmith implements KafkaSmith {
     private final ArrayList<String> ipAddresses;
     private final String leader_host;
     private final String currentIP;
-    private final int position;
     private final int partition;
 
 
-    public KafkaManufactureSmith(ArrayList<String> ipAddresses, String leader_host, String currentIP, int position, int partition) {
+    public KafkaManufactureSmith(ArrayList<String> ipAddresses, String leader_host, String currentIP, int partition) {
         this.ipAddresses = ipAddresses;
         this.leader_host = leader_host;
         this.currentIP = currentIP;
-        this.position = position;
         this.partition = partition;
         this.map = new EnumMap<>(KafkaKingdomType.class);
-        Arrays.stream(KafkaKingdomType.values()).forEach(type -> Init(type, this.ipAddresses, this.leader_host, this.currentIP, this.position, this.partition));
+        Arrays.stream(KafkaKingdomType.values()).forEach(type -> Init(type, this.ipAddresses, this.leader_host, this.currentIP, this.partition));
     }
 
 
-    private void Init(KafkaKingdomType type, ArrayList<String> ipAddresses, String leader_host, String currentIP, int position, int partition) {
+    private void Init(KafkaKingdomType type, ArrayList<String> ipAddresses, String leader_host, String currentIP, int partition) {
         switch (type) {
             case PRODUCER:
                 map.put(type, new KafkaProducer());
@@ -40,7 +38,7 @@ public class KafkaManufactureSmith implements KafkaSmith {
                 map.put(type, new KafkaConsumerPrivateGroup(ipAddresses, currentIP));
                 break;
             case CONSUMER_SAME:
-                map.put(type, new KafkaConsumerSameGroup(leader_host, currentIP, partition));
+                map.put(type, new KafkaConsumerSameGroup(ipAddresses, currentIP, partition));
                 break;
             case TOPIC_CREATOR:
                 map.put(type, new KafkaCreatorTopic(ipAddresses, currentIP, ipAddresses.size()));
@@ -48,14 +46,6 @@ public class KafkaManufactureSmith implements KafkaSmith {
             default:
                 throw new IllegalArgumentException("Invalid KafkaKingdomType");
         }
-    }
-
-    @Override
-    public void updateLeaderHost(KafkaKingdomType type, String leader_host, String currentIP, int partition, boolean isClose) {
-        if (isClose)
-            map.get(KafkaKingdomType.CONSUMER_SAME).Shutdown();
-        map.put(type, new KafkaConsumerSameGroup(leader_host, currentIP, partition));
-        map.get(KafkaKingdomType.CONSUMER_SAME).constructKafkaComponentType();
     }
 
     @Override

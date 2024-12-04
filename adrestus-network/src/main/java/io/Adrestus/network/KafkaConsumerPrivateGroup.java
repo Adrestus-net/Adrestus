@@ -69,12 +69,12 @@ public class KafkaConsumerPrivateGroup implements IKafkaComponent {
             props.put(ConsumerConfig.FETCH_MAX_BYTES_CONFIG, "536870912");
             props.put(ConsumerConfig.RECEIVE_BUFFER_CONFIG, "-1");
             props.put(ConsumerConfig.SEND_BUFFER_CONFIG, "-1");
-            props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+            props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "none");
             props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
             props.put(ConsumerConfig.FETCH_MIN_BYTES_CONFIG, "1");
-            props.put(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, "10");
+            props.put(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, "100");
             props.put(ConsumerConfig.METADATA_MAX_AGE_CONFIG, "1000");
-            props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, "690");
+            props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, "100");
             props.put(ConsumerConfig.AUTO_INCLUDE_JMX_REPORTER_CONFIG, "false");
             props.put(ConsumerConfig.ENABLE_METRICS_PUSH_CONFIG, "FALSE");
             props.put(ConsumerConfig.REQUEST_TIMEOUT_MS_CONFIG, "1000");

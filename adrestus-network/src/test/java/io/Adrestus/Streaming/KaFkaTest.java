@@ -22,11 +22,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class KaFkaTest {
 
     private static KafkaSmith kafkaSmith;
-
+    private static ArrayList<String> ipList = new ArrayList<>();
     //to make it work import each class separately
     @BeforeAll
     public static void setUp() {
-        ArrayList<String> ipList = new ArrayList<>();
         KafkaConfiguration.KAFKA_HOST = "127.0.0.1";
         ipList.add(KafkaConfiguration.KAFKA_HOST);
         ipList.add(KafkaConfiguration.KAFKA_HOST);
@@ -40,7 +39,7 @@ public class KaFkaTest {
         TopicFactory.getInstance().constructTopicName(TopicType.DISPERSE_PHASE2, map, 1);
         TopicFactory.getInstance().constructTopicName(TopicType.ANNOUNCE_PHASE, map, 1);
         Collection<NewTopic> newTopics = Arrays.asList(TopicFactory.getInstance().getTopicName(TopicType.PREPARE_PHASE), TopicFactory.getInstance().getTopicName(TopicType.ANNOUNCE_PHASE), TopicFactory.getInstance().getTopicName(TopicType.COMMITTEE_PHASE), TopicFactory.getInstance().getTopicName(TopicType.DISPERSE_PHASE1), TopicFactory.getInstance().getTopicName(TopicType.DISPERSE_PHASE2));
-        kafkaSmith = new KafkaManufactureSmith(ipList, KafkaConfiguration.KAFKA_HOST, KafkaConfiguration.KAFKA_HOST, 0, 0);
+        kafkaSmith = new KafkaManufactureSmith(ipList, KafkaConfiguration.KAFKA_HOST, KafkaConfiguration.KAFKA_HOST, 0);
         kafkaSmith.manufactureKafkaComponent(KafkaKingdomType.ZOOKEEPER);
         kafkaSmith.manufactureKafkaComponent(KafkaKingdomType.BROKER);
         kafkaSmith.manufactureKafkaComponent(KafkaKingdomType.TOPIC_CREATOR);
@@ -247,21 +246,26 @@ public class KaFkaTest {
         KafkaProducer producer = kafkaSmith.getKafkaComponent(KafkaKingdomType.PRODUCER);
 
         CopyOnWriteArrayList<Consumer<String, byte[]>> iterate = new CopyOnWriteArrayList<>();
-        kafkaSmith.updateLeaderHost(KafkaKingdomType.CONSUMER_SAME, KafkaConfiguration.KAFKA_HOST, KafkaConfiguration.KAFKA_HOST, 0, false);
-        KafkaConsumerSameGroup consumerSameGroup = kafkaSmith.getKafkaComponent(KafkaKingdomType.CONSUMER_SAME);
-        iterate.add(consumerSameGroup.getConsumer());
-        kafkaSmith.updateLeaderHost(KafkaKingdomType.CONSUMER_SAME, KafkaConfiguration.KAFKA_HOST, KafkaConfiguration.KAFKA_HOST, 1, false);
-        KafkaConsumerSameGroup consumerSameGroup1 = kafkaSmith.getKafkaComponent(KafkaKingdomType.CONSUMER_SAME);
-        iterate.add(consumerSameGroup1.getConsumer());
-        kafkaSmith.updateLeaderHost(KafkaKingdomType.CONSUMER_SAME, KafkaConfiguration.KAFKA_HOST, KafkaConfiguration.KAFKA_HOST, 2, false);
-        KafkaConsumerSameGroup consumerSameGroup2 = kafkaSmith.getKafkaComponent(KafkaKingdomType.CONSUMER_SAME);
-        iterate.add(consumerSameGroup2.getConsumer());
-        kafkaSmith.updateLeaderHost(KafkaKingdomType.CONSUMER_SAME, KafkaConfiguration.KAFKA_HOST, KafkaConfiguration.KAFKA_HOST, 3, false);
-        KafkaConsumerSameGroup consumerSameGroup3 = kafkaSmith.getKafkaComponent(KafkaKingdomType.CONSUMER_SAME);
-        iterate.add(consumerSameGroup3.getConsumer());
-        kafkaSmith.updateLeaderHost(KafkaKingdomType.CONSUMER_SAME, KafkaConfiguration.KAFKA_HOST, KafkaConfiguration.KAFKA_HOST, 4, false);
-        KafkaConsumerSameGroup consumerSameGroup4 = kafkaSmith.getKafkaComponent(KafkaKingdomType.CONSUMER_SAME);
-        iterate.add(consumerSameGroup4.getConsumer());
+        KafkaManufactureSmith kafkaManufactureSmith0 = new KafkaManufactureSmith(ipList, KafkaConfiguration.KAFKA_HOST, KafkaConfiguration.KAFKA_HOST, 0);
+        KafkaManufactureSmith kafkaManufactureSmith1 = new KafkaManufactureSmith(ipList, KafkaConfiguration.KAFKA_HOST, KafkaConfiguration.KAFKA_HOST, 1);
+        KafkaManufactureSmith kafkaManufactureSmith2 = new KafkaManufactureSmith(ipList, KafkaConfiguration.KAFKA_HOST, KafkaConfiguration.KAFKA_HOST, 2);
+        KafkaManufactureSmith kafkaManufactureSmith3 = new KafkaManufactureSmith(ipList, KafkaConfiguration.KAFKA_HOST, KafkaConfiguration.KAFKA_HOST, 3);
+        KafkaManufactureSmith kafkaManufactureSmith4 = new KafkaManufactureSmith(ipList, KafkaConfiguration.KAFKA_HOST, KafkaConfiguration.KAFKA_HOST, 4);
+        kafkaManufactureSmith0.manufactureKafkaComponent(KafkaKingdomType.CONSUMER_SAME);
+        kafkaManufactureSmith1.manufactureKafkaComponent(KafkaKingdomType.CONSUMER_SAME);
+        kafkaManufactureSmith2.manufactureKafkaComponent(KafkaKingdomType.CONSUMER_SAME);
+        kafkaManufactureSmith3.manufactureKafkaComponent(KafkaKingdomType.CONSUMER_SAME);
+        kafkaManufactureSmith4.manufactureKafkaComponent(KafkaKingdomType.CONSUMER_SAME);
+        KafkaConsumerSameGroup consumerSameGroup0 = kafkaManufactureSmith0.getKafkaComponent(KafkaKingdomType.CONSUMER_SAME);
+        KafkaConsumerSameGroup consumerSameGroup1 = kafkaManufactureSmith1.getKafkaComponent(KafkaKingdomType.CONSUMER_SAME);
+        KafkaConsumerSameGroup consumerSameGroup2 = kafkaManufactureSmith2.getKafkaComponent(KafkaKingdomType.CONSUMER_SAME);
+        KafkaConsumerSameGroup consumerSameGroup3 = kafkaManufactureSmith3.getKafkaComponent(KafkaKingdomType.CONSUMER_SAME);
+        KafkaConsumerSameGroup consumerSameGroup4 = kafkaManufactureSmith4.getKafkaComponent(KafkaKingdomType.CONSUMER_SAME);
+        iterate.add(consumerSameGroup0.receiveLeaderConsumer(KafkaConfiguration.KAFKA_HOST));
+        iterate.add(consumerSameGroup1.receiveLeaderConsumer(KafkaConfiguration.KAFKA_HOST + "1"));
+        iterate.add(consumerSameGroup2.receiveLeaderConsumer(KafkaConfiguration.KAFKA_HOST + "2"));
+        iterate.add(consumerSameGroup3.receiveLeaderConsumer(KafkaConfiguration.KAFKA_HOST + "3"));
+        iterate.add(consumerSameGroup4.receiveLeaderConsumer(KafkaConfiguration.KAFKA_HOST + "4"));
 
         int size = 5;
         for (int i = 0; i < size; i++) {
@@ -338,18 +342,22 @@ public class KaFkaTest {
         KafkaProducer producer = kafkaSmith.getKafkaComponent(KafkaKingdomType.PRODUCER);
 
         CopyOnWriteArrayList<Consumer<String, byte[]>> iterate = new CopyOnWriteArrayList<>();
-        kafkaSmith.updateLeaderHost(KafkaKingdomType.CONSUMER_SAME, KafkaConfiguration.KAFKA_HOST, KafkaConfiguration.KAFKA_HOST, 0, false);
-        KafkaConsumerSameGroup consumerSameGroup = kafkaSmith.getKafkaComponent(KafkaKingdomType.CONSUMER_SAME);
-        iterate.add(consumerSameGroup.getConsumer());
-        kafkaSmith.updateLeaderHost(KafkaKingdomType.CONSUMER_SAME, KafkaConfiguration.KAFKA_HOST, KafkaConfiguration.KAFKA_HOST, 1, false);
-        KafkaConsumerSameGroup consumerSameGroup1 = kafkaSmith.getKafkaComponent(KafkaKingdomType.CONSUMER_SAME);
-        iterate.add(consumerSameGroup1.getConsumer());
-        kafkaSmith.updateLeaderHost(KafkaKingdomType.CONSUMER_SAME, KafkaConfiguration.KAFKA_HOST, KafkaConfiguration.KAFKA_HOST, 2, false);
-        KafkaConsumerSameGroup consumerSameGroup2 = kafkaSmith.getKafkaComponent(KafkaKingdomType.CONSUMER_SAME);
-        iterate.add(consumerSameGroup2.getConsumer());
-        kafkaSmith.updateLeaderHost(KafkaKingdomType.CONSUMER_SAME, KafkaConfiguration.KAFKA_HOST, KafkaConfiguration.KAFKA_HOST, 3, false);
-        KafkaConsumerSameGroup consumerSameGroup3 = kafkaSmith.getKafkaComponent(KafkaKingdomType.CONSUMER_SAME);
-        iterate.add(consumerSameGroup3.getConsumer());
+        KafkaManufactureSmith kafkaManufactureSmith0 = new KafkaManufactureSmith(ipList, KafkaConfiguration.KAFKA_HOST, KafkaConfiguration.KAFKA_HOST, 0);
+        KafkaManufactureSmith kafkaManufactureSmith1 = new KafkaManufactureSmith(ipList, KafkaConfiguration.KAFKA_HOST, KafkaConfiguration.KAFKA_HOST, 1);
+        KafkaManufactureSmith kafkaManufactureSmith2 = new KafkaManufactureSmith(ipList, KafkaConfiguration.KAFKA_HOST, KafkaConfiguration.KAFKA_HOST, 2);
+        KafkaManufactureSmith kafkaManufactureSmith3 = new KafkaManufactureSmith(ipList, KafkaConfiguration.KAFKA_HOST, KafkaConfiguration.KAFKA_HOST, 3);
+        kafkaManufactureSmith0.manufactureKafkaComponent(KafkaKingdomType.CONSUMER_SAME);
+        kafkaManufactureSmith1.manufactureKafkaComponent(KafkaKingdomType.CONSUMER_SAME);
+        kafkaManufactureSmith2.manufactureKafkaComponent(KafkaKingdomType.CONSUMER_SAME);
+        kafkaManufactureSmith3.manufactureKafkaComponent(KafkaKingdomType.CONSUMER_SAME);
+        KafkaConsumerSameGroup consumerSameGroup0 = kafkaManufactureSmith0.getKafkaComponent(KafkaKingdomType.CONSUMER_SAME);
+        KafkaConsumerSameGroup consumerSameGroup1 = kafkaManufactureSmith1.getKafkaComponent(KafkaKingdomType.CONSUMER_SAME);
+        KafkaConsumerSameGroup consumerSameGroup2 = kafkaManufactureSmith2.getKafkaComponent(KafkaKingdomType.CONSUMER_SAME);
+        KafkaConsumerSameGroup consumerSameGroup3 = kafkaManufactureSmith3.getKafkaComponent(KafkaKingdomType.CONSUMER_SAME);
+        iterate.add(consumerSameGroup0.receiveLeaderConsumer(KafkaConfiguration.KAFKA_HOST));
+        iterate.add(consumerSameGroup1.receiveLeaderConsumer(KafkaConfiguration.KAFKA_HOST + "1"));
+        iterate.add(consumerSameGroup2.receiveLeaderConsumer(KafkaConfiguration.KAFKA_HOST + "2"));
+        iterate.add(consumerSameGroup3.receiveLeaderConsumer(KafkaConfiguration.KAFKA_HOST + "3"));
 
         int size = 5;
         for (int i = 0; i < size; i++) {
@@ -395,21 +403,26 @@ public class KaFkaTest {
         KafkaProducer producer = kafkaSmith.getKafkaComponent(KafkaKingdomType.PRODUCER);
 
         CopyOnWriteArrayList<Consumer<String, byte[]>> iterate = new CopyOnWriteArrayList<>();
-        kafkaSmith.updateLeaderHost(KafkaKingdomType.CONSUMER_SAME, KafkaConfiguration.KAFKA_HOST, KafkaConfiguration.KAFKA_HOST, 0, false);
-        KafkaConsumerSameGroup consumerSameGroup = kafkaSmith.getKafkaComponent(KafkaKingdomType.CONSUMER_SAME);
-        iterate.add(consumerSameGroup.getConsumer());
-        kafkaSmith.updateLeaderHost(KafkaKingdomType.CONSUMER_SAME, KafkaConfiguration.KAFKA_HOST, KafkaConfiguration.KAFKA_HOST, 1, false);
-        KafkaConsumerSameGroup consumerSameGroup1 = kafkaSmith.getKafkaComponent(KafkaKingdomType.CONSUMER_SAME);
-        iterate.add(consumerSameGroup1.getConsumer());
-        kafkaSmith.updateLeaderHost(KafkaKingdomType.CONSUMER_SAME, KafkaConfiguration.KAFKA_HOST, KafkaConfiguration.KAFKA_HOST, 2, false);
-        KafkaConsumerSameGroup consumerSameGroup2 = kafkaSmith.getKafkaComponent(KafkaKingdomType.CONSUMER_SAME);
-        iterate.add(consumerSameGroup2.getConsumer());
-        kafkaSmith.updateLeaderHost(KafkaKingdomType.CONSUMER_SAME, KafkaConfiguration.KAFKA_HOST, KafkaConfiguration.KAFKA_HOST, 3, false);
-        KafkaConsumerSameGroup consumerSameGroup3 = kafkaSmith.getKafkaComponent(KafkaKingdomType.CONSUMER_SAME);
-        iterate.add(consumerSameGroup3.getConsumer());
-        kafkaSmith.updateLeaderHost(KafkaKingdomType.CONSUMER_SAME, KafkaConfiguration.KAFKA_HOST, KafkaConfiguration.KAFKA_HOST, 3, false);
-        KafkaConsumerSameGroup consumerSameGroup4 = kafkaSmith.getKafkaComponent(KafkaKingdomType.CONSUMER_SAME);
-        iterate.add(consumerSameGroup4.getConsumer());
+        KafkaManufactureSmith kafkaManufactureSmith0 = new KafkaManufactureSmith(ipList, KafkaConfiguration.KAFKA_HOST, KafkaConfiguration.KAFKA_HOST, 0);
+        KafkaManufactureSmith kafkaManufactureSmith1 = new KafkaManufactureSmith(ipList, KafkaConfiguration.KAFKA_HOST, KafkaConfiguration.KAFKA_HOST, 1);
+        KafkaManufactureSmith kafkaManufactureSmith2 = new KafkaManufactureSmith(ipList, KafkaConfiguration.KAFKA_HOST, KafkaConfiguration.KAFKA_HOST, 2);
+        KafkaManufactureSmith kafkaManufactureSmith3 = new KafkaManufactureSmith(ipList, KafkaConfiguration.KAFKA_HOST, KafkaConfiguration.KAFKA_HOST, 3);
+        KafkaManufactureSmith kafkaManufactureSmith4 = new KafkaManufactureSmith(ipList, KafkaConfiguration.KAFKA_HOST, KafkaConfiguration.KAFKA_HOST, 3);
+        kafkaManufactureSmith0.manufactureKafkaComponent(KafkaKingdomType.CONSUMER_SAME);
+        kafkaManufactureSmith1.manufactureKafkaComponent(KafkaKingdomType.CONSUMER_SAME);
+        kafkaManufactureSmith2.manufactureKafkaComponent(KafkaKingdomType.CONSUMER_SAME);
+        kafkaManufactureSmith3.manufactureKafkaComponent(KafkaKingdomType.CONSUMER_SAME);
+        kafkaManufactureSmith4.manufactureKafkaComponent(KafkaKingdomType.CONSUMER_SAME);
+        KafkaConsumerSameGroup consumerSameGroup0 = kafkaManufactureSmith0.getKafkaComponent(KafkaKingdomType.CONSUMER_SAME);
+        KafkaConsumerSameGroup consumerSameGroup1 = kafkaManufactureSmith1.getKafkaComponent(KafkaKingdomType.CONSUMER_SAME);
+        KafkaConsumerSameGroup consumerSameGroup2 = kafkaManufactureSmith2.getKafkaComponent(KafkaKingdomType.CONSUMER_SAME);
+        KafkaConsumerSameGroup consumerSameGroup3 = kafkaManufactureSmith3.getKafkaComponent(KafkaKingdomType.CONSUMER_SAME);
+        KafkaConsumerSameGroup consumerSameGroup4 = kafkaManufactureSmith4.getKafkaComponent(KafkaKingdomType.CONSUMER_SAME);
+        iterate.add(consumerSameGroup0.receiveLeaderConsumer(KafkaConfiguration.KAFKA_HOST));
+        iterate.add(consumerSameGroup1.receiveLeaderConsumer(KafkaConfiguration.KAFKA_HOST + "1"));
+        iterate.add(consumerSameGroup2.receiveLeaderConsumer(KafkaConfiguration.KAFKA_HOST + "2"));
+        iterate.add(consumerSameGroup3.receiveLeaderConsumer(KafkaConfiguration.KAFKA_HOST + "3"));
+        iterate.add(consumerSameGroup4.receiveLeaderConsumer(KafkaConfiguration.KAFKA_HOST + "4"));
 
         int size = 5;
         for (int i = 0; i < size; i++) {
