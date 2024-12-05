@@ -2,7 +2,10 @@ package io.Adrestus.network;
 
 import io.Adrestus.config.KafkaConfiguration;
 import org.apache.kafka.clients.CommonClientConfigs;
-import org.apache.kafka.clients.consumer.*;
+import org.apache.kafka.clients.consumer.Consumer;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.clients.consumer.RoundRobinAssignor;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.config.SaslConfigs;
 import org.apache.kafka.common.serialization.ByteArrayDeserializer;
@@ -10,7 +13,6 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -134,7 +136,7 @@ public class KafkaConsumerSameGroup implements IKafkaComponent, Cloneable {
         return ipAddresses;
     }
 
-    public ConcurrentHashMap<String, Consumer<String,byte[]>> getConsumer_map() {
+    public ConcurrentHashMap<String, Consumer<String, byte[]>> getConsumer_map() {
         return consumer_map;
     }
 

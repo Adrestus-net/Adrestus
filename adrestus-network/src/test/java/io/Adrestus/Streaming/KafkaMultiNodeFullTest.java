@@ -1,5 +1,9 @@
 package io.Adrestus.Streaming;
 
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.OutputStreamAppender;
 import io.Adrestus.config.KafkaConfiguration;
 import io.Adrestus.network.ConsensusBroker;
 import io.Adrestus.network.TopicType;
@@ -10,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -22,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class KafkaMultiNodeFullTest {
     private static final Logger LOG = LoggerFactory.getLogger(KafkaMultiNodeFullTest.class);
 
+    private static final String MATCH = "Duplicate-";
     private static final String ANNOUNCE_MESSAGE_VALIDATORS = "ANNOUNCE_MESSAGE_FROM_VALIDATORS";
     private static final String PREPARE_MESSAGE_VALIDATORS = "PREPARE_MESSAGE_FROM_VALIDATORS";
     private static final String COMMITTEE_MESSAGE_VALIDATORS = "COMMITTEE_MESSAGE_FROM_VALIDATORS";
@@ -34,12 +40,16 @@ public class KafkaMultiNodeFullTest {
     private static final String PREPARE_MESSAGE_LEADER = "PREPARE_MESSAGE_FROM_LEADER";
     private static final String COMMITTEE_MESSAGE_LEADER = "COMMITTEE_MESSAGE_FROM_LEADER";
 
-    private static final int ITERATIONS_MAX = 9;
+    private static final int ITERATIONS_MAX = 18;
 
     private static ArrayList<String> list;
     private static ConsensusBroker consensusBroker;
     private static OptionalInt current_position;
     private static int leader_position;
+    // Create a ByteArrayOutputStream to capture log output
+    private static ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    private static ch.qos.logback.classic.Logger rootLogger;
+    private static OutputStreamAppender<ILoggingEvent> appender;
 
     @SneakyThrows
     @BeforeAll
@@ -48,6 +58,31 @@ public class KafkaMultiNodeFullTest {
             System.out.println("Running from Maven: ");
             return;
         }
+
+
+        // Get the LoggerContext and root logger
+        LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+        rootLogger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
+
+        // Create an OutputStreamAppender
+        appender = new OutputStreamAppender<>();
+        appender.setContext(loggerContext);
+        appender.setOutputStream(baos);
+
+        // Create a PatternLayoutEncoder
+        PatternLayoutEncoder encoder = new PatternLayoutEncoder();
+        encoder.setContext(loggerContext);
+        encoder.setPattern("%msg%n");
+        encoder.start();
+
+        // Set the encoder on the appender and start it
+        appender.setEncoder(encoder);
+        appender.start();
+
+        // Add the appender to the root logger
+        rootLogger.addAppender(appender);
+
+
         Socket socket = new Socket();
         socket.connect(new InetSocketAddress("google.com", 80));
         String IP = socket.getLocalAddress().getHostAddress();
@@ -77,6 +112,10 @@ public class KafkaMultiNodeFullTest {
             if (leader_position == current_position.getAsInt()) {
                 System.out.println("leader iteration: " + count);
                 long start = System.currentTimeMillis();
+                consensusBroker.seekDisperseOffsetToEnd();
+
+                //this sleep must be time to construct erasure code
+                Thread.sleep(10);
                 for (int i = 0; i < list.size(); i++) {
                     if (i == leader_position) {
                         continue;
@@ -87,10 +126,6 @@ public class KafkaMultiNodeFullTest {
                     }
                 }
                 consensusBroker.flush();
-
-                if(count!=1) {
-                    consensusBroker.seekDisperseOffsetToEnd();
-                }
                 consensusBroker.produceMessage(TopicType.ANNOUNCE_PHASE, String.valueOf(count), ANNOUNCE_MESSAGE_LEADER.getBytes(StandardCharsets.UTF_8));
                 List<byte[]> res = consensusBroker.receiveMessageFromValidators(TopicType.ANNOUNCE_PHASE, String.valueOf(count));
                 res.forEach(val -> assertEquals(ANNOUNCE_MESSAGE_VALIDATORS, new String(val)));
@@ -113,11 +148,8 @@ public class KafkaMultiNodeFullTest {
                 assertEquals(count, consensusBroker.getSequencedMap().get(TopicType.ANNOUNCE_PHASE).firstEntry().getKey());
                 assertEquals(count, consensusBroker.getSequencedMap().get(TopicType.PREPARE_PHASE).firstEntry().getKey());
                 assertEquals(count, consensusBroker.getSequencedMap().get(TopicType.COMMITTEE_PHASE).firstEntry().getKey());
-                if (count == 1)
-                    assertEquals(1, consensusBroker.getSequencedMap().get(TopicType.DISPERSE_PHASE2).firstEntry().getKey());
-                else {
-                    assertEquals(count -1, consensusBroker.getSequencedMap().get(TopicType.DISPERSE_PHASE2).firstEntry().getKey());
-                }
+                assertEquals(count - 1, consensusBroker.getSequencedMap().get(TopicType.DISPERSE_PHASE2).firstEntry().getKey());
+
                 assertEquals(2, consensusBroker.getSequencedMap().get(TopicType.ANNOUNCE_PHASE).firstEntry().getValue().size());
                 assertEquals(2, consensusBroker.getSequencedMap().get(TopicType.PREPARE_PHASE).firstEntry().getValue().size());
                 assertEquals(2, consensusBroker.getSequencedMap().get(TopicType.COMMITTEE_PHASE).firstEntry().getValue().size());
@@ -126,9 +158,10 @@ public class KafkaMultiNodeFullTest {
                 consensusBroker.getSequencedMap().get(TopicType.PREPARE_PHASE).firstEntry().getValue().values().forEach(value -> assertEquals(PREPARE_MESSAGE_VALIDATORS, new String(value)));
                 consensusBroker.getSequencedMap().get(TopicType.COMMITTEE_PHASE).firstEntry().getValue().values().forEach(value -> assertEquals(COMMITTEE_MESSAGE_VALIDATORS, new String(value)));
                 long finish = System.currentTimeMillis();
-                long timeElapsed = finish - start;
+                long timeElapsed = finish - 10 - start;
                 elaspe_time.add(timeElapsed);
                 count++;
+                Thread.sleep(1000);
             } else {
                 System.out.println("Validator iteration: " + count);
                 Optional<byte[]> message0 = consensusBroker.receiveDisperseMessageFromLeader(TopicType.DISPERSE_PHASE1, String.valueOf(count));
@@ -161,6 +194,7 @@ public class KafkaMultiNodeFullTest {
                 consensusBroker.produceMessage(TopicType.COMMITTEE_PHASE, String.valueOf(count), COMMITTEE_MESSAGE_VALIDATORS.getBytes(StandardCharsets.UTF_8));
                 consensusBroker.flush();
                 count++;
+                Thread.sleep(1000);
                 consensusBroker.seekAllOffsetToEnd();
 
             }
@@ -171,17 +205,26 @@ public class KafkaMultiNodeFullTest {
             }
             consensusBroker.setLeader_host(list.get(leader_position));
             consensusBroker.setLeader_position(leader_position);
-            Thread.sleep(1000);
         }
 
         var map = consensusBroker.getSequencedMap();
-        var list=elaspe_time;
-        OptionalDouble average = elaspe_time.stream().mapToLong(Long::longValue).average();
+        var list = elaspe_time;
+        OptionalDouble average = elaspe_time.stream().skip(1).mapToLong(Long::longValue).average();
         if (average.isPresent()) {
             System.out.println("Average elapsed time: " + average.getAsDouble() + " ms");
         } else {
             System.out.println("No elapsed time recorded.");
         }
+
+        // Convert the log output to a string
+        String logOutput = baos.toString();
+
+        // Check if the string contains "duplicate exists"
+        if (logOutput.contains(MATCH)) {
+            throw new IllegalArgumentException("The string 'duplicate exists' was found in the log output.");
+        }
+        // Remove the appender from the root logger
+        rootLogger.detachAppender(appender);
     }
 
     @SneakyThrows

@@ -10,13 +10,14 @@ public class CommitPhaseTopic implements ITopic {
 
     private NewTopic topicName;
     private TopicPartition topicPartition;
+
     public CommitPhaseTopic() {
     }
 
     @Override
     public void constructTopicName(Map<String, String> configs, int numPartitions) {
         topicName = new NewTopic(TopicType.COMMITTEE_PHASE.name(), numPartitions, KafkaConfiguration.KAFKA_REPLICATION_FACTOR);
-        topicPartition = new TopicPartition(TopicType.COMMITTEE_PHASE.name(), numPartitions-1);
+        topicPartition = new TopicPartition(TopicType.COMMITTEE_PHASE.name(), numPartitions - 1);
         topicName.configs(configs);
     }
 

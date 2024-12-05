@@ -363,6 +363,7 @@ public class KafkaTransactionBlockTest {
             Thread.sleep(6000);
         } else {
             if (position.getAsInt() == 1) {
+                long start = System.currentTimeMillis();
                 ArrayList<byte[]> fromLeaderReceive = consensusBroker.receiveDisperseHandledMessageFromLeader(TopicType.DISPERSE_PHASE1, String.valueOf(VIEW_NUMBER) + 1);
                 assertFalse(fromLeaderReceive.isEmpty());
                 System.out.println("received");
@@ -370,6 +371,10 @@ public class KafkaTransactionBlockTest {
                 ArrayList<ArrayList<byte[]>> finalList = consensusBroker.retrieveDisperseMessageFromValidatorsAndConcatResponse(fromLeaderReceive, String.valueOf(VIEW_NUMBER));
                 System.out.println("received2");
                 assert (!finalList.isEmpty());
+
+                long finish = System.currentTimeMillis();
+                long timeElapsed = finish - start;
+                System.out.println("Time elapsed: " + timeElapsed);
 
                 //#########################################################################################################################
                 ArrayList<SerializableErasureObject> recserializableErasureObjects = new ArrayList<SerializableErasureObject>();
@@ -402,6 +407,7 @@ public class KafkaTransactionBlockTest {
 
                 Thread.sleep(4000);
             } else {
+                long start = System.currentTimeMillis();
                 ArrayList<byte[]> fromLeaderReceive = consensusBroker.receiveDisperseHandledMessageFromLeader(TopicType.DISPERSE_PHASE1, String.valueOf(VIEW_NUMBER) + 2);
                 assertFalse(fromLeaderReceive.isEmpty());
                 System.out.println("received");
@@ -438,7 +444,9 @@ public class KafkaTransactionBlockTest {
                 TransactionBlock copys = (TransactionBlock) serenc.decode(dec.dataArray());
                 assertDoesNotThrow(() -> assertNotNull(copys));
                 System.out.println("Data is equal");
-
+                long finish = System.currentTimeMillis();
+                long timeElapsed = finish - start;
+                System.out.println("Time elapsed: " + timeElapsed);
                 Thread.sleep(4000);
             }
         }

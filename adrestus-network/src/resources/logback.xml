@@ -28,6 +28,6 @@
     <logger name="org.apache.kafka" level="OFF"/>
     <logger name="kafka" level="OFF"/>
     <logger name="state.change.logger" level="OFF"/>
-<!--    <logger name="io.Adrestus.network" level="OFF"/>-->
+    <!--    <logger name="io.Adrestus.network" level="OFF"/>-->
     <logger name="io.netty" level="OFF"/>
 </configuration>

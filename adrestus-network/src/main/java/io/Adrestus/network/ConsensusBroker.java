@@ -29,7 +29,7 @@ public class ConsensusBroker {
     private final String currentIP;
     private final int numThreads;
     private final int partition;
-
+    private final int currentPosition;
     private String leader_host;
     private int leader_position;
 
@@ -40,6 +40,7 @@ public class ConsensusBroker {
         this.currentIP = IPFinder.getLocalIP();
         this.ipAddresses = ipAddresses;
         this.leader_host = leader_host;
+        this.currentPosition = this.ipAddresses.indexOf(this.currentIP);
         this.leader_position = this.ipAddresses.indexOf(leader_host);
         this.partition = partition;
         this.kafkaManufactureSmith = new KafkaManufactureSmith(ipAddresses, leader_host, this.currentIP, partition);
@@ -82,6 +83,7 @@ public class ConsensusBroker {
             this.produceMessage(TopicType.DISPERSE_PHASE1, i, "0", "0".getBytes(StandardCharsets.UTF_8));
         }
         this.flush();
+        this.BootstrapReceiveDisperseMessageFromAll(TopicType.DISPERSE_PHASE1, "0");
         if (currentIP.equals(leader_host)) {
             this.receiveMessageFromValidators(TopicType.DISPERSE_PHASE2, "0");
             this.produceMessage(TopicType.ANNOUNCE_PHASE, "0", "0".getBytes(StandardCharsets.UTF_8));
@@ -91,7 +93,6 @@ public class ConsensusBroker {
             this.produceMessage(TopicType.COMMITTEE_PHASE, "0", "0".getBytes(StandardCharsets.UTF_8));
             this.receiveMessageFromValidators(TopicType.COMMITTEE_PHASE, "0");
         } else {
-            this.receiveDisperseMessageFromLeader(TopicType.DISPERSE_PHASE1, "0");
             this.produceMessage(TopicType.DISPERSE_PHASE2, "0", "0".getBytes(StandardCharsets.UTF_8));
             this.receiveMessageFromValidators(TopicType.DISPERSE_PHASE2, "0");
             this.receiveMessageFromLeader(TopicType.ANNOUNCE_PHASE, "0");
@@ -102,11 +103,10 @@ public class ConsensusBroker {
             this.produceMessage(TopicType.COMMITTEE_PHASE, "0", "0".getBytes(StandardCharsets.UTF_8));
             this.seekAllOffsetToEnd();
         }
-        this.clear();
     }
 
     public void distributeDisperseMessageFromLeader(ArrayList<ArrayList<byte[]>> data, String key) {
-        if (data.size() != this.ipAddresses.size())
+        if (data.size() != this.ipAddresses.size() - 1)
             throw new IllegalArgumentException("DisperseMessage Invalid data size");
 
 
@@ -164,10 +164,7 @@ public class ConsensusBroker {
         validators.forEach(validator -> {
             Map<TopicPartition, Long> endOffsets = validator.endOffsets(validator.assignment());
             TopicPartition partition = endOffsets.keySet().stream().filter(topicPartition -> topicPartition.topic().equals(TopicType.DISPERSE_PHASE2.name())).findFirst().get();
-            validator.seek(partition, endOffsets.get(partition) + 1);
-//            ConsumerRecords<String, byte[]> records = validator.poll(Duration.ZERO);
-//            if (!records.isEmpty())
-//                throw new IllegalArgumentException("Not null records found");
+            validator.seek(partition, endOffsets.get(partition).intValue() + 1);
             validator.position(partition);
         });
     }
@@ -179,9 +176,6 @@ public class ConsensusBroker {
             Map<TopicPartition, Long> endOffsets = validator.endOffsets(validator.assignment());
             endOffsets.forEach((topicPartition, offset) -> {
                 validator.seek(topicPartition, offset);
-//                ConsumerRecords<String, byte[]> records = validator.poll(Duration.ZERO);
-//                if (!records.isEmpty())
-//                    throw new IllegalArgumentException("Not null records found");
                 validator.position(topicPartition);
             });
         });
@@ -220,6 +214,8 @@ public class ConsensusBroker {
                             if (!this.sequencedMap.get(current).containsKey(Integer.parseInt(record.key()))) {
                                 this.sequencedMap.get(current).put(Integer.parseInt(record.key()), new HashMap<>());
                             }
+//                            if (this.sequencedMap.get(current).containsKey(Integer.parseInt(record.key()))&& !current.equals(TopicType.DISPERSE_PHASE2))
+//                                LOG.info("{} {} {} {} {}", "Duplicate-receiveMessageFromValidators", Thread.currentThread().getName(), current, "Key: " + record.key(), "Offset: " + record.offset());
                             this.sequencedMap.get(current).get(Integer.parseInt(record.key())).put(finalI, record.value());
                             if (record.key().equals(key) && record.topic().equals(topic.name())) {
                                 flag = true;
@@ -329,7 +325,7 @@ public class ConsensusBroker {
 
     @SneakyThrows
     public Optional<byte[]> BootstrapReceiveDisperseMessageFromAll(TopicType topic, String key) {
-        KafkaConsumerPrivateGroup consumer_data = this.kafkaManufactureSmith.getKafkaComponent(KafkaKingdomType.CONSUMER_SAME);
+        KafkaConsumerSameGroup consumer_data = this.kafkaManufactureSmith.getKafkaComponent(KafkaKingdomType.CONSUMER_SAME);
         List<Consumer<String, byte[]>> consumers = consumer_data.getConsumer_map().values().stream().collect(Collectors.toList());
         int size = consumers.size();
         ExecutorService executorService = Executors.newFixedThreadPool(this.numThreads);
@@ -388,7 +384,7 @@ public class ConsensusBroker {
         });
         if (!this.sequencedMap.get(TopicType.DISPERSE_PHASE1).containsKey(Integer.parseInt(key)))
             throw new IllegalArgumentException("DisperseMessage1 not received correctly form leader aborting");
-        if (this.sequencedMap.get(TopicType.DISPERSE_PHASE1).get(Integer.parseInt(key)).size() == size)
+        if (this.sequencedMap.get(TopicType.DISPERSE_PHASE1).get(Integer.parseInt(key)).size() != size)
             throw new IllegalArgumentException("DisperseMessage1 size is wrong and not received correctly form all leaders aborting");
 
         return Optional.empty();
@@ -416,7 +412,7 @@ public class ConsensusBroker {
                     LOG.info("{} {} {} {}", "receiveDisperseMessageFromLeader", Thread.currentThread().getName(), topic.name(), records.count());
                     for (ConsumerRecord<String, byte[]> record : records) {
                         TopicType current = TopicType.valueOf(record.topic());
-                        LOG.info("{} {} {} {} {}", "receiveDisperseMessageFromLeader", Thread.currentThread().getName(), current, "Key: " + record.key(), "Offset: " + record.offset());
+                        LOG.info("{} {} {} {} {} {}", "receiveDisperseMessageFromLeader", Thread.currentThread().getName(), current, "Key: " + record.key(), "Offset: " + record.offset(), "partition: " + record.partition());
                         if (!this.sequencedMap.get(current).containsKey(Integer.parseInt(record.key()))) {
                             this.sequencedMap.get(current).put(Integer.parseInt(record.key()), new HashMap<>());
                         }

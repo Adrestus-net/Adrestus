@@ -23,6 +23,7 @@ public class KaFkaTest {
 
     private static KafkaSmith kafkaSmith;
     private static ArrayList<String> ipList = new ArrayList<>();
+
     //to make it work import each class separately
     @BeforeAll
     public static void setUp() {

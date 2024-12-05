@@ -22,10 +22,9 @@ public class AnnouncePhaseTopic implements ITopic {
     @Override
     public void constructTopicName(Map<String, String> configs, int numPartitions) {
         topicName = new NewTopic(TopicType.ANNOUNCE_PHASE.name(), numPartitions, KafkaConfiguration.KAFKA_REPLICATION_FACTOR);
-        topicPartition = new TopicPartition(TopicType.ANNOUNCE_PHASE.name(), numPartitions-1);
+        topicPartition = new TopicPartition(TopicType.ANNOUNCE_PHASE.name(), numPartitions - 1);
         topicName.configs(configs);
     }
-
 
 
     @Override
