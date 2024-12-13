@@ -7,7 +7,6 @@ import io.activej.serializer.annotations.Deserialize;
 import io.activej.serializer.annotations.Serialize;
 
 import java.io.Serializable;
-import java.math.BigInteger;
 import java.security.PublicKey;
 import java.util.Arrays;
 

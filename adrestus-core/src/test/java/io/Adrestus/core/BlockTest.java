@@ -47,6 +47,7 @@ import org.spongycastle.util.encoders.Hex;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
@@ -217,12 +218,14 @@ public class BlockTest {
             transaction.setAmount(BigDecimal.valueOf(100));
             transaction.setAmountWithTransactionFee(transaction.getAmount().multiply(BigDecimal.valueOf(10.0 / 100.0)));
             transaction.setNonce(1);
+            transaction.setXAxis(keypair.get(i).getXpubAxis());
+            transaction.setYAxis(keypair.get(i).getYpubAxis());
             transaction.setTransactionCallback(transactionCallback);
             byte byf[] = trx_serence.encode(transaction, 1024);
             transaction.setHash(HashUtil.sha256_bytetoString(byf));
             await().atMost(500, TimeUnit.MILLISECONDS);
 
-            ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(Hex.decode(transaction.getHash()), keypair.get(i));
+            ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(transaction.getHash().getBytes(StandardCharsets.UTF_8), keypair.get(i));
             transaction.setSignature(signatureData);
             //MemoryPool.getInstance().add(transaction);
             transactions.add(transaction);
@@ -238,11 +241,13 @@ public class BlockTest {
             transaction.setAmount(BigDecimal.valueOf(100));
             transaction.setAmountWithTransactionFee(transaction.getAmount().multiply(BigDecimal.valueOf(10.0 / 100.0)));
             transaction.setNonce(1);
+            transaction.setXAxis(keypair.get(i).getXpubAxis());
+            transaction.setYAxis(keypair.get(i).getYpubAxis());
             byte byf[] = trx_serence.encode(transaction, 1024);
             transaction.setHash(HashUtil.sha256_bytetoString(byf));
             await().atMost(500, TimeUnit.MILLISECONDS);
 
-            ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(Hex.decode(transaction.getHash()), keypair.get(i));
+            ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(transaction.getHash().getBytes(StandardCharsets.UTF_8), keypair.get(i));
             transaction.setSignature(signatureData);
             //MemoryPool.getInstance().add(transaction);
             outer_transactions.add(transaction);

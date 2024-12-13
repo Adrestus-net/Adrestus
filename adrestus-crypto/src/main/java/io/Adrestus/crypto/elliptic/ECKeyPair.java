@@ -24,7 +24,7 @@ public class ECKeyPair {
     private final BigInteger XpubAxis;
     private final BigInteger YpubAxis;
 
-    private final ECPublicKeySpec ecPublicKeySpec;
+    private ECPublicKeySpec ecPublicKeySpec;
 
     public ECKeyPair() {
         this.privateKey = null;

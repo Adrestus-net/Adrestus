@@ -25,10 +25,10 @@ import io.Adrestus.util.GetTime;
 import io.Adrestus.util.SerializationUtil;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.spongycastle.util.encoders.Hex;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
@@ -82,7 +82,7 @@ public class CollectionTransactionStrategy {
             byte[] key = mnem.createSeed(mnemonic_sequence, passphrase);
             SecureRandom randoms = SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
             randoms.setSeed(key);
-            ECKeyPair ecKeyPair = Keys.createEcKeyPair(randoms);
+            ECKeyPair ecKeyPair = Keys.create256r1KeyPair(randoms);
             String adddress = WalletAddress.generate_address((byte) version, ecKeyPair.getPublicKey());
             addreses.add(adddress);
             keypair.add(ecKeyPair);
@@ -167,7 +167,7 @@ public class CollectionTransactionStrategy {
                 byte byf[] = serenc.encode(transaction, 1024);
                 transaction.setHash(HashUtil.sha256_bytetoString(byf));
 
-                ECDSASignatureData signatureData = ecdsaSign.secp256SignMessage(Hex.decode(transaction.getHash()), keypair.get(i));
+                ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(transaction.getHash().getBytes(StandardCharsets.UTF_8), keypair.get(i));
                 transaction.setSignature(signatureData);
                 list.add(transaction);
                 if (i == TestingConfiguration.END - 2) {

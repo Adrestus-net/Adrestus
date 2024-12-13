@@ -150,16 +150,16 @@ public class ConsensusCommitteeTest {
         byte[] key9 = mnem.createSeed(mnemonic9, passphrase);
         byte[] key10 = mnem.createSeed(mnemonic10, passphrase);
 
-        ECKeyPair ecKeyPair1 = Keys.createEcKeyPair(new SecureRandom(key1));
-        ECKeyPair ecKeyPair2 = Keys.createEcKeyPair(new SecureRandom(key2));
-        ECKeyPair ecKeyPair3 = Keys.createEcKeyPair(new SecureRandom(key3));
-        ECKeyPair ecKeyPair4 = Keys.createEcKeyPair(new SecureRandom(key4));
-        ECKeyPair ecKeyPair5 = Keys.createEcKeyPair(new SecureRandom(key5));
-        ECKeyPair ecKeyPair6 = Keys.createEcKeyPair(new SecureRandom(key6));
-        ECKeyPair ecKeyPair7 = Keys.createEcKeyPair(new SecureRandom(key7));
-        ECKeyPair ecKeyPair8 = Keys.createEcKeyPair(new SecureRandom(key8));
-        ECKeyPair ecKeyPair9 = Keys.createEcKeyPair(new SecureRandom(key9));
-        ECKeyPair ecKeyPair10 = Keys.createEcKeyPair(new SecureRandom(key10));
+        ECKeyPair ecKeyPair1 = Keys.create256r1KeyPair(new SecureRandom(key1));
+        ECKeyPair ecKeyPair2 = Keys.create256r1KeyPair(new SecureRandom(key2));
+        ECKeyPair ecKeyPair3 = Keys.create256r1KeyPair(new SecureRandom(key3));
+        ECKeyPair ecKeyPair4 = Keys.create256r1KeyPair(new SecureRandom(key4));
+        ECKeyPair ecKeyPair5 = Keys.create256r1KeyPair(new SecureRandom(key5));
+        ECKeyPair ecKeyPair6 = Keys.create256r1KeyPair(new SecureRandom(key6));
+        ECKeyPair ecKeyPair7 = Keys.create256r1KeyPair(new SecureRandom(key7));
+        ECKeyPair ecKeyPair8 = Keys.create256r1KeyPair(new SecureRandom(key8));
+        ECKeyPair ecKeyPair9 = Keys.create256r1KeyPair(new SecureRandom(key9));
+        ECKeyPair ecKeyPair10 = Keys.create256r1KeyPair(new SecureRandom(key10));
         String adddress1 = WalletAddress.generate_address((byte) version, ecKeyPair1.getPublicKey());
         String adddress2 = WalletAddress.generate_address((byte) version, ecKeyPair2.getPublicKey());
         String adddress3 = WalletAddress.generate_address((byte) version, ecKeyPair3.getPublicKey());
@@ -191,17 +191,17 @@ public class ConsensusCommitteeTest {
         keypair.add(ecKeyPair9);
         keypair.add(ecKeyPair10);
 
-        ECDSASignatureData signatureData1 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(adddress1)), ecKeyPair1);
-        ECDSASignatureData signatureData2 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(adddress2)), ecKeyPair2);
-        ECDSASignatureData signatureData3 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(adddress3)), ecKeyPair3);
-        ECDSASignatureData signatureData4 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(adddress4)), ecKeyPair4);
-        ECDSASignatureData signatureData5 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(adddress5)), ecKeyPair5);
-        ECDSASignatureData signatureData6 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(adddress5)), ecKeyPair5);
-        ECDSASignatureData signatureData7 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(adddress6)), ecKeyPair6);
-        ECDSASignatureData signatureData8 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(adddress7)), ecKeyPair7);
-        ECDSASignatureData signatureData9 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(adddress8)), ecKeyPair8);
-        ECDSASignatureData signatureData10 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(adddress9)), ecKeyPair9);
-        ECDSASignatureData signatureData11 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(adddress10)), ecKeyPair10);
+        ECDSASignatureData signatureData1 = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(adddress1)), ecKeyPair1);
+        ECDSASignatureData signatureData2 = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(adddress2)), ecKeyPair2);
+        ECDSASignatureData signatureData3 = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(adddress3)), ecKeyPair3);
+        ECDSASignatureData signatureData4 = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(adddress4)), ecKeyPair4);
+        ECDSASignatureData signatureData5 = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(adddress5)), ecKeyPair5);
+        ECDSASignatureData signatureData6 = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(adddress5)), ecKeyPair5);
+        ECDSASignatureData signatureData7 = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(adddress6)), ecKeyPair6);
+        ECDSASignatureData signatureData8 = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(adddress7)), ecKeyPair7);
+        ECDSASignatureData signatureData9 = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(adddress8)), ecKeyPair8);
+        ECDSASignatureData signatureData10 = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(adddress9)), ecKeyPair9);
+        ECDSASignatureData signatureData11 = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(adddress10)), ecKeyPair10);
 
         signatureData.add(signatureData1);
         signatureData.add(signatureData2);

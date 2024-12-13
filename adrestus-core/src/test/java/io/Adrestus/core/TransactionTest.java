@@ -28,6 +28,7 @@ import org.spongycastle.util.encoders.Hex;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
@@ -109,10 +110,10 @@ public class TransactionTest {
         byte byf[] = ser.encode(transaction);
         transaction.setHash(HashUtil.sha256_bytetoString(byf));
 
-        ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(Hex.decode(transaction.getHash()), ecKeyPair);
+        ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(transaction.getHash().getBytes(StandardCharsets.UTF_8), ecKeyPair);
         transaction.setSignature(signatureData);
 
-        byte[] buffer = ser.encode(transaction, 400);
+        byte[] buffer = ser.encode(transaction, 800);
         Transaction copy = ser.decode(buffer);
         System.out.println(copy.toString());
         assertEquals(copy, transaction);
@@ -258,10 +259,12 @@ public class TransactionTest {
             transaction.setAmountWithTransactionFee(transaction.getAmount().multiply(BigDecimal.valueOf(10.0 / 100.0)));
             transaction.setNonce(1);
             transaction.setTransactionCallback(transactionCallback);
+            transaction.setXAxis(keypair.get(i).getXpubAxis());
+            transaction.setYAxis(keypair.get(i).getYpubAxis());
             byte byf[] = serenc.encode(transaction, 1024);
             transaction.setHash(HashUtil.sha256_bytetoString(byf));
 
-            ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(Hex.decode(transaction.getHash()), keypair.get(i));
+            ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(transaction.getHash().getBytes(StandardCharsets.UTF_8), keypair.get(i));
             transaction.setSignature(signatureData);
 
             publisher.publish(transaction);

@@ -2,6 +2,7 @@ package io.Adrestus.p2p.kademlia;
 
 import com.google.common.net.InetAddresses;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.config.AdrestusConfiguration;
@@ -18,6 +19,7 @@ import io.Adrestus.crypto.elliptic.ECDSASign;
 import io.Adrestus.crypto.elliptic.ECDSASignatureData;
 import io.Adrestus.crypto.elliptic.ECKeyPair;
 import io.Adrestus.crypto.elliptic.Keys;
+import io.Adrestus.p2p.kademlia.adapter.PublicKeyTypeAdapter;
 import io.Adrestus.p2p.kademlia.builder.NettyKademliaDHTNodeBuilder;
 import io.Adrestus.p2p.kademlia.client.OkHttpMessageSender;
 import io.Adrestus.p2p.kademlia.common.NettyConnectionInfo;
@@ -50,6 +52,7 @@ import org.spongycastle.util.encoders.Hex;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -91,7 +94,9 @@ public class AdrestusNodeTest {
         kademliaData = new KademliaData(new SecurityAuditProofs(adddress, ecKeyPair.getPublicKey(), signatureData));
         kademliaData.getAddressData().setValidatorBlSPublicKey(vk);
         TreeFactory.getMemoryTree(0).store(adddress, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
-        Gson gson = new Gson();
+        Gson gson = new GsonBuilder()
+                .registerTypeAdapter(PublicKey.class, new PublicKeyTypeAdapter())
+                .create();
         String jsonString = gson.toJson(kademliaData);
         KademliaData copydata = gson.fromJson(jsonString, KademliaData.class);
         assertEquals(kademliaData, copydata);

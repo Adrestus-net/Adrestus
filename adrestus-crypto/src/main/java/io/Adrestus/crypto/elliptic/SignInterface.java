@@ -18,7 +18,7 @@ public interface SignInterface {
 
     boolean secp256r1Verify(byte[] hash, BigInteger x_axis, BigInteger y_axis, ECDSASignatureData signatureData);
 
-    boolean secp256r1Verify(byte[] hash,PublicKey publicKey, ECDSASignatureData signatureData);
+    boolean secp256r1Verify(byte[] hash, PublicKey publicKey, ECDSASignatureData signatureData);
 
     boolean verify(byte[] hash, BigInteger publicKey, ECDSASignatureData signatureData);
 

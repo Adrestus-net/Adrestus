@@ -20,9 +20,9 @@ public class AdrestusConfigurationTest {
         assertEquals("EC", AdrestusConfiguration.SIGN_ALGORITHM);
         assertEquals("BC", AdrestusConfiguration.SIGN_PROVIDER);
         assertEquals("secp256k1", AdrestusConfiguration.SIGN_CURVE_256k1);
-        assertEquals("SIGN_CURVE_256r1", AdrestusConfiguration.SIGN_CURVE_256k1);
+        assertEquals("secp256r1", AdrestusConfiguration.SIGN_CURVE_256r1);
 
-        assertEquals("SIGN_ALGORITHM_ECDSA", AdrestusConfiguration.SIGN_ALGORITHM_ECDSA);
-        assertEquals("CONSCRYPT_PROVIDER", AdrestusConfiguration.CONSCRYPT_PROVIDER);
+        assertEquals("SHA256withECDSA", AdrestusConfiguration.SIGN_ALGORITHM_ECDSA);
+        assertEquals("Conscrypt", AdrestusConfiguration.CONSCRYPT_PROVIDER);
     }
 }

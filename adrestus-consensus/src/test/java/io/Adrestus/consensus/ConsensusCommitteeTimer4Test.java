@@ -129,15 +129,15 @@ public class ConsensusCommitteeTimer4Test {
 
         SecureRandom random = SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
         random.setSeed(key1);
-        ecKeyPair1 = Keys.createEcKeyPair(random);
+        ecKeyPair1 = Keys.create256r1KeyPair(random);
         random.setSeed(key2);
-        ecKeyPair2 = Keys.createEcKeyPair(random);
+        ecKeyPair2 = Keys.create256r1KeyPair(random);
         random.setSeed(key3);
-        ecKeyPair3 = Keys.createEcKeyPair(random);
+        ecKeyPair3 = Keys.create256r1KeyPair(random);
         random.setSeed(key4);
-        ecKeyPair4 = Keys.createEcKeyPair(random);
+        ecKeyPair4 = Keys.create256r1KeyPair(random);
         random.setSeed(key5);
-        ecKeyPair5 = Keys.createEcKeyPair(random);
+        ecKeyPair5 = Keys.create256r1KeyPair(random);
 
         address1 = WalletAddress.generate_address((byte) version, ecKeyPair1.getPublicKey());
         address2 = WalletAddress.generate_address((byte) version, ecKeyPair2.getPublicKey());
@@ -145,11 +145,11 @@ public class ConsensusCommitteeTimer4Test {
         address4 = WalletAddress.generate_address((byte) version, ecKeyPair4.getPublicKey());
         address5 = WalletAddress.generate_address((byte) version, ecKeyPair5.getPublicKey());
 
-        ECDSASignatureData signatureData1 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address1)), ecKeyPair1);
-        ECDSASignatureData signatureData2 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address2)), ecKeyPair2);
-        ECDSASignatureData signatureData3 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address3)), ecKeyPair3);
-        ECDSASignatureData signatureData4 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address4)), ecKeyPair4);
-        ECDSASignatureData signatureData5 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address5)), ecKeyPair5);
+        ECDSASignatureData signatureData1 = ecdsaSign.signSecp256k1Message(HashUtil.sha256(StringUtils.getBytesUtf8(address1)), ecKeyPair1);
+        ECDSASignatureData signatureData2 = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(address2)), ecKeyPair2);
+        ECDSASignatureData signatureData3 = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(address3)), ecKeyPair3);
+        ECDSASignatureData signatureData4 = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(address4)), ecKeyPair4);
+        ECDSASignatureData signatureData5 = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(address5)), ecKeyPair5);
 
         TreeFactory.getMemoryTree(0).store(address1, new PatriciaTreeNode(BigDecimal.valueOf(3000), 0));
         TreeFactory.getMemoryTree(0).store(address2, new PatriciaTreeNode(BigDecimal.valueOf(3000), 0));

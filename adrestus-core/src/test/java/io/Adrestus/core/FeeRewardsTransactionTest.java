@@ -42,11 +42,11 @@ import lombok.SneakyThrows;
 import org.apache.commons.codec.binary.StringUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.spongycastle.util.encoders.Hex;
 
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
@@ -265,9 +265,11 @@ public class FeeRewardsTransactionTest {
             transaction.setAmount(BigDecimal.valueOf(100));
             transaction.setAmountWithTransactionFee(transaction.getAmount().multiply(BigDecimal.valueOf(10.0 / 100.0)));
             transaction.setNonce(1);
+            transaction.setXAxis(keypair.get(i).getXpubAxis());
+            transaction.setYAxis(keypair.get(i).getYpubAxis());
             byte byf[] = serenc.encode(transaction, 1204);
             transaction.setHash(HashUtil.sha256_bytetoString(byf));
-            ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(Hex.decode(transaction.getHash()), keypair.get(i));
+            ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(transaction.getHash().getBytes(StandardCharsets.UTF_8), keypair.get(i));
             transaction.setSignature(signatureData);
             arrayList.add(transaction);
         }
@@ -283,9 +285,11 @@ public class FeeRewardsTransactionTest {
         rewardsTransaction.setAmount(BigDecimal.valueOf(100));
         rewardsTransaction.setAmountWithTransactionFee(rewardsTransaction.getAmount().multiply(BigDecimal.valueOf(10.0 / 100.0)));
         rewardsTransaction.setNonce(1);
+        rewardsTransaction.setXAxis(ecKeyPair2.getXpubAxis());
+        rewardsTransaction.setYAxis(ecKeyPair2.getYpubAxis());
         byte byf[] = serenc.encode(rewardsTransaction, 1204);
         rewardsTransaction.setHash(HashUtil.sha256_bytetoString(byf));
-        ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(Hex.decode(rewardsTransaction.getHash()), ecKeyPair2);
+        ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(rewardsTransaction.getHash().getBytes(StandardCharsets.UTF_8), ecKeyPair2);
         rewardsTransaction.setSignature(signatureData);
         arrayList.add(rewardsTransaction);
         BigDecimal sum = arrayList.parallelStream().filter(val -> !val.getType().equals(TransactionType.UNCLAIMED_FEE_REWARD)).map(Transaction::getAmountWithTransactionFee).reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -399,9 +403,11 @@ public class FeeRewardsTransactionTest {
         rewardsTransaction.setAmountWithTransactionFee(BigDecimal.ZERO);
         rewardsTransaction.setNonce(1);
         rewardsTransaction.setTransactionCallback(transactionCallback);
+        rewardsTransaction.setXAxis(ecKeyPair1.getXpubAxis());
+        rewardsTransaction.setYAxis(ecKeyPair1.getYpubAxis());
         byte[] byf = serenc.encode(rewardsTransaction, 1024);
         rewardsTransaction.setHash(HashUtil.sha256_bytetoString(byf));
-        ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(Hex.decode(rewardsTransaction.getHash()), ecKeyPair1);
+        ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(rewardsTransaction.getHash().getBytes(StandardCharsets.UTF_8), ecKeyPair1);
         rewardsTransaction.setSignature(signatureData);
         publisher.publish(rewardsTransaction);
         signatureEventHandler.getLatch().await();

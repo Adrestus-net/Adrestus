@@ -96,15 +96,15 @@ public class ConsensusCommitteeTimer2Test {
         byte[] key2 = mnem.createSeed(mnemonic2, passphrase);
         SecureRandom random = SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
         random.setSeed(key1);
-        ecKeyPair1 = Keys.createEcKeyPair(random);
+        ecKeyPair1 = Keys.create256r1KeyPair(random);
         random.setSeed(key2);
-        ecKeyPair2 = Keys.createEcKeyPair(random);
+        ecKeyPair2 = Keys.create256r1KeyPair(random);
 
         address1 = WalletAddress.generate_address((byte) version, ecKeyPair1.getPublicKey());
         address2 = WalletAddress.generate_address((byte) version, ecKeyPair2.getPublicKey());
 
-        ECDSASignatureData signatureData1 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address1)), ecKeyPair1);
-        ECDSASignatureData signatureData2 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address2)), ecKeyPair2);
+        ECDSASignatureData signatureData1 = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(address1)), ecKeyPair1);
+        ECDSASignatureData signatureData2 = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(address2)), ecKeyPair2);
 
         TreeFactory.getMemoryTree(0).store(address1, new PatriciaTreeNode(BigDecimal.valueOf(3000), 0, BigDecimal.valueOf(213)));
         TreeFactory.getMemoryTree(0).store(address2, new PatriciaTreeNode(BigDecimal.valueOf(3000), 0, BigDecimal.valueOf(10)));
@@ -124,7 +124,7 @@ public class ConsensusCommitteeTimer2Test {
         NettyConnectionInfo nettyConnectionInfo = null;
         if (IP.equals("192.168.1.106")) {
             nettyConnectionInfo = new NettyConnectionInfo(IP, KademliaConfiguration.BootstrapNodePORT);
-            ECDSASignatureData signatureData = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address1)), ecKeyPair1);
+            ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(address1)), ecKeyPair1);
             KademliaData kademliaData = new KademliaData(new SecurityAuditProofs(address1, vk1, ecKeyPair1.getPublicKey(), signatureData), nettyConnectionInfo);
             dhtBootstrapNode.setKademliaData(kademliaData);
             dhtBootstrapNode.start();
@@ -142,7 +142,7 @@ public class ConsensusCommitteeTimer2Test {
             dhtBootstrapNode.Init();
             nettyConnectionInfo = new NettyConnectionInfo(IP, KademliaConfiguration.PORT);
             DHTRegularNode nextnode = new DHTRegularNode(nettyConnectionInfo, BigInteger.valueOf(1), keyHashGenerator);
-            ECDSASignatureData signatureData = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address2)), ecKeyPair2);
+            ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(address2)), ecKeyPair2);
             KademliaData kademliaData = new KademliaData(new SecurityAuditProofs(address2, vk2, ecKeyPair2.getPublicKey(), signatureData), nettyConnectionInfo);
             nextnode.setKademliaData(kademliaData);
             nextnode.start(dhtBootstrapNode);

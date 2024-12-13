@@ -152,25 +152,25 @@ public class ConsensusTransactionTimerTest {
 
         SecureRandom random = SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
         random.setSeed(key1);
-        ECKeyPair ecKeyPair1 = Keys.createEcKeyPair(random);
+        ECKeyPair ecKeyPair1 = Keys.create256r1KeyPair(random);
         random.setSeed(key2);
-        ECKeyPair ecKeyPair2 = Keys.createEcKeyPair(random);
+        ECKeyPair ecKeyPair2 = Keys.create256r1KeyPair(random);
         random.setSeed(key3);
-        ECKeyPair ecKeyPair3 = Keys.createEcKeyPair(random);
+        ECKeyPair ecKeyPair3 = Keys.create256r1KeyPair(random);
         random.setSeed(key4);
-        ECKeyPair ecKeyPair4 = Keys.createEcKeyPair(random);
+        ECKeyPair ecKeyPair4 = Keys.create256r1KeyPair(random);
         random.setSeed(key5);
-        ECKeyPair ecKeyPair5 = Keys.createEcKeyPair(random);
+        ECKeyPair ecKeyPair5 = Keys.create256r1KeyPair(random);
         random.setSeed(key6);
-        ECKeyPair ecKeyPair6 = Keys.createEcKeyPair(random);
+        ECKeyPair ecKeyPair6 = Keys.create256r1KeyPair(random);
         random.setSeed(key7);
-        ECKeyPair ecKeyPair7 = Keys.createEcKeyPair(random);
+        ECKeyPair ecKeyPair7 = Keys.create256r1KeyPair(random);
         random.setSeed(key8);
-        ECKeyPair ecKeyPair8 = Keys.createEcKeyPair(random);
+        ECKeyPair ecKeyPair8 = Keys.create256r1KeyPair(random);
         random.setSeed(key9);
-        ECKeyPair ecKeyPair9 = Keys.createEcKeyPair(random);
+        ECKeyPair ecKeyPair9 = Keys.create256r1KeyPair(random);
         random.setSeed(key10);
-        ECKeyPair ecKeyPair10 = Keys.createEcKeyPair(random);
+        ECKeyPair ecKeyPair10 = Keys.create256r1KeyPair(random);
         String adddress1 = WalletAddress.generate_address((byte) version, ecKeyPair1.getPublicKey());
         String adddress2 = WalletAddress.generate_address((byte) version, ecKeyPair2.getPublicKey());
         String adddress3 = WalletAddress.generate_address((byte) version, ecKeyPair3.getPublicKey());
@@ -202,12 +202,12 @@ public class ConsensusTransactionTimerTest {
         keypair.add(ecKeyPair9);
         keypair.add(ecKeyPair10);
 
-        ECDSASignatureData signatureData1 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(adddress1)), ecKeyPair1);
-        ECDSASignatureData signatureData2 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(adddress2)), ecKeyPair2);
-        ECDSASignatureData signatureData3 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(adddress3)), ecKeyPair3);
-        ECDSASignatureData signatureData4 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(adddress4)), ecKeyPair4);
-        ECDSASignatureData signatureData5 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(adddress5)), ecKeyPair5);
-        ECDSASignatureData signatureData6 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(adddress6)), ecKeyPair6);
+        ECDSASignatureData signatureData1 = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(adddress1)), ecKeyPair1);
+        ECDSASignatureData signatureData2 = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(adddress2)), ecKeyPair2);
+        ECDSASignatureData signatureData3 = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(adddress3)), ecKeyPair3);
+        ECDSASignatureData signatureData4 = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(adddress4)), ecKeyPair4);
+        ECDSASignatureData signatureData5 = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(adddress5)), ecKeyPair5);
+        ECDSASignatureData signatureData6 = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(adddress6)), ecKeyPair6);
 
         TreeFactory.getMemoryTree(0).store(adddress1, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0, BigDecimal.valueOf(100), BigDecimal.valueOf(40)));
         TreeFactory.getMemoryTree(0).store(adddress2, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0, BigDecimal.valueOf(200), BigDecimal.valueOf(30)));

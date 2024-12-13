@@ -1,7 +1,10 @@
 package io.Adrestus.crypto;
 
 import io.Adrestus.config.AdrestusConfiguration;
-import io.Adrestus.crypto.elliptic.*;
+import io.Adrestus.crypto.elliptic.ECDSASign;
+import io.Adrestus.crypto.elliptic.ECDSASignatureData;
+import io.Adrestus.crypto.elliptic.ECKeyPair;
+import io.Adrestus.crypto.elliptic.Keys;
 import org.apache.hc.core5.util.ByteArrayBuffer;
 import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPublicKey;
 import org.conscrypt.Conscrypt;
@@ -265,7 +268,7 @@ public class ECKeyPairTest {
         ECDSASign ecdsaSign = new ECDSASign();
         String message = "This is a message to encrypt";
         ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(message.getBytes(), ecKeyPair);
-        boolean isVerify = ecdsaSign.secp256r1Verify(message.getBytes(), ecKeyPair.getXpubAxis(),ecKeyPair.getYpubAxis(), signatureData);
+        boolean isVerify = ecdsaSign.secp256r1Verify(message.getBytes(), ecKeyPair.getXpubAxis(), ecKeyPair.getYpubAxis(), signatureData);
         assertTrue(isVerify);
     }
 

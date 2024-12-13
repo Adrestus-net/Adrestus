@@ -40,7 +40,7 @@ public class WorkerTest {
             byte[] key = mnem.createSeed(mnemonic_sequence, passphrase);
             SecureRandom random = SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
             random.setSeed(key);
-            ECKeyPair ecKeyPair = Keys.createEcKeyPair(random);
+            ECKeyPair ecKeyPair = Keys.create256r1KeyPair(random);
             String adddress = WalletAddress.generate_address((byte) version, ecKeyPair.getPublicKey());
             TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(adddress, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
         }

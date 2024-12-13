@@ -21,10 +21,10 @@ import io.Adrestus.util.SerializationUtil;
 import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.spongycastle.util.encoders.Hex;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
@@ -106,7 +106,7 @@ public class ConsensusTransactionTimer {
                 byte byf[] = serenc.encode(rewardsTransaction, 1024);
                 rewardsTransaction.setHash(HashUtil.sha256_bytetoString(byf));
 
-                ECDSASignatureData signatureData = ecdsaSign.secp256SignMessage(Hex.decode(rewardsTransaction.getHash()), keypair.get(0));
+                ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(rewardsTransaction.getHash().getBytes(StandardCharsets.UTF_8), keypair.get(0));
                 rewardsTransaction.setSignature(signatureData);
                 //MemoryPool.getInstance().add(transaction);
                 MemoryTransactionPool.getInstance().add(rewardsTransaction);
@@ -125,7 +125,7 @@ public class ConsensusTransactionTimer {
                 byte byf[] = serenc.encode(transaction, 1024);
                 transaction.setHash(HashUtil.sha256_bytetoString(byf));
 
-                ECDSASignatureData signatureData = ecdsaSign.secp256SignMessage(Hex.decode(transaction.getHash()), keypair.get(i));
+                ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(transaction.getHash().getBytes(StandardCharsets.UTF_8), keypair.get(i));
                 transaction.setSignature(signatureData);
                 //MemoryPool.getInstance().add(transaction);
                 MemoryTransactionPool.getInstance().add(transaction);

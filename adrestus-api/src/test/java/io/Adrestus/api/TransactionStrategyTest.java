@@ -91,13 +91,13 @@ public class TransactionStrategyTest {
         byte[] key2 = mnems.createSeed(mnemonic2, passphrases);
         SecureRandom random = SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
         random.setSeed(key1);
-        ecKeyPair1 = Keys.createEcKeyPair(random);
+        ecKeyPair1 = Keys.create256r1KeyPair(random);
         random.setSeed(key2);
-        ecKeyPair2 = Keys.createEcKeyPair(random);
+        ecKeyPair2 = Keys.create256r1KeyPair(random);
         String address1 = WalletAddress.generate_address((byte) version, ecKeyPair1.getPublicKey());
         String address2 = WalletAddress.generate_address((byte) version, ecKeyPair2.getPublicKey());
-        ECDSASignatureData signatureData1 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address1)), ecKeyPair1);
-        ECDSASignatureData signatureData2 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address2)), ecKeyPair2);
+        ECDSASignatureData signatureData1 = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(address1)), ecKeyPair1);
+        ECDSASignatureData signatureData2 = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(address2)), ecKeyPair2);
 
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
@@ -135,7 +135,7 @@ public class TransactionStrategyTest {
             byte[] key = mnem.createSeed(mnemonic_sequence, passphrase);
             SecureRandom randoms = SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
             randoms.setSeed(key);
-            ECKeyPair ecKeyPair = Keys.createEcKeyPair(randoms);
+            ECKeyPair ecKeyPair = Keys.create256r1KeyPair(randoms);
             String adddress = WalletAddress.generate_address((byte) version, ecKeyPair.getPublicKey());
             addreses.add(adddress);
             keypair.add(ecKeyPair);
@@ -157,7 +157,7 @@ public class TransactionStrategyTest {
             byte byf[] = serenc.encode(transaction, 1024);
             transaction.setHash(HashUtil.sha256_bytetoString(byf));
 
-            ECDSASignatureData signatureData = ecdsaSign.secp256SignMessage(Hex.decode(transaction.getHash()), keypair.get(i));
+            ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(Hex.decode(transaction.getHash()), keypair.get(i));
             transaction.setSignature(signatureData);
 
             publisher.publish(transaction);
@@ -221,7 +221,7 @@ public class TransactionStrategyTest {
                 transaction.setHash(HashUtil.sha256_bytetoString(byf));
 
                 count++;
-                ECDSASignatureData signatureData = ecdsaSign.secp256SignMessage(Hex.decode(transaction.getHash()), keypair.get(i));
+                ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(Hex.decode(transaction.getHash()), keypair.get(i));
                 transaction.setSignature(signatureData);
                 list.add(transaction);
                 if (i == end - 2) {

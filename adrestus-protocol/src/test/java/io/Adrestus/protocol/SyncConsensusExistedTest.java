@@ -86,12 +86,12 @@ public class SyncConsensusExistedTest {
         key2 = mnem.createSeed(mnemonic2, passphrase);
         SecureRandom random = SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
         random.setSeed(key2);
-        ecKeyPair2 = Keys.createEcKeyPair(random);
+        ecKeyPair2 = Keys.create256r1KeyPair(random);
 
         String address2 = WalletAddress.generate_address((byte) version, ecKeyPair2.getPublicKey());
         TreeFactory.getMemoryTree(0).store(address2, new PatriciaTreeNode(BigDecimal.valueOf(3000), 0));
         Thread.sleep(2000);
-        ECDSASignatureData signatureData2 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address2)), ecKeyPair2);
+        ECDSASignatureData signatureData2 = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(address2)), ecKeyPair2);
         kad2 = new KademliaData(new SecurityAuditProofs(address2, vk2, ecKeyPair2.getPublicKey(), signatureData2), new NettyConnectionInfo("192.168.1.117", KademliaConfiguration.PORT));
     }
 

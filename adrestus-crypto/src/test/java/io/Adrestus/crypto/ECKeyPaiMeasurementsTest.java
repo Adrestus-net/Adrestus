@@ -14,10 +14,11 @@ import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 import org.spongycastle.util.encoders.Hex;
 
-import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.*;
-import java.security.spec.*;
+import java.security.spec.ECGenParameterSpec;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.InvalidParameterSpecException;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -30,9 +31,9 @@ public class ECKeyPaiMeasurementsTest {
     private static byte[] hash;
     private static ECKeyPair ecKeyPair;
     private static ECDSASign ecdsaSign;
-    private static ECDSASignatureData signatureData,signatureData2;
+    private static ECDSASignatureData signatureData, signatureData2;
     private static String message = "verify test";
-    private static ECKeyPair ecKeyPair3,ecKeyPair2;
+    private static ECKeyPair ecKeyPair3, ecKeyPair2;
     private static ECDSASignature signature;
     private static byte[] signature2;
     private static KeyPair keyPair;
@@ -102,10 +103,10 @@ public class ECKeyPaiMeasurementsTest {
         assertEquals(true, verify);
     }
 
-//    @Threads(24)
+    //    @Threads(24)
     @Benchmark
-    public static void Conscrypt(){
-        boolean isVerified = ecdsaSign.secp256r1Verify(hash, ecKeyPair3.getXpubAxis(),ecKeyPair3.getYpubAxis(), signatureData2);
+    public static void Conscrypt() {
+        boolean isVerified = ecdsaSign.secp256r1Verify(hash, ecKeyPair3.getXpubAxis(), ecKeyPair3.getYpubAxis(), signatureData2);
         assertTrue(isVerified);
     }
 

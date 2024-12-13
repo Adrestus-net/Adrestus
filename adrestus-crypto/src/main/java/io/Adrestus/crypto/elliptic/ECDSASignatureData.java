@@ -5,6 +5,7 @@ import io.activej.serializer.annotations.Serialize;
 
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.Objects;
 
 public class ECDSASignatureData implements Serializable {
     private final byte v;
@@ -79,27 +80,13 @@ public class ECDSASignatureData implements Serializable {
         return sig;
     }
 
+
+    //Dont delete this if delete and rewrite remove signature bytes an pub bytes from equals pub bytes need to implemented in the future
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
+        if (o == null || getClass() != o.getClass()) return false;
         ECDSASignatureData that = (ECDSASignatureData) o;
-
-        if (v != that.v) {
-            return false;
-        }
-        if (!Arrays.equals(r, that.r)) {
-            return false;
-        }
-        if (!Arrays.equals(sig, that.sig)) {
-            return false;
-        }
-        return Arrays.equals(s, that.s);
+        return v == that.v && Objects.deepEquals(r, that.r) && Objects.deepEquals(s, that.s);
     }
 
     @Override

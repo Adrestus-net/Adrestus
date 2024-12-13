@@ -96,7 +96,7 @@ public class ConsensusTransactionTimer4Test {
             byte[] key = mnem.createSeed(mnemonic_sequence, passphrase);
             SecureRandom randoms = SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
             randoms.setSeed(key);
-            ECKeyPair ecKeyPair = Keys.createEcKeyPair(randoms);
+            ECKeyPair ecKeyPair = Keys.create256r1KeyPair(randoms);
             String adddress = WalletAddress.generate_address((byte) version, ecKeyPair.getPublicKey());
             TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(adddress, new PatriciaTreeNode(BigDecimal.valueOf(100), 0));
         }

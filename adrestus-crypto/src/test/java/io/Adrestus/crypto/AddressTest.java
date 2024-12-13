@@ -38,7 +38,7 @@ public class AddressTest {
         String mnemonic1 = "sample sail jungle learn general promote task puppy own conduct green affair";
         String passphrase = "p4ssphr4se";
         String address = WalletAddressExport.getAddressFromMnemonic(mnemonic1, passphrase);
-        assertEquals("ADR-ABAZ-ZEZO-MKGN-MQKJ-N3IF-P7QT-3MJX-ZFSM-RHOW-DZ7J", address);
+        assertEquals("ADR-ADGM-TELI-42LG-SKDA-L4AA-6UNF-VAIK-65VZ-FWWT-II6P", address);
     }
 
     @Test

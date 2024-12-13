@@ -231,12 +231,14 @@ public class KafkaTransactionBlockTest {
                 transaction.setAmount(BigDecimal.valueOf(100));
                 transaction.setAmountWithTransactionFee(transaction.getAmount().multiply(BigDecimal.valueOf(j + 1 / 100.0)));
                 transaction.setNonce(j);
+                transaction.setXAxis(keypair.get(i).getXpubAxis());
+                transaction.setYAxis(keypair.get(i).getYpubAxis());
                 transaction.setTransactionCallback(transactionCallback);
                 byte byf[] = trx_serence.encode(transaction, 1024);
                 transaction.setHash(HashUtil.sha256_bytetoString(byf));
                 await().atMost(10, TimeUnit.MILLISECONDS);
 
-                ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(Hex.decode(transaction.getHash()), keypair.get(i));
+                ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(transaction.getHash().getBytes(StandardCharsets.UTF_8), keypair.get(i));
                 transaction.setSignature(signatureData);
                 transactions.add(transaction);
             }
@@ -300,7 +302,7 @@ public class KafkaTransactionBlockTest {
         while (VIEW_NUMBER <= ITERATIONS_MAX) {
             System.out.println("Iteration: " + VIEW_NUMBER);
             if (position.getAsInt() == 0) {
-                if(VIEW_NUMBER>1)
+                if (VIEW_NUMBER > 1)
                     consensusBroker.seekDisperseOffsetToEnd();
 
                 Thread.sleep(10);

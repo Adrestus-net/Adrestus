@@ -127,9 +127,9 @@ public class BindServerKademliaTask extends AdrestusTask {
         final SecureRandom random = SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
         byte[] key1 = mnem.createSeed(CachedConfigurationProperties.getInstance().getProp().getProperty(MNEMONIC).toCharArray(), CachedConfigurationProperties.getInstance().getProp().getProperty(PASSPHRASE).toCharArray());
         random.setSeed(key1);
-        final ECKeyPair ecKeyPair = Keys.createEcKeyPair(random);
+        final ECKeyPair ecKeyPair = Keys.create256r1KeyPair(random);
         final String address = WalletAddress.generate_address((byte) version, ecKeyPair.getPublicKey());
-        final ECDSASignatureData signatureData = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address)), ecKeyPair);
+        final ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(address)), ecKeyPair);
         final BLSPrivateKey sk = new BLSPrivateKey(random);
         final BLSPublicKey vk = new BLSPublicKey(sk, new Params(CachedConfigurationProperties.getInstance().getProp().getProperty(PASSPHRASE).getBytes(StandardCharsets.UTF_8)));
         if (ip.equals(KademliaConfiguration.BOOTSTRAP_NODE_IP))
@@ -148,9 +148,9 @@ public class BindServerKademliaTask extends AdrestusTask {
         final SecureRandom secureRandom = SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
         final byte[] key = mnem.createSeed(mnemonic.toCharArray(), passphrase.toCharArray());
         secureRandom.setSeed(key);
-        final ECKeyPair ecKeyPair = Keys.createEcKeyPair(secureRandom);
+        final ECKeyPair ecKeyPair = Keys.create256r1KeyPair(secureRandom);
         final String address = WalletAddress.generate_address((byte) version, ecKeyPair.getPublicKey());
-        final ECDSASignatureData signatureData = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address)), ecKeyPair);
+        final ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(address)), ecKeyPair);
         final BLSPrivateKey sk = new BLSPrivateKey(secureRandom);
         final BLSPublicKey vk = new BLSPublicKey(sk);
         //final BLSPublicKey vk = new BLSPublicKey(sk, new Params(passphrase.getBytes(StandardCharsets.UTF_8)));
@@ -166,7 +166,7 @@ public class BindServerKademliaTask extends AdrestusTask {
     public void InitKademliaData(ECKeyPair ecKeyPair, BLSPublicKey blsPublicKey) {
         final ECDSASign ecdsaSign = new ECDSASign();
         final String address = WalletAddress.generate_address((byte) version, ecKeyPair.getPublicKey());
-        final ECDSASignatureData signatureData = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(address)), ecKeyPair);
+        final ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(address)), ecKeyPair);
         if (ip.equals(KademliaConfiguration.BOOTSTRAP_NODE_IP))
             this.kademliaData = new KademliaData(new SecurityAuditProofs(address, blsPublicKey, ecKeyPair.getPublicKey(), signatureData), bootstrapNettyConnectionInfo);
         else

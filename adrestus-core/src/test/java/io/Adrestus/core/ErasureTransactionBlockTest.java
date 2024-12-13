@@ -222,11 +222,13 @@ public class ErasureTransactionBlockTest {
                 transaction.setAmountWithTransactionFee(transaction.getAmount().multiply(BigDecimal.valueOf(j + 1 / 100.0)));
                 transaction.setNonce(j);
                 transaction.setTransactionCallback(transactionCallback);
+                transaction.setXAxis(keypair.get(i).getXpubAxis());
+                transaction.setYAxis(keypair.get(i).getYpubAxis());
                 byte byf[] = trx_serence.encode(transaction, 1024);
                 transaction.setHash(HashUtil.sha256_bytetoString(byf));
                 await().atMost(10, TimeUnit.MILLISECONDS);
 
-                ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(Hex.decode(transaction.getHash()), keypair.get(i));
+                ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(transaction.getHash().getBytes(StandardCharsets.UTF_8), keypair.get(i));
                 transaction.setSignature(signatureData);
                 transactions.add(transaction);
             }
@@ -613,11 +615,13 @@ public class ErasureTransactionBlockTest {
                     transaction.setAmountWithTransactionFee(transaction.getAmount().multiply(BigDecimal.valueOf(j + 1 / 100.0)));
                     transaction.setNonce(j);
                     transaction.setTransactionCallback(transactionCallback);
+                    transaction.setXAxis(keypair.get(i).getXpubAxis());
+                    transaction.setYAxis(keypair.get(i).getYpubAxis());
                     byte byf[] = trx_serence.encode(transaction, 1024);
                     transaction.setHash(HashUtil.sha256_bytetoString(byf));
                     await().atMost(10, TimeUnit.MILLISECONDS);
 
-                    ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(Hex.decode(transaction.getHash()), keypair.get(i));
+                    ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(transaction.getHash().getBytes(StandardCharsets.UTF_8), keypair.get(i));
                     transaction.setSignature(signatureData);
                     transactions.add(transaction);
                 }

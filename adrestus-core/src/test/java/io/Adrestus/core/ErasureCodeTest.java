@@ -44,6 +44,7 @@ import org.spongycastle.util.encoders.Hex;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
@@ -114,11 +115,13 @@ public class ErasureCodeTest {
             transaction.setAmount(BigDecimal.valueOf(100));
             transaction.setAmountWithTransactionFee(transaction.getAmount().multiply(BigDecimal.valueOf(10.0 / 100.0)));
             transaction.setNonce(1);
+            transaction.setXAxis(keypair.get(i).getXpubAxis());
+            transaction.setYAxis(keypair.get(i).getYpubAxis());
             byte byf[] = serenc.encode(transaction);
             transaction.setHash(HashUtil.sha256_bytetoString(byf));
             await().atMost(500, TimeUnit.MILLISECONDS);
 
-            ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(Hex.decode(transaction.getHash()), keypair.get(i));
+            ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(transaction.getHash().getBytes(StandardCharsets.UTF_8), keypair.get(i));
             transaction.setSignature(signatureData);
             //MemoryPool.getInstance().add(transaction);
             transactions.add(transaction);
@@ -198,11 +201,9 @@ public class ErasureCodeTest {
             EncodingPacket encodingPacket = dec.parsePacket(ByteBuffer.wrap(pakcet.getOriginalPacketChunks()), false).value();
             final SourceBlockDecoder sbDec = dec.sourceBlock(encodingPacket.sourceBlockNumber());
             sbDec.putEncodingPacket(encodingPacket);
-            try {
-                TransactionBlock copys = encode.decode(dec.dataArray());
+            boolean val = Arrays.equals(data, dec.dataArray());
+            if (val) {
                 break;
-            } catch (Exception e) {
-                System.out.println("Its not ready to get decoded");
             }
         }
 

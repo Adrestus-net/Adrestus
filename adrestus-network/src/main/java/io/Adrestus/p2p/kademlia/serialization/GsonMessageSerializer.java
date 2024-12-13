@@ -2,6 +2,7 @@ package io.Adrestus.p2p.kademlia.serialization;
 
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
+import io.Adrestus.p2p.kademlia.adapter.PublicKeyTypeAdapter;
 import io.Adrestus.p2p.kademlia.common.NettyConnectionInfo;
 import io.Adrestus.p2p.kademlia.factory.GsonFactory;
 import io.Adrestus.p2p.kademlia.protocol.MessageType;
@@ -10,6 +11,7 @@ import io.Adrestus.p2p.kademlia.protocol.message.*;
 import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.math.BigInteger;
+import java.security.PublicKey;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -27,6 +29,7 @@ public class GsonMessageSerializer<K extends Serializable, V extends Serializabl
         this.kClass = kClass;
         this.vClass = vClass;
         gsonBuilder.registerTypeAdapter(KademliaMessage.class, new KademliaMessageDeserializer<K, V>(kClass, vClass));
+        gsonBuilder.registerTypeAdapter(PublicKey.class, new PublicKeyTypeAdapter());
         this.gson = gsonBuilder.create();
         init();
     }

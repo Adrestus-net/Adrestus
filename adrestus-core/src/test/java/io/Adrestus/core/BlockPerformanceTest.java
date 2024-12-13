@@ -93,7 +93,7 @@ public class BlockPerformanceTest {
     private static ECDSASignatureData signatureData1, signatureData2, signatureData3;
     private static Callback transactionCallback;
     private static int version = 0x00;
-    private static int size = 100000;
+    private static int size = 10000;
     private static TransactionEventPublisher publisher;
     private static SignatureEventHandler signatureEventHandler;
 
@@ -238,11 +238,13 @@ public class BlockPerformanceTest {
             transaction.setAmount(BigDecimal.valueOf(100));
             transaction.setAmountWithTransactionFee(transaction.getAmount().multiply(BigDecimal.valueOf(10.0 / 100.0)));
             transaction.setNonce(1);
+            transaction.setXAxis(keypair.get(i).getXpubAxis());
+            transaction.setYAxis(keypair.get(i).getYpubAxis());
             byte byf[] = trx_serence.encode(transaction, 1024);
             transaction.setHash(HashUtil.sha256_bytetoString(byf));
             await().atMost(500, TimeUnit.MILLISECONDS);
 
-            ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(Hex.decode(transaction.getHash()), keypair.get(i));
+            ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(transaction.getHash().getBytes(StandardCharsets.UTF_8), keypair.get(i));
             transaction.setSignature(signatureData);
             //MemoryPool.getInstance().add(transaction);
             outer_transactions.add(transaction);

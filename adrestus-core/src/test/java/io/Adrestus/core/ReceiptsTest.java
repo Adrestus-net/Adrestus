@@ -45,6 +45,7 @@ import org.spongycastle.util.encoders.Hex;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
@@ -166,11 +167,13 @@ public class ReceiptsTest {
             transaction.setAmount(BigDecimal.valueOf(i));
             transaction.setAmountWithTransactionFee(BigDecimal.valueOf(i).multiply(BigDecimal.valueOf(10.0 / 100.0)));
             transaction.setNonce(1);
+            transaction.setXAxis(keypair.get(i).getXpubAxis());
+            transaction.setYAxis(keypair.get(i).getYpubAxis());
             byte byf[] = enc.encode(transaction, 1024);
             transaction.setHash(HashUtil.sha256_bytetoString(byf));
             //  await().atMost(500, TimeUnit.MILLISECONDS);
 
-            ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(Hex.decode(transaction.getHash()), keypair.get(i));
+            ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(transaction.getHash().getBytes(StandardCharsets.UTF_8), keypair.get(i));
             transaction.setSignature(signatureData);
             //MemoryPool.getInstance().add(transaction);
             publisher.publish(transaction);

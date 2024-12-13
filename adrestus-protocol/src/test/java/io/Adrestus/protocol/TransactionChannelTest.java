@@ -32,12 +32,12 @@ import io.activej.promise.Promise;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.spongycastle.util.encoders.Hex;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
@@ -96,7 +96,7 @@ public class TransactionChannelTest {
             byte[] key = mnem.createSeed(mnemonic_sequence, passphrase);
             SecureRandom randoms = SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
             randoms.setSeed(key);
-            ECKeyPair ecKeyPair = Keys.createEcKeyPair(randoms);
+            ECKeyPair ecKeyPair = Keys.create256r1KeyPair(randoms);
             String adddress = WalletAddress.generate_address((byte) version, ecKeyPair.getPublicKey());
             addreses.add(adddress);
             keypair.add(ecKeyPair);
@@ -128,7 +128,7 @@ public class TransactionChannelTest {
             byte before_hash[] = encode.encode(transaction);
             transaction.setHash(HashUtil.sha256_bytetoString(before_hash));
 
-            ECDSASignatureData signatureData = ecdsaSign.secp256SignMessage(Hex.decode(transaction.getHash()), keypair.get(j));
+            ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(transaction.getHash().getBytes(StandardCharsets.UTF_8), keypair.get(j));
             transaction.setSignature(signatureData);
 
             toSendlist.add(transaction);

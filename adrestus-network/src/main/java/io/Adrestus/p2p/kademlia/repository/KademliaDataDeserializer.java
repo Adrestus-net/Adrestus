@@ -5,17 +5,25 @@ import com.google.gson.reflect.TypeToken;
 import io.Adrestus.crypto.SecurityAuditProofs;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.Adrestus.crypto.elliptic.ECDSASignatureData;
+import io.Adrestus.p2p.kademlia.adapter.PublicKeyTypeAdapter;
 import io.Adrestus.p2p.kademlia.common.NettyConnectionInfo;
 
 import java.lang.reflect.Type;
-import java.math.BigInteger;
 import java.security.PublicKey;
 
 public class KademliaDataDeserializer implements JsonDeserializer<KademliaData> {
+    private final Gson gson;
+
+    public KademliaDataDeserializer() {
+        gson = new GsonBuilder()
+                .registerTypeAdapter(PublicKey.class, new PublicKeyTypeAdapter())
+                .create();
+    }
+
     @Override
     public KademliaData deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext context) throws JsonParseException {
-        Gson gson = new Gson();
         final Type blstoken = TypeToken.getParameterized(BLSPublicKey.class).getType();
+        final Type pubkey = TypeToken.getParameterized(PublicKey.class).getType();
         final Type ecdsaSignatureData = TypeToken.getParameterized(ECDSASignatureData.class).getType();
         final JsonObject resourceJson = jsonElement.getAsJsonObject();
 
@@ -23,12 +31,12 @@ public class KademliaDataDeserializer implements JsonDeserializer<KademliaData> 
         kademliaData.setHash(resourceJson.get("hash").getAsString());
         JsonObject blsobj = resourceJson.get("address_data").getAsJsonObject().get("validator_bl_s_public_key").getAsJsonObject();
         String address = resourceJson.get("address_data").getAsJsonObject().get("address").getAsString();
-        PublicKey ecdsaKey = gson.fromJson(resourceJson.get("address_data").getAsJsonObject().get("e_c_d_s_a_public_key").getAsString(),PublicKey.class);
+        String ecdsaKey = resourceJson.get("address_data").getAsJsonObject().get("e_c_d_s_a_public_key").getAsString();
         JsonObject ecdsaSignatureObj = resourceJson.get("address_data").getAsJsonObject().get("e_c_d_s_a_signature").getAsJsonObject();
         SecurityAuditProofs securityAuditProofs = new SecurityAuditProofs(
                 gson.fromJson(blsobj, blstoken),
                 address,
-                ecdsaKey,
+                gson.fromJson(ecdsaKey, pubkey),
                 gson.fromJson(ecdsaSignatureObj, ecdsaSignatureData)
         );
 

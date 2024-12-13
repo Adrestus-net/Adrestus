@@ -4,14 +4,11 @@ import io.Adrestus.core.*;
 import io.Adrestus.core.Resourses.CacheTemporalTransactionPool;
 import io.Adrestus.core.Resourses.MemoryTransactionPool;
 import io.Adrestus.core.RingBuffer.event.TransactionEvent;
-import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.elliptic.ECDSASign;
 import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.spongycastle.util.encoders.Hex;
 
-import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
@@ -131,7 +128,7 @@ public class SignatureEventHandler extends TransactionEventHandler implements Tr
         @SneakyThrows
         @Override
         public void run() {
-            boolean verify = ecdsaSign.secp256r1Verify(transaction.getHash().getBytes(StandardCharsets.UTF_8), transaction.getXAxis(),transaction.getYAxis(), transaction.getSignature());
+            boolean verify = ecdsaSign.secp256r1Verify(transaction.getHash().getBytes(StandardCharsets.UTF_8), transaction.getXAxis(), transaction.getYAxis(), transaction.getSignature());
             if (!verify) {
                 Optional.of("Transaction Wallet signature is not valid ABORT").ifPresent(val -> {
                     LOG.info(val);

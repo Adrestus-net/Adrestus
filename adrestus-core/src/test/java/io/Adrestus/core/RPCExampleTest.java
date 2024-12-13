@@ -53,7 +53,6 @@ import io.distributedLedger.*;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.*;
 import org.slf4j.LoggerFactory;
-import org.spongycastle.util.encoders.Hex;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -147,11 +146,13 @@ class RPCExampleTest {
             transaction.setAmount(BigDecimal.valueOf(100));
             transaction.setAmountWithTransactionFee(transaction.getAmount().multiply(BigDecimal.valueOf(10.0 / 100.0)));
             transaction.setNonce(1);
+            transaction.setXAxis(keypair.get(i).getXpubAxis());
+            transaction.setYAxis(keypair.get(i).getYpubAxis());
             byte byf[] = serenc.encode(transaction);
             transaction.setHash(HashUtil.sha256_bytetoString(byf));
             await().atMost(500, TimeUnit.MILLISECONDS);
 
-            ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(Hex.decode(transaction.getHash()), keypair.get(i));
+            ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(transaction.getHash().getBytes(StandardCharsets.UTF_8), keypair.get(i));
             transaction.setSignature(signatureData);
             //MemoryPool.getInstance().add(transaction);
             transactions.add(transaction);
@@ -219,9 +220,9 @@ class RPCExampleTest {
     @Order(1)
     public void myAtest2() throws Exception {
         LOG.info("Starting up");
-        address1 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 8080);
-        address2 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 8081);
-        address3 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 8084);
+        address1 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 8180);
+        address2 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 8181);
+        address3 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 8184);
         Eventloop eventloop = CachedEventLoop.getInstance().getEventloop();
         serverOne = RpcServer.builder(eventloop)
                 .withMessageTypes(HelloRequest.class, HelloResponse.class)
