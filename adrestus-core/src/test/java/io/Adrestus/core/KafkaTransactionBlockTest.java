@@ -108,8 +108,8 @@ public class KafkaTransactionBlockTest {
     private static int version = 0x00;
     private static int size = 10;
 
-
-    private static final int VIEW_NUMBER = 1;
+    private static final int ITERATIONS_MAX = 18;
+    private static int VIEW_NUMBER = 1;
 
     private static ArrayList<String> ips;
     private static ConsensusBroker consensusBroker;
@@ -206,16 +206,16 @@ public class KafkaTransactionBlockTest {
             char[] mnemonic_sequence = mnem.create();
             char[] passphrase = "p4ssphr4se".toCharArray();
             byte[] key = mnem.createSeed(mnemonic_sequence, passphrase);
-            ECKeyPair ecKeyPair = Keys.createEcKeyPair(new SecureRandom(key));
+            ECKeyPair ecKeyPair = Keys.create256r1KeyPair(new SecureRandom(key));
             String adddress = WalletAddress.generate_address((byte) version, ecKeyPair.getPublicKey());
             addreses.add(adddress);
             keypair.add(ecKeyPair);
             TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(adddress, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
         }
 
-        signatureData1 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(addreses.get(0))), keypair.get(0));
-        signatureData2 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(addreses.get(1))), keypair.get(1));
-        signatureData3 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(addreses.get(2))), keypair.get(2));
+        signatureData1 = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(addreses.get(0))), keypair.get(0));
+        signatureData2 = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(addreses.get(1))), keypair.get(1));
+        signatureData3 = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(addreses.get(2))), keypair.get(2));
 
         transactionCallback = new TransactionCallback();
 
@@ -236,7 +236,7 @@ public class KafkaTransactionBlockTest {
                 transaction.setHash(HashUtil.sha256_bytetoString(byf));
                 await().atMost(10, TimeUnit.MILLISECONDS);
 
-                ECDSASignatureData signatureData = ecdsaSign.secp256SignMessage(Hex.decode(transaction.getHash()), keypair.get(i));
+                ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(Hex.decode(transaction.getHash()), keypair.get(i));
                 transaction.setSignature(signatureData);
                 transactions.add(transaction);
             }
@@ -296,159 +296,176 @@ public class KafkaTransactionBlockTest {
             return;
         }
 
-        if (position.getAsInt() == 0) {
-            BlockSizeCalculator sizeCalculator = new BlockSizeCalculator();
-            sizeCalculator.setTransactionBlock(transactionBlock);
-            byte[] buffer = serenc.encode(transactionBlock, sizeCalculator.TransactionBlockSizeCalculator());
+        ArrayList<Long> elaspe_time = new ArrayList<>();
+        while (VIEW_NUMBER <= ITERATIONS_MAX) {
+            System.out.println("Iteration: " + VIEW_NUMBER);
+            if (position.getAsInt() == 0) {
+                if(VIEW_NUMBER>1)
+                    consensusBroker.seekDisperseOffsetToEnd();
 
-            long dataLen = buffer.length;
-            int sizeOfCommittee = 2;
-            double loss = .6;
-            int numSrcBlks = sizeOfCommittee;
-            int symbSize = (int) (dataLen / sizeOfCommittee);
-            FECParameterObject object = FECParametersPreConditions.CalculateFECParameters(dataLen, symbSize, numSrcBlks);
-            FECParameters fecParams = FECParameters.newParameters(object.getDataLen(), object.getSymbolSize(), object.getNumberOfSymbols());
+                Thread.sleep(10);
+                BlockSizeCalculator sizeCalculator = new BlockSizeCalculator();
+                sizeCalculator.setTransactionBlock(transactionBlock);
+                byte[] buffer = serenc.encode(transactionBlock, sizeCalculator.TransactionBlockSizeCalculator());
 
-            byte[] data = new byte[fecParams.dataLengthAsInt()];
-            System.arraycopy(buffer, 0, data, 0, data.length);
-            final ArrayDataEncoder enc = OpenRQ.newEncoder(data, fecParams);
-            ArrayList<SerializableErasureObject> serializableErasureObjects = new ArrayList<SerializableErasureObject>();
-            ArrayList<EncodingPacket> n = new ArrayList<EncodingPacket>();
-            for (SourceBlockEncoder sbEnc : enc.sourceBlockIterable()) {
-                for (EncodingPacket srcPacket : sbEnc.sourcePacketsIterable()) {
-                    n.add(srcPacket);
+                long dataLen = buffer.length;
+                int sizeOfCommittee = 2;
+                double loss = .6;
+                int numSrcBlks = sizeOfCommittee;
+                int symbSize = (int) (dataLen / sizeOfCommittee);
+                FECParameterObject object = FECParametersPreConditions.CalculateFECParameters(dataLen, symbSize, numSrcBlks);
+                FECParameters fecParams = FECParameters.newParameters(object.getDataLen(), object.getSymbolSize(), object.getNumberOfSymbols());
+
+                byte[] data = new byte[fecParams.dataLengthAsInt()];
+                System.arraycopy(buffer, 0, data, 0, data.length);
+                final ArrayDataEncoder enc = OpenRQ.newEncoder(data, fecParams);
+                ArrayList<SerializableErasureObject> serializableErasureObjects = new ArrayList<SerializableErasureObject>();
+                ArrayList<EncodingPacket> n = new ArrayList<EncodingPacket>();
+                for (SourceBlockEncoder sbEnc : enc.sourceBlockIterable()) {
+                    for (EncodingPacket srcPacket : sbEnc.sourcePacketsIterable()) {
+                        n.add(srcPacket);
+                    }
                 }
-            }
-            MerkleTreeOptimizedImp tree = new MerkleTreeOptimizedImp();
-            ArrayList<MerkleNode> merkleNodes = new ArrayList<MerkleNode>();
-            for (int i = 0; i < n.size(); i++) {
-                SerializableErasureObject serializableErasureObject = new SerializableErasureObject(object, n.get(i).asArray(), new ArrayList<byte[]>());
-                serializableErasureObjects.add(serializableErasureObject);
-                merkleNodes.add(new MerkleNode(HashUtil.XXH3(serializableErasureObject.getOriginalPacketChunks())));
-            }
-            tree.constructTree(merkleNodes);
-            String original_hash = tree.getRootHash();
-            for (int j = 0; j < serializableErasureObjects.size(); j++) {
-                tree.build_proofs(new MerkleNode(HashUtil.XXH3(serializableErasureObjects.get(j).getOriginalPacketChunks())));
-                serializableErasureObjects.get(j).setProofs(tree.getMerkleeproofs());
-                serializableErasureObjects.get(j).setRootMerkleHash(tree.getRootHash());
-            }
-            int sendSize = 0;
-            int onlyFirstSize = 0;
-            if (serializableErasureObjects.size() >= sizeOfCommittee) {
-                sendSize = serializableErasureObjects.size() / sizeOfCommittee;
-                onlyFirstSize = (n.size() - sendSize * sizeOfCommittee);
+                MerkleTreeOptimizedImp tree = new MerkleTreeOptimizedImp();
+                ArrayList<MerkleNode> merkleNodes = new ArrayList<MerkleNode>();
+                for (int i = 0; i < n.size(); i++) {
+                    SerializableErasureObject serializableErasureObject = new SerializableErasureObject(object, n.get(i).asArray(), new ArrayList<byte[]>());
+                    serializableErasureObjects.add(serializableErasureObject);
+                    merkleNodes.add(new MerkleNode(HashUtil.XXH3(serializableErasureObject.getOriginalPacketChunks())));
+                }
+                tree.constructTree(merkleNodes);
+                String original_hash = tree.getRootHash();
+                for (int j = 0; j < serializableErasureObjects.size(); j++) {
+                    tree.build_proofs(new MerkleNode(HashUtil.XXH3(serializableErasureObjects.get(j).getOriginalPacketChunks())));
+                    serializableErasureObjects.get(j).setProofs(tree.getMerkleeproofs());
+                    serializableErasureObjects.get(j).setRootMerkleHash(tree.getRootHash());
+                }
+                int sendSize = 0;
+                int onlyFirstSize = 0;
+                if (serializableErasureObjects.size() >= sizeOfCommittee) {
+                    sendSize = serializableErasureObjects.size() / sizeOfCommittee;
+                    onlyFirstSize = (n.size() - sendSize * sizeOfCommittee);
+                } else {
+                    sendSize = sizeOfCommittee;
+                    onlyFirstSize = sizeOfCommittee - sendSize * n.size();
+                }
+
+                int startPosition = 0;
+                ArrayList<ArrayList<byte[]>> finalList = new ArrayList<>();
+                while (startPosition < serializableErasureObjects.size()) {
+                    int endPosition = Math.min(startPosition + sendSize + onlyFirstSize, serializableErasureObjects.size());
+                    ArrayList<byte[]> toSend = new ArrayList<>(endPosition - startPosition);
+                    for (int i = startPosition; i < endPosition; i++) {
+                        toSend.add(serenc_erasure.encode(serializableErasureObjects.get(i)));
+                    }
+                    if (toSend.isEmpty()) {
+                        throw new IllegalArgumentException("Size of toSend is 0");
+                    }
+                    finalList.add(toSend);
+                    startPosition = endPosition;
+                    onlyFirstSize = 0;
+                }
+                assertEquals(finalList.size(), sizeOfCommittee);
+                consensusBroker.distributeDisperseMessageFromLeader(finalList, String.valueOf(VIEW_NUMBER));
             } else {
-                sendSize = sizeOfCommittee;
-                onlyFirstSize = sizeOfCommittee - sendSize * n.size();
-            }
+                if (position.getAsInt() == 1) {
+                    long start = System.currentTimeMillis();
+                    ArrayList<byte[]> fromLeaderReceive = consensusBroker.receiveDisperseHandledMessageFromLeader(TopicType.DISPERSE_PHASE1, String.valueOf(VIEW_NUMBER) + 1);
+                    assertFalse(fromLeaderReceive.isEmpty());
+                    System.out.println("received");
+                    consensusBroker.distributeDisperseMessageToValidators(fromLeaderReceive, String.valueOf(VIEW_NUMBER));
+                    ArrayList<ArrayList<byte[]>> finalList = consensusBroker.retrieveDisperseMessageFromValidatorsAndConcatResponse(fromLeaderReceive, String.valueOf(VIEW_NUMBER));
+                    System.out.println("received2");
+                    assert (!finalList.isEmpty());
 
-            int startPosition = 0;
-            ArrayList<ArrayList<byte[]>> finalList = new ArrayList<>();
-            while (startPosition < serializableErasureObjects.size()) {
-                int endPosition = Math.min(startPosition + sendSize + onlyFirstSize, serializableErasureObjects.size());
-                ArrayList<byte[]> toSend = new ArrayList<>(endPosition - startPosition);
-                for (int i = startPosition; i < endPosition; i++) {
-                    toSend.add(serenc_erasure.encode(serializableErasureObjects.get(i)));
+
+                    //#########################################################################################################################
+                    ArrayList<SerializableErasureObject> recserializableErasureObjects = new ArrayList<SerializableErasureObject>();
+                    for (ArrayList<byte[]> rec_list : finalList) {
+                        for (byte[] rec_buff : rec_list) {
+                            recserializableErasureObjects.add(serenc_erasure.decode(rec_buff));
+                        }
+                    }
+
+                    for (SerializableErasureObject obj : recserializableErasureObjects) {
+                        if (!obj.CheckChunksValidity(recserializableErasureObjects.get(0).getRootMerkleHash())) {
+                            throw new IllegalArgumentException("Merklee Hash is not valid");
+                        }
+                    }
+
+                    Collections.shuffle(recserializableErasureObjects);
+                    FECParameterObject recobject = recserializableErasureObjects.get(0).getFecParameterObject();
+                    FECParameters recfecParams = FECParameters.newParameters(recobject.getDataLen(), recobject.getSymbolSize(), recobject.getNumberOfSymbols());
+                    final ArrayDataDecoder dec = OpenRQ.newDecoder(recfecParams, recobject.getSymbolOverhead());
+
+                    for (int i = 0; i < recserializableErasureObjects.size(); i++) {
+                        EncodingPacket encodingPacket = dec.parsePacket(ByteBuffer.wrap(recserializableErasureObjects.get(i).getOriginalPacketChunks()), false).value();
+                        final SourceBlockDecoder sbDec = dec.sourceBlock(encodingPacket.sourceBlockNumber());
+                        sbDec.putEncodingPacket(encodingPacket);
+                    }
+
+                    TransactionBlock copys = (TransactionBlock) serenc.decode(dec.dataArray());
+                    assertDoesNotThrow(() -> assertNotNull(copys));
+                    System.out.println("Data is equal");
+
+                    long finish = System.currentTimeMillis();
+                    long timeElapsed = finish - 10 - start;
+                    elaspe_time.add(timeElapsed);
+                } else {
+                    long start = System.currentTimeMillis();
+                    ArrayList<byte[]> fromLeaderReceive = consensusBroker.receiveDisperseHandledMessageFromLeader(TopicType.DISPERSE_PHASE1, String.valueOf(VIEW_NUMBER) + 2);
+                    assertFalse(fromLeaderReceive.isEmpty());
+                    System.out.println("received");
+                    consensusBroker.distributeDisperseMessageToValidators(fromLeaderReceive, String.valueOf(VIEW_NUMBER));
+                    ArrayList<ArrayList<byte[]>> finalList = consensusBroker.retrieveDisperseMessageFromValidatorsAndConcatResponse(fromLeaderReceive, String.valueOf(VIEW_NUMBER));
+                    System.out.println("received2");
+                    assert (!finalList.isEmpty());
+
+                    //#########################################################################################################################
+                    ArrayList<SerializableErasureObject> recserializableErasureObjects = new ArrayList<SerializableErasureObject>();
+                    for (ArrayList<byte[]> rec_list : finalList) {
+                        for (byte[] rec_buff : rec_list) {
+                            recserializableErasureObjects.add(serenc_erasure.decode(rec_buff));
+                        }
+                    }
+
+                    for (SerializableErasureObject obj : recserializableErasureObjects) {
+                        if (!obj.CheckChunksValidity(recserializableErasureObjects.get(0).getRootMerkleHash())) {
+                            throw new IllegalArgumentException("Merklee Hash is not valid");
+                        }
+                    }
+
+                    Collections.shuffle(recserializableErasureObjects);
+                    FECParameterObject recobject = recserializableErasureObjects.get(0).getFecParameterObject();
+                    FECParameters recfecParams = FECParameters.newParameters(recobject.getDataLen(), recobject.getSymbolSize(), recobject.getNumberOfSymbols());
+                    final ArrayDataDecoder dec = OpenRQ.newDecoder(recfecParams, recobject.getSymbolOverhead());
+
+                    for (int i = 0; i < recserializableErasureObjects.size(); i++) {
+                        EncodingPacket encodingPacket = dec.parsePacket(ByteBuffer.wrap(recserializableErasureObjects.get(i).getOriginalPacketChunks()), false).value();
+                        final SourceBlockDecoder sbDec = dec.sourceBlock(encodingPacket.sourceBlockNumber());
+                        sbDec.putEncodingPacket(encodingPacket);
+                    }
+
+                    TransactionBlock copys = (TransactionBlock) serenc.decode(dec.dataArray());
+                    assertDoesNotThrow(() -> assertNotNull(copys));
+                    System.out.println("Data is equal");
+                    long finish = System.currentTimeMillis();
+                    long timeElapsed = finish - 10 - start;
+                    elaspe_time.add(timeElapsed);
                 }
-                if (toSend.isEmpty()) {
-                    throw new IllegalArgumentException("Size of toSend is 0");
-                }
-                finalList.add(toSend);
-                startPosition = endPosition;
-                onlyFirstSize = 0;
+
             }
-            assertEquals(finalList.size(), sizeOfCommittee);
-            consensusBroker.distributeDisperseMessageFromLeader(finalList, String.valueOf(VIEW_NUMBER));
-            Thread.sleep(6000);
+            VIEW_NUMBER++;
+            Thread.sleep(1000);
+            consensusBroker.clear();
+        }
+        var map = consensusBroker.getSequencedMap();
+        var list = elaspe_time;
+        OptionalDouble average = elaspe_time.stream().skip(1).mapToLong(Long::longValue).average();
+        if (average.isPresent()) {
+            System.out.println("Average elapsed time: " + average.getAsDouble() + " ms");
         } else {
-            if (position.getAsInt() == 1) {
-                long start = System.currentTimeMillis();
-                ArrayList<byte[]> fromLeaderReceive = consensusBroker.receiveDisperseHandledMessageFromLeader(TopicType.DISPERSE_PHASE1, String.valueOf(VIEW_NUMBER) + 1);
-                assertFalse(fromLeaderReceive.isEmpty());
-                System.out.println("received");
-                consensusBroker.distributeDisperseMessageToValidators(fromLeaderReceive, String.valueOf(VIEW_NUMBER));
-                ArrayList<ArrayList<byte[]>> finalList = consensusBroker.retrieveDisperseMessageFromValidatorsAndConcatResponse(fromLeaderReceive, String.valueOf(VIEW_NUMBER));
-                System.out.println("received2");
-                assert (!finalList.isEmpty());
-
-                long finish = System.currentTimeMillis();
-                long timeElapsed = finish - start;
-                System.out.println("Time elapsed: " + timeElapsed);
-
-                //#########################################################################################################################
-                ArrayList<SerializableErasureObject> recserializableErasureObjects = new ArrayList<SerializableErasureObject>();
-                for (ArrayList<byte[]> rec_list : finalList) {
-                    for (byte[] rec_buff : rec_list) {
-                        recserializableErasureObjects.add(serenc_erasure.decode(rec_buff));
-                    }
-                }
-
-                for (SerializableErasureObject obj : recserializableErasureObjects) {
-                    if (!obj.CheckChunksValidity(recserializableErasureObjects.get(0).getRootMerkleHash())) {
-                        throw new IllegalArgumentException("Merklee Hash is not valid");
-                    }
-                }
-
-                Collections.shuffle(recserializableErasureObjects);
-                FECParameterObject recobject = recserializableErasureObjects.get(0).getFecParameterObject();
-                FECParameters recfecParams = FECParameters.newParameters(recobject.getDataLen(), recobject.getSymbolSize(), recobject.getNumberOfSymbols());
-                final ArrayDataDecoder dec = OpenRQ.newDecoder(recfecParams, recobject.getSymbolOverhead());
-
-                for (int i = 0; i < recserializableErasureObjects.size(); i++) {
-                    EncodingPacket encodingPacket = dec.parsePacket(ByteBuffer.wrap(recserializableErasureObjects.get(i).getOriginalPacketChunks()), false).value();
-                    final SourceBlockDecoder sbDec = dec.sourceBlock(encodingPacket.sourceBlockNumber());
-                    sbDec.putEncodingPacket(encodingPacket);
-                }
-
-                TransactionBlock copys = (TransactionBlock) serenc.decode(dec.dataArray());
-                assertDoesNotThrow(() -> assertNotNull(copys));
-                System.out.println("Data is equal");
-
-                Thread.sleep(4000);
-            } else {
-                long start = System.currentTimeMillis();
-                ArrayList<byte[]> fromLeaderReceive = consensusBroker.receiveDisperseHandledMessageFromLeader(TopicType.DISPERSE_PHASE1, String.valueOf(VIEW_NUMBER) + 2);
-                assertFalse(fromLeaderReceive.isEmpty());
-                System.out.println("received");
-                consensusBroker.distributeDisperseMessageToValidators(fromLeaderReceive, String.valueOf(VIEW_NUMBER));
-                ArrayList<ArrayList<byte[]>> finalList = consensusBroker.retrieveDisperseMessageFromValidatorsAndConcatResponse(fromLeaderReceive, String.valueOf(VIEW_NUMBER));
-                System.out.println("received2");
-                assert (!finalList.isEmpty());
-
-                //#########################################################################################################################
-                ArrayList<SerializableErasureObject> recserializableErasureObjects = new ArrayList<SerializableErasureObject>();
-                for (ArrayList<byte[]> rec_list : finalList) {
-                    for (byte[] rec_buff : rec_list) {
-                        recserializableErasureObjects.add(serenc_erasure.decode(rec_buff));
-                    }
-                }
-
-                for (SerializableErasureObject obj : recserializableErasureObjects) {
-                    if (!obj.CheckChunksValidity(recserializableErasureObjects.get(0).getRootMerkleHash())) {
-                        throw new IllegalArgumentException("Merklee Hash is not valid");
-                    }
-                }
-
-                Collections.shuffle(recserializableErasureObjects);
-                FECParameterObject recobject = recserializableErasureObjects.get(0).getFecParameterObject();
-                FECParameters recfecParams = FECParameters.newParameters(recobject.getDataLen(), recobject.getSymbolSize(), recobject.getNumberOfSymbols());
-                final ArrayDataDecoder dec = OpenRQ.newDecoder(recfecParams, recobject.getSymbolOverhead());
-
-                for (int i = 0; i < recserializableErasureObjects.size(); i++) {
-                    EncodingPacket encodingPacket = dec.parsePacket(ByteBuffer.wrap(recserializableErasureObjects.get(i).getOriginalPacketChunks()), false).value();
-                    final SourceBlockDecoder sbDec = dec.sourceBlock(encodingPacket.sourceBlockNumber());
-                    sbDec.putEncodingPacket(encodingPacket);
-                }
-
-                TransactionBlock copys = (TransactionBlock) serenc.decode(dec.dataArray());
-                assertDoesNotThrow(() -> assertNotNull(copys));
-                System.out.println("Data is equal");
-                long finish = System.currentTimeMillis();
-                long timeElapsed = finish - start;
-                System.out.println("Time elapsed: " + timeElapsed);
-                Thread.sleep(4000);
-            }
+            System.out.println("No elapsed time recorded.");
         }
     }
 }

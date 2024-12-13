@@ -214,8 +214,9 @@ public class ConsensusBroker {
                             if (!this.sequencedMap.get(current).containsKey(Integer.parseInt(record.key()))) {
                                 this.sequencedMap.get(current).put(Integer.parseInt(record.key()), new HashMap<>());
                             }
-//                            if (this.sequencedMap.get(current).containsKey(Integer.parseInt(record.key()))&& !current.equals(TopicType.DISPERSE_PHASE2))
-//                                LOG.info("{} {} {} {} {}", "Duplicate-receiveMessageFromValidators", Thread.currentThread().getName(), current, "Key: " + record.key(), "Offset: " + record.offset());
+                            if (this.sequencedMap.get(current).containsKey(Integer.parseInt(record.key()))&& !current.equals(TopicType.DISPERSE_PHASE2) && !currentIP.equals(leader_host)) {
+                                LOG.info("{} {} {} {} {}", "Duplicate-receiveMessageFromValidators", Thread.currentThread().getName(), current, "Key: " + record.key(), "Offset: " + record.offset());
+                            }
                             this.sequencedMap.get(current).get(Integer.parseInt(record.key())).put(finalI, record.value());
                             if (record.key().equals(key) && record.topic().equals(topic.name())) {
                                 flag = true;

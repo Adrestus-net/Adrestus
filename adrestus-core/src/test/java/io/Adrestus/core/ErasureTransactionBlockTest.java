@@ -196,16 +196,16 @@ public class ErasureTransactionBlockTest {
             char[] mnemonic_sequence = mnem.create();
             char[] passphrase = "p4ssphr4se".toCharArray();
             byte[] key = mnem.createSeed(mnemonic_sequence, passphrase);
-            ECKeyPair ecKeyPair = Keys.createEcKeyPair(new SecureRandom(key));
+            ECKeyPair ecKeyPair = Keys.create256r1KeyPair(new SecureRandom(key));
             String adddress = WalletAddress.generate_address((byte) version, ecKeyPair.getPublicKey());
             addreses.add(adddress);
             keypair.add(ecKeyPair);
             TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(adddress, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
         }
 
-        signatureData1 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(addreses.get(0))), keypair.get(0));
-        signatureData2 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(addreses.get(1))), keypair.get(1));
-        signatureData3 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(addreses.get(2))), keypair.get(2));
+        signatureData1 = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(addreses.get(0))), keypair.get(0));
+        signatureData2 = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(addreses.get(1))), keypair.get(1));
+        signatureData3 = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(addreses.get(2))), keypair.get(2));
 
         transactionCallback = new TransactionCallback();
 
@@ -226,7 +226,7 @@ public class ErasureTransactionBlockTest {
                 transaction.setHash(HashUtil.sha256_bytetoString(byf));
                 await().atMost(10, TimeUnit.MILLISECONDS);
 
-                ECDSASignatureData signatureData = ecdsaSign.secp256SignMessage(Hex.decode(transaction.getHash()), keypair.get(i));
+                ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(Hex.decode(transaction.getHash()), keypair.get(i));
                 transaction.setSignature(signatureData);
                 transactions.add(transaction);
             }
@@ -617,7 +617,7 @@ public class ErasureTransactionBlockTest {
                     transaction.setHash(HashUtil.sha256_bytetoString(byf));
                     await().atMost(10, TimeUnit.MILLISECONDS);
 
-                    ECDSASignatureData signatureData = ecdsaSign.secp256SignMessage(Hex.decode(transaction.getHash()), keypair.get(i));
+                    ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(Hex.decode(transaction.getHash()), keypair.get(i));
                     transaction.setSignature(signatureData);
                     transactions.add(transaction);
                 }

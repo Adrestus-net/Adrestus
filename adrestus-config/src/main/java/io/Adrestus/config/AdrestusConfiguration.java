@@ -20,7 +20,11 @@ public class AdrestusConfiguration {
     public static final String SIGN_ALGORITHM = "EC";
     public static final String SIGN_PROVIDER = "BC";
 
-    public static final String SIGN_CURVE = "secp256k1";
+    public static final String SIGN_CURVE_256k1 = "secp256k1";
+    public static final String SIGN_CURVE_256r1 = "secp256r1";
+
+    public static final String SIGN_ALGORITHM_ECDSA = "SHA256withECDSA";
+    public static final String CONSCRYPT_PROVIDER = "Conscrypt";
 
 
     public static final int TRANSACTIONS_QUEUE_SIZE = 2048 * 100;

@@ -35,7 +35,7 @@ public class Secp256k1EventHandler extends TransactionEventHandler {
 
             KeyFactory kfBc = KeyFactory.getInstance(AdrestusConfiguration.SIGN_ALGORITHM, AdrestusConfiguration.SIGN_PROVIDER);
             AlgorithmParameters parameters = AlgorithmParameters.getInstance(AdrestusConfiguration.SIGN_ALGORITHM, AdrestusConfiguration.SIGN_PROVIDER);
-            parameters.init(new ECGenParameterSpec(AdrestusConfiguration.SIGN_CURVE));
+            parameters.init(new ECGenParameterSpec(AdrestusConfiguration.SIGN_CURVE_256r1));
             ECParameterSpec ecParamSpec = parameters.getParameterSpec(ECParameterSpec.class);
             PublicKey pubKey = kfBc.generatePublic(new ECPublicKeySpec(point, ecParamSpec));
             BCECPublicKey publicKeys = (BCECPublicKey) pubKey;

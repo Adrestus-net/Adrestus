@@ -24,13 +24,7 @@ public class SignatureEventHandler implements ReceiptEventHandler<ReceiptBlockEv
     @Override
     public void onEvent(ReceiptBlockEvent receiptBlockEvent, long l, boolean b) throws InterruptedException {
         ReceiptBlock receiptBlock = receiptBlockEvent.getReceiptBlock();
-        boolean res;
-        if (!receiptBlock.getTransaction().getXAxis().toString().equals("0") && !receiptBlock.getTransaction().getYAxis().toString().equals("0")) {
-            BigInteger publicKeyValue = ecdsaSign.recoverPublicKeyValue(receiptBlock.getTransaction().getXAxis(), receiptBlock.getTransaction().getYAxis());
-            res = ecdsaSign.secp256Verify(HashUtil.sha256(receiptBlock.getTransaction().getHash().getBytes(StandardCharsets.UTF_8)), receiptBlock.getTransaction().getFrom(), publicKeyValue, receiptBlock.getTransaction().getSignature());
-        } else {
-            res = ecdsaSign.secp256Verify(Hex.decode(receiptBlock.getTransaction().getHash()), receiptBlock.getTransaction().getFrom(), receiptBlock.getTransaction().getSignature());
-        }
+        boolean res = ecdsaSign.secp256r1Verify(receiptBlock.getTransaction().getHash().getBytes(StandardCharsets.UTF_8),receiptBlock.getTransaction().getXAxis(),receiptBlock.getTransaction().getYAxis(), receiptBlock.getTransaction().getSignature());
         if (!res) {
             LOG.info("Signatures are not equal abort");
             receiptBlockEvent.getReceiptBlock().setStatusType(StatusType.ABORT);

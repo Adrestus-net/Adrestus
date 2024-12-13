@@ -106,7 +106,7 @@ public class DisruptorStressTest {
             char[] mnemonic_sequence = mnem.create();
             char[] passphrase = "p4ssphr4se".toCharArray();
             byte[] key = mnem.createSeed(mnemonic_sequence, passphrase);
-            ECKeyPair ecKeyPair = Keys.createEcKeyPair(new SecureRandom(key));
+            ECKeyPair ecKeyPair = Keys.create256r1KeyPair(new SecureRandom(key));
             String adddress = WalletAddress.generate_address((byte) version, ecKeyPair.getPublicKey());
             addreses.add(adddress);
             keypair.add(ecKeyPair);
@@ -127,7 +127,7 @@ public class DisruptorStressTest {
             transaction.setNonce(1);
             byte byf[] = serenc.encode(transaction);
             transaction.setHash(HashUtil.sha256_bytetoString(byf));
-            ECDSASignatureData signatureData = ecdsaSign.secp256SignMessage(Hex.decode(transaction.getHash()), keypair.get(i));
+            ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(Hex.decode(transaction.getHash()), keypair.get(i));
             transaction.setSignature(signatureData);
             list2.add(transaction);
         }
@@ -183,7 +183,7 @@ public class DisruptorStressTest {
             char[] mnemonic_sequence = mnem.create();
             char[] passphrase = "p4ssphr4se".toCharArray();
             byte[] key = mnem.createSeed(mnemonic_sequence, passphrase);
-            ECKeyPair ecKeyPair = Keys.createEcKeyPair(new SecureRandom(key));
+            ECKeyPair ecKeyPair = Keys.create256r1KeyPair(new SecureRandom(key));
             String adddress = WalletAddress.generate_address((byte) version, ecKeyPair.getPublicKey());
             addreses.add(adddress);
             keypair.add(ecKeyPair);
@@ -204,7 +204,7 @@ public class DisruptorStressTest {
             transaction.setNonce(1);
             byte byf[] = serenc.encode(transaction);
             transaction.setHash(HashUtil.sha256_bytetoString(byf));
-            ECDSASignatureData signatureData = ecdsaSign.secp256SignMessage(Hex.decode(transaction.getHash()), keypair.get(i));
+            ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(Hex.decode(transaction.getHash()), keypair.get(i));
             transaction.setSignature(signatureData);
             list1.add(transaction);
         }

@@ -24,8 +24,8 @@ public class AddressTest {
         SecureRandom random = SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
         random.setSeed(Hex.decode(mnemonic_code));
 
-        ECKeyPair ecKeyPair = Keys.createEcKeyPair(random);
-        String adddress = WalletAddress.generate_address((byte) version, ecKeyPair.getPublicKey());
+        ECKeyPair ecKeyPair = Keys.create256k1KeyPair(random);
+        String adddress = WalletAddress.generate_address((byte) version, ecKeyPair.getPubKey());
 
         //System.out.println(adddress);
         assertEquals("ADR-AB2C-ARNW-4BYP-7CGJ-K6AD-OSNM-NC6Q-ET2C-6DEW-AAWY", adddress);
@@ -69,7 +69,7 @@ public class AddressTest {
 
         ECDSASign ecdsaSign = new ECDSASign();
 
-        BigInteger publicKeyValue = ecdsaSign.recoverPublicKeyValue(x, y);
+        BigInteger publicKeyValue = ecdsaSign.recoverSecp256k1PublicKeyValue(x, y);
 
         BigInteger key = new BigInteger("8555373944426081830687847710964792997898504290743993476397732812360676876989206845269434932820242747100413174295708316494603962024254570854147060142363219");
         String address = JavascriptWalletAddress.generate_address((byte) version, key.toString());

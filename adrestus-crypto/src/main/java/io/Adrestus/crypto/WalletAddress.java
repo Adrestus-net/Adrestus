@@ -1,6 +1,7 @@
 package io.Adrestus.crypto;
 
 import java.math.BigInteger;
+import java.security.PublicKey;
 import java.util.Arrays;
 
 public class WalletAddress {
@@ -11,6 +12,28 @@ public class WalletAddress {
     public static String generate_address(final byte version, BigInteger publicKey) {
         // step 1: sha3 hash of the public key
         final byte[] sha3PublicKeyHash = HashUtil.sha3(publicKey.toByteArray());
+
+        // step 2: ripemd160 hash of (1)
+        final byte[] ripemd160StepOneHash = HashUtil.ripemd160(sha3PublicKeyHash);
+
+        // step 3: add version byte in front of (2)
+        final byte[] versionPrefixedRipemd160Hash = PrimitiveUtil.concat(new byte[]{version}, ripemd160StepOneHash);
+
+        // step 4: get the checksum of (3)
+        final byte[] stepThreeChecksum = generateChecksum(versionPrefixedRipemd160Hash);
+
+        // step 5: concatenate (3) and (4)
+        final byte[] concatStepThreeAndStepSix = PrimitiveUtil.concat(versionPrefixedRipemd160Hash, stepThreeChecksum);
+
+        // step 6: base32 encode (5)
+        String encoded = Base32Encoder.getString(concatStepThreeAndStepSix);
+        //step7 pretty_print encoded
+        return preety_print(encoded);
+    }
+
+    public static String generate_address(final byte version, PublicKey publicKey) {
+        // step 1: sha3 hash of the public key
+        final byte[] sha3PublicKeyHash = HashUtil.sha3(publicKey.getEncoded());
 
         // step 2: ripemd160 hash of (1)
         final byte[] ripemd160StepOneHash = HashUtil.ripemd160(sha3PublicKeyHash);

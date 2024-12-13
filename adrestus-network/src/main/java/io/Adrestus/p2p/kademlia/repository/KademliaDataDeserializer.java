@@ -9,6 +9,7 @@ import io.Adrestus.p2p.kademlia.common.NettyConnectionInfo;
 
 import java.lang.reflect.Type;
 import java.math.BigInteger;
+import java.security.PublicKey;
 
 public class KademliaDataDeserializer implements JsonDeserializer<KademliaData> {
     @Override
@@ -22,7 +23,7 @@ public class KademliaDataDeserializer implements JsonDeserializer<KademliaData> 
         kademliaData.setHash(resourceJson.get("hash").getAsString());
         JsonObject blsobj = resourceJson.get("address_data").getAsJsonObject().get("validator_bl_s_public_key").getAsJsonObject();
         String address = resourceJson.get("address_data").getAsJsonObject().get("address").getAsString();
-        BigInteger ecdsaKey = resourceJson.get("address_data").getAsJsonObject().get("e_c_d_s_a_public_key").getAsBigInteger();
+        PublicKey ecdsaKey = gson.fromJson(resourceJson.get("address_data").getAsJsonObject().get("e_c_d_s_a_public_key").getAsString(),PublicKey.class);
         JsonObject ecdsaSignatureObj = resourceJson.get("address_data").getAsJsonObject().get("e_c_d_s_a_signature").getAsJsonObject();
         SecurityAuditProofs securityAuditProofs = new SecurityAuditProofs(
                 gson.fromJson(blsobj, blstoken),

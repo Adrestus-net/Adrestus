@@ -1,96 +1,149 @@
 package io.Adrestus.crypto.elliptic;
 
+import io.Adrestus.config.AdrestusConfiguration;
+import io.activej.serializer.annotations.Serialize;
+import lombok.SneakyThrows;
 import org.apache.commons.codec.binary.Hex;
-import org.bouncycastle.crypto.digests.SHA256Digest;
-import org.bouncycastle.crypto.params.ECPrivateKeyParameters;
-import org.bouncycastle.crypto.params.ECPublicKeyParameters;
-import org.bouncycastle.crypto.signers.ECDSASigner;
-import org.bouncycastle.crypto.signers.HMacDSAKCalculator;
 import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey;
 import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPublicKey;
 
 import java.math.BigInteger;
-import java.security.KeyPair;
+import java.security.KeyFactory;
+import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.spec.ECPublicKeySpec;
 import java.util.Arrays;
 import java.util.Objects;
 
 public class ECKeyPair {
-    private final BigInteger privateKey;
-    private final BigInteger publicKey;
+    //    private final BigInteger privKey;
+//    private final BigInteger pubKey;
+    private final PrivateKey privateKey;
+    private final PublicKey publicKey;
 
-    public ECKeyPair(BigInteger privateKey, BigInteger publicKey) {
+    private final BigInteger XpubAxis;
+    private final BigInteger YpubAxis;
+
+    private final ECPublicKeySpec ecPublicKeySpec;
+
+    public ECKeyPair() {
+        this.privateKey = null;
+        this.publicKey = null;
+        this.ecPublicKeySpec = null;
+        this.XpubAxis = null;
+        this.YpubAxis = null;
+    }
+
+    @SneakyThrows
+    public ECKeyPair(PrivateKey privateKey, PublicKey publicKey) {
         this.privateKey = privateKey;
         this.publicKey = publicKey;
+        this.ecPublicKeySpec = (ECPublicKeySpec) KeyFactory.getInstance(AdrestusConfiguration.SIGN_ALGORITHM, AdrestusConfiguration.SIGN_PROVIDER).getKeySpec(publicKey, ECPublicKeySpec.class);
+        this.XpubAxis = ecPublicKeySpec.getW().getAffineX();
+        this.YpubAxis = ecPublicKeySpec.getW().getAffineY();
     }
 
-    public ECKeyPair(BigInteger publicKey) {
-        this.privateKey = null;
-        this.publicKey = publicKey;
+
+    @Serialize
+    public BigInteger getXpubAxis() {
+        return XpubAxis;
     }
 
-    public BigInteger getPrivateKey() {
-        return privateKey;
+    @Serialize
+    public BigInteger getYpubAxis() {
+        return YpubAxis;
     }
 
-    public BigInteger getPublicKey() {
+    @Serialize
+    public ECPublicKeySpec getEcPublicKeySpec() {
+        return ecPublicKeySpec;
+    }
+
+    @Serialize
+    public PublicKey getPublicKey() {
         return publicKey;
     }
 
-
-    //compressed pub used to generate the address
-    public static ECKeyPair create(KeyPair keyPair) {
-        BCECPrivateKey privateKey = (BCECPrivateKey) keyPair.getPrivate();
-        BCECPublicKey publicKey = (BCECPublicKey) keyPair.getPublic();
-
-        BigInteger privateKeyValue = privateKey.getD();
-
-        byte[] publicKeyBytes = publicKey.getQ().getEncoded(false);
-        BigInteger publicKeyValue =
-                new BigInteger(1, Arrays.copyOfRange(publicKeyBytes, 1, publicKeyBytes.length));
-
-        ECKeyPair ECKeyPair = new ECKeyPair(privateKeyValue, publicKeyValue);
-        return ECKeyPair;
+    @Serialize
+    public PrivateKey getPrivateKey() {
+        return privateKey;
     }
 
+
+    @SneakyThrows
+    public BigInteger getPrivKey() {
+        BCECPrivateKey priv = (BCECPrivateKey) privateKey;
+        return priv.getD();
+    }
+
+    @SneakyThrows
+    public BigInteger getPubKey() {
+        BCECPublicKey pub = (BCECPublicKey) publicKey;
+        byte[] publicKeyBytes = pub.getQ().getEncoded(false);
+        return new BigInteger(1, Arrays.copyOfRange(publicKeyBytes, 1, publicKeyBytes.length));
+    }
+//    //compressed pub used to generate the address
+//    public static ECKeyPair create(KeyPair keyPair) {
+//        BCECPrivateKey privateKey = (BCECPrivateKey) keyPair.getPrivate();
+//        BCECPublicKey publicKey = (BCECPublicKey) keyPair.getPublic();
+//
+//        BigInteger privateKeyValue = privateKey.getD();
+//
+//        byte[] publicKeyBytes = publicKey.getQ().getEncoded(false);
+//        BigInteger publicKeyValue =
+//                new BigInteger(1, Arrays.copyOfRange(publicKeyBytes, 1, publicKeyBytes.length));
+//
+//        ECKeyPair ECKeyPair = new ECKeyPair(privateKeyValue, publicKeyValue);
+//        return ECKeyPair;
+//    }
 
     private static String compress(PublicKey publicKey) {
         StringBuilder sb = new StringBuilder(Hex.encodeHexString(publicKey.getEncoded()));
         return sb.delete(0, 46).toString();
     }
 
-    public ECDSASignature sign(byte[] hash) {
+//    public ECDSASignature sign(byte[] hash) {
+//
+//        org.bouncycastle.crypto.signers.ECDSASigner signer = new org.bouncycastle.crypto.signers.ECDSASigner(new HMacDSAKCalculator(new SHA256Digest()));
+//
+//        ECPrivateKeyParameters privKey = new ECPrivateKeyParameters(getPrivKey(), Sign.CURVE);
+//        signer.init(true, privKey);
+//        BigInteger[] components = signer.generateSignature(hash);
+//
+//        return new ECDSASignature(components[0], components[1]).toCanonicalised();
+//    }
 
-        ECDSASigner signer = new ECDSASigner(new HMacDSAKCalculator(new SHA256Digest()));
 
-        ECPrivateKeyParameters privKey = new ECPrivateKeyParameters(privateKey, Sign.CURVE);
-        signer.init(true, privKey);
-        BigInteger[] components = signer.generateSignature(hash);
+//    public boolean verify(byte[] hash, ECDSASignature signature) {
+//        org.bouncycastle.crypto.signers.ECDSASigner signer = new ECDSASigner();
+//        signer.init(
+//                false,
+//                new ECPublicKeyParameters(
+//                        Sign.publicPointFromPrivate(getPrivKey()), Sign.CURVE));
+//        return signer.verifySignature(hash, signature.getR(), signature.getS());
+//    }
 
-        return new ECDSASignature(components[0], components[1]).toCanonicalised();
-    }
-
-
-    public boolean verify(byte[] hash, ECDSASignature signature) {
-        ECDSASigner signer = new ECDSASigner();
-        signer.init(
-                false,
-                new ECPublicKeyParameters(
-                        Sign.publicPointFromPrivate(getPrivateKey()), Sign.CURVE));
-        return signer.verifySignature(hash, signature.getR(), signature.getS());
-    }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        ECKeyPair ECKeyPair = (ECKeyPair) o;
-        return Objects.equals(privateKey, ECKeyPair.privateKey)
-                && Objects.equals(publicKey, ECKeyPair.publicKey);
+        ECKeyPair ecKeyPair = (ECKeyPair) o;
+        return Objects.equals(privateKey, ecKeyPair.privateKey) && Objects.equals(publicKey, ecKeyPair.publicKey) && Objects.equals(XpubAxis, ecKeyPair.XpubAxis) && Objects.equals(YpubAxis, ecKeyPair.YpubAxis) && Objects.equals(ecPublicKeySpec, ecKeyPair.ecPublicKeySpec);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(privateKey, publicKey);
+        return Objects.hash(privateKey, publicKey, XpubAxis, YpubAxis, ecPublicKeySpec);
+    }
+
+    @Override
+    public String toString() {
+        return "ECKeyPair{" +
+                "privateKey=" + privateKey +
+                ", publicKey=" + publicKey +
+                ", XpubAxis=" + XpubAxis +
+                ", YpubAxis=" + YpubAxis +
+                ", ecPublicKeySpec=" + ecPublicKeySpec +
+                '}';
     }
 }

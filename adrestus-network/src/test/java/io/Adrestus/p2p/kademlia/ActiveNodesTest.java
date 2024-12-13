@@ -89,16 +89,16 @@ public class ActiveNodesTest {
         byte[] key9 = mnem.createSeed(mnemonic9, passphrase);
         byte[] key10 = mnem.createSeed(mnemonic10, passphrase);
 
-        ECKeyPair ecKeyPair1 = Keys.createEcKeyPair(new SecureRandom(key1));
-        ECKeyPair ecKeyPair2 = Keys.createEcKeyPair(new SecureRandom(key2));
-        ECKeyPair ecKeyPair3 = Keys.createEcKeyPair(new SecureRandom(key3));
-        ECKeyPair ecKeyPair4 = Keys.createEcKeyPair(new SecureRandom(key4));
-        ECKeyPair ecKeyPair5 = Keys.createEcKeyPair(new SecureRandom(key5));
-        ECKeyPair ecKeyPair6 = Keys.createEcKeyPair(new SecureRandom(key6));
-        ECKeyPair ecKeyPair7 = Keys.createEcKeyPair(new SecureRandom(key7));
-        ECKeyPair ecKeyPair8 = Keys.createEcKeyPair(new SecureRandom(key8));
-        ECKeyPair ecKeyPair9 = Keys.createEcKeyPair(new SecureRandom(key9));
-        ECKeyPair ecKeyPair10 = Keys.createEcKeyPair(new SecureRandom(key10));
+        ECKeyPair ecKeyPair1 = Keys.create256r1KeyPair(new SecureRandom(key1));
+        ECKeyPair ecKeyPair2 = Keys.create256r1KeyPair(new SecureRandom(key2));
+        ECKeyPair ecKeyPair3 = Keys.create256r1KeyPair(new SecureRandom(key3));
+        ECKeyPair ecKeyPair4 = Keys.create256r1KeyPair(new SecureRandom(key4));
+        ECKeyPair ecKeyPair5 = Keys.create256r1KeyPair(new SecureRandom(key5));
+        ECKeyPair ecKeyPair6 = Keys.create256r1KeyPair(new SecureRandom(key6));
+        ECKeyPair ecKeyPair7 = Keys.create256r1KeyPair(new SecureRandom(key7));
+        ECKeyPair ecKeyPair8 = Keys.create256r1KeyPair(new SecureRandom(key8));
+        ECKeyPair ecKeyPair9 = Keys.create256r1KeyPair(new SecureRandom(key9));
+        ECKeyPair ecKeyPair10 = Keys.create256r1KeyPair(new SecureRandom(key10));
         String adddress1 = WalletAddress.generate_address((byte) version, ecKeyPair1.getPublicKey());
         String adddress2 = WalletAddress.generate_address((byte) version, ecKeyPair2.getPublicKey());
         String adddress3 = WalletAddress.generate_address((byte) version, ecKeyPair3.getPublicKey());
@@ -174,7 +174,7 @@ public class ActiveNodesTest {
             RoutingTable<BigInteger, NettyConnectionInfo, Bucket<BigInteger, NettyConnectionInfo>> routingTable = routingTableFactory.getRoutingTable(BigInteger.valueOf(i));
             NettyConnectionInfo nettyConnectionInfo = new NettyConnectionInfo("127.0.0.1", port + (int) i);
             DHTRegularNode nextnode = new DHTRegularNode(nettyConnectionInfo, BigInteger.valueOf(i), keyHashGenerator);
-            ECDSASignatureData signatureData = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(addreses.get(i))), keypair.get(i));
+            ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(addreses.get(i))), keypair.get(i));
             KademliaData kademliaData = new KademliaData(new SecurityAuditProofs(addreses.get(i), vk1, keypair.get(i).getPublicKey(), signatureData), nettyConnectionInfo);
 
             //boolean verify = ecdsaSign.secp256Verify(value.getAddressData().getAddress().getBytes(StandardCharsets.UTF_8), value.getAddressData().getAddress(), value.getAddressData().getECDSASignature());

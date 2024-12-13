@@ -14,12 +14,14 @@ import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 import org.spongycastle.util.encoders.Hex;
 
+import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.*;
-import java.security.spec.ECGenParameterSpec;
+import java.security.spec.*;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @BenchmarkMode({Mode.Throughput})
 @OutputTimeUnit(TimeUnit.SECONDS)
@@ -28,9 +30,9 @@ public class ECKeyPaiMeasurementsTest {
     private static byte[] hash;
     private static ECKeyPair ecKeyPair;
     private static ECDSASign ecdsaSign;
-    private static ECDSASignatureData signatureData;
+    private static ECDSASignatureData signatureData,signatureData2;
     private static String message = "verify test";
-    private static ECKeyPair ecKeyPair2;
+    private static ECKeyPair ecKeyPair3,ecKeyPair2;
     private static ECDSASignature signature;
     private static byte[] signature2;
     private static KeyPair keyPair;
@@ -44,7 +46,7 @@ public class ECKeyPaiMeasurementsTest {
     }
 
     @Setup(Level.Trial)
-    public static void setup() throws InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException, InvalidKeyException, SignatureException {
+    public static void setup() throws InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException, InvalidKeyException, SignatureException, InvalidParameterSpecException, InvalidKeySpecException {
         String mnemonic_code = "fd8cee9c1a3f3f57ab51b25740b24341ae093c8f697fde4df948050d3acd1700f6379d716104d2159e4912509c40ac81714d833e93b822e5ba0fadd68d5568a2";
         SecureRandom random = SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
         random.setSeed(Hex.decode(mnemonic_code));
@@ -56,17 +58,18 @@ public class ECKeyPaiMeasurementsTest {
         bls_sig = BLSSignature.sign(message.getBytes(StandardCharsets.UTF_8), sk);
         //Bls Test speed//////////////////////////////////////////
         //Adrestus Implementation//////////////////////////////////////////
-        ecKeyPair = Keys.createEcKeyPair(random);
+        ecKeyPair = Keys.create256k1KeyPair(random);
+        ecKeyPair3 = Keys.create256r1KeyPair(random);
         ecdsaSign = new ECDSASign();
 
 
         hash = message.getBytes(StandardCharsets.UTF_8);
         //hash = HashUtil.sha256(message.getBytes());
 
-        signatureData = ecdsaSign.secp256SignMessage(message.getBytes(), ecKeyPair);
-        ecKeyPair2 = Keys.createEcKeyPair(random);
+        signatureData = ecdsaSign.signSecp256k1Message(message.getBytes(), ecKeyPair);
+        signatureData2 = ecdsaSign.signSecp256r1Message(message.getBytes(), ecKeyPair3);
+        ecKeyPair2 = Keys.create256k1KeyPair(random);
 
-        signature = ecKeyPair2.sign(message.getBytes());
         //Adrestus Implementation//////////////////////////////////////////
 
 
@@ -85,6 +88,7 @@ public class ECKeyPaiMeasurementsTest {
         ecdsaVerify = Signature.getInstance("SHA256withECDSA", "Conscrypt");
         //ConscryptImplementation//////////////////////////////////////////
 
+
     }
 
     @Benchmark
@@ -92,19 +96,17 @@ public class ECKeyPaiMeasurementsTest {
         assertEquals(true, BLSSignature.verify(bls_sig, message.getBytes(StandardCharsets.UTF_8), vk));
     }
 
-    @Threads(24)
     @Benchmark
     public static void ECDSA() {
-        boolean verify = ecdsaSign.secp256Verify(hash, ecKeyPair.getPublicKey(), signatureData);
+        boolean verify = ecdsaSign.secp256k1Verify(hash, ecKeyPair.getPubKey(), signatureData);
         assertEquals(true, verify);
     }
 
-    @Threads(24)
+//    @Threads(24)
     @Benchmark
-    public static void Conscrypt() throws SignatureException, InvalidKeyException, NoSuchAlgorithmException, NoSuchProviderException {
-        ecdsaVerify.initVerify(keyPair.getPublic());
-        ecdsaVerify.update(message.getBytes());
-        boolean isVerified = ecdsaVerify.verify(signature2);
+    public static void Conscrypt(){
+        boolean isVerified = ecdsaSign.secp256r1Verify(hash, ecKeyPair3.getXpubAxis(),ecKeyPair3.getYpubAxis(), signatureData2);
+        assertTrue(isVerified);
     }
 
 

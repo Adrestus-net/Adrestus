@@ -84,7 +84,7 @@ public class TransactionTest {
         char[] mnemonic_sequence = mnem.create();
         char[] passphrase = "p4ssphr4se".toCharArray();
         byte[] key = mnem.createSeed(mnemonic_sequence, passphrase);
-        ECKeyPair ecKeyPair = Keys.createEcKeyPair(new SecureRandom(key));
+        ECKeyPair ecKeyPair = Keys.create256r1KeyPair(new SecureRandom(key));
 
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
@@ -109,7 +109,7 @@ public class TransactionTest {
         byte byf[] = ser.encode(transaction);
         transaction.setHash(HashUtil.sha256_bytetoString(byf));
 
-        ECDSASignatureData signatureData = ecdsaSign.secp256SignMessage(Hex.decode(transaction.getHash()), ecKeyPair);
+        ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(Hex.decode(transaction.getHash()), ecKeyPair);
         transaction.setSignature(signatureData);
 
         byte[] buffer = ser.encode(transaction, 400);
@@ -236,7 +236,7 @@ public class TransactionTest {
             char[] mnemonic_sequence = mnem.create();
             char[] passphrase = "p4ssphr4se".toCharArray();
             byte[] key = mnem.createSeed(mnemonic_sequence, passphrase);
-            ECKeyPair ecKeyPair = Keys.createEcKeyPair(new SecureRandom(key));
+            ECKeyPair ecKeyPair = Keys.create256r1KeyPair(new SecureRandom(key));
             String adddress = WalletAddress.generate_address((byte) version, ecKeyPair.getPublicKey());
             addreses.add(adddress);
             keypair.add(ecKeyPair);
@@ -261,7 +261,7 @@ public class TransactionTest {
             byte byf[] = serenc.encode(transaction, 1024);
             transaction.setHash(HashUtil.sha256_bytetoString(byf));
 
-            ECDSASignatureData signatureData = ecdsaSign.secp256SignMessage(Hex.decode(transaction.getHash()), keypair.get(i));
+            ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(Hex.decode(transaction.getHash()), keypair.get(i));
             transaction.setSignature(signatureData);
 
             publisher.publish(transaction);

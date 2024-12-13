@@ -7,17 +7,26 @@ import java.io.Serializable;
 import java.util.Arrays;
 
 public class ECDSASignatureData implements Serializable {
-    private byte v;
-    private byte[] r;
-    private byte[] s;
-    private byte[] pub;
-
+    private final byte v;
+    private final byte[] r;
+    private final byte[] s;
+    private final byte[] pub;
+    private final byte[] sig;
 
     public ECDSASignatureData() {
         this.v = 0;
         this.r = new byte[0];
         this.s = new byte[0];
         this.pub = new byte[0];
+        this.sig = new byte[0];
+    }
+
+    public ECDSASignatureData(byte[] pub, byte[] sig) {
+        this.v = 0;
+        this.r = new byte[0];
+        this.s = new byte[0];
+        this.pub = pub;
+        this.sig = sig;
     }
 
     public ECDSASignatureData(byte v, byte[] r, byte[] s) {
@@ -25,13 +34,23 @@ public class ECDSASignatureData implements Serializable {
         this.r = r;
         this.s = s;
         this.pub = new byte[0];
+        this.sig = new byte[0];
     }
 
-    public ECDSASignatureData(@Deserialize("v") byte v, @Deserialize("r") byte[] r, @Deserialize("s") byte[] s, @Deserialize("pub") byte[] pub) {
+    public ECDSASignatureData(byte v, byte[] r, byte[] s, byte[] sig) {
+        this.v = v;
+        this.r = r;
+        this.s = s;
+        this.sig = sig;
+        this.pub = new byte[0];
+    }
+
+    public ECDSASignatureData(@Deserialize("v") byte v, @Deserialize("r") byte[] r, @Deserialize("s") byte[] s, @Deserialize("pub") byte[] pub, @Deserialize("sig") byte[] sig) {
         this.v = v;
         this.r = r;
         this.s = s;
         this.pub = pub;
+        this.sig = sig;
     }
 
     @Serialize
@@ -55,20 +74,9 @@ public class ECDSASignatureData implements Serializable {
     }
 
 
-    public void setV(byte v) {
-        this.v = v;
-    }
-
-    public void setR(byte[] r) {
-        this.r = r;
-    }
-
-    public void setS(byte[] s) {
-        this.s = s;
-    }
-
-    public void setPub(byte[] pub) {
-        this.pub = pub;
+    @Serialize
+    public byte[] getSig() {
+        return sig;
     }
 
     @Override
@@ -88,6 +96,9 @@ public class ECDSASignatureData implements Serializable {
         if (!Arrays.equals(r, that.r)) {
             return false;
         }
+        if (!Arrays.equals(sig, that.sig)) {
+            return false;
+        }
         return Arrays.equals(s, that.s);
     }
 
@@ -98,5 +109,16 @@ public class ECDSASignatureData implements Serializable {
         result = 31 * result + Arrays.hashCode(s);
         result = 63 * result + Arrays.hashCode(pub);
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return "ECDSASignatureData{" +
+                "v=" + v +
+                ", r=" + Arrays.toString(r) +
+                ", s=" + Arrays.toString(s) +
+                ", pub=" + Arrays.toString(pub) +
+                ", sig=" + Arrays.toString(sig) +
+                '}';
     }
 }

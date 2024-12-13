@@ -8,19 +8,20 @@ import io.activej.serializer.annotations.Serialize;
 
 import java.io.Serializable;
 import java.math.BigInteger;
+import java.security.PublicKey;
 import java.util.Arrays;
 
 public final class SecurityAuditProofs implements Serializable {
     // private static final long serialVersionUID = -3101892752984639388L;
     private String address;
     private BLSPublicKey validatorBlSPublicKey;
-    private BigInteger eCDSAPublicKey;
+    private PublicKey eCDSAPublicKey;
     private ECDSASignatureData eCDSASignature;
 
     public SecurityAuditProofs() {
         this.address = "";
         this.validatorBlSPublicKey = new BLSPublicKey();
-        this.eCDSAPublicKey = new BigInteger("0");
+        this.eCDSAPublicKey = null;
         this.eCDSASignature = new ECDSASignatureData();
     }
 
@@ -32,7 +33,7 @@ public final class SecurityAuditProofs implements Serializable {
     public SecurityAuditProofs(
             @Deserialize("validatorBlSPublicKey") BLSPublicKey validatorBlSPublicKey,
             @Deserialize("address") String address,
-            @Deserialize("eCDSAPublicKey") BigInteger eCDSAPublicKey,
+            @Deserialize("eCDSAPublicKey") PublicKey eCDSAPublicKey,
             @Deserialize("eCDSASignature") ECDSASignatureData eCDSASignature) {
         this.validatorBlSPublicKey = validatorBlSPublicKey;
         this.address = address;
@@ -41,7 +42,7 @@ public final class SecurityAuditProofs implements Serializable {
     }
 
     public SecurityAuditProofs(@Deserialize("address") String address,
-                               @Deserialize("eCDSAPublicKey") BigInteger eCDSAPublicKey,
+                               @Deserialize("eCDSAPublicKey") PublicKey eCDSAPublicKey,
                                @Deserialize("eCDSASignature") ECDSASignatureData eCDSASignature) {
         this.address = address;
         this.eCDSAPublicKey = eCDSAPublicKey;
@@ -51,7 +52,7 @@ public final class SecurityAuditProofs implements Serializable {
 
     public SecurityAuditProofs(@Deserialize("address") String address,
                                @Deserialize("validatorBlSPublicKey") BLSPublicKey validatorBlSPublicKey,
-                               @Deserialize("eCDSAPublicKey") BigInteger eCDSAPublicKey,
+                               @Deserialize("eCDSAPublicKey") PublicKey eCDSAPublicKey,
                                @Deserialize("eCDSASignature") ECDSASignatureData eCDSASignature) {
         this.address = address;
         this.validatorBlSPublicKey = validatorBlSPublicKey;
@@ -69,11 +70,11 @@ public final class SecurityAuditProofs implements Serializable {
     }
 
     @Serialize
-    public BigInteger getECDSAPublicKey() {
+    public PublicKey getECDSAPublicKey() {
         return eCDSAPublicKey;
     }
 
-    public void setECDSAPublicKey(BigInteger eCDSAPublicKey) {
+    public void setECDSAPublicKey(PublicKey eCDSAPublicKey) {
         this.eCDSAPublicKey = eCDSAPublicKey;
     }
 

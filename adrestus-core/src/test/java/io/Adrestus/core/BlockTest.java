@@ -193,16 +193,16 @@ public class BlockTest {
             char[] mnemonic_sequence = mnem.create();
             char[] passphrase = "p4ssphr4se".toCharArray();
             byte[] key = mnem.createSeed(mnemonic_sequence, passphrase);
-            ECKeyPair ecKeyPair = Keys.createEcKeyPair(new SecureRandom(key));
+            ECKeyPair ecKeyPair = Keys.create256r1KeyPair(new SecureRandom(key));
             String adddress = WalletAddress.generate_address((byte) version, ecKeyPair.getPublicKey());
             addreses.add(adddress);
             keypair.add(ecKeyPair);
             TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(adddress, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
         }
 
-        signatureData1 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(addreses.get(0))), keypair.get(0));
-        signatureData2 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(addreses.get(1))), keypair.get(1));
-        signatureData3 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(addreses.get(2))), keypair.get(2));
+        signatureData1 = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(addreses.get(0))), keypair.get(0));
+        signatureData2 = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(addreses.get(1))), keypair.get(1));
+        signatureData3 = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(addreses.get(2))), keypair.get(2));
 
         transactionCallback = new TransactionCallback();
 
@@ -222,7 +222,7 @@ public class BlockTest {
             transaction.setHash(HashUtil.sha256_bytetoString(byf));
             await().atMost(500, TimeUnit.MILLISECONDS);
 
-            ECDSASignatureData signatureData = ecdsaSign.secp256SignMessage(Hex.decode(transaction.getHash()), keypair.get(i));
+            ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(Hex.decode(transaction.getHash()), keypair.get(i));
             transaction.setSignature(signatureData);
             //MemoryPool.getInstance().add(transaction);
             transactions.add(transaction);
@@ -242,7 +242,7 @@ public class BlockTest {
             transaction.setHash(HashUtil.sha256_bytetoString(byf));
             await().atMost(500, TimeUnit.MILLISECONDS);
 
-            ECDSASignatureData signatureData = ecdsaSign.secp256SignMessage(Hex.decode(transaction.getHash()), keypair.get(i));
+            ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(Hex.decode(transaction.getHash()), keypair.get(i));
             transaction.setSignature(signatureData);
             //MemoryPool.getInstance().add(transaction);
             outer_transactions.add(transaction);
@@ -690,16 +690,16 @@ public class BlockTest {
         byte[] key9 = mnem.createSeed(mnemonic9, passphrase);
         byte[] key10 = mnem.createSeed(mnemonic10, passphrase);
 
-        ECKeyPair ecKeyPair1 = Keys.createEcKeyPair(new SecureRandom(key1));
-        ECKeyPair ecKeyPair2 = Keys.createEcKeyPair(new SecureRandom(key2));
-        ECKeyPair ecKeyPair3 = Keys.createEcKeyPair(new SecureRandom(key3));
-        ECKeyPair ecKeyPair4 = Keys.createEcKeyPair(new SecureRandom(key4));
-        ECKeyPair ecKeyPair5 = Keys.createEcKeyPair(new SecureRandom(key5));
-        ECKeyPair ecKeyPair6 = Keys.createEcKeyPair(new SecureRandom(key6));
-        ECKeyPair ecKeyPair7 = Keys.createEcKeyPair(new SecureRandom(key7));
-        ECKeyPair ecKeyPair8 = Keys.createEcKeyPair(new SecureRandom(key8));
-        ECKeyPair ecKeyPair9 = Keys.createEcKeyPair(new SecureRandom(key9));
-        ECKeyPair ecKeyPair10 = Keys.createEcKeyPair(new SecureRandom(key10));
+        ECKeyPair ecKeyPair1 = Keys.create256r1KeyPair(new SecureRandom(key1));
+        ECKeyPair ecKeyPair2 = Keys.create256r1KeyPair(new SecureRandom(key2));
+        ECKeyPair ecKeyPair3 = Keys.create256r1KeyPair(new SecureRandom(key3));
+        ECKeyPair ecKeyPair4 = Keys.create256r1KeyPair(new SecureRandom(key4));
+        ECKeyPair ecKeyPair5 = Keys.create256r1KeyPair(new SecureRandom(key5));
+        ECKeyPair ecKeyPair6 = Keys.create256r1KeyPair(new SecureRandom(key6));
+        ECKeyPair ecKeyPair7 = Keys.create256r1KeyPair(new SecureRandom(key7));
+        ECKeyPair ecKeyPair8 = Keys.create256r1KeyPair(new SecureRandom(key8));
+        ECKeyPair ecKeyPair9 = Keys.create256r1KeyPair(new SecureRandom(key9));
+        ECKeyPair ecKeyPair10 = Keys.create256r1KeyPair(new SecureRandom(key10));
         String adddress1 = WalletAddress.generate_address((byte) version, ecKeyPair1.getPublicKey());
         String adddress2 = WalletAddress.generate_address((byte) version, ecKeyPair2.getPublicKey());
         String adddress3 = WalletAddress.generate_address((byte) version, ecKeyPair3.getPublicKey());
@@ -731,17 +731,17 @@ public class BlockTest {
         keypair.add(ecKeyPair9);
         keypair.add(ecKeyPair10);
 
-        ECDSASignatureData signatureData1 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(adddress1)), ecKeyPair1);
-        ECDSASignatureData signatureData2 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(adddress2)), ecKeyPair2);
-        ECDSASignatureData signatureData3 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(adddress3)), ecKeyPair3);
-        ECDSASignatureData signatureData4 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(adddress4)), ecKeyPair4);
-        ECDSASignatureData signatureData5 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(adddress5)), ecKeyPair5);
-        ECDSASignatureData signatureData = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(adddress5)), ecKeyPair5);
-        ECDSASignatureData signatureData6 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(adddress6)), ecKeyPair6);
-        ECDSASignatureData signatureData7 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(adddress7)), ecKeyPair7);
-        ECDSASignatureData signatureData8 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(adddress8)), ecKeyPair8);
-        ECDSASignatureData signatureData9 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(adddress9)), ecKeyPair9);
-        ECDSASignatureData signatureData10 = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(adddress10)), ecKeyPair10);
+        ECDSASignatureData signatureData1 = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(adddress1)), ecKeyPair1);
+        ECDSASignatureData signatureData2 = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(adddress2)), ecKeyPair2);
+        ECDSASignatureData signatureData3 = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(adddress3)), ecKeyPair3);
+        ECDSASignatureData signatureData4 = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(adddress4)), ecKeyPair4);
+        ECDSASignatureData signatureData5 = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(adddress5)), ecKeyPair5);
+        ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(adddress5)), ecKeyPair5);
+        ECDSASignatureData signatureData6 = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(adddress6)), ecKeyPair6);
+        ECDSASignatureData signatureData7 = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(adddress7)), ecKeyPair7);
+        ECDSASignatureData signatureData8 = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(adddress8)), ecKeyPair8);
+        ECDSASignatureData signatureData9 = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(adddress9)), ecKeyPair9);
+        ECDSASignatureData signatureData10 = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(adddress10)), ecKeyPair10);
 
         TreeFactory.getMemoryTree(0).store(adddress1, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
         TreeFactory.getMemoryTree(0).store(adddress2, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));

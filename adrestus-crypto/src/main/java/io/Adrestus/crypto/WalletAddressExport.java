@@ -22,8 +22,8 @@ public class WalletAddressExport {
         byte[] seed = mnem.createSeed(mnemonic1, passphrase_char);
         SecureRandom random = SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
         random.setSeed(seed);
-        ECKeyPair ecKeyPair = Keys.createEcKeyPair(random);
-        String adddress = WalletAddress.generate_address((byte) version, ecKeyPair.getPublicKey());
+        ECKeyPair ecKeyPair = Keys.create256k1KeyPair(random);
+        String adddress = WalletAddress.generate_address((byte) version, ecKeyPair.getXpubAxis());
         return adddress;
     }
 }

@@ -60,7 +60,7 @@ public class SignatureSerializationTest {
             byte[] key = mnem.createSeed(mnemonic_sequence, passphrase);
             SecureRandom randoms = SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
             randoms.setSeed(key);
-            ECKeyPair ecKeyPair = Keys.createEcKeyPair(randoms);
+            ECKeyPair ecKeyPair = Keys.create256r1KeyPair(randoms);
             String adddress = WalletAddress.generate_address((byte) version, ecKeyPair.getPublicKey());
             addreses.add(adddress);
             keypair.add(ecKeyPair);
@@ -97,7 +97,7 @@ public class SignatureSerializationTest {
             byte byf[] = serenc.encode(transaction, 1024);
             transaction.setHash(HashUtil.sha256_bytetoString(byf));
 
-            ECDSASignatureData signatureData = ecdsaSign.secp256SignMessage(Hex.decode(transaction.getHash()), keypair.get(i));
+            ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(Hex.decode(transaction.getHash()), keypair.get(i));
             transaction.setSignature(signatureData);
 
             byte byf2[] = serenc.encode(transaction, 1024);

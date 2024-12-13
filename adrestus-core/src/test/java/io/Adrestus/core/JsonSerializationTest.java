@@ -29,10 +29,7 @@ public class JsonSerializationTest {
     @Test
     public void test2() throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
-        ECDSASignatureData signatureData = new ECDSASignatureData();
-        signatureData.setV((byte) 0);
-        signatureData.setR(new BigInteger("30179190089666276834887403079562508974417649980904472865724382004973443579854").toByteArray());
-        signatureData.setS(new BigInteger("14029798542497621816798343676332730497595770105064178818079147459382128035034").toByteArray());
+        ECDSASignatureData signatureData = new ECDSASignatureData((byte) 0, new BigInteger("30179190089666276834887403079562508974417649980904472865724382004973443579854").toByteArray(), new BigInteger("14029798542497621816798343676332730497595770105064178818079147459382128035034").toByteArray());
 
         Transaction transaction = new RegularTransaction("hash1", TransactionType.REGULAR, StatusType.PENDING, 0, 0, "", "", "", BigDecimal.ZERO, BigDecimal.ZERO, 0, signatureData);
         String jsonDataString = mapper.writeValueAsString(transaction);

@@ -26,7 +26,7 @@ public class KademliaRepositoryImp implements KademliaRepository<String, Kademli
 
     @Override
     public void store(String key, KademliaData value) {
-        boolean verify = ecdsaSign.secp256Verify(HashUtil.sha256(StringUtils.getBytesUtf8(value.getAddressData().getAddress())), value.getAddressData().getAddress(), value.getAddressData().getECDSASignature());
+        boolean verify = ecdsaSign.secp256r1Verify(HashUtil.sha256(StringUtils.getBytesUtf8(value.getAddressData().getAddress())), value.getAddressData().getECDSAPublicKey(), value.getAddressData().getECDSASignature());
         if (!verify) {
             LOG.info("Kademlia Data are not valid abort");
             return;

@@ -75,9 +75,9 @@ public class AllTransactionTest {
 
         SecureRandom random = SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
         random.setSeed(key1);
-        ecKeyPair1 = Keys.createEcKeyPair(random);
+        ecKeyPair1 = Keys.create256r1KeyPair(random);
         random.setSeed(key2);
-        ecKeyPair2 = Keys.createEcKeyPair(random);
+        ecKeyPair2 = Keys.create256r1KeyPair(random);
         address1 = WalletAddress.generate_address((byte) version, ecKeyPair1.getPublicKey());
         address2 = WalletAddress.generate_address((byte) version, ecKeyPair2.getPublicKey());
 
@@ -132,7 +132,7 @@ public class AllTransactionTest {
         rewardsTransaction.setTransactionCallback(transactionCallback);
         byte byf[] = serenc.encode(rewardsTransaction, 1024);
         rewardsTransaction.setHash(HashUtil.sha256_bytetoString(byf));
-        ECDSASignatureData signatureData = ecdsaSign.secp256SignMessage(Hex.decode(rewardsTransaction.getHash()), ecKeyPair1);
+        ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(Hex.decode(rewardsTransaction.getHash()), ecKeyPair1);
         rewardsTransaction.setSignature(signatureData);
         publisher.publish(rewardsTransaction);
         signatureEventHandler.getLatch().await();
@@ -164,7 +164,7 @@ public class AllTransactionTest {
         stakingTransaction.setTransactionCallback(transactionCallback);
         byte byf[] = serenc.encode(stakingTransaction, 1024);
         stakingTransaction.setHash(HashUtil.sha256_bytetoString(byf));
-        ECDSASignatureData signatureData = ecdsaSign.secp256SignMessage(Hex.decode(stakingTransaction.getHash()), ecKeyPair1);
+        ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(Hex.decode(stakingTransaction.getHash()), ecKeyPair1);
         stakingTransaction.setSignature(signatureData);
         publisher.publish(stakingTransaction);
         signatureEventHandler.getLatch().await();
@@ -196,7 +196,7 @@ public class AllTransactionTest {
         unstakingTransaction.setTransactionCallback(transactionCallback);
         byte byf[] = serenc.encode(unstakingTransaction, 1024);
         unstakingTransaction.setHash(HashUtil.sha256_bytetoString(byf));
-        ECDSASignatureData signatureData = ecdsaSign.secp256SignMessage(Hex.decode(unstakingTransaction.getHash()), ecKeyPair1);
+        ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(Hex.decode(unstakingTransaction.getHash()), ecKeyPair1);
         unstakingTransaction.setSignature(signatureData);
         publisher.publish(unstakingTransaction);
         signatureEventHandler.getLatch().await();
@@ -223,7 +223,7 @@ public class AllTransactionTest {
         delegateTransaction.setTransactionCallback(transactionCallback);
         byte byf[] = serenc.encode(delegateTransaction, 1024);
         delegateTransaction.setHash(HashUtil.sha256_bytetoString(byf));
-        ECDSASignatureData signatureData = ecdsaSign.secp256SignMessage(Hex.decode(delegateTransaction.getHash()), ecKeyPair1);
+        ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(Hex.decode(delegateTransaction.getHash()), ecKeyPair1);
         delegateTransaction.setSignature(signatureData);
         publisher.publish(delegateTransaction);
         signatureEventHandler.getLatch().await();
@@ -266,7 +266,7 @@ public class AllTransactionTest {
         unDelegateTransaction.setNonce(1);
         byte byf[] = serenc.encode(unDelegateTransaction, 1024);
         unDelegateTransaction.setHash(HashUtil.sha256_bytetoString(byf));
-        ECDSASignatureData signatureData = ecdsaSign.secp256SignMessage(Hex.decode(unDelegateTransaction.getHash()), ecKeyPair1);
+        ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(Hex.decode(unDelegateTransaction.getHash()), ecKeyPair1);
         unDelegateTransaction.setSignature(signatureData);
         publisher.publish(unDelegateTransaction);
         signatureEventHandler.getLatch().await();
@@ -300,7 +300,7 @@ public class AllTransactionTest {
         delegateTransaction.setNonce(1);
         byte byf[] = serenc.encode(delegateTransaction, 1024);
         delegateTransaction.setHash(HashUtil.sha256_bytetoString(byf));
-        ECDSASignatureData signatureData = ecdsaSign.secp256SignMessage(Hex.decode(delegateTransaction.getHash()), ecKeyPair1);
+        ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(Hex.decode(delegateTransaction.getHash()), ecKeyPair1);
         delegateTransaction.setSignature(signatureData);
         list.add(delegateTransaction);
         transactionBlock.setTransactionList(list);
@@ -322,7 +322,7 @@ public class AllTransactionTest {
         delegateTransaction2.setTransactionCallback(transactionCallback);
         byte byf1[] = serenc.encode(delegateTransaction2, 1024);
         delegateTransaction2.setHash(HashUtil.sha256_bytetoString(byf1));
-        ECDSASignatureData signatureData2 = ecdsaSign.secp256SignMessage(Hex.decode(delegateTransaction2.getHash()), ecKeyPair1);
+        ECDSASignatureData signatureData2 = ecdsaSign.signSecp256r1Message(Hex.decode(delegateTransaction2.getHash()), ecKeyPair1);
         delegateTransaction2.setSignature(signatureData2);
 
         publisher.publish(delegateTransaction2);

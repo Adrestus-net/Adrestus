@@ -58,12 +58,12 @@ public class DHTStressTest {
         SecureRandom random = SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
         random.setSeed(Hex.decode(mnemonic_code));
 
-        ECKeyPair ecKeyPair = Keys.createEcKeyPair(random);
+        ECKeyPair ecKeyPair = Keys.create256r1KeyPair(random);
         String adddress = WalletAddress.generate_address((byte) version, ecKeyPair.getPublicKey());
         ECDSASign ecdsaSign = new ECDSASign();
 
 
-        ECDSASignatureData signatureData = ecdsaSign.secp256SignMessage(HashUtil.sha256(StringUtils.getBytesUtf8(adddress)), ecKeyPair);
+        ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(adddress)), ecKeyPair);
 
 
         BLSPrivateKey sk = new BLSPrivateKey(42);
@@ -95,7 +95,7 @@ public class DHTStressTest {
         //checks
         String clonedhash = gson.toJson(clonebale);
         assertEquals(seridata.getHash(), clonedhash);
-        boolean verify2 = ecdsaSign.secp256Verify(HashUtil.sha256(StringUtils.getBytesUtf8(seridata.getAddressData().getAddress())), seridata.getAddressData().getAddress(), seridata.getAddressData().getECDSASignature());
+        boolean verify2 = ecdsaSign.secp256r1Verify(HashUtil.sha256(StringUtils.getBytesUtf8(seridata.getAddressData().getAddress())), seridata.getAddressData().getECDSAPublicKey(), seridata.getAddressData().getECDSASignature());
         assertEquals(true, verify2);
         System.out.println("done");
     }

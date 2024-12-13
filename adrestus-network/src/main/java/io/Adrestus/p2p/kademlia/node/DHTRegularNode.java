@@ -194,7 +194,7 @@ public class DHTRegularNode {
             bucket.getNodeIds().forEach(node -> {
                 try {
                     KademliaData value = regular_node.lookup(node.toString()).get(KademliaConfiguration.KADEMLIA_GET_TIMEOUT, TimeUnit.SECONDS).getValue();
-                    boolean verify = ecdsaSign.secp256Verify(HashUtil.sha256(StringUtils.getBytesUtf8(value.getAddressData().getAddress())), value.getAddressData().getAddress(), value.getAddressData().getECDSASignature());
+                    boolean verify = ecdsaSign.secp256r1Verify(HashUtil.sha256(StringUtils.getBytesUtf8(value.getAddressData().getAddress())), value.getAddressData().getECDSAPublicKey(), value.getAddressData().getECDSASignature());
                     if (!verify) {
                         LOG.info("Kademlia Data are not valid abort");
                     } else {

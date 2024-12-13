@@ -57,31 +57,42 @@ public class HashEventHandler extends TransactionEventHandler {
             cloneable.setHash("");
             cloneable.setSignature(new ECDSASignatureData());
 
-            if (transaction.getXAxis().toString().equals("0") && transaction.getYAxis().toString().equals("0")) {
+            byte[] toHash = wrapper.encode(cloneable, 1024);
+            String result_hash = HashUtil.sha256_bytetoString(toHash);
 
-                byte[] toHash = wrapper.encode(cloneable, 1024);
-                String result_hash = HashUtil.sha256_bytetoString(toHash);
-
-                if (!result_hash.equals(transaction.getHash())) {
-                    Optional.of("Transaction hashes does not match").ifPresent(val -> {
-                        LOG.info(val);
-                        transaction.infos(val);
-                    });
-                    transaction.setStatus(StatusType.ABORT);
-                }
-            } else {
-                String jsonDataString = mapper.writeValueAsString(cloneable);
-                String result_hash = HashUtil.sha256(jsonDataString);
-
-                if (!result_hash.equals(transaction.getHash())) {
-                    Optional.of("Transaction hashes does not match").ifPresent(val -> {
-                        LOG.info(val);
-                        transaction.infos(val);
-                    });
-                    transaction.setStatus(StatusType.ABORT);
-                }
-
+            if (!result_hash.equals(transaction.getHash())) {
+                Optional.of("Transaction hashes does not match").ifPresent(val -> {
+                    LOG.info(val);
+                    transaction.infos(val);
+                });
+                transaction.setStatus(StatusType.ABORT);
             }
+            //DONT DELETE THIS FIND A WAY TO FIX IT WHEN JS WALLET IS READY
+//            if (transaction.getXAxis().toString().equals("0") && transaction.getYAxis().toString().equals("0")) {
+//
+//                byte[] toHash = wrapper.encode(cloneable, 1024);
+//                String result_hash = HashUtil.sha256_bytetoString(toHash);
+//
+//                if (!result_hash.equals(transaction.getHash())) {
+//                    Optional.of("Transaction hashes does not match").ifPresent(val -> {
+//                        LOG.info(val);
+//                        transaction.infos(val);
+//                    });
+//                    transaction.setStatus(StatusType.ABORT);
+//                }
+//            } else {
+//                String jsonDataString = mapper.writeValueAsString(cloneable);
+//                String result_hash = HashUtil.sha256(jsonDataString);
+//
+//                if (!result_hash.equals(transaction.getHash())) {
+//                    Optional.of("Transaction hashes does not match").ifPresent(val -> {
+//                        LOG.info(val);
+//                        transaction.infos(val);
+//                    });
+//                    transaction.setStatus(StatusType.ABORT);
+//                }
+//
+//            }
 
         } catch (NullPointerException ex) {
             LOG.info("Transaction is empty");
