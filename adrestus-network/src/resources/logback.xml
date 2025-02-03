@@ -26,6 +26,7 @@
     <logger name="org.apache.zookeeper.common" level="OFF"/>
     <logger name="io.activej" level="OFF"/>
     <logger name="org.apache.kafka" level="OFF"/>
+    <logger name="org.apache.kafka.common.errors" level="ON"/>
     <logger name="kafka" level="OFF"/>
     <logger name="state.change.logger" level="OFF"/>
     <!--    <logger name="io.Adrestus.network" level="OFF"/>-->

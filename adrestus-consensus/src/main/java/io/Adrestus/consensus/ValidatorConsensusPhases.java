@@ -29,10 +29,7 @@ import io.Adrestus.erasure.code.OpenRQ;
 import io.Adrestus.erasure.code.decoder.SourceBlockDecoder;
 import io.Adrestus.erasure.code.parameters.FECParameterObject;
 import io.Adrestus.erasure.code.parameters.FECParameters;
-import io.Adrestus.network.CachedEventLoop;
 import io.Adrestus.network.ConsensusClient;
-import io.Adrestus.rpc.CachedSerializableErasureObject;
-import io.Adrestus.rpc.RpcErasureClient;
 import io.Adrestus.util.ByteUtil;
 import io.Adrestus.util.GetTime;
 import io.Adrestus.util.SerializationUtil;
@@ -53,7 +50,8 @@ import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 
-import static io.Adrestus.config.ConsensusConfiguration.*;
+import static io.Adrestus.config.ConsensusConfiguration.ERASURE_SERVER_PORT;
+import static io.Adrestus.config.ConsensusConfiguration.HEARTBEAT_MESSAGE;
 
 public class ValidatorConsensusPhases {
 
@@ -78,7 +76,6 @@ public class ValidatorConsensusPhases {
         private final VdfEngine vdf;
         private final SerializationUtil<ConsensusMessage> consensus_serialize;
         private final SerializationUtil<VDFMessage> data_serialize;
-        private RpcErasureClient<byte[]> collector_client;
 
         public VerifyVDF(boolean DEBUG) {
             this.DEBUG = DEBUG;
@@ -99,8 +96,6 @@ public class ValidatorConsensusPhases {
                 String LeaderIP = this.blockIndex.getIpValue(0, this.leader_bls);
                 this.consensusClient = new ConsensusClient(LeaderIP, 0);
                 this.consensusClient.receive_handler();
-                this.collector_client = new RpcErasureClient<byte[]>(LeaderIP, ERASURE_SERVER_PORT, COMMITTEE_ERASURE_CLIENT_TIMEOUT, CachedEventLoop.getInstance().getEventloop());
-                this.collector_client.connect();
             }
         }
 
@@ -122,24 +117,6 @@ public class ValidatorConsensusPhases {
                         return;
                     }
                     byte[] receive = this.consensusClient.deque_message();
-                    if (receive == null || receive.length <= 0) {
-                        LOG.info("AnnouncePhase: Slow Subscriber is detected");
-                        Optional<byte[]> res = collector_client.getAnnounceConsensusChunks(ANNOUNCE_MESSAGE);
-                        if (res.isEmpty()) {
-                            cleanup();
-                            LOG.info("AnnouncePhase: Collector Leader is not active fail to send message");
-                            data.setStatusType(ConsensusStatusType.ABORT);
-                            return;
-                        } else
-                            receive = res.get();
-
-                        if (receive.length == 1) {
-                            cleanup();
-                            LOG.info("AnnouncePhase:  Collector Leader fails to send message the correct message");
-                            data.setStatusType(ConsensusStatusType.ABORT);
-                            return;
-                        }
-                    }
                     data = consensus_serialize.decode(receive);
                     if (!data.getChecksumData().getBlsPublicKey().toRaw().equals(leader_bls.toRaw())) {
                         cleanup();
@@ -211,24 +188,6 @@ public class ValidatorConsensusPhases {
                     int counter = 0;
                     while (counter < max_iterate) {
                         receive = this.consensusClient.deque_message();
-                        if (receive == null || receive.length <= 0) {
-                            LOG.info("PreparePhase: Slow Subscriber is detected");
-                            Optional<byte[]> res = collector_client.getPrepareConsensusChunks(PREPARE_MESSAGE);
-                            if (res.isEmpty()) {
-                                cleanup();
-                                LOG.info("PreparePhase: Collector Leader is not active fail to send message");
-                                data.setStatusType(ConsensusStatusType.ABORT);
-                                return;
-                            } else {
-                                receive = res.get();
-                                if (receive.length == 1) {
-                                    cleanup();
-                                    LOG.info("PreparePhase: Collector Leader fails to send message the correct message");
-                                    data.setStatusType(ConsensusStatusType.ABORT);
-                                    return;
-                                }
-                            }
-                        }
                         counter++;
                         data = consensus_serialize.decode(receive);
                         if (data.getMessageType().equals(ConsensusMessageType.PREPARE))
@@ -325,24 +284,6 @@ public class ValidatorConsensusPhases {
                     int counter = 0;
                     while (counter < max_iterate) {
                         receive = this.consensusClient.deque_message();
-                        if (receive == null || receive.length <= 0) {
-                            LOG.info("CommitPhase: Slow Subscriber is detected");
-                            Optional<byte[]> res = collector_client.getCommitConsensusChunks(COMMITTEE_MESSAGE);
-                            if (res.isEmpty()) {
-                                cleanup();
-                                LOG.info("CommitPhase: Collector Leader is not active fail to send message");
-                                data.setStatusType(ConsensusStatusType.ABORT);
-                                return;
-                            } else {
-                                receive = res.get();
-                                if (receive.length == 1) {
-                                    cleanup();
-                                    LOG.info("CommitPhase: Collector Leader fails to send message the correct message");
-                                    data.setStatusType(ConsensusStatusType.ABORT);
-                                    return;
-                                }
-                            }
-                        }
                         counter++;
                         data = consensus_serialize.decode(receive);
                         if (data.getMessageType().equals(ConsensusMessageType.COMMIT))
@@ -429,10 +370,6 @@ public class ValidatorConsensusPhases {
         }
 
         private void cleanup() {
-            if (collector_client != null) {
-                collector_client.close();
-                collector_client = null;
-            }
             if (consensusClient != null) {
                 consensusClient.close();
                 consensusClient = null;
@@ -449,7 +386,6 @@ public class ValidatorConsensusPhases {
         private final SerializationUtil<ConsensusMessage> consensus_serialize;
         private final SerializationUtil<VRFMessage> serialize;
 
-        private RpcErasureClient<byte[]> collector_client;
 
         public VerifyVRF(boolean DEBUG) {
             this.DEBUG = DEBUG;
@@ -470,8 +406,6 @@ public class ValidatorConsensusPhases {
                 String LeaderIP = this.blockIndex.getIpValue(0, this.leader_bls);
                 this.consensusClient = new ConsensusClient(LeaderIP);
                 this.consensusClient.receive_handler();
-                this.collector_client = new RpcErasureClient<byte[]>(LeaderIP, ERASURE_SERVER_PORT, ERASURE_CLIENT_TIMEOUT, CachedEventLoop.getInstance().getEventloop());
-                this.collector_client.connect();
             }
         }
 
@@ -494,24 +428,6 @@ public class ValidatorConsensusPhases {
                         return;
                     }
                     byte[] receive = this.consensusClient.deque_message();
-                    if (receive == null || receive.length <= 0) {
-                        LOG.info("Initialize: Slow Subscriber is detected");
-                        Optional<byte[]> res = collector_client.getVrfAggregate_chunks(VRF_AGGREGATE_MESSAGE);
-                        if (res.isEmpty()) {
-                            cleanup();
-                            LOG.info("Initialize: Leader is not active fail to send message");
-                            message.setType(VRFMessage.vrfMessageType.ABORT);
-                            return;
-                        } else
-                            receive = res.get();
-
-                        if (receive.length == 1) {
-                            cleanup();
-                            LOG.info("Initialize:  Collector Leader fails to send message the correct message");
-                            message.setType(VRFMessage.vrfMessageType.ABORT);
-                            return;
-                        }
-                    }
                     message = serialize.decode(receive);
                 } catch (IllegalArgumentException | StringIndexOutOfBoundsException e) {
                     cleanup();
@@ -574,24 +490,6 @@ public class ValidatorConsensusPhases {
                     int counter = 0;
                     while (counter < max_iterate) {
                         receive = this.consensusClient.deque_message();
-                        if (receive == null || receive.length <= 0) {
-                            LOG.info("AnnouncePhase: Slow Subscriber is detected");
-                            Optional<byte[]> res = collector_client.getAnnounceConsensusChunks(ANNOUNCE_MESSAGE);
-                            if (res.isEmpty()) {
-                                cleanup();
-                                LOG.info("AnnouncePhase: Collector Leader is not active fail to send message");
-                                data.setStatusType(ConsensusStatusType.ABORT);
-                                return;
-                            } else {
-                                receive = res.get();
-                                if (receive.length == 1) {
-                                    cleanup();
-                                    LOG.info("AnnouncePhase: Collector Leader fails to send message the correct message");
-                                    data.setStatusType(ConsensusStatusType.ABORT);
-                                    return;
-                                }
-                            }
-                        }
                         counter++;
                         data = consensus_serialize.decode(receive);
                         if (data.getMessageType().equals(ConsensusMessageType.ANNOUNCE))
@@ -712,24 +610,6 @@ public class ValidatorConsensusPhases {
                     int counter = 0;
                     while (counter < max_iterate) {
                         receive = this.consensusClient.deque_message();
-                        if (receive == null || receive.length <= 0) {
-                            LOG.info("PreparePhase: Slow Subscriber is detected");
-                            Optional<byte[]> res = collector_client.getPrepareConsensusChunks(PREPARE_MESSAGE);
-                            if (res.isEmpty()) {
-                                cleanup();
-                                LOG.info("PreparePhase: Collector Leader is not active fail to send message");
-                                data.setStatusType(ConsensusStatusType.ABORT);
-                                return;
-                            } else {
-                                receive = res.get();
-                                if (receive.length == 1) {
-                                    cleanup();
-                                    LOG.info("PreparePhase: Collector Leader fails to send message the correct message");
-                                    data.setStatusType(ConsensusStatusType.ABORT);
-                                    return;
-                                }
-                            }
-                        }
                         counter++;
                         data = consensus_serialize.decode(receive);
                         if (data.getMessageType().equals(ConsensusMessageType.PREPARE)) {
@@ -821,24 +701,6 @@ public class ValidatorConsensusPhases {
                     int counter = 0;
                     while (counter < max_iterate) {
                         receive = this.consensusClient.deque_message();
-                        if (receive == null || receive.length <= 0 || counter == 1) {
-                            LOG.info("CommitPhase: Slow Subscriber is detected");
-                            Optional<byte[]> res = collector_client.getCommitConsensusChunks(COMMITTEE_MESSAGE);
-                            if (res.isEmpty()) {
-                                cleanup();
-                                LOG.info("CommitPhase: Collector Leader is not active fail to send message");
-                                data.setStatusType(ConsensusStatusType.ABORT);
-                                return;
-                            } else {
-                                receive = res.get();
-                                if (receive.length == 1) {
-                                    cleanup();
-                                    LOG.info("CommitPhase: Collector Leader fails to send message the correct message");
-                                    data.setStatusType(ConsensusStatusType.ABORT);
-                                    return;
-                                }
-                            }
-                        }
                         counter++;
                         data = consensus_serialize.decode(receive);
                         if (data.getMessageType().equals(ConsensusMessageType.COMMIT))
@@ -923,10 +785,6 @@ public class ValidatorConsensusPhases {
         }
 
         private void cleanup() {
-            if (collector_client != null) {
-                collector_client.close();
-                collector_client = null;
-            }
             if (consensusClient != null) {
                 consensusClient.close();
                 consensusClient = null;
@@ -949,7 +807,6 @@ public class ValidatorConsensusPhases {
         private final String[] Shake256Hash;
         private final List<byte[]> prevAgreegation;
 
-        private RpcErasureClient<byte[]> collector_client;
 
         private TransactionBlock original_copy;
 
@@ -984,13 +841,11 @@ public class ValidatorConsensusPhases {
                     String LeaderIP = this.blockIndex.getIpValue(CachedZoneIndex.getInstance().getZoneIndex(), this.leader_bls);
                     this.consensusClient = new ConsensusClient(LeaderIP, clientID);
                     CachedLeaderIndex.getInstance().setTransactionPositionLeader(0);
-                    this.collector_client = new RpcErasureClient<byte[]>(LeaderIP, ERASURE_SERVER_PORT, ERASURE_CLIENT_TIMEOUT, CachedEventLoop.getInstance().getEventloop());
                 } else {
                     this.leader_bls = this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), this.current);
                     String LeaderIP = this.blockIndex.getIpValue(CachedZoneIndex.getInstance().getZoneIndex(), this.leader_bls);
                     this.consensusClient = new ConsensusClient(LeaderIP, clientID);
                     CachedLeaderIndex.getInstance().setTransactionPositionLeader(current + 1);
-                    this.collector_client = new RpcErasureClient<byte[]>(LeaderIP, ERASURE_SERVER_PORT, ERASURE_CLIENT_TIMEOUT, CachedEventLoop.getInstance().getEventloop());
                 }
             }
         }
@@ -1034,8 +889,6 @@ public class ValidatorConsensusPhases {
                     System.out.println("Validator Disperseb: " + DispersetimeElapsedb);
                     long Dispersestartstartc = System.currentTimeMillis();
                     SerializableErasureObject rootObj = serenc_erasure.decode(rec_buff);
-                    CachedSerializableErasureObject.getInstance().setSerializableErasureObject(rootObj);
-                    ErasureServerInstance.getInstance().getServer().setSerializable_length(rec_buff.length);
                     List<String> ips = CachedLatestBlocks.getInstance()
                             .getCommitteeBlock()
                             .getStructureMap()
@@ -1057,10 +910,6 @@ public class ValidatorConsensusPhases {
                     if (list_ip.isEmpty()) {
                         LOG.info("DispersePhase: Erasure connect list is empty");
                     } else {
-                        RpcErasureClient<SerializableErasureObject> client = new RpcErasureClient<SerializableErasureObject>(new SerializableErasureObject(), list_ip, ERASURE_SERVER_PORT, CachedEventLoop.getInstance().getEventloop());
-                        client.connect();
-                        recserializableErasureObjects = (ArrayList<SerializableErasureObject>) client.getErasureChunks(new byte[0]);
-                        client.close();
 
                         for (SerializableErasureObject obj : recserializableErasureObjects) {
                             if (!obj.CheckChunksValidity(rootObj.getRootMerkleHash())) {
@@ -1141,26 +990,7 @@ public class ValidatorConsensusPhases {
 //                        return;
 //                    }
                     this.consensusClient.receive_handler();
-                    this.collector_client.connect();
                     byte[] receive = this.consensusClient.deque_message();
-                    if (receive == null || receive.length <= 0) {
-                        LOG.info("AnnouncePhase: Slow Subscriber is detected");
-                        Optional<byte[]> res = collector_client.getAnnounceConsensusChunks(ANNOUNCE_MESSAGE);
-                        if (res.isEmpty()) {
-                            cleanup();
-                            LOG.info("AnnouncePhase: Collector Leader is not active fail to send message");
-                            data.setStatusType(ConsensusStatusType.ABORT);
-                            return;
-                        } else
-                            receive = res.get();
-
-                        if (receive.length == 1) {
-                            cleanup();
-                            LOG.info("AnnouncePhase:  Collector Leader fails to send message the correct message");
-                            data.setStatusType(ConsensusStatusType.ABORT);
-                            return;
-                        }
-                    }
                     data = consensus_serialize.decode(receive);
                     if (!data.getChecksumData().getBlsPublicKey().toRaw().equals(leader_bls.toRaw())) {
                         cleanup();
@@ -1272,24 +1102,6 @@ public class ValidatorConsensusPhases {
                     int counter = 0;
                     while (counter < max_iterate) {
                         receive = this.consensusClient.deque_message();
-                        if (receive == null || receive.length <= 0) {
-                            LOG.info("PreparePhase: Slow Subscriber is detected");
-                            Optional<byte[]> res = collector_client.getPrepareConsensusChunks(PREPARE_MESSAGE);
-                            if (res.isEmpty()) {
-                                cleanup();
-                                LOG.info("PreparePhase: Collector Leader is not active fail to send message");
-                                data.setStatusType(ConsensusStatusType.ABORT);
-                                return;
-                            } else {
-                                receive = res.get();
-                                if (receive.length == 1) {
-                                    cleanup();
-                                    LOG.info("PreparePhase: Collector Leader fails to send message the correct message");
-                                    data.setStatusType(ConsensusStatusType.ABORT);
-                                    return;
-                                }
-                            }
-                        }
                         counter++;
                         data = consensus_serialize.decode(receive);
                         if (data.getMessageType().equals(ConsensusMessageType.PREPARE))
@@ -1431,24 +1243,6 @@ public class ValidatorConsensusPhases {
                     int counter = 0;
                     while (counter < max_iterate) {
                         receive = this.consensusClient.deque_message();
-                        if (receive == null || receive.length <= 0) {
-                            LOG.info("CommitPhase: Slow Subscriber is detected");
-                            Optional<byte[]> res = collector_client.getCommitConsensusChunks(COMMITTEE_MESSAGE);
-                            if (res.isEmpty()) {
-                                cleanup();
-                                LOG.info("CommitPhase: Collector Leader is not active fail to send message");
-                                data.setStatusType(ConsensusStatusType.ABORT);
-                                return;
-                            } else {
-                                receive = res.get();
-                                if (receive.length == 1) {
-                                    cleanup();
-                                    LOG.info("CommitPhase: Collector Leader fails to send message the correct message");
-                                    data.setStatusType(ConsensusStatusType.ABORT);
-                                    return;
-                                }
-                            }
-                        }
                         counter++;
                         data = consensus_serialize.decode(receive);
                         if (data.getMessageType().equals(ConsensusMessageType.COMMIT))
@@ -1561,7 +1355,7 @@ public class ValidatorConsensusPhases {
             CachedLatestBlocks.getInstance().getTransactionBlock().setBlockProposer(next_key.toRaw());
             CachedLatestBlocks.getInstance().getTransactionBlock().setLeaderPublicKey(next_key);
             // consensusClient.send_heartbeat(HEARTBEAT_MESSAGE);
-            CachedSerializableErasureObject.getInstance().setSerializableErasureObject(null);
+            //CachedSerializableErasureObject.getInstance().setSerializableErasureObject(null);
             long Commiteefinish = System.currentTimeMillis();
             long timeElapsed = Commiteefinish - Commiteerestart;
             System.out.println("Calidators commite " + timeElapsed);
@@ -1571,10 +1365,6 @@ public class ValidatorConsensusPhases {
         }
 
         private void cleanup() {
-            if (collector_client != null) {
-                collector_client.close();
-                collector_client = null;
-            }
             if (consensusClient != null) {
                 consensusClient.close();
                 consensusClient = null;
@@ -1593,7 +1383,6 @@ public class ValidatorConsensusPhases {
 
         private final BlockSizeCalculator sizeCalculator;
 
-        private RpcErasureClient<byte[]> collector_client;
 
         public VerifyCommitteeBlock(boolean DEBUG) {
             this.DEBUG = DEBUG;
@@ -1617,7 +1406,6 @@ public class ValidatorConsensusPhases {
                 String LeaderIP = this.blockIndex.getIpValue(0, this.leader_bls);
                 this.consensusClient = new ConsensusClient(LeaderIP, 0);
                 this.consensusClient.receive_handler();
-                this.collector_client = new RpcErasureClient<byte[]>(LeaderIP, ERASURE_SERVER_PORT, COMMITTEE_ERASURE_CLIENT_TIMEOUT, CachedEventLoop.getInstance().getEventloop());
             }
         }
 
@@ -1640,26 +1428,7 @@ public class ValidatorConsensusPhases {
                         block.setStatusType(ConsensusStatusType.ABORT);
                         return;
                     }
-                    this.collector_client.connect();
                     byte[] receive = this.consensusClient.deque_message();
-                    if (receive == null || receive.length <= 0) {
-                        LOG.info("AnnouncePhase: Slow Subscriber is detected");
-                        Optional<byte[]> res = collector_client.getAnnounceConsensusChunks(ANNOUNCE_MESSAGE);
-                        if (res.isEmpty()) {
-                            cleanup();
-                            LOG.info("AnnouncePhase: Collector Leader is not active fail to send message");
-                            block.setStatusType(ConsensusStatusType.ABORT);
-                            return;
-                        } else
-                            receive = res.get();
-
-                        if (receive.length == 1) {
-                            cleanup();
-                            LOG.info("AnnouncePhase:  Collector Leader fails to send message the correct message");
-                            block.setStatusType(ConsensusStatusType.ABORT);
-                            return;
-                        }
-                    }
                     block = consensus_serialize.decode(receive);
                     if (!block.getChecksumData().getBlsPublicKey().toRaw().equals(leader_bls.toRaw())) {
                         cleanup();
@@ -1734,24 +1503,6 @@ public class ValidatorConsensusPhases {
                     int counter = 0;
                     while (counter < max_iterate) {
                         receive = this.consensusClient.deque_message();
-                        if (receive == null || receive.length <= 0) {
-                            LOG.info("PreparePhase: Slow Subscriber is detected");
-                            Optional<byte[]> res = collector_client.getPrepareConsensusChunks(PREPARE_MESSAGE);
-                            if (res.isEmpty()) {
-                                cleanup();
-                                LOG.info("PreparePhase: Collector Leader is not active fail to send message");
-                                block.setStatusType(ConsensusStatusType.ABORT);
-                                return;
-                            } else {
-                                receive = res.get();
-                                if (receive.length == 1) {
-                                    cleanup();
-                                    LOG.info("PreparePhase: Collector Leader fails to send message the correct message");
-                                    block.setStatusType(ConsensusStatusType.ABORT);
-                                    return;
-                                }
-                            }
-                        }
                         counter++;
                         block = consensus_serialize.decode(receive);
                         if (block.getMessageType().equals(ConsensusMessageType.PREPARE))
@@ -1840,24 +1591,6 @@ public class ValidatorConsensusPhases {
                     int counter = 0;
                     while (counter < max_iterate) {
                         receive = this.consensusClient.deque_message();
-                        if (receive == null || receive.length <= 0) {
-                            LOG.info("CommitPhase: Slow Subscriber is detected");
-                            Optional<byte[]> res = collector_client.getCommitConsensusChunks(COMMITTEE_MESSAGE);
-                            if (res.isEmpty()) {
-                                cleanup();
-                                LOG.info("CommitPhase: Collector Leader is not active fail to send message");
-                                block.setStatusType(ConsensusStatusType.ABORT);
-                                return;
-                            } else {
-                                receive = res.get();
-                                if (receive.length == 1) {
-                                    cleanup();
-                                    LOG.info("CommitPhase: Collector Leader fails to send message the correct message");
-                                    block.setStatusType(ConsensusStatusType.ABORT);
-                                    return;
-                                }
-                            }
-                        }
                         counter++;
                         block = consensus_serialize.decode(receive);
                         if (block.getMessageType().equals(ConsensusMessageType.COMMIT))
@@ -1943,10 +1676,6 @@ public class ValidatorConsensusPhases {
         }
 
         private void cleanup() {
-            if (collector_client != null) {
-                collector_client.close();
-                collector_client = null;
-            }
             if (consensusClient != null) {
                 consensusClient.close();
                 consensusClient = null;

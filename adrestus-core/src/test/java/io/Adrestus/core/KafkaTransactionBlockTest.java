@@ -376,15 +376,15 @@ public class KafkaTransactionBlockTest {
                     assertFalse(fromLeaderReceive.isEmpty());
                     System.out.println("received");
                     consensusBroker.distributeDisperseMessageToValidators(fromLeaderReceive, String.valueOf(VIEW_NUMBER));
-                    ArrayList<ArrayList<byte[]>> finalList = consensusBroker.retrieveDisperseMessageFromValidatorsAndConcatResponse(fromLeaderReceive, String.valueOf(VIEW_NUMBER));
+                    HashMap<String, ArrayList<byte[]>> finalList = consensusBroker.retrieveDisperseMessageFromValidatorsAndConcatResponse(fromLeaderReceive, String.valueOf(VIEW_NUMBER));
                     System.out.println("received2");
                     assert (!finalList.isEmpty());
 
 
                     //#########################################################################################################################
                     ArrayList<SerializableErasureObject> recserializableErasureObjects = new ArrayList<SerializableErasureObject>();
-                    for (ArrayList<byte[]> rec_list : finalList) {
-                        for (byte[] rec_buff : rec_list) {
+                    for (Map.Entry<String, ArrayList<byte[]>> pair : finalList.entrySet()) {
+                        for (byte[] rec_buff : pair.getValue()) {
                             recserializableErasureObjects.add(serenc_erasure.decode(rec_buff));
                         }
                     }
@@ -419,14 +419,14 @@ public class KafkaTransactionBlockTest {
                     assertFalse(fromLeaderReceive.isEmpty());
                     System.out.println("received");
                     consensusBroker.distributeDisperseMessageToValidators(fromLeaderReceive, String.valueOf(VIEW_NUMBER));
-                    ArrayList<ArrayList<byte[]>> finalList = consensusBroker.retrieveDisperseMessageFromValidatorsAndConcatResponse(fromLeaderReceive, String.valueOf(VIEW_NUMBER));
+                    HashMap<String, ArrayList<byte[]>> finalList = consensusBroker.retrieveDisperseMessageFromValidatorsAndConcatResponse(fromLeaderReceive, String.valueOf(VIEW_NUMBER));
                     System.out.println("received2");
                     assert (!finalList.isEmpty());
 
                     //#########################################################################################################################
                     ArrayList<SerializableErasureObject> recserializableErasureObjects = new ArrayList<SerializableErasureObject>();
-                    for (ArrayList<byte[]> rec_list : finalList) {
-                        for (byte[] rec_buff : rec_list) {
+                    for (Map.Entry<String, ArrayList<byte[]>> pair : finalList.entrySet()) {
+                        for (byte[] rec_buff : pair.getValue()) {
                             recserializableErasureObjects.add(serenc_erasure.decode(rec_buff));
                         }
                     }

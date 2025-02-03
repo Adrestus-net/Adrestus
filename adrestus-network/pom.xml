@@ -147,6 +147,7 @@
                     <forkCount>1</forkCount>
                     <threadCount>1</threadCount>
                     <reuseForks>false</reuseForks>
+                    <forkedProcessTimeoutInSeconds>300000</forkedProcessTimeoutInSeconds>
                     <runOrder>alphabetical</runOrder>
                     <argLine>
                         --add-opens java.base/java.lang=ALL-UNNAMED

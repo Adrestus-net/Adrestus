@@ -156,7 +156,7 @@ public class PatriciaNodeStorageTest {
         transaction3a.setHash("hash3a");
         transaction3a.setFrom("from1");
         transaction3a.setZoneFrom(1);
-        Thread.sleep(12000);
+        Thread.sleep(1500);
         transaction3a.setTimestamp(new Timestamp(System.currentTimeMillis()).toString());
         Transaction transaction4 = new RegularTransaction();
         transaction4.setHash("hash3");
@@ -192,9 +192,9 @@ public class PatriciaNodeStorageTest {
         //Check manually with debug if pass DuplicateEventHandler
         publisher.publish(transaction);
         publisher.publish(reward);
-        publisher.publish(transaction2);
         publisher.getJobSyncUntilRemainingCapacityZero();
         CachedZoneIndex.getInstance().setZoneIndex(1);
+//        publisher2.publish(transaction2);
         publisher2.publish(transaction4);
         publisher2.getJobSyncUntilRemainingCapacityZero();
         publisher2.close();

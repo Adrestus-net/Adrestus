@@ -36,8 +36,6 @@ import io.Adrestus.erasure.code.parameters.FECParametersPreConditions;
 import io.Adrestus.network.CachedEventLoop;
 import io.Adrestus.network.ConsensusClient;
 import io.Adrestus.network.ConsensusServer;
-import io.Adrestus.rpc.CachedSerializableErasureObject;
-import io.Adrestus.rpc.RpcErasureClient;
 import io.Adrestus.rpc.RpcErasureServer;
 import io.Adrestus.util.GetTime;
 import io.Adrestus.util.SerializationUtil;
@@ -104,7 +102,7 @@ public class FullExampleErasureTest {
 
     private static Thread thread;
     private static InetSocketAddress address1, address2, address3;
-    private static RpcErasureServer<SerializableErasureObject> server;
+    private static RpcErasureServer server;
 
     @BeforeAll
     public static void setup() throws IOException, MnemonicException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException, CloneNotSupportedException, DecoderException {
@@ -117,7 +115,7 @@ public class FullExampleErasureTest {
         if (!IP.substring(0, 3).equals("192")) {
             return;
         }
-        server = new RpcErasureServer<SerializableErasureObject>(new SerializableErasureObject(), IP, 7082, eventloop, 0);
+        server = new RpcErasureServer(IP, 7082, eventloop);
         new Thread(server).start();
         CommitteeBlock committeeBlock = new CommitteeBlock();
         committeeBlock.setGeneration(1);
@@ -377,8 +375,7 @@ public class FullExampleErasureTest {
 
             byte[] rec_buff = consensusClient.SendRetrieveErasureData(toSend.getBytes(StandardCharsets.UTF_8));
             SerializableErasureObject rootObj = serenc_erasure.decode(rec_buff);
-            CachedSerializableErasureObject.getInstance().setSerializableErasureObject(rootObj);
-            server.setSerializable_length(rec_buff.length);
+            //CachedSerializableErasureObject.getInstance().setSerializableErasureObject(rootObj);
             List<String> ips = CachedLatestBlocks.getInstance()
                     .getCommitteeBlock()
                     .getStructureMap()
@@ -391,9 +388,7 @@ public class FullExampleErasureTest {
                 InetSocketAddress address = new InetSocketAddress(InetAddress.getByName(ip), 7082);
                 list_ip.add(address);
             }
-            RpcErasureClient<SerializableErasureObject> client = new RpcErasureClient<SerializableErasureObject>(new SerializableErasureObject(), list_ip, 7082, eventloop);
-            client.connect();
-            ArrayList<SerializableErasureObject> recserializableErasureObjects = (ArrayList<SerializableErasureObject>) client.getErasureChunks(new byte[0]);
+            ArrayList<SerializableErasureObject> recserializableErasureObjects = null;
 
             for (SerializableErasureObject obj : recserializableErasureObjects) {
                 if (!obj.CheckChunksValidity(rootObj.getRootMerkleHash()))

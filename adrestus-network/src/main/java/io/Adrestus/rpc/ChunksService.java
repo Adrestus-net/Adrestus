@@ -1,13 +1,10 @@
 package io.Adrestus.rpc;
 
-public class ChunksService<V> implements IChunksService<V> {
-    @Override
-    public V downloadErasureChunks() throws Exception {
-        return (V) CachedSerializableErasureObject.getInstance().getSerializableErasureObject();
-    }
+import java.util.Map;
 
+public class ChunksService implements IChunksService {
     @Override
-    public byte[] downloadConsensusChunks(int position) throws Exception {
-        return CachedConsensusPublisherData.getInstance().getDataAtPosition(position);
+    public Map<String, byte[]> downloadErasureChunks() {
+        return CachedSerializableErasureObject.getSerializableErasureObject();
     }
 }

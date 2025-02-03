@@ -1,6 +1,5 @@
 package io.Adrestus.network;
 
-import io.Adrestus.config.ConsensusConfiguration;
 import io.Adrestus.config.Directory;
 import io.Adrestus.config.KafkaConfiguration;
 import kafka.server.KafkaConfig;
@@ -74,8 +73,10 @@ public class KafkaBroker implements IKafkaComponent {
         kafkaProps.setProperty("metadata.max.retention.ms", "60480000");
         kafkaProps.setProperty("session.timeout.ms", "9000");
         kafkaProps.setProperty("heartbeat.interval.ms", "3000");
-        kafkaProps.setProperty("producer.id.expiration.ms", String.valueOf(ConsensusConfiguration.EPOCH_TRANSITION * 2 * ConsensusConfiguration.CONSENSUS_TIMER));
-        kafkaProps.setProperty("log.retention.ms", String.valueOf(ConsensusConfiguration.EPOCH_TRANSITION * 2 * ConsensusConfiguration.CONSENSUS_TIMER));
+        kafkaProps.setProperty("log.cleaner.enable", "false");
+        //Problem with delete log concurrency no need clean up when socket close auto delete
+        //kafkaProps.setProperty("log.retention.ms", String.valueOf(ConsensusConfiguration.EPOCH_TRANSITION * 2 * ConsensusConfiguration.CONSENSUS_TIMER));
+        //kafkaProps.setProperty("producer.id.expiration.ms", String.valueOf(ConsensusConfiguration.EPOCH_TRANSITION * 2 * ConsensusConfiguration.CONSENSUS_TIMER));
         kafkaProps.setProperty("authorizer.class.name", "kafka.security.authorizer.AclAuthorizer");
         kafkaProps.setProperty("listeners", "SASL_PLAINTEXT://" + KafkaConfiguration.KAFKA_HOST + ":" + KafkaConfiguration.KAFKA_PORT);
         kafkaProps.setProperty("advertised.listeners", "SASL_PLAINTEXT://" + KafkaConfiguration.KAFKA_HOST + ":" + KafkaConfiguration.KAFKA_PORT);

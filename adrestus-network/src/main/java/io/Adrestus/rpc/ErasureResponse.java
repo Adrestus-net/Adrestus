@@ -2,36 +2,33 @@ package io.Adrestus.rpc;
 
 import io.activej.serializer.annotations.Deserialize;
 import io.activej.serializer.annotations.Serialize;
+import lombok.Setter;
 
-import java.util.Arrays;
+import java.util.Map;
+import java.util.Objects;
 
+@Setter
 public class ErasureResponse {
-    private byte[] erasure_data;
+    private Map<String, byte[]> erasureData;
 
-    public ErasureResponse(@Deserialize("erasure_data") byte[] erasure_data) {
-        this.erasure_data = erasure_data;
+    public ErasureResponse(@Deserialize("erasureData") Map<String, byte[]> erasureData) {
+        this.erasureData = erasureData;
     }
-
 
     @Serialize
-    public byte[] getErasure_data() {
-        return erasure_data;
-    }
-
-    public void setErasure_data(byte[] erasure_data) {
-        this.erasure_data = erasure_data;
+    public Map<String, byte[]> getErasureData() {
+        return erasureData;
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ErasureResponse that = (ErasureResponse) o;
-        return Arrays.equals(erasure_data, that.erasure_data);
+        return Objects.equals(erasureData, that.erasureData);
     }
 
     @Override
     public int hashCode() {
-        return Arrays.hashCode(erasure_data);
+        return Objects.hashCode(erasureData);
     }
 }

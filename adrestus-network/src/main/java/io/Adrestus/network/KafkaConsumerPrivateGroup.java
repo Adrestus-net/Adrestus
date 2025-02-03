@@ -15,35 +15,28 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class KafkaConsumerPrivateGroup implements IKafkaComponent {
     private static final Logger LOG = LoggerFactory.getLogger(KafkaConsumerPrivateGroup.class);
 
     private final ArrayList<String> ipAddresses;
-    private final ConcurrentHashMap<String, Consumer<String, byte[]>> consumer_map;
+    private final LinkedHashMap<String, Consumer<String, byte[]>> consumer_map;
     private final String current_ip;
-    private final ExecutorService executorService;
     private int position;
 
     public KafkaConsumerPrivateGroup() {
         this.ipAddresses = new ArrayList<>();
-        this.consumer_map = new ConcurrentHashMap<>();
+        this.consumer_map = new LinkedHashMap<>();
         this.current_ip = IPFinder.getLocalIP();
         this.position = 0;
-        this.executorService = null;
     }
 
     public KafkaConsumerPrivateGroup(ArrayList<String> ipAddresses, String current_ip) {
         this.ipAddresses = ipAddresses;
-        this.consumer_map = new ConcurrentHashMap<>();
+        this.consumer_map = new LinkedHashMap<>();
         this.current_ip = current_ip;
         this.position = this.ipAddresses.indexOf(current_ip);
-        this.executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2);
     }
 
     @SneakyThrows
@@ -93,65 +86,46 @@ public class KafkaConsumerPrivateGroup implements IKafkaComponent {
 
             Consumer<String, byte[]> consumer = new KafkaConsumer<>(props);
 
-            int finalI = i;
-            Runnable task = () -> {
-                for (String topic : TopicFactory.getInstance().getCollectionTopicsNames()) {
-                    int maxRetries = 5;
-                    int retryCount = 0;
-                    boolean success = false;
-                    while (retryCount < maxRetries && !success) {
+            for (String topic : TopicFactory.getInstance().getCollectionTopicsNames()) {
+                int maxRetries = 5;
+                int retryCount = 0;
+                boolean success = false;
+                while (retryCount < maxRetries && !success) {
+                    try {
+                        List<PartitionInfo> partitions = consumer.partitionsFor(topic);
+                        if (partitions != null) {
+                            success = true;
+                        }
+                    } catch (Exception e) {
+                        retryCount++;
+                        //LOG.info("Failed to fetch partition metadata. Attempt %d/%d%n", retryCount, maxRetries);
                         try {
-                            List<PartitionInfo> partitions = consumer.partitionsFor(topic);
-                            if (partitions != null) {
-                                success = true;
-                            }
-                        } catch (Exception e) {
-                            retryCount++;
-                            //LOG.info("Failed to fetch partition metadata. Attempt %d/%d%n", retryCount, maxRetries);
-                            try {
-                                Thread.sleep(1000); // Wait before retrying
-                            } catch (InterruptedException ie) {
-                            }
+                            Thread.sleep(1000); // Wait before retrying
+                        } catch (InterruptedException ie) {
                         }
                     }
                 }
-
-                consumer.assign(TopicFactory.getInstance().getCollectionTopicPartitions());
-                consumer.seekToBeginning(TopicFactory.getInstance().getCollectionTopicPartitions());
-
-                if (ip.equals("127.0.0.1")) {
-                    if (finalI == 0) {
-                        consumer_map.put(ip, consumer);
-                    } else {
-                        consumer_map.put(ip + String.valueOf(finalI), consumer);
-                    }
-                } else {
-                    consumer_map.put(ip, consumer);
-                }
-                //Start Caching the messages
-                // Wait for partitions to be assigned
-                while (consumer.assignment().isEmpty()) {
-                    consumer.poll(Duration.ofMillis(100)); // Trigger partition assignment
-                }
-                LOG.info("Consumer " + ip + " " + finalI + " started and subscribed to topics: " + TopicFactory.getInstance().getCollectionTopicsNames());
-            };
-            executorService.submit(task);
-        }
-        // Initiate shutdown
-        executorService.shutdown();
-        try {
-            // Wait for tasks to complete or timeout
-            if (!executorService.awaitTermination(KafkaConfiguration.PRIVATE_GROUP_METADATA_TIMEOUT, TimeUnit.MILLISECONDS)) {
-                LOG.info("Timeout reached before tasks completed");
-                executorService.shutdownNow();
-            } else {
-                LOG.info("All tasks completed");
             }
-        } catch (InterruptedException e) {
-            executorService.shutdownNow();
-            Thread.currentThread().interrupt();
+
+            consumer.assign(TopicFactory.getInstance().getCollectionTopicPartitions());
+            consumer.seekToBeginning(TopicFactory.getInstance().getCollectionTopicPartitions());
+
+            if (ip.equals("127.0.0.1")) {
+                if (i == 0) {
+                    consumer_map.put(ip, consumer);
+                } else {
+                    consumer_map.put(ip + String.valueOf(i), consumer);
+                }
+            } else {
+                consumer_map.put(ip, consumer);
+            }
+            //Start Caching the messages
+            // Wait for partitions to be assigned
+            while (consumer.assignment().isEmpty()) {
+                consumer.poll(Duration.ofMillis(100)); // Trigger partition assignment
+            }
+            LOG.info("Consumer " + ip + " " + i + " started and subscribed to topics: " + TopicFactory.getInstance().getCollectionTopicsNames());
         }
-        int g = 3;
     }
 
     private String getConnecntionString() {
@@ -183,6 +157,10 @@ public class KafkaConsumerPrivateGroup implements IKafkaComponent {
         int position = keys.indexOf(host);
         keys.clear();
         return position >= 0 ? Optional.of(position) : Optional.empty();
+    }
+
+    public List<String> getMapKeys() {
+        return new ArrayList<>(consumer_map.keySet());
     }
 
     @Override
@@ -228,11 +206,7 @@ public class KafkaConsumerPrivateGroup implements IKafkaComponent {
         return current_ip;
     }
 
-    public ConcurrentHashMap<String, Consumer<String, byte[]>> getConsumer_map() {
+    public LinkedHashMap<String, Consumer<String, byte[]>> getConsumer_map() {
         return consumer_map;
-    }
-
-    public ExecutorService getExecutorService() {
-        return executorService;
     }
 }

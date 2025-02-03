@@ -120,7 +120,7 @@ public class KaFkaTest {
             producer.getProducer().flush();
         }
 
-        ConcurrentHashMap<String, Consumer<String, byte[]>> map = consumerPrivate.getConsumer_map();
+        LinkedHashMap<String, Consumer<String, byte[]>> map = consumerPrivate.getConsumer_map();
         CountDownLatch latch = new CountDownLatch(map.size());
         for (Map.Entry<String, Consumer<String, byte[]>> entry : map.entrySet()) {
             Thread.ofVirtual().start(() -> {

@@ -72,6 +72,7 @@ import java.util.stream.Collectors;
 import static io.activej.rpc.client.sender.strategy.RpcStrategies.server;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class RPCExampleTest {
@@ -830,74 +831,40 @@ class RPCExampleTest {
 
     @SneakyThrows
     @Test
-    public void erasure_test1() {
-
-        CachedSerializableErasureObject.getInstance().setSerializableErasureObject(serializableErasureObjects.get(0));
-        RpcErasureServer<SerializableErasureObject> example = new RpcErasureServer<SerializableErasureObject>(new SerializableErasureObject(), "localhost", 6082, eventloop, blocksize);
+    public void ErasureTest() throws InterruptedException {
+        CachedSerializableErasureObject.getInstance().setSerializableErasureObject("1", "1SADASDAS".getBytes(StandardCharsets.UTF_8));
+        CachedSerializableErasureObject.getInstance().setSerializableErasureObject("2", "2ASD".getBytes(StandardCharsets.UTF_8));
+        CachedSerializableErasureObject.getInstance().setSerializableErasureObject("3", "3ASDASD".getBytes(StandardCharsets.UTF_8));
+        List<String> immutableList = List.of("1", "2", "3");
+        ArrayList<String> keys = new ArrayList<>(immutableList);
+        RpcErasureServer example = new RpcErasureServer("localhost", 6082, CachedEventLoop.getInstance().getEventloop());
         new Thread(example).start();
-        RpcErasureClient<SerializableErasureObject> client = new RpcErasureClient<SerializableErasureObject>(new SerializableErasureObject(), "localhost", 6082, eventloop);
+        Thread.sleep(500);
+        RpcErasureClient client = new RpcErasureClient("localhost", 6082, CachedEventLoop.getInstance().getEventloop());
         client.connect();
-        ArrayList<SerializableErasureObject> serializableErasureObject = (ArrayList<SerializableErasureObject>) client.getErasureChunks(new byte[0]);
+        Map<String, byte[]> serializableErasureObject = client.getErasureChunks(keys);
 
+        assertTrue(areMapsEqual(serializableErasureObject, CachedSerializableErasureObject.getSerializableErasureObject()));
         //#########################################################################################################################
-        CachedSerializableErasureObject.getInstance().setSerializableErasureObject(null);
+        CachedSerializableErasureObject.getInstance().clear();
         client.close();
         example.close();
         example = null;
-
     }
 
-    @SneakyThrows
-    @Test
-    public void erasure_test2() {
-        RpcErasureServer<SerializableErasureObject> example = new RpcErasureServer<SerializableErasureObject>(new SerializableErasureObject(), "localhost", 6083, eventloop, blocksize);
-        new Thread(example).start();
-        RpcErasureClient<SerializableErasureObject> client = new RpcErasureClient<SerializableErasureObject>(new SerializableErasureObject(), "localhost", 6083, eventloop);
-        Thread.sleep(1900);
-        //#########################################################################################################################
-        client.connect();
 
-        CachedConsensusPublisherData.getInstance().clear();
-        CachedConsensusPublisherData.getInstance().storeAtPosition(1, "1".getBytes());
-        CachedConsensusPublisherData.getInstance().storeAtPosition(2, "2".getBytes());
-        CachedConsensusPublisherData.getInstance().storeAtPosition(0, "0".getBytes());
-        Optional<byte[]> re0 = client.getAnnounceConsensusChunks("0");
-        Optional<byte[]> re1 = client.getPrepareConsensusChunks("1");
-        Optional<byte[]> re2 = client.getCommitConsensusChunks("2");
-        assertEquals("0", new String(re0.get(), StandardCharsets.UTF_8));
-        assertEquals("1", new String(re1.get(), StandardCharsets.UTF_8));
-        assertEquals("2", new String(re2.get(), StandardCharsets.UTF_8));
-
-        client.close();
-        example.close();
-        example = null;
-
-    }
-
-    @Test
-    public void erasure_test3() throws InterruptedException {
-        RpcErasureServer example = new RpcErasureServer(new String(), "localhost", 6084, eventloop, blocksize);
-        new Thread(example).start();
-        Thread.sleep(1900);
-        RpcErasureClient<String> client = new RpcErasureClient<String>("localhost", 6084, 4000, eventloop);
-        client.connect();
-
-
-        CachedConsensusPublisherData.getInstance().clear();
-        CachedConsensusPublisherData.getInstance().storeAtPosition(1, "1".getBytes());
-        CachedConsensusPublisherData.getInstance().storeAtPosition(2, "2".getBytes());
-        CachedConsensusPublisherData.getInstance().storeAtPosition(0, "0".getBytes());
-        Optional<byte[]> re0 = client.getAnnounceConsensusChunks("0");
-        Optional<byte[]> re1 = client.getPrepareConsensusChunks("1");
-        Optional<byte[]> re2 = client.getCommitConsensusChunks("2");
-        assertEquals("0", new String(re0.get(), StandardCharsets.UTF_8));
-        assertEquals("1", new String(re1.get(), StandardCharsets.UTF_8));
-        assertEquals("2", new String(re2.get(), StandardCharsets.UTF_8));
-
-        client.close();
-        example.close();
-        example = null;
-
+    public static boolean areMapsEqual(Map<String, byte[]> map1, Map<String, byte[]> map2) {
+        if (map1.size() != map2.size()) {
+            return false;
+        }
+        for (Map.Entry<String, byte[]> entry : map1.entrySet()) {
+            String key = entry.getKey();
+            byte[] value = entry.getValue();
+            if (!map2.containsKey(key) || !Arrays.equals(value, map2.get(key))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     //@Test

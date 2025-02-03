@@ -133,4 +133,8 @@ public class Directory {
         directory.delete(); // Delete the empty directory
     }
 
+    public static void close() {
+        instance = null;
+        appDirs = null;
+    }
 }

@@ -1,10 +1,9 @@
 package io.Adrestus.consensus;
 
-import io.Adrestus.core.Resourses.ErasureServerInstance;
 import io.Adrestus.network.CachedEventLoop;
-import io.Adrestus.network.IPFinder;
-import io.Adrestus.rpc.CachedConsensusPublisherData;
+import io.Adrestus.rpc.CachedSerializableErasureObject;
 import io.Adrestus.rpc.RpcErasureClient;
+import io.Adrestus.rpc.RpcErasureServer;
 import io.activej.eventloop.Eventloop;
 import io.activej.promise.Promise;
 import io.activej.rpc.client.RpcClient;
@@ -14,7 +13,6 @@ import io.activej.rpc.server.RpcRequestHandler;
 import io.activej.rpc.server.RpcServer;
 import io.activej.serializer.annotations.Deserialize;
 import io.activej.serializer.annotations.Serialize;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
@@ -24,12 +22,14 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import static io.Adrestus.config.ConsensusConfiguration.ERASURE_CLIENT_TIMEOUT;
-import static io.Adrestus.config.ConsensusConfiguration.ERASURE_SERVER_PORT;
 import static io.activej.rpc.client.sender.strategy.RpcStrategies.server;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class RPCErasureConsensusTest {
     private static org.slf4j.Logger LOG = LoggerFactory.getLogger(RPCErasureConsensusTest.class);
@@ -106,86 +106,40 @@ public class RPCErasureConsensusTest {
     }
 
     @Test
-    public void test1() {
-        ConsensusManager consensusManager = new ConsensusManager(true);
-        consensusManager.changeStateTo(ConsensusRoleType.ORGANIZER);
-        var organizerphase = consensusManager.getRole().manufacturePhases(ConsensusType.TRANSACTION_BLOCK);
-        consensusManager.changeStateTo(ConsensusRoleType.VALIDATOR);
-        consensusManager.changeStateTo(ConsensusRoleType.ORGANIZER);
-        consensusManager.changeStateTo(ConsensusRoleType.VALIDATOR);
-        consensusManager.changeStateTo(ConsensusRoleType.ORGANIZER);
-        consensusManager.changeStateTo(ConsensusRoleType.VALIDATOR);
-        consensusManager.changeStateTo(ConsensusRoleType.ORGANIZER);
-        consensusManager.changeStateTo(ConsensusRoleType.SUPERVISOR);
-        BFTConsensusPhase validatorphase = (BFTConsensusPhase) consensusManager.getRole().manufacturePhases(ConsensusType.TRANSACTION_BLOCK);
-    }
-
-
-    @Test
-    public void Clienttest() throws InterruptedException {
-        ErasureServerInstance.getInstance();
-        CachedConsensusPublisherData.getInstance().clear();
-        CachedConsensusPublisherData.getInstance().storeAtPosition(1, "test".getBytes());
-        CachedConsensusPublisherData.getInstance().storeAtPosition(2, "test".getBytes());
-        CachedConsensusPublisherData.getInstance().storeAtPosition(0, "test".getBytes());
-        RpcErasureClient<byte[]> collector_client = new RpcErasureClient<byte[]>(IPFinder.getLocalIP(), ERASURE_SERVER_PORT, ERASURE_CLIENT_TIMEOUT, CachedEventLoop.getInstance().getEventloop());
-        collector_client.connect();
-        //RpcErasureClient<byte[]> collector_client1 = new RpcErasureClient<byte[]>(IPFinder.getLocalIP(), ERASURE_SERVER_PORT, ERASURE_CLIENT_TIMEOUT, CachedEventLoop.getInstance().getEventloop());
-        //collector_client1.connect();
-
-        byte[] res = collector_client.getPrepareConsensusChunks("0").get();
-        byte[] res1 = collector_client.getPrepareConsensusChunks("1").get();
-        byte[] res2 = collector_client.getCommitConsensusChunks("2").get();
-        assertEquals("test", new String(res, StandardCharsets.UTF_8));
-        assertEquals("test", new String(res1, StandardCharsets.UTF_8));
-        assertEquals("test", new String(res2, StandardCharsets.UTF_8));
-        //assertEquals("test", new String(res1, StandardCharsets.UTF_8));
-        collector_client.close();
-        ErasureServerInstance.getInstance().getServer().close();
-        //collector_client1.close();
-    }
-
-
-    //Run this code on one machine as server and run the below test code as client in antoher machine
-    //@Test
-    //make sure you give enough erasurec_client_timeout
-    public void ServerTest() throws InterruptedException {
-        CachedEventLoop.getInstance().start();
-        CachedConsensusPublisherData.getInstance().clear();
-        CachedConsensusPublisherData.getInstance().storeAtPosition(0, new String("test").getBytes(StandardCharsets.UTF_8));
-        (new Thread() {
-            @SneakyThrows
-            public void run() {
-                System.out.println("before");
-                Thread.sleep(10000);
-                CachedConsensusPublisherData.getInstance().storeAtPosition(1, new String("test").getBytes(StandardCharsets.UTF_8));
-                System.out.println("done");
-            }
-        }).start();
-        CachedConsensusPublisherData.getInstance().storeAtPosition(2, new String("test").getBytes(StandardCharsets.UTF_8));
-        ErasureServerInstance.getInstance();
-
-        while (true) {
-            Thread.sleep(400);
-        }
-    }
-
-    //Run this as client machine
-    //make sure you give enough erasurec_client_timeout
-    //@Test
     public void test() throws InterruptedException {
-        CachedEventLoop.getInstance().start();
-        RpcErasureClient<byte[]> collector_client = new RpcErasureClient<byte[]>("192.168.1.116", ERASURE_SERVER_PORT, ERASURE_CLIENT_TIMEOUT, CachedEventLoop.getInstance().getEventloop());
-        collector_client.connect();
-        while (true) {
-            byte[] res = collector_client.getPrepareConsensusChunks("1").get();
-            byte[] res1 = collector_client.getCommitConsensusChunks("2").get();
+        CachedSerializableErasureObject.getInstance().setSerializableErasureObject("1", "1".getBytes(StandardCharsets.UTF_8));
+        CachedSerializableErasureObject.getInstance().setSerializableErasureObject("2", "2".getBytes(StandardCharsets.UTF_8));
+        CachedSerializableErasureObject.getInstance().setSerializableErasureObject("3", "3".getBytes(StandardCharsets.UTF_8));
+        List<String> immutableList = List.of("1", "2", "3");
+        ArrayList<String> keys = new ArrayList<>(immutableList);
+        RpcErasureServer example = new RpcErasureServer("localhost", 6082, CachedEventLoop.getInstance().getEventloop());
+        new Thread(example).start();
+        Thread.sleep(500);
+        RpcErasureClient client = new RpcErasureClient("localhost", 6082, CachedEventLoop.getInstance().getEventloop());
+        client.connect();
+        Map<String, byte[]> serializableErasureObject = client.getErasureChunks(keys);
 
-            System.out.println(new String(res, StandardCharsets.UTF_8));
-            System.out.println(new String(res1, StandardCharsets.UTF_8));
-            collector_client.close();
-            collector_client.connect();
+        assertTrue(areMapsEqual(serializableErasureObject, CachedSerializableErasureObject.getSerializableErasureObject()));
+        //#########################################################################################################################
+        CachedSerializableErasureObject.getInstance().clear();
+        client.close();
+        example.close();
+        example = null;
+    }
+
+
+    public static boolean areMapsEqual(Map<String, byte[]> map1, Map<String, byte[]> map2) {
+        if (map1.size() != map2.size()) {
+            return false;
         }
+        for (Map.Entry<String, byte[]> entry : map1.entrySet()) {
+            String key = entry.getKey();
+            byte[] value = entry.getValue();
+            if (!map2.containsKey(key) || !Arrays.equals(value, map2.get(key))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private interface HelloService {

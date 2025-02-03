@@ -190,6 +190,37 @@ public class RpcAdrestusServer<T> extends AbstractNioReactive implements AutoClo
         this.transactionvalueMapper = new SerializationUtil<T>(typeParameterClass.getClass(), list);
     }
 
+
+//import io.activej.rpc.server.rpcServer;
+//import io.activej.rpc.server.rpcServerSettings;
+//import io.activej.rpc.server.rpcServerWithAuthentication;
+//import io.activej.rpc.server.rpcServerWithAuthenticationSettings;
+//import io.activej.rpc.server.rpcServerWithAuthenticationSettingsBuilder;
+//
+//    public class RpcServerWithCustomAuth {
+//        public static void main(String[] args) {
+//            RpcServer server = RpcServer.create(Eventloop.create())
+//                    .withMessageTypes(String.class)
+//                    .withHandler(String.class, request -> Promise.of("Hello " + request))
+//                    .withListenPort(34765)
+//                    .withAuthentication(new CustomAuthenticator())
+//                    .build();
+//
+//            server.run();
+//        }
+//
+//        static class CustomAuthenticator implements RpcServerWithAuthenticationSettingsBuilder.Authenticator {
+//            @Override
+//            public boolean authenticate(io.activej.rpc.server.rpcServerWithAuthenticationSettingsBuilder builder, io.activej.rpc.server.rpcServer rpcServer, io.activej.rpc.server.rpcRequest request) {
+//                // Implement your custom authentication logic here
+//                // For example, check if the request comes from a specific IP address
+//                String clientIp = request.getRemoteAddress().getHostString();
+//                return "192.168.1.100".equals(clientIp); // Allow only this IP
+//            }
+//        }
+//    }
+
+
     @SneakyThrows
     @Override
     public void run() {

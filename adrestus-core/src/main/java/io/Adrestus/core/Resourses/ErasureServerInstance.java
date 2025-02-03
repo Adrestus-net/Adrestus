@@ -1,6 +1,5 @@
 package io.Adrestus.core.Resourses;
 
-import io.Adrestus.core.SerializableErasureObject;
 import io.Adrestus.network.CachedEventLoop;
 import io.Adrestus.network.IPFinder;
 import io.Adrestus.rpc.RpcErasureServer;
@@ -14,7 +13,7 @@ public final class ErasureServerInstance {
 
     private static volatile ErasureServerInstance instance;
 
-    private static RpcErasureServer<SerializableErasureObject> server;
+    private static RpcErasureServer server;
 
     private ErasureServerInstance() throws IOException {
         if (instance != null) {
@@ -39,15 +38,15 @@ public final class ErasureServerInstance {
     }
 
     private static void Init() throws IOException {
-        server = new RpcErasureServer<SerializableErasureObject>(new SerializableErasureObject(), IPFinder.getLocal_address(), ERASURE_SERVER_PORT, CachedEventLoop.getInstance().getEventloop(), 0);
+        server = new RpcErasureServer(IPFinder.getLocal_address(), ERASURE_SERVER_PORT, CachedEventLoop.getInstance().getEventloop());
         new Thread(server).start();
     }
 
-    public RpcErasureServer<SerializableErasureObject> getServer() {
+    public RpcErasureServer getServer() {
         return server;
     }
 
-    public static void setServer(RpcErasureServer<SerializableErasureObject> server) {
+    public static void setServer(RpcErasureServer server) {
         ErasureServerInstance.server = server;
     }
 }

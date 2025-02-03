@@ -1,8 +1,9 @@
 package io.Adrestus.rpc;
 
-public interface IChunksService<V> {
+import java.util.Map;
 
-    V downloadErasureChunks() throws Exception;
+public interface IChunksService {
 
-    byte[] downloadConsensusChunks(int position) throws Exception;
+    Map<String, byte[]> downloadErasureChunks();
+
 }
