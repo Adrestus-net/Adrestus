@@ -136,9 +136,21 @@
                     <artifactId>junit-jupiter-params</artifactId>
                     <groupId>org.junit.jupiter</groupId>
                 </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>5.11.3</version>
+            <scope>test</scope>
+            <exclusions>
                 <exclusion>
-                    <artifactId>junit-jupiter-engine</artifactId>
-                    <groupId>org.junit.jupiter</groupId>
+                    <artifactId>junit-platform-engine</artifactId>
+                    <groupId>org.junit.platform</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>apiguardian-api</artifactId>
+                    <groupId>org.apiguardian</groupId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -184,7 +196,6 @@
     <properties>
         <conscrypt.version>2.5.2</conscrypt.version>
         <milagro.version>0.4.0</milagro.version>
-        <util.version>1.0-SNAPSHOT</util.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <http.components>5.3.1</http.components>
         <openhft.version>0.27ea0</openhft.version>

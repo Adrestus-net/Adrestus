@@ -21,6 +21,16 @@ public class CachedSecurityHeaders {
         return securityHeader;
     }
 
+    public String getpRndSecurityHeaderViewID() {
+        int viewID = CachedLatestBlocks.getInstance().getCommitteeBlock().getViewID();
+        return Integer.toString(viewID) + Integer.toString(viewID + 1);
+    }
+
+    public String getRndSecurityHeaderViewID() {
+        int viewID = CachedLatestBlocks.getInstance().getCommitteeBlock().getViewID();
+        return Integer.toString(viewID) + Integer.toString(viewID + 2);
+    }
+
     public void setSecurityHeader(SecurityHeader securityHeader) {
         this.securityHeader = securityHeader;
     }

@@ -13,6 +13,7 @@ import io.Adrestus.core.Resourses.MemoryTransactionPool;
 import io.Adrestus.core.RingBuffer.handler.transactions.SignatureEventHandler;
 import io.Adrestus.core.RingBuffer.publisher.BlockEventPublisher;
 import io.Adrestus.core.RingBuffer.publisher.TransactionEventPublisher;
+import io.Adrestus.core.Util.BlockSizeCalculator;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.WalletAddress;
 import io.Adrestus.crypto.bls.BLS381.ECP;
@@ -151,7 +152,7 @@ public class ReceiptMain {
             transaction.setNonce(1);
             transaction.setXAxis(keypair.get(i).getXpubAxis());
             transaction.setYAxis(keypair.get(i).getYpubAxis());
-            byte byf[] = enc.encode(transaction);
+            byte byf[] = enc.encode(transaction, 1024);
             transaction.setHash(HashUtil.sha256_bytetoString(byf));
             //  await().atMost(500, TimeUnit.MILLISECONDS);
 
@@ -188,7 +189,9 @@ public class ReceiptMain {
         });
         tree.constructTree(merkleNodeArrayList);
         transactionBlock.setMerkleRoot(tree.getRootHash());
-        byte[] tohash = serenc.encode(transactionBlock);
+        BlockSizeCalculator blocksize = new BlockSizeCalculator();
+        blocksize.setTransactionBlock(transactionBlock);
+        byte[] tohash = serenc.encode(transactionBlock, blocksize.TransactionBlockSizeCalculator());
         transactionBlock.setHash(HashUtil.sha256_bytetoString(tohash));
     }
 
@@ -230,7 +233,9 @@ public class ReceiptMain {
         InboundRelay inboundRelay = new InboundRelay(map);
         transactionBlock.setInbound(inboundRelay);
 
-        byte[] buffer = serenc.encode(transactionBlock);
+        BlockSizeCalculator blocksize = new BlockSizeCalculator();
+        blocksize.setTransactionBlock(transactionBlock);
+        byte[] buffer = serenc.encode(transactionBlock, blocksize.TransactionBlockSizeCalculator());
         TransactionBlock clone = (TransactionBlock) serenc.decode(buffer);
         assertEquals(transactionBlock, clone);
 

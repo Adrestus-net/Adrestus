@@ -5,8 +5,8 @@ import io.Adrestus.core.RingBuffer.publisher.TransactionEventPublisher;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.elliptic.mapper.BigDecimalSerializer;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
-import io.Adrestus.crypto.elliptic.mapper.CustomFurySerializer;
 import io.Adrestus.util.GetTime;
+import io.Adrestus.util.SerializationFuryUtil;
 import io.Adrestus.util.SerializationUtil;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -64,7 +64,7 @@ public class RingBufferTest {
         transaction.setAmount(BigDecimal.valueOf(100));
         transaction.setAmountWithTransactionFee(transaction.getAmount().multiply(BigDecimal.valueOf(10.0 / 100.0)));
         transaction.setNonce(1);
-        byte byf[] = serenc.encode(transaction);
+        byte byf[] = serenc.encode(transaction, 1024);
         transaction.setHash(HashUtil.sha256_bytetoString(byf));
         publisher.publish(transaction);
         publisher.getJobSyncUntilRemainingCapacityZero();
@@ -83,8 +83,8 @@ public class RingBufferTest {
         out.writeObject(block);
         out.close();
 
-        byte[] buff = CustomFurySerializer.getInstance().getFury().serialize(block);
-        CommitteeBlock copy = (CommitteeBlock) CustomFurySerializer.getInstance().getFury().deserialize(buff);
+        byte[] buff = SerializationFuryUtil.getInstance().getFury().serialize(block);
+        CommitteeBlock copy = (CommitteeBlock) SerializationFuryUtil.getInstance().getFury().deserialize(buff);
         assertEquals(block, copy);
         publisher.withHashHandler().mergeEvents();
         publisher.start();

@@ -10,14 +10,14 @@ import java.util.Arrays;
 import java.util.List;
 
 public final class VRFMessage implements Serializable {
-    private vrfMessageType type;
+    private VRFMessageType type;
     private String BlockHash;
     private byte[] prnd;
     private VRFData data;
     private List<VRFData> signers;
 
     public VRFMessage() {
-        this.type = vrfMessageType.INIT;
+        this.type = VRFMessageType.INIT;
         this.BlockHash = "";
         this.prnd = new byte[100];
         Arrays.fill(prnd, (byte) 1);
@@ -26,11 +26,11 @@ public final class VRFMessage implements Serializable {
     }
 
     @Serialize
-    public vrfMessageType getType() {
+    public VRFMessageType getType() {
         return type;
     }
 
-    public void setType(vrfMessageType type) {
+    public void setType(VRFMessageType type) {
         this.type = type;
     }
 
@@ -70,10 +70,25 @@ public final class VRFMessage implements Serializable {
         BlockHash = blockHash;
     }
 
-    public enum vrfMessageType {
-        INIT, CALCULATE, AGGREGATE, ABORT
+    public enum VRFMessageType {
+        INIT("INIT"),
+        CALCULATE("CALCULATE"),
+        AGGREGATE("AGGREGATE"),
+        ANNOUNCE("ANNOUNCE"),
+        PREPARE("PREPARE"),
+        COMMIT("COMMIT"),
+        ABORT("ABORT");
+        private final String title;
+
+        VRFMessageType(String title) {
+            this.title = title;
+        }
     }
 
+    public int length() {
+        int sum = signers.stream().mapToInt(signer -> signer.getBls_pubkey().length + signer.getRi().length + signer.getPi().length).sum();
+        return 100 + BlockHash.length() + type.title.length() + prnd.length + data.bls_pubkey.length + data.ri.length + data.pi.length + sum;
+    }
 
     public static class VRFData implements Cloneable, Serializable {
         private byte[] bls_pubkey;

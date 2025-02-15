@@ -380,7 +380,7 @@ public class ReceiptsTest {
         publisher.start();
         publisher.publish(transactionBlock);
         blockSizeCalculator.setTransactionBlock(transactionBlock);
-        byte[] buffer = serenc.encode(transactionBlock);
+        byte[] buffer = serenc.encode(transactionBlock, blockSizeCalculator.TransactionBlockSizeCalculator());
         TransactionBlock clonem = (TransactionBlock) serenc.decode(buffer);
         assertEquals(clonem, transactionBlock);
         publisher.publish(clonem);

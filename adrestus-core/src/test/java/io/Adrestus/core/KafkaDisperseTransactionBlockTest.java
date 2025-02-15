@@ -63,7 +63,7 @@ import java.util.stream.IntStream;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class KafkaTransactionBlockTest {
+public class KafkaDisperseTransactionBlockTest {
     private static ArrayList<String> addreses = new ArrayList<>();
     private static ArrayList<ECKeyPair> keypair = new ArrayList<>();
     private static ArrayList<Transaction> transactions = new ArrayList<>();
@@ -358,7 +358,8 @@ public class KafkaTransactionBlockTest {
                     int endPosition = Math.min(startPosition + sendSize + onlyFirstSize, serializableErasureObjects.size());
                     ArrayList<byte[]> toSend = new ArrayList<>(endPosition - startPosition);
                     for (int i = startPosition; i < endPosition; i++) {
-                        toSend.add(serenc_erasure.encode(serializableErasureObjects.get(i)));
+                        SerializableErasureObject serializableErasureObject = serializableErasureObjects.get(i);
+                        toSend.add(serenc_erasure.encode(serializableErasureObject, serializableErasureObject.getSize()));
                     }
                     if (toSend.isEmpty()) {
                         throw new IllegalArgumentException("Size of toSend is 0");
@@ -381,19 +382,31 @@ public class KafkaTransactionBlockTest {
                     assert (!finalList.isEmpty());
 
 
+                    Set<String> keysToRetrieve = new HashSet<>();
                     //#########################################################################################################################
                     ArrayList<SerializableErasureObject> recserializableErasureObjects = new ArrayList<SerializableErasureObject>();
-                    for (Map.Entry<String, ArrayList<byte[]>> pair : finalList.entrySet()) {
-                        for (byte[] rec_buff : pair.getValue()) {
-                            recserializableErasureObjects.add(serenc_erasure.decode(rec_buff));
+                    SerializableErasureObject root = serenc_erasure.decode(finalList.get("192.168.1.106").getFirst());
+                    for (Map.Entry<String, ArrayList<byte[]>> entry : finalList.entrySet()) {
+                        try {
+                            if (entry.getValue().isEmpty()) {
+                                keysToRetrieve.add(entry.getKey());
+                                continue;
+                            }
+                            for (byte[] rec_buff : entry.getValue()) {
+                                SerializableErasureObject object = serenc_erasure.decode(rec_buff);
+                                if (!object.getRootMerkleHash().equals(root.getRootMerkleHash())) {
+                                    System.out.println("Meerklee Hash is not valid");
+                                    keysToRetrieve.add(entry.getKey());
+                                } else {
+                                    recserializableErasureObjects.add(serenc_erasure.decode(rec_buff));
+                                }
+                            }
+                        } catch (Exception e) {
+                            System.out.println("Serialization Exception");
+                            keysToRetrieve.add(entry.getKey());
                         }
                     }
-
-                    for (SerializableErasureObject obj : recserializableErasureObjects) {
-                        if (!obj.CheckChunksValidity(recserializableErasureObjects.get(0).getRootMerkleHash())) {
-                            throw new IllegalArgumentException("Merklee Hash is not valid");
-                        }
-                    }
+                    assertEquals(0, keysToRetrieve.size());
 
                     Collections.shuffle(recserializableErasureObjects);
                     FECParameterObject recobject = recserializableErasureObjects.get(0).getFecParameterObject();
@@ -423,19 +436,31 @@ public class KafkaTransactionBlockTest {
                     System.out.println("received2");
                     assert (!finalList.isEmpty());
 
+                    Set<String> keysToRetrieve = new HashSet<>();
                     //#########################################################################################################################
                     ArrayList<SerializableErasureObject> recserializableErasureObjects = new ArrayList<SerializableErasureObject>();
-                    for (Map.Entry<String, ArrayList<byte[]>> pair : finalList.entrySet()) {
-                        for (byte[] rec_buff : pair.getValue()) {
-                            recserializableErasureObjects.add(serenc_erasure.decode(rec_buff));
+                    SerializableErasureObject root = serenc_erasure.decode(finalList.get("192.168.1.106").getFirst());
+                    for (Map.Entry<String, ArrayList<byte[]>> entry : finalList.entrySet()) {
+                        try {
+                            if (entry.getValue().isEmpty()) {
+                                keysToRetrieve.add(entry.getKey());
+                                continue;
+                            }
+                            for (byte[] rec_buff : entry.getValue()) {
+                                SerializableErasureObject object = serenc_erasure.decode(rec_buff);
+                                if (!object.getRootMerkleHash().equals(root.getRootMerkleHash())) {
+                                    System.out.println("Meerklee Hash is not valid");
+                                    keysToRetrieve.add(entry.getKey());
+                                } else {
+                                    recserializableErasureObjects.add(serenc_erasure.decode(rec_buff));
+                                }
+                            }
+                        } catch (Exception e) {
+                            System.out.println("Serialization Exception");
+                            keysToRetrieve.add(entry.getKey());
                         }
                     }
-
-                    for (SerializableErasureObject obj : recserializableErasureObjects) {
-                        if (!obj.CheckChunksValidity(recserializableErasureObjects.get(0).getRootMerkleHash())) {
-                            throw new IllegalArgumentException("Merklee Hash is not valid");
-                        }
-                    }
+                    assertEquals(0, keysToRetrieve.size());
 
                     Collections.shuffle(recserializableErasureObjects);
                     FECParameterObject recobject = recserializableErasureObjects.get(0).getFecParameterObject();

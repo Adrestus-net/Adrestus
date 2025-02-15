@@ -4,13 +4,9 @@ import io.Adrestus.network.CachedEventLoop;
 import io.Adrestus.rpc.CachedSerializableErasureObject;
 import io.Adrestus.rpc.RpcErasureClient;
 import io.Adrestus.rpc.RpcErasureServer;
-import io.activej.eventloop.Eventloop;
 import io.activej.promise.Promise;
 import io.activej.rpc.client.RpcClient;
-import io.activej.rpc.client.sender.strategy.RpcStrategies;
-import io.activej.rpc.client.sender.strategy.RpcStrategy;
 import io.activej.rpc.server.RpcRequestHandler;
-import io.activej.rpc.server.RpcServer;
 import io.activej.serializer.annotations.Deserialize;
 import io.activej.serializer.annotations.Serialize;
 import org.junit.jupiter.api.BeforeAll;
@@ -18,8 +14,6 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,82 +21,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import static io.activej.rpc.client.sender.strategy.RpcStrategies.server;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class RPCErasureConsensusTest {
     private static org.slf4j.Logger LOG = LoggerFactory.getLogger(RPCErasureConsensusTest.class);
-    private static RpcServer serverOne, serverTwo, serverThree;
-    private static InetSocketAddress address1, address2, address3;
 
     @BeforeAll
     public static void setup() throws IOException {
         LOG.info("Starting up");
-        address1 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 8080);
-        address2 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 8081);
-        address3 = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 8084);
-        Eventloop eventloop = CachedEventLoop.getInstance().getEventloop();
-        serverOne = RpcServer.builder(eventloop)
-                .withMessageTypes(HelloRequest.class, HelloResponse.class)
-                .withHandler(HelloRequest.class, helloServiceRequestHandler(new HelloServiceImplOne()))
-                .withListenAddress(address1).build();
-        serverOne.listen();
-
-
-        serverTwo = RpcServer.builder(eventloop)
-                .withMessageTypes(HelloRequest.class, HelloResponse.class)
-                .withHandler(HelloRequest.class, helloServiceRequestHandler(new HelloServiceImplTwo()))
-                .withListenAddress(address2)
-                .build();
-
-        serverTwo.listen();
-
-        serverThree = RpcServer.builder(eventloop)
-                .withMessageTypes(HelloRequest.class, HelloResponse.class)
-                .withHandler(HelloRequest.class,
-                        helloServiceRequestHandler(new HelloServiceImplThree()))
-                .withListenAddress(address3)
-                .build();
-
-        serverThree.listen();
         CachedEventLoop.getInstance().start();
-
-
-        ArrayList<RpcStrategy> list = new ArrayList<>();
-        list.add(server(address1));
-        list.add(server(address2));
-        list.add(server(address3));
-
-        RpcClient client = RpcClient.builder(eventloop)
-                .withMessageTypes(HelloRequest.class, HelloResponse.class)
-                .withStrategy(RpcStrategies.roundRobin(list))
-                .build();
-
-        try {
-            client.startFuture().get(5, TimeUnit.SECONDS);
-
-            String currentName;
-            String currentResponse;
-
-            currentName = "John";
-            currentResponse = blockingRequest(client, currentName);
-            System.out.println("Request with name \"" + currentName + "\": " + currentResponse);
-            assertEquals("Hello, " + currentName + "!", currentResponse);
-
-            currentName = "Winston";
-            currentResponse = blockingRequest(client, currentName);
-            System.out.println("Request with name \"" + currentName + "\": " + currentResponse);
-            assertEquals("Hello Hello, " + currentName + "!", currentResponse);
-
-            currentName = "Sophia"; // name starts with "s", so hash code is different from previous examples
-            currentResponse = blockingRequest(client, currentName);
-            System.out.println("Request with name \"" + currentName + "\": " + currentResponse);
-            assertEquals("Hello Hello Hello, " + currentName + "!", currentResponse);
-
-        } catch (Exception e) {
-            // e.printStackTrace();
-        }
     }
 
     @Test

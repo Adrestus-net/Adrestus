@@ -10,7 +10,6 @@ import io.Adrestus.crypto.bls.model.CachedBLSKeyPair;
 import io.Adrestus.network.CachedEventLoop;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.spongycastle.util.encoders.Hex;
 
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -42,13 +41,17 @@ public class ConsensusVDF2Test {
 
         CommitteeBlock committeeBlock = new CommitteeBlock();
         committeeBlock.setDifficulty(113);
+        committeeBlock.setViewID(1);
+        committeeBlock.setHash("hash");
         committeeBlock.getHeaderData().setTimestamp("2022-11-18 15:01:29.304");
         committeeBlock.getStructureMap().get(0).put(vk1, "192.168.1.106");
         committeeBlock.getStructureMap().get(0).put(vk2, "192.168.1.116");
         committeeBlock.getStructureMap().get(0).put(vk3, "192.168.1.115");
 
-        CachedSecurityHeaders.getInstance().getSecurityHeader().setPRnd(Hex.decode("c1f72aa5bd1e1d53c723b149259b63f759f40d5ab003b547d5c13d45db9a5da8"));
+//        CachedSecurityHeaders.getInstance().getSecurityHeader().setPRnd(Hex.decode("c1f72aa5bd1e1d53c723b149259b63f759f40d5ab003b547d5c13d45db9a5da8"));
         CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
+        CachedSecurityHeaders.getInstance().getRndSecurityHeaderViewID();
+
     }
 
     @Test
@@ -80,7 +83,7 @@ public class ConsensusVDF2Test {
             return;
 
         CachedEventLoop.getInstance().start();
-        CountDownLatch latch = new CountDownLatch(500);
+        CountDownLatch latch = new CountDownLatch(5);
         ConsensusVDFTimer c = new ConsensusVDFTimer(latch);
         latch.await();
     }

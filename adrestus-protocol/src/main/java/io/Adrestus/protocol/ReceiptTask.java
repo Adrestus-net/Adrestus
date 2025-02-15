@@ -72,7 +72,7 @@ public class ReceiptTask extends AdrestusTask {
                                             transactionBlock.getOutbound().getMap_receipts().get(key).entrySet().forEach(val -> {
                                                 val.getValue().stream().forEach(receipt -> {
                                                     receipt.setReceiptBlock(new Receipt.ReceiptBlock(transactionBlock.getHeight(), transactionBlock.getGeneration(), transactionBlock.getMerkleRoot()));
-                                                    byte receipt_byte[] = recep.encode(receipt, 1024);
+                                                    byte receipt_byte[] = recep.encode(receipt, receipt.length());
                                                     ByteBuf sizeBuf = ByteBufPool.allocate(2); // enough to serialize size 1024
                                                     sizeBuf.writeVarInt(receipt_byte.length);
                                                     ByteBuf appendedBuf = ByteBufPool.append(sizeBuf, ByteBuf.wrapForReading(receipt_byte));

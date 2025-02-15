@@ -267,7 +267,7 @@ public class FeeRewardsTransactionTest {
             transaction.setNonce(1);
             transaction.setXAxis(keypair.get(i).getXpubAxis());
             transaction.setYAxis(keypair.get(i).getYpubAxis());
-            byte byf[] = serenc.encode(transaction, 1204);
+            byte byf[] = serenc.encode(transaction, 1024);
             transaction.setHash(HashUtil.sha256_bytetoString(byf));
             ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(transaction.getHash().getBytes(StandardCharsets.UTF_8), keypair.get(i));
             transaction.setSignature(signatureData);
@@ -287,7 +287,7 @@ public class FeeRewardsTransactionTest {
         rewardsTransaction.setNonce(1);
         rewardsTransaction.setXAxis(ecKeyPair2.getXpubAxis());
         rewardsTransaction.setYAxis(ecKeyPair2.getYpubAxis());
-        byte byf[] = serenc.encode(rewardsTransaction, 1204);
+        byte byf[] = serenc.encode(rewardsTransaction, 1024);
         rewardsTransaction.setHash(HashUtil.sha256_bytetoString(byf));
         ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(rewardsTransaction.getHash().getBytes(StandardCharsets.UTF_8), ecKeyPair2);
         rewardsTransaction.setSignature(signatureData);

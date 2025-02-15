@@ -128,28 +128,41 @@ public class SignatureEventHandler extends TransactionEventHandler implements Tr
         @SneakyThrows
         @Override
         public void run() {
-            boolean verify = ecdsaSign.secp256r1Verify(transaction.getHash().getBytes(StandardCharsets.UTF_8), transaction.getXAxis(), transaction.getYAxis(), transaction.getSignature());
-            if (!verify) {
-                Optional.of("Transaction Wallet signature is not valid ABORT").ifPresent(val -> {
+            try {
+                boolean verify = ecdsaSign.secp256r1Verify(transaction.getHash().getBytes(StandardCharsets.UTF_8), transaction.getXAxis(), transaction.getYAxis(), transaction.getSignature());
+                if (!verify) {
+                    Optional.of("Transaction Wallet signature is not valid ABORT").ifPresent(val -> {
+                        LOG.info(val);
+                        transaction.infos(val);
+                    });
+                    transaction.setStatus(StatusType.ABORT);
+                    MemoryTransactionPool.getInstance().delete(transaction);
+                    return;
+                }
+                if (type.equals(SignatureBehaviorType.BLOCK_TRANSACTIONS)) {
+                    return;
+                }
+                // LOG.info("Transaction signature is  valid: " + transaction.getHash());
+                if (MemoryTransactionPool.getInstance().checkAdressExists(transaction)) {
+                    CacheTemporalTransactionPool.getInstance().add(transaction);
+                } else {
+                    MemoryTransactionPool.getInstance().add(transaction);
+                }
+
+            } catch (Exception e) {
+                LOG.error("Error in SignatureEventHandler", e);
+                Optional.of("Error in SignatureEventHandler").ifPresent(val -> {
                     LOG.info(val);
                     transaction.infos(val);
                 });
-                latch.countDown();
-                transaction.setStatus(StatusType.ABORT);
-                MemoryTransactionPool.getInstance().delete(transaction);
-                return;
+
+            } finally {
+                if (latch != null) {
+                    if (latch.getCount() != 0) {
+                        latch.countDown();
+                    }
+                }
             }
-            if (type.equals(SignatureBehaviorType.BLOCK_TRANSACTIONS)) {
-                latch.countDown();
-                return;
-            }
-            // LOG.info("Transaction signature is  valid: " + transaction.getHash());
-            if (MemoryTransactionPool.getInstance().checkAdressExists(transaction)) {
-                CacheTemporalTransactionPool.getInstance().add(transaction);
-            } else {
-                MemoryTransactionPool.getInstance().add(transaction);
-            }
-            latch.countDown();
         }
     }
 

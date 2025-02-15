@@ -27,7 +27,10 @@ import io.Adrestus.crypto.elliptic.ECDSASign;
 import io.Adrestus.crypto.elliptic.ECDSASignatureData;
 import io.Adrestus.crypto.elliptic.ECKeyPair;
 import io.Adrestus.crypto.elliptic.Keys;
-import io.Adrestus.crypto.elliptic.mapper.*;
+import io.Adrestus.crypto.elliptic.mapper.BigDecimalSerializer;
+import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
+import io.Adrestus.crypto.elliptic.mapper.CustomSerializerTreeMap;
+import io.Adrestus.crypto.elliptic.mapper.StakingData;
 import io.Adrestus.crypto.mnemonic.Mnemonic;
 import io.Adrestus.crypto.mnemonic.Security;
 import io.Adrestus.crypto.mnemonic.WordList;
@@ -37,6 +40,7 @@ import io.Adrestus.p2p.kademlia.common.NettyConnectionInfo;
 import io.Adrestus.p2p.kademlia.repository.KademliaData;
 import io.Adrestus.util.GetTime;
 import io.Adrestus.util.MathOperationUtil;
+import io.Adrestus.util.SerializationFuryUtil;
 import io.Adrestus.util.SerializationUtil;
 import io.distributedLedger.*;
 import lombok.SneakyThrows;
@@ -290,9 +294,9 @@ public class BlockTest {
         CommitteeBlock block = new CommitteeBlock();
         block.setHash("hash1");
         block.setSize(1);
-        byte[] buffer = encode.encode(block);
+        byte[] buffer = SerializationFuryUtil.getInstance().getFury().serialize(block);
 
-        CommitteeBlock copys = encode.decode(buffer);
+        CommitteeBlock copys = (CommitteeBlock) SerializationFuryUtil.getInstance().getFury().deserialize(buffer);
         System.out.println(copys.toString());
         assertEquals(copys, block);
     }
@@ -313,10 +317,10 @@ public class BlockTest {
         block.setSize(1);
         block.setZone(0);
         block.setTransactionList(new ArrayList<>(outer_transactions));
-        byte[] buffer = encode.encode(block);
+        byte[] buffer = SerializationFuryUtil.getInstance().getFury().serialize(block);
 
         TransactionBlock cloned1 = (TransactionBlock) block.clone();
-        TransactionBlock copys = encode.decode(buffer);
+        TransactionBlock copys = (TransactionBlock) SerializationFuryUtil.getInstance().getFury().deserialize(buffer);
         TransactionBlock cloned2 = (TransactionBlock) copys.clone();
         System.out.println(copys.toString());
         assertEquals(copys, block);
@@ -624,7 +628,7 @@ public class BlockTest {
             int size = blockSizeCalculator.TransactionBlockSizeCalculator();
             byte[] tohash = serenc.encode(transactionBlock, size);
             transactionBlock.setHash(HashUtil.sha256_bytetoString(tohash));
-            TransactionBlock transactionBlock3 = (TransactionBlock) CustomFurySerializer.getInstance().getFury().deserialize(CustomFurySerializer.getInstance().getFury().serialize(transactionBlock));
+            TransactionBlock transactionBlock3 = (TransactionBlock) SerializationFuryUtil.getInstance().getFury().deserialize(SerializationFuryUtil.getInstance().getFury().serialize(transactionBlock));
             transactionBlock3.setHash("");
             byte[] tohash2 = serenc.encode(transactionBlock3, size);
             assertEquals(HashUtil.sha256_bytetoString(tohash2), HashUtil.sha256_bytetoString(tohash));

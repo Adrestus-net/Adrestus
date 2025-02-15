@@ -22,7 +22,7 @@ public class ChangeViewTransactionState extends AbstractState {
 
     public ChangeViewTransactionState() {
         this.blockIndex = new BlockIndex();
-        this.consensusManager = new ConsensusManager(false);
+        this.consensusManager = new ConsensusManager();
     }
 
     @Override

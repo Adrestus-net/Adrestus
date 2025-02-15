@@ -226,6 +226,7 @@ public class ConsensusTransactionTimerTest {
         committeeBlock.setGeneration(1);
         committeeBlock.setViewID(1);
         prevblock.setHeight(1);
+        prevblock.setViewID(0);
         prevblock.setHash("hash");
         prevblock.getHeaderData().setTimestamp(GetTime.GetTimeStampInString());
         prevblock.setBlockProposer(vk1.toRaw());
@@ -266,9 +267,9 @@ public class ConsensusTransactionTimerTest {
         kad2 = new KademliaData(new SecurityAuditProofs(adddress2, vk2, ecKeyPair2.getPublicKey(), signatureData2), new NettyConnectionInfo("192.168.1.115", KademliaConfiguration.PORT));
         kad3 = new KademliaData(new SecurityAuditProofs(adddress3, vk3, ecKeyPair3.getPublicKey(), signatureData3), new NettyConnectionInfo("192.168.1.116", KademliaConfiguration.PORT));
 
-        System.out.println("ADRESS: " + adddress1 + "KEY1  " + vk1.toString());
-        System.out.println("ADRESS: " + adddress2 + "KEY2  " + vk2.toString());
-        System.out.println("ADRESS: " + adddress3 + "KEY3  " + vk3.toString());
+        System.out.println("ADRESS: " + adddress1 + " KEY1  " + vk1.toString());
+        System.out.println("ADRESS: " + adddress2 + " KEY2  " + vk2.toString());
+        System.out.println("ADRESS: " + adddress3 + " KEY3  " + vk3.toString());
         CachedLatestBlocks.getInstance().getCommitteeBlock().getStakingMap().put(new StakingData(1, BigDecimal.valueOf(100.0)), kad3);
         CachedLatestBlocks.getInstance().getCommitteeBlock().getStakingMap().put(new StakingData(2, BigDecimal.valueOf(200.0)), kad2);
         CachedLatestBlocks.getInstance().getCommitteeBlock().getStakingMap().put(new StakingData(3, BigDecimal.valueOf(300.0)), kad1);
@@ -346,13 +347,13 @@ public class ConsensusTransactionTimerTest {
         }
 
         //be aware that print functionality is  different it works only for latch 5
-        assertEquals(1.784998, TreeFactory.getMemoryTree(0).getByaddress("ADR-ACAO-BKTC-CFKG-VXWF-PSI2-QHWR-ZIGK-CCOL-LGJN-CM3U").get().getUnclaimed_reward().subtract(claimed.get("ADR-ACAO-BKTC-CFKG-VXWF-PSI2-QHWR-ZIGK-CCOL-LGJN-CM3U")).doubleValue());
-        assertEquals(1.190001, TreeFactory.getMemoryTree(0).getByaddress("ADR-AADE-ROH3-CAFV-XK5V-2NKZ-QMTG-SFMC-37W5-SHUV-2T46").get().getUnclaimed_reward().subtract(claimed.get("ADR-AADE-ROH3-CAFV-XK5V-2NKZ-QMTG-SFMC-37W5-SHUV-2T46")).doubleValue());
-        assertEquals(BigDecimal.valueOf(2.473339 - 0.10).setScale(RewardConfiguration.DECIMAL_PRECISION, RewardConfiguration.ROUNDING), TreeFactory.getMemoryTree(0).getByaddress("ADR-AB2W-RIQY-LSIH-CXQQ-FGRV-AINR-57RO-NFXU-IWM5-IANJ").get().getUnclaimed_reward().subtract(claimed.get("ADR-AB2W-RIQY-LSIH-CXQQ-FGRV-AINR-57RO-NFXU-IWM5-IANJ")));
+        assertEquals(1.784998, TreeFactory.getMemoryTree(0).getByaddress("ADR-ADZE-7PQZ-2QGJ-FBKQ-ATF7-LWY3-HRXX-4QR6-FR4L-KPPM").get().getUnclaimed_reward().subtract(claimed.get("ADR-ADZE-7PQZ-2QGJ-FBKQ-ATF7-LWY3-HRXX-4QR6-FR4L-KPPM")).doubleValue());
+        assertEquals(1.190001, TreeFactory.getMemoryTree(0).getByaddress("ADR-ACVU-D5FH-VD2I-6WCM-74MN-MX6Q-5ZM2-CMH7-FNWO-ZA3W").get().getUnclaimed_reward().subtract(claimed.get("ADR-ACVU-D5FH-VD2I-6WCM-74MN-MX6Q-5ZM2-CMH7-FNWO-ZA3W")).doubleValue());
+        assertEquals(BigDecimal.valueOf(2.473339 - 0.10).setScale(RewardConfiguration.DECIMAL_PRECISION, RewardConfiguration.ROUNDING), TreeFactory.getMemoryTree(0).getByaddress("ADR-ADSZ-SLEU-HOHN-G7GM-L565-4EBG-566P-S7FM-SUI4-YLLW").get().getUnclaimed_reward().subtract(claimed.get("ADR-ADSZ-SLEU-HOHN-G7GM-L565-4EBG-566P-S7FM-SUI4-YLLW")));
 
-        assertEquals(1.190001, TreeFactory.getMemoryTree(0).getByaddress("ADR-AADE-ROH3-CAFV-XK5V-2NKZ-QMTG-SFMC-37W5-SHUV-2T46").get().getUnclaimed_reward().subtract(claimed.get("ADR-AADE-ROH3-CAFV-XK5V-2NKZ-QMTG-SFMC-37W5-SHUV-2T46")).doubleValue());
-        assertEquals(1.784998, TreeFactory.getMemoryTree(0).getByaddress("ADR-ACAO-BKTC-CFKG-VXWF-PSI2-QHWR-ZIGK-CCOL-LGJN-CM3U").get().getUnclaimed_reward().subtract(claimed.get("ADR-ACAO-BKTC-CFKG-VXWF-PSI2-QHWR-ZIGK-CCOL-LGJN-CM3U")).doubleValue());
-        assertEquals(BigDecimal.valueOf(2.473339 - 0.10).setScale(RewardConfiguration.DECIMAL_PRECISION, RewardConfiguration.ROUNDING), TreeFactory.getMemoryTree(0).getByaddress("ADR-AB2W-RIQY-LSIH-CXQQ-FGRV-AINR-57RO-NFXU-IWM5-IANJ").get().getUnclaimed_reward().subtract(claimed.get("ADR-AB2W-RIQY-LSIH-CXQQ-FGRV-AINR-57RO-NFXU-IWM5-IANJ")));
+        assertEquals(1.190001, TreeFactory.getMemoryTree(0).getByaddress("ADR-ACVU-D5FH-VD2I-6WCM-74MN-MX6Q-5ZM2-CMH7-FNWO-ZA3W").get().getUnclaimed_reward().subtract(claimed.get("ADR-ACVU-D5FH-VD2I-6WCM-74MN-MX6Q-5ZM2-CMH7-FNWO-ZA3W")).doubleValue());
+        assertEquals(1.784998, TreeFactory.getMemoryTree(0).getByaddress("ADR-ADZE-7PQZ-2QGJ-FBKQ-ATF7-LWY3-HRXX-4QR6-FR4L-KPPM").get().getUnclaimed_reward().subtract(claimed.get("ADR-ADZE-7PQZ-2QGJ-FBKQ-ATF7-LWY3-HRXX-4QR6-FR4L-KPPM")).doubleValue());
+        assertEquals(BigDecimal.valueOf(2.473339 - 0.10).setScale(RewardConfiguration.DECIMAL_PRECISION, RewardConfiguration.ROUNDING), TreeFactory.getMemoryTree(0).getByaddress("ADR-ADSZ-SLEU-HOHN-G7GM-L565-4EBG-566P-S7FM-SUI4-YLLW").get().getUnclaimed_reward().subtract(claimed.get("ADR-ADSZ-SLEU-HOHN-G7GM-L565-4EBG-566P-S7FM-SUI4-YLLW")));
 
         assertEquals(989.1, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(0)).get().getAmount().doubleValue());
         assertEquals(984.8, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(1)).get().getAmount().doubleValue());

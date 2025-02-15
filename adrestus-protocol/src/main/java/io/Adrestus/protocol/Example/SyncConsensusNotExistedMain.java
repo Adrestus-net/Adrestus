@@ -28,6 +28,7 @@ import io.Adrestus.protocol.AdrestusTask;
 import io.Adrestus.protocol.IAdrestusFactory;
 import io.Adrestus.protocol.Worker;
 import io.Adrestus.util.GetTime;
+import io.Adrestus.util.SerializationFuryUtil;
 import io.Adrestus.util.SerializationUtil;
 import io.distributedLedger.*;
 import lombok.SneakyThrows;
@@ -61,7 +62,6 @@ public class SyncConsensusNotExistedMain {
         }.getType();
         List<SerializationUtil.Mapping> list2 = new ArrayList<>();
         list2.add(new SerializationUtil.Mapping(MemoryTreePool.class, ctx -> new MemoryTreePoolSerializer()));
-        SerializationUtil patricia_tree_wrapper = new SerializationUtil<>(fluentType, list2);
 
 
         char[] mnemonic1 = "sample sail jungle learn general promote task puppy own conduct green affair ".toCharArray();
@@ -238,8 +238,8 @@ public class SyncConsensusNotExistedMain {
 
         // patricia_tree0.save(TreeFactory.getMemoryTree(0).getRootHash(),patricia_tree_wrapper.encode(TreeFactory.getMemoryTree(0)));
         // patricia_tree1.save(TreeFactory.getMemoryTree(1).getRootHash(),patricia_tree_wrapper.encode(TreeFactory.getMemoryTree(1)));
-        patricia_tree2.save(String.valueOf(2), patricia_tree_wrapper.encode(TreeFactory.getMemoryTree(2)));
-        patricia_tree3.save(String.valueOf(3), patricia_tree_wrapper.encode(TreeFactory.getMemoryTree(3)));
+        patricia_tree2.save(String.valueOf(2), SerializationFuryUtil.getInstance().getFury().serialize(TreeFactory.getMemoryTree(2)));
+        patricia_tree3.save(String.valueOf(3), SerializationFuryUtil.getInstance().getFury().serialize(TreeFactory.getMemoryTree(3)));
     }
 
     public static void main(String[] args) throws InterruptedException {

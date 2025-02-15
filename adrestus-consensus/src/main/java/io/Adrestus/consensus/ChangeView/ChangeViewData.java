@@ -39,6 +39,10 @@ public class ChangeViewData implements Serializable {
     }
 
 
+    public int length() {
+        return 50 + prev_hash.length() + 4;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

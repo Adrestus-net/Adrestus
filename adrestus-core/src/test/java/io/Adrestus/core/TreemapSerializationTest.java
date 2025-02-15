@@ -11,7 +11,6 @@ import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.config.KademliaConfiguration;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedLeaderIndex;
-import io.Adrestus.core.mapper.SerializerCoreFury;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.SecurityAuditProofs;
 import io.Adrestus.crypto.WalletAddress;
@@ -22,7 +21,6 @@ import io.Adrestus.crypto.elliptic.ECDSASignatureData;
 import io.Adrestus.crypto.elliptic.ECKeyPair;
 import io.Adrestus.crypto.elliptic.Keys;
 import io.Adrestus.crypto.elliptic.mapper.BigDecimalSerializer;
-import io.Adrestus.crypto.elliptic.mapper.CustomFurySerializer;
 import io.Adrestus.crypto.elliptic.mapper.StakingData;
 import io.Adrestus.crypto.mnemonic.Mnemonic;
 import io.Adrestus.crypto.mnemonic.Security;
@@ -30,6 +28,7 @@ import io.Adrestus.crypto.mnemonic.WordList;
 import io.Adrestus.mapper.MemoryTreePoolSerializer;
 import io.Adrestus.p2p.kademlia.common.NettyConnectionInfo;
 import io.Adrestus.p2p.kademlia.repository.KademliaData;
+import io.Adrestus.util.SerializationFuryUtil;
 import io.Adrestus.util.SerializationUtil;
 import io.distributedLedger.*;
 import io.vavr.control.Option;
@@ -58,7 +57,7 @@ public class TreemapSerializationTest {
 
     @BeforeAll
     public static void setup() throws Exception {
-        SerializerCoreFury.getInstance().getFury();
+        SerializationFuryUtil.getInstance().getFury();
         int version = 0x00;
         sk1 = new BLSPrivateKey(1);
         vk1 = new BLSPublicKey(sk1);
@@ -126,7 +125,6 @@ public class TreemapSerializationTest {
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
         list.add(new SerializationUtil.Mapping(MemoryTreePool.class, ctx -> new MemoryTreePoolSerializer()));
-        SerializationUtil valueMapper = new SerializationUtil<>(fluentType, list);
 
         String address = "ADR-ADL3-VDZK-ZU7H-2BX5-M2H4-S7LF-5SR4-ECQA-EIUJ-CBFK";
         PatriciaTreeNode treeNode = new PatriciaTreeNode(BigDecimal.valueOf(2), 1);
@@ -135,9 +133,9 @@ public class TreemapSerializationTest {
 
         //m.getByaddress(address);
         //use only special
-        byte[] bt = valueMapper.encode_special(m, CustomFurySerializer.getInstance().getFury().serialize(m).length);
+        byte[] bt = SerializationFuryUtil.getInstance().getFury().serialize(m);
         tree_datasbase.save("patricia_tree_root", bt);
-        MemoryTreePool copy = (MemoryTreePool) valueMapper.decode(tree_datasbase.findByKey("patricia_tree_root").get());
+        MemoryTreePool copy = (MemoryTreePool) SerializationFuryUtil.getInstance().getFury().deserialize(tree_datasbase.findByKey("patricia_tree_root").get());
 
 
         //copy.store(address, treeNode);
@@ -158,7 +156,6 @@ public class TreemapSerializationTest {
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
         list.add(new SerializationUtil.Mapping(MemoryTreePool.class, ctx -> new MemoryTreePoolSerializer()));
-        SerializationUtil valueMapper = new SerializationUtil<>(fluentType, list);
 
         String address = "ADR-ADL3-VDZK-ZU7H-2BX5-M2H4-S7LF-5SR4-ECQA-EIUJ-CBFK";
         PatriciaTreeNode treeNode = new PatriciaTreeNode(BigDecimal.valueOf(2), 1);
@@ -189,9 +186,9 @@ public class TreemapSerializationTest {
         }
 
         long start = System.currentTimeMillis();
-        byte[] bt = valueMapper.encode_special(TreeFactory.getMemoryTree(0), CustomFurySerializer.getInstance().getFury().serialize(TreeFactory.getMemoryTree(0)).length);
+        byte[] bt = SerializationFuryUtil.getInstance().getFury().serialize(TreeFactory.getMemoryTree(0));
         tree_datasbase.save("patricia_tree_root", bt);
-        MemoryTreePool copy = (MemoryTreePool) valueMapper.decode(tree_datasbase.findByKey("patricia_tree_root").get());
+        MemoryTreePool copy = (MemoryTreePool) SerializationFuryUtil.getInstance().getFury().deserialize(tree_datasbase.findByKey("patricia_tree_root").get());
         long finish = System.currentTimeMillis();
         long timeElapsed = finish - start;
         System.out.println("elapsed: " + timeElapsed);
@@ -287,7 +284,6 @@ public class TreemapSerializationTest {
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
         list.add(new SerializationUtil.Mapping(MemoryTreePool.class, ctx -> new MemoryTreePoolSerializer()));
-        SerializationUtil valueMapper = new SerializationUtil<>(fluentType, list);
 
         String address = "ADR-ADL3-VDZK-ZU7H-2BX5-M2H4-S7LF-5SR4-ECQA-EIUJ-CBFK";
         PatriciaTreeNode treeNode = new PatriciaTreeNode(BigDecimal.valueOf(2), 1);
@@ -296,9 +292,9 @@ public class TreemapSerializationTest {
 
         //m.getByaddress(address);
         //use only special
-        byte[] bt = valueMapper.encode_special(m, CustomFurySerializer.getInstance().getFury().serialize(m).length);
+        byte[] bt = SerializationFuryUtil.getInstance().getFury().serialize(m);
         tree_database.save("patricia_tree_root", bt);
-        MemoryTreePool copy = (MemoryTreePool) valueMapper.decode(tree_database.findByKey("patricia_tree_root").get());
+        MemoryTreePool copy = (MemoryTreePool) SerializationFuryUtil.getInstance().getFury().deserialize(tree_database.findByKey("patricia_tree_root").get());
 
         PatriciaTreeNode treeNode2 = new PatriciaTreeNode(BigDecimal.valueOf(3), 3);
         TreeFactory.getMemoryTree(1).store("address", treeNode2);
@@ -326,7 +322,7 @@ public class TreemapSerializationTest {
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
         list.add(new SerializationUtil.Mapping(MemoryTreePool.class, ctx -> new MemoryTreePoolSerializer()));
-        SerializationUtil valueMapper = new SerializationUtil<>(fluentType, list);
+
 
         String address = "ADR-ADL3-VDZK-ZU7H-2BX5-M2H4-S7LF-5SR4-ECQA-EIUJ-CBFK";
         PatriciaTreeNode treeNode = new PatriciaTreeNode(BigDecimal.valueOf(2), 1);
@@ -336,9 +332,9 @@ public class TreemapSerializationTest {
 
         //m.getByaddress(address);
         //use only special
-        byte[] bt = valueMapper.encode_special(m, CustomFurySerializer.getInstance().getFury().serialize(m).length);
+        byte[] bt = SerializationFuryUtil.getInstance().getFury().serialize(m);
         tree_database.save("patricia_tree_root", bt);
-        MemoryTreePool copy = (MemoryTreePool) valueMapper.decode(tree_database.findByKey("patricia_tree_root").get());
+        MemoryTreePool copy = (MemoryTreePool) SerializationFuryUtil.getInstance().getFury().deserialize(tree_database.findByKey("patricia_tree_root").get());
 
         PatriciaTreeNode treeNode2 = new PatriciaTreeNode(BigDecimal.valueOf(3), 3);
         TreeFactory.getMemoryTree(1).store("address", treeNode2);
@@ -366,7 +362,6 @@ public class TreemapSerializationTest {
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
         list.add(new SerializationUtil.Mapping(MemoryTreePool.class, ctx -> new MemoryTreePoolSerializer()));
-        SerializationUtil valueMapper = new SerializationUtil<>(fluentType, list);
 
         String address = "ADR-ADL3-VDZK-ZU7H-2BX5-M2H4-S7LF-5SR4-ECQA-EIUJ-CBFK";
         PatriciaTreeNode treeNode = new PatriciaTreeNode(BigDecimal.valueOf(2), 1);
@@ -378,8 +373,8 @@ public class TreemapSerializationTest {
         assertEquals(m2, m2clone);
         //m.getByaddress(address);
         //use only special
-        byte[] bt = valueMapper.encode_special(m, CustomFurySerializer.getInstance().getFury().serialize(m).length);
-        byte[] bt2 = valueMapper.encode_special(m2, CustomFurySerializer.getInstance().getFury().serialize(m2).length);
+        byte[] bt = SerializationFuryUtil.getInstance().getFury().serialize(m);
+        byte[] bt2 = SerializationFuryUtil.getInstance().getFury().serialize(m2);
         tree_datasbase.save("3", bt);
         tree_datasbase.save("4", bt2);
         tree_datasbase.save("2", bt);
@@ -387,7 +382,7 @@ public class TreemapSerializationTest {
         tree_datasbase.save("4", bt);
         Map<String, byte[]> copy = tree_datasbase.findBetweenRange("2");
         Optional<byte[]> res = tree_datasbase.seekLast();
-        MemoryTreePool copys = (MemoryTreePool) valueMapper.decode(tree_datasbase.seekLast().get());
+        MemoryTreePool copys = (MemoryTreePool) SerializationFuryUtil.getInstance().getFury().deserialize(tree_datasbase.seekLast().get());
         tree_datasbase.delete_db();
     }
 }

@@ -48,7 +48,7 @@ public class ConsensusTransactionTimer {
         this.addreses = addreses;
         this.blockIndex = new BlockIndex();
         this.keypair = keypair;
-        this.consensusManager = new ConsensusManager(false);
+        this.consensusManager = new ConsensusManager();
         this.timer = new Timer(ConsensusConfiguration.CONSENSUS);
         this.task = new ConsensusTask();
         this.latch = latch;
@@ -103,6 +103,8 @@ public class ConsensusTransactionTimer {
                 rewardsTransaction.setAmount(BigDecimal.valueOf(0.10));
                 rewardsTransaction.setAmountWithTransactionFee(BigDecimal.ZERO);
                 rewardsTransaction.setNonce(nonce);
+                rewardsTransaction.setXAxis(keypair.get(i).getXpubAxis());
+                rewardsTransaction.setYAxis(keypair.get(i).getYpubAxis());
                 byte byf[] = serenc.encode(rewardsTransaction, 1024);
                 rewardsTransaction.setHash(HashUtil.sha256_bytetoString(byf));
 
@@ -120,6 +122,8 @@ public class ConsensusTransactionTimer {
                 transaction.setZoneFrom(CachedZoneIndex.getInstance().getZoneIndex());
                 transaction.setZoneTo(CachedZoneIndex.getInstance().getZoneIndex());
                 transaction.setAmount(BigDecimal.valueOf(i + 10));
+                transaction.setXAxis(keypair.get(i).getXpubAxis());
+                transaction.setYAxis(keypair.get(i).getYpubAxis());
                 transaction.setAmountWithTransactionFee(transaction.getAmount().multiply(BigDecimal.valueOf(10.0 / 100.0)));
                 transaction.setNonce(nonce);
                 byte byf[] = serenc.encode(transaction, 1024);
@@ -162,6 +166,7 @@ public class ConsensusTransactionTimer {
                 if (consensusMessage.getStatusType().equals(ConsensusStatusType.ABORT))
                     throw new IllegalArgumentException("Problem occured");
             } else {
+                consensusMessage.getData().setViewID(CachedLatestBlocks.getInstance().getTransactionBlock().getViewID() + 1);
                 LOG.info("VALIDATOR State");
                 consensusManager.changeStateTo(ConsensusRoleType.VALIDATOR);
                 var validatorphase = consensusManager.getRole().manufacturePhases(ConsensusType.TRANSACTION_BLOCK);

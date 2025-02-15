@@ -2,6 +2,7 @@ package io.Adrestus.core;
 
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
 
+import java.util.ArrayList;
 import java.util.Set;
 
 public interface IBlockIndex {
@@ -21,4 +22,5 @@ public interface IBlockIndex {
 
     boolean containsAll(Set<BLSPublicKey> left, Set<BLSPublicKey> right);
 
+    ArrayList<String> getIpList(int zoneIndex);
 }

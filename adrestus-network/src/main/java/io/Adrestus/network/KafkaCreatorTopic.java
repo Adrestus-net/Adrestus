@@ -203,6 +203,7 @@ public class KafkaCreatorTopic implements IKafkaComponent {
 //            });
 //            int g = 3;
         } catch (ExecutionException e) {
+            e.printStackTrace();
             if (e.getCause() instanceof org.apache.kafka.common.errors.TopicExistsException) {
                 System.out.println("Topics already exist");
             } else {

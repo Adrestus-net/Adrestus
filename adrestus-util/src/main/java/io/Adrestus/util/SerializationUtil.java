@@ -164,7 +164,7 @@ public class SerializationUtil<T> {
     }
 
 
-    public synchronized byte[] encode(T value) {
+    public synchronized byte[] encode0ld(T value) {
         // int buff_size2 = search((int) (ObjectSizer.retainedSize(value)));
         int buff_size = search((int) (ObjectSizeCalculator.getObjectSize(value)));
         buffer = new byte[buff_size];
@@ -189,7 +189,7 @@ public class SerializationUtil<T> {
         return buffer;
     }
 
-    public byte[] encode_list(List<T> value) {
+    public byte[] encodeList(List<T> value) {
         try {
             int buff_size = search((int) (ObjectSizeCalculator.getObjectSize(value)));
             buffer = new byte[buff_size];
@@ -223,7 +223,7 @@ public class SerializationUtil<T> {
         return buffer;
     }
 
-    public byte[] encode_special(T value, int size) {
+    public byte[] encodeSpecial(T value, int size) {
         int buff_size = search(size);
         buffer = new byte[buff_size];
         try {

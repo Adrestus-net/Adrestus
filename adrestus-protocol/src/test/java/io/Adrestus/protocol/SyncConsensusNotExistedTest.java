@@ -33,8 +33,8 @@ import io.Adrestus.p2p.kademlia.exception.UnsupportedBoundingException;
 import io.Adrestus.p2p.kademlia.node.KeyHashGenerator;
 import io.Adrestus.p2p.kademlia.repository.KademliaData;
 import io.Adrestus.p2p.kademlia.util.BoundedHashUtil;
-import io.Adrestus.protocol.mapper.CustomFurySerializer;
 import io.Adrestus.util.GetTime;
+import io.Adrestus.util.SerializationFuryUtil;
 import io.Adrestus.util.SerializationUtil;
 import io.distributedLedger.*;
 import org.apache.commons.codec.binary.StringUtils;
@@ -268,10 +268,10 @@ public class SyncConsensusNotExistedTest {
         IDatabase<String, byte[]> patricia_tree3 = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, PatriciaTreeInstance.PATRICIA_TREE_INSTANCE_3);
 
 
-        patricia_tree0.save(String.valueOf(0), CustomFurySerializer.getInstance().getFury().serialize(TreeFactory.getMemoryTree(0)));
-        patricia_tree1.save(String.valueOf(1), CustomFurySerializer.getInstance().getFury().serialize(TreeFactory.getMemoryTree(1)));
-        patricia_tree2.save(String.valueOf(2), CustomFurySerializer.getInstance().getFury().serialize(TreeFactory.getMemoryTree(2)));
-        patricia_tree3.save(String.valueOf(3), CustomFurySerializer.getInstance().getFury().serialize(TreeFactory.getMemoryTree(3)));
+        patricia_tree0.save(String.valueOf(0), SerializationFuryUtil.getInstance().getFury().serialize(TreeFactory.getMemoryTree(0)));
+        patricia_tree1.save(String.valueOf(1), SerializationFuryUtil.getInstance().getFury().serialize(TreeFactory.getMemoryTree(1)));
+        patricia_tree2.save(String.valueOf(2), SerializationFuryUtil.getInstance().getFury().serialize(TreeFactory.getMemoryTree(2)));
+        patricia_tree3.save(String.valueOf(3), SerializationFuryUtil.getInstance().getFury().serialize(TreeFactory.getMemoryTree(3)));
 
 
         sk7 = new BLSPrivateKey(random);

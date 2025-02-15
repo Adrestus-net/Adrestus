@@ -14,7 +14,7 @@ public class Service<T> implements IService<T> {
     private IDatabase<String, T> database;
     private DatabaseInstance instance;
 
-    private IDatabase<String, LevelDBTransactionWrapper<T>> transaction_database;
+    private IDatabase<String, T> transaction_database;
 
     public Service(Class<T> typeParameterClass) {
         this.typeParameterClass = typeParameterClass;
@@ -67,7 +67,7 @@ public class Service<T> implements IService<T> {
     }
 
     @Override
-    public Map<String, LevelDBTransactionWrapper<T>> downloadTransactionDatabase(String hash) throws Exception {
+    public Map<String, T> downloadTransactionDatabase(String hash) throws Exception {
         return transaction_database.seekFromStart();
     }
 

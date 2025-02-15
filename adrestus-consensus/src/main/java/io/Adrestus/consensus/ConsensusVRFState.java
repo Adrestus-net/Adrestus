@@ -20,7 +20,7 @@ public class ConsensusVRFState extends AbstractState {
 
     public ConsensusVRFState() {
         this.blockIndex = new BlockIndex();
-        this.consensusManager = new ConsensusManager(false);
+        this.consensusManager = new ConsensusManager();
     }
 
     @Override
@@ -43,7 +43,7 @@ public class ConsensusVRFState extends AbstractState {
                 supervisorphase.InitialSetup();
                 supervisorphase.Initialize(vrfMessage);
                 supervisorphase.AggregateVRF(vrfMessage);
-                if (vrfMessage.getType().equals(VRFMessage.vrfMessageType.ABORT))
+                if (vrfMessage.getType().equals(VRFMessage.VRFMessageType.ABORT))
                     return false;
                 supervisorphase.AnnouncePhase(consensusMessage);
                 supervisorphase.PreparePhase(consensusMessage);
@@ -54,7 +54,7 @@ public class ConsensusVRFState extends AbstractState {
                 var validatorphase = (VRFConsensusPhase) consensusManager.getRole().manufacturePhases(ConsensusType.VRF);
                 validatorphase.InitialSetup();
                 validatorphase.Initialize(vrfMessage);
-                if (vrfMessage.getType().equals(VRFMessage.vrfMessageType.ABORT))
+                if (vrfMessage.getType().equals(VRFMessage.VRFMessageType.ABORT))
                     return false;
                 validatorphase.AnnouncePhase(consensusMessage);
                 validatorphase.PreparePhase(consensusMessage);

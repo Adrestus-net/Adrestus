@@ -3,12 +3,14 @@ package io.Adrestus.consensus;
 import com.google.common.reflect.TypeToken;
 import io.Adrestus.Trie.MerkleNode;
 import io.Adrestus.Trie.MerkleTreeOptimizedImp;
+import io.Adrestus.config.KafkaConfiguration;
 import io.Adrestus.core.*;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedLeaderIndex;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.core.Resourses.ErasureServerInstance;
 import io.Adrestus.core.Util.BlockSizeCalculator;
+import io.Adrestus.core.comparators.SortSignatureMapByBlsPublicKey;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.bls.BLS381.ECP;
 import io.Adrestus.crypto.bls.BLS381.ECP2;
@@ -29,14 +31,13 @@ import io.Adrestus.erasure.code.encoder.SourceBlockEncoder;
 import io.Adrestus.erasure.code.parameters.FECParameterObject;
 import io.Adrestus.erasure.code.parameters.FECParameters;
 import io.Adrestus.erasure.code.parameters.FECParametersPreConditions;
-import io.Adrestus.network.ConsensusServer;
-import io.Adrestus.rpc.CachedConsensusPublisherData;
-import io.Adrestus.util.GetTime;
+import io.Adrestus.network.ConsensusBrokerInstance;
+import io.Adrestus.network.IPFinder;
+import io.Adrestus.network.TopicType;
+import io.Adrestus.util.SerializationFuryUtil;
 import io.Adrestus.util.SerializationUtil;
 import lombok.SneakyThrows;
-import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.SerializationUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.tuweni.bytes.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,15 +46,10 @@ import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
-import java.sql.Timestamp;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-
-import static io.Adrestus.config.ConsensusConfiguration.CONSENSUS_CONNECTED_RECEIVE_TIMEOUT;
+import java.util.stream.IntStream;
 
 public class OrganizerConsensusPhases {
 
@@ -67,15 +63,15 @@ public class OrganizerConsensusPhases {
 
         private final DefaultFactory factory;
         private final SerializationUtil<AbstractBlock> block_serialize;
-        private final SerializationUtil<ConsensusMessage> consensus_serialize;
         private final SerializationUtil<Signature> signatureMapper;
         private final SerializationUtil<SerializableErasureObject> serenc_erasure;
-        private final boolean DEBUG;
         private final IBlockIndex blockIndex;
+        private final OptionalInt position;
+        private final ArrayList<String> ips;
 
         private final BlockSizeCalculator sizeCalculator;
         private CountDownLatch latch;
-        private int N, N_COPY;
+        private int N;
         private int F;
 
         private MerkleTreeOptimizedImp tree;
@@ -85,8 +81,7 @@ public class OrganizerConsensusPhases {
 
 
         @SneakyThrows
-        public ProposeTransactionBlock(boolean DEBUG) {
-            this.DEBUG = DEBUG;
+        public ProposeTransactionBlock() {
             this.blockIndex = new BlockIndex();
             this.factory = new DefaultFactory();
             this.factory.getBlock(BlockType.GENESIS);
@@ -98,188 +93,116 @@ public class OrganizerConsensusPhases {
             list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
             list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
             this.block_serialize = new SerializationUtil<AbstractBlock>(AbstractBlock.class, list);
-            this.consensus_serialize = new SerializationUtil<ConsensusMessage>(fluentType, list);
             this.sizeCalculator = new BlockSizeCalculator();
             this.signatureMapper = new SerializationUtil<Signature>(Signature.class, list);
             this.serenc_erasure = new SerializationUtil<SerializableErasureObject>(SerializableErasureObject.class, list);
+            this.ips = this.blockIndex.getIpList(CachedZoneIndex.getInstance().getZoneIndex());
+            KafkaConfiguration.KAFKA_HOST = IPFinder.getLocalIP();
+            this.position = IntStream.range(0, this.ips.size()).filter(i -> KafkaConfiguration.KAFKA_HOST.equals(ips.get(i))).findFirst();
+            ConsensusBrokerInstance.getInstance(ips, ips.getFirst(), position.getAsInt());
             ErasureServerInstance.getInstance();
         }
 
         @Override
         public void InitialSetup() {
-            long start = System.currentTimeMillis();
             try {
-                if (!DEBUG) {
-                    //this.N = 1;
-                    CachedConsensusPublisherData.getInstance().clear();
-                    this.N = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).size();
-                    this.F = (this.N - 1) / 3;
-                    this.latch = new CountDownLatch(N - 1);
-                    this.current = CachedLeaderIndex.getInstance().getTransactionPositionLeader();
-                    if (current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).size() - 1) {
-//                        this.leader_bls = this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), this.current);
-                        ConsensusServer.getInstance().setLatch(latch);
-                        CachedLeaderIndex.getInstance().setTransactionPositionLeader(0);
-                    } else {
-//                        this.leader_bls = this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), this.current);
-                        ConsensusServer.getInstance().setLatch(latch);
-                        CachedLeaderIndex.getInstance().setTransactionPositionLeader(current + 1);
-                    }
-                    this.N_COPY = (this.N - 1) - ConsensusServer.getInstance().getPeers_not_connected();
-                    ConsensusServer.getInstance().setMAX_MESSAGES(this.N_COPY * 2);
-                    ConsensusServer.getInstance().receive_handler();
-                    long finish = System.currentTimeMillis();
-                    long timeElapsed = finish - start;
-                    System.out.println("Organizer construcotr " + timeElapsed);
+                this.N = CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).size();
+                this.F = (this.N - 1) / 3;
+                this.current = CachedLeaderIndex.getInstance().getTransactionPositionLeader();
+                ConsensusBrokerInstance.getInstance().getConsensusBroker().setLeader_host(this.blockIndex.getIpValue(CachedZoneIndex.getInstance().getZoneIndex(), CachedBLSKeyPair.getInstance().getPublicKey()));
+                ConsensusBrokerInstance.getInstance().getConsensusBroker().setLeader_position(CachedLeaderIndex.getInstance().getTransactionPositionLeader());
+                if (current == CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).size() - 1) {
+                    CachedLeaderIndex.getInstance().setTransactionPositionLeader(0);
+                } else {
+                    CachedLeaderIndex.getInstance().setTransactionPositionLeader(current + 1);
                 }
             } catch (Exception e) {
-                LOG.info("InitialSetup: Exception caught " + e.toString());
+                e.printStackTrace();
                 throw new IllegalArgumentException("Exception caught " + e.toString());
             }
         }
 
         @Override
         public void DispersePhase(ConsensusMessage<TransactionBlock> data) throws Exception {
-            long Dispersestart = System.currentTimeMillis();
             var regural_block = factory.getBlock(BlockType.REGULAR);
             regural_block.forgeTransactionBlock(data.getData());
             this.original_copy = (TransactionBlock) data.getData().clone();
             data.setMessageType(ConsensusMessageType.DISPERSE);
-            if (DEBUG)
-                return;
 
-            ArrayList<String> proofs = new ArrayList<>();
-            ArrayList<String> existed = new ArrayList<>();
+            try {
+                BlockSizeCalculator sizeCalculator = new BlockSizeCalculator();
+                sizeCalculator.setTransactionBlock(this.original_copy);
+                byte[] buffer = block_serialize.encode(this.original_copy, sizeCalculator.TransactionBlockSizeCalculator());
 
-            ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
-            int unique = 0;
-            while (unique < N_COPY) {
-                Runnable task = () -> {
-                    String rec = new String(ConsensusServer.getInstance().receiveErasureData(), StandardCharsets.UTF_8);
-                    if (!existed.contains(rec)) {
-                        existed.add(rec);
-                        proofs.add(rec);
+                long dataLen = buffer.length;
+                int sizeOfCommittee = this.N - 1;
+                double loss = .6;
+                int numSrcBlks = sizeOfCommittee;
+                int symbSize = (int) (dataLen / sizeOfCommittee);
+                FECParameterObject object = FECParametersPreConditions.CalculateFECParameters(dataLen, symbSize, numSrcBlks);
+                FECParameters fecParams = FECParameters.newParameters(object.getDataLen(), object.getSymbolSize(), object.getNumberOfSymbols());
+
+                byte[] chunks = new byte[fecParams.dataLengthAsInt()];
+                System.arraycopy(buffer, 0, chunks, 0, chunks.length);
+                final ArrayDataEncoder enc = OpenRQ.newEncoder(chunks, fecParams);
+                ArrayList<SerializableErasureObject> serializableErasureObjects = new ArrayList<SerializableErasureObject>();
+                ArrayList<EncodingPacket> n = new ArrayList<EncodingPacket>();
+                for (SourceBlockEncoder sbEnc : enc.sourceBlockIterable()) {
+                    for (EncodingPacket srcPacket : sbEnc.sourcePacketsIterable()) {
+                        n.add(srcPacket);
                     }
-                };
-                executor.submit(task);
-                unique++;
-            }
-
-            executor.shutdown();
-            executor.awaitTermination(CONSENSUS_CONNECTED_RECEIVE_TIMEOUT, TimeUnit.MILLISECONDS);
-            executor.shutdownNow();
-            executor.close();
-
-            if (proofs.size() < N_COPY - F) {
-                cleanup();
-                LOG.info("DispersePhase: Size of validators are not correct Abort");
-                data.setStatusType(ConsensusStatusType.ABORT);
-                return;
-            }
-
-            if (N_COPY == 0) {
-                cleanup();
-                LOG.info("DispersePhase: None of validators connected abort");
-                data.setStatusType(ConsensusStatusType.ABORT);
-                return;
-            }
-
-//           ###############################################Get_Chucks###############################################
-            BlockSizeCalculator sizeCalculator = new BlockSizeCalculator();
-            sizeCalculator.setTransactionBlock(this.original_copy);
-            byte[] buffer = block_serialize.encode(this.original_copy, sizeCalculator.TransactionBlockSizeCalculator());
-
-            long dataLen = buffer.length;
-            int sizeOfCommittee = N_COPY;
-            double loss = .6;
-            int numSrcBlks = sizeOfCommittee;
-            int symbSize = (int) (dataLen / sizeOfCommittee);
-            FECParameterObject object = FECParametersPreConditions.CalculateFECParameters(dataLen, symbSize, numSrcBlks);
-            FECParameters fecParams = FECParameters.newParameters(object.getDataLen(), object.getSymbolSize(), object.getNumberOfSymbols());
-
-            byte[] content = new byte[fecParams.dataLengthAsInt()];
-            System.arraycopy(buffer, 0, content, 0, content.length);
-            final ArrayDataEncoder enc = OpenRQ.newEncoder(content, fecParams);
-            ArrayList<SerializableErasureObject> serializableErasureObjects = new ArrayList<SerializableErasureObject>();
-            ArrayList<EncodingPacket> n = new ArrayList<EncodingPacket>();
-            for (SourceBlockEncoder sbEnc : enc.sourceBlockIterable()) {
-                for (EncodingPacket srcPacket : sbEnc.sourcePacketsIterable()) {
-                    n.add(srcPacket);
                 }
-            }
-            tree = new MerkleTreeOptimizedImp();
-            ArrayList<MerkleNode> merkleNodes = new ArrayList<MerkleNode>();
-            for (int i = 0; i < n.size(); i++) {
-                SerializableErasureObject serializableErasureObject = new SerializableErasureObject(object, n.get(i).asArray(), new ArrayList<byte[]>());
-                serializableErasureObjects.add(serializableErasureObject);
-                merkleNodes.add(new MerkleNode(HashUtil.XXH3(serializableErasureObject.getOriginalPacketChunks())));
-            }
-            tree.constructTree(merkleNodes);
-            for (int j = 0; j < serializableErasureObjects.size(); j++) {
-                tree.build_proofs(new MerkleNode(HashUtil.XXH3(serializableErasureObjects.get(j).getOriginalPacketChunks())));
-                serializableErasureObjects.get(j).setProofs(tree.getMerkleeproofs());
-                serializableErasureObjects.get(j).setRootMerkleHash(tree.getRootHash());
-            }
-            ArrayList<byte[]> toSend = new ArrayList<>();
-            for (SerializableErasureObject obj : serializableErasureObjects) {
-                toSend.add(serenc_erasure.encode(obj));
-            }
-//           ###############################################Get_Chucks###############################################
+                tree = new MerkleTreeOptimizedImp();
+                ArrayList<MerkleNode> merkleNodes = new ArrayList<MerkleNode>();
+                for (int i = 0; i < n.size(); i++) {
+                    SerializableErasureObject serializableErasureObject = new SerializableErasureObject(object, n.get(i).asArray(), new ArrayList<byte[]>());
+                    serializableErasureObjects.add(serializableErasureObject);
+                    merkleNodes.add(new MerkleNode(HashUtil.XXH3(serializableErasureObject.getOriginalPacketChunks())));
+                }
+                tree.constructTree(merkleNodes);
+                for (int j = 0; j < serializableErasureObjects.size(); j++) {
+                    SerializableErasureObject serializableErasureObject = serializableErasureObjects.get(j);
+                    tree.build_proofs(new MerkleNode(HashUtil.XXH3(serializableErasureObject.getOriginalPacketChunks())));
+                    serializableErasureObject.setProofs(tree.getMerkleeproofs());
+                    serializableErasureObject.setRootMerkleHash(tree.getRootHash());
+                }
+                int sendSize = 0;
+                int onlyFirstSize = 0;
+                if (serializableErasureObjects.size() >= sizeOfCommittee) {
+                    sendSize = serializableErasureObjects.size() / sizeOfCommittee;
+                    onlyFirstSize = (n.size() - sendSize * sizeOfCommittee);
+                } else {
+                    sendSize = sizeOfCommittee;
+                    onlyFirstSize = sizeOfCommittee - sendSize * n.size();
+                }
 
-            ArrayList<String> identities = new ArrayList<>();
-            int valid = 0;
-            for (int j = 0; j < proofs.size(); j++) {
-                try {
-                    StringJoiner joiner2 = new StringJoiner(delimeter);
-                    String[] splits = StringUtils.split(proofs.get(j), delimeter);
-                    BLSPublicKey blsPublicKey = BLSPublicKey.fromByte(Hex.decodeHex(splits[0]));
-                    Timestamp timestamp = GetTime.GetTimestampFromString(splits[1]);
-                    boolean val = GetTime.CheckIfTimestampIsUnderOneMinute(timestamp);
-                    Signature bls_sig2 = this.signatureMapper.decode(Hex.decodeHex(splits[2]));
-                    String strsgn = joiner2.add(Hex.encodeHexString(blsPublicKey.toBytes())).add(splits[1]).toString();
-                    Boolean signcheck = BLSSignature.verify(bls_sig2, strsgn.getBytes(StandardCharsets.UTF_8), blsPublicKey);
-                    if (signcheck && val) {
-                        identities.add(strsgn);
-                        valid++;
+                int startPosition = 0;
+                ArrayList<ArrayList<byte[]>> finalList = new ArrayList<>();
+                while (startPosition < serializableErasureObjects.size()) {
+                    int endPosition = Math.min(startPosition + sendSize + onlyFirstSize, serializableErasureObjects.size());
+                    ArrayList<byte[]> toSend = new ArrayList<>(endPosition - startPosition);
+                    for (int i = startPosition; i < endPosition; i++) {
+                        SerializableErasureObject serializableErasureObject = serializableErasureObjects.get(i);
+                        toSend.add(serenc_erasure.encode(serializableErasureObject, serializableErasureObject.getSize()));
                     }
-                } catch (Exception e) {
-                    LOG.info("DispersePhase: Decoding String Erasure Proofs failed");
+                    if (toSend.isEmpty()) {
+                        throw new IllegalArgumentException("Size of toSend is 0");
+                    }
+                    finalList.add(toSend);
+                    startPosition = endPosition;
+                    onlyFirstSize = 0;
                 }
-            }
-
-            if (valid < N_COPY - F) {
+                ConsensusBrokerInstance.getInstance().getConsensusBroker().seekDisperseOffsetToEnd();
+                ConsensusBrokerInstance.getInstance().getConsensusBroker().distributeDisperseMessageFromLeader(finalList, String.valueOf(data.getData().getViewID()));
+            } catch (Exception e) {
                 cleanup();
-                LOG.info("DispersePhase: Validators dont send correct header messages abort");
+                LOG.info("DispersePhase: Organizer Failed to create the message " + e.getMessage());
                 data.setStatusType(ConsensusStatusType.ABORT);
-                return;
             }
-
-            for (int i = 0; i < valid; i++) {
-                ConsensusServer.getInstance().setErasureMessage(toSend.get(i), identities.get(i));
-            }
-
-            long Dispersefinish = System.currentTimeMillis();
-            long DispersetimeElapsed = Dispersefinish - Dispersestart;
-            System.out.println("Organizer Disperse: " + DispersetimeElapsed);
         }
 
         @Override
         public void AnnouncePhase(ConsensusMessage<TransactionBlock> data) throws Exception {
-            long Announceestart = System.currentTimeMillis();
-            long Announceestarta = System.currentTimeMillis();
-            if (!DEBUG) {
-                //this.consensusServer.BlockUntilConnected();
-                if (ConsensusServer.getInstance().getPeers_not_connected() > F) {
-                    cleanup();
-                    LOG.info("AnnouncePhase: Byzantine network not meet requirements abort " + String.valueOf(ConsensusServer.getInstance().getPeers_not_connected()));
-                    data.setStatusType(ConsensusStatusType.ABORT);
-                    return;
-                }
-            }
-            long Announceefinisha = System.currentTimeMillis();
-            long AnnounceetimeElapseda = Announceefinisha - Announceestarta;
-            System.out.println("Organizer Announce a " + AnnounceetimeElapseda);
-            long Announceestartb = System.currentTimeMillis();
             data.setData(null);
             data.setMessageType(ConsensusMessageType.ANNOUNCE);
 
@@ -295,67 +218,57 @@ public class OrganizerConsensusPhases {
             BLSLeaderSignatureData.getMessageHash()[0] = BLSSignature.GetMessageHashAsBase64String(message);
             this.original_copy.getSignatureData().put(BLSPublicKey.fromByte(CachedBLSKeyPair.getInstance().getPublicKey().toBytes()), BLSLeaderSignatureData);
 
-            if (DEBUG)
-                return;
-
             //data.setChecksumData(new ConsensusMessage.ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
-            byte[] toSend = consensus_serialize.encode(data);
-            CachedConsensusPublisherData.getInstance().storeAtPosition(0, toSend);
-            ConsensusServer.getInstance().publishMessage(toSend);
-
-            long Announceefinishb = System.currentTimeMillis();
-            long AnnounceetimeElapsedb = Announceefinishb - Announceestartb;
-            System.out.println("Organizer Announce b " + AnnounceetimeElapsedb);
-
-            long Announceefinish = System.currentTimeMillis();
-            long AnnounceetimeElapsed = Announceefinish - Announceestart;
-            System.out.println("Organizer Announce " + AnnounceetimeElapsed);
+            byte[] toSend = SerializationFuryUtil.getInstance().getFury().serialize(data);
+            ConsensusBrokerInstance.getInstance().getConsensusBroker().produceMessage(TopicType.ANNOUNCE_PHASE, String.valueOf(this.original_copy.getViewID()), toSend);
         }
 
         @Override
         public void PreparePhase(ConsensusMessage<TransactionBlock> data) {
-            long Preparestart = System.currentTimeMillis();
             if (data.getStatusType().equals(ConsensusStatusType.ABORT))
                 return;
 
-            if (!DEBUG) {
-                int i = N_COPY;
-                while (i > 0) {
-                    byte[] receive = ConsensusServer.getInstance().receiveData();
-                    try {
-                        if (receive == null || receive.length <= 0) {
-                            LOG.info("PreparePhase: Null message from validators");
-                            i--;
+            List<byte[]> result = ConsensusBrokerInstance.getInstance().getConsensusBroker().receiveMessageFromValidators(TopicType.ANNOUNCE_PHASE, String.valueOf(this.original_copy.getViewID()));
+            if (result == null || result.isEmpty()) {
+                cleanup();
+                LOG.info("PreparePhase: Not Receiving from Validators");
+                data.setStatusType(ConsensusStatusType.ABORT);
+                return;
+            }
+            int N_COPY = N - 1;
+            for (int START = 0; START < result.size(); START++) {
+                byte[] receive = result.get(START);
+                try {
+                    if (receive == null || receive.length <= 0) {
+                        LOG.info("PreparePhase: Null message from validators");
+                    } else {
+                        ConsensusMessage<TransactionBlock> received = (ConsensusMessage<TransactionBlock>) SerializationFuryUtil.getInstance().getFury().deserialize(receive);
+                        //data.setData(received.getData());
+                        if (!CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).containsKey(received.getChecksumData().getBlsPublicKey())) {
+                            LOG.info("PreparePhase: Validator does not exist on consensus... Ignore");
+                            // i--;
                         } else {
-                            ConsensusMessage<TransactionBlock> received = consensus_serialize.decode(receive);
-                            //data.setData(received.getData());
-                            if (!CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(CachedZoneIndex.getInstance().getZoneIndex()).containsKey(received.getChecksumData().getBlsPublicKey())) {
-                                LOG.info("PreparePhase: Validator does not exist on consensus... Ignore");
-                                // i--;
-                            } else {
-                                BLSSignatureData blsSignatureData = new BLSSignatureData();
-                                blsSignatureData.getSignature()[0] = received.getChecksumData().getSignature();
-                                data.getSignatures().put(received.getChecksumData().getBlsPublicKey(), blsSignatureData);
-                                N_COPY--;
-                                i--;
-                            }
+                            BLSSignatureData blsSignatureData = new BLSSignatureData();
+                            blsSignatureData.getSignature()[0] = received.getChecksumData().getSignature();
+                            data.getSignatures().put(received.getChecksumData().getBlsPublicKey(), blsSignatureData);
+                            N_COPY--;
                         }
-                    } catch (IllegalArgumentException | StringIndexOutOfBoundsException e) {
-                        LOG.info("PreparePhase: Problem at message deserialization");
-                    } catch (ArrayIndexOutOfBoundsException e) {
-                        LOG.info("PreparePhase: Receiving out of bounds response from organizer");
-                    } catch (NullPointerException e) {
-                        LOG.info("PreparePhase: Receiving null response from organizer");
                     }
+                } catch (IllegalArgumentException | StringIndexOutOfBoundsException e) {
+                    LOG.info("PreparePhase: Problem at message deserialization");
+                } catch (ArrayIndexOutOfBoundsException e) {
+                    LOG.info("PreparePhase: Receiving out of bounds response from organizer");
+                } catch (NullPointerException e) {
+                    LOG.info("PreparePhase: Receiving null response from organizer");
                 }
+            }
 
 
-                if (N_COPY > F) {
-                    cleanup();
-                    LOG.info("PreparePhase: Byzantine network not meet requirements abort " + String.valueOf(N_COPY));
-                    data.setStatusType(ConsensusStatusType.ABORT);
-                    return;
-                }
+            if (N_COPY > F) {
+                cleanup();
+                LOG.info("PreparePhase: Byzantine network not meet requirements abort " + String.valueOf(N_COPY));
+                data.setStatusType(ConsensusStatusType.ABORT);
+                return;
             }
 
             data.setData(null);
@@ -400,70 +313,61 @@ public class OrganizerConsensusPhases {
             BLSLeaderSignatureData.getMessageHash()[1] = BLSSignature.GetMessageHashAsBase64String(toSign);
             this.original_copy.getSignatureData().put(BLSPublicKey.fromByte(CachedBLSKeyPair.getInstance().getPublicKey().toBytes()), BLSLeaderSignatureData);
 
-            if (DEBUG)
-                return;
 
-            this.N_COPY = (this.N - 1) - ConsensusServer.getInstance().getPeers_not_connected();
-
-
-            byte[] toSend = consensus_serialize.encode(data);
-            CachedConsensusPublisherData.getInstance().storeAtPosition(1, toSend);
-            ConsensusServer.getInstance().publishMessage(toSend);
-            long Preparefinish = System.currentTimeMillis();
-            long PreparetimeElapsed = Preparefinish - Preparestart;
-            System.out.println("Organizer Prepare " + PreparetimeElapsed);
+            byte[] toSend = SerializationFuryUtil.getInstance().getFury().serialize(data);
+            ConsensusBrokerInstance.getInstance().getConsensusBroker().produceMessage(TopicType.PREPARE_PHASE, String.valueOf(this.original_copy.getViewID()), toSend);
         }
 
         @Override
-        public void CommitPhase(ConsensusMessage<TransactionBlock> data) {
-            long Commiteerestart = System.currentTimeMillis();
+        public void CommitPhase(ConsensusMessage<TransactionBlock> data) throws InterruptedException {
             if (data.getStatusType().equals(ConsensusStatusType.ABORT))
                 return;
 
-            if (!DEBUG) {
-                int i = N_COPY;
-                while (i > 0) {
-                    byte[] receive = ConsensusServer.getInstance().receiveData();
-                    try {
-                        if (receive == null || receive.length <= 0) {
-                            LOG.info("CommitPhase: Not Receiving from Validators");
-                            i--;
+            List<byte[]> res = ConsensusBrokerInstance.getInstance().getConsensusBroker().receiveMessageFromValidators(TopicType.PREPARE_PHASE, String.valueOf(this.original_copy.getViewID()));
+            if (res == null || res.isEmpty()) {
+                cleanup();
+                LOG.info("CommitPhase: Not Receiving from Validators");
+                data.setStatusType(ConsensusStatusType.ABORT);
+                return;
+            }
+            int N_COPY = N - 1;
+            for (int START = 0; START < res.size(); START++) {
+                byte[] receive = res.get(START);
+                try {
+                    if (receive == null || receive.length <= 0) {
+                        LOG.info("CommitPhase: Not Receiving from Validators");
+                    } else {
+                        ConsensusMessage<TransactionBlock> received = (ConsensusMessage<TransactionBlock>) SerializationFuryUtil.getInstance().getFury().deserialize(receive);
+                        if (!CachedLatestBlocks.
+                                getInstance()
+                                .getCommitteeBlock()
+                                .getStructureMap()
+                                .get(CachedZoneIndex.getInstance().getZoneIndex())
+                                .containsKey(received.getChecksumData().getBlsPublicKey())) {
+                            LOG.info("CommitPhase: Validator does not exist on consensus... Ignore");
+                            //i--;
                         } else {
-                            ConsensusMessage<TransactionBlock> received = consensus_serialize.decode(receive);
-                            if (!CachedLatestBlocks.
-                                    getInstance()
-                                    .getCommitteeBlock()
-                                    .getStructureMap()
-                                    .get(CachedZoneIndex
-                                            .getInstance()
-                                            .getZoneIndex())
-                                    .containsKey(received.getChecksumData().getBlsPublicKey())) {
-                                LOG.info("CommitPhase: Validator does not exist on consensus... Ignore");
-                                //i--;
-                            } else {
-                                BLSSignatureData blsSignatureData = data.getSignatures().get(received.getChecksumData().getBlsPublicKey());
-                                blsSignatureData.getSignature()[1] = received.getChecksumData().getSignature();
-                                data.getSignatures().put(received.getChecksumData().getBlsPublicKey(), blsSignatureData);
-                                N_COPY--;
-                                i--;
-                            }
+                            BLSSignatureData blsSignatureData = data.getSignatures().get(received.getChecksumData().getBlsPublicKey());
+                            blsSignatureData.getSignature()[1] = received.getChecksumData().getSignature();
+                            data.getSignatures().put(received.getChecksumData().getBlsPublicKey(), blsSignatureData);
+                            N_COPY--;
                         }
-                    } catch (IllegalArgumentException | StringIndexOutOfBoundsException e) {
-                        LOG.info("CommitPhase: Problem at message deserialization");
-                    } catch (ArrayIndexOutOfBoundsException e) {
-                        LOG.info("CommitPhase: Receiving out of bounds response from organizer");
-                    } catch (NullPointerException e) {
-                        LOG.info("CommitPhase: Receiving null response from organizer");
                     }
+                } catch (IllegalArgumentException | StringIndexOutOfBoundsException e) {
+                    LOG.info("CommitPhase: Problem at message deserialization");
+                } catch (ArrayIndexOutOfBoundsException e) {
+                    LOG.info("CommitPhase: Receiving out of bounds response from organizer");
+                } catch (NullPointerException e) {
+                    LOG.info("CommitPhase: Receiving null response from organizer");
                 }
+            }
 
 
-                if (N_COPY > F) {
-                    cleanup();
-                    LOG.info("CommitPhase: Byzantine network not meet requirements abort " + String.valueOf(N_COPY));
-                    data.setStatusType(ConsensusStatusType.ABORT);
-                    return;
-                }
+            if (N_COPY > F) {
+                cleanup();
+                LOG.info("CommitPhase: Byzantine network not meet requirements abort " + String.valueOf(N_COPY));
+                data.setStatusType(ConsensusStatusType.ABORT);
+                return;
             }
             data.setMessageType(ConsensusMessageType.COMMIT);
 
@@ -501,16 +405,52 @@ public class OrganizerConsensusPhases {
             Signature sig = BLSSignature.sign(toSign, CachedBLSKeyPair.getInstance().getPrivateKey());
             data.setChecksumData(new ChecksumData(sig, CachedBLSKeyPair.getInstance().getPublicKey()));
 
-            //commit save to db
-            if (DEBUG)
+
+            byte[] toSend = SerializationFuryUtil.getInstance().getFury().serialize(data);
+            ConsensusBrokerInstance.getInstance().getConsensusBroker().produceMessage(TopicType.COMMITTEE_PHASE, String.valueOf(this.original_copy.getViewID()), toSend);
+
+
+            List<byte[]> result = ConsensusBrokerInstance.getInstance().getConsensusBroker().receiveMessageFromValidators(TopicType.COMMITTEE_PHASE, String.valueOf(this.original_copy.getViewID()));
+            if (result == null || result.isEmpty()) {
+                cleanup();
+                LOG.info("CommitPhase: Not Receiving commit message from Validators");
+                data.setStatusType(ConsensusStatusType.ABORT);
                 return;
+            }
+            TreeMap<BLSPublicKey, BLSSignatureData> commitSignatures = new TreeMap<BLSPublicKey, BLSSignatureData>(new SortSignatureMapByBlsPublicKey());
+            for (int START = 0; START < result.size(); START++) {
+                byte[] receive = result.get(START);
+                try {
+                    if (receive == null || receive.length <= 0) {
+                        LOG.info("CommitPhase: Null commit message from validators");
+                    } else {
+                        ConsensusMessage<String> received = SerializationUtils.deserialize(receive);
+                        BLSSignatureData blsSignatureData = new BLSSignatureData();
+                        blsSignatureData.getSignature()[0] = received.getChecksumData().getSignature();
+                        commitSignatures.put(received.getChecksumData().getBlsPublicKey(), blsSignatureData);
+                    }
+                } catch (IllegalArgumentException | StringIndexOutOfBoundsException e) {
+                    LOG.info("CommitPhase: Problem at message deserialization");
+                } catch (ArrayIndexOutOfBoundsException e) {
+                    LOG.info("CommitPhase: Receiving out of bounds response from organizer");
+                } catch (NullPointerException e) {
+                    LOG.info("CommitPhase: Receiving null response from organizer");
+                }
+            }
 
-            this.N_COPY = (this.N - 1) - ConsensusServer.getInstance().getPeers_not_connected();
-            int i = this.N_COPY;
+            List<BLSPublicKey> pubKeys = new ArrayList<>(commitSignatures.keySet());
+            List<Signature> sigs = commitSignatures.values().stream().map(BLSSignatureData::getSignature).map(r -> r[0]).collect(Collectors.toList());
 
-            byte[] toSend = consensus_serialize.encode(data);
-            CachedConsensusPublisherData.getInstance().storeAtPosition(2, toSend);
-            ConsensusServer.getInstance().publishMessage(toSend);
+            Signature aggregate = BLSSignature.aggregate(sigs);
+
+            boolean isCommit = BLSSignature.fastAggregateVerify(pubKeys, Bytes.wrap("COMMIT".getBytes(StandardCharsets.UTF_8)), aggregate);
+
+            if (!isCommit) {
+                cleanup();
+                LOG.info("CommitPhase: Abort validators dont commit the block with success revert");
+                data.setStatusType(ConsensusStatusType.ABORT);
+                return;
+            }
 
             BlockInvent regural_block = (BlockInvent) factory.getBlock(BlockType.REGULAR);
             regural_block.InventTransactionBlock(this.original_copy);
@@ -518,15 +458,17 @@ public class OrganizerConsensusPhases {
             BLSPublicKey next_key = blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedLeaderIndex.getInstance().getTransactionPositionLeader());
             CachedLatestBlocks.getInstance().getTransactionBlock().setBlockProposer(next_key.toRaw());
             CachedLatestBlocks.getInstance().getTransactionBlock().setLeaderPublicKey(next_key);
-            tree.clear();
-            long Commiteefinish = System.currentTimeMillis();
-            long timeElapsed = Commiteefinish - Commiteerestart;
-            System.out.println("Organizer committee " + timeElapsed);
+            if (tree != null)
+                tree.clear();
             LOG.info("Block is finalized with Success");
+            Thread.sleep(500);
         }
     }
 
     private static void cleanup() {
+        if (ConsensusBrokerInstance.getInstance().getConsensusBroker() != null) {
+            ConsensusBrokerInstance.getInstance().getConsensusBroker().clear();
+        }
     }
 
 }

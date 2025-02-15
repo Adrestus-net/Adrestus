@@ -92,7 +92,7 @@ public class MerkleNode implements Serializable, Cloneable {
         if (right != null) {
             length += right.getLength();
         }
-        return length;
+        return 100 + length;
     }
 
     @Override

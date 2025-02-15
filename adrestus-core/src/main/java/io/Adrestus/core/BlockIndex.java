@@ -90,4 +90,14 @@ public class BlockIndex implements IBlockIndex {
         return new HashSet<>(right).containsAll(left);
     }
 
+    @Override
+    public ArrayList<String> getIpList(int zoneIndex) {
+        return new ArrayList<>(CachedLatestBlocks
+                .getInstance()
+                .getCommitteeBlock()
+                .getStructureMap()
+                .get(zoneIndex)
+                .values());
+    }
+
 }

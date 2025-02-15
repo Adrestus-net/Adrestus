@@ -14,9 +14,9 @@
  */
 package io.Adrestus.Trie.optimize64_trie;
 
-import io.Adrestus.mapper.CustomFurySerializer;
 import io.Adrestus.util.BytesValueRLPOutput;
 import io.Adrestus.util.RLP;
+import io.Adrestus.util.SerializationFuryUtil;
 import io.Adrestus.util.bytes.Bytes;
 import io.Adrestus.util.bytes.Bytes32;
 import io.activej.serializer.annotations.Deserialize;
@@ -116,7 +116,7 @@ class LeafNode<V> implements Node<V>, Serializable {
         final BytesValueRLPOutput out = new BytesValueRLPOutput();
         out.startList();
         out.writeBytes(CompactEncoding.encode(path));
-        out.writeBytes(Bytes.wrap(CustomFurySerializer.getInstance().getFury().serialize(value)));
+        out.writeBytes(Bytes.wrap(SerializationFuryUtil.getInstance().getFury().serialize(value)));
         out.endList();
         final Bytes encoded = out.encoded();
         rlp = encoded;

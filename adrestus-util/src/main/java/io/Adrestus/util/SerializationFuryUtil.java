@@ -1,14 +1,5 @@
-package io.Adrestus.core.mapper;
+package io.Adrestus.util;
 
-import io.Adrestus.MemoryTreePool;
-import io.Adrestus.Trie.HashMapDB;
-import io.Adrestus.Trie.MerklePatriciaTreeImp;
-import io.Adrestus.core.comparators.SortSignatureMapByBlsPublicKey;
-import io.Adrestus.core.comparators.StakingValueComparator;
-import io.Adrestus.crypto.bls.BLSSignatureData;
-import io.Adrestus.crypto.bls.model.Signature;
-import io.Adrestus.crypto.elliptic.mapper.StakingData;
-import io.Adrestus.p2p.kademlia.repository.KademliaData;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import org.apache.fury.Fury;
@@ -20,13 +11,13 @@ import org.apache.fury.logging.LoggerFactory;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.security.AccessControlContext;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.TreeMap;
 
-public class SerializerCoreFury {
+
+public class SerializationFuryUtil {
     private int DEPTH = 130;
     @Getter
     private final ThreadSafeFury fury;
@@ -34,13 +25,13 @@ public class SerializerCoreFury {
     private final HashSet<String> class_names;
     private final HashSet<Class> ignore_class_names;
     private final ArrayList<Object> toSerialize;
-    private static volatile SerializerCoreFury instance;
+    private static volatile SerializationFuryUtil instance;
 
     static {
         LoggerFactory.disableLogging();
     }
 
-    private SerializerCoreFury() throws ClassNotFoundException {
+    private SerializationFuryUtil() throws ClassNotFoundException {
         if (instance != null) {
             throw new IllegalStateException("Already initialized.");
         }
@@ -59,26 +50,17 @@ public class SerializerCoreFury {
                 .requireClassRegistration(false)
                 .buildThreadSafeFury();
         this.Setup();
-        this.withDataType(new KademliaData())
-                .withDataType(new StakingData())
-                .withDataType(new SortSignatureMapByBlsPublicKey())
-                .withDataType(new StakingValueComparator())
-                .withDataType(new BLSSignatureData())
-                .withDataType(new Signature())
-                .withDataType(new MemoryTreePool())
-                .withDataType(new MerklePatriciaTreeImp())
-                .Construct();
     }
 
     @SneakyThrows
-    public static SerializerCoreFury getInstance() {
+    public static SerializationFuryUtil getInstance() {
 
         var result = instance;
         if (result == null) {
-            synchronized (SerializerCoreFury.class) {
+            synchronized (SerializationFuryUtil.class) {
                 result = instance;
                 if (result == null) {
-                    result = new SerializerCoreFury();
+                    result = new SerializationFuryUtil();
                     instance = result;
                 }
             }
@@ -86,7 +68,7 @@ public class SerializerCoreFury {
         return result;
     }
 
-    public SerializerCoreFury withDataType(Object data) {
+    public SerializationFuryUtil withDataType(Object data) {
         this.toSerialize.add(data);
         return this;
     }
@@ -147,9 +129,6 @@ public class SerializerCoreFury {
         this.ignore_class_names.add(BigInteger.class);
         this.ignore_class_names.add(BigDecimal.class);
         this.ignore_class_names.add(ThreadGroup.class);
-        this.ignore_class_names.add(HashMapDB.class);
         this.ignore_class_names.add(ClassLoader.class);
-        this.ignore_class_names.add(AccessControlContext.class);
-
     }
 }

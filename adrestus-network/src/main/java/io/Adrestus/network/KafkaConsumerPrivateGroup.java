@@ -144,6 +144,17 @@ public class KafkaConsumerPrivateGroup implements IKafkaComponent {
                 .collect(Collectors.toList());
     }
 
+    public Map<String, Consumer<String, byte[]>> receiveAllMapBrokerConsumersExceptLeader(String leader_ip) {
+        return consumer_map.entrySet().stream()
+                .filter(e -> !e.getKey().equals(leader_ip))
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        (e1, e2) -> e1,
+                        LinkedHashMap::new
+                ));
+    }
+
     public Consumer<String, byte[]> receiveLeaderConsumer(String leader_ip) {
         return consumer_map.entrySet().stream()
                 .filter(e -> e.getKey().equals(leader_ip))
@@ -152,9 +163,9 @@ public class KafkaConsumerPrivateGroup implements IKafkaComponent {
                 .orElseThrow(() -> new RuntimeException("Consumer not found"));
     }
 
-    public Optional<Integer> getPositionOfElement(String host) {
-        List<String> keys = new ArrayList<>(consumer_map.keySet());
-        int position = keys.indexOf(host);
+    public Optional<Integer> getPositionOfElement(Consumer<String, byte[]> value) {
+        List<Consumer<String, byte[]>> keys = new ArrayList<>(consumer_map.values());
+        int position = keys.indexOf(value);
         keys.clear();
         return position >= 0 ? Optional.of(position) : Optional.empty();
     }

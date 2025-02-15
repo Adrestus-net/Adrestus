@@ -22,16 +22,15 @@ import io.Adrestus.crypto.bls.BLS381.ECP2;
 import io.Adrestus.crypto.bls.mapper.ECP2mapper;
 import io.Adrestus.crypto.bls.mapper.ECPmapper;
 import io.Adrestus.crypto.bls.model.CachedBLSKeyPair;
-import io.Adrestus.crypto.elliptic.mapper.*;
-import io.Adrestus.mapper.MemoryTreePoolSerializer;
+import io.Adrestus.crypto.elliptic.mapper.BigDecimalSerializer;
+import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
+import io.Adrestus.crypto.elliptic.mapper.CustomSerializerTreeMap;
+import io.Adrestus.crypto.elliptic.mapper.StakingData;
 import io.Adrestus.network.AsyncService;
 import io.Adrestus.network.CachedEventLoop;
 import io.Adrestus.p2p.kademlia.repository.KademliaData;
 import io.Adrestus.rpc.RpcAdrestusClient;
-import io.Adrestus.util.CustomRandom;
-import io.Adrestus.util.GetTime;
-import io.Adrestus.util.MathOperationUtil;
-import io.Adrestus.util.SerializationUtil;
+import io.Adrestus.util.*;
 import io.distributedLedger.*;
 import lombok.SneakyThrows;
 import org.slf4j.Logger;
@@ -64,7 +63,6 @@ public class RegularBlock implements BlockForge, BlockInvent {
     private final SerializationUtil<AbstractBlock> encode;
     private final SerializationUtil<Transaction> transaction_encode;
     private final SerializationUtil<Receipt> receipt_encode;
-    private final SerializationUtil patricia_tree_wrapper;
     private final IBlockIndex blockIndex;
 
     private final BlockSizeCalculator blockSizeCalculator;
@@ -83,9 +81,6 @@ public class RegularBlock implements BlockForge, BlockInvent {
         list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
         Type fluentType = new TypeToken<MemoryTreePool>() {
         }.getType();
-        List<SerializationUtil.Mapping> list2 = new ArrayList<>();
-        list2.add(new SerializationUtil.Mapping(MemoryTreePool.class, ctx -> new MemoryTreePoolSerializer()));
-        this.patricia_tree_wrapper = new SerializationUtil<>(fluentType, list2);
         this.encode = new SerializationUtil<AbstractBlock>(AbstractBlock.class, list);
         this.transaction_encode = new SerializationUtil<Transaction>(Transaction.class, list);
         this.receipt_encode = new SerializationUtil<Receipt>(Receipt.class, list);
@@ -427,7 +422,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
                                     Receipt receipt = entry.getValue().get(i);
                                     TransactionBlock block = CachedInboundTransactionBlocks.getInstance().retrieve(receipt.getZoneFrom(), receipt.getReceiptBlock().getHeight());
                                     Transaction trx = block.getTransactionList().get(receipt.getPosition());
-                                    String rcphash = HashUtil.sha256_bytetoString(this.receipt_encode.encode(receipt));
+                                    String rcphash = HashUtil.sha256_bytetoString(this.receipt_encode.encode(receipt, 1024));
                                     TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(trx.getTo()).get().addReceiptPosition(rcphash, CachedZoneIndex.getInstance().getZoneIndex(), transactionBlock.getHeight(), receipt.getZoneFrom(), receipt.getReceiptBlock().getHeight(), i);
                                     TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).deposit(PatriciaTreeTransactionType.REGULAR, trx.getTo(), trx.getAmount(), trx.getAmountWithTransactionFee());
                                     MemoryReceiptPool.getInstance().delete(receipt);
@@ -467,7 +462,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
         };
         Runnable TreeSave = () -> {
             IDatabase<String, byte[]> tree_database = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getPatriciaTreeZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
-            tree_database.save(String.valueOf(CachedZoneIndex.getInstance().getZoneIndex()), patricia_tree_wrapper.encode_special(TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()), CustomFurySerializer.getInstance().getFury().serialize(TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex())).length));
+            tree_database.save(String.valueOf(CachedZoneIndex.getInstance().getZoneIndex()), SerializationFuryUtil.getInstance().getFury().serialize(TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex())));
             countDownLatch.countDown();
         };
         executor.submit(TransactionSave);
@@ -563,7 +558,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
             Optional<byte[]> tree = tree_database.seekLast();
 
             CachedLatestBlocks.getInstance().setTransactionBlock(block.get());
-            TreeFactory.setMemoryTree((MemoryTreePool) patricia_tree_wrapper.decode(tree.get()), CachedZoneIndex.getInstance().getZoneIndex());
+            TreeFactory.setMemoryTree((MemoryTreePool) SerializationFuryUtil.getInstance().getFury().deserialize(tree.get()), CachedZoneIndex.getInstance().getZoneIndex());
         } else {
             int RPCTransactionZonePort = ZoneDatabaseFactory.getDatabaseRPCPort(CachedZoneIndex.getInstance().getZoneIndex());
             int RPCPatriciaTreeZonePort = ZoneDatabaseFactory.getDatabasePatriciaRPCPort(ZoneDatabaseFactory.getPatriciaTreeZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
@@ -615,7 +610,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
 
                 List<byte[]> treeObjects = client.getPatriciaTreeList("");
                 if (!treeObjects.isEmpty()) {
-                    TreeFactory.setMemoryTree((MemoryTreePool) patricia_tree_wrapper.decode(treeObjects.get(0)), CachedZoneIndex.getInstance().getZoneIndex());
+                    TreeFactory.setMemoryTree((MemoryTreePool) SerializationFuryUtil.getInstance().getFury().deserialize(treeObjects.get(0)), CachedZoneIndex.getInstance().getZoneIndex());
                     tree_database.save(String.valueOf(CachedZoneIndex.getInstance().getZoneIndex()), treeObjects.get(0));
                 }
                 if (client != null)

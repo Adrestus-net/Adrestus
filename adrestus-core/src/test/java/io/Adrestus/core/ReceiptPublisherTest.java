@@ -12,6 +12,7 @@ import io.Adrestus.core.Resourses.MemoryTransactionPool;
 import io.Adrestus.core.RingBuffer.handler.transactions.SignatureEventHandler;
 import io.Adrestus.core.RingBuffer.publisher.ReceiptEventPublisher;
 import io.Adrestus.core.RingBuffer.publisher.TransactionEventPublisher;
+import io.Adrestus.core.Util.BlockSizeCalculator;
 import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.WalletAddress;
 import io.Adrestus.crypto.bls.BLS381.ECP;
@@ -197,7 +198,10 @@ public class ReceiptPublisherTest {
         });
         tree.constructTree(merkleNodeArrayList);
         transactionBlock.setMerkleRoot(tree.getRootHash());
-        byte[] tohash = serenc.encode(transactionBlock);
+
+        BlockSizeCalculator blocksize = new BlockSizeCalculator();
+        blocksize.setTransactionBlock(transactionBlock);
+        byte[] tohash = serenc.encode(transactionBlock, blocksize.TransactionBlockSizeCalculator());
         transactionBlock.setHash(HashUtil.sha256_bytetoString(tohash));
     }
 

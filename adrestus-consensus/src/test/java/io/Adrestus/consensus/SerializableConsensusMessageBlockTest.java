@@ -17,6 +17,7 @@ import io.Adrestus.crypto.bls.model.Signature;
 import io.Adrestus.crypto.elliptic.mapper.BigDecimalSerializer;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.crypto.elliptic.mapper.CustomSerializerTreeMap;
+import io.Adrestus.util.SerializationFuryUtil;
 import io.Adrestus.util.SerializationUtil;
 import io.distributedLedger.DatabaseFactory;
 import io.distributedLedger.DatabaseType;
@@ -70,7 +71,6 @@ public class SerializableConsensusMessageBlockTest {
     private static BLSPublicKey vk9;
 
     private static BlockSizeCalculator sizeCalculator;
-    private static SerializationUtil<ConsensusMessage> consensus_serialize;
 
     @SneakyThrows
     @BeforeAll
@@ -112,7 +112,7 @@ public class SerializableConsensusMessageBlockTest {
 
     @Test
     public void SerializeBlockDatabase() {
-        IDatabase<String, TransactionBlock> database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(1));
+        IDatabase<String, AbstractBlock> database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(1));
 
         TreeMap<BLSPublicKey, BLSSignatureData> signatureData = new TreeMap<BLSPublicKey, BLSSignatureData>(new SortSignatureMapByBlsPublicKey());
         BLSSignatureData blsSignatureData1 = new BLSSignatureData();
@@ -137,13 +137,6 @@ public class SerializableConsensusMessageBlockTest {
 
     @Test
     public void SerializeConsensusMessage() throws CloneNotSupportedException {
-        List<SerializationUtil.Mapping> list = new ArrayList<>();
-        list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
-        list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
-        list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
-        list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
-        list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
-        this.consensus_serialize = new SerializationUtil<ConsensusMessage>(fluentType, list);
 
         String message = "toSign";
         TreeMap<BLSPublicKey, BLSSignatureData> signatureData = new TreeMap<BLSPublicKey, BLSSignatureData>(new SortSignatureMapByBlsPublicKey());
@@ -181,16 +174,16 @@ public class SerializableConsensusMessageBlockTest {
         assertEquals(consensusMessage, consensusMessage2);
 
 
-        byte[] data = consensus_serialize.encode(consensusMessage);
-        ConsensusMessage<TransactionBlock> cloned = this.consensus_serialize.decode(data);
+        byte[] data = SerializationFuryUtil.getInstance().getFury().serialize(consensusMessage);
+        ConsensusMessage<TransactionBlock> cloned = (ConsensusMessage<TransactionBlock>) SerializationFuryUtil.getInstance().getFury().deserialize(data);
         assertEquals(consensusMessage, cloned);
         assertEquals(consensusMessage2, cloned);
 
         BLSSignatureData blsSignatureData6 = new BLSSignatureData();
         blsSignatureData6.getSignature()[0] = new Signature(cloned.getChecksumData().getSignature().getPoint());
         consensusMessage.getSignatures().put(vk1, blsSignatureData6);
-        byte[] hash2 = this.consensus_serialize.encode(consensusMessage);
-        ConsensusMessage<TransactionBlock> cloned2 = this.consensus_serialize.decode(hash2);
+        byte[] hash2 = SerializationFuryUtil.getInstance().getFury().serialize(consensusMessage);
+        ConsensusMessage<TransactionBlock> cloned2 = (ConsensusMessage<TransactionBlock>) SerializationFuryUtil.getInstance().getFury().deserialize(hash2);
         assertEquals(consensusMessage, cloned2);
     }
 

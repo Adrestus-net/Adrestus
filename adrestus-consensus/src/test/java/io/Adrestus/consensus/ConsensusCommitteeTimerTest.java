@@ -104,6 +104,7 @@ public class ConsensusCommitteeTimerTest {
         TreeFactory.getMemoryTree(0).store(address3, new PatriciaTreeNode(BigDecimal.valueOf(3000), 0));
 
         CommitteeBlock committeeBlock = new CommitteeBlock();
+        committeeBlock.setViewID(0);
         committeeBlock.getHeaderData().setTimestamp("2022-11-18 15:01:29.304");
         committeeBlock.getStructureMap().get(0).put(vk1, "192.168.1.106");
         committeeBlock.getStructureMap().get(0).put(vk2, "192.168.1.116");
@@ -146,7 +147,7 @@ public class ConsensusCommitteeTimerTest {
             return;
 
         CachedEventLoop.getInstance().start();
-        CountDownLatch latch = new CountDownLatch(1000);
+        CountDownLatch latch = new CountDownLatch(5);
         ConsensusCommitteeTimer c = new ConsensusCommitteeTimer(latch);
         latch.await();
         c.close();

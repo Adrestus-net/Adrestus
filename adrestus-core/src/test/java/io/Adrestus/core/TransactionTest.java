@@ -71,7 +71,7 @@ public class TransactionTest {
         transaction.setHash("Hash");
         transaction.setType(TransactionType.REGULAR);
 
-        byte[] buffer = ser.encode(transaction);
+        byte[] buffer = ser.encode(transaction, 1024);
         Transaction copy = ser.decode(buffer);
         System.out.println(copy.toString());
         assertEquals(copy, transaction);
@@ -107,7 +107,7 @@ public class TransactionTest {
         transaction.setZoneFrom(0);
         transaction.setZoneTo(0);
         transaction.setType(TransactionType.REGULAR);
-        byte byf[] = ser.encode(transaction);
+        byte byf[] = ser.encode(transaction, 1024);
         transaction.setHash(HashUtil.sha256_bytetoString(byf));
 
         ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(transaction.getHash().getBytes(StandardCharsets.UTF_8), ecKeyPair);
@@ -133,7 +133,7 @@ public class TransactionTest {
         transaction.setHash("Hash");
         //transaction.setType(TransactionType.REGULAR);
 
-        byte[] buffer = ser.encode(transaction);
+        byte[] buffer = ser.encode(transaction, 1024);
         Transaction copy = ser.decode(buffer);
         System.out.println(copy.toString());
         assertEquals(copy, transaction);
@@ -149,7 +149,7 @@ public class TransactionTest {
         Transaction stakingTransaction = new StakingTransaction();
         stakingTransaction.setAmount(BigDecimal.valueOf(100));
         stakingTransaction.setType(TransactionType.STAKING);
-        byte[] buffer = serenc.encode(stakingTransaction);
+        byte[] buffer = serenc.encode(stakingTransaction, 1024);
 
         Transaction copys = serenc.decode(buffer);
         System.out.println(copys.toString());
@@ -165,7 +165,7 @@ public class TransactionTest {
         RewardsTransaction rewardsTransaction = new RewardsTransaction("Del");
         rewardsTransaction.setAmount(BigDecimal.valueOf(100));
         rewardsTransaction.setType(TransactionType.REWARDS);
-        byte[] buffers = serenc.encode(rewardsTransaction);
+        byte[] buffers = serenc.encode(rewardsTransaction, 1024);
 
         Transaction copys = serenc.decode(buffers);
         System.out.println(copys.toString());
@@ -183,7 +183,7 @@ public class TransactionTest {
         Transaction delegateTransaction = new DelegateTransaction();
         delegateTransaction.setAmount(BigDecimal.valueOf(100));
         delegateTransaction.setType(TransactionType.DELEGATE);
-        byte[] buffer = serenc.encode(delegateTransaction);
+        byte[] buffer = serenc.encode(delegateTransaction, 1024);
 
         Transaction copys = serenc.decode(buffer);
         System.out.println(copys.toString());

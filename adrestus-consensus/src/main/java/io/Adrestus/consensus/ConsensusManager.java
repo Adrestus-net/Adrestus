@@ -2,15 +2,12 @@ package io.Adrestus.consensus;
 
 public class ConsensusManager {
     private ConsensusRole role;
-    private boolean DEBUG;
 
-    public ConsensusManager(ConsensusRole role, boolean DEBUG) {
+    public ConsensusManager(ConsensusRole role) {
         this.role = role;
-        this.DEBUG = DEBUG;
     }
 
-    public ConsensusManager(boolean DEBUG) {
-        this.DEBUG = DEBUG;
+    public ConsensusManager() {
     }
 
     public ConsensusRole getRole() {
@@ -20,13 +17,13 @@ public class ConsensusManager {
     public void changeStateTo(ConsensusRoleType type) {
         switch (type) {
             case SUPERVISOR:
-                this.role = Supervisor.getInstance(this.DEBUG);
+                this.role = Supervisor.getInstance();
                 break;
             case VALIDATOR:
-                this.role = Validator.getInstance(this.DEBUG);
+                this.role = Validator.getInstance();
                 break;
             case ORGANIZER:
-                this.role = Organizer.getInstance(this.DEBUG);
+                this.role = Organizer.getInstance();
                 break;
         }
     }
@@ -34,13 +31,13 @@ public class ConsensusManager {
     public void clearStateTo(ConsensusRoleType type, boolean DEBUG) {
         switch (type) {
             case SUPERVISOR:
-                Supervisor.getInstance(this.DEBUG).clear(DEBUG);
+                Supervisor.getInstance().clear(DEBUG);
                 break;
             case VALIDATOR:
-                Validator.getInstance(this.DEBUG).clear(DEBUG);
+                Validator.getInstance().clear(DEBUG);
                 break;
             case ORGANIZER:
-                Organizer.getInstance(this.DEBUG).clear(DEBUG);
+                Organizer.getInstance().clear(DEBUG);
                 break;
         }
     }

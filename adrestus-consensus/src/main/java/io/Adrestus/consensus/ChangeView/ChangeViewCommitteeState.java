@@ -20,7 +20,7 @@ public class ChangeViewCommitteeState extends AbstractState {
 
     public ChangeViewCommitteeState() {
         this.blockIndex = new BlockIndex();
-        this.consensusManager = new ConsensusManager(false);
+        this.consensusManager = new ConsensusManager();
     }
 
     @Override

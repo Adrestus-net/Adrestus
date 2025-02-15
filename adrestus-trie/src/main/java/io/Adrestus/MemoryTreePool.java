@@ -5,7 +5,7 @@ import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.Trie.PatriciaTreeTransactionType;
 import io.Adrestus.Trie.StakingInfo;
 import io.Adrestus.Trie.optimize64_trie.MerklePatriciaTrie;
-import io.Adrestus.crypto.elliptic.mapper.CustomFurySerializer;
+import io.Adrestus.util.SerializationFuryUtil;
 import io.Adrestus.util.bytes.Bytes;
 import io.Adrestus.util.bytes.Bytes53;
 import io.activej.serializer.annotations.Serialize;
@@ -37,7 +37,7 @@ public class MemoryTreePool implements IMemoryTreePool, Cloneable {
     private final Map<PatriciaTreeTransactionType, TransactionStorage> transactionsMap;
 
     public MemoryTreePool() {
-        this.valueSerializer = value -> (value != null) ? Bytes.wrap(CustomFurySerializer.getInstance().getFury().serialize(value)) : null;
+        this.valueSerializer = value -> (value != null) ? Bytes.wrap(SerializationFuryUtil.getInstance().getFury().serialize(value)) : null;
         this.patriciaTreeImp = new MerklePatriciaTrie<Bytes, PatriciaTreeNode>(valueSerializer);
         this.transactionsMap = new EnumMap<>(PatriciaTreeTransactionType.class);
         this.Init();

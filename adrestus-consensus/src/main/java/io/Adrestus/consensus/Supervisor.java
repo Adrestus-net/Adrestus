@@ -11,26 +11,26 @@ public class Supervisor implements ConsensusRole {
     private final Map<ConsensusType, SupervisorConsensusPhases> supervisor_map;
     private final Map<ConsensusType, ChangeViewSupervisorConsensusPhase> change_view_map;
 
-    private Supervisor(boolean DEBUG) {
+    private Supervisor() {
         if (instance != null) {
             throw new IllegalStateException("Already initialized.");
         }
         this.supervisor_map = new EnumMap<>(ConsensusType.class);
         this.change_view_map = new EnumMap<>(ConsensusType.class);
-        this.supervisor_map.put(ConsensusType.VDF, new SupervisorConsensusPhases.ProposeVDF(DEBUG));
-        this.supervisor_map.put(ConsensusType.VRF, new SupervisorConsensusPhases.ProposeVRF(DEBUG));
-        this.supervisor_map.put(ConsensusType.COMMITTEE_BLOCK, new SupervisorConsensusPhases.ProposeCommitteeBlock(DEBUG));
-        this.change_view_map.put(ConsensusType.CHANGE_VIEW_COMMITTEE_BLOCK, new ChangeViewSupervisorConsensusPhase(DEBUG));
+        this.supervisor_map.put(ConsensusType.VDF, new SupervisorConsensusPhases.ProposeVDF());
+        this.supervisor_map.put(ConsensusType.VRF, new SupervisorConsensusPhases.ProposeVRF());
+        this.supervisor_map.put(ConsensusType.COMMITTEE_BLOCK, new SupervisorConsensusPhases.ProposeCommitteeBlock());
+        this.change_view_map.put(ConsensusType.CHANGE_VIEW_COMMITTEE_BLOCK, new ChangeViewSupervisorConsensusPhase());
     }
 
-    public static Supervisor getInstance(boolean DEBUG) {
+    public static Supervisor getInstance() {
 
         var result = instance;
         if (result == null) {
             synchronized (Supervisor.class) {
                 result = instance;
                 if (result == null) {
-                    result = new Supervisor(DEBUG);
+                    result = new Supervisor();
                     instance = result;
                 }
             }

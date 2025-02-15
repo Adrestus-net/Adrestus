@@ -37,8 +37,8 @@ import io.Adrestus.p2p.kademlia.exception.UnsupportedBoundingException;
 import io.Adrestus.p2p.kademlia.node.KeyHashGenerator;
 import io.Adrestus.p2p.kademlia.repository.KademliaData;
 import io.Adrestus.p2p.kademlia.util.BoundedHashUtil;
-import io.Adrestus.protocol.mapper.CustomFurySerializer;
 import io.Adrestus.util.GetTime;
+import io.Adrestus.util.SerializationFuryUtil;
 import io.Adrestus.util.SerializationUtil;
 import io.distributedLedger.*;
 import org.apache.commons.codec.binary.StringUtils;
@@ -90,7 +90,6 @@ public class BootstrapWithSyncExistedTest {
     private static KeyHashGenerator<BigInteger, String> keyHashGenerator;
     private static char[] passphrase;
     private static byte[] key1, key2, key3, key4, key5, key6, key7, key8;
-    private static SerializationUtil patricia_tree_wrapper;
 
     @BeforeAll
     public static void setup() throws Exception {
@@ -104,7 +103,6 @@ public class BootstrapWithSyncExistedTest {
         }.getType();
         List<SerializationUtil.Mapping> list2 = new ArrayList<>();
         list2.add(new SerializationUtil.Mapping(MemoryTreePool.class, ctx -> new MemoryTreePoolSerializer()));
-        patricia_tree_wrapper = new SerializationUtil<>(fluentType, list2);
         int version = 0x00;
         int port = 1080;
         KademliaConfiguration.IDENTIFIER_SIZE = 3;
@@ -251,7 +249,7 @@ public class BootstrapWithSyncExistedTest {
         CachedLatestBlocks.getInstance().setTransactionBlock(prevblock);
 
         database.save(String.valueOf(CachedLatestBlocks.getInstance().getCommitteeBlock().getGeneration()), CachedLatestBlocks.getInstance().getCommitteeBlock());
-        tree_database.save("1", patricia_tree_wrapper.encode_special(TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()), CustomFurySerializer.getInstance().getFury().serialize(TreeFactory.getMemoryTree(0)).length));
+        tree_database.save("1", SerializationFuryUtil.getInstance().getFury().serialize(TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex())));
         CachedSecurityHeaders.getInstance().getSecurityHeader().setPRnd(Hex.decode("c1f72aa5bd1e1d53c723b149259b63f759f40d5ab003b547d5c13d45db9a5da8"));
         CachedSecurityHeaders.getInstance().getSecurityHeader().setRnd(vdf.solve(CachedSecurityHeaders.getInstance().getSecurityHeader().getPRnd(), CachedLatestBlocks.getInstance().getCommitteeBlock().getDifficulty()));
 

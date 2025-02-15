@@ -14,6 +14,7 @@ import io.Adrestus.crypto.bls.model.BLSSignature;
 import io.Adrestus.crypto.bls.model.CachedBLSKeyPair;
 import io.Adrestus.crypto.bls.model.Signature;
 import io.Adrestus.network.ConsensusClient;
+import io.Adrestus.util.SerializationFuryUtil;
 import org.apache.tuweni.bytes.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,30 +31,28 @@ public class ChangeViewValidatorsConsensusPhase extends ChangeViewConsensusPhase
     private static final Type fluentType = new TypeToken<ConsensusMessage<ChangeViewData>>() {
     }.getType();
 
-    public ChangeViewValidatorsConsensusPhase(boolean DEBUG) {
-        super(DEBUG);
+    public ChangeViewValidatorsConsensusPhase() {
+        super();
     }
 
 
     public static class ChangeViewTransactionBlock extends ChangeViewValidatorsConsensusPhase {
 
-        public ChangeViewTransactionBlock(boolean DEBUG) {
-            super(DEBUG);
+        public ChangeViewTransactionBlock() {
+            super();
         }
 
         @Override
         public void InitialSetup() {
-            if (!DEBUG) {
-                try {
-                    this.current = CachedLeaderIndex.getInstance().getTransactionPositionLeader();
-                    this.leader_bls = this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), this.current);
-                    this.consensusClient = new ConsensusClient(this.blockIndex.getIpValue(CachedZoneIndex.getInstance().getZoneIndex(), this.leader_bls));
-                    this.consensusClient.receive_handler();
-                    this.consensusClient.send_heartbeat(HEARTBEAT_MESSAGE);
-                    this.consensusClient.rec_heartbeat();
-                } catch (Exception e) {
-                    LOG.info("Initial Setup Exception: " + e.toString());
-                }
+            try {
+                this.current = CachedLeaderIndex.getInstance().getTransactionPositionLeader();
+                this.leader_bls = this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), this.current);
+                this.consensusClient = new ConsensusClient(this.blockIndex.getIpValue(CachedZoneIndex.getInstance().getZoneIndex(), this.leader_bls));
+                this.consensusClient.receive_handler();
+                this.consensusClient.send_heartbeat(HEARTBEAT_MESSAGE);
+                this.consensusClient.rec_heartbeat();
+            } catch (Exception e) {
+                LOG.info("Initial Setup Exception: " + e.toString());
             }
         }
 
@@ -65,56 +64,52 @@ public class ChangeViewValidatorsConsensusPhase extends ChangeViewConsensusPhase
             data.setData(changeViewData);
             data.setMessageType(ConsensusMessageType.ANNOUNCE);
 
-            byte[] message = change_view_ser.encode(data.getData());
+            byte[] message = change_view_ser.encode(data.getData(), data.getData().length());
             Signature sig = BLSSignature.sign(message, CachedBLSKeyPair.getInstance().getPrivateKey());
             data.getChecksumData().setBlsPublicKey(CachedBLSKeyPair.getInstance().getPublicKey());
             data.getChecksumData().setSignature(sig);
 
-            if (DEBUG)
-                return;
 
-            byte[] toSend = consensus_serialize.encode(data);
+            byte[] toSend = SerializationFuryUtil.getInstance().getFury().serialize(data);
             this.consensusClient.pushMessage(toSend);
         }
 
         @Override
         public void PreparePhase(ConsensusMessage<ChangeViewData> data) {
-            if (!DEBUG) {
-                byte[] receive = this.consensusClient.deque_message();
-                if (receive == null) {
-                    cleanup();
-                    LOG.info("PreparePhase: Leader is not active fail to send message");
-                    data.setStatusType(ConsensusStatusType.ABORT);
-                    return;
-                } else {
-                    try {
-                        data = consensus_serialize.decode(receive);
-                        if (!data.getChecksumData().getBlsPublicKey().toRaw().equals(leader_bls.toRaw())) {
+            byte[] receive = this.consensusClient.deque_message();
+            if (receive == null) {
+                cleanup();
+                LOG.info("PreparePhase: Leader is not active fail to send message");
+                data.setStatusType(ConsensusStatusType.ABORT);
+                return;
+            } else {
+                try {
+                    data = (ConsensusMessage<ChangeViewData>) SerializationFuryUtil.getInstance().getFury().deserialize(receive);
+                    if (!data.getChecksumData().getBlsPublicKey().toRaw().equals(leader_bls.toRaw())) {
+                        cleanup();
+                        LOG.info("PreparePhase: This is not the valid leader for this round");
+                        data.setStatusType(ConsensusStatusType.ABORT);
+                        return;
+                    } else {
+                        byte[] message = change_view_ser.encode(data.getData(), data.getData().length());
+                        boolean verify = BLSSignature.verify(data.getChecksumData().getSignature(), message, data.getChecksumData().getBlsPublicKey());
+                        if (!verify) {
                             cleanup();
-                            LOG.info("PreparePhase: This is not the valid leader for this round");
+                            LOG.info("PreparePhase: Abort consensus phase BLS leader signature is invalid during prepare phase");
                             data.setStatusType(ConsensusStatusType.ABORT);
                             return;
-                        } else {
-                            byte[] message = change_view_ser.encode(data.getData());
-                            boolean verify = BLSSignature.verify(data.getChecksumData().getSignature(), message, data.getChecksumData().getBlsPublicKey());
-                            if (!verify) {
-                                cleanup();
-                                LOG.info("PreparePhase: Abort consensus phase BLS leader signature is invalid during prepare phase");
-                                data.setStatusType(ConsensusStatusType.ABORT);
-                                return;
-                            }
                         }
-                    } catch (IllegalArgumentException e) {
-                        cleanup();
-                        LOG.info("PreparePhase: Problem at message deserialization Abort");
-                        data.setStatusType(ConsensusStatusType.ABORT);
-                        return;
-                    } catch (ArrayIndexOutOfBoundsException e) {
-                        cleanup();
-                        LOG.info("PreparePhase: Receiving null response from organizer");
-                        data.setStatusType(ConsensusStatusType.ABORT);
-                        return;
                     }
+                } catch (IllegalArgumentException e) {
+                    cleanup();
+                    LOG.info("PreparePhase: Problem at message deserialization Abort");
+                    data.setStatusType(ConsensusStatusType.ABORT);
+                    return;
+                } catch (ArrayIndexOutOfBoundsException e) {
+                    cleanup();
+                    LOG.info("PreparePhase: Receiving null response from organizer");
+                    data.setStatusType(ConsensusStatusType.ABORT);
+                    return;
                 }
             }
 
@@ -130,7 +125,7 @@ public class ChangeViewValidatorsConsensusPhase extends ChangeViewConsensusPhase
 
 
             Signature aggregatedSignature = BLSSignature.aggregate(signature);
-            Bytes toVerify = Bytes.wrap(change_view_ser.encode(data.getData()));
+            Bytes toVerify = Bytes.wrap(change_view_ser.encode(data.getData(), data.getData().length()));
             boolean verify = BLSSignature.fastAggregateVerify(publicKeys, toVerify, aggregatedSignature);
             if (!verify) {
                 cleanup();
@@ -139,8 +134,6 @@ public class ChangeViewValidatorsConsensusPhase extends ChangeViewConsensusPhase
                 return;
             }
 
-            if (DEBUG)
-                return;
 
             consensusClient.send_heartbeat(HEARTBEAT_MESSAGE);
             CachedLatestBlocks.getInstance().getTransactionBlock().setLeaderPublicKey(this.leader_bls);
@@ -153,28 +146,26 @@ public class ChangeViewValidatorsConsensusPhase extends ChangeViewConsensusPhase
 
     public static class ChangeCommiteeBlockView extends ChangeViewValidatorsConsensusPhase {
 
-        public ChangeCommiteeBlockView(boolean DEBUG) {
-            super(DEBUG);
+        public ChangeCommiteeBlockView() {
+            super();
         }
 
         @Override
         public void InitialSetup() {
-            if (!DEBUG) {
-                try {
-                    this.current = CachedLeaderIndex.getInstance().getCommitteePositionLeader();
-                    this.leader_bls = this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), this.current);
-                    this.consensusClient = new ConsensusClient(this.blockIndex.getIpValue(CachedZoneIndex.getInstance().getZoneIndex(), this.leader_bls));
-                    this.consensusClient.receive_handler();
-                    this.consensusClient.send_heartbeat(HEARTBEAT_MESSAGE);
-                    String heartbeat = consensusClient.rec_heartbeat();
-                    if (heartbeat == null)
-                        throw new IllegalArgumentException("Heartbeat message is null no response from leader");
-                    if (!heartbeat.equals("1"))
-                        throw new IllegalArgumentException("Heartbeat message is not valid");
+            try {
+                this.current = CachedLeaderIndex.getInstance().getCommitteePositionLeader();
+                this.leader_bls = this.blockIndex.getPublicKeyByIndex(CachedZoneIndex.getInstance().getZoneIndex(), this.current);
+                this.consensusClient = new ConsensusClient(this.blockIndex.getIpValue(CachedZoneIndex.getInstance().getZoneIndex(), this.leader_bls));
+                this.consensusClient.receive_handler();
+                this.consensusClient.send_heartbeat(HEARTBEAT_MESSAGE);
+                String heartbeat = consensusClient.rec_heartbeat();
+                if (heartbeat == null)
+                    throw new IllegalArgumentException("Heartbeat message is null no response from leader");
+                if (!heartbeat.equals("1"))
+                    throw new IllegalArgumentException("Heartbeat message is not valid");
 
-                } catch (Exception e) {
-                    LOG.info("Initial Setup Exception: " + e.toString());
-                }
+            } catch (Exception e) {
+                LOG.info("Initial Setup Exception: " + e.toString());
             }
         }
 
@@ -186,56 +177,52 @@ public class ChangeViewValidatorsConsensusPhase extends ChangeViewConsensusPhase
             data.setData(changeViewData);
             data.setMessageType(ConsensusMessageType.ANNOUNCE);
 
-            byte[] message = change_view_ser.encode(data.getData());
+            byte[] message = change_view_ser.encode(data.getData(), data.getData().length());
             Signature sig = BLSSignature.sign(message, CachedBLSKeyPair.getInstance().getPrivateKey());
             data.getChecksumData().setBlsPublicKey(CachedBLSKeyPair.getInstance().getPublicKey());
             data.getChecksumData().setSignature(sig);
 
-            if (DEBUG)
-                return;
 
-            byte[] toSend = consensus_serialize.encode(data);
+            byte[] toSend = SerializationFuryUtil.getInstance().getFury().serialize(data);
             this.consensusClient.pushMessage(toSend);
         }
 
         @Override
         public void PreparePhase(ConsensusMessage<ChangeViewData> data) {
-            if (!DEBUG) {
-                byte[] receive = this.consensusClient.deque_message();
-                if (receive == null) {
-                    cleanup();
-                    LOG.info("PreparePhase: Leader is not active fail to send message");
-                    data.setStatusType(ConsensusStatusType.ABORT);
-                    return;
-                } else {
-                    try {
-                        data = consensus_serialize.decode(receive);
-                        if (!data.getChecksumData().getBlsPublicKey().toRaw().equals(leader_bls.toRaw())) {
+            byte[] receive = this.consensusClient.deque_message();
+            if (receive == null) {
+                cleanup();
+                LOG.info("PreparePhase: Leader is not active fail to send message");
+                data.setStatusType(ConsensusStatusType.ABORT);
+                return;
+            } else {
+                try {
+                    data = (ConsensusMessage<ChangeViewData>) SerializationFuryUtil.getInstance().getFury().deserialize(receive);
+                    if (!data.getChecksumData().getBlsPublicKey().toRaw().equals(leader_bls.toRaw())) {
+                        cleanup();
+                        LOG.info("PreparePhase: This is not the valid leader for this round");
+                        data.setStatusType(ConsensusStatusType.ABORT);
+                        return;
+                    } else {
+                        byte[] message = change_view_ser.encode(data.getData(), data.getData().length());
+                        boolean verify = BLSSignature.verify(data.getChecksumData().getSignature(), message, data.getChecksumData().getBlsPublicKey());
+                        if (!verify) {
                             cleanup();
-                            LOG.info("PreparePhase: This is not the valid leader for this round");
+                            LOG.info("PreparePhase: Abort consensus phase BLS leader signature is invalid during prepare phase");
                             data.setStatusType(ConsensusStatusType.ABORT);
                             return;
-                        } else {
-                            byte[] message = change_view_ser.encode(data.getData());
-                            boolean verify = BLSSignature.verify(data.getChecksumData().getSignature(), message, data.getChecksumData().getBlsPublicKey());
-                            if (!verify) {
-                                cleanup();
-                                LOG.info("PreparePhase: Abort consensus phase BLS leader signature is invalid during prepare phase");
-                                data.setStatusType(ConsensusStatusType.ABORT);
-                                return;
-                            }
                         }
-                    } catch (IllegalArgumentException e) {
-                        cleanup();
-                        LOG.info("PreparePhase: Problem at message deserialization Abort " + e.toString());
-                        data.setStatusType(ConsensusStatusType.ABORT);
-                        return;
-                    } catch (ArrayIndexOutOfBoundsException e) {
-                        cleanup();
-                        LOG.info("PreparePhase: Receiving out of bounds from organizer " + e.toString());
-                        data.setStatusType(ConsensusStatusType.ABORT);
-                        return;
                     }
+                } catch (IllegalArgumentException e) {
+                    cleanup();
+                    LOG.info("PreparePhase: Problem at message deserialization Abort " + e.toString());
+                    data.setStatusType(ConsensusStatusType.ABORT);
+                    return;
+                } catch (ArrayIndexOutOfBoundsException e) {
+                    cleanup();
+                    LOG.info("PreparePhase: Receiving out of bounds from organizer " + e.toString());
+                    data.setStatusType(ConsensusStatusType.ABORT);
+                    return;
                 }
             }
 
@@ -251,7 +238,7 @@ public class ChangeViewValidatorsConsensusPhase extends ChangeViewConsensusPhase
 
 
             Signature aggregatedSignature = BLSSignature.aggregate(signature);
-            Bytes toVerify = Bytes.wrap(change_view_ser.encode(data.getData()));
+            Bytes toVerify = Bytes.wrap(change_view_ser.encode(data.getData(), data.getData().length()));
             boolean verify = BLSSignature.fastAggregateVerify(publicKeys, toVerify, aggregatedSignature);
             if (!verify) {
                 cleanup();
@@ -260,8 +247,6 @@ public class ChangeViewValidatorsConsensusPhase extends ChangeViewConsensusPhase
                 return;
             }
 
-            if (DEBUG)
-                return;
 
             CachedLatestBlocks.getInstance().getCommitteeBlock().setViewID(data.getData().getViewID());
             consensusClient.send_heartbeat(HEARTBEAT_MESSAGE);

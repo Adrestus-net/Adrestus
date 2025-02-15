@@ -35,6 +35,10 @@ public class VDFMessage implements Serializable {
         return Arrays.equals(VDFSolution, that.VDFSolution);
     }
 
+    public int length() {
+        return VDFSolution.length;
+    }
+
     @Override
     public int hashCode() {
         return Objects.hashCode(VDFSolution);

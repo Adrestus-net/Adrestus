@@ -49,7 +49,7 @@ public class ConsensusTransaction2Timer {
         this.addreses = addreses;
         this.blockIndex = new BlockIndex();
         this.keypair = keypair;
-        this.consensusManager = new ConsensusManager(false);
+        this.consensusManager = new ConsensusManager();
         this.timer = new Timer(ConsensusConfiguration.CONSENSUS);
         this.task = new ConsensusTask();
         this.latch = latch;
@@ -189,6 +189,7 @@ public class ConsensusTransaction2Timer {
         public void run() {
             timer.cancel();
             ConsensusMessage<TransactionBlock> consensusMessage = new ConsensusMessage<>(new TransactionBlock());
+            consensusMessage.getData().setViewID(CachedLatestBlocks.getInstance().getTransactionBlock().getViewID() + 1);
             int target = blockIndex.getPublicKeyIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedBLSKeyPair.getInstance().getPublicKey());
             int current = blockIndex.getPublicKeyIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedLatestBlocks.getInstance().getTransactionBlock().getLeaderPublicKey());
             CachedLeaderIndex.getInstance().setTransactionPositionLeader(current);

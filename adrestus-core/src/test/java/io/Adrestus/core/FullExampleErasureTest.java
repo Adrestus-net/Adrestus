@@ -181,7 +181,7 @@ public class FullExampleErasureTest {
             transaction.setNonce(1);
             transaction.setXAxis(keypair.get(i).getXpubAxis());
             transaction.setYAxis(keypair.get(i).getYpubAxis());
-            byte byf[] = serenc.encode(transaction);
+            byte byf[] = serenc.encode(transaction, 1024);
             transaction.setHash(HashUtil.sha256_bytetoString(byf));
 
             ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(transaction.getHash().getBytes(StandardCharsets.UTF_8), keypair.get(i));
@@ -287,7 +287,7 @@ public class FullExampleErasureTest {
             BlockSizeCalculator blockSizeCalculator = new BlockSizeCalculator();
             blockSizeCalculator.setTransactionBlock(transactionBlock);
             byte[] buffer = encode.encode(transactionBlock, blockSizeCalculator.TransactionBlockSizeCalculator());
-            byte[] buffer2 = serenc_erasure.encode(new SerializableErasureObject(new FECParameterObject(), buffer, new ArrayList<byte[]>()));
+            byte[] buffer2 = serenc_erasure.encode(new SerializableErasureObject(new FECParameterObject(), buffer, new ArrayList<byte[]>()), 4096);
         } catch (Exception e) {
             // e.printStackTrace();
         }
@@ -360,7 +360,7 @@ public class FullExampleErasureTest {
 
             String toSign = joiner.add(pubkey).add(timeStampInString).toString();
             Signature bls_sig = BLSSignature.sign(toSign.getBytes(StandardCharsets.UTF_8), CachedBLSKeyPair.getInstance().getPrivateKey());
-            String sig = Hex.encodeHexString(valueMapper.encode(bls_sig));
+            String sig = Hex.encodeHexString(valueMapper.encode(bls_sig, bls_sig.toBytes().length));
 
             list.add(pubkey);
             list.add(timeStampInString);
@@ -454,7 +454,7 @@ public class FullExampleErasureTest {
         }
         ArrayList<byte[]> toSend = new ArrayList<>();
         for (SerializableErasureObject obj : serializableErasureObjects) {
-            toSend.add(serenc_erasure.encode(obj));
+            toSend.add(serenc_erasure.encode(obj, obj.getSize()));
         }
         return toSend;
     }

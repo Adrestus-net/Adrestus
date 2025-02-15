@@ -125,7 +125,7 @@ public class TransactionChannelTest {
             transaction.setAmount(BigDecimal.valueOf(j));
             transaction.setAmountWithTransactionFee(transaction.getAmount().multiply(BigDecimal.valueOf(10.0 / 100.0)));
             transaction.setNonce(1);
-            byte before_hash[] = encode.encode(transaction);
+            byte before_hash[] = encode.encode(transaction, 1024);
             transaction.setHash(HashUtil.sha256_bytetoString(before_hash));
 
             ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(transaction.getHash().getBytes(StandardCharsets.UTF_8), keypair.get(j));

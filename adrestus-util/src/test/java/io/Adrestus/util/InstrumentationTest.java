@@ -21,8 +21,8 @@ public class InstrumentationTest {
             }
             long full_size = ObjectSizeCalculator.getObjectSize(o1);
             int buffer_size = (int) full_size;
-            byte[] data = serializationUtil.encode(o1);
-            Just4Test copy = serializationUtil.decode(data);
+            byte[] data = SerializationFuryUtil.getInstance().getFury().serialize(o1);
+            Just4Test copy = (Just4Test) SerializationFuryUtil.getInstance().getFury().deserialize(data);
             loop = loop + 10;
         }
 

@@ -4,11 +4,11 @@ import com.google.common.base.Objects;
 import io.Adrestus.core.RingBuffer.handler.blocks.DisruptorBlock;
 import io.Adrestus.core.RingBuffer.handler.blocks.DisruptorBlockVisitor;
 import io.Adrestus.core.comparators.StakingValueComparator;
-import io.Adrestus.core.mapper.SerializerCoreFury;
 import io.Adrestus.crypto.bls.BLSSignatureData;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.Adrestus.crypto.elliptic.mapper.StakingData;
 import io.Adrestus.p2p.kademlia.repository.KademliaData;
+import io.Adrestus.util.SerializationFuryUtil;
 import io.activej.serializer.annotations.Serialize;
 
 import java.io.Serializable;
@@ -174,8 +174,8 @@ public class CommitteeBlock extends AbstractBlock implements BlockFactory, Disru
     @Override
     public Object clone() throws CloneNotSupportedException {
         try {
-            byte[] bytes = SerializerCoreFury.getInstance().getFury().serialize(this);
-            return (CommitteeBlock) SerializerCoreFury.getInstance().getFury().deserialize(bytes);
+            byte[] bytes = SerializationFuryUtil.getInstance().getFury().serialize(this);
+            return (CommitteeBlock) SerializationFuryUtil.getInstance().getFury().deserialize(bytes);
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException(e);

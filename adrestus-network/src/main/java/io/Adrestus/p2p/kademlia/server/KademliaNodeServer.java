@@ -12,15 +12,16 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.math.BigInteger;
 
 
 @Getter
-@Slf4j
 public class KademliaNodeServer<K extends Serializable, V extends Serializable> {
+    private static final Logger logger = LoggerFactory.getLogger(KademliaNodeServer.class);
 
     private final int port;
     private final String host;

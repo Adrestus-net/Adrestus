@@ -3,6 +3,7 @@ package io.distributedLedger;
 import io.Adrestus.config.Directory;
 import io.Adrestus.crypto.elliptic.mapper.BigDecimalSerializer;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
+import io.Adrestus.util.SerializationFuryUtil;
 import io.Adrestus.util.SerializationUtil;
 import io.distributedLedger.exception.*;
 import lombok.SneakyThrows;
@@ -14,7 +15,6 @@ import org.iq80.leveldb.Options;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -35,8 +35,6 @@ public class LevelDBConnectionManager<K, V> implements IDatabase<K, V> {
     private String CONNECTION_NAME = "TransactionDatabase";
 
     private static volatile LevelDBConnectionManager instance;
-    private final SerializationUtil<V> valueMapper;
-    private final SerializationUtil<K> keyMapper;
     private final Class<K> keyClass;
     private final ReentrantReadWriteLock rwl;
     private final Lock r;
@@ -57,8 +55,7 @@ public class LevelDBConnectionManager<K, V> implements IDatabase<K, V> {
         this.dbFile = new File(this.path);
         this.valueClass = valueClass;
         this.keyClass = keyClass;
-        this.keyMapper = new SerializationUtil<>(this.keyClass);
-        this.valueMapper = new SerializationUtil<>(this.valueClass);
+        SerializationFuryUtil.getInstance();
         setupOptions();
         load_connection();
     }
@@ -78,8 +75,7 @@ public class LevelDBConnectionManager<K, V> implements IDatabase<K, V> {
         this.path = Directory.getConfigPathPlusPathName(CONNECTION_NAME);
         this.dbFile = new File(path);
         this.keyClass = keyClass;
-        this.keyMapper = new SerializationUtil<>(this.keyClass);
-        this.valueMapper = new SerializationUtil<>(fluentType, list);
+        SerializationFuryUtil.getInstance();
         setupOptions();
         load_connection();
     }
@@ -152,67 +148,20 @@ public class LevelDBConnectionManager<K, V> implements IDatabase<K, V> {
 
     @SneakyThrows
     @Override
-    public void save(K key, Object value) {
+    public void save(K key, V value) {
         w.lock();
         try {
-            if (value instanceof String) {
-                byte[] serializedkey = keyMapper.encode(key);
-                byte[] serializedValue = valueMapper.encode((V) value);
-                level_db.put(serializedkey, serializedValue);
-            } else if (CONNECTION_NAME.contains("ReceiptDatabase")) {
-                final Optional<V> obj = findByKey(key);
-                final String str_key = (String) key;
-                final LevelDBReceiptWrapper<Object> wrapper;
-                if (obj == null) {
-                    wrapper = new LevelDBReceiptWrapper();
-                    wrapper.addTo(value);
-                } else if (obj.isEmpty()) {
-                    wrapper = new LevelDBReceiptWrapper();
-                    wrapper.addTo(value);
-                } else {
-                    wrapper = (LevelDBReceiptWrapper) obj.get();
-                    wrapper.addTo(value);
-                }
-                byte[] serializedkey = keyMapper.encode((key));
-                byte[] serializedValue = valueMapper.encode((V) wrapper);
-                level_db.put(serializedkey, serializedValue);
-                return;
-            } else {
-                final Optional<V> obj = findByKey(key);
-                final String str_key = (String) key;
-                final LevelDBTransactionWrapper<Object> wrapper;
-                Method m1 = value.getClass().getDeclaredMethod("getFrom", value.getClass().getClasses());
-                if (((String) m1.invoke(value)).equals(str_key)) {
-                    if (obj.isEmpty()) {
-                        wrapper = new LevelDBTransactionWrapper<Object>();
-                        wrapper.addFrom(value);
-                    } else {
-                        wrapper = (LevelDBTransactionWrapper) obj.get();
-                        wrapper.addFrom(value);
-                    }
-                } else {
-                    if (obj == null) {
-                        wrapper = new LevelDBTransactionWrapper();
-                        wrapper.addTo(value);
-                    } else if (obj.isEmpty()) {
-                        wrapper = new LevelDBTransactionWrapper();
-                        wrapper.addTo(value);
-                    } else {
-                        wrapper = (LevelDBTransactionWrapper) obj.get();
-                        wrapper.addTo(value);
-                    }
-                }
-                byte[] serializedkey = keyMapper.encode(key);
-                byte[] serializedValue = valueMapper.encode((V) wrapper);
-                level_db.put(serializedkey, serializedValue);
-                return;
-            }
-
+            byte[] serializedkey = SerializationFuryUtil.getInstance().getFury().serialize(key);
+            byte[] serializedValue = SerializationFuryUtil.getInstance().getFury().serialize(value);
+            level_db.put(serializedkey, serializedValue);
+        } catch (NullPointerException exception) {
+            LOGGER.error("NullPointer exception occurred during save operation. {}", exception.getMessage());
+            throw exception;
         } catch (final SerializationException exception) {
             LOGGER.error("Serialization exception occurred during save operation. {}", exception.getMessage());
             throw exception;
         } catch (final Exception exception) {
-            LOGGER.error("Exception occurred during save operation. {}", exception.getMessage());
+            LOGGER.error("LevelDBException occurred during save operation. {}", exception.getMessage());
             throw new SaveFailedException(exception.getMessage(), exception);
         } finally {
             w.unlock();
@@ -221,67 +170,20 @@ public class LevelDBConnectionManager<K, V> implements IDatabase<K, V> {
 
     @SneakyThrows
     @Override
-    public void save(K key, Object value, int length) {
+    public void save(K key, V value, int length) {
         w.lock();
         try {
-            if (value instanceof String) {
-                byte[] serializedkey = keyMapper.encode((key));
-                byte[] serializedValue = valueMapper.encode((V) value);
-                level_db.put(serializedkey, serializedValue);
-            } else if (CONNECTION_NAME.contains("ReceiptDatabase")) {
-                final Optional<V> obj = findByKey(key);
-                final String str_key = (String) key;
-                final LevelDBReceiptWrapper<Object> wrapper;
-                if (obj == null) {
-                    wrapper = new LevelDBReceiptWrapper();
-                    wrapper.addTo(value);
-                } else if (obj.isEmpty()) {
-                    wrapper = new LevelDBReceiptWrapper();
-                    wrapper.addTo(value);
-                } else {
-                    wrapper = (LevelDBReceiptWrapper) obj.get();
-                    wrapper.addTo(value);
-                }
-                byte[] serializedkey = keyMapper.encode(key);
-                byte[] serializedValue = valueMapper.encode((V) wrapper);
-                level_db.put(serializedkey, serializedValue);
-                return;
-            } else {
-                final Optional<V> obj = findByKey(key);
-                final String str_key = (String) key;
-                final LevelDBTransactionWrapper<Object> wrapper;
-                Method m1 = value.getClass().getDeclaredMethod("getFrom", value.getClass().getClasses());
-                if (((String) m1.invoke(value)).equals(str_key)) {
-                    if (obj.isEmpty()) {
-                        wrapper = new LevelDBTransactionWrapper<Object>();
-                        wrapper.addFrom(value);
-                    } else {
-                        wrapper = (LevelDBTransactionWrapper) obj.get();
-                        wrapper.addFrom(value);
-                    }
-                } else {
-                    if (obj == null) {
-                        wrapper = new LevelDBTransactionWrapper();
-                        wrapper.addTo(value);
-                    } else if (obj.isEmpty()) {
-                        wrapper = new LevelDBTransactionWrapper();
-                        wrapper.addTo(value);
-                    } else {
-                        wrapper = (LevelDBTransactionWrapper) obj.get();
-                        wrapper.addTo(value);
-                    }
-                }
-                byte[] serializedkey = keyMapper.encode(key);
-                byte[] serializedValue = valueMapper.encode((V) wrapper);
-                level_db.put(serializedkey, serializedValue);
-                return;
-            }
-
+            byte[] serializedkey = SerializationFuryUtil.getInstance().getFury().serialize(key);
+            byte[] serializedValue = SerializationFuryUtil.getInstance().getFury().serialize(value);
+            level_db.put(serializedkey, serializedValue);
+        } catch (NullPointerException exception) {
+            LOGGER.error("NullPointer exception occurred during save operation. {}", exception.getMessage());
+            throw exception;
         } catch (final SerializationException exception) {
             LOGGER.error("Serialization exception occurred during save operation. {}", exception.getMessage());
             throw exception;
         } catch (final Exception exception) {
-            LOGGER.error("Exception occurred during save operation. {}", exception.getMessage());
+            LOGGER.error("LevelDBException occurred during save operation. {}", exception.getMessage());
             throw new SaveFailedException(exception.getMessage(), exception);
         } finally {
             w.unlock();
@@ -298,8 +200,8 @@ public class LevelDBConnectionManager<K, V> implements IDatabase<K, V> {
                 V[] values = (V[]) map.values().toArray();
 
                 for (int i = 0; i < keys.length; i++) {
-                    byte[] serializedkey = keyMapper.encode(keys[i]);
-                    byte[] serializedValue = valueMapper.encode(values[i]);
+                    byte[] serializedkey = SerializationFuryUtil.getInstance().getFury().serialize(keys[i]);
+                    byte[] serializedValue = SerializationFuryUtil.getInstance().getFury().serialize(values[i]);
                     level_db.put(serializedkey, serializedValue);
                 }
             }
@@ -321,9 +223,9 @@ public class LevelDBConnectionManager<K, V> implements IDatabase<K, V> {
     public Optional<V> findByKey(K key) {
         r.lock();
         try {
-            final byte[] serializedKey = keyMapper.encode(key);
+            final byte[] serializedKey = SerializationFuryUtil.getInstance().getFury().serialize(key);
             final byte[] bytes = level_db.get(serializedKey);
-            return (Optional<V>) Optional.ofNullable(valueMapper.decode(bytes));
+            return (Optional<V>) Optional.ofNullable(SerializationFuryUtil.getInstance().getFury().deserialize(bytes));
         } catch (final NullPointerException exception) {
             // LOGGER.info("Key value not exists in Database return empty");
             return Optional.empty();
@@ -348,7 +250,7 @@ public class LevelDBConnectionManager<K, V> implements IDatabase<K, V> {
 
             while (iterator.hasNext()) {
                 byte[] serializedKey = iterator.peekNext().getKey();
-                hashSet.add((K) keyMapper.decode(serializedKey));
+                hashSet.add((K) SerializationFuryUtil.getInstance().getFury().deserialize(serializedKey));
                 iterator.next();
             }
         } catch (final SerializationException exception) {
@@ -368,9 +270,9 @@ public class LevelDBConnectionManager<K, V> implements IDatabase<K, V> {
         try {
             List<Optional<Object>> list = new ArrayList<>();
             for (int i = 0; i < key.size(); i++) {
-                final byte[] serializedKey = keyMapper.encode(key.get(i));
+                final byte[] serializedKey = SerializationFuryUtil.getInstance().getFury().serialize(key.get(i));
                 final byte[] bytes = level_db.get(serializedKey);
-                list.add(Optional.ofNullable((V) valueMapper.decode(bytes)));
+                list.add(Optional.ofNullable((V) SerializationFuryUtil.getInstance().getFury().deserialize(bytes)));
             }
         } catch (final NullPointerException exception) {
             LOGGER.info("Key value not exists in Database return empty");
@@ -390,7 +292,7 @@ public class LevelDBConnectionManager<K, V> implements IDatabase<K, V> {
     public void deleteByKey(K key) {
         w.lock();
         try {
-            final byte[] serializedKey = keyMapper.encode(key);
+            final byte[] serializedKey = SerializationFuryUtil.getInstance().getFury().serialize(key);
             level_db.delete(serializedKey);
         } catch (final SerializationException exception) {
             LOGGER.error("Serialization exception occurred during findByKey operation. {}", exception.getMessage());
@@ -500,12 +402,12 @@ public class LevelDBConnectionManager<K, V> implements IDatabase<K, V> {
         Map<Object, Object> hashmap = new HashMap<>();
         try {
             final DBIterator iterator = level_db.iterator();
-            iterator.seek(keyMapper.encode(key));
+            iterator.seek(SerializationFuryUtil.getInstance().getFury().serialize(key));
 
             while (iterator.hasNext()) {
                 byte[] serializedKey = iterator.peekNext().getKey();
                 byte[] serializedValue = iterator.peekNext().getValue();
-                hashmap.put(keyMapper.decode(serializedKey), valueMapper.decode(serializedValue));
+                hashmap.put(SerializationFuryUtil.getInstance().getFury().deserialize(serializedKey), SerializationFuryUtil.getInstance().getFury().deserialize(serializedValue));
                 iterator.next();
             }
         } catch (final SerializationException exception) {
@@ -527,7 +429,7 @@ public class LevelDBConnectionManager<K, V> implements IDatabase<K, V> {
             while (iterator.hasNext()) {
                 byte[] serializedKey = iterator.peekNext().getKey();
                 byte[] serializedValue = iterator.peekNext().getValue();
-                hashmap.put(keyMapper.decode(serializedKey), valueMapper.decode(serializedValue));
+                hashmap.put(SerializationFuryUtil.getInstance().getFury().deserialize(serializedKey), SerializationFuryUtil.getInstance().getFury().deserialize(serializedValue));
                 iterator.next();
             }
         } catch (final SerializationException exception) {
@@ -554,7 +456,7 @@ public class LevelDBConnectionManager<K, V> implements IDatabase<K, V> {
                 } else {
                     byte[] serializedKey = iterator.peekNext().getKey();
                     byte[] serializedValue = iterator.peekNext().getValue();
-                    hashmap.put(keyMapper.decode(serializedKey), valueMapper.decode(serializedValue));
+                    hashmap.put(SerializationFuryUtil.getInstance().getFury().deserialize(serializedKey), SerializationFuryUtil.getInstance().getFury().deserialize(serializedValue));
                     iterator.next();
                     start++;
                 }
@@ -576,7 +478,7 @@ public class LevelDBConnectionManager<K, V> implements IDatabase<K, V> {
             final DBIterator iterator = level_db.iterator();
             iterator.seekToLast();
             byte[] serializedValue = iterator.peekNext().getValue();
-            return (Optional<V>) Optional.of(valueMapper.decode(serializedValue));
+            return (Optional<V>) Optional.of(SerializationFuryUtil.getInstance().getFury().deserialize(serializedValue));
         } catch (final SerializationException exception) {
             LOGGER.error("Serialization exception occurred during findByKey operation. {}", exception.getMessage());
         } finally {
@@ -592,7 +494,7 @@ public class LevelDBConnectionManager<K, V> implements IDatabase<K, V> {
             final DBIterator iterator = level_db.iterator();
             iterator.seekToFirst();
             byte[] serializedValue = iterator.peekNext().getValue();
-            return (Optional<V>) Optional.of(valueMapper.decode(serializedValue));
+            return (Optional<V>) Optional.of(SerializationFuryUtil.getInstance().getFury().deserialize(serializedValue));
         } catch (final SerializationException exception) {
             LOGGER.error("Serialization exception occurred during findByKey operation. {}", exception.getMessage());
         } finally {

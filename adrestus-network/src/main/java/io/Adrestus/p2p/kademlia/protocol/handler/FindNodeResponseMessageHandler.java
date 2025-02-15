@@ -5,14 +5,17 @@ import io.Adrestus.p2p.kademlia.exception.FullBucketException;
 import io.Adrestus.p2p.kademlia.exception.HandlerNotFoundException;
 import io.Adrestus.p2p.kademlia.node.KademliaNodeAPI;
 import io.Adrestus.p2p.kademlia.protocol.message.*;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-@Slf4j
+
 public class FindNodeResponseMessageHandler<ID extends Number, C extends ConnectionInfo> implements MessageHandler<ID, C> {
+    private static final Logger logger = LoggerFactory.getLogger(FindNodeResponseMessageHandler.class);
+
     private final ExecutorService executorService = Executors.newFixedThreadPool(1);
 
     @Override

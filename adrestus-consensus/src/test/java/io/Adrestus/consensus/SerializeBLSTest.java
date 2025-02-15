@@ -36,7 +36,7 @@ public class SerializeBLSTest {
         list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
         list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
         SerializationUtil<BLSPublicKey> ser = new SerializationUtil<BLSPublicKey>(BLSPublicKey.class, list);
-        byte[] data = ser.encode(vk);
+        byte[] data = ser.encode(vk, 100 + vk.toBytes().length);
         BLSPublicKey copy = ser.decode(data);
         System.out.println(copy.toString());
         byte[] msg = "Test_Message".getBytes();
@@ -60,7 +60,7 @@ public class SerializeBLSTest {
         byte[] msg = "Test_Message".getBytes();
         Signature bls_sig = BLSSignature.sign(msg, sk);
 
-        byte[] data = ser.encode(bls_sig);
+        byte[] data = ser.encode(bls_sig, 100 + bls_sig.toBytes().length);
         Signature copy = ser.decode(data);
 
         assertEquals(true, BLSSignature.verify(copy, msg, vk));

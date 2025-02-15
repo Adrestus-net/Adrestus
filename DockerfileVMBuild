@@ -1,0 +1,241 @@
+# Use the latest Maven image with OpenJDK 21 as the base image
+FROM jelastic/maven:3.9.5-openjdk-21 AS maven_build
+
+# Set the working directory inside the container
+WORKDIR .
+
+COPY pom.xml .
+COPY adrestus-api/pom.xml  ./adrestus-api/pom.xml
+COPY adrestus-bloom-filter/pom.xml ./adrestus-bloom-filter/pom.xml
+COPY adrestus-config/pom.xml ./adrestus-config/pom.xml
+COPY adrestus-consensus/pom.xml ./adrestus-consensus/pom.xml
+COPY adrestus-core/pom.xml ./adrestus-core/pom.xml
+COPY adrestus-crypto/pom.xml ./adrestus-crypto/pom.xml
+COPY adrestus-distributed-ledger/pom.xml ./adrestus-distributed-ledger/pom.xml
+COPY adrestus-erasure-code/pom.xml ./adrestus-erasure-code/pom.xml
+COPY adrestus-network/pom.xml ./adrestus-network/pom.xml
+COPY adrestus-protocol/pom.xml ./adrestus-protocol/pom.xml
+COPY adrestus-trie/pom.xml ./adrestus-trie/pom.xml
+COPY adrestus-util/pom.xml ./adrestus-util/pom.xml
+
+# Download dependencies (cached unless pom.xml changes)
+RUN mvn dependency:go-offline -B
+
+COPY adrestus-api ./adrestus-api
+COPY adrestus-bloom-filter ./adrestus-bloom-filter
+COPY adrestus-config ./adrestus-config
+COPY adrestus-consensus ./adrestus-consensus
+COPY adrestus-core ./adrestus-core
+COPY adrestus-crypto ./adrestus-crypto
+COPY adrestus-distributed-ledger ./adrestus-distributed-ledger
+COPY adrestus-erasure-code ./adrestus-erasure-code
+COPY adrestus-network ./adrestus-network
+COPY adrestus-protocol ./adrestus-protocol
+COPY adrestus-trie ./adrestus-trie
+COPY adrestus-util ./adrestus-util
+#Copy the entire project into the container
+#COPY ./ .
+
+
+#Download dependencies and build the project, including test classes
+#RUN mvn clean install -DskipTests
+
+# Stage 2: Runtime stage
+FROM jelastic/maven:3.9.5-openjdk-21
+WORKDIR .
+
+# Copy only the built JAR from the build stage
+COPY --from=maven_build /pom.xml .
+COPY --from=maven_build /adrestus-consensus ./adrestus-consensus
+COPY --from=maven_build /adrestus-core ./adrestus-core
+COPY --from=maven_build /adrestus-config ./adrestus-config
+COPY --from=maven_build /adrestus-network ./adrestus-network
+
+WORKDIR /adrestus-consensus/
+
+RUN mvn install:install-file -Dfile=/adrestus-core/target/adrestus-core-1.1-SNAPSHOT-jar-with-dependencies.jar -DgroupId=io.Adrestus.v1 -DartifactId=adrestus-core -Dversion=1.1-SNAPSHOT -Dpackaging=jar
+RUN mvn install:install-file -Dfile=/adrestus-config/target/adrestus-config-1.0-SNAPSHOT-jar-with-dependencies.jar -DgroupId=io.Adrestus.v1 -DartifactId=adrestus-config -Dversion=1.0-SNAPSHOT -Dpackaging=jar
+RUN mvn install:install-file -Dfile=/adrestus-network/target/adrestus-network-1.0-SNAPSHOT-jar-with-dependencies.jar -DgroupId=io.Adrestus.v1 -DartifactId=adrestus-network -Dversion=1.0-SNAPSHOT -Dpackaging=jar
+
+## Copy only pom.xml first to allow caching of dependencies
+#COPY pom.xml .
+#COPY adrestus-api/pom.xml  ./adrestus-api/pom.xml
+#COPY adrestus-bloom-filter/pom.xml ./adrestus-bloom-filter/pom.xml
+#COPY adrestus-config/pom.xml ./adrestus-config/pom.xml
+#COPY adrestus-consensus/pom.xml ./adrestus-consensus/pom.xml
+#COPY adrestus-core/pom.xml ./adrestus-core/pom.xml
+#COPY adrestus-crypto/pom.xml ./adrestus-crypto/pom.xml
+#COPY adrestus-distributed-ledger/pom.xml ./adrestus-distributed-ledger/pom.xml
+#COPY adrestus-erasure-code/pom.xml ./adrestus-erasure-code/pom.xml
+#COPY adrestus-network/pom.xml ./adrestus-network/pom.xml
+#COPY adrestus-protocol/pom.xml ./adrestus-protocol/pom.xml
+#COPY adrestus-trie/pom.xml ./adrestus-trie/pom.xml
+#COPY adrestus-util/pom.xml ./adrestus-util/pom.xml
+## Use BuildKit cache mount for the local .m2 directory
+#RUN --mount=type=cache,target=/root/.m2 mvn dependency:go-offline
+#
+## Copy the actual project source
+##WORKDIR ./adrestus-api
+#COPY adrestus-api/src ./adrestus-api/src
+#COPY adrestus-bloom-filter/src ./adrestus-bloom-filter/src
+#COPY adrestus-config/src ./adrestus-config/src
+#COPY adrestus-consensus/src ./adrestus-consensus/src
+#COPY adrestus-core/src ./adrestus-core/src
+#COPY adrestus-crypto/src ./adrestus-crypto/src
+#COPY adrestus-distributed-ledger/src ./adrestus-distributed-ledger/src
+#COPY adrestus-erasure-code/src ./adrestus-erasure-code/src
+#COPY adrestus-network/src ./adrestus-network/src
+#COPY adrestus-protocol/src ./adrestus-protocol/src
+#COPY adrestus-trie/src ./adrestus-trie/src
+#COPY adrestus-util/src ./adrestus-util/src
+##
+### Build the JAR (skipping tests to speed up dev cycle)
+#RUN --mount=type=cache,target=/root/.m2 mvn clean install -DskipTests
+
+CMD ["ls", "-la"]
+# Copy the pom.xml file and download dependencies
+#COPY pom.xml .
+# Copy the entire project into the container
+#COPY ./ .
+
+
+# Download dependencies and build the project, including test classes
+#RUN mvn clean install -DskipTests
+
+# Second stage: use the Maven image again to run the tests
+#FROM jelastic/maven:3.9.5-openjdk-21
+#
+## Set the working directory inside the container
+#WORKDIR .
+#
+## Copy the compiled classes and test-classes from the previous stage
+#COPY --from=maven_build /pom.xml /pom.xml
+#COPY --from=maven_build /target /target
+#
+#COPY --from=maven_build /. /.
+## Download dependencies (this layer will be cached if pom.xml and pom.xml.lock haven't changed)
+#RUN mvn dependency:go-offline -B
+##COPY --from=maven_build /adrestus-consensus/src /adrestus-consensus/src
+##COPY --from=maven_build /adrestus-consensus/pom.xml /adrestus-consensus/pom.xml
+##COPY --from=maven_build /adrestus-consensus/target /adrestus-consensus/target
+##
+##COPY --from=maven_build /adrestus-core/src /adrestus-core/src
+##COPY --from=maven_build /adrestus-core/pom.xml /adrestus-core/pom.xml
+##COPY --from=maven_build /adrestus-core/target /adrestus-core/target
+##
+##COPY --from=maven_build /adrestus-config/src /adrestus-config/src
+##COPY --from=maven_build /adrestus-config/pom.xml /adrestus-config/pom.xml
+##COPY --from=maven_build /adrestus-config/target /adrestus-config/target
+##
+##COPY --from=maven_build /adrestus-network/src /adrestus-network/src
+##COPY --from=maven_build /adrestus-network/pom.xml /adrestus-network/pom.xml
+##COPY --from=maven_build /adrestus-network/target /adrestus-network/target
+#
+#WORKDIR /adrestus-consensus/
+#RUN mvn install:install-file -Dfile=/adrestus-core/target/adrestus-core-1.1-SNAPSHOT-jar-with-dependencies.jar -DgroupId=io.Adrestus.v1 -DartifactId=adrestus-core -Dversion=1.1-SNAPSHOT -Dpackaging=jar
+#RUN mvn install:install-file -Dfile=/adrestus-config/target/adrestus-config-1.0-SNAPSHOT-jar-with-dependencies.jar -DgroupId=io.Adrestus.v1 -DartifactId=adrestus-config -Dversion=1.0-SNAPSHOT -Dpackaging=jar
+#RUN mvn install:install-file -Dfile=/adrestus-network/target/adrestus-network-1.0-SNAPSHOT-jar-with-dependencies.jar -DgroupId=io.Adrestus.v1 -DartifactId=adrestus-network -Dversion=1.0-SNAPSHOT -Dpackaging=jar
+## Run the tests
+##RUN mvn test -Dtest=ConsensusVRFTest2
+## Default command
+##CMD ["ls", "-la"]
+#CMD ["mvn", "test", "-Dtest=ConsensusVRFTest2"]
+#FROM jelastic/maven:3.9.5-openjdk-21 AS maven_build
+## Set the working directory inside the container
+#WORKDIR .
+#
+#COPY ./ .
+## Download dependencies (this layer will be cached if pom.xml and pom.xml.lock haven't changed)
+#RUN mvn dependency:go-offline -B
+##RUN mvn clean install -Dmaven.test.skip -Dmaven.main.skip -Dspring-boot.repackage.skip
+##RUN cd module3 && mvn clean package shade:shade-Dmaven.test.skip -Dmaven.main.skip -Dspring-boot.repackage.skip
+##copy source
+#COPY adrestus-config/src /adrestus-config/src
+#COPY adrestus-crypto/src /adrestus-crypto/src
+#COPY adrestus-util/src /adrestus-utils/src
+#COPY adrestus-distributed-ledger/src /adrestus-distributed-ledger/src
+#COPY adrestus-trie/src /adrestus-trie/src
+#COPY adrestus-bloom-filter/src /adrestus-bloom-filter
+#COPY adrestus-erasure-code/src /adrestus-erasure-code/src
+#COPY adrestus-network/src /adrestus-network/src
+#COPY adrestus-core/src /adrestus-core/src
+#COPY adrestus-consensus/src /adrestus-consensus/src
+#COPY adrestus-protocol/src /adrestus-protocol/src
+#COPY adrestus-api/src /adrestus-api/src
+## build the app (no dependency download here)
+#RUN mvn clean install -Dmaven.test.skip
+#
+#
+### Second stage: use the Maven image again to run the tests
+##FROM jelastic/maven:3.9.5-openjdk-21
+##
+### Set the working directory inside the container
+##WORKDIR .
+##
+##ARG DOCKER_TARGET=/adrestus-consensus/target/
+##COPY --from=maven_build ${DOCKER_TARGET}  /adrestus-consensus/target
+### Copy the compiled test-classes from the previous stage
+###COPY --from=maven_build /target/test-classes /app/target/test-classes
+###COPY --from=maven_build /target/classes /app/target/classes
+###COPY --from=maven_build /target/dependency /app/target/dependency
+###COPY --from=maven_build /pom.xml /app/pom.xml
+###COPY --from=maven_build /.mvn /app/.mvn
+##
+#RUN mvn test -Dtest=ConsensusVRFTest2
+#WORKDIR ./adrestus-consensus/target/test-classes
+##RUN cd /adrestus-consensus/target && ls
+### Default command
+#CMD ["ls", "-la"]
+
+
+## Run the specific test
+#ENTRYPOINT ["mvn", "test", "-Dtest=ConsensusVRFTest2"]
+
+## Use the latest Ubuntu as the base image
+#FROM ubuntu:latest
+## Set the working directory
+#WORKDIR /app
+## Set environment variables to avoid interactive prompts during package installation
+#ENV DEBIAN_FRONTEND=noninteractive
+#RUN apt-get update \
+# && apt-get install -y sudo
+#
+## Update the package list and install necessary dependencies
+#RUN apt-get update && \
+#    apt-get install -y \
+#        curl \
+#        tar \
+#        git \
+#        wget \
+#        unzip \
+#        software-properties-common
+#
+## Install OpenJDK 21
+#RUN apt-get install -y openjdk-21-jdk
+#
+## Set JAVA_HOME environment variable
+#ENV JAVA_HOME /usr/lib/jvm/java-21-openjdk-amd64
+#ENV PATH $JAVA_HOME/bin:$PATH
+#
+## Install Maven
+#ARG MAVEN_VERSION=3.9.9
+#ARG MAVEN_HOME=/opt/maven
+#ARG URL=https://dlcdn.apache.org/
+#
+#RUN mkdir -p ${MAVEN_HOME} && \
+#    curl -fsSL ${URL}/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz | \
+#    tar -xzC ${MAVEN_HOME} --strip-components=1
+#
+## Set Maven environment variables
+#ENV MAVEN_HOME ${MAVEN_HOME}
+#ENV PATH $MAVEN_HOME/bin:$PATH
+#
+## Verify installations
+#RUN java -version && \
+#    mvn -version
+#
+#COPY ./ .
+#RUN mvn clean package -Dmaven.test.skip=true
+#
+## Default command
+#CMD ["ls", "-la"]

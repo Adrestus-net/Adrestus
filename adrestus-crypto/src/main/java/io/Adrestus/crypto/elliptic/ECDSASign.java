@@ -110,6 +110,9 @@ public class ECDSASign implements SignInterface {
         if (x_axis == null || y_axis == null || signatureData.getSig() == null) {
             throw new IllegalArgumentException("Invalid parameters secp256r1Verify");
         }
+        if (x_axis.equals(BigInteger.ZERO) || y_axis.equals(BigInteger.ZERO)) {
+            throw new IllegalArgumentException("Invalid zero parameters secp256r1Verify");
+        }
         Signature ecdsaVerify = Signature.getInstance(AdrestusConfiguration.SIGN_ALGORITHM_ECDSA, AdrestusConfiguration.CONSCRYPT_PROVIDER);
         ecdsaVerify.initVerify(this.recoversecp256r1PublicKeyValue(x_axis, y_axis));
         ecdsaVerify.update(hash);

@@ -19,7 +19,6 @@
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <spongycastle.version>1.58.0.0</spongycastle.version>
-        <util.version>1.0-SNAPSHOT</util.version>
         <bcprov.version>1.79</bcprov.version>
         <codec.version>1.17.1</codec.version>
         <jna.version>5.15.0</jna.version>

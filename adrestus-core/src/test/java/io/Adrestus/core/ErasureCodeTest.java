@@ -117,7 +117,7 @@ public class ErasureCodeTest {
             transaction.setNonce(1);
             transaction.setXAxis(keypair.get(i).getXpubAxis());
             transaction.setYAxis(keypair.get(i).getYpubAxis());
-            byte byf[] = serenc.encode(transaction);
+            byte byf[] = serenc.encode(transaction, 1024);
             transaction.setHash(HashUtil.sha256_bytetoString(byf));
             await().atMost(500, TimeUnit.MILLISECONDS);
 
@@ -183,8 +183,9 @@ public class ErasureCodeTest {
             }
         }
         ArrayList<byte[]> toSend = new ArrayList<>();
-        for (SerializableErasureObject obj : serializableErasureObjects) {
-            toSend.add(serenc_erasure.encode(obj));
+        for (int i = 0; i < serializableErasureObjects.size(); i++) {
+            SerializableErasureObject serializableErasureObject = serializableErasureObjects.get(i);
+            toSend.add(serenc_erasure.encode(serializableErasureObject, serializableErasureObject.getSize()));
         }
         //#########################################################################################################################
         ArrayList<SerializableErasureObject> recserializableErasureObjects = new ArrayList<SerializableErasureObject>();
@@ -272,8 +273,9 @@ public class ErasureCodeTest {
 //        sum1=serializableErasureObjects.get(0).getOriginalPacketChunks().length;
 //        sum2=serializableErasureObjects.get(0).getRepairPacketChunks().stream().mapToInt(i -> i.length).sum();
         ArrayList<byte[]> toSend = new ArrayList<>();
-        for (SerializableErasureObject obj : serializableErasureObjects) {
-            toSend.add(serenc_erasure.encode(obj));
+        for (int i = 0; i < serializableErasureObjects.size(); i++) {
+            SerializableErasureObject serializableErasureObject = serializableErasureObjects.get(i);
+            toSend.add(serenc_erasure.encode(serializableErasureObject, serializableErasureObject.getSize()));
         }
         //#########################################################################################################################
         ArrayList<SerializableErasureObject> recserializableErasureObjects = new ArrayList<SerializableErasureObject>();
@@ -371,8 +373,9 @@ public class ErasureCodeTest {
         }
         serializableErasureObjects.get(0).setOriginalPacketChunks(new byte[0]);
         ArrayList<byte[]> toSend = new ArrayList<>();
-        for (SerializableErasureObject obj : serializableErasureObjects) {
-            toSend.add(serenc_erasure.encode(obj));
+        for (int i = 0; i < serializableErasureObjects.size(); i++) {
+            SerializableErasureObject serializableErasureObject = serializableErasureObjects.get(i);
+            toSend.add(serenc_erasure.encode(serializableErasureObject, serializableErasureObject.getSize()));
         }
         //#########################################################################################################################
         ArrayList<SerializableErasureObject> recserializableErasureObjects = new ArrayList<SerializableErasureObject>();
@@ -578,8 +581,9 @@ public class ErasureCodeTest {
             serializableErasureObjects.get(j).setRootMerkleHash(tree.getRootHash());
         }
         ArrayList<byte[]> toSend = new ArrayList<>();
-        for (SerializableErasureObject obj : serializableErasureObjects) {
-            toSend.add(serenc_erasure.encode(obj));
+        for (int i = 0; i < serializableErasureObjects.size(); i++) {
+            SerializableErasureObject serializableErasureObject = serializableErasureObjects.get(i);
+            toSend.add(serenc_erasure.encode(serializableErasureObject, serializableErasureObject.getSize()));
         }
         //#########################################################################################################################
         ArrayList<SerializableErasureObject> recserializableErasureObjects = new ArrayList<SerializableErasureObject>();
@@ -665,8 +669,9 @@ public class ErasureCodeTest {
         }
         ArrayList<byte[]> toSend = new ArrayList<>();
         int byzantine_size = (serializableErasureObjects.size() - 1) / 3;
-        for (int i = 0; i <= byzantine_size; i++) {
-            toSend.add(serenc_erasure.encode(serializableErasureObjects.get(i)));
+        for (int i = 0; i < serializableErasureObjects.size(); i++) {
+            SerializableErasureObject serializableErasureObject = serializableErasureObjects.get(i);
+            toSend.add(serenc_erasure.encode(serializableErasureObject, serializableErasureObject.getSize()));
         }
         //#########################################################################################################################
         ArrayList<SerializableErasureObject> recserializableErasureObjects = new ArrayList<SerializableErasureObject>();

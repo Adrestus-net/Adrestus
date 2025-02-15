@@ -109,7 +109,7 @@ public class StressBLSTest {
         String toSign = joiner.add(pubkey).add(timeStampInString).toString();
         Signature bls_sig = BLSSignature.sign(toSign.getBytes(StandardCharsets.UTF_8), sk1);
         SerializationUtil<Signature> valueMapper = new SerializationUtil<Signature>(Signature.class, encodlist);
-        String sig = Hex.encodeHexString(valueMapper.encode(bls_sig));
+        String sig = Hex.encodeHexString(valueMapper.encode(bls_sig, 100 + bls_sig.toBytes().length));
 
         list.add(pubkey);
         list.add(timeStampInString);

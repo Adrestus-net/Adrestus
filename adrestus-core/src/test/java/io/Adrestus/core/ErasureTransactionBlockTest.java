@@ -1,6 +1,5 @@
 package io.Adrestus.core;
 
-import com.google.common.reflect.TypeToken;
 import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.MerkleNode;
 import io.Adrestus.Trie.MerkleTreeOptimizedImp;
@@ -39,6 +38,7 @@ import io.Adrestus.erasure.code.parameters.FECParameters;
 import io.Adrestus.erasure.code.parameters.FECParametersPreConditions;
 import io.Adrestus.network.ConsensusBroker;
 import io.Adrestus.util.GetTime;
+import io.Adrestus.util.SerializationFuryUtil;
 import io.Adrestus.util.SerializationUtil;
 import io.distributedLedger.*;
 import lombok.SneakyThrows;
@@ -65,7 +65,6 @@ public class ErasureTransactionBlockTest {
     private static SerializationUtil<AbstractBlock> serenc;
     private static SerializationUtil<Transaction> trx_serence;
     private static SerializationUtil<SerializableErasureObject> serenc_erasure;
-    private static SerializationUtil<ArrayList<byte[]>> serenc__final_erasure;
     private static TransactionBlock transactionBlock;
 
     private static BLSPrivateKey sk1;
@@ -178,8 +177,6 @@ public class ErasureTransactionBlockTest {
         list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
         serenc = new SerializationUtil<AbstractBlock>(AbstractBlock.class, list);
         serenc_erasure = new SerializationUtil<SerializableErasureObject>(SerializableErasureObject.class, list);
-        serenc__final_erasure = new SerializationUtil<ArrayList<byte[]>>(new TypeToken<List<byte[]>>() {
-        }.getType());
         SecureRandom random;
         String mnemonic_code = "fd8cee9c1a3f3f57ab51b25740b24341ae093c8f697fde4df948050d3acd1700f6379d716104d2159e4912509c40ac81714d833e93b822e5ba0fadd68d5568a2";
         random = SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
@@ -329,7 +326,8 @@ public class ErasureTransactionBlockTest {
             int endPosition = Math.min(startPosition + sendSize + onlyFirstSize, serializableErasureObjects.size());
             ArrayList<byte[]> toSend = new ArrayList<>(endPosition - startPosition);
             for (int i = startPosition; i < endPosition; i++) {
-                toSend.add(serenc_erasure.encode(serializableErasureObjects.get(i)));
+                SerializableErasureObject serializableErasureObject = serializableErasureObjects.get(i);
+                toSend.add(serenc_erasure.encode(serializableErasureObject, serializableErasureObject.getSize()));
             }
             finalList.add(toSend);
             startPosition = endPosition;
@@ -338,8 +336,8 @@ public class ErasureTransactionBlockTest {
         assertEquals(finalList.size(), sizeOfCommittee);
         for (int i = 0; i < finalList.size(); i++) {
             int sum = finalList.get(i).parallelStream().mapToInt(byteArray -> byteArray.length).sum() + 1024 * 6;
-            byte[] res = serenc__final_erasure.encode_special(finalList.get(i), sum);
-            assertTrue(areEqual(finalList.get(i), new ArrayList<>(serenc__final_erasure.decode(res))));
+            byte[] res = SerializationFuryUtil.getInstance().getFury().serialize(finalList.get(i));
+            assertTrue(areEqual(finalList.get(i), new ArrayList<>((Collection) SerializationFuryUtil.getInstance().getFury().deserialize(res))));
         }
 
         //#########################################################################################################################
@@ -433,7 +431,8 @@ public class ErasureTransactionBlockTest {
             int endPosition = Math.min(startPosition + sendSize + onlyFirstSize, serializableErasureObjects.size());
             ArrayList<byte[]> toSend = new ArrayList<>(endPosition - startPosition);
             for (int i = startPosition; i < endPosition; i++) {
-                toSend.add(serenc_erasure.encode(serializableErasureObjects.get(i)));
+                SerializableErasureObject serializableErasureObject = serializableErasureObjects.get(i);
+                toSend.add(serenc_erasure.encode(serializableErasureObject, serializableErasureObject.getSize()));
             }
             if (toSend.isEmpty()) {
                 throw new IllegalArgumentException("Size of toSend is 0");
@@ -446,8 +445,8 @@ public class ErasureTransactionBlockTest {
 
         for (int i = 0; i < finalList.size(); i++) {
             int sum = finalList.get(i).parallelStream().mapToInt(byteArray -> byteArray.length).sum() + 1024 * 6;
-            byte[] res = serenc__final_erasure.encode_special(finalList.get(i), sum);
-            assertTrue(areEqual(finalList.get(i), new ArrayList<>(serenc__final_erasure.decode(res))));
+            byte[] res = SerializationFuryUtil.getInstance().getFury().serialize(finalList.get(i));
+            assertTrue(areEqual(finalList.get(i), new ArrayList<>((Collection) SerializationFuryUtil.getInstance().getFury().deserialize(res))));
         }
         //#########################################################################################################################
         ArrayList<SerializableErasureObject> recserializableErasureObjects = new ArrayList<SerializableErasureObject>();
@@ -541,7 +540,8 @@ public class ErasureTransactionBlockTest {
                 int endPosition = Math.min(startPosition + sendSize + onlyFirstSize, serializableErasureObjects.size());
                 ArrayList<byte[]> toSend = new ArrayList<>(endPosition - startPosition);
                 for (int i = startPosition; i < endPosition; i++) {
-                    toSend.add(serenc_erasure.encode(serializableErasureObjects.get(i)));
+                    SerializableErasureObject serializableErasureObject = serializableErasureObjects.get(i);
+                    toSend.add(serenc_erasure.encode(serializableErasureObject, serializableErasureObject.getSize()));
                 }
                 if (toSend.isEmpty()) {
                     throw new IllegalArgumentException("Size of toSend is 0");
@@ -553,8 +553,8 @@ public class ErasureTransactionBlockTest {
             assertEquals(finalList.size(), sizeOfCommittee);
             for (int i = 0; i < finalList.size(); i++) {
                 int sum = finalList.get(i).parallelStream().mapToInt(byteArray -> byteArray.length).sum() + 1024 * 6;
-                byte[] res = serenc__final_erasure.encode_special(finalList.get(i), sum);
-                assertTrue(areEqual(finalList.get(i), new ArrayList<>(serenc__final_erasure.decode(res))));
+                byte[] res = SerializationFuryUtil.getInstance().getFury().serialize(finalList.get(i));
+                assertTrue(areEqual(finalList.get(i), new ArrayList<>((Collection) SerializationFuryUtil.getInstance().getFury().deserialize(res))));
             }
 
             //#########################################################################################################################
@@ -686,7 +686,8 @@ public class ErasureTransactionBlockTest {
                     int endPosition = Math.min(startPosition + sendSize + onlyFirstSize, serializableErasureObjects.size());
                     ArrayList<byte[]> toSend = new ArrayList<>(endPosition - startPosition);
                     for (int i = startPosition; i < endPosition; i++) {
-                        toSend.add(serenc_erasure.encode(serializableErasureObjects.get(i)));
+                        SerializableErasureObject serializableErasureObject = serializableErasureObjects.get(i);
+                        toSend.add(serenc_erasure.encode(serializableErasureObject, serializableErasureObject.getSize()));
                     }
                     if (toSend.isEmpty()) {
                         throw new IllegalArgumentException("Size of toSend is 0");
@@ -698,8 +699,8 @@ public class ErasureTransactionBlockTest {
                 assertEquals(finalList.size(), sizeOfCommittee);
                 for (int i = 0; i < finalList.size(); i++) {
                     int sum = finalList.get(i).parallelStream().mapToInt(byteArray -> byteArray.length).sum() + 1024 * 6;
-                    byte[] res = serenc__final_erasure.encode_special(finalList.get(i), sum);
-                    assertTrue(areEqual(finalList.get(i), new ArrayList<>(serenc__final_erasure.decode(res))));
+                    byte[] res = SerializationFuryUtil.getInstance().getFury().serialize(finalList.get(i));
+                    assertTrue(areEqual(finalList.get(i), new ArrayList<>((Collection) SerializationFuryUtil.getInstance().getFury().deserialize(res))));
                 }
 
                 //#########################################################################################################################

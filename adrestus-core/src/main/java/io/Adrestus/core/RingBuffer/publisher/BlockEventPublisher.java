@@ -35,7 +35,7 @@ public class BlockEventPublisher implements Publisher<AbstractBlock> {
         this.bufferSize = BufferCapacity.nextPowerOf2(this.jobQueueSize);
         //this.group=new ArrayList<AdrestusTransactionBlockEventHandler>();
         this.group = new ArrayList<BlockEventHandler>();
-        disruptor = new Disruptor<AbstractBlockEvent>(new AbstractBlockEventFactory(), bufferSize, DaemonThreadFactory.INSTANCE, ProducerType.SINGLE, new BlockingWaitStrategy());
+        disruptor = new Disruptor<AbstractBlockEvent>(new AbstractBlockEventFactory(), bufferSize, DaemonThreadFactory.INSTANCE, ProducerType.MULTI, new BlockingWaitStrategy());
     }
 
 

@@ -2,6 +2,7 @@ package io.Adrestus.consensus;
 
 import io.Adrestus.core.BlockIndex;
 import io.Adrestus.core.IBlockIndex;
+import io.Adrestus.core.Resourses.CachedLatestBlocks;
 import io.Adrestus.core.Resourses.CachedLeaderIndex;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.core.TransactionBlock;
@@ -20,7 +21,7 @@ public class ConsensusTransactionBlockState extends AbstractState {
 
     public ConsensusTransactionBlockState() {
         this.blockIndex = new BlockIndex();
-        this.consensusManager = new ConsensusManager(false);
+        this.consensusManager = new ConsensusManager();
     }
 
     @Override
@@ -35,6 +36,7 @@ public class ConsensusTransactionBlockState extends AbstractState {
     @Override
     public boolean onActiveState() {
         ConsensusMessage<TransactionBlock> consensusMessage = new ConsensusMessage<>(new TransactionBlock());
+        consensusMessage.getData().setViewID(CachedLatestBlocks.getInstance().getTransactionBlock().getViewID());
 
         try {
             if (target == current) {

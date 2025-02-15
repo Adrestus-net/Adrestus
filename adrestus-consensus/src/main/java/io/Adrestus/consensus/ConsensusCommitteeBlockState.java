@@ -23,7 +23,7 @@ public class ConsensusCommitteeBlockState extends AbstractState {
 
     public ConsensusCommitteeBlockState() {
         this.blockIndex = new BlockIndex();
-        this.consensusManager = new ConsensusManager(false);
+        this.consensusManager = new ConsensusManager();
         this.vdf = new VdfEnginePietrzak(2048);
     }
 

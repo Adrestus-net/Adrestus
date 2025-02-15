@@ -401,7 +401,7 @@ public class ConsensusTransactionTimer2Test {
                                                 TransactionBlock transactionBlock = CachedLatestBlocks.getInstance().getTransactionBlock();
                                                 if (!transactionBlock.getHash().equals("hash")) {
                                                     receipt.setReceiptBlock(new Receipt.ReceiptBlock(transactionBlock.getHeight(), transactionBlock.getGeneration(), transactionBlock.getMerkleRoot()));
-                                                    byte data[] = recep.encode(receipt, 1024);
+                                                    byte data[] = recep.encode(receipt, receipt.length());
                                                     ByteBuf sizeBuf = ByteBufPool.allocate(2); // enough to serialize size 1024
                                                     sizeBuf.writeVarInt(data.length);
                                                     ByteBuf appendedBuf = ByteBufPool.append(sizeBuf, ByteBuf.wrapForReading(data));
@@ -497,7 +497,7 @@ public class ConsensusTransactionTimer2Test {
     }
 
     public static void delete_test() {
-        IDatabase<String, LevelDBTransactionWrapper<Transaction>> transaction_database = new DatabaseFactory(String.class, Transaction.class, new TypeToken<LevelDBTransactionWrapper<Transaction>>() {
+        IDatabase<String, Transaction> transaction_database = new DatabaseFactory(String.class, Transaction.class, new TypeToken<LevelDBTransactionWrapper<Transaction>>() {
         }.getType()).getDatabase(DatabaseType.LEVEL_DB);
         IDatabase<String, LevelDBReceiptWrapper<Receipt>> receiptdatabase = new DatabaseFactory(String.class, Receipt.class, new TypeToken<LevelDBReceiptWrapper<Receipt>>() {
         }.getType()).getDatabase(DatabaseType.LEVEL_DB);

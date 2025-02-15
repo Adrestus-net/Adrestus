@@ -8,7 +8,7 @@ import io.Adrestus.Trie.optimize64_trie.MerklePatriciaTrie;
 import io.Adrestus.bloom_filter.BloomFilter;
 import io.Adrestus.bloom_filter.mapper.BloomFilterSerializer;
 import io.Adrestus.crypto.elliptic.mapper.BigDecimalSerializer;
-import io.Adrestus.crypto.elliptic.mapper.CustomFurySerializer;
+import io.Adrestus.util.SerializationFuryUtil;
 import io.Adrestus.util.SerializationUtil;
 import io.Adrestus.util.bytes.Bytes;
 import org.apache.fury.Fury;
@@ -86,7 +86,7 @@ public class PatriciaTreeNodeSerializeTest implements Serializable {
         MerklePatriciaTrie<Bytes, PatriciaTreeNode> patriciaTreeImp = null;
         for (int i = 0; i < 10000; i++) {
             PatriciaTreeNode treeNode = new PatriciaTreeNode(BigDecimal.valueOf(i), i, BigDecimal.valueOf(i));
-            SerializableFunction<PatriciaTreeNode, Bytes> valueSerializer = (SerializableFunction<PatriciaTreeNode, Bytes> & Serializable) value -> (value != null) ? Bytes.wrap(CustomFurySerializer.getInstance().getFury().serialize(value)) : null;
+            SerializableFunction<PatriciaTreeNode, Bytes> valueSerializer = (SerializableFunction<PatriciaTreeNode, Bytes> & Serializable) value -> (value != null) ? Bytes.wrap(SerializationFuryUtil.getInstance().getFury().serialize(value)) : null;
             patriciaTreeImp = new MerklePatriciaTrie<Bytes, PatriciaTreeNode>(valueSerializer);
             patriciaTreeImp.put(Bytes.wrap(String.valueOf(i).getBytes(StandardCharsets.UTF_8)), treeNode);
         }
@@ -96,8 +96,8 @@ public class PatriciaTreeNodeSerializeTest implements Serializable {
             assertEquals(patriciaTreeImp, cloned_data);
         }
         for (int i = 0; i < 10000; i++) {
-            byte[] data = CustomFurySerializer.getInstance().getFury().serialize(patriciaTreeImp);//132 ms
-            MerklePatriciaTrie<Bytes, PatriciaTreeNode> cloned_data = (MerklePatriciaTrie<Bytes, PatriciaTreeNode>) CustomFurySerializer.getInstance().getFury().deserialize(data);//927 ms
+            byte[] data = SerializationFuryUtil.getInstance().getFury().serialize(patriciaTreeImp);//132 ms
+            MerklePatriciaTrie<Bytes, PatriciaTreeNode> cloned_data = (MerklePatriciaTrie<Bytes, PatriciaTreeNode>) SerializationFuryUtil.getInstance().getFury().deserialize(data);//927 ms
             assertEquals(patriciaTreeImp, cloned_data);
         }
     }
@@ -108,12 +108,12 @@ public class PatriciaTreeNodeSerializeTest implements Serializable {
         String address2 = "2";
         String rootHash = "";
         PatriciaTreeNode treeNode1 = new PatriciaTreeNode(BigDecimal.valueOf(23), 2, BigDecimal.valueOf(31));
-        SerializableFunction<PatriciaTreeNode, Bytes> valueSerializer = (SerializableFunction<PatriciaTreeNode, Bytes> & Serializable) value -> (value != null) ? Bytes.wrap(CustomFurySerializer.getInstance().getFury().serialize(value)) : null;
+        SerializableFunction<PatriciaTreeNode, Bytes> valueSerializer = (SerializableFunction<PatriciaTreeNode, Bytes> & Serializable) value -> (value != null) ? Bytes.wrap(SerializationFuryUtil.getInstance().getFury().serialize(value)) : null;
         MerklePatriciaTrie<Bytes, PatriciaTreeNode> patriciaTreeImp = new MerklePatriciaTrie<Bytes, PatriciaTreeNode>(valueSerializer);
         patriciaTreeImp.put(Bytes.wrap(address1.getBytes(StandardCharsets.UTF_8)), treeNode1);
         rootHash = String.valueOf(patriciaTreeImp.getRootHash());
-        byte[] data = CustomFurySerializer.getInstance().getFury().serialize(patriciaTreeImp);
-        MerklePatriciaTrie<Bytes, PatriciaTreeNode> cloned_data = (MerklePatriciaTrie<Bytes, PatriciaTreeNode>) CustomFurySerializer.getInstance().getFury().deserialize(data);
+        byte[] data = SerializationFuryUtil.getInstance().getFury().serialize(patriciaTreeImp);
+        MerklePatriciaTrie<Bytes, PatriciaTreeNode> cloned_data = (MerklePatriciaTrie<Bytes, PatriciaTreeNode>) SerializationFuryUtil.getInstance().getFury().deserialize(data);
         assertEquals(patriciaTreeImp, cloned_data);
         assertEquals(BigDecimal.valueOf(23), cloned_data.get(Bytes.wrap(address1.getBytes(StandardCharsets.UTF_8))).get().getAmount());
         assertEquals(BigDecimal.valueOf(31), cloned_data.get(Bytes.wrap(address1.getBytes(StandardCharsets.UTF_8))).get().getStaking_amount());

@@ -6,12 +6,13 @@ import io.Adrestus.p2p.kademlia.node.KademliaNodeAPI;
 import io.Adrestus.p2p.kademlia.node.external.ExternalNode;
 import io.Adrestus.p2p.kademlia.protocol.message.KademliaMessage;
 import io.Adrestus.p2p.kademlia.protocol.message.PingKademliaMessage;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Date;
 
-@Slf4j
 public class NodeUtil {
+    private static final Logger logger = LoggerFactory.getLogger(NodeUtil.class);
 
     /**
      * Check if a node is seen recently or is alive

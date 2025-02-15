@@ -45,14 +45,14 @@ public class LevelDBReceiptTest {
 
         Receipt receipt = new Receipt(0, 2);
         receipt.setReceiptBlock(new Receipt.ReceiptBlock(1, 1, "root"));
-        byte[] buff = recep.encode(receipt);
+        byte[] buff = recep.encode(receipt, 1024);
         Receipt cloned = recep.decode(buff);
         assertEquals(receipt, cloned);
     }
 
     //@Test
     public void ReceiptTest() {
-        IDatabase<String, LevelDBReceiptWrapper<Receipt>> receiptdatabase = new DatabaseFactory(String.class, Receipt.class, new TypeToken<LevelDBReceiptWrapper<Receipt>>() {
+        IDatabase<String, Receipt> receiptdatabase = new DatabaseFactory(String.class, Receipt.class, new TypeToken<LevelDBReceiptWrapper<Receipt>>() {
         }.getType()).getDatabase(DatabaseType.LEVEL_DB);
         Transaction transaction = new RegularTransaction();
         transaction.setAmount(BigDecimal.valueOf(100));
@@ -64,15 +64,15 @@ public class LevelDBReceiptTest {
         receipt.setPosition(1);
         receipt.setReceiptBlock(new Receipt.ReceiptBlock(1, 1, "root"));
         receiptdatabase.save(transaction.getFrom(), receipt);
-        Optional<LevelDBReceiptWrapper<Receipt>> wrapperreceipt = receiptdatabase.findByKey("1");
-        assertEquals(receipt, wrapperreceipt.get().getTo().get(0));
+        Optional<Receipt> wrapperreceipt = receiptdatabase.findByKey("1");
+        assertEquals(receipt, wrapperreceipt.get());
 
         receiptdatabase.delete_db();
     }
 
     //@Test
     public void ReceiptTest2() {
-        IDatabase<String, LevelDBReceiptWrapper<Receipt>> receiptdatabase = new DatabaseFactory(String.class, Receipt.class, new TypeToken<LevelDBReceiptWrapper<Receipt>>() {
+        IDatabase<String, Receipt> receiptdatabase = new DatabaseFactory(String.class, Receipt.class, new TypeToken<LevelDBReceiptWrapper<Receipt>>() {
         }.getType()).getDatabase(DatabaseType.LEVEL_DB);
         Transaction transaction = new RegularTransaction();
         transaction.setAmount(BigDecimal.valueOf(100));
@@ -96,10 +96,8 @@ public class LevelDBReceiptTest {
         receiptdatabase.save(transaction2.getFrom(), receipt2);
         receiptdatabase.save(transaction2.getFrom(), receipt2);
         receiptdatabase.save(transaction2.getFrom(), receipt2);
-        Optional<LevelDBReceiptWrapper<Receipt>> wrapperreceipt = receiptdatabase.findByKey("1");
-        assertEquals(receipt, wrapperreceipt.get().getTo().get(0));
-        assertEquals(receipt2, wrapperreceipt.get().getTo().get(1));
-        assertEquals(2, wrapperreceipt.get().getTo().size());
+        Optional<Receipt> wrapperreceipt = receiptdatabase.findByKey("1");
+        assertEquals(receipt, wrapperreceipt.get());
         receiptdatabase.delete_db();
     }
 }

@@ -126,7 +126,7 @@ public class DisruptorStressTest {
             transaction.setAmount(BigDecimal.valueOf(100));
             transaction.setAmountWithTransactionFee(transaction.getAmount().multiply(BigDecimal.valueOf(10.0 / 100.0)));
             transaction.setNonce(1);
-            byte byf[] = serenc.encode(transaction);
+            byte byf[] = serenc.encode(transaction, 1024);
             transaction.setHash(HashUtil.sha256_bytetoString(byf));
             ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(transaction.getHash().getBytes(StandardCharsets.UTF_8), keypair.get(i));
             transaction.setSignature(signatureData);
@@ -154,7 +154,7 @@ public class DisruptorStressTest {
         System.out.println(MemoryTransactionPool.getInstance().getSize());
     }
 
-    //@Test
+    //    @Test
     public void BlockTest() throws NoSuchAlgorithmException, NoSuchProviderException, MnemonicException, InvalidAlgorithmParameterException, InterruptedException {
         BlockEventPublisher publisher = new BlockEventPublisher(1024);
 
@@ -203,13 +203,14 @@ public class DisruptorStressTest {
             transaction.setAmount(BigDecimal.valueOf(100));
             transaction.setAmountWithTransactionFee(transaction.getAmount().multiply(BigDecimal.valueOf(10.0 / 100.0)));
             transaction.setNonce(1);
-            byte byf[] = serenc.encode(transaction);
+            byte byf[] = serenc.encode(transaction, 1024);
             transaction.setHash(HashUtil.sha256_bytetoString(byf));
             ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(transaction.getHash().getBytes(StandardCharsets.UTF_8), keypair.get(i));
             transaction.setSignature(signatureData);
             list1.add(transaction);
         }
-        while (true) {
+        int i = 0;
+        while (i < 20) {
             long start = System.currentTimeMillis();
             transactionBlock.setTransactionList(list1);
             CachedTransactionBlockEventPublisher.getInstance().publish(transactionBlock);
@@ -218,6 +219,7 @@ public class DisruptorStressTest {
             long timeElapsed = finish - start;
             System.out.println(timeElapsed);
             Thread.sleep(350);
+            i++;
         }
     }
 

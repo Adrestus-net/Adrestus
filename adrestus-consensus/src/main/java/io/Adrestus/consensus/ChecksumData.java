@@ -40,6 +40,10 @@ public class ChecksumData implements Serializable, Cloneable {
         this.blsPublicKey = blsPublicKey;
     }
 
+    public int length() {
+        return 300 + signature.getPoint().tobytes().length + blsPublicKey.getPoint().toBytes().length;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

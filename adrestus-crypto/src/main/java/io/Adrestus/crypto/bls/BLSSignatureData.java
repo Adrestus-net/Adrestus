@@ -45,6 +45,12 @@ public class BLSSignatureData implements Serializable {
     }
 
 
+    public int length() {
+        int sumSignatures = Arrays.stream(signature).filter(Objects::nonNull).mapToInt(val -> val.getPoint().tobytes().length).sum();
+        int sumMessageHash = Arrays.stream(messageHash).filter(Objects::nonNull).mapToInt(String::length).sum();
+        return 300 + sumSignatures + sumMessageHash;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

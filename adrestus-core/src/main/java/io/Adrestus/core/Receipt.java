@@ -38,7 +38,7 @@ public class Receipt implements Serializable, Cloneable {
 
     }
 
-    public Receipt(int zoneFrom, int zoneTo, int position, MerkleProofs proof) {
+    public Receipt(int zoneFrom, int zoneTo, int position, MerkleProofs proofs) {
         this.zoneFrom = zoneFrom;
         this.zoneTo = zoneTo;
         this.position = position;
@@ -134,6 +134,10 @@ public class Receipt implements Serializable, Cloneable {
     }
 
 
+    public int length() {
+        return 4 + 4 + 4 + (proofs == null ? 0 : proofs.getLength()) + receiptBlock.length();
+    }
+
     public Object clone() throws CloneNotSupportedException {
         return super.clone();
     }
@@ -207,6 +211,9 @@ public class Receipt implements Serializable, Cloneable {
             this.outboundMerkleRoot = outboundMerkleRoot;
         }
 
+        public int length() {
+            return 4 + 4 + 4 + outboundMerkleRoot.length();
+        }
 
         @Override
         public boolean equals(Object object) {

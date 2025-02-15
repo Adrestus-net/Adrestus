@@ -50,7 +50,7 @@ public class ZoneToEventHandler implements ReceiptEventHandler<ReceiptBlockEvent
             if (!ReceiptIPWorkers.isEmpty()) {
                 List<byte[]> toSendReceipt = new ArrayList<>();
 
-                toSendReceipt.add(receipt_encode.encode(receiptBlock.getReceipt(), 1024));
+                toSendReceipt.add(receipt_encode.encode(receiptBlock.getReceipt(), receiptBlock.getReceipt().length()));
                 var executor = new AsyncService<Long>(ReceiptIPWorkers, toSendReceipt, SocketConfigOptions.RECEIPT_PORT);
                 var asyncResult = executor.startListProcess(300L);
                 var result = executor.endProcess(asyncResult);

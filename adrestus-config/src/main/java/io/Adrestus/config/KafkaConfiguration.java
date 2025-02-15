@@ -15,11 +15,11 @@ public class KafkaConfiguration {
 
     public static final int EXECUTOR_TIMEOUT = 20;
 
-    public static final int DISPERSE_PHASE1_RECEIVE_TIMEOUT = 8500;
-    public static final int DISPERSE_PHASE2_RECEIVE_TIMEOUT = 8500;
-    public static final int ANNOUNCE_PHASE_RECEIVE_TIMEOUT = 5500;
-    public static final int PREPARE_PHASE_RECEIVE_TIMEOUT = 7500;
-    public static final int COMMITTEE_PHASE_RECEIVE_TIMEOUT = 9550;
+    public static final int DISPERSE_PHASE1_RECEIVE_TIMEOUT = 18500;
+    public static final int DISPERSE_PHASE2_RECEIVE_TIMEOUT = 18500;
+    public static final int ANNOUNCE_PHASE_RECEIVE_TIMEOUT = 15500;
+    public static final int PREPARE_PHASE_RECEIVE_TIMEOUT = 17500;
+    public static final int COMMITTEE_PHASE_RECEIVE_TIMEOUT = 19550;
 
     public static final int PRIVATE_GROUP_METADATA_TIMEOUT = 65000;
 }

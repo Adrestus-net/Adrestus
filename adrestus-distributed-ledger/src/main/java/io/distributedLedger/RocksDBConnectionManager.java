@@ -6,6 +6,7 @@ import io.Adrestus.crypto.bls.BLS381.ECP2;
 import io.Adrestus.crypto.bls.mapper.ECP2mapper;
 import io.Adrestus.crypto.bls.mapper.ECPmapper;
 import io.Adrestus.crypto.elliptic.mapper.*;
+import io.Adrestus.util.SerializationFuryUtil;
 import io.Adrestus.util.SerializationUtil;
 import io.distributedLedger.exception.*;
 import lombok.SneakyThrows;
@@ -37,8 +38,6 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
 
     private final DatabaseInstance databaseInstance;
     private final PatriciaTreeInstance patriciaTreeInstance;
-    private final SerializationUtil<V> valueMapper;
-    private final SerializationUtil<K> keyMapper;
     private final Class<K> keyClass;
     private final Class<V> valueClass;
     private final ReentrantReadWriteLock rwl;
@@ -70,8 +69,7 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
         list.add(new SerializationUtil.Mapping(Bytes.class, ctx -> new BytesSerializer()));
         list.add(new SerializationUtil.Mapping(Bytes32.class, ctx -> new Bytes32Serializer()));
         list.add(new SerializationUtil.Mapping(MutableBytes.class, ctx -> new MutableBytesSerializer()));
-        this.keyMapper = new SerializationUtil<K>(this.keyClass);
-        this.valueMapper = new SerializationUtil<V>(this.valueClass, list);
+        SerializationFuryUtil.getInstance();
         setupOptions();
         load_connection();
     }
@@ -96,8 +94,7 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
         list.add(new SerializationUtil.Mapping(Bytes.class, ctx -> new BytesSerializer()));
         list.add(new SerializationUtil.Mapping(Bytes32.class, ctx -> new Bytes32Serializer()));
         list.add(new SerializationUtil.Mapping(MutableBytes.class, ctx -> new MutableBytesSerializer()));
-        this.keyMapper = new SerializationUtil<K>(this.keyClass);
-        this.valueMapper = new SerializationUtil<V>(this.valueClass, list);
+        SerializationFuryUtil.getInstance();
         setupOptions();
         load_connection();
     }
@@ -122,8 +119,7 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
         list.add(new SerializationUtil.Mapping(Bytes.class, ctx -> new BytesSerializer()));
         list.add(new SerializationUtil.Mapping(Bytes32.class, ctx -> new Bytes32Serializer()));
         list.add(new SerializationUtil.Mapping(MutableBytes.class, ctx -> new MutableBytesSerializer()));
-        this.keyMapper = new SerializationUtil<K>(this.keyClass);
-        this.valueMapper = new SerializationUtil<V>(this.valueClass, list);
+        SerializationFuryUtil.getInstance();
         setupOptions();
         load_connection();
     }
@@ -195,11 +191,11 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
 
     @SneakyThrows
     @Override
-    public void save(K key, Object value) {
+    public void save(K key, V value) {
         w.lock();
         try {
-            byte[] serializedkey = keyMapper.encode(key);
-            byte[] serializedValue = valueMapper.encode((V) value);
+            byte[] serializedkey = SerializationFuryUtil.getInstance().getFury().serialize(key);
+            byte[] serializedValue = SerializationFuryUtil.getInstance().getFury().serialize(value);
             rocksDB.put(serializedkey, serializedValue);
         } catch (NullPointerException exception) {
             LOGGER.error("NullPointer exception occurred during save operation. {}", exception.getMessage());
@@ -217,11 +213,11 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
 
     @SneakyThrows
     @Override
-    public void save(K key, Object value, int length) {
+    public void save(K key, V value, int length) {
         w.lock();
         try {
-            byte[] serializedkey = keyMapper.encode(key);
-            byte[] serializedValue = valueMapper.encode((V) value, length);
+            byte[] serializedkey = SerializationFuryUtil.getInstance().getFury().serialize(key);
+            byte[] serializedValue = SerializationFuryUtil.getInstance().getFury().serialize(value);
             rocksDB.put(serializedkey, serializedValue);
         } catch (NullPointerException exception) {
             LOGGER.error("NullPointer exception occurred during save operation. {}", exception.getMessage());
@@ -247,8 +243,8 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
                 V[] values = (V[]) map.values().toArray();
 
                 for (int i = 0; i < keys.length; i++) {
-                    byte[] serializedkey = keyMapper.encode(keys[i]);
-                    byte[] serializedValue = valueMapper.encode(values[i]);
+                    byte[] serializedkey = SerializationFuryUtil.getInstance().getFury().serialize(keys[i]);
+                    byte[] serializedValue = SerializationFuryUtil.getInstance().getFury().serialize(values[i]);
                     rocksDB.put(serializedkey, serializedValue);
                 }
             }
@@ -273,9 +269,9 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
     public Optional<V> findByKey(K key) {
         r.lock();
         try {
-            final byte[] serializedKey = keyMapper.encode(key);
+            final byte[] serializedKey = SerializationFuryUtil.getInstance().getFury().serialize(key);
             final byte[] bytes = rocksDB.get(serializedKey);
-            return Optional.ofNullable(valueMapper.decode(bytes));
+            return (Optional<V>) Optional.ofNullable(SerializationFuryUtil.getInstance().getFury().deserialize(bytes));
         } catch (final NullPointerException exception) {
             LOGGER.info("Key value not exists in Database return empty");
             return Optional.empty();
@@ -299,7 +295,7 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
             iterator.seekToFirst();
             do {
                 byte[] serializedKey = iterator.key();
-                hashSet.add(keyMapper.decode(serializedKey));
+                hashSet.add((K) SerializationFuryUtil.getInstance().getFury().deserialize(serializedKey));
                 iterator.next();
             } while (iterator.isValid());
         } catch (final NullPointerException exception) {
@@ -319,9 +315,9 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
         try {
             List<V> list = new ArrayList<>();
             for (int i = 0; i < key.size(); i++) {
-                final byte[] serializedKey = keyMapper.encode(key.get(i));
+                final byte[] serializedKey = SerializationFuryUtil.getInstance().getFury().serialize(key.get(i));
                 final byte[] bytes = rocksDB.get(serializedKey);
-                list.add(valueMapper.decode(bytes));
+                list.add((V) SerializationFuryUtil.getInstance().getFury().deserialize(bytes));
             }
             return list;
         } catch (final NullPointerException exception) {
@@ -342,7 +338,7 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
     public void deleteByKey(K key) {
         w.lock();
         try {
-            final byte[] serializedKey = keyMapper.encode(key);
+            final byte[] serializedKey = SerializationFuryUtil.getInstance().getFury().serialize(key);
             rocksDB.delete(serializedKey);
         } catch (final SerializationException exception) {
             LOGGER.error("Serialization exception occurred during findByKey operation. {}", exception.getMessage());
@@ -502,7 +498,7 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
         Map<Object, Object> hashmap = new LinkedHashMap<>();
         try {
             final RocksIterator iterator = rocksDB.newIterator();
-            iterator.seek(keyMapper.encode(key));
+            iterator.seek(SerializationFuryUtil.getInstance().getFury().serialize(key));
             do {
                 byte[] serializedKey = iterator.key();
                 byte[] serializedValue = iterator.value();
@@ -510,7 +506,7 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
                 if (res == null) {
                     return (Map<K, V>) hashmap;
                 }
-                hashmap.put(keyMapper.decode(serializedKey), valueMapper.decode(serializedValue));
+                hashmap.put(SerializationFuryUtil.getInstance().getFury().deserialize(serializedKey), SerializationFuryUtil.getInstance().getFury().deserialize(serializedValue));
                 iterator.next();
             } while (iterator.isValid());
         } catch (NullPointerException exception) {
@@ -533,7 +529,7 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
             do {
                 byte[] serializedKey = iterator.key();
                 byte[] serializedValue = iterator.value();
-                hashmap.put(keyMapper.decode(serializedKey), valueMapper.decode(serializedValue));
+                hashmap.put(SerializationFuryUtil.getInstance().getFury().deserialize(serializedKey), SerializationFuryUtil.getInstance().getFury().deserialize(serializedValue));
                 iterator.next();
             } while (iterator.isValid());
         } catch (final SerializationException exception) {
@@ -558,7 +554,7 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
                 } else {
                     byte[] serializedKey = iterator.key();
                     byte[] serializedValue = iterator.value();
-                    hashmap.put(keyMapper.decode(serializedKey), valueMapper.decode(serializedValue));
+                    hashmap.put(SerializationFuryUtil.getInstance().getFury().deserialize(serializedKey), SerializationFuryUtil.getInstance().getFury().deserialize(serializedValue));
                     iterator.next();
                     start++;
                 }
@@ -580,7 +576,7 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
             final RocksIterator iterator = rocksDB.newIterator();
             iterator.seekToLast();
             byte[] serializedValue = iterator.value();
-            return (Optional<V>) Optional.of(valueMapper.decode(serializedValue));
+            return (Optional<V>) Optional.of(SerializationFuryUtil.getInstance().getFury().deserialize(serializedValue));
         } catch (final SerializationException exception) {
             LOGGER.error("Serialization exception occurred during findByKey operation. {}", exception.getMessage());
         } catch (ArrayIndexOutOfBoundsException exception) {
@@ -599,7 +595,7 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
             final RocksIterator iterator = rocksDB.newIterator();
             iterator.seekToFirst();
             byte[] serializedValue = iterator.value();
-            return (Optional<V>) Optional.of(valueMapper.decode(serializedValue));
+            return (Optional<V>) Optional.of(SerializationFuryUtil.getInstance().getFury().deserialize(serializedValue));
         } catch (final SerializationException exception) {
             LOGGER.error("Serialization exception occurred during findByKey operation. {}", exception.getMessage());
         } catch (ArrayIndexOutOfBoundsException exception) {

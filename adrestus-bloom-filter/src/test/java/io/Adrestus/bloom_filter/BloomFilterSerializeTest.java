@@ -4,6 +4,7 @@ import com.google.common.reflect.TypeToken;
 import io.Adrestus.bloom_filter.Util.UtilConstants;
 import io.Adrestus.bloom_filter.impl.InMemoryBloomFilter;
 import io.Adrestus.bloom_filter.mapper.BloomFilterSerializer;
+import io.Adrestus.util.SerializationFuryUtil;
 import io.Adrestus.util.SerializationUtil;
 import org.junit.jupiter.api.Test;
 
@@ -31,8 +32,8 @@ public class BloomFilterSerializeTest {
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(BloomFilter.class, ctx -> new BloomFilterSerializer()));
         SerializationUtil<BloomFilter> ser = new SerializationUtil<BloomFilter>(fluentType, list);
-        byte[] data = ser.encode(filter1);
-        BloomFilter<String> copy = ser.decode(data);
+        byte[] data = SerializationFuryUtil.getInstance().getFury().serialize(filter1);
+        BloomFilter<String> copy = (BloomFilter<String>) SerializationFuryUtil.getInstance().getFury().deserialize(data);
         assertEquals(filter1, copy);
         for (int i = 0; i < 100; i++) {
             assertEquals(true, copy.contains(lists.get(i)));

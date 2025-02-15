@@ -81,7 +81,7 @@ public class PatriciaNodeStorageTest {
                         .forEach(entry -> {
                             entry.getValue().stream().forEach(receipt -> {
                                 int position = Iterables.indexOf(entry.getValue(), u -> u.equals(receipt));
-                                String hash = HashUtil.sha256_bytetoString(recep.encode(receipt));
+                                String hash = HashUtil.sha256_bytetoString(recep.encode(receipt, 1024));
                                 TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress("From1a").get().addReceiptPosition(hash, CachedZoneIndex.getInstance().getZoneIndex(), transactionBlock1.getHeight(), receipt.getZoneFrom(), receipt.getReceiptBlock().getHeight(), position);
                             });
                         }));
@@ -439,7 +439,7 @@ public class PatriciaNodeStorageTest {
         transactionBlockIDatabase.save(String.valueOf(transactionBlock1.getHeight()), transactionBlock1);
 
 
-        String hashToSearch = HashUtil.sha256_bytetoString(recep.encode(receipt4));
+        String hashToSearch = HashUtil.sha256_bytetoString(recep.encode(receipt4, 1024));
         //ATTENTION FROM_1A IS GET_TO NOT GET_FROM
         transactionBlock1
                 .getInbound()
@@ -450,7 +450,7 @@ public class PatriciaNodeStorageTest {
                         .forEach(entry -> {
                             entry.getValue().stream().forEach(receipt -> {
                                 int position = Iterables.indexOf(entry.getValue(), u -> u.equals(receipt));
-                                String hash = HashUtil.sha256_bytetoString(recep.encode(receipt));
+                                String hash = HashUtil.sha256_bytetoString(recep.encode(receipt, 1024));
                                 TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress("From1a").get().addReceiptPosition(hash, CachedZoneIndex.getInstance().getZoneIndex(), transactionBlock1.getHeight(), receipt.getZoneFrom(), receipt.getReceiptBlock().getHeight(), position);
                             });
                         }));
@@ -515,7 +515,7 @@ public class PatriciaNodeStorageTest {
         transactionBlockIDatabase.save(String.valueOf(transactionBlock2.getHeight()), transactionBlock2);
 
 
-        String hashToSearc2 = HashUtil.sha256_bytetoString(recep.encode(receipt12));
+        String hashToSearc2 = HashUtil.sha256_bytetoString(recep.encode(receipt12, 1024));
         //ATTENTION FROM1A IS GET_TO NOT GET_FROM
         transactionBlock2
                 .getInbound()
@@ -526,7 +526,7 @@ public class PatriciaNodeStorageTest {
                         .forEach(entry -> {
                             entry.getValue().stream().forEach(receipt -> {
                                 int position = Iterables.indexOf(entry.getValue(), u -> u.equals(receipt));
-                                String hash = HashUtil.sha256_bytetoString(recep.encode(receipt));
+                                String hash = HashUtil.sha256_bytetoString(recep.encode(receipt, 1024));
                                 TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress("From1a").get().addReceiptPosition(hash, CachedZoneIndex.getInstance().getZoneIndex(), transactionBlock2.getHeight(), receipt.getZoneFrom(), receipt.getReceiptBlock().getHeight(), position);
                             });
                         }));

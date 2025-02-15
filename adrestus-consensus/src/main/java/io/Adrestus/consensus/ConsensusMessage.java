@@ -8,6 +8,7 @@ import io.activej.serializer.annotations.Serialize;
 import io.activej.serializer.annotations.SerializeNullable;
 
 import java.io.Serializable;
+import java.util.Objects;
 import java.util.TreeMap;
 
 public class ConsensusMessage<T> implements Serializable {
@@ -96,6 +97,11 @@ public class ConsensusMessage<T> implements Serializable {
 
     public void clear() {
         this.signatures.clear();
+    }
+
+    public int length(int dataLength) {
+        int sumSignatures = signatures != null ? signatures.entrySet().stream().filter(Objects::nonNull).mapToInt(entry -> entry.getKey().getPoint().toBytes().length + entry.getValue().length()).sum() : 0;
+        return 300 + dataLength + messageType.toString().length() + statusType.toString().length() + hash.length() + checksumData.length() + sumSignatures;
     }
 
     @Override

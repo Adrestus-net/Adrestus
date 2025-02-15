@@ -16,9 +16,13 @@ import io.Adrestus.crypto.bls.model.BLSSignature;
 import io.Adrestus.crypto.elliptic.ECDSASign;
 import io.Adrestus.crypto.elliptic.ECDSASignatureData;
 import io.Adrestus.crypto.elliptic.ECKeyPair;
-import io.Adrestus.crypto.elliptic.mapper.*;
+import io.Adrestus.crypto.elliptic.mapper.BigDecimalSerializer;
+import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
+import io.Adrestus.crypto.elliptic.mapper.CustomSerializerTreeMap;
+import io.Adrestus.crypto.elliptic.mapper.StakingData;
 import io.Adrestus.mapper.MemoryTreePoolSerializer;
 import io.Adrestus.p2p.kademlia.repository.KademliaData;
+import io.Adrestus.util.SerializationFuryUtil;
 import io.Adrestus.util.SerializationUtil;
 import io.distributedLedger.*;
 import io.vavr.control.Option;
@@ -232,7 +236,9 @@ public class RocksDBBlockTest {
         committeeBlock.setDifficulty(119);
         committeeBlock.setVRF("sadsada");
         committeeBlock.setVDF("sadaa");
-        CommitteeBlock cp = (CommitteeBlock) serenc.decode(serenc.encode(committeeBlock));
+        BlockSizeCalculator blocksize = new BlockSizeCalculator();
+        blocksize.setCommitteeBlock(committeeBlock);
+        CommitteeBlock cp = (CommitteeBlock) serenc.decode(serenc.encode(committeeBlock, blocksize.CommitteeBlockSizeCalculator()));
         assertEquals(committeeBlock, cp);
         database.save(hash, committeeBlock);
         CommitteeBlock copy = (CommitteeBlock) database.findByKey(hash).get();
@@ -306,7 +312,7 @@ public class RocksDBBlockTest {
         List<SerializationUtil.Mapping> list = new ArrayList<>();
         list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
         list.add(new SerializationUtil.Mapping(MemoryTreePool.class, ctx -> new MemoryTreePoolSerializer()));
-        SerializationUtil valueMapper = new SerializationUtil<>(fluentType, list);
+
 
         String address = "ADR-ADL3-VDZK-ZU7H-2BX5-M2H4-S7LF-5SR4-ECQA-EIUJ-CBFK";
         PatriciaTreeNode treeNode = new PatriciaTreeNode(BigDecimal.valueOf(2), 1);
@@ -315,14 +321,14 @@ public class RocksDBBlockTest {
 
         //m.getByaddress(address);
         //use only special
-        byte[] buffer = valueMapper.encode_special(m, CustomFurySerializer.getInstance().getFury().serialize(m).length);
+        byte[] buffer = SerializationFuryUtil.getInstance().getFury().serialize(m);
 
         IDatabase<String, byte[]> database = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, PatriciaTreeInstance.PATRICIA_TREE_INSTANCE_0);
         database.save("hash1", buffer);
 
         Optional<byte[]> value = database.findByKey("hash1");
 
-        MemoryTreePool copy = (MemoryTreePool) valueMapper.decode(value.get());
+        MemoryTreePool copy = (MemoryTreePool) SerializationFuryUtil.getInstance().getFury().deserialize(value.get());
 
 
         //copy.store(address, treeNode);
@@ -628,10 +634,6 @@ public class RocksDBBlockTest {
 
         Type fluentType = new TypeToken<MemoryTreePool>() {
         }.getType();
-        List<SerializationUtil.Mapping> list = new ArrayList<>();
-        list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
-        list.add(new SerializationUtil.Mapping(MemoryTreePool.class, ctx -> new MemoryTreePoolSerializer()));
-        SerializationUtil valueMapper = new SerializationUtil<>(fluentType, list);
 
         String address = "ADR-ADL3-VDZK-ZU7H-2BX5-M2H4-S7LF-5SR4-ECQA-EIUJ-CBFK";
         PatriciaTreeNode treeNode = new PatriciaTreeNode(BigDecimal.valueOf(2), 1);
@@ -640,13 +642,13 @@ public class RocksDBBlockTest {
 
         //m.getByaddress(address);
         //use only special
-        byte[] bt = valueMapper.encode_special(m, CustomFurySerializer.getInstance().getFury().serialize(m).length);
+        byte[] bt = SerializationFuryUtil.getInstance().getFury().serialize(m);
         Map<String, byte[]> map = new HashMap<>();
         map.put(m.getRootHash(), bt);
         tree_database.saveAll(map);
 
         Optional<byte[]> copy = tree_database.seekLast();
-        assertEquals(m, valueMapper.decode(copy.get()));
+        assertEquals(m, SerializationFuryUtil.getInstance().getFury().deserialize(copy.get()));
         tree_database.delete_db();
 
 

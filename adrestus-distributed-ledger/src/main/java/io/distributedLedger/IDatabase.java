@@ -20,9 +20,9 @@ public interface IDatabase<K, V> {
      * @param key   of value.
      * @param value that should be persisted.
      */
-    void save(K key, Object value);
+    void save(K key, V value);
 
-    void save(K key, Object value, int length);
+    void save(K key, V value, int length);
 
     void saveAll(Map<K, V> map);
 

@@ -7,9 +7,7 @@ import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.Trie.PatriciaTreeTransactionType;
 import io.Adrestus.Trie.StakingInfo;
-import io.Adrestus.crypto.elliptic.mapper.CustomFurySerializer;
-import io.Adrestus.mapper.MemoryTreePoolSerializer;
-import io.Adrestus.util.SerializationUtil;
+import io.Adrestus.util.SerializationFuryUtil;
 import io.Adrestus.util.bytes.Bytes53;
 import io.vavr.control.Option;
 import org.apache.commons.codec.binary.Hex;
@@ -21,8 +19,6 @@ import org.junit.jupiter.api.TestMethodOrder;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -126,13 +122,6 @@ public class MemoryTreePoolTest {
     public void serialization_tree() throws Exception {
         Type fluentType = new TypeToken<MemoryTreePool>() {
         }.getType();
-        List<SerializationUtil.Mapping> list = new ArrayList<>();
-        //list.add(new SerializationUtil.Mapping(Bytes.class, ctx->new BytesSerializer()));
-        //list.add(new SerializationUtil.Mapping(Bytes32.class, ctx->new Bytes32Serializer()));
-        //list.add(new SerializationUtil.Mapping(MutableBytes.class, ctx->new MutableBytesSerializer()));
-        //list.add(new SerializationUtil.Mapping(Option.class,ctx->new OptionSerializer()));
-        list.add(new SerializationUtil.Mapping(MemoryTreePool.class, ctx -> new MemoryTreePoolSerializer()));
-        SerializationUtil valueMapper = new SerializationUtil<>(fluentType, list);
 
         String address = "ADR-ADL3-VDZK-ZU7H-2BX5-M2H4-S7LF-5SR4-ECQA-EIUJ-CBFK";
         PatriciaTreeNode treeNode = new PatriciaTreeNode(BigDecimal.valueOf(2), 1);
@@ -141,8 +130,8 @@ public class MemoryTreePoolTest {
 
         //m.getByaddress(address);
         //use only special
-        byte[] bt = valueMapper.encode_special(m, CustomFurySerializer.getInstance().getFury().serialize(m).length);
-        MemoryTreePool copy = (MemoryTreePool) valueMapper.decode(bt);
+        byte[] bt = SerializationFuryUtil.getInstance().getFury().serialize(m);
+        MemoryTreePool copy = (MemoryTreePool) SerializationFuryUtil.getInstance().getFury().deserialize(bt);
 
 
         //copy.store(address, treeNode);
@@ -234,8 +223,8 @@ public class MemoryTreePoolTest {
         Option<PatriciaTreeNode> pats = TreeFactory.getMemoryTree(1).getByaddress(address);
         MemoryTreePool m = (MemoryTreePool) TreeFactory.getMemoryTree(1);
 
-        byte[] bt = CustomFurySerializer.getInstance().getFury().serialize(m);
-        MemoryTreePool copy = (MemoryTreePool) CustomFurySerializer.getInstance().getFury().deserialize(bt);
+        byte[] bt = SerializationFuryUtil.getInstance().getFury().serialize(m);
+        MemoryTreePool copy = (MemoryTreePool) SerializationFuryUtil.getInstance().getFury().deserialize(bt);
 
         Option<PatriciaTreeNode> pat = copy.getByaddress(address);
 

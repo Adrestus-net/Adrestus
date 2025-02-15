@@ -64,6 +64,7 @@ public class KafkaMultiNodeFullTest {
         }
 
 
+        // DUPLICATE IS NOT GENERALLY BAD YOU NEED TO ENSURE ASSERTIONS ARE CORRECT
         // Get the LoggerContext and root logger
         LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
         rootLogger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
@@ -183,8 +184,8 @@ public class KafkaMultiNodeFullTest {
                     }
 
                     consensusBroker.produceMessage(TopicType.DISPERSE_PHASE2, String.valueOf(count), DISPERSE2_MESSAGE_VALIDATORS.getBytes(StandardCharsets.UTF_8));
-                    List<byte[]> message_disperse = consensusBroker.receiveMessageFromValidators(TopicType.DISPERSE_PHASE2, String.valueOf(count));
-                    message_disperse.forEach(val -> assertEquals(DISPERSE2_MESSAGE_VALIDATORS, new String(val)));
+                    Map<Integer, byte[]> message_disperse = consensusBroker.receiveDisperseMessageFromValidators(TopicType.DISPERSE_PHASE2, String.valueOf(count));
+                    message_disperse.values().forEach(val -> assertEquals(DISPERSE2_MESSAGE_VALIDATORS, new String(val)));
 
                     Optional<byte[]> message = consensusBroker.receiveMessageFromLeader(TopicType.ANNOUNCE_PHASE, String.valueOf(count));
                     assert (message.isPresent());

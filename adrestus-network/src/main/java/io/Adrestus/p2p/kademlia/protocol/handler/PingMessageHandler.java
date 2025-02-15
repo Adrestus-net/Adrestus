@@ -6,10 +6,12 @@ import io.Adrestus.p2p.kademlia.node.KademliaNodeAPI;
 import io.Adrestus.p2p.kademlia.protocol.message.KademliaMessage;
 import io.Adrestus.p2p.kademlia.protocol.message.PingKademliaMessage;
 import io.Adrestus.p2p.kademlia.protocol.message.PongKademliaMessage;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Slf4j
 public class PingMessageHandler<ID extends Number, C extends ConnectionInfo> extends GeneralResponseMessageHandler<ID, C> {
+
+    private static final Logger logger = LoggerFactory.getLogger(PingMessageHandler.class);
 
     @Override
     @SuppressWarnings("unchecked")

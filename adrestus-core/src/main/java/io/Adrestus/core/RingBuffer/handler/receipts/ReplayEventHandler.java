@@ -43,7 +43,7 @@ public class ReplayEventHandler implements ReceiptEventHandler<ReceiptBlockEvent
         ReceiptBlock receiptBlock = receiptBlockEvent.getReceiptBlock();
         ArrayList<StorageInfo> rcp;
         try {
-            String hashToSearch = HashUtil.sha256_bytetoString(recep.encode(receiptBlock.getReceipt()));
+            String hashToSearch = HashUtil.sha256_bytetoString(recep.encode(receiptBlock.getReceipt(), receiptBlock.getReceipt().length()));
             rcp = (ArrayList<StorageInfo>) TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(receiptBlock.getTransaction().getTo()).get().retrieveReceiptInfoByHash(hashToSearch);
         } catch (NoSuchElementException e) {
             return;

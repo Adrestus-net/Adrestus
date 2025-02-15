@@ -16,7 +16,8 @@ import io.Adrestus.p2p.kademlia.table.Bucket;
 import io.Adrestus.p2p.kademlia.table.RoutingTable;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.util.List;
@@ -24,8 +25,9 @@ import java.util.Map;
 import java.util.concurrent.*;
 
 
-@Slf4j
 public class KademliaNode<ID extends Number, C extends ConnectionInfo> implements KademliaNodeAPI<ID, C> {
+    private static final Logger logger = LoggerFactory.getLogger(KademliaNode.class);
+
     @Getter
     private final ID id;
     @Getter

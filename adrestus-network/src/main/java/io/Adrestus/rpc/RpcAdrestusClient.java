@@ -1,16 +1,6 @@
 package io.Adrestus.rpc;
 
-import io.Adrestus.MemoryTreePool;
-import io.Adrestus.crypto.bls.BLS381.ECP;
-import io.Adrestus.crypto.bls.BLS381.ECP2;
-import io.Adrestus.crypto.bls.mapper.ECP2mapper;
-import io.Adrestus.crypto.bls.mapper.ECPmapper;
-import io.Adrestus.crypto.elliptic.mapper.BigDecimalSerializer;
-import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
-import io.Adrestus.crypto.elliptic.mapper.CustomFurySerializer;
-import io.Adrestus.crypto.elliptic.mapper.CustomSerializerTreeMap;
-import io.Adrestus.mapper.MemoryTreePoolSerializer;
-import io.Adrestus.util.SerializationUtil;
+import io.Adrestus.util.SerializationFuryUtil;
 import io.activej.eventloop.Eventloop;
 import io.activej.reactor.AbstractNioReactive;
 import io.activej.reactor.Reactor;
@@ -27,8 +17,6 @@ import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
 
 import java.lang.reflect.Type;
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.time.Duration;
 import java.util.*;
@@ -46,15 +34,9 @@ public class RpcAdrestusClient<T> extends AbstractNioReactive implements AutoClo
 
     private int TIMEOUT = 4000;
 
-    private SerializationUtil<ListBlockResponse> serializationUtil;
-    private SerializationUtil<PatriciaTreeResponse> serializationUtil2;
     private final BinarySerializer<RpcMessage> rpc_serialize;
     private final Eventloop eventloop;
     private T typeParameterClass;
-    private SerializationUtil<T> valueMapper;
-    private SerializationUtil<T> valueMapper2;
-
-    private SerializationUtil<T> transactionvalueMapper;
     private List<InetSocketAddress> inetSocketAddresses;
     private InetSocketAddress inetSocketAddress;
     private String host;
@@ -68,17 +50,6 @@ public class RpcAdrestusClient<T> extends AbstractNioReactive implements AutoClo
         this.typeParameterClass = typeParameterClass;
         this.inetSocketAddress = inetSocketAddress;
         this.eventloop = eventloop;
-        List<SerializationUtil.Mapping> list = new ArrayList<>();
-        list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
-        list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
-        list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
-        list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
-        list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
-        list.add(new SerializationUtil.Mapping(MemoryTreePool.class, ctx -> new MemoryTreePoolSerializer()));
-        this.serializationUtil2 = new SerializationUtil<PatriciaTreeResponse>(PatriciaTreeResponse.class, list);
-        this.serializationUtil = new SerializationUtil<ListBlockResponse>(ListBlockResponse.class, list);
-        this.valueMapper = new SerializationUtil(typeParameterClass.getClass(), list, true);
-        this.valueMapper2 = new SerializationUtil(typeParameterClass.getClass(), list, true);
     }
 
     public RpcAdrestusClient(T typeParameterClass, String host, int port, Eventloop eventloop) {
@@ -88,17 +59,6 @@ public class RpcAdrestusClient<T> extends AbstractNioReactive implements AutoClo
         this.host = host;
         this.port = port;
         this.eventloop = eventloop;
-        List<SerializationUtil.Mapping> list = new ArrayList<>();
-        list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
-        list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
-        list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
-        list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
-        list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
-        list.add(new SerializationUtil.Mapping(MemoryTreePool.class, ctx -> new MemoryTreePoolSerializer()));
-        this.serializationUtil2 = new SerializationUtil<PatriciaTreeResponse>(PatriciaTreeResponse.class, list);
-        this.serializationUtil = new SerializationUtil<ListBlockResponse>(ListBlockResponse.class, list);
-        this.valueMapper = new SerializationUtil(typeParameterClass.getClass(), list, true);
-        this.valueMapper2 = new SerializationUtil(typeParameterClass.getClass(), list, true);
     }
 
     public RpcAdrestusClient(T typeParameterClass, String host, int port, int timeout, Eventloop eventloop) {
@@ -109,17 +69,6 @@ public class RpcAdrestusClient<T> extends AbstractNioReactive implements AutoClo
         this.port = port;
         this.eventloop = eventloop;
         this.TIMEOUT = timeout;
-        List<SerializationUtil.Mapping> list = new ArrayList<>();
-        list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
-        list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
-        list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
-        list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
-        list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
-        list.add(new SerializationUtil.Mapping(MemoryTreePool.class, ctx -> new MemoryTreePoolSerializer()));
-        this.serializationUtil = new SerializationUtil<ListBlockResponse>(ListBlockResponse.class, list);
-        this.serializationUtil2 = new SerializationUtil<PatriciaTreeResponse>(PatriciaTreeResponse.class, list);
-        this.valueMapper = new SerializationUtil(typeParameterClass.getClass(), list, true);
-        this.valueMapper2 = new SerializationUtil(typeParameterClass.getClass(), list, true);
     }
 
     public RpcAdrestusClient(T typeParameterClass, List<InetSocketAddress> inetSocketAddresses) {
@@ -129,17 +78,6 @@ public class RpcAdrestusClient<T> extends AbstractNioReactive implements AutoClo
         this.inetSocketAddresses = inetSocketAddresses;
         this.eventloop = Reactor.getCurrentReactor();
         new Thread(eventloop).start();
-        List<SerializationUtil.Mapping> list = new ArrayList<>();
-        list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
-        list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
-        list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
-        list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
-        list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
-        list.add(new SerializationUtil.Mapping(MemoryTreePool.class, ctx -> new MemoryTreePoolSerializer()));
-        this.serializationUtil2 = new SerializationUtil<PatriciaTreeResponse>(PatriciaTreeResponse.class, list);
-        this.serializationUtil = new SerializationUtil<ListBlockResponse>(ListBlockResponse.class, list);
-        this.valueMapper2 = new SerializationUtil(typeParameterClass.getClass(), list, true);
-        this.valueMapper = new SerializationUtil(typeParameterClass.getClass(), list, true);
     }
 
     public RpcAdrestusClient(T typeParameterClass, List<InetSocketAddress> inetSocketAddresses, Eventloop eventloop) {
@@ -148,17 +86,6 @@ public class RpcAdrestusClient<T> extends AbstractNioReactive implements AutoClo
         this.typeParameterClass = typeParameterClass;
         this.inetSocketAddresses = inetSocketAddresses;
         this.eventloop = eventloop;
-        List<SerializationUtil.Mapping> list = new ArrayList<>();
-        list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
-        list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
-        list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
-        list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
-        list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
-        list.add(new SerializationUtil.Mapping(MemoryTreePool.class, ctx -> new MemoryTreePoolSerializer()));
-        this.serializationUtil2 = new SerializationUtil<PatriciaTreeResponse>(PatriciaTreeResponse.class, list);
-        this.serializationUtil = new SerializationUtil<ListBlockResponse>(ListBlockResponse.class, list);
-        this.valueMapper2 = new SerializationUtil(typeParameterClass.getClass(), list, true);
-        this.valueMapper = new SerializationUtil(typeParameterClass.getClass(), list, true);
     }
 
     public RpcAdrestusClient(Type fluentType, List<InetSocketAddress> inetSocketAddresses, Eventloop eventloop) {
@@ -166,14 +93,6 @@ public class RpcAdrestusClient<T> extends AbstractNioReactive implements AutoClo
         this.rpc_serialize = SerializerFactory.defaultInstance().create((RpcMessage.class));
         this.inetSocketAddresses = inetSocketAddresses;
         this.eventloop = eventloop;
-        List<SerializationUtil.Mapping> list = new ArrayList<>();
-        list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
-        list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
-        list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
-        list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
-        list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
-        list.add(new SerializationUtil.Mapping(MemoryTreePool.class, ctx -> new MemoryTreePoolSerializer()));
-        this.transactionvalueMapper = new SerializationUtil(fluentType, list);
     }
 
     public RpcAdrestusClient(Type fluentType, InetSocketAddress inetSocketAddress, Eventloop eventloop) {
@@ -181,14 +100,6 @@ public class RpcAdrestusClient<T> extends AbstractNioReactive implements AutoClo
         this.rpc_serialize = SerializerFactory.defaultInstance().create((RpcMessage.class));
         this.inetSocketAddress = inetSocketAddress;
         this.eventloop = eventloop;
-        List<SerializationUtil.Mapping> list = new ArrayList<>();
-        list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
-        list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
-        list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
-        list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
-        list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
-        list.add(new SerializationUtil.Mapping(MemoryTreePool.class, ctx -> new MemoryTreePoolSerializer()));
-        this.transactionvalueMapper = new SerializationUtil(fluentType, list);
     }
 
     public void connect() {
@@ -249,14 +160,14 @@ public class RpcAdrestusClient<T> extends AbstractNioReactive implements AutoClo
 
             Map<String, Long> collect = toCompare.stream().collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
             byte[] map_data = Hex.decode(collect.keySet().stream().findFirst().get());
-            Map<String, LevelDBTransactionWrapper<T>> toSend = (Map<String, LevelDBTransactionWrapper<T>>) CustomFurySerializer.getInstance().getFury().deserialize(map_data);
+            Map<String, LevelDBTransactionWrapper<T>> toSend = (Map<String, LevelDBTransactionWrapper<T>>) SerializationFuryUtil.getInstance().getFury().deserialize(map_data);
             collect.clear();
             responses.clear();
             toCompare.clear();
             return toSend;
         } else {
             TransactionResponse response = getTransactionDatabase(this.client, hash).get();
-            return (Map<String, LevelDBTransactionWrapper<T>>) (CustomFurySerializer.getInstance().getFury().deserialize(response.getByte_data()));
+            return (Map<String, LevelDBTransactionWrapper<T>>) (SerializationFuryUtil.getInstance().getFury().deserialize(response.getByte_data()));
         }
     }
 
@@ -283,7 +194,7 @@ public class RpcAdrestusClient<T> extends AbstractNioReactive implements AutoClo
         Optional<BlockResponse> val = (Optional<BlockResponse>) getBlockResponse(this.client, hash);
         if (val.isEmpty())
             return null;
-        return this.valueMapper2.decode_list(val.get().getByte_data());
+        return (List<T>) SerializationFuryUtil.getInstance().getFury().deserialize(val.get().getByte_data());
     }
 
     @SneakyThrows
@@ -297,7 +208,7 @@ public class RpcAdrestusClient<T> extends AbstractNioReactive implements AutoClo
                     responses.add(blockResponse);
             });
             responses.removeIf(Objects::isNull);
-            responses.forEach(val -> toCompare.add(Hex.toHexString(this.serializationUtil.encode(val))));
+            responses.forEach(val -> toCompare.add(Hex.toHexString(SerializationFuryUtil.getInstance().getFury().serialize(val))));
             toCompare.removeIf(Objects::isNull);
             if (toCompare.isEmpty()) {
                 LOG.info("Download blocks failed empty response");
@@ -306,15 +217,15 @@ public class RpcAdrestusClient<T> extends AbstractNioReactive implements AutoClo
 
             Map<String, Long> collect = toCompare.stream()
                     .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
-            byte[] list_data = this.serializationUtil.decode(Hex.decode(collect.keySet().stream().findFirst().get())).getByte_data();
-            List<T> toSend = this.valueMapper.decode_list(list_data);
+            byte[] list_data = ((ListBlockResponse) SerializationFuryUtil.getInstance().getFury().deserialize(Hex.decode(collect.keySet().stream().findFirst().get()))).getByte_data();
+            List<T> toSend = (List<T>) SerializationFuryUtil.getInstance().getFury().deserialize(list_data);
             collect.clear();
             responses.clear();
             toCompare.clear();
             return toSend;
         } else {
             byte[] data = getBlockListResponse(this.client, hash).getByte_data();
-            return data == null ? new ArrayList<T>() : this.valueMapper.decode_list(data);
+            return data == null ? new ArrayList<T>() : (List<T>) SerializationFuryUtil.getInstance().getFury().deserialize(data);
         }
     }
 
@@ -329,7 +240,7 @@ public class RpcAdrestusClient<T> extends AbstractNioReactive implements AutoClo
                     responses.add(blockResponse);
             });
             responses.removeIf(Objects::isNull);
-            responses.forEach(val -> toCompare.add(Hex.toHexString(this.serializationUtil2.encode(val))));
+            responses.forEach(val -> toCompare.add(Hex.toHexString(SerializationFuryUtil.getInstance().getFury().serialize(val))));
             toCompare.removeIf(Objects::isNull);
             if (toCompare.isEmpty()) {
                 LOG.info("Download PatriciaTree failed empty response");
@@ -338,15 +249,15 @@ public class RpcAdrestusClient<T> extends AbstractNioReactive implements AutoClo
 
             Map<String, Long> collect = toCompare.stream()
                     .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
-            byte[] list_data = this.serializationUtil2.decode(Hex.decode(collect.keySet().stream().findFirst().get())).getByte_data();
-            List<T> toSend = this.valueMapper.decode_list(list_data);
+            byte[] list_data = ((PatriciaTreeResponse) SerializationFuryUtil.getInstance().getFury().deserialize(Hex.decode(collect.keySet().stream().findFirst().get()))).getByte_data();
+            List<T> toSend = (List<T>) SerializationFuryUtil.getInstance().getFury().deserialize(list_data);
             collect.clear();
             responses.clear();
             toCompare.clear();
             return toSend;
         } else {
             byte[] data = getPatriciaTreeListResponse(this.client, hash).getByte_data();
-            return data == null ? new ArrayList<T>() : this.valueMapper.decode_list(data);
+            return data == null ? new ArrayList<T>() : (List<T>) SerializationFuryUtil.getInstance().getFury().deserialize(data);
         }
     }
 
@@ -467,30 +378,6 @@ public class RpcAdrestusClient<T> extends AbstractNioReactive implements AutoClo
         this.inetSocketAddresses = inetSocketAddresses;
     }
 
-    public SerializationUtil getTransactionvalueMapper() {
-        return transactionvalueMapper;
-    }
-
-    public void setTransactionvalueMapper(SerializationUtil transactionvalueMapper) {
-        this.transactionvalueMapper = transactionvalueMapper;
-    }
-
-    public SerializationUtil getValueMapper2() {
-        return valueMapper2;
-    }
-
-    public void setValueMapper2(SerializationUtil valueMapper2) {
-        this.valueMapper2 = valueMapper2;
-    }
-
-    public SerializationUtil getValueMapper() {
-        return valueMapper;
-    }
-
-    public void setValueMapper(SerializationUtil valueMapper) {
-        this.valueMapper = valueMapper;
-    }
-
     public T getTypeParameterClass() {
         return typeParameterClass;
     }
@@ -501,22 +388,6 @@ public class RpcAdrestusClient<T> extends AbstractNioReactive implements AutoClo
 
     public Eventloop getEventloop() {
         return eventloop;
-    }
-
-    public SerializationUtil<PatriciaTreeResponse> getSerializationUtil2() {
-        return serializationUtil2;
-    }
-
-    public void setSerializationUtil2(SerializationUtil<PatriciaTreeResponse> serializationUtil2) {
-        this.serializationUtil2 = serializationUtil2;
-    }
-
-    public SerializationUtil<ListBlockResponse> getSerializationUtil() {
-        return serializationUtil;
-    }
-
-    public void setSerializationUtil(SerializationUtil<ListBlockResponse> serializationUtil) {
-        this.serializationUtil = serializationUtil;
     }
 
     public int getTIMEOUT() {

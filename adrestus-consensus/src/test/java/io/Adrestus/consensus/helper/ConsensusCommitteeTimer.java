@@ -42,7 +42,7 @@ public class ConsensusCommitteeTimer {
     private VdfEngine vdf;
 
     public ConsensusCommitteeTimer(CountDownLatch latch) throws Exception {
-        this.consensusManager = new ConsensusManager(false);
+        this.consensusManager = new ConsensusManager();
         this.blockIndex = new BlockIndex();
         this.timer = new Timer(ConsensusConfiguration.CONSENSUS);
         this.task = new ConsensusTask();
@@ -85,14 +85,17 @@ public class ConsensusCommitteeTimer {
                 consensusManager.changeStateTo(ConsensusRoleType.SUPERVISOR);
                 var organizerphase = consensusManager.getRole().manufacturePhases(ConsensusType.COMMITTEE_BLOCK);
                 organizerphase.InitialSetup();
+                organizerphase.DispersePhase(consensusMessage);
                 organizerphase.AnnouncePhase(consensusMessage);
                 organizerphase.PreparePhase(consensusMessage);
                 organizerphase.CommitPhase(consensusMessage);
             } else {
+                consensusMessage.getData().setViewID(CachedLatestBlocks.getInstance().getCommitteeBlock().getViewID() + 1);
                 LOG.info("VALIDATOR State");
                 consensusManager.changeStateTo(ConsensusRoleType.VALIDATOR);
                 var validatorphase = consensusManager.getRole().manufacturePhases(ConsensusType.COMMITTEE_BLOCK);
                 validatorphase.InitialSetup();
+                validatorphase.DispersePhase(consensusMessage);
                 validatorphase.AnnouncePhase(consensusMessage);
                 validatorphase.PreparePhase(consensusMessage);
                 validatorphase.CommitPhase(consensusMessage);

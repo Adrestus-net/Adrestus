@@ -5,7 +5,7 @@ import io.Adrestus.Trie.MerklePatriciaTreeImp;
 import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.Trie.optimize64_trie.IMerklePatriciaTrie;
 import io.Adrestus.Trie.optimize64_trie.MerklePatriciaTrie;
-import io.Adrestus.crypto.elliptic.mapper.CustomFurySerializer;
+import io.Adrestus.util.SerializationFuryUtil;
 import io.Adrestus.util.bytes.Bytes;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,7 +28,7 @@ public class PatriciaTreeTest {
     void setUp() throws Exception {
         trie = new MerklePatriciaTreeImp();
         valueSerializer = value -> (value != null) ? Bytes.wrap(value.getBytes(StandardCharsets.UTF_8)) : null;
-        valueSerializer2 = value -> (value != null) ? Bytes.wrap(CustomFurySerializer.getInstance().getFury().serialize(value)) : null;
+        valueSerializer2 = value -> (value != null) ? Bytes.wrap(SerializationFuryUtil.getInstance().getFury().serialize(value)) : null;
         optimized = new MerklePatriciaTrie<Bytes, String>(valueSerializer);
         optimized2 = new MerklePatriciaTrie<Bytes, PatriciaTreeNode>(valueSerializer2);
     }
