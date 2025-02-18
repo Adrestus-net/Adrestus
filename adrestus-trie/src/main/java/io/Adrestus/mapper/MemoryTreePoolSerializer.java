@@ -3,14 +3,17 @@ package io.Adrestus.mapper;
 import io.Adrestus.MemoryTreePool;
 import io.activej.serializer.*;
 import io.activej.serializer.def.SimpleSerializerDef;
+import lombok.Getter;
 import lombok.SneakyThrows;
 import org.apache.fury.Fury;
+import org.apache.fury.ThreadSafeFury;
 import org.apache.fury.config.CompatibleMode;
 import org.apache.fury.config.Language;
 import org.apache.fury.logging.LoggerFactory;
 
+@Getter
 public class MemoryTreePoolSerializer extends SimpleSerializerDef<MemoryTreePool> {
-    private final Fury fury;
+    private final ThreadSafeFury fury;
 
     static {
         LoggerFactory.disableLogging();
@@ -20,12 +23,17 @@ public class MemoryTreePoolSerializer extends SimpleSerializerDef<MemoryTreePool
         this.fury = Fury.builder()
                 .withLanguage(Language.JAVA)
                 .withRefTracking(false)
-                .withClassVersionCheck(true)
+                .withRefCopy(false)
+                .withLongCompressed(true)
+                .withIntCompressed(true)
+                .withStringCompressed(true)
+                .withScalaOptimizationEnabled(true)
+                .withClassVersionCheck(false)
                 .withCompatibleMode(CompatibleMode.SCHEMA_CONSISTENT)
-                .withAsyncCompilation(true)
+                .withAsyncCompilation(false)
                 .withCodegen(false)
                 .requireClassRegistration(false)
-                .build();
+                .buildThreadSafeFury();
     }
 
     @Override

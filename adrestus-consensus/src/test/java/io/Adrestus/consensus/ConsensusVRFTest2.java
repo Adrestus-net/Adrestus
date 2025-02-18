@@ -1,5 +1,6 @@
 package io.Adrestus.consensus;
 
+import io.Adrestus.config.RunningConfig;
 import io.Adrestus.consensus.helper.ConsensusVRFTimer;
 import io.Adrestus.core.CommitteeBlock;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
@@ -32,29 +33,14 @@ public class ConsensusVRFTest2 {
     private static BLSPrivateKey sk4;
     private static BLSPublicKey vk4;
 
-    public static boolean isRunningInDocker() {
-        try {
-            return new File("/.dockerenv").exists();
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    public static boolean isRunningInAppveyor() {
-        String buildId = System.getenv("APPVEYOR_BUILD_ID");
-        String buildNumber = System.getenv("APPVEYOR_BUILD_NUMBER");
-        if (buildId != null && buildNumber != null)
-            return true;
-        return false;
-    }
 
     @BeforeAll
     public static void setup() throws Exception {
-        if (System.out.getClass().getName().contains("maven") && !isRunningInDocker() && isRunningInAppveyor()) {
+        if (RunningConfig.isRunningInMaven() && !RunningConfig.isRunningInDocker() && RunningConfig.isRunningInAppveyor()) {
             return;
-        } else if (System.out.getClass().getName().contains("maven") && !isRunningInDocker() && !isRunningInAppveyor()) {
+        } else if (RunningConfig.isRunningInMaven() && !RunningConfig.isRunningInDocker() && !RunningConfig.isRunningInAppveyor()) {
             return;
-        } else if ((isRunningInDocker() && !isRunningInAppveyor()) || !System.out.getClass().getName().contains("maven")) {
+        } else if ((RunningConfig.isRunningInDocker() && !RunningConfig.isRunningInAppveyor()) || !RunningConfig.isRunningInMaven()) {
             sk1 = new BLSPrivateKey(1);
             vk1 = new BLSPublicKey(sk1);
 
@@ -86,11 +72,11 @@ public class ConsensusVRFTest2 {
 
     @Test
     public void vrf_test() throws Exception {
-        if (System.out.getClass().getName().contains("maven") && !isRunningInDocker() && isRunningInAppveyor()) {
+        if (RunningConfig.isRunningInMaven() && !RunningConfig.isRunningInDocker() && RunningConfig.isRunningInAppveyor()) {
             return;
-        } else if (System.out.getClass().getName().contains("maven") && !isRunningInDocker() && !isRunningInAppveyor()) {
+        } else if (RunningConfig.isRunningInMaven() && !RunningConfig.isRunningInDocker() && !RunningConfig.isRunningInAppveyor()) {
             return;
-        } else if ((isRunningInDocker() && !isRunningInAppveyor()) || !System.out.getClass().getName().contains("maven")) {
+        } else if ((RunningConfig.isRunningInDocker() && !RunningConfig.isRunningInAppveyor()) || !RunningConfig.isRunningInMaven()) {
             Socket socket = new Socket();
             socket.connect(new InetSocketAddress("google.com", 80));
             String IP = socket.getLocalAddress().getHostAddress();

@@ -10,9 +10,7 @@ import io.activej.serializer.annotations.SerializeClass;
 import io.activej.serializer.annotations.SerializeNullable;
 
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Objects;
-import java.util.TreeMap;
+import java.util.*;
 
 @SerializeClass(subclasses = {CommitteeBlock.class, TransactionBlock.class})
 public abstract class AbstractBlock extends Object implements BlockFactory, DisruptorBlock, Cloneable, Serializable {
@@ -193,12 +191,37 @@ public abstract class AbstractBlock extends Object implements BlockFactory, Disr
     }
 
 
+    protected <K, V> boolean TreemapEquals(TreeMap<K, V> thisObject, TreeMap<K, V> thatObject) {
+        List<K> key_list1 = new ArrayList<>(thisObject.keySet());
+        List<K> key_list2 = new ArrayList<>(thatObject.keySet());
+        List<V> val_list1 = new ArrayList<>(thisObject.values());
+        List<V> val_list2 = new ArrayList<>(thatObject.values());
+
+        boolean key = true;
+        for (int i = 0; i < key_list1.size(); i++) {
+            key = key_list1.get(i).equals(key_list2.get(i));
+            if (!key)
+                break;
+        }
+
+        boolean val = true;
+        for (int i = 0; i < val_list1.size(); i++) {
+            val = val_list1.get(i).equals(val_list2.get(i));
+            if (!val)
+                break;
+        }
+
+        return key && val;
+    }
+
+
+    //Never delete this TreeMapEquals.equals(signatureData, that.signatureData) should exist
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         AbstractBlock block = (AbstractBlock) o;
-        return Size == block.Size && Height == block.Height && Generation == block.Generation && ViewID == block.ViewID && Objects.equals(header, block.header) && Statustype == block.Statustype && Objects.equals(Hash, block.Hash) && Objects.equals(BlockProposer, block.BlockProposer) && Objects.equals(LeaderPublicKey, block.LeaderPublicKey) && Objects.equals(signatureData, block.signatureData);
+        return Size == block.Size && Height == block.Height && Generation == block.Generation && ViewID == block.ViewID && Objects.equals(header, block.header) && Statustype == block.Statustype && Objects.equals(Hash, block.Hash) && Objects.equals(BlockProposer, block.BlockProposer) && Objects.equals(LeaderPublicKey, block.LeaderPublicKey) && Objects.equals(signatureData, block.signatureData) && TreemapEquals(signatureData, block.signatureData);
     }
 
     @Override

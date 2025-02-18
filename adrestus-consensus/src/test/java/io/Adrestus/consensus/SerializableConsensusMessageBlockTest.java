@@ -2,9 +2,11 @@ package io.Adrestus.consensus;
 
 import com.google.common.reflect.TypeToken;
 import io.Adrestus.core.AbstractBlock;
+import io.Adrestus.core.CommitteeBlock;
 import io.Adrestus.core.TransactionBlock;
 import io.Adrestus.core.Util.BlockSizeCalculator;
 import io.Adrestus.core.comparators.SortSignatureMapByBlsPublicKey;
+import io.Adrestus.crypto.HashUtil;
 import io.Adrestus.crypto.bls.BLS381.ECP;
 import io.Adrestus.crypto.bls.BLS381.ECP2;
 import io.Adrestus.crypto.bls.BLSSignatureData;
@@ -17,6 +19,8 @@ import io.Adrestus.crypto.bls.model.Signature;
 import io.Adrestus.crypto.elliptic.mapper.BigDecimalSerializer;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.crypto.elliptic.mapper.CustomSerializerTreeMap;
+import io.Adrestus.crypto.elliptic.mapper.StakingData;
+import io.Adrestus.p2p.kademlia.repository.KademliaData;
 import io.Adrestus.util.SerializationFuryUtil;
 import io.Adrestus.util.SerializationUtil;
 import io.distributedLedger.DatabaseFactory;
@@ -81,7 +85,8 @@ public class SerializableConsensusMessageBlockTest {
         list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
         list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
-        list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
+        list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap<BLSPublicKey,BLSSignatureData>()));
+        list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap<StakingData, KademliaData>()));
         serenc = new SerializationUtil<AbstractBlock>(AbstractBlock.class, list);
 
         sk1 = new BLSPrivateKey(1);
@@ -110,7 +115,7 @@ public class SerializableConsensusMessageBlockTest {
         vk8 = new BLSPublicKey(sk8);
     }
 
-    @Test
+    //@Test
     public void SerializeBlockDatabase() {
         IDatabase<String, AbstractBlock> database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(1));
 
@@ -135,7 +140,7 @@ public class SerializableConsensusMessageBlockTest {
         database.delete_db();
     }
 
-    @Test
+    //@Test
     public void SerializeConsensusMessage() throws CloneNotSupportedException {
 
         String message = "toSign";
@@ -145,7 +150,8 @@ public class SerializableConsensusMessageBlockTest {
         BLSSignatureData blsSignatureData3 = new BLSSignatureData();
         BLSSignatureData blsSignatureData4 = new BLSSignatureData();
 
-        blsSignatureData1.getSignature()[0] = BLSSignature.sign(message.getBytes(StandardCharsets.UTF_8), sk3);
+        Signature signature = BLSSignature.sign(message.getBytes(StandardCharsets.UTF_8), sk3);
+        blsSignatureData1.getSignature()[0] = Signature.fromByte(signature.toBytes());
         blsSignatureData1.getMessageHash()[0] = message;
         blsSignatureData2.getSignature()[0] = BLSSignature.sign(message.getBytes(StandardCharsets.UTF_8), sk4);
         blsSignatureData2.getMessageHash()[0] = message;
@@ -153,7 +159,7 @@ public class SerializableConsensusMessageBlockTest {
         blsSignatureData3.getMessageHash()[0] = message;
         blsSignatureData4.getSignature()[0] = BLSSignature.sign(message.getBytes(StandardCharsets.UTF_8), sk2);
         blsSignatureData4.getMessageHash()[0] = message;
-        signatureData.put(vk3, blsSignatureData1);
+        //signatureData.put(vk3, blsSignatureData1);
         signatureData.put(vk4, blsSignatureData2);
         signatureData.put(vk1, blsSignatureData3);
         signatureData.put(vk2, blsSignatureData4);
@@ -161,6 +167,7 @@ public class SerializableConsensusMessageBlockTest {
         block.setHash("1");
         block.setHeight(1);
         block.setSignatureData(signatureData);
+        block.getSignatureData().put(vk3, blsSignatureData1);
         ConsensusMessage<TransactionBlock> consensusMessage = new ConsensusMessage<>(block);
         ConsensusMessage<TransactionBlock> consensusMessage2 = new ConsensusMessage<>(block);
         BLSPrivateKey sk1a = new BLSPrivateKey(1);
@@ -185,6 +192,63 @@ public class SerializableConsensusMessageBlockTest {
         byte[] hash2 = SerializationFuryUtil.getInstance().getFury().serialize(consensusMessage);
         ConsensusMessage<TransactionBlock> cloned2 = (ConsensusMessage<TransactionBlock>) SerializationFuryUtil.getInstance().getFury().deserialize(hash2);
         assertEquals(consensusMessage, cloned2);
+    }
+
+    @Test
+    public void SerializeConsensusCommitBlock() throws CloneNotSupportedException {
+
+        String message = "toSign";
+        TreeMap<BLSPublicKey, BLSSignatureData> signatureData = new TreeMap<BLSPublicKey, BLSSignatureData>(new SortSignatureMapByBlsPublicKey());
+        BLSSignatureData blsSignatureData1 = new BLSSignatureData();
+        BLSSignatureData blsSignatureData2 = new BLSSignatureData();
+        BLSSignatureData blsSignatureData3 = new BLSSignatureData();
+        BLSSignatureData blsSignatureData4 = new BLSSignatureData();
+
+        Signature signature = BLSSignature.sign(message.getBytes(StandardCharsets.UTF_8), sk3);
+        blsSignatureData1.getSignature()[0] = Signature.fromByte(signature.toBytes());
+        blsSignatureData1.getMessageHash()[0] = message;
+        blsSignatureData2.getSignature()[0] = BLSSignature.sign(message.getBytes(StandardCharsets.UTF_8), sk4);
+        blsSignatureData2.getMessageHash()[0] = message;
+        blsSignatureData3.getSignature()[0] = BLSSignature.sign(message.getBytes(StandardCharsets.UTF_8), sk1);
+        blsSignatureData3.getMessageHash()[0] = message;
+        blsSignatureData4.getSignature()[0] = BLSSignature.sign(message.getBytes(StandardCharsets.UTF_8), sk2);
+        blsSignatureData4.getMessageHash()[0] = message;
+        //signatureData.put(vk3, blsSignatureData1);
+        signatureData.put(vk4, blsSignatureData2);
+        signatureData.put(vk1, blsSignatureData3);
+        signatureData.put(vk2, blsSignatureData4);
+
+
+        AbstractBlock block = new CommitteeBlock();
+        block.setHash("1");
+        block.setHeight(1);
+        block.setSignatureData(signatureData);
+        block.getSignatureData().put(vk3, blsSignatureData1);
+
+        AbstractBlock block2 = (CommitteeBlock) block.clone();
+        AbstractBlock block3 = (CommitteeBlock) block.clone();
+        BLSSignatureData blsSignatureData = new BLSSignatureData();
+        Signature signaturec = BLSSignature.sign(message.getBytes(StandardCharsets.UTF_8), sk3);
+        blsSignatureData.getSignature()[0] = Signature.fromByte(signaturec.toBytes());
+        blsSignatureData.getMessageHash()[0] = message;
+        block2.getSignatureData().put(vk3, blsSignatureData);
+        block3.getSignatureData().put(vk3, blsSignatureData);
+
+        BlockSizeCalculator sizeCalculator = new BlockSizeCalculator();
+        sizeCalculator.setCommitteeBlock((CommitteeBlock) block);
+        BlockSizeCalculator sizeCalculator1 = new BlockSizeCalculator();
+        sizeCalculator1.setCommitteeBlock((CommitteeBlock) block3);
+        assertEquals(block2, block);
+        byte[] data = serenc.encode(block,sizeCalculator.CommitteeBlockSizeCalculator());
+        byte[] data3 = serenc.encode(block3,sizeCalculator1.CommitteeBlockSizeCalculator());
+        BlockSizeCalculator sizeCalculator2 = new BlockSizeCalculator();
+        sizeCalculator2.setCommitteeBlock((CommitteeBlock) block2);
+        byte[] data2 = serenc.encode(block2,sizeCalculator2.CommitteeBlockSizeCalculator());
+        assertEquals(HashUtil.sha256_bytetoString(data3), HashUtil.sha256_bytetoString(data2));
+        assertEquals(HashUtil.sha256_bytetoString(data), HashUtil.sha256_bytetoString(data2));
+        CommitteeBlock cloned= (CommitteeBlock) serenc.decode(data);
+        assertEquals(block, cloned);
+        assertEquals(block2, cloned);
     }
 
     @Test

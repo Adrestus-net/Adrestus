@@ -25,7 +25,6 @@ public class BLSSignatureData implements Serializable {
 
 
     @Serialize
-    @SerializeNullable
     public String[] getMessageHash() {
         return messageHash;
     }
@@ -35,7 +34,6 @@ public class BLSSignatureData implements Serializable {
     }
 
     @Serialize
-    @SerializeNullable
     public Signature[] getSignature() {
         return signature;
     }

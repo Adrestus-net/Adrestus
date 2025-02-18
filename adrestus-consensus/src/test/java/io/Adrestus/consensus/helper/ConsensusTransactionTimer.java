@@ -16,6 +16,7 @@ import io.Adrestus.crypto.elliptic.ECDSASignatureData;
 import io.Adrestus.crypto.elliptic.ECKeyPair;
 import io.Adrestus.crypto.elliptic.mapper.BigDecimalSerializer;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
+import io.Adrestus.network.ConsensusBrokerInstance;
 import io.Adrestus.util.GetTime;
 import io.Adrestus.util.SerializationUtil;
 import lombok.SneakyThrows;
@@ -140,6 +141,7 @@ public class ConsensusTransactionTimer {
     public void close() {
         timer.cancel();
         task.cancel();
+        ConsensusBrokerInstance.getInstance().close();
     }
 
     protected final class ConsensusTask extends TimerTask {

@@ -5,38 +5,44 @@ import io.activej.serializer.def.SimpleSerializerDef;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import org.apache.fury.Fury;
+import org.apache.fury.ThreadSafeFury;
 import org.apache.fury.config.CompatibleMode;
 import org.apache.fury.config.Language;
 import org.apache.fury.logging.LoggerFactory;
 
 import java.util.TreeMap;
 
-public class CustomSerializerTreeMap extends SimpleSerializerDef<TreeMap<Object, Object>> {
-    @Getter
-    private static Fury fury;
+@Getter
+public class CustomSerializerTreeMap<K, V> extends SimpleSerializerDef<TreeMap<K, V>> {
+    private final ThreadSafeFury fury;
 
     static {
         LoggerFactory.disableLogging();
     }
 
     public CustomSerializerTreeMap() {
-        fury = Fury.builder()
+        this.fury = Fury.builder()
                 .withLanguage(Language.JAVA)
                 .withRefTracking(false)
-                .withClassVersionCheck(true)
+                .withRefCopy(false)
+                .withLongCompressed(true)
+                .withIntCompressed(true)
+                .withStringCompressed(true)
+                .withScalaOptimizationEnabled(true)
+                .withClassVersionCheck(false)
                 .withCompatibleMode(CompatibleMode.SCHEMA_CONSISTENT)
-                .withAsyncCompilation(true)
+                .withAsyncCompilation(false)
                 .withCodegen(false)
                 .requireClassRegistration(false)
-                .build();
+                .buildThreadSafeFury();
     }
 
     @Override
-    protected BinarySerializer<TreeMap<Object, Object>> createSerializer(int version, CompatibilityLevel compatibilityLevel) {
-        return new BinarySerializer<TreeMap<Object, Object>>() {
+    protected BinarySerializer<TreeMap<K, V>> createSerializer(int version, CompatibilityLevel compatibilityLevel) {
+        return new BinarySerializer<TreeMap<K, V>>() {
             @SneakyThrows
             @Override
-            public void encode(BinaryOutput out, TreeMap<Object, Object> item) {
+            public void encode(BinaryOutput out, TreeMap<K, V> item) {
                 byte[] bytes = fury.serialize(item);
                 out.writeVarInt(bytes.length);
                 out.write(bytes);
@@ -44,14 +50,10 @@ public class CustomSerializerTreeMap extends SimpleSerializerDef<TreeMap<Object,
 
             @SneakyThrows
             @Override
-            public TreeMap<Object, Object> decode(BinaryInput in) throws CorruptedDataException {
+            public TreeMap<K, V> decode(BinaryInput in) throws CorruptedDataException {
                 byte[] bytes = new byte[in.readVarInt()];
                 in.read(bytes);
-                TreeMap<Object, Object> map = (TreeMap<Object, Object>) fury.deserialize(bytes);
-//                fury.reset();
-//                fury.resetBuffer();
-//                fury.resetRead();
-//                fury.resetWrite();
+                TreeMap<K, V> map = (TreeMap<K, V>) fury.deserialize(bytes);
                 return map;
             }
         };

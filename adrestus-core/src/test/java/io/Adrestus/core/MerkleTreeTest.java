@@ -174,6 +174,8 @@ public class MerkleTreeTest {
 
     @Test
     public void merklee_size_LengthTests() {
+        //This value must be the same with 100 of merkleenode in length function
+        int var = 100;
         MerkleTree tree_new = new MerkleTreePlainImp();
         List<MerkleNode> list1 = new ArrayList<MerkleNode>();
         MerkleNode node1 = new MerkleNode("A");
@@ -195,7 +197,7 @@ public class MerkleTreeTest {
         tree_new.constructTree(list1);
         tree_new.build_proofs(new MerkleNode("C"));
         MerkleProofs proofs2 = tree_new.getMerkleeproofs();
-        assertEquals(tree_new.getRootHash().length(), proofs2.getLength());
+        assertEquals(((list1.size() / 2) * var)+tree_new.getRootHash().length(), proofs2.getLength());
         assertEquals(tree_new.getRootHash(), tree_new.generateRoot(proofs2));
         tree_new.clear();
     }

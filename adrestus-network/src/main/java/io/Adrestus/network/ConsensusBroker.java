@@ -187,10 +187,14 @@ public class ConsensusBroker {
         KafkaConsumerPrivateGroup leaderConsumeData = this.kafkaManufactureSmith.getKafkaComponent(KafkaKingdomType.CONSUMER_PRIVATE);
         List<Consumer<String, byte[]>> validators = leaderConsumeData.receiveAllBrokerConsumersExceptLeader(leader_host);
         validators.forEach(validator -> {
-            Map<TopicPartition, Long> endOffsets = validator.endOffsets(validator.assignment());
-            TopicPartition partition = endOffsets.keySet().stream().filter(topicPartition -> topicPartition.topic().equals(TopicType.DISPERSE_PHASE2.name())).findFirst().get();
-            validator.seek(partition, endOffsets.get(partition).intValue() + 1);
-            validator.position(partition);
+            try {
+                Map<TopicPartition, Long> endOffsets = validator.endOffsets(validator.assignment());
+                TopicPartition partition = endOffsets.keySet().stream().filter(topicPartition -> topicPartition.topic().equals(TopicType.DISPERSE_PHASE2.name())).findFirst().get();
+                validator.seek(partition, endOffsets.get(partition).intValue() + 1);
+                validator.position(partition);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         });
     }
 
@@ -198,11 +202,15 @@ public class ConsensusBroker {
         KafkaConsumerPrivateGroup leaderConsumeData = this.kafkaManufactureSmith.getKafkaComponent(KafkaKingdomType.CONSUMER_PRIVATE);
         List<Consumer<String, byte[]>> validators = leaderConsumeData.receiveAllBrokerConsumersExceptLeader(leader_host);
         validators.forEach(validator -> {
-            Map<TopicPartition, Long> endOffsets = validator.endOffsets(validator.assignment());
-            endOffsets.forEach((topicPartition, offset) -> {
-                validator.seek(topicPartition, offset);
-                validator.position(topicPartition);
-            });
+            try {
+                Map<TopicPartition, Long> endOffsets = validator.endOffsets(validator.assignment());
+                endOffsets.forEach((topicPartition, offset) -> {
+                    validator.seek(topicPartition, offset);
+                    validator.position(topicPartition);
+                });
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         });
     }
 

@@ -23,6 +23,7 @@ import io.Adrestus.crypto.bls.model.Signature;
 import io.Adrestus.crypto.elliptic.mapper.BigDecimalSerializer;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.crypto.elliptic.mapper.CustomSerializerTreeMap;
+import io.Adrestus.crypto.elliptic.mapper.StakingData;
 import io.Adrestus.crypto.vdf.VDFMessage;
 import io.Adrestus.crypto.vdf.engine.VdfEngine;
 import io.Adrestus.crypto.vdf.engine.VdfEnginePietrzak;
@@ -38,6 +39,7 @@ import io.Adrestus.erasure.code.parameters.FECParametersPreConditions;
 import io.Adrestus.network.ConsensusBrokerInstance;
 import io.Adrestus.network.IPFinder;
 import io.Adrestus.network.TopicType;
+import io.Adrestus.p2p.kademlia.repository.KademliaData;
 import io.Adrestus.util.ByteUtil;
 import io.Adrestus.util.SerializationFuryUtil;
 import io.Adrestus.util.SerializationUtil;
@@ -354,7 +356,7 @@ public class SupervisorConsensusPhases {
                 message.setType(VRFMessage.VRFMessageType.INIT);
 
                 Thread.sleep(200);
-                byte[] toSend = serialize.encode(message, 4096);
+                byte[] toSend = serialize.encode(message, message.length());
                 System.out.println("panos " + " donbe");
                 ConsensusBrokerInstance.getInstance().getConsensusBroker().produceMessage(TopicType.DISPERSE_PHASE2, CachedSecurityHeaders.getInstance().getpRndSecurityHeaderViewID(), toSend);
             } catch (Exception e) {
@@ -661,7 +663,7 @@ public class SupervisorConsensusPhases {
             list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
             list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
             list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
-            list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
+            list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap<>()));
             this.block_serialize = new SerializationUtil<AbstractBlock>(AbstractBlock.class, list);
             this.serenc_erasure = new SerializationUtil<SerializableErasureObject>(SerializableErasureObject.class, list);
             this.sizeCalculator = new BlockSizeCalculator();

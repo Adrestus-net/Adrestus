@@ -1,5 +1,6 @@
 package io.Adrestus.consensus.docker;
 
+import io.Adrestus.config.RunningConfig;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -17,11 +18,12 @@ public class JustTest {
         String arg1 = System.getProperty("test.arg1");
         String arg2 = System.getProperty("test.arg2");
         System.out.println(getCurrentIPAddress() + "  " + arg0 + " " + arg1 + " " + arg2);
-        if (isRunningInDocker()) {
+        if (RunningConfig.isRunningInDocker()) {
             System.out.println("Running inside Docker container");
         } else {
             System.out.println("Not running inside Docker container");
         }
+        System.out.println("Hello World");
     }
 
     public static String getCurrentIPAddress() throws SocketException {
@@ -50,11 +52,4 @@ public class JustTest {
         return "No IP address found";
     }
 
-    public static boolean isRunningInDocker() {
-        try {
-            return new File("/.dockerenv").exists();
-        } catch (Exception e) {
-            return false;
-        }
-    }
 }

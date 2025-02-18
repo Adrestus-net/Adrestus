@@ -12,10 +12,12 @@ import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.DockerClientConfig;
 import com.github.dockerjava.httpclient5.ApacheDockerHttpClient;
 import com.github.dockerjava.transport.DockerHttpClient;
+import io.Adrestus.config.RunningConfig;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testcontainers.shaded.org.awaitility.Awaitility;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,21 +26,23 @@ import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static io.Adrestus.config.RunningConfig.isRunningInAppveyor;
 
 public class ConsensusDockerTest {
     private static Logger LOG = LoggerFactory.getLogger(ConsensusDockerTest.class);
 
     private static final String dockerFileName = "DockerfileVMBuild";
     private static final String imageAdrestusVM = "dockerfile-vm-build:latest";
-    private static final String VRFTestName = "ConsensusVRFTest2";
+    private static final String VRFTestName = "JustTest";
     private static final String networkName = "network";
 //    private static final String imageConsensusName = "dockerfile-consensus-tests";
 
     // Regex pattern to match common exception patterns
-    private static final String exceptionPattern = "(Exception|at\\s+\\S+\\:\\d+|Caused by\\:)";
+    private static final String exceptionPattern = "(Exception|kafka.common.errors|at\\s+\\S+\\:\\d+|Caused by\\:)";
     private static final Pattern pattern = Pattern.compile(exceptionPattern);
 
     private static DockerClient dockerClient;
@@ -54,14 +58,6 @@ public class ConsensusDockerTest {
         return Thread.currentThread().getStackTrace()[2].getMethodName();
     }
 
-    public static boolean isRunningInAppveyor() {
-        String buildId = System.getenv("APPVEYOR_BUILD_ID");
-        String buildNumber = System.getenv("APPVEYOR_BUILD_NUMBER");
-        if (buildId != null && buildNumber != null)
-            return true;
-        return false;
-    }
-
 
     public static boolean containsException(String logContent) {
         Matcher matcher = pattern.matcher(logContent);
@@ -70,12 +66,12 @@ public class ConsensusDockerTest {
 
     @BeforeAll
     public static void setup() throws InterruptedException {
-//        if (isRunningInAppveyor()) {
-//            return;
-//        }
-        if (1 == 1) {
+        if (isRunningInAppveyor()) {
             return;
         }
+//        if (1 == 1) {
+//            return;
+//        }
         ipv4Addresses = new ArrayList<>(Arrays.asList(ipv4Address1, ipv4Address2, ipv4Address3));
         DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder().build();
 
@@ -183,16 +179,17 @@ public class ConsensusDockerTest {
 
 
     @Test
-    public void VRFTest() throws IOException, InterruptedException {
-        if (1 == 1)
-            return;
-//        if (isRunningInAppveyor()) {
+    public void VRFTest() throws IOException {
+//        if (1 == 1)
 //            return;
-//        }
+        if (RunningConfig.isRunningInAppveyor()) {
+            return;
+        }
 
         ArrayList<CreateContainerResponse> containerResponses = new ArrayList<>();
         ArrayList<LogContainerCmd> logContainerCmds = new ArrayList<>();
-        for (int i = 0; i < 3; i++) {
+        AtomicInteger containerCount = new AtomicInteger(ipv4Addresses.size());
+        for (int i = 0; i < ipv4Addresses.size(); i++) {
             CreateContainerResponse container = null;
             try {
                 String[] buildCommand = {
@@ -245,7 +242,6 @@ public class ConsensusDockerTest {
                 throw new RuntimeException(e);
             }
         }
-        CountDownLatch latch = new CountDownLatch(logContainerCmds.size());
         logContainerCmds.forEach(val -> {
             Thread.ofVirtual().start(() -> {
                 try {
@@ -268,16 +264,24 @@ public class ConsensusDockerTest {
                             }
                         }
                     }).awaitCompletion();
+                    containerCount.getAndDecrement();
                 } catch (InterruptedException ex) {
                     throw new RuntimeException(ex);
                 } catch (IllegalArgumentException e) {
                     e.printStackTrace();
                 } finally {
-                    latch.countDown();
                 }
             });
         });
-        latch.await();
+
+        Awaitility
+                .await()
+                .atMost(Duration.ofMinutes(4))
+                .untilAsserted(() -> {
+                    if (containerCount.get() != 0) {
+                        throw new AssertionError("Condition not met");
+                    }
+                });
         containerResponses.forEach(container -> {
             // Remove the container
             if (dockerClient.inspectContainerCmd(container.getId()).exec() != null) {

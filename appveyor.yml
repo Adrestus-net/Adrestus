@@ -1,5 +1,6 @@
 version: '{build}'
 environment:
+  MAVEN_OPTS: "-Xmx8g -XX:MaxMetaspaceSize=12g"
   MAVEN_VERSION: 3.9.9
 image: ubuntu
 branches:
@@ -7,6 +8,7 @@ branches:
     - master
 configuration: Release
 install:
+  - export MAVEN_OPTS="-Xmx8g -XX:MaxMetaspaceSize=12g"
   - ls -ahl;
   - sh: |
       sudo apt -y update > /dev/null;
