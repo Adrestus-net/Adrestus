@@ -197,7 +197,7 @@ public class MerkleTreeTest {
         tree_new.constructTree(list1);
         tree_new.build_proofs(new MerkleNode("C"));
         MerkleProofs proofs2 = tree_new.getMerkleeproofs();
-        assertEquals(((list1.size() / 2) * var)+tree_new.getRootHash().length(), proofs2.getLength());
+        assertEquals(((list1.size() / 2) * var) + tree_new.getRootHash().length(), proofs2.getLength());
         assertEquals(tree_new.getRootHash(), tree_new.generateRoot(proofs2));
         tree_new.clear();
     }

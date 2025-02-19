@@ -2,12 +2,21 @@ version: '{build}'
 environment:
   MAVEN_OPTS: "-Xmx8g -XX:MaxMetaspaceSize=12g"
   MAVEN_VERSION: 3.9.9
+  APPVEYOR_BUILD_ID: 1
+  APPVEYOR_BUILD_NUMBER: 1.0.2
+init:
+  - set APPVEYOR_BUILD_ID
+  - set APPVEYOR_BUILD_NUMBER
+
 image: ubuntu
 branches:
   only:
     - master
 configuration: Release
 install:
+  - sh: | 
+      echo "APPVEYOR_BUILD_ID: $APPVEYOR_BUILD_ID"
+      echo "APPVEYOR_BUILD_NUMBER: $APPVEYOR_BUILD_NUMBER"
   - export MAVEN_OPTS="-Xmx8g -XX:MaxMetaspaceSize=12g"
   - ls -ahl;
   - sh: |

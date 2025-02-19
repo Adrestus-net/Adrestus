@@ -137,8 +137,13 @@ public final class VRFMessage implements Serializable {
             this.pi = pi;
         }
 
-        public Object clone() throws CloneNotSupportedException {
-            return super.clone();
+        public Object clone() {
+            try {
+                return super.clone();
+            } catch (CloneNotSupportedException e) {
+                // This should never happen because we are Cloneable
+                throw new AssertionError(e);
+            }
         }
 
 

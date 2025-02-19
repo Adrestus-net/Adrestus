@@ -85,7 +85,7 @@ public class OrganizerConsensusPhases {
             this.blockIndex = new BlockIndex();
             this.factory = new DefaultFactory();
             this.factory.getBlock(BlockType.GENESIS);
-            this.original_copy = (TransactionBlock) new TransactionBlock().clone();
+            this.original_copy = new TransactionBlock().clone();
             List<SerializationUtil.Mapping> list = new ArrayList<>();
             list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
             list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
@@ -126,7 +126,7 @@ public class OrganizerConsensusPhases {
         public void DispersePhase(ConsensusMessage<TransactionBlock> data) throws Exception {
             var regural_block = factory.getBlock(BlockType.REGULAR);
             regural_block.forgeTransactionBlock(data.getData());
-            this.original_copy = (TransactionBlock) data.getData().clone();
+            this.original_copy = data.getData().clone();
             data.setMessageType(ConsensusMessageType.DISPERSE);
 
             try {
@@ -461,7 +461,11 @@ public class OrganizerConsensusPhases {
             if (tree != null)
                 tree.clear();
             LOG.info("Block is finalized with Success");
-            Thread.sleep(500);
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 

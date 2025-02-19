@@ -32,7 +32,7 @@ public class RegularTransaction extends Transaction {
         visitor.visit(this);
     }
 
-    public Object clone() throws CloneNotSupportedException {
+    public Object clone() {
         return super.clone();
     }
 

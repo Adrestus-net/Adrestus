@@ -56,31 +56,36 @@ public class ConsensusVRFTimer {
             int index = blockIndex.getPublicKeyIndex(0, CachedBLSKeyPair.getInstance().getPublicKey());
 
             CachedLeaderIndex.getInstance().setCommitteePositionLeader(0);
-            if (index == 0) {
-                LOG.info("ORGANIZER State");
-                consensusManager.changeStateTo(ConsensusRoleType.SUPERVISOR);
-                var supervisorphase = (VRFConsensusPhase) consensusManager.getRole().manufacturePhases(ConsensusType.VRF);
-                supervisorphase.InitialSetup();
-                supervisorphase.Initialize(vrfMessage);
-                supervisorphase.AggregateVRF(vrfMessage);
-                supervisorphase.AnnouncePhase(consensusMessage);
-                supervisorphase.PreparePhase(consensusMessage);
-                supervisorphase.CommitPhase(consensusMessage);
-                if (consensusMessage.getStatusType().equals(ConsensusStatusType.ABORT))
-                    throw new IllegalArgumentException("Problem occured");
-            } else {
-                LOG.info("VALIDATOR State");
-                consensusManager.changeStateTo(ConsensusRoleType.VALIDATOR);
-                var validatorphase = (VRFConsensusPhase) consensusManager.getRole().manufacturePhases(ConsensusType.VRF);
-                validatorphase.InitialSetup();
-                validatorphase.Initialize(vrfMessage);
-                validatorphase.AnnouncePhase(consensusMessage);
-                validatorphase.PreparePhase(consensusMessage);
-                validatorphase.CommitPhase(consensusMessage);
-                if (consensusMessage.getStatusType().equals(ConsensusStatusType.ABORT))
-                    throw new IllegalArgumentException("Problem occured");
+            try {
+                if (index == 0) {
+                    LOG.info("ORGANIZER State");
+                    consensusManager.changeStateTo(ConsensusRoleType.SUPERVISOR);
+                    var supervisorphase = (VRFConsensusPhase) consensusManager.getRole().manufacturePhases(ConsensusType.VRF);
+                    supervisorphase.InitialSetup();
+                    supervisorphase.Initialize(vrfMessage);
+                    supervisorphase.AggregateVRF(vrfMessage);
+                    supervisorphase.AnnouncePhase(consensusMessage);
+                    supervisorphase.PreparePhase(consensusMessage);
+                    supervisorphase.CommitPhase(consensusMessage);
+                    if (consensusMessage.getStatusType().equals(ConsensusStatusType.ABORT))
+                        throw new IllegalArgumentException("Problem occured");
+                } else {
+                    LOG.info("VALIDATOR State");
+                    consensusManager.changeStateTo(ConsensusRoleType.VALIDATOR);
+                    var validatorphase = (VRFConsensusPhase) consensusManager.getRole().manufacturePhases(ConsensusType.VRF);
+                    validatorphase.InitialSetup();
+                    validatorphase.Initialize(vrfMessage);
+                    validatorphase.AnnouncePhase(consensusMessage);
+                    validatorphase.PreparePhase(consensusMessage);
+                    validatorphase.CommitPhase(consensusMessage);
+                    if (consensusMessage.getStatusType().equals(ConsensusStatusType.ABORT))
+                        throw new IllegalArgumentException("Problem occured");
+                }
+            } catch (Exception e) {
+                LOG.error("Error in ConsensusTask", e);
+            } finally {
+                latch.countDown();
             }
-            latch.countDown();
             timer = new Timer(ConsensusConfiguration.CONSENSUS);
             timer.scheduleAtFixedRate(new ConsensusTask(), ConsensusConfiguration.CONSENSUS_TIMER, ConsensusConfiguration.CONSENSUS_TIMER);
         }

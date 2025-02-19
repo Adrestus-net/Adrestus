@@ -85,7 +85,7 @@ public class SerializableConsensusMessageBlockTest {
         list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
         list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
         list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
-        list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap<BLSPublicKey,BLSSignatureData>()));
+        list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap<BLSPublicKey, BLSSignatureData>()));
         list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap<StakingData, KademliaData>()));
         serenc = new SerializationUtil<AbstractBlock>(AbstractBlock.class, list);
 
@@ -239,14 +239,14 @@ public class SerializableConsensusMessageBlockTest {
         BlockSizeCalculator sizeCalculator1 = new BlockSizeCalculator();
         sizeCalculator1.setCommitteeBlock((CommitteeBlock) block3);
         assertEquals(block2, block);
-        byte[] data = serenc.encode(block,sizeCalculator.CommitteeBlockSizeCalculator());
-        byte[] data3 = serenc.encode(block3,sizeCalculator1.CommitteeBlockSizeCalculator());
+        byte[] data = serenc.encode(block, sizeCalculator.CommitteeBlockSizeCalculator());
+        byte[] data3 = serenc.encode(block3, sizeCalculator1.CommitteeBlockSizeCalculator());
         BlockSizeCalculator sizeCalculator2 = new BlockSizeCalculator();
         sizeCalculator2.setCommitteeBlock((CommitteeBlock) block2);
-        byte[] data2 = serenc.encode(block2,sizeCalculator2.CommitteeBlockSizeCalculator());
+        byte[] data2 = serenc.encode(block2, sizeCalculator2.CommitteeBlockSizeCalculator());
         assertEquals(HashUtil.sha256_bytetoString(data3), HashUtil.sha256_bytetoString(data2));
         assertEquals(HashUtil.sha256_bytetoString(data), HashUtil.sha256_bytetoString(data2));
-        CommitteeBlock cloned= (CommitteeBlock) serenc.decode(data);
+        CommitteeBlock cloned = (CommitteeBlock) serenc.decode(data);
         assertEquals(block, cloned);
         assertEquals(block2, cloned);
     }

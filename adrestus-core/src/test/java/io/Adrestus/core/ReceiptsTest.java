@@ -286,7 +286,7 @@ public class ReceiptsTest {
             BlockSizeCalculator blockSizeCalculator = new BlockSizeCalculator();
             blockSizeCalculator.setTransactionBlock(transactionBlock);
             byte[] buffer = serenc.encode(transactionBlock, blockSizeCalculator.TransactionBlockSizeCalculator());
-            TransactionBlock clone2 = (TransactionBlock) transactionBlock.clone();
+            TransactionBlock clone2 = transactionBlock.clone();
             TransactionBlock clone = (TransactionBlock) serenc.decode(buffer);
             assertEquals(transactionBlock, clone2);
             assertEquals(transactionBlock, clone);
@@ -374,8 +374,8 @@ public class ReceiptsTest {
         byte[] tohash = serenc.encode(transactionBlock, blockSizeCalculator.TransactionBlockSizeCalculator());
         transactionBlock.setHash(HashUtil.sha256_bytetoString(tohash));
 //        transactionBlock.getOutbound().getMap_receipts().values().forEach(receiptBlock -> receiptBlock.keySet().forEach(vals -> vals.setBlock_hash(transactionBlock.getHash())));
-        TransactionBlock clone2 = (TransactionBlock) transactionBlock.clone();
-        TransactionBlock clone3 = (TransactionBlock) transactionBlock.clone();
+        TransactionBlock clone2 = transactionBlock.clone();
+        TransactionBlock clone3 = transactionBlock.clone();
         publisher.withHashHandler().mergeEvents();
         publisher.start();
         publisher.publish(transactionBlock);

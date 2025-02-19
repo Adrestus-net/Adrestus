@@ -52,7 +52,7 @@ public class UnDelegateTransaction extends DelegateTransaction {
     }
 
     @Override
-    public Object clone() throws CloneNotSupportedException {
+    public Object clone() {
         return super.clone();
     }
 

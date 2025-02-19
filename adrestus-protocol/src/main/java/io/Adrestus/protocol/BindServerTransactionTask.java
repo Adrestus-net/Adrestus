@@ -60,17 +60,25 @@ public class BindServerTransactionTask extends AdrestusTask {
     @SneakyThrows
     @Override
     public void execute() {
-        transactionChannelHandler = new TransactionChannelHandler<byte[]>(IPFinder.getLocal_address(), SocketConfigOptions.TRANSACTION_PORT);
-        transactionChannelHandler.BindServerAndReceive(receive);
-        LOG.info("Transaction: TransactionChannelHandler " + IPFinder.getLocal_address());
+        try {
+            transactionChannelHandler = new TransactionChannelHandler<byte[]>(IPFinder.getLocal_address(), SocketConfigOptions.TRANSACTION_PORT);
+            transactionChannelHandler.BindServerAndReceive(receive);
+            LOG.info("Transaction: TransactionChannelHandler " + IPFinder.getLocal_address());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @SneakyThrows
     @Override
     public void close() {
         if (transactionChannelHandler != null) {
-            transactionChannelHandler.close();
-            transactionChannelHandler = null;
+            try {
+                transactionChannelHandler.close();
+                transactionChannelHandler = null;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         if (MemoryRingBuffer.getInstance() != null) {
             MemoryRingBuffer.getInstance().close();

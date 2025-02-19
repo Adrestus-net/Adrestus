@@ -122,83 +122,104 @@ public class BindServerKademliaTask extends AdrestusTask {
 
     @SneakyThrows
     public void InitKademliaData() {
-        final ECDSASign ecdsaSign = new ECDSASign();
-        final Mnemonic mnem = new Mnemonic(Security.NORMAL, WordList.ENGLISH);
-        final SecureRandom random = SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
-        byte[] key1 = mnem.createSeed(CachedConfigurationProperties.getInstance().getProp().getProperty(MNEMONIC).toCharArray(), CachedConfigurationProperties.getInstance().getProp().getProperty(PASSPHRASE).toCharArray());
-        random.setSeed(key1);
-        final ECKeyPair ecKeyPair = Keys.create256r1KeyPair(random);
-        final String address = WalletAddress.generate_address((byte) version, ecKeyPair.getPublicKey());
-        final ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(address)), ecKeyPair);
-        final BLSPrivateKey sk = new BLSPrivateKey(random);
-        final BLSPublicKey vk = new BLSPublicKey(sk, new Params(CachedConfigurationProperties.getInstance().getProp().getProperty(PASSPHRASE).getBytes(StandardCharsets.UTF_8)));
-        if (ip.equals(KademliaConfiguration.BOOTSTRAP_NODE_IP))
-            this.kademliaData = new KademliaData(new SecurityAuditProofs(address, vk, ecKeyPair.getPublicKey(), signatureData), bootstrapNettyConnectionInfo);
-        else
-            this.kademliaData = new KademliaData(new SecurityAuditProofs(address, vk, ecKeyPair.getPublicKey(), signatureData), nettyConnectionInfo);
+        try {
+            final ECDSASign ecdsaSign = new ECDSASign();
+            final Mnemonic mnem = new Mnemonic(Security.NORMAL, WordList.ENGLISH);
+            final SecureRandom random = SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
+            byte[] key1 = mnem.createSeed(CachedConfigurationProperties.getInstance().getProp().getProperty(MNEMONIC).toCharArray(), CachedConfigurationProperties.getInstance().getProp().getProperty(PASSPHRASE).toCharArray());
+            random.setSeed(key1);
+            final ECKeyPair ecKeyPair = Keys.create256r1KeyPair(random);
+            final String address = WalletAddress.generate_address((byte) version, ecKeyPair.getPublicKey());
+            final ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(address)), ecKeyPair);
+            final BLSPrivateKey sk = new BLSPrivateKey(random);
+            final BLSPublicKey vk = new BLSPublicKey(sk, new Params(CachedConfigurationProperties.getInstance().getProp().getProperty(PASSPHRASE).getBytes(StandardCharsets.UTF_8)));
+            if (ip.equals(KademliaConfiguration.BOOTSTRAP_NODE_IP))
+                this.kademliaData = new KademliaData(new SecurityAuditProofs(address, vk, ecKeyPair.getPublicKey(), signatureData), bootstrapNettyConnectionInfo);
+            else
+                this.kademliaData = new KademliaData(new SecurityAuditProofs(address, vk, ecKeyPair.getPublicKey(), signatureData), nettyConnectionInfo);
 
-        CachedBLSKeyPair.getInstance().setPrivateKey(sk);
-        CachedBLSKeyPair.getInstance().setPublicKey(vk);
+            CachedBLSKeyPair.getInstance().setPrivateKey(sk);
+            CachedBLSKeyPair.getInstance().setPublicKey(vk);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @SneakyThrows
     public void InitKademliaData(String mnemonic, String passphrase) {
-        final ECDSASign ecdsaSign = new ECDSASign();
-        final Mnemonic mnem = new Mnemonic(Security.NORMAL, WordList.ENGLISH);
-        final SecureRandom secureRandom = SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
-        final byte[] key = mnem.createSeed(mnemonic.toCharArray(), passphrase.toCharArray());
-        secureRandom.setSeed(key);
-        final ECKeyPair ecKeyPair = Keys.create256r1KeyPair(secureRandom);
-        final String address = WalletAddress.generate_address((byte) version, ecKeyPair.getPublicKey());
-        final ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(address)), ecKeyPair);
-        final BLSPrivateKey sk = new BLSPrivateKey(secureRandom);
-        final BLSPublicKey vk = new BLSPublicKey(sk);
-        //final BLSPublicKey vk = new BLSPublicKey(sk, new Params(passphrase.getBytes(StandardCharsets.UTF_8)));
-        if (ip.equals(KademliaConfiguration.BOOTSTRAP_NODE_IP))
-            this.kademliaData = new KademliaData(new SecurityAuditProofs(address, vk, ecKeyPair.getPublicKey(), signatureData), bootstrapNettyConnectionInfo);
-        else
-            this.kademliaData = new KademliaData(new SecurityAuditProofs(address, vk, ecKeyPair.getPublicKey(), signatureData), nettyConnectionInfo);
+        try {
+            final ECDSASign ecdsaSign = new ECDSASign();
+            final Mnemonic mnem = new Mnemonic(Security.NORMAL, WordList.ENGLISH);
+            final SecureRandom secureRandom = SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
+            final byte[] key = mnem.createSeed(mnemonic.toCharArray(), passphrase.toCharArray());
+            secureRandom.setSeed(key);
+            final ECKeyPair ecKeyPair = Keys.create256r1KeyPair(secureRandom);
+            final String address = WalletAddress.generate_address((byte) version, ecKeyPair.getPublicKey());
+            final ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(address)), ecKeyPair);
+            final BLSPrivateKey sk = new BLSPrivateKey(secureRandom);
+            final BLSPublicKey vk = new BLSPublicKey(sk);
+            //final BLSPublicKey vk = new BLSPublicKey(sk, new Params(passphrase.getBytes(StandardCharsets.UTF_8)));
+            if (ip.equals(KademliaConfiguration.BOOTSTRAP_NODE_IP))
+                this.kademliaData = new KademliaData(new SecurityAuditProofs(address, vk, ecKeyPair.getPublicKey(), signatureData), bootstrapNettyConnectionInfo);
+            else
+                this.kademliaData = new KademliaData(new SecurityAuditProofs(address, vk, ecKeyPair.getPublicKey(), signatureData), nettyConnectionInfo);
 
-        CachedBLSKeyPair.getInstance().setPrivateKey(sk);
-        CachedBLSKeyPair.getInstance().setPublicKey(vk);
+            CachedBLSKeyPair.getInstance().setPrivateKey(sk);
+            CachedBLSKeyPair.getInstance().setPublicKey(vk);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void InitKademliaData(ECKeyPair ecKeyPair, BLSPublicKey blsPublicKey) {
-        final ECDSASign ecdsaSign = new ECDSASign();
-        final String address = WalletAddress.generate_address((byte) version, ecKeyPair.getPublicKey());
-        final ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(address)), ecKeyPair);
-        if (ip.equals(KademliaConfiguration.BOOTSTRAP_NODE_IP))
-            this.kademliaData = new KademliaData(new SecurityAuditProofs(address, blsPublicKey, ecKeyPair.getPublicKey(), signatureData), bootstrapNettyConnectionInfo);
-        else
-            this.kademliaData = new KademliaData(new SecurityAuditProofs(address, blsPublicKey, ecKeyPair.getPublicKey(), signatureData), nettyConnectionInfo);
+        try {
+            final ECDSASign ecdsaSign = new ECDSASign();
+            final String address = WalletAddress.generate_address((byte) version, ecKeyPair.getPublicKey());
+            final ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(address)), ecKeyPair);
+            if (ip.equals(KademliaConfiguration.BOOTSTRAP_NODE_IP))
+                this.kademliaData = new KademliaData(new SecurityAuditProofs(address, blsPublicKey, ecKeyPair.getPublicKey(), signatureData), bootstrapNettyConnectionInfo);
+            else
+                this.kademliaData = new KademliaData(new SecurityAuditProofs(address, blsPublicKey, ecKeyPair.getPublicKey(), signatureData), nettyConnectionInfo);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void execute() {
-        if (this.ip.equals(KademliaConfiguration.BOOTSTRAP_NODE_IP)) {
-            dhtBootstrapNode.setKademliaData(kademliaData);
-            dhtBootstrapNode.start();
-            dhtBootstrapNode.scheduledFuture(KademliaConfiguration.KADEMLIA_ROUTING_TABLE_DELAY);
-            CachedKademliaNodes.getInstance().setDhtBootstrapNode(dhtBootstrapNode);
-        } else {
-            dhtBootstrapNode.Init();
-            dhtRegularNode.setKademliaData(kademliaData);
-            dhtRegularNode.start(dhtBootstrapNode);
-            dhtRegularNode.scheduledFuture(KademliaConfiguration.KADEMLIA_ROUTING_TABLE_DELAY);
-            CachedKademliaNodes.getInstance().setDhtRegularNode(dhtRegularNode);
+        try {
+            if (this.ip.equals(KademliaConfiguration.BOOTSTRAP_NODE_IP)) {
+                dhtBootstrapNode.setKademliaData(kademliaData);
+                dhtBootstrapNode.start();
+                dhtBootstrapNode.scheduledFuture(KademliaConfiguration.KADEMLIA_ROUTING_TABLE_DELAY);
+                CachedKademliaNodes.getInstance().setDhtBootstrapNode(dhtBootstrapNode);
+            } else {
+                dhtBootstrapNode.Init();
+                dhtRegularNode.setKademliaData(kademliaData);
+                dhtRegularNode.start(dhtBootstrapNode);
+                dhtRegularNode.scheduledFuture(KademliaConfiguration.KADEMLIA_ROUTING_TABLE_DELAY);
+                CachedKademliaNodes.getInstance().setDhtRegularNode(dhtRegularNode);
+            }
+            LOG.info("execute");
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        LOG.info("execute");
     }
 
     @SneakyThrows
     @Override
     public void close() {
-        if (ip.equals(KademliaConfiguration.BOOTSTRAP_NODE_IP)) {
-            dhtBootstrapNode.close();
-            dhtBootstrapNode = null;
-        } else {
-            dhtRegularNode.close();
-            dhtRegularNode = null;
+        try {
+            if (ip.equals(KademliaConfiguration.BOOTSTRAP_NODE_IP)) {
+                dhtBootstrapNode.close();
+                dhtBootstrapNode = null;
+            } else {
+                dhtRegularNode.close();
+                dhtRegularNode = null;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }

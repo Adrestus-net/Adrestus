@@ -124,7 +124,11 @@ public class ConsensusTransaction2Timer {
             ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(transaction.getHash().getBytes(StandardCharsets.UTF_8), keypair.get(i));
             transaction.setSignature(signatureData);
             MemoryTransactionPool.getInstance().add(transaction);
-            Thread.sleep(100);
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -170,7 +174,11 @@ public class ConsensusTransaction2Timer {
             transaction.setSignature(signatureData);
             //MemoryPool.getInstance().add(transaction);
             publisher.publish(transaction);
-            Thread.sleep(100);
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
         publisher.getJobSyncUntilRemainingCapacityZero();
         signatureEventHandler.getLatch().await();
@@ -193,31 +201,36 @@ public class ConsensusTransaction2Timer {
             int target = blockIndex.getPublicKeyIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedBLSKeyPair.getInstance().getPublicKey());
             int current = blockIndex.getPublicKeyIndex(CachedZoneIndex.getInstance().getZoneIndex(), CachedLatestBlocks.getInstance().getTransactionBlock().getLeaderPublicKey());
             CachedLeaderIndex.getInstance().setTransactionPositionLeader(current);
-            if (target == current) {
-                LOG.info("ORGANIZER State");
-                chooser();
-                consensusManager.changeStateTo(ConsensusRoleType.ORGANIZER);
-                var organizerphase = consensusManager.getRole().manufacturePhases(ConsensusType.TRANSACTION_BLOCK);
-                organizerphase.InitialSetup();
-                organizerphase.DispersePhase(consensusMessage);
-                organizerphase.AnnouncePhase(consensusMessage);
-                organizerphase.PreparePhase(consensusMessage);
-                organizerphase.CommitPhase(consensusMessage);
-                if (consensusMessage.getStatusType().equals(ConsensusStatusType.ABORT))
-                    throw new IllegalArgumentException("Problem occured");
-            } else {
-                LOG.info("VALIDATOR State");
-                consensusManager.changeStateTo(ConsensusRoleType.VALIDATOR);
-                var validatorphase = consensusManager.getRole().manufacturePhases(ConsensusType.TRANSACTION_BLOCK);
-                validatorphase.InitialSetup();
-                validatorphase.DispersePhase(consensusMessage);
-                validatorphase.AnnouncePhase(consensusMessage);
-                validatorphase.PreparePhase(consensusMessage);
-                validatorphase.CommitPhase(consensusMessage);
-                if (consensusMessage.getStatusType().equals(ConsensusStatusType.ABORT))
-                    throw new IllegalArgumentException("Problem occured");
+            try {
+                if (target == current) {
+                    LOG.info("ORGANIZER State");
+                    chooser();
+                    consensusManager.changeStateTo(ConsensusRoleType.ORGANIZER);
+                    var organizerphase = consensusManager.getRole().manufacturePhases(ConsensusType.TRANSACTION_BLOCK);
+                    organizerphase.InitialSetup();
+                    organizerphase.DispersePhase(consensusMessage);
+                    organizerphase.AnnouncePhase(consensusMessage);
+                    organizerphase.PreparePhase(consensusMessage);
+                    organizerphase.CommitPhase(consensusMessage);
+                    if (consensusMessage.getStatusType().equals(ConsensusStatusType.ABORT))
+                        throw new IllegalArgumentException("Problem occured");
+                } else {
+                    LOG.info("VALIDATOR State");
+                    consensusManager.changeStateTo(ConsensusRoleType.VALIDATOR);
+                    var validatorphase = consensusManager.getRole().manufacturePhases(ConsensusType.TRANSACTION_BLOCK);
+                    validatorphase.InitialSetup();
+                    validatorphase.DispersePhase(consensusMessage);
+                    validatorphase.AnnouncePhase(consensusMessage);
+                    validatorphase.PreparePhase(consensusMessage);
+                    validatorphase.CommitPhase(consensusMessage);
+                    if (consensusMessage.getStatusType().equals(ConsensusStatusType.ABORT))
+                        throw new IllegalArgumentException("Problem occured");
+                }
+            } catch (Exception e) {
+                LOG.error("Error in ConsensusTask", e);
+            } finally {
+                latch.countDown();
             }
-            latch.countDown();
             MemoryTransactionPool.getInstance().clear();
             timer = new Timer(ConsensusConfiguration.CONSENSUS);
             timer.scheduleAtFixedRate(new ConsensusTask(), ConsensusConfiguration.CONSENSUS_TIMER, ConsensusConfiguration.CONSENSUS_TIMER);

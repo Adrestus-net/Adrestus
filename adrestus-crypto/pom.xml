@@ -43,8 +43,9 @@
     <dependencies>
         <dependency>
             <groupId>org.conscrypt</groupId>
-            <artifactId>conscrypt-openjdk-uber</artifactId>
+            <artifactId>conscrypt-openjdk</artifactId>
             <version>${conscrypt.version}</version>
+            <classifier>${os.detected.classifier}</classifier>
         </dependency>
         <dependency>
             <groupId>net.openhft</groupId>
@@ -109,6 +110,17 @@
     </dependencies>
     <build>
         <plugins>
+            <plugin>
+                <groupId>kr.motd.maven</groupId>
+                <artifactId>os-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>detect</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>

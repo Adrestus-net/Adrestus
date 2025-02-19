@@ -473,7 +473,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
 
         if (tree != null)
             tree.clear();
-        TransactionBlock clonable = (TransactionBlock) transactionBlock.clone();
+        TransactionBlock clonable = transactionBlock.clone();
         CachedLatestBlocks.getInstance().setTransactionBlock(clonable);
         MemoryTransactionPool.getInstance().delete(clonable.getTransactionList());
 
@@ -532,7 +532,7 @@ public class RegularBlock implements BlockForge, BlockInvent {
     @SneakyThrows
     @Override
     public void InventCommitteBlock(CommitteeBlock committeeBlock) {
-        CommitteeBlock prevblock = (CommitteeBlock) CachedLatestBlocks.getInstance().getCommitteeBlock().clone();
+        CommitteeBlock prevblock = CachedLatestBlocks.getInstance().getCommitteeBlock().clone();
         int prevZone = Integer.valueOf(CachedZoneIndex.getInstance().getZoneIndex());
         IDatabase<String, CommitteeBlock> database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
 

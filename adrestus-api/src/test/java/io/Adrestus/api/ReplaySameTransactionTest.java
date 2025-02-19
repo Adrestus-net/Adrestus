@@ -168,7 +168,11 @@ public class ReplaySameTransactionTest {
             MessageListener messageListener = new MessageListener();
             Strategy transactionStrategy = new Strategy(new TransactionStrategy(transaction, messageListener));
             transactionStrategy.SendTransactionSync();
-            Thread.sleep(2500);
+            try {
+                Thread.sleep(2500);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 }

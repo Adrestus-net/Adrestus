@@ -138,8 +138,13 @@ public class Receipt implements Serializable, Cloneable {
         return 4 + 4 + 4 + (proofs == null ? 0 : proofs.getLength()) + receiptBlock.length();
     }
 
-    public Object clone() throws CloneNotSupportedException {
-        return super.clone();
+    public Object clone() {
+        try {
+            return super.clone();
+        } catch (CloneNotSupportedException e) {
+            // This should never happen because we are Cloneable
+            throw new AssertionError(e);
+        }
     }
 
     @Override

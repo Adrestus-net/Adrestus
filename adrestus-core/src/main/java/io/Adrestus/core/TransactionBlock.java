@@ -185,13 +185,12 @@ public class TransactionBlock extends AbstractBlock implements BlockFactory, Dis
     }
 
     @Override
-    public Object clone() throws CloneNotSupportedException {
+    public TransactionBlock clone() {
         try {
             byte[] bytes = SerializationFuryUtil.getInstance().getFury().serialize(this);
             return (TransactionBlock) SerializationFuryUtil.getInstance().getFury().deserialize(bytes);
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
+            throw new AssertionError(e);
         }
     }
 

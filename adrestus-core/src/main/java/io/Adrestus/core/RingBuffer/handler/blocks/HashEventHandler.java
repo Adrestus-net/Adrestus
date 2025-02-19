@@ -59,7 +59,7 @@ public class HashEventHandler implements BlockEventHandler<AbstractBlockEvent>, 
                 LOG.info("Block hashes length is not valid");
                 committeeBlock.setStatustype(StatusType.ABORT);
             }
-            CommitteeBlock cloneable = (CommitteeBlock) committeeBlock.clone();
+            CommitteeBlock cloneable = committeeBlock.clone();
             cloneable.setHash("");
             this.sizeCalculator.setCommitteeBlock(cloneable);
             byte[] buffer = wrapper.encode(cloneable, this.sizeCalculator.CommitteeBlockSizeCalculator());
@@ -71,9 +71,6 @@ public class HashEventHandler implements BlockEventHandler<AbstractBlockEvent>, 
         } catch (NullPointerException ex) {
             LOG.info("Block is empty");
             committeeBlock.setStatustype(StatusType.ABORT);
-        } catch (CloneNotSupportedException e) {
-            LOG.info("Block clone error ");
-            committeeBlock.setStatustype(StatusType.ABORT);
         }
     }
 
@@ -84,7 +81,7 @@ public class HashEventHandler implements BlockEventHandler<AbstractBlockEvent>, 
                 LOG.info("Block hashes length is not valid");
                 transactionBlock.setStatustype(StatusType.ABORT);
             }
-            TransactionBlock cloneable = (TransactionBlock) transactionBlock.clone();
+            TransactionBlock cloneable = transactionBlock.clone();
             if (!cloneable.equals(transactionBlock)) {
                 int g = 3;
             }
@@ -99,9 +96,6 @@ public class HashEventHandler implements BlockEventHandler<AbstractBlockEvent>, 
             }
         } catch (NullPointerException ex) {
             LOG.info("Block is empty");
-            transactionBlock.setStatustype(StatusType.ABORT);
-        } catch (CloneNotSupportedException e) {
-            LOG.info("Block clone error ");
             transactionBlock.setStatustype(StatusType.ABORT);
         }
     }

@@ -23,7 +23,6 @@ import io.Adrestus.crypto.bls.model.Signature;
 import io.Adrestus.crypto.elliptic.mapper.BigDecimalSerializer;
 import io.Adrestus.crypto.elliptic.mapper.BigIntegerSerializer;
 import io.Adrestus.crypto.elliptic.mapper.CustomSerializerTreeMap;
-import io.Adrestus.crypto.elliptic.mapper.StakingData;
 import io.Adrestus.crypto.vdf.VDFMessage;
 import io.Adrestus.crypto.vdf.engine.VdfEngine;
 import io.Adrestus.crypto.vdf.engine.VdfEnginePietrzak;
@@ -39,7 +38,6 @@ import io.Adrestus.erasure.code.parameters.FECParametersPreConditions;
 import io.Adrestus.network.ConsensusBrokerInstance;
 import io.Adrestus.network.IPFinder;
 import io.Adrestus.network.TopicType;
-import io.Adrestus.p2p.kademlia.repository.KademliaData;
 import io.Adrestus.util.ByteUtil;
 import io.Adrestus.util.SerializationFuryUtil;
 import io.Adrestus.util.SerializationUtil;
@@ -298,7 +296,11 @@ public class SupervisorConsensusPhases {
                 return;
             }
 
-            Thread.sleep(400);
+            try {
+                Thread.sleep(400);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             CachedSecurityHeaders.getInstance().getSecurityHeader().setRnd(data.getData().getVDFSolution().clone());
             LOG.info("VDF is finalized with Success");
 
@@ -633,7 +635,11 @@ public class SupervisorConsensusPhases {
 
 
             LOG.info("VRF is finalized with Success");
-            Thread.sleep(100);
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
 
 
@@ -694,7 +700,7 @@ public class SupervisorConsensusPhases {
             var regural_block = factory.getBlock(BlockType.REGULAR);
             regural_block.forgeCommitteBlock(data.getData());
 
-            this.original_copy = (CommitteeBlock) data.getData().clone();
+            this.original_copy = data.getData().clone();
 
             data.setMessageType(ConsensusMessageType.ANNOUNCE);
             data.setStatusType(ConsensusStatusType.SUCCESS);
@@ -1041,7 +1047,11 @@ public class SupervisorConsensusPhases {
             if (tree != null)
                 tree.clear();
             LOG.info("Committee is finalized with Success");
-            Thread.sleep(1000);
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             cleanup();
             //Make sure you give enough time for nodes to sync that not existed or existed
         }

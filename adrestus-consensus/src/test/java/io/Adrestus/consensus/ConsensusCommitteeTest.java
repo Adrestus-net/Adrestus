@@ -242,14 +242,22 @@ public class ConsensusCommitteeTest {
         VdfEngine vdf = new VdfEnginePietrzak(2048);
         CachedSecurityHeaders.getInstance().getSecurityHeader().setPRnd(Hex.decode("c1f72aa5bd1e1d53c723b149259b63f759f40d5ab003b547d5c13d45db9a5da8"));
         CachedSecurityHeaders.getInstance().getSecurityHeader().setRnd(vdf.solve(CachedSecurityHeaders.getInstance().getSecurityHeader().getPRnd(), CachedLatestBlocks.getInstance().getCommitteeBlock().getDifficulty()));
-        Thread.sleep(500);
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
         CommitteeBlock firstblock = new CommitteeBlock();
         firstblock.setDifficulty(112);
         firstblock.getHeaderData().setTimestamp(GetTime.GetTimeStampInString());
         database.save("1", firstblock);
-        Thread.sleep(200);
+        try {
+            Thread.sleep(200);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         CommitteeBlock secondblock = new CommitteeBlock();
         secondblock.setDifficulty(117);
         secondblock.getHeaderData().setTimestamp(GetTime.GetTimeStampInString());

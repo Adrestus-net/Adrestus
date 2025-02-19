@@ -346,8 +346,13 @@ public abstract class Transaction implements Cloneable, Comparable<Transaction>,
         return Objects.hash(Hash, Type, Status, ZoneFrom, ZoneTo, timestamp, BlockNumber, From, To, Amount, AmountWithTransactionFee, Nonce, XAxis, YAxis, Signature, transactionCallback);
     }
 
-    public Object clone() throws CloneNotSupportedException {
-        return super.clone();
+    public Object clone() {
+        try {
+            return super.clone();
+        } catch (CloneNotSupportedException e) {
+            // This should never happen because we are Cloneable
+            throw new AssertionError(e);
+        }
     }
 
     @Override

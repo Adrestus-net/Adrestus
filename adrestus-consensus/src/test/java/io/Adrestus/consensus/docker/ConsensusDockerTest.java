@@ -13,11 +13,11 @@ import com.github.dockerjava.core.DockerClientConfig;
 import com.github.dockerjava.httpclient5.ApacheDockerHttpClient;
 import com.github.dockerjava.transport.DockerHttpClient;
 import io.Adrestus.config.RunningConfig;
+import org.awaitility.Awaitility;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testcontainers.shaded.org.awaitility.Awaitility;
 
 import java.io.File;
 import java.io.IOException;
@@ -152,7 +152,7 @@ public class ConsensusDockerTest {
         BuildImageResultCallback buildCallback = new BuildImageResultCallback() {
             @Override
             public void onNext(BuildResponseItem item) {
-                System.out.println("Build output: " + item.getStream());
+                //System.out.println("Build output: " + item.getStream());
                 super.onNext(item);
             }
         };
@@ -281,6 +281,7 @@ public class ConsensusDockerTest {
                     if (containerCount.get() != 0) {
                         throw new AssertionError("Condition not met");
                     }
+                    System.out.println("Done " + containerCount.get());
                 });
         containerResponses.forEach(container -> {
             // Remove the container

@@ -44,27 +44,31 @@ public class BindServerCachedTask extends AdrestusTask {
     @Override
     public void execute() {
         eventloop = Eventloop.builder().withCurrentThread().build();
-        this.server = SimpleServer.builder(
-                        eventloop,
-                        socket -> {
-                            BinaryChannelSupplier bufsSupplier = BinaryChannelSupplier.of(ChannelSuppliers.ofSocket(socket));
-                            repeat(() ->
-                                    bufsSupplier.decode(DECODER)
-                                            .whenResult(x -> System.out.println(x))
-                                            .then(() -> loadData())
-                                            .then(socket::write)
-                                            .map($ -> true))
-                                    .whenComplete(socket::close);
-                        })
-                .withListenAddress(ADDRESS)
-                .withSocketSettings(settings)
-                .build();
-        server.listen();
-        (new Thread() {
-            public void run() {
-                eventloop.run();
-            }
-        }).start();
+        try {
+            this.server = SimpleServer.builder(
+                            eventloop,
+                            socket -> {
+                                BinaryChannelSupplier bufsSupplier = BinaryChannelSupplier.of(ChannelSuppliers.ofSocket(socket));
+                                repeat(() ->
+                                        bufsSupplier.decode(DECODER)
+                                                .whenResult(x -> System.out.println(x))
+                                                .then(() -> loadData())
+                                                .then(socket::write)
+                                                .map($ -> true))
+                                        .whenComplete(socket::close);
+                            })
+                    .withListenAddress(ADDRESS)
+                    .withSocketSettings(settings)
+                    .build();
+            server.listen();
+            (new Thread() {
+                public void run() {
+                    eventloop.run();
+                }
+            }).start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private static @NotNull Promise<ByteBuf> loadData() {
@@ -87,9 +91,13 @@ public class BindServerCachedTask extends AdrestusTask {
 
     @SneakyThrows
     public void close() {
-        this.eventloop.breakEventloop();
-        this.server.closeFuture().cancel(true);
-        this.server.closeFuture().get(5, TimeUnit.SECONDS);
-        this.server = null;
+        try {
+            this.eventloop.breakEventloop();
+            this.server.closeFuture().cancel(true);
+            this.server.closeFuture().get(5, TimeUnit.SECONDS);
+            this.server = null;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

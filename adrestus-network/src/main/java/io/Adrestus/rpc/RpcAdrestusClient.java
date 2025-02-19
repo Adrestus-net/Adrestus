@@ -32,7 +32,7 @@ import static io.activej.rpc.client.sender.strategy.RpcStrategies.server;
 public class RpcAdrestusClient<T> extends AbstractNioReactive implements AutoCloseable {
     private static Logger LOG = LoggerFactory.getLogger(RpcAdrestusClient.class);
 
-    private int TIMEOUT = 4000;
+    private int TIMEOUT = 8000;
 
     private final BinarySerializer<RpcMessage> rpc_serialize;
     private final Eventloop eventloop;
@@ -137,6 +137,7 @@ public class RpcAdrestusClient<T> extends AbstractNioReactive implements AutoClo
         try {
             this.client.startFuture().get(TIMEOUT, TimeUnit.MILLISECONDS);
         } catch (Exception e) {
+            e.printStackTrace();
             throw new IllegalArgumentException("Connection could not be established " + e.toString());
         }
     }

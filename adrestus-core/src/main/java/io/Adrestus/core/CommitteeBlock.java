@@ -173,13 +173,13 @@ public class CommitteeBlock extends AbstractBlock implements BlockFactory, Disru
     }
 
     @Override
-    public Object clone() throws CloneNotSupportedException {
+    public CommitteeBlock clone() {
         try {
             byte[] bytes = SerializationFuryUtil.getInstance().getFury().serialize(this);
             return (CommitteeBlock) SerializationFuryUtil.getInstance().getFury().deserialize(bytes);
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
+            // This should never happen because we are Cloneable
+            throw new AssertionError(e);
         }
     }
 

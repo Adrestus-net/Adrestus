@@ -451,7 +451,7 @@ public class BlockSync implements IBlockSync {
     @Override
     @SneakyThrows
     public void SyncState() {
-        CommitteeBlock prevblock = (CommitteeBlock) CachedLatestBlocks.getInstance().getCommitteeBlock().clone();
+        CommitteeBlock prevblock = CachedLatestBlocks.getInstance().getCommitteeBlock().clone();
         int prevZone = Integer.valueOf(CachedZoneIndex.getInstance().getZoneIndex());
         List<String> ips = prevblock.getStructureMap().get(0).values().stream().collect(Collectors.toList());
         ips.remove(IPFinder.getLocalIP());

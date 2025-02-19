@@ -1,0 +1,24 @@
+<Configuration>
+    <Appenders>
+        <Console name="Console">
+            <PatternLayout pattern="%d %-5level [%logger] %msg%n%xThrowable" />
+        </Console>
+    </Appenders>
+    <Loggers>
+        <Logger name="org.apache.http" level="OFF">
+            <AppenderRef ref="Console"/>
+        </Logger>
+        <Logger name="org.apache.http.impl.conn" level="OFF">
+            <AppenderRef ref="Console"/>
+        </Logger>
+        <Logger name="org.apache.http.impl.client" level="OFF">
+            <AppenderRef ref="Console"/>
+        </Logger>
+        <Logger name="org.apache.http.client" level="OFF">
+            <AppenderRef ref="Console"/>
+        </Logger>
+        <Root level="OFF">
+            <AppenderRef ref="Console" />
+        </Root>
+    </Loggers>
+</Configuration>

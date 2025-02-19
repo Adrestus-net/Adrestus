@@ -13,7 +13,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.spongycastle.util.encoders.Hex;
 
-import java.io.File;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.Map;

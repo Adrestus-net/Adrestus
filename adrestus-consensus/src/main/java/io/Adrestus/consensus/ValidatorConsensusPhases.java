@@ -327,7 +327,11 @@ public class ValidatorConsensusPhases {
 
             data.setStatusType(ConsensusStatusType.SUCCESS);
             cleanup();
-            Thread.sleep(400);
+            try {
+                Thread.sleep(400);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             CachedSecurityHeaders.getInstance().getSecurityHeader().setRnd(data.getData().getVDFSolution());
             //commit save to db
             //  consensusClient.send_heartbeat(HEARTBEAT_MESSAGE);
@@ -709,7 +713,11 @@ public class ValidatorConsensusPhases {
             // consensusClient.send_heartbeat(HEARTBEAT_MESSAGE);
             LOG.info("VRF is finalized with Success");
             cleanup();
-            Thread.sleep(100);
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
 
         private void cleanup() {
@@ -1226,7 +1234,11 @@ public class ValidatorConsensusPhases {
             //CachedSerializableErasureObject.getInstance().setSerializableErasureObject(null);
             cleanup();
             LOG.info("Block is finalized with Success");
-            Thread.sleep(500);
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             ConsensusBrokerInstance.getInstance().getConsensusBroker().seekAllOffsetToEnd();
         }
 
@@ -1737,7 +1749,11 @@ public class ValidatorConsensusPhases {
             CachedLatestBlocks.getInstance().getCommitteeBlock().setLeaderPublicKey(next_key);
             CachedLeaderIndex.getInstance().setCommitteePositionLeader(0);
             LOG.info("Committee is finalized with Success");
-            Thread.sleep(1000);
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             cleanup();
             //Make sure you give enough time for nodes to sync that not existed or existed
         }

@@ -71,11 +71,6 @@
         </dependency>
         <dependency>
             <groupId>io.Adrestus.v1</groupId>
-            <artifactId>adrestus-erasure-code</artifactId>
-            <version>${network.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.Adrestus.v1</groupId>
             <artifactId>adrestus-distributed-ledger</artifactId>
             <version>${ledger.version}</version>
         </dependency>

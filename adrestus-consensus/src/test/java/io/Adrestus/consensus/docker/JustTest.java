@@ -3,7 +3,6 @@ package io.Adrestus.consensus.docker;
 import io.Adrestus.config.RunningConfig;
 import org.junit.jupiter.api.Test;
 
-import java.io.File;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;

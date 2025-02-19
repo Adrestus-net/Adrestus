@@ -129,7 +129,11 @@ public class ConsensusCommitteeTimer2Test {
             dhtBootstrapNode.setKademliaData(kademliaData);
             dhtBootstrapNode.start();
             dhtBootstrapNode.scheduledFuture();
-            Thread.sleep(10000);
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             CachedKademliaNodes.getInstance().setDhtBootstrapNode(dhtBootstrapNode);
             List<KademliaData> list_data = dhtBootstrapNode.getActiveNodes();
             System.out.println("Size:" + list_data.size());
@@ -148,7 +152,11 @@ public class ConsensusCommitteeTimer2Test {
             nextnode.start(dhtBootstrapNode);
             nextnode.scheduledFuture();
             CachedKademliaNodes.getInstance().setDhtRegularNode(nextnode);
-            Thread.sleep(3000);
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
 
             List<KademliaData> list_data = nextnode.getActiveNodes();
             committeeBlock.getStructureMap().get(0).put(list_data.get(1).getAddressData().getValidatorBlSPublicKey(), list_data.get(1).getNettyConnectionInfo().getHost());

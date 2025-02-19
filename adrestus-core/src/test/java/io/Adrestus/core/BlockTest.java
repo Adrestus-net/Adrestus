@@ -319,9 +319,9 @@ public class BlockTest {
         block.setTransactionList(new ArrayList<>(outer_transactions));
         byte[] buffer = SerializationFuryUtil.getInstance().getFury().serialize(block);
 
-        TransactionBlock cloned1 = (TransactionBlock) block.clone();
+        TransactionBlock cloned1 = block.clone();
         TransactionBlock copys = (TransactionBlock) SerializationFuryUtil.getInstance().getFury().deserialize(buffer);
-        TransactionBlock cloned2 = (TransactionBlock) copys.clone();
+        TransactionBlock cloned2 = copys.clone();
         System.out.println(copys.toString());
         assertEquals(copys, block);
         assertEquals(copys, cloned1);
@@ -634,7 +634,7 @@ public class BlockTest {
             assertEquals(HashUtil.sha256_bytetoString(tohash2), HashUtil.sha256_bytetoString(tohash));
             transactionBlock3.getTransactionList().remove(0);
             assertNotEquals(transactionBlock3.getTransactionList().size(), transactionBlock.getTransactionList().size());
-            TransactionBlock transactionBlock1 = (TransactionBlock) transactionBlock.clone();
+            TransactionBlock transactionBlock1 = transactionBlock.clone();
             assertEquals(transactionBlock, transactionBlock1);
             publisher.publish(transactionBlock);
             publisher.getJobSyncUntilRemainingCapacityZero();

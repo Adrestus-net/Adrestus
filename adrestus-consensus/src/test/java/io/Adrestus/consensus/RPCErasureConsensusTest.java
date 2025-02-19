@@ -41,7 +41,11 @@ public class RPCErasureConsensusTest {
         ArrayList<String> keys = new ArrayList<>(immutableList);
         RpcErasureServer example = new RpcErasureServer("localhost", 6082, CachedEventLoop.getInstance().getEventloop());
         new Thread(example).start();
-        Thread.sleep(500);
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         RpcErasureClient client = new RpcErasureClient("localhost", 6082, CachedEventLoop.getInstance().getEventloop());
         client.connect();
         Map<String, byte[]> serializableErasureObject = client.getErasureChunks(keys);

@@ -58,8 +58,13 @@ public class ChecksumData implements Serializable, Cloneable {
     }
 
     @Override
-    protected Object clone() throws CloneNotSupportedException {
-        return super.clone();
+    protected Object clone() {
+        try {
+            return super.clone();
+        } catch (CloneNotSupportedException e) {
+            // This should never happen because we are Cloneable
+            throw new AssertionError(e);
+        }
     }
 
     @Override

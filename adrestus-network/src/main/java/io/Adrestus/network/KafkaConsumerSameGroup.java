@@ -98,8 +98,13 @@ public class KafkaConsumerSameGroup implements IKafkaComponent, Cloneable {
     }
 
     @Override
-    public Object clone() throws CloneNotSupportedException {
-        return super.clone();
+    public Object clone() {
+        try {
+            return super.clone();
+        } catch (CloneNotSupportedException e) {
+            // This should never happen because we are Cloneable
+            throw new AssertionError(e);
+        }
     }
 
     public Consumer<String, byte[]> receiveLeaderConsumer(String leader_ip) {

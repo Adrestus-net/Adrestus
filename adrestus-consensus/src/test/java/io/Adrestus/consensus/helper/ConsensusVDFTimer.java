@@ -68,24 +68,29 @@ public class ConsensusVDFTimer {
             int index = blockIndex.getPublicKeyIndex(0, CachedBLSKeyPair.getInstance().getPublicKey());
 
             CachedLeaderIndex.getInstance().setCommitteePositionLeader(0);
-            if (index == 0) {
-                LOG.info("ORGANIZER State");
-                consensusManager.changeStateTo(ConsensusRoleType.SUPERVISOR);
-                var organizerphase = consensusManager.getRole().manufacturePhases(ConsensusType.VDF);
-                organizerphase.InitialSetup();
-                organizerphase.AnnouncePhase(consensusMessage);
-                organizerphase.PreparePhase(consensusMessage);
-                organizerphase.CommitPhase(consensusMessage);
-            } else {
-                LOG.info("VALIDATOR State");
-                consensusManager.changeStateTo(ConsensusRoleType.VALIDATOR);
-                var validatorphase = consensusManager.getRole().manufacturePhases(ConsensusType.VDF);
-                validatorphase.InitialSetup();
-                validatorphase.AnnouncePhase(consensusMessage);
-                validatorphase.PreparePhase(consensusMessage);
-                validatorphase.CommitPhase(consensusMessage);
+            try {
+                if (index == 0) {
+                    LOG.info("ORGANIZER State");
+                    consensusManager.changeStateTo(ConsensusRoleType.SUPERVISOR);
+                    var organizerphase = consensusManager.getRole().manufacturePhases(ConsensusType.VDF);
+                    organizerphase.InitialSetup();
+                    organizerphase.AnnouncePhase(consensusMessage);
+                    organizerphase.PreparePhase(consensusMessage);
+                    organizerphase.CommitPhase(consensusMessage);
+                } else {
+                    LOG.info("VALIDATOR State");
+                    consensusManager.changeStateTo(ConsensusRoleType.VALIDATOR);
+                    var validatorphase = consensusManager.getRole().manufacturePhases(ConsensusType.VDF);
+                    validatorphase.InitialSetup();
+                    validatorphase.AnnouncePhase(consensusMessage);
+                    validatorphase.PreparePhase(consensusMessage);
+                    validatorphase.CommitPhase(consensusMessage);
+                }
+            } catch (Exception e) {
+                LOG.error("Error in ConsensusTask", e);
+            } finally {
+                latch.countDown();
             }
-            latch.countDown();
             timer = new Timer(ConsensusConfiguration.CONSENSUS);
             timer.scheduleAtFixedRate(new ConsensusTask(), ConsensusConfiguration.CONSENSUS_TIMER, ConsensusConfiguration.CONSENSUS_TIMER);
         }

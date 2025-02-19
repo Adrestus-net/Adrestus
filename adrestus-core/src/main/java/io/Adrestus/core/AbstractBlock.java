@@ -146,8 +146,13 @@ public abstract class AbstractBlock extends Object implements BlockFactory, Disr
         Statustype = statustype;
     }
 
-    public Object clone() throws CloneNotSupportedException {
-        return super.clone();
+    public Object clone() {
+        try {
+            return super.clone();
+        } catch (CloneNotSupportedException e) {
+            // This should never happen because we are Cloneable
+            throw new AssertionError(e);
+        }
     }
 
 

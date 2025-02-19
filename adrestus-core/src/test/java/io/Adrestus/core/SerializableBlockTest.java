@@ -261,10 +261,10 @@ public class SerializableBlockTest {
         block.setHeight(1);
         block.AddAllSignatureData(hashMap);
 
-        TransactionBlock clone1 = (TransactionBlock) block.clone();
+        TransactionBlock clone1 = block.clone();
         for (int i = 0; i < 1000; i++) {
             long start = System.currentTimeMillis();
-            TransactionBlock clone = (TransactionBlock) block.clone();
+            TransactionBlock clone = block.clone();
             long finish = System.currentTimeMillis();
             long timeElapsed = finish - start;
             if (!System.out.getClass().getName().contains("maven")) {

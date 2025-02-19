@@ -127,17 +127,26 @@ public class BindServerReceiptTask extends AdrestusTask {
     @SneakyThrows
     @Override
     public void execute() {
-        receiptChannelHandler = new ReceiptChannelHandler<byte[]>(IPFinder.getLocal_address(), SocketConfigOptions.RECEIPT_PORT);
-        receiptChannelHandler.BindServerAndReceive(receive);
-        LOG.info("Receipt: TransactionChannelHandler " + IPFinder.getLocal_address());
+        try {
+            receiptChannelHandler = new ReceiptChannelHandler<byte[]>(IPFinder.getLocal_address(), SocketConfigOptions.RECEIPT_PORT);
+            receiptChannelHandler.BindServerAndReceive(receive);
+            LOG.info("Receipt: TransactionChannelHandler " + IPFinder.getLocal_address());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @SneakyThrows
     @Override
     public void close() {
+
         if (receiptChannelHandler != null) {
-            receiptChannelHandler.close();
-            receiptChannelHandler = null;
+            try {
+                receiptChannelHandler.close();
+                receiptChannelHandler = null;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 }

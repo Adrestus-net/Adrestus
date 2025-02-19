@@ -257,7 +257,11 @@ public class ConsensusTransactionTimerTest {
         prevblock.getSignatureData().put(vk2, BLSSignatureData2a);
         prevblock.getSignatureData().put(vk3, BLSSignatureData3a);
 
-        Thread.sleep(1000);
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         CachedStartHeightRewards.getInstance().setHeight(1);
         CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
         CachedLatestBlocks.getInstance().setTransactionBlock(prevblock);

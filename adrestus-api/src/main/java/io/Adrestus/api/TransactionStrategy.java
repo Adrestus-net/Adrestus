@@ -229,7 +229,11 @@ public class TransactionStrategy implements IStrategy {
                 @Override
                 public void run() {
                     for (int i = 0; i < local_termination.length; i++) {
-                        available[i].acquire();
+                        try {
+                            available[i].acquire();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                         while (local_termination[i].getCount() > 0) {
                             local_termination[i].countDown();
                         }
@@ -237,7 +241,11 @@ public class TransactionStrategy implements IStrategy {
                 }
             }, EXECUTION_TIMER_DELAY_TIMEOUT);
             for (int i = 0; i < local_termination.length; i++) {
-                local_termination[i].await();
+                try {
+                    local_termination[i].await();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
             timer.cancel();
             timer.purge();
