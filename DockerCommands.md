@@ -17,9 +17,8 @@ cp /mnt/c/Users/User/Documents/GitHub/Adrestus /home/Documents/Adrestus
 net stop winnat
 net start winnat
 
-
 //Execute the following command to allow connections using WSL:
-New-NetFirewallRule -DisplayName "WSL" -Direction Inbound  -InterfaceAlias "vEthernet (WSL)"  -Action Allow
+New-NetFirewallRule -DisplayName "WSL" -Direction Inbound -InterfaceAlias "vEthernet (WSL)"  -Action Allow
 
 Then execute the command to renew the firewall rules:
 Get-NetFirewallProfile -Name Public | Get-NetFirewallRule | where DisplayName -ILike "IntelliJ IDEA*" |

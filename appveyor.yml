@@ -14,7 +14,7 @@ branches:
     - master
 configuration: Release
 install:
-  - sh: | 
+  - sh: |
       echo "APPVEYOR_BUILD_ID: $APPVEYOR_BUILD_ID"
       echo "APPVEYOR_BUILD_NUMBER: $APPVEYOR_BUILD_NUMBER"
   - export MAVEN_OPTS="-Xmx8g -XX:MaxMetaspaceSize=12g"

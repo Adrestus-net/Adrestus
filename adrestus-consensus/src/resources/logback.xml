@@ -1,7 +1,7 @@
 <Configuration>
     <Appenders>
         <Console name="Console">
-            <PatternLayout pattern="%d %-5level [%logger] %msg%n%xThrowable" />
+            <PatternLayout pattern="%d %-5level [%logger] %msg%n%xThrowable"/>
         </Console>
     </Appenders>
     <Loggers>
@@ -18,7 +18,7 @@
             <AppenderRef ref="Console"/>
         </Logger>
         <Root level="OFF">
-            <AppenderRef ref="Console" />
+            <AppenderRef ref="Console"/>
         </Root>
     </Loggers>
 </Configuration>
