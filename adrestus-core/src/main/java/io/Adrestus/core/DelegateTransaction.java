@@ -62,8 +62,8 @@ public class DelegateTransaction extends Transaction {
     }
 
     @Override
-    public Object clone() {
-        return super.clone();
+    public DelegateTransaction clone() {
+        return (DelegateTransaction) super.clone();
     }
 
     @Override

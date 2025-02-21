@@ -24,3 +24,5 @@ Then execute the command to renew the firewall rules:
 Get-NetFirewallProfile -Name Public | Get-NetFirewallRule | where DisplayName -ILike "IntelliJ IDEA*" |
 Disable-NetFirewallRule
 
+docker system prune -a --volumes
+

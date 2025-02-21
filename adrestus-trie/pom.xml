@@ -80,8 +80,8 @@
                     <threadCount>1</threadCount>
                     <reuseForks>false</reuseForks>
                     <runOrder>alphabetical</runOrder>
-                    <argLine>@{argLine} -Xmx2048m</argLine>
                     <argLine>
+                        @{argLine} -Xmx2048m
                         --add-opens java.base/java.lang=ALL-UNNAMED
                         --add-opens java.base/java.util=ALL-UNNAMED
                         --add-opens java.base/java.math=ALL-UNNAMED

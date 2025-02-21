@@ -6,6 +6,7 @@ WORKDIR .
 
 # Copy the compiled classes and test-classes from the previous stage
 COPY /src ./adrestus-consensus/src
+
 #COPY /target /target
 
 
@@ -19,5 +20,6 @@ WORKDIR /adrestus-consensus/
 #RUN mvn install:install-file -Dfile=/adrestus-config/target/adrestus-config-1.0-SNAPSHOT-jar-with-dependencies.jar -DgroupId=io.Adrestus.v1 -DartifactId=adrestus-config -Dversion=1.0-SNAPSHOT -Dpackaging=jar
 #RUN mvn install:install-file -Dfile=/adrestus-network/target/adrestus-network-1.0-SNAPSHOT-jar-with-dependencies.jar -DgroupId=io.Adrestus.v1 -DartifactId=adrestus-network -Dversion=1.0-SNAPSHOT -Dpackaging=jar
 RUN mvn clean install -DskipTests
+#RUN mvn -Dtest=RPCExampleTest test
 
 CMD ["mvn", "test", "-Dtest=DockerTest","-Dtest.arg1=value1"]

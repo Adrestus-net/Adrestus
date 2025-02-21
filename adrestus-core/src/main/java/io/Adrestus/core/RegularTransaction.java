@@ -32,8 +32,8 @@ public class RegularTransaction extends Transaction {
         visitor.visit(this);
     }
 
-    public Object clone() {
-        return super.clone();
+    public RegularTransaction clone() {
+        return (RegularTransaction) super.clone();
     }
 
     @Override

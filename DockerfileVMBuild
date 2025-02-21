@@ -1,8 +1,50 @@
-# Use the latest Maven image with OpenJDK 21 as the base image
-FROM jelastic/maven:3.9.5-openjdk-21 AS maven_build
+# Use the latest Ubuntu as the base image
+FROM ubuntu:latest AS maven_build
+# Set the working directory
+WORKDIR .
+# Set environment variables to avoid interactive prompts during package installation
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update \
+ && apt-get install -y sudo
+
+# Update the package list and install necessary dependencies
+RUN apt-get update && \
+    apt-get install -y \
+        curl \
+        tar \
+        git \
+        wget \
+        unzip \
+        software-properties-common
+
+# Install OpenJDK 21
+RUN apt-get install -y openjdk-21-jdk
+
+# Set JAVA_HOME environment variable
+ENV JAVA_HOME /usr/lib/jvm/java-21-openjdk-amd64
+ENV PATH $JAVA_HOME/bin:$PATH
+
+# Install Maven
+ARG MAVEN_VERSION=3.9.9
+ARG MAVEN_HOME=/opt/maven
+ARG URL=https://dlcdn.apache.org/
+
+RUN mkdir -p ${MAVEN_HOME} && \
+    curl -fsSL ${URL}/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz | \
+    tar -xzC ${MAVEN_HOME} --strip-components=1
+
+# Set Maven environment variables
+ENV MAVEN_HOME ${MAVEN_HOME}
+ENV PATH $MAVEN_HOME/bin:$PATH
+
+# Verify installations
+RUN java -version && \
+    mvn -version
+
+# Set MAVEN_OPTS to increase heap size
+ENV MAVEN_OPTS="-Xms2048m -Xmx5g"
 
 # Set the working directory inside the container
-WORKDIR .
 
 COPY pom.xml .
 COPY adrestus-api/pom.xml  ./adrestus-api/pom.xml
@@ -33,29 +75,17 @@ COPY adrestus-network ./adrestus-network
 COPY adrestus-protocol ./adrestus-protocol
 COPY adrestus-trie ./adrestus-trie
 COPY adrestus-util ./adrestus-util
-#Copy the entire project into the container
-#COPY ./ .
 
 
-#Download dependencies and build the project, including test classes
-#RUN mvn clean install -DskipTests
-
-# Stage 2: Runtime stage
-FROM jelastic/maven:3.9.5-openjdk-21
-WORKDIR .
-
-# Copy only the built JAR from the build stage
-COPY --from=maven_build /pom.xml .
-COPY --from=maven_build /adrestus-consensus ./adrestus-consensus
-COPY --from=maven_build /adrestus-core ./adrestus-core
-COPY --from=maven_build /adrestus-config ./adrestus-config
-COPY --from=maven_build /adrestus-network ./adrestus-network
+RUN mvn clean install -DskipTests
 
 WORKDIR /adrestus-consensus/
-
+RUN mvn install:install-file -Dfile=/adrestus-crypto/target/adrestus-crypto-1.0-SNAPSHOT-jar-with-dependencies.jar -DgroupId=io.Adrestus.v1 -DartifactId=adrestus-crypto -Dversion=1.0-SNAPSHOT -Dpackaging=jar
 RUN mvn install:install-file -Dfile=/adrestus-core/target/adrestus-core-1.1-SNAPSHOT-jar-with-dependencies.jar -DgroupId=io.Adrestus.v1 -DartifactId=adrestus-core -Dversion=1.1-SNAPSHOT -Dpackaging=jar
 RUN mvn install:install-file -Dfile=/adrestus-config/target/adrestus-config-1.0-SNAPSHOT-jar-with-dependencies.jar -DgroupId=io.Adrestus.v1 -DartifactId=adrestus-config -Dversion=1.0-SNAPSHOT -Dpackaging=jar
 RUN mvn install:install-file -Dfile=/adrestus-network/target/adrestus-network-1.0-SNAPSHOT-jar-with-dependencies.jar -DgroupId=io.Adrestus.v1 -DartifactId=adrestus-network -Dversion=1.0-SNAPSHOT -Dpackaging=jar
+
+
 
 ## Copy only pom.xml first to allow caching of dependencies
 #COPY pom.xml .

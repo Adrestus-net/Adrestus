@@ -4,7 +4,6 @@ import io.Adrestus.core.RingBuffer.handler.blocks.DisruptorBlock;
 import io.Adrestus.core.RingBuffer.handler.blocks.DisruptorBlockVisitor;
 import io.Adrestus.crypto.bls.BLSSignatureData;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
-import io.Adrestus.util.SerializationFuryUtil;
 import io.activej.serializer.annotations.Serialize;
 
 import java.io.Serializable;
@@ -187,8 +186,9 @@ public class TransactionBlock extends AbstractBlock implements BlockFactory, Dis
     @Override
     public TransactionBlock clone() {
         try {
-            byte[] bytes = SerializationFuryUtil.getInstance().getFury().serialize(this);
-            return (TransactionBlock) SerializationFuryUtil.getInstance().getFury().deserialize(bytes);
+            TransactionBlock cloned = (TransactionBlock) super.clone();
+            cloned.setTransactionList(new ArrayList<>(cloned.getTransactionList()));
+            return cloned;
         } catch (Exception e) {
             throw new AssertionError(e);
         }

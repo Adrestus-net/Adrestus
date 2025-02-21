@@ -93,6 +93,7 @@ class RPCExampleTest {
     private static SerializationUtil<SerializableErasureObject> serenc_erasure;
     private static ArrayList<SerializableErasureObject> serializableErasureObjects;
     private static int blocksize;
+    private static int RUNNING = 10;
 
     static {
         //Logger.getRootLogger().setLevel(Level.OFF);
@@ -281,33 +282,17 @@ class RPCExampleTest {
             System.out.println("Request with name \"" + currentName + "\": " + currentResponse);
             assertEquals("Hello Hello Hello, " + currentName + "!", currentResponse);
 
+            RUNNING--;
+
         } catch (Exception e) {
             // e.printStackTrace();
         }
 
     }
 
-    @AfterAll
-    public static void after() {
-        serverOne.closeFuture().cancel(true);
-        serverTwo.closeFuture().cancel(true);
-        serverThree.closeFuture().cancel(true);
-        try {
-            serverOne.closeFuture().get(10000, TimeUnit.MILLISECONDS);
-            serverTwo.closeFuture().get(10000, TimeUnit.MILLISECONDS);
-            serverThree.closeFuture().get(10000, TimeUnit.MILLISECONDS);
-            serverOne.stopMonitoring();
-            serverTwo.stopMonitoring();
-            serverThree.stopMonitoring();
-            serverOne = null;
-            serverTwo = null;
-            serverThree = null;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     @Test
+    @Order(2)
     public void myEdownload() throws Exception {
         IDatabase<String, CommitteeBlock> database = null;
         try {
@@ -352,6 +337,7 @@ class RPCExampleTest {
             client.close();
             example.close();
             example = null;
+            RUNNING--;
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -363,6 +349,7 @@ class RPCExampleTest {
     }
 
     @Test
+    @Order(3)
     public void myCdownload2() throws Exception {
         IDatabase<String, TransactionBlock> database = null;
         try {
@@ -394,6 +381,7 @@ class RPCExampleTest {
             client.close();
             example.close();
             example = null;
+            RUNNING--;
         } catch (Exception e) {
             e.printStackTrace();
             fail(e.getMessage());
@@ -404,6 +392,7 @@ class RPCExampleTest {
     }
 
     @Test
+    @Order(4)
     public void myCadownload2() throws Exception {
         IDatabase<String, TransactionBlock> database = null, database2 = null;
         try {
@@ -433,6 +422,7 @@ class RPCExampleTest {
             example.close();
             example = null;
             database.delete_db();
+            RUNNING--;
         } catch (Exception e) {
             e.printStackTrace();
             fail(e.getMessage());
@@ -444,7 +434,7 @@ class RPCExampleTest {
     }
 
     @Test
-    @Order(3)
+    @Order(5)
     public void myDmultiple_download() throws Exception {
         IDatabase<String, CommitteeBlock> database = null;
         try {
@@ -495,6 +485,7 @@ class RPCExampleTest {
             server1 = null;
             server2 = null;
             server3 = null;
+            RUNNING--;
         } catch (Exception e) {
             e.printStackTrace();
             fail(e.getMessage());
@@ -506,7 +497,7 @@ class RPCExampleTest {
     }
 
     @Test
-    @Order(2)
+    @Order(6)
     public void myBmultiple_download_patricia_tree() throws Exception {
         IDatabase<String, byte[]> tree_datasbase = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getPatriciaTreeZoneInstance(0));
         try {
@@ -553,6 +544,7 @@ class RPCExampleTest {
             server1 = null;
             server2 = null;
             server3 = null;
+            RUNNING--;
         } catch (Exception e) {
             e.printStackTrace();
             fail(e.getMessage());
@@ -563,6 +555,7 @@ class RPCExampleTest {
     }
 
     @Test
+    @Order(7)
     public void myFmultiple_download_noserver() throws Exception {
         try {
             ArrayList<InetSocketAddress> list = new ArrayList<>();
@@ -572,24 +565,20 @@ class RPCExampleTest {
             list.add(address1);
             list.add(address2);
             list.add(address3);
-            RpcAdrestusClient client = null;
-            try {
-                client = new RpcAdrestusClient(new CommitteeBlock(), list, eventloop);
-                client.connect();
+            RpcAdrestusClient client = new RpcAdrestusClient(new CommitteeBlock(), list, eventloop);
+            client.connect();
 
-                if (client != null)
-                    client.close();
+            client.close();
 
-                List<AbstractBlock> blocks = client.getBlocksList("1");
-            } catch (IllegalArgumentException e) {
-            }
+            List<AbstractBlock> blocks = client.getBlocksList("1");
         } catch (Exception e) {
-            System.out.println("Exception caught its correct no server: " + e.toString());
+            System.out.println("Exception caught its correct no server: " + e.getMessage());
         }
 
     }
 
     @Test
+    @Order(8)
     public void myGmultiple_download_one_server() throws Exception {
         IDatabase<String, CommitteeBlock> database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
         try {
@@ -614,7 +603,8 @@ class RPCExampleTest {
                 RpcAdrestusClient client = new RpcAdrestusClient(new CommitteeBlock(), list, eventloop);
                 client.connect();
                 List<AbstractBlock> blocks = client.getBlocksList("1");
-
+                assertEquals(firstblock, blocks.get(0));
+                RUNNING--;
                 client.close();
             } catch (Exception e) {
             }
@@ -629,6 +619,7 @@ class RPCExampleTest {
     }
 
     @Test
+    @Order(9)
     public void myHmultiple_download_one_server_one_response() throws Exception {
         IDatabase<String, CommitteeBlock> database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
         try {
@@ -656,6 +647,7 @@ class RPCExampleTest {
             client.close();
             server1.close();
             server1 = null;
+            RUNNING--;
         } catch (Exception e) {
             e.printStackTrace();
             fail(e.getMessage());
@@ -666,6 +658,7 @@ class RPCExampleTest {
     }
 
     @Test
+    @Order(10)
     public void myImultiple_download_one_server_one_response() throws Exception {
         IDatabase<String, CommitteeBlock> database = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
         try {
@@ -701,6 +694,7 @@ class RPCExampleTest {
             client.close();
             server1.close();
             server1 = null;
+            RUNNING--;
         } catch (Exception e) {
             e.printStackTrace();
             fail(e.getMessage());
@@ -855,28 +849,57 @@ class RPCExampleTest {
 //    }
 
     @SneakyThrows
+    @Order(11)
     @Test
     public void ErasureTest() throws InterruptedException {
-        CachedSerializableErasureObject.getInstance().setSerializableErasureObject("1", "1SADASDAS".getBytes(StandardCharsets.UTF_8));
-        CachedSerializableErasureObject.getInstance().setSerializableErasureObject("2", "2ASD".getBytes(StandardCharsets.UTF_8));
-        CachedSerializableErasureObject.getInstance().setSerializableErasureObject("3", "3ASDASD".getBytes(StandardCharsets.UTF_8));
-        List<String> immutableList = List.of("1", "2", "3");
-        ArrayList<String> keys = new ArrayList<>(immutableList);
-        RpcErasureServer example = new RpcErasureServer("localhost", 6082, CachedEventLoop.getInstance().getEventloop());
-        new Thread(example).start();
-        Thread.sleep(500);
-        RpcErasureClient client = new RpcErasureClient("localhost", 6082, CachedEventLoop.getInstance().getEventloop());
-        client.connect();
-        Map<String, byte[]> serializableErasureObject = client.getErasureChunks(keys);
+        try {
+            CachedSerializableErasureObject.getInstance().setSerializableErasureObject("1", "1SADASDAS".getBytes(StandardCharsets.UTF_8));
+            CachedSerializableErasureObject.getInstance().setSerializableErasureObject("2", "2ASD".getBytes(StandardCharsets.UTF_8));
+            CachedSerializableErasureObject.getInstance().setSerializableErasureObject("3", "3ASDASD".getBytes(StandardCharsets.UTF_8));
+            List<String> immutableList = List.of("1", "2", "3");
+            ArrayList<String> keys = new ArrayList<>(immutableList);
+            RpcErasureServer example = new RpcErasureServer("localhost", 6082, CachedEventLoop.getInstance().getEventloop());
+            new Thread(example).start();
+            Thread.sleep(500);
+            RpcErasureClient client = new RpcErasureClient("localhost", 6082, CachedEventLoop.getInstance().getEventloop());
+            client.connect();
+            Map<String, byte[]> serializableErasureObject = client.getErasureChunks(keys);
 
-        assertTrue(areMapsEqual(serializableErasureObject, CachedSerializableErasureObject.getSerializableErasureObject()));
-        //#########################################################################################################################
-        CachedSerializableErasureObject.getInstance().clear();
-        client.close();
-        example.close();
-        example = null;
+            assertTrue(areMapsEqual(serializableErasureObject, CachedSerializableErasureObject.getSerializableErasureObject()));
+            //#########################################################################################################################
+            CachedSerializableErasureObject.getInstance().clear();
+            client.close();
+            example.close();
+            example = null;
+            RUNNING--;
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail(e.getMessage());
+        }
     }
 
+
+    @AfterAll
+    public static void after() {
+        serverOne.closeFuture().cancel(true);
+        serverTwo.closeFuture().cancel(true);
+        serverThree.closeFuture().cancel(true);
+        try {
+            serverOne.closeFuture().get(10000, TimeUnit.MILLISECONDS);
+            serverTwo.closeFuture().get(10000, TimeUnit.MILLISECONDS);
+            serverThree.closeFuture().get(10000, TimeUnit.MILLISECONDS);
+            serverOne.stopMonitoring();
+            serverTwo.stopMonitoring();
+            serverThree.stopMonitoring();
+            serverOne = null;
+            serverTwo = null;
+            serverThree = null;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        assertEquals(0, RUNNING);
+        System.out.println("All tests passed: " + RUNNING);
+    }
 
     public static boolean areMapsEqual(Map<String, byte[]> map1, Map<String, byte[]> map2) {
         if (map1.size() != map2.size()) {

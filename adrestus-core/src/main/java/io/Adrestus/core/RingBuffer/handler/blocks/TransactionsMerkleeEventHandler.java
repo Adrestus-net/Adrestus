@@ -30,7 +30,7 @@ public class TransactionsMerkleeEventHandler implements BlockEventHandler<Abstra
             }
 
 
-            transactionBlock.getTransactionList().stream().forEach(x -> {
+            transactionBlock.getTransactionList().forEach(x -> {
                 list.add(new MerkleNode(x.getHash()));
             });
 

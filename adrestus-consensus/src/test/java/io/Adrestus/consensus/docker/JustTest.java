@@ -22,7 +22,7 @@ public class JustTest {
         } else {
             System.out.println("Not running inside Docker container");
         }
-        System.out.println("Hello World");
+        System.out.println("Hello World:1");
     }
 
     public static String getCurrentIPAddress() throws SocketException {

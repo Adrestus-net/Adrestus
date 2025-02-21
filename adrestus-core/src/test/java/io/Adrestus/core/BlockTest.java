@@ -45,6 +45,7 @@ import io.Adrestus.util.SerializationUtil;
 import io.distributedLedger.*;
 import lombok.SneakyThrows;
 import org.apache.commons.codec.binary.StringUtils;
+import org.apache.commons.lang3.SerializationUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.spongycastle.util.encoders.Hex;
@@ -234,6 +235,8 @@ public class BlockTest {
             //MemoryPool.getInstance().add(transaction);
             transactions.add(transaction);
         }
+
+        transactionCallback = new TransactionCallback();
         for (int i = 0; i < size - 1; i++) {
             Transaction transaction = new RegularTransaction();
             transaction.setFrom(addreses.get(i));
@@ -245,8 +248,8 @@ public class BlockTest {
             transaction.setAmount(BigDecimal.valueOf(100));
             transaction.setAmountWithTransactionFee(transaction.getAmount().multiply(BigDecimal.valueOf(10.0 / 100.0)));
             transaction.setNonce(1);
-            transaction.setXAxis(keypair.get(i).getXpubAxis());
-            transaction.setYAxis(keypair.get(i).getYpubAxis());
+            transaction.setXAxis(new BigInteger(keypair.get(i).getXpubAxis().toByteArray()));
+            transaction.setYAxis(new BigInteger(keypair.get(i).getYpubAxis().toByteArray()));
             byte byf[] = trx_serence.encode(transaction, 1024);
             transaction.setHash(HashUtil.sha256_bytetoString(byf));
             await().atMost(500, TimeUnit.MILLISECONDS);
@@ -326,6 +329,10 @@ public class BlockTest {
         assertEquals(copys, block);
         assertEquals(copys, cloned1);
         assertEquals(cloned2, cloned1);
+        assertEquals(cloned1, block);
+        assertEquals(HashUtil.sha256_bytetoString(SerializationUtils.serialize(cloned1)), HashUtil.sha256_bytetoString(SerializationUtils.serialize(block)));
+        assertEquals(Hex.toHexString(SerializationUtils.serialize(cloned1)), Hex.toHexString(SerializationUtils.serialize(block)));
+        int g = 3;
     }
 
     @Test
@@ -494,8 +501,17 @@ public class BlockTest {
             transactionBlock.setPatriciaMerkleRoot(replica.getRootHash());
             BlockSizeCalculator blockSizeCalculator = new BlockSizeCalculator();
             blockSizeCalculator.setTransactionBlock(transactionBlock);
-            byte[] tohash = serenc.encode(transactionBlock, blockSizeCalculator.TransactionBlockSizeCalculator());
+            int size = blockSizeCalculator.TransactionBlockSizeCalculator();
+            byte[] tohash = serenc.encode(transactionBlock, size);
             transactionBlock.setHash(HashUtil.sha256_bytetoString(tohash));
+            TransactionBlock transactionBlock3 = (TransactionBlock) SerializationFuryUtil.getInstance().getFury().deserialize(SerializationFuryUtil.getInstance().getFury().serialize(transactionBlock));
+            transactionBlock3.setHash("");
+            byte[] tohash2 = serenc.encode(transactionBlock3, size);
+            assertEquals(HashUtil.sha256_bytetoString(tohash2), HashUtil.sha256_bytetoString(tohash));
+            transactionBlock3.getTransactionList().remove(0);
+            assertNotEquals(transactionBlock3.getTransactionList().size(), transactionBlock.getTransactionList().size());
+            TransactionBlock transactionBlock1 = transactionBlock.clone();
+            assertEquals(transactionBlock, transactionBlock1);
             publisher.publish(transactionBlock);
             publisher.getJobSyncUntilRemainingCapacityZero();
             count++;
@@ -573,6 +589,7 @@ public class BlockTest {
             TransactionBlock transactionBlock = new TransactionBlock();
             MerkleTreeOptimizedImp tree = new MerkleTreeOptimizedImp();
             ArrayList<MerkleNode> merkleNodeArrayList = new ArrayList<>();
+            transactionBlock.setHash("");
             transactionBlock.getHeaderData().setPreviousHash(CachedLatestBlocks.getInstance().getTransactionBlock().getHash());
             transactionBlock.getHeaderData().setVersion(AdrestusConfiguration.version);
             transactionBlock.getHeaderData().setTimestamp(GetTime.GetTimeStampInString());
@@ -583,7 +600,7 @@ public class BlockTest {
             transactionBlock.setZone(CachedZoneIndex.getInstance().getZoneIndex());
             transactionBlock.setBlockProposer(CachedBLSKeyPair.getInstance().getPublicKey().toRaw());
             transactionBlock.setLeaderPublicKey(CachedBLSKeyPair.getInstance().getPublicKey());
-            transactionBlock.setTransactionList((List<Transaction>) outer_transactions.clone());
+            transactionBlock.setTransactionList(new ArrayList<>(outer_transactions));
 
 
             transactionBlock.getTransactionList().forEach(transaction -> merkleNodeArrayList.add(new MerkleNode(transaction.getHash())));
@@ -603,6 +620,7 @@ public class BlockTest {
             }
             Map<Integer, Map<Receipt.ReceiptBlock, List<Receipt>>> outbound = receiptList
                     .stream()
+                    .filter(val -> CachedZoneIndex.getInstance().getZoneIndex() != val.getZoneTo())
                     .collect(Collectors.groupingBy(Receipt::getZoneTo, Collectors.groupingBy(Receipt::getReceiptBlock)));
 
             OutBoundRelay outBoundRelay = new OutBoundRelay(outbound);
@@ -628,6 +646,14 @@ public class BlockTest {
             int size = blockSizeCalculator.TransactionBlockSizeCalculator();
             byte[] tohash = serenc.encode(transactionBlock, size);
             transactionBlock.setHash(HashUtil.sha256_bytetoString(tohash));
+
+            TransactionBlock cloned = transactionBlock.clone();
+            assertEquals(transactionBlock, cloned);
+            assertEquals(HashUtil.sha256_bytetoString(SerializationUtils.serialize(cloned)), (HashUtil.sha256_bytetoString(SerializationUtils.serialize(transactionBlock))));
+            cloned.setHash("");
+            assertEquals(HashUtil.sha256_bytetoString(serenc.encode(cloned, size)), (HashUtil.sha256_bytetoString(tohash)));
+            assertNotEquals(transactionBlock, cloned);
+            assertNotEquals(HashUtil.sha256_bytetoString(SerializationUtils.serialize(cloned)), HashUtil.sha256_bytetoString(SerializationUtils.serialize(transactionBlock)));
             TransactionBlock transactionBlock3 = (TransactionBlock) SerializationFuryUtil.getInstance().getFury().deserialize(SerializationFuryUtil.getInstance().getFury().serialize(transactionBlock));
             transactionBlock3.setHash("");
             byte[] tohash2 = serenc.encode(transactionBlock3, size);

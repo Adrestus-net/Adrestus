@@ -52,8 +52,8 @@ public class UnDelegateTransaction extends DelegateTransaction {
     }
 
     @Override
-    public Object clone() {
-        return super.clone();
+    public UnDelegateTransaction clone() {
+        return (UnDelegateTransaction) super.clone();
     }
 
     @Override

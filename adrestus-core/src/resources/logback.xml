@@ -18,17 +18,17 @@
     </root>
 
     <!-- Disable logging-->
-    <logger name="org.slf4j.impl.StaticLoggerBinder" level="OFF"/>
-    <logger name="org.slf4j.simpleLogger.showInitialization" level="OFF"/>
-    <logger name="org.apache.zookeeper" level="OFF"/>
-    <logger name="org.apache.zookeeper.server" level="OFF"/>
-    <logger name="org.apache.zookeeper.client" level="OFF"/>
-    <logger name="org.apache.zookeeper.common" level="OFF"/>
+    <!--    <logger name="org.slf4j.impl.StaticLoggerBinder" level="OFF"/>-->
+    <!--    <logger name="org.slf4j.simpleLogger.showInitialization" level="OFF"/>-->
+    <!--    <logger name="org.apache.zookeeper" level="OFF"/>-->
+    <!--    <logger name="org.apache.zookeeper.server" level="OFF"/>-->
+    <!--    <logger name="org.apache.zookeeper.client" level="OFF"/>-->
+    <!--    <logger name="org.apache.zookeeper.common" level="OFF"/>-->
     <logger name="io.activej" level="OFF"/>
     <logger name=" io.activej.rpc.protocol" level="OFF"/>
-    <logger name="org.apache.kafka" level="OFF"/>
-    <logger name="org.apache.kafka.common.errors" level="ON"/>
-    <logger name="kafka" level="OFF"/>
+    <!--    <logger name="org.apache.kafka" level="OFF"/>-->
+    <!--    <logger name="org.apache.kafka.common.errors" level="ON"/>-->
+    <!--    <logger name="kafka" level="OFF"/>-->
     <logger name="state.change.logger" level="OFF"/>
     <!--    <logger name="io.Adrestus.network" level="OFF"/>-->
     <logger name="io.netty" level="OFF"/>

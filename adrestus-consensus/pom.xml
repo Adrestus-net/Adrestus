@@ -24,9 +24,37 @@
     </properties>
     <dependencies>
         <dependency>
+            <groupId>com.github.docker-java</groupId>
+            <artifactId>docker-java</artifactId>
+            <version>${docker.api}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-classic</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.github.docker-java</groupId>
+            <artifactId>docker-java-core</artifactId>
+            <version>${docker.api}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-classic</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
             <groupId>io.Adrestus.v1</groupId>
             <artifactId>adrestus-core</artifactId>
             <version>${core.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-classic</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>io.Adrestus.v1</groupId>
@@ -37,6 +65,12 @@
             <groupId>io.Adrestus.v1</groupId>
             <artifactId>adrestus-network</artifactId>
             <version>${network.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-classic</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
     <build>
@@ -75,8 +109,8 @@
                     <threadCount>1</threadCount>
                     <reuseForks>false</reuseForks>
                     <runOrder>alphabetical</runOrder>
-                    <argLine>@{argLine} -Xmx2048m</argLine>
                     <argLine>
+                        @{argLine} -Xmx2048m
                         --add-opens java.base/java.lang=ALL-UNNAMED
                         --add-opens java.base/java.util=ALL-UNNAMED
                         --add-opens java.base/java.math=ALL-UNNAMED

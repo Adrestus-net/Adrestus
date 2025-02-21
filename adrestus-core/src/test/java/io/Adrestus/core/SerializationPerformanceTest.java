@@ -39,6 +39,7 @@ import org.apache.fury.logging.LoggerFactory;
 import org.apache.tuweni.bytes.Bytes;
 import org.apache.tuweni.bytes.Bytes32;
 import org.apache.tuweni.bytes.MutableBytes;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.spongycastle.util.encoders.Hex;
@@ -219,7 +220,7 @@ public class SerializationPerformanceTest {
 
     @Test
     public void TransactionBlockFixedLength() {
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < fixedSize; i++) {
             byte byf[] = transcion_block.encode(transactionBlock, length);
             TransactionBlock transactionBlock1 = (TransactionBlock) transcion_block.decode(byf);
         }
@@ -227,7 +228,7 @@ public class SerializationPerformanceTest {
 
     @Test
     public void TransactionBlockDynamicLength() {
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < fixedSize; i++) {
             BlockSizeCalculator blockSizeCalculator = new BlockSizeCalculator();
             blockSizeCalculator.setTransactionBlock(transactionBlock);
             byte byf[] = transcion_block.encode(transactionBlock, blockSizeCalculator.TransactionBlockSizeCalculator());
@@ -236,8 +237,16 @@ public class SerializationPerformanceTest {
     }
 
     @Test
+    public void TransactionBlockClone() {
+        for (int i = 0; i < fixedSize; i++) {
+            TransactionBlock transactionBlock1 = transactionBlock.clone();
+            Assertions.assertEquals(transactionBlock, transactionBlock1);
+        }
+    }
+
+    @Test
     public void ApacheFuryransactionBlock() {
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < fixedSize; i++) {
             byte byf[] = fury.serialize(transactionBlock);
             TransactionBlock transactionBlock1 = (TransactionBlock) fury.deserialize(byf);
         }

@@ -8,7 +8,6 @@ import io.Adrestus.crypto.bls.BLSSignatureData;
 import io.Adrestus.crypto.bls.model.BLSPublicKey;
 import io.Adrestus.crypto.elliptic.mapper.StakingData;
 import io.Adrestus.p2p.kademlia.repository.KademliaData;
-import io.Adrestus.util.SerializationFuryUtil;
 import io.activej.serializer.annotations.Serialize;
 
 import java.io.Serializable;
@@ -175,8 +174,9 @@ public class CommitteeBlock extends AbstractBlock implements BlockFactory, Disru
     @Override
     public CommitteeBlock clone() {
         try {
-            byte[] bytes = SerializationFuryUtil.getInstance().getFury().serialize(this);
-            return (CommitteeBlock) SerializationFuryUtil.getInstance().getFury().deserialize(bytes);
+//            byte[] bytes = SerializationFuryUtil.getInstance().getFury().serialize(this);
+//            return (CommitteeBlock) SerializationFuryUtil.getInstance().getFury().deserialize(bytes);
+            return (CommitteeBlock) super.clone();
         } catch (Exception e) {
             // This should never happen because we are Cloneable
             throw new AssertionError(e);
@@ -195,7 +195,7 @@ public class CommitteeBlock extends AbstractBlock implements BlockFactory, Disru
 
     @Override
     public int hashCode() {
-        return java.util.Objects.hash(super.hashCode(), Arrays.hashCode(CommitteeProposer), VRF, VDF, StakingMap, StructureMap, super.getSignatureData(), difficulty);
+        return java.util.Objects.hash(super.hashCode(), Arrays.hashCode(CommitteeProposer), VRF, VDF, StakingMap, StructureMap, difficulty);
     }
 
     @Override

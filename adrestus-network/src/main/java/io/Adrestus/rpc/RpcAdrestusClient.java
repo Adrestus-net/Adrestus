@@ -137,7 +137,7 @@ public class RpcAdrestusClient<T> extends AbstractNioReactive implements AutoClo
         try {
             this.client.startFuture().get(TIMEOUT, TimeUnit.MILLISECONDS);
         } catch (Exception e) {
-            e.printStackTrace();
+            //e.printStackTrace();
             throw new IllegalArgumentException("Connection could not be established " + e.toString());
         }
     }
@@ -269,7 +269,7 @@ public class RpcAdrestusClient<T> extends AbstractNioReactive implements AutoClo
                 client = null;
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
     }
 

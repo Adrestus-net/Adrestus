@@ -36,7 +36,7 @@ public class VDFMessage implements Serializable {
     }
 
     public int length() {
-        return VDFSolution.length;
+        return 100 + VDFSolution.length;
     }
 
     @Override

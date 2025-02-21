@@ -146,9 +146,9 @@ public abstract class AbstractBlock extends Object implements BlockFactory, Disr
         Statustype = statustype;
     }
 
-    public Object clone() {
+    public AbstractBlock clone() {
         try {
-            return super.clone();
+            return (AbstractBlock) super.clone();
         } catch (CloneNotSupportedException e) {
             // This should never happen because we are Cloneable
             throw new AssertionError(e);
@@ -297,7 +297,7 @@ public abstract class AbstractBlock extends Object implements BlockFactory, Disr
 
         @Override
         public int hashCode() {
-            return com.google.common.base.Objects.hashCode(Version, PreviousHash, timestamp);
+            return Objects.hash(Version, PreviousHash, timestamp);
         }
 
         @Override

@@ -24,8 +24,8 @@ public class UnstakingTransaction extends StakingTransaction {
     }
 
     @Override
-    public Object clone() {
-        return super.clone();
+    public UnstakingTransaction clone() {
+        return (UnstakingTransaction) super.clone();
     }
 
     @Override

@@ -52,8 +52,8 @@ public class RewardsTransaction extends Transaction {
     }
 
     @Override
-    public Object clone() {
-        return super.clone();
+    public RewardsTransaction clone() {
+        return (RewardsTransaction) super.clone();
     }
 
     @Override

@@ -78,6 +78,7 @@ public class OutBoundEventHandler implements BlockEventHandler<AbstractBlockEven
             latch.countDown();
         }
         latch.await();
+        service.shutdown();
         service.shutdownNow();
         service = null;
         if (atomicInteger.get() != 3) {

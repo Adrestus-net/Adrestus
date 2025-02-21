@@ -33,11 +33,14 @@ import java.util.regex.Pattern;
 import static io.Adrestus.config.RunningConfig.isRunningInAppveyor;
 
 public class ConsensusDockerTest {
-    private static Logger LOG = LoggerFactory.getLogger(ConsensusDockerTest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ConsensusDockerTest.class);
 
     private static final String dockerFileName = "DockerfileVMBuild";
     private static final String imageAdrestusVM = "dockerfile-vm-build:latest";
-    private static final String VRFTestName = "JustTest";
+    private static final String VRFTestName = "ConsensusVRFTest2";
+    private static final String VDF2Test = "ConsensusVDF2Test";
+    private static final String TransactionTestName = "ConsensusTransactionTimerTest";
+    //    private static final String VRFTestName = "ConsensusVRFTest2";
     private static final String networkName = "network";
 //    private static final String imageConsensusName = "dockerfile-consensus-tests";
 
@@ -178,10 +181,8 @@ public class ConsensusDockerTest {
     }
 
 
-    @Test
+    //@Test
     public void VRFTest() throws IOException {
-//        if (1 == 1)
-//            return;
         if (RunningConfig.isRunningInAppveyor()) {
             return;
         }
@@ -193,8 +194,8 @@ public class ConsensusDockerTest {
             CreateContainerResponse container = null;
             try {
                 String[] buildCommand = {
-//                        "sh", "-c", "mvn clean install -DskipTests && mvn test -Dtest=" + VRFTestName +
-                        "sh", "-c", "mvn clean install -DskipTests && mvn test -Dtest=" + VRFTestName +
+//                       "sh", "-c", "mvn clean install -DskipTests && mvn test -Dtest=" + VRFTestName +
+                        "sh", "-c", "mvn test -Dtest=" + VRFTestName +
                         " -Dtest.arg0=" + ipv4Addresses.get(0) +
                         " -Dtest.arg1=" + ipv4Addresses.get(1) +
                         " -Dtest.arg2=" + ipv4Addresses.get(2)
@@ -285,9 +286,195 @@ public class ConsensusDockerTest {
                 });
         containerResponses.forEach(container -> {
             // Remove the container
-            if (dockerClient.inspectContainerCmd(container.getId()).exec() != null) {
-                dockerClient.removeContainerCmd(container.getId()).withForce(true).withRemoveVolumes(true).exec();
+            dockerClient.removeContainerCmd(container.getId()).withForce(true).withRemoveVolumes(true).exec();
+        });
+        dockerClient.close();
+    }
+
+    //@Test
+    public void VDFTest() throws IOException {
+        if (RunningConfig.isRunningInAppveyor()) {
+            return;
+        }
+
+        ArrayList<CreateContainerResponse> containerResponses = new ArrayList<>();
+        ArrayList<LogContainerCmd> logContainerCmds = new ArrayList<>();
+        AtomicInteger containerCount = new AtomicInteger(ipv4Addresses.size());
+        for (int i = 0; i < ipv4Addresses.size(); i++) {
+            CreateContainerResponse container = null;
+            try {
+                String[] buildCommand = {
+                        "sh", "-c", "mvn test -Dtest=" + VDF2Test +
+                        " -Dtest.arg0=" + ipv4Addresses.get(0) +
+                        " -Dtest.arg1=" + ipv4Addresses.get(1) +
+                        " -Dtest.arg2=" + ipv4Addresses.get(2)
+                };
+                container = dockerClient
+                        .createContainerCmd(imageAdrestusVM)
+                        .withNetworkDisabled(false)
+                        .withWorkingDir("/adrestus-consensus/")
+                        .withName("Container" + String.valueOf(i))
+                        .withCmd(buildCommand)
+                        .withHostConfig(HostConfig
+                                .newHostConfig()
+                                .withNetworkMode(networkName)
+                                .withBinds(new Bind(new File("./src").getAbsolutePath(), new Volume("/adrestus-consensus/src"))))
+                        .withIpv4Address(ipv4Addresses.get(i))
+                        .exec();
+
+                containerResponses.add(container);
+
+
+                dockerClient.startContainerCmd(container.getId()).exec();
+                System.out.println("Container started with ID: " + container.getId());
+                LogContainerCmd logContainerCmd = dockerClient.logContainerCmd(container.getId())
+                        .withStdOut(true)
+                        .withStdErr(true)
+                        .withFollowStream(true);
+                logContainerCmds.add(logContainerCmd);
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new RuntimeException(e);
             }
+        }
+        logContainerCmds.forEach(val -> {
+            Thread.ofVirtual().start(() -> {
+                try {
+                    val.exec(new ResultCallback.Adapter<>() {
+                        boolean first = false;
+
+                        @Override
+                        public void onNext(Frame item) {
+                            String logLine = new String(item.getPayload());
+//                            System.out.println(logLine);
+                            if (logLine.contains(VDF2Test)) {
+                                first = true;
+                            }
+                            if (first) {
+                                System.out.println(val.getContainerId() + " " + logLine);
+                                boolean containsException = containsException(logLine);
+                                if (containsException) {
+                                    throw new IllegalArgumentException("Exception found in" + "with log: " + logLine);
+                                }
+                            }
+                        }
+                    }).awaitCompletion();
+                    containerCount.getAndDecrement();
+                } catch (InterruptedException ex) {
+                    throw new RuntimeException(ex);
+                } catch (IllegalArgumentException e) {
+                    e.printStackTrace();
+                } finally {
+                }
+            });
+        });
+
+        Awaitility
+                .await()
+                .atMost(Duration.ofMinutes(4))
+                .untilAsserted(() -> {
+                    if (containerCount.get() != 0) {
+                        throw new AssertionError("Condition not met");
+                    }
+                    System.out.println("Done " + containerCount.get());
+                });
+        containerResponses.forEach(container -> {
+            // Remove the container
+            dockerClient.removeContainerCmd(container.getId()).withForce(true).withRemoveVolumes(true).exec();
+        });
+        dockerClient.close();
+    }
+
+    //@Test
+    public void TransactionTest() throws IOException {
+        if (RunningConfig.isRunningInAppveyor()) {
+            return;
+        }
+
+        ArrayList<CreateContainerResponse> containerResponses = new ArrayList<>();
+        ArrayList<LogContainerCmd> logContainerCmds = new ArrayList<>();
+        AtomicInteger containerCount = new AtomicInteger(ipv4Addresses.size());
+        for (int i = 0; i < ipv4Addresses.size(); i++) {
+            CreateContainerResponse container = null;
+            try {
+                String[] buildCommand = {
+                        "sh", "-c", "mvn test -Dtest=" + TransactionTestName +
+                        " -Dtest.arg0=" + ipv4Addresses.get(0) +
+                        " -Dtest.arg1=" + ipv4Addresses.get(1) +
+                        " -Dtest.arg2=" + ipv4Addresses.get(2)
+                };
+                container = dockerClient
+                        .createContainerCmd(imageAdrestusVM)
+                        .withNetworkDisabled(false)
+                        .withWorkingDir("/adrestus-consensus/")
+                        .withName("Container" + String.valueOf(i))
+                        .withCmd(buildCommand)
+                        .withHostConfig(HostConfig
+                                .newHostConfig()
+                                .withNetworkMode(networkName)
+                                .withBinds(new Bind(new File("./src").getAbsolutePath(), new Volume("/adrestus-consensus/src"))))
+                        .withIpv4Address(ipv4Addresses.get(i))
+                        .exec();
+
+                containerResponses.add(container);
+
+
+                dockerClient.startContainerCmd(container.getId()).exec();
+                System.out.println("Container started with ID: " + container.getId());
+                LogContainerCmd logContainerCmd = dockerClient.logContainerCmd(container.getId())
+                        .withStdOut(true)
+                        .withStdErr(true)
+                        .withFollowStream(true);
+                logContainerCmds.add(logContainerCmd);
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new RuntimeException(e);
+            }
+        }
+        logContainerCmds.forEach(val -> {
+            Thread.ofVirtual().start(() -> {
+                try {
+                    val.exec(new ResultCallback.Adapter<>() {
+                        boolean first = false;
+
+                        @Override
+                        public void onNext(Frame item) {
+                            String logLine = new String(item.getPayload());
+//                            System.out.println(logLine);
+                            if (logLine.contains(TransactionTestName)) {
+                                first = true;
+                            }
+                            if (first) {
+                                System.out.println(val.getContainerId() + " " + logLine);
+                                boolean containsException = containsException(logLine);
+                                if (containsException) {
+                                    throw new IllegalArgumentException("Exception found in" + "with log: " + logLine);
+                                }
+                            }
+                        }
+                    }).awaitCompletion();
+                    containerCount.getAndDecrement();
+                } catch (InterruptedException ex) {
+                    throw new RuntimeException(ex);
+                } catch (IllegalArgumentException e) {
+                    e.printStackTrace();
+                } finally {
+                }
+            });
+        });
+
+        Awaitility
+                .await()
+                .atMost(Duration.ofMinutes(8))
+                .untilAsserted(() -> {
+                    if (containerCount.get() != 0) {
+                        throw new AssertionError("Condition not met");
+                    }
+                    System.out.println("Done " + containerCount.get());
+                });
+        containerResponses.forEach(container -> {
+            // Remove the container
+            dockerClient.removeContainerCmd(container.getId()).withForce(true).withRemoveVolumes(true).exec();
         });
         dockerClient.close();
     }

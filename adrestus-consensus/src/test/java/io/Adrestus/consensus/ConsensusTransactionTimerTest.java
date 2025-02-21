@@ -5,6 +5,7 @@ import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.config.KademliaConfiguration;
 import io.Adrestus.config.RewardConfiguration;
+import io.Adrestus.config.RunningConfig;
 import io.Adrestus.consensus.helper.ConsensusTransactionTimer;
 import io.Adrestus.core.CommitteeBlock;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
@@ -88,288 +89,293 @@ public class ConsensusTransactionTimerTest {
 
     @BeforeAll
     public static void construct() throws Exception {
-        if (System.out.getClass().getName().contains("maven")) {
+        if (RunningConfig.isRunningInMaven() && !RunningConfig.isRunningInDocker() && RunningConfig.isRunningInAppveyor()) {
             return;
+        } else if (RunningConfig.isRunningInMaven() && !RunningConfig.isRunningInDocker() && !RunningConfig.isRunningInAppveyor()) {
+            return;
+        } else if ((RunningConfig.isRunningInDocker() && !RunningConfig.isRunningInAppveyor()) || !RunningConfig.isRunningInMaven()) {
+
+            CachedZoneIndex.getInstance().setZoneIndex(0);
+            List<SerializationUtil.Mapping> list = new ArrayList<>();
+            list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
+            list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
+            serenc = new SerializationUtil<Transaction>(Transaction.class, list);
+            IDatabase<String, TransactionBlock> block_database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
+            block_database.delete_db();
+            block_database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
+            IDatabase<String, byte[]> tree_datasbase = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getPatriciaTreeZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
+            tree_datasbase.delete_db();
+            tree_datasbase = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getPatriciaTreeZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
+
+            sk1 = new BLSPrivateKey(1);
+            vk1 = new BLSPublicKey(sk1);
+
+            sk2 = new BLSPrivateKey(2);
+            vk2 = new BLSPublicKey(sk2);
+
+            sk3 = new BLSPrivateKey(3);
+            vk3 = new BLSPublicKey(sk3);
+
+            sk4 = new BLSPrivateKey(4);
+            vk4 = new BLSPublicKey(sk4);
+
+
+            sk5 = new BLSPrivateKey(5);
+            vk5 = new BLSPublicKey(sk5);
+
+            sk6 = new BLSPrivateKey(6);
+            vk6 = new BLSPublicKey(sk6);
+
+            int version = 0x00;
+            addreses = new ArrayList<>();
+            keypair = new ArrayList<>();
+            char[] mnemonic1 = "sample sail jungle learn general promote task puppy own conduct green affair ".toCharArray();
+            char[] mnemonic2 = "photo monitor cushion indicate civil witness orchard estate online favorite sustain extend".toCharArray();
+            char[] mnemonic3 = "initial car bulb nature animal honey learn awful grit arrow phrase entire ".toCharArray();
+            char[] mnemonic4 = "enrich pulse twin version inject horror village aunt brief magnet blush else ".toCharArray();
+            char[] mnemonic5 = "struggle travel ketchup tomato satoshi caught fog process grace pupil item ahead ".toCharArray();
+            char[] mnemonic6 = "spare defense enhance settle sun educate peace steel broken praise fluid intact ".toCharArray();
+            char[] mnemonic7 = "harvest school flip powder plunge bitter noise artefact actor people motion sport".toCharArray();
+            char[] mnemonic8 = "crucial rule cute steak mandate source supply current remove laugh blouse dial".toCharArray();
+            char[] mnemonic9 = "skate fluid door glide pause any youth jelly spatial faith chase sad ".toCharArray();
+            char[] mnemonic10 = "abstract raise duty scare year add fluid danger include smart senior ensure".toCharArray();
+            char[] passphrase = "p4ssphr4se".toCharArray();
+
+            Mnemonic mnem = new Mnemonic(Security.NORMAL, WordList.ENGLISH);
+            byte[] key1 = mnem.createSeed(mnemonic1, passphrase);
+            byte[] key2 = mnem.createSeed(mnemonic2, passphrase);
+            byte[] key3 = mnem.createSeed(mnemonic3, passphrase);
+            byte[] key4 = mnem.createSeed(mnemonic4, passphrase);
+            byte[] key5 = mnem.createSeed(mnemonic5, passphrase);
+            byte[] key6 = mnem.createSeed(mnemonic6, passphrase);
+            byte[] key7 = mnem.createSeed(mnemonic7, passphrase);
+            byte[] key8 = mnem.createSeed(mnemonic8, passphrase);
+            byte[] key9 = mnem.createSeed(mnemonic9, passphrase);
+            byte[] key10 = mnem.createSeed(mnemonic10, passphrase);
+
+            SecureRandom random = SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
+            random.setSeed(key1);
+            ECKeyPair ecKeyPair1 = Keys.create256r1KeyPair(random);
+            random.setSeed(key2);
+            ECKeyPair ecKeyPair2 = Keys.create256r1KeyPair(random);
+            random.setSeed(key3);
+            ECKeyPair ecKeyPair3 = Keys.create256r1KeyPair(random);
+            random.setSeed(key4);
+            ECKeyPair ecKeyPair4 = Keys.create256r1KeyPair(random);
+            random.setSeed(key5);
+            ECKeyPair ecKeyPair5 = Keys.create256r1KeyPair(random);
+            random.setSeed(key6);
+            ECKeyPair ecKeyPair6 = Keys.create256r1KeyPair(random);
+            random.setSeed(key7);
+            ECKeyPair ecKeyPair7 = Keys.create256r1KeyPair(random);
+            random.setSeed(key8);
+            ECKeyPair ecKeyPair8 = Keys.create256r1KeyPair(random);
+            random.setSeed(key9);
+            ECKeyPair ecKeyPair9 = Keys.create256r1KeyPair(random);
+            random.setSeed(key10);
+            ECKeyPair ecKeyPair10 = Keys.create256r1KeyPair(random);
+            String adddress1 = WalletAddress.generate_address((byte) version, ecKeyPair1.getPublicKey());
+            String adddress2 = WalletAddress.generate_address((byte) version, ecKeyPair2.getPublicKey());
+            String adddress3 = WalletAddress.generate_address((byte) version, ecKeyPair3.getPublicKey());
+            String adddress4 = WalletAddress.generate_address((byte) version, ecKeyPair4.getPublicKey());
+            String adddress5 = WalletAddress.generate_address((byte) version, ecKeyPair5.getPublicKey());
+            String adddress6 = WalletAddress.generate_address((byte) version, ecKeyPair6.getPublicKey());
+            String adddress7 = WalletAddress.generate_address((byte) version, ecKeyPair7.getPublicKey());
+            String adddress8 = WalletAddress.generate_address((byte) version, ecKeyPair8.getPublicKey());
+            String adddress9 = WalletAddress.generate_address((byte) version, ecKeyPair9.getPublicKey());
+            String adddress10 = WalletAddress.generate_address((byte) version, ecKeyPair10.getPublicKey());
+            addreses.add(adddress1);
+            addreses.add(adddress2);
+            addreses.add(adddress3);
+            addreses.add(adddress4);
+            addreses.add(adddress5);
+            addreses.add(adddress6);
+            addreses.add(adddress7);
+            addreses.add(adddress8);
+            addreses.add(adddress9);
+            addreses.add(adddress10);
+            keypair.add(ecKeyPair1);
+            keypair.add(ecKeyPair2);
+            keypair.add(ecKeyPair3);
+            keypair.add(ecKeyPair4);
+            keypair.add(ecKeyPair5);
+            keypair.add(ecKeyPair6);
+            keypair.add(ecKeyPair7);
+            keypair.add(ecKeyPair8);
+            keypair.add(ecKeyPair9);
+            keypair.add(ecKeyPair10);
+
+            ECDSASignatureData signatureData1 = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(adddress1)), ecKeyPair1);
+            ECDSASignatureData signatureData2 = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(adddress2)), ecKeyPair2);
+            ECDSASignatureData signatureData3 = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(adddress3)), ecKeyPair3);
+            ECDSASignatureData signatureData4 = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(adddress4)), ecKeyPair4);
+            ECDSASignatureData signatureData5 = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(adddress5)), ecKeyPair5);
+            ECDSASignatureData signatureData6 = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(adddress6)), ecKeyPair6);
+
+            TreeFactory.getMemoryTree(0).store(adddress1, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0, BigDecimal.valueOf(100), BigDecimal.valueOf(40)));
+            TreeFactory.getMemoryTree(0).store(adddress2, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0, BigDecimal.valueOf(200), BigDecimal.valueOf(30)));
+            TreeFactory.getMemoryTree(0).store(adddress3, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0, BigDecimal.valueOf(300), BigDecimal.valueOf(20)));
+            TreeFactory.getMemoryTree(0).store(adddress4, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
+            TreeFactory.getMemoryTree(0).store(adddress5, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
+            TreeFactory.getMemoryTree(0).store(adddress6, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
+            TreeFactory.getMemoryTree(0).store(adddress7, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
+            TreeFactory.getMemoryTree(0).store(adddress8, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
+            TreeFactory.getMemoryTree(0).store(adddress9, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
+            TreeFactory.getMemoryTree(0).store(adddress10, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
+
+
+            TransactionBlock prevblock = new TransactionBlock();
+            CommitteeBlock committeeBlock = new CommitteeBlock();
+            committeeBlock.setGeneration(1);
+            committeeBlock.setViewID(1);
+            prevblock.setHeight(1);
+            prevblock.setViewID(0);
+            prevblock.setHash("hash");
+            prevblock.getHeaderData().setTimestamp(GetTime.GetTimeStampInString());
+            prevblock.setBlockProposer(vk1.toRaw());
+            prevblock.setLeaderPublicKey(vk1);
+
+            Bytes message2 = Bytes.wrap("Hello, world Block 2".getBytes(UTF_8));
+            BLSSignatureData BLSSignatureData1a = new BLSSignatureData();
+            BLSSignatureData BLSSignatureData2a = new BLSSignatureData();
+            BLSSignatureData BLSSignatureData3a = new BLSSignatureData();
+
+
+            BLSSignatureData1a.getSignature()[0] = BLSSignature.sign(message2.toArray(), sk1);
+            BLSSignatureData1a.getSignature()[1] = BLSSignature.sign(message2.toArray(), sk1);
+            BLSSignatureData2a.getSignature()[0] = BLSSignature.sign(message2.toArray(), sk2);
+            BLSSignatureData2a.getSignature()[1] = BLSSignature.sign(message2.toArray(), sk2);
+            BLSSignatureData3a.getSignature()[0] = BLSSignature.sign(message2.toArray(), sk3);
+            BLSSignatureData3a.getSignature()[1] = BLSSignature.sign(message2.toArray(), sk3);
+
+            BLSSignatureData1a.getMessageHash()[0] = BLSSignature.GetMessageHashAsBase64String(message2.toArray());
+            BLSSignatureData1a.getMessageHash()[1] = BLSSignature.GetMessageHashAsBase64String(message2.toArray());
+            BLSSignatureData2a.getMessageHash()[0] = BLSSignature.GetMessageHashAsBase64String(message2.toArray());
+            BLSSignatureData2a.getMessageHash()[1] = BLSSignature.GetMessageHashAsBase64String(message2.toArray());
+            BLSSignatureData3a.getMessageHash()[0] = BLSSignature.GetMessageHashAsBase64String(message2.toArray());
+            BLSSignatureData3a.getMessageHash()[1] = BLSSignature.GetMessageHashAsBase64String(message2.toArray());
+
+
+            prevblock.getSignatureData().put(vk1, BLSSignatureData1a);
+            prevblock.getSignatureData().put(vk2, BLSSignatureData2a);
+            prevblock.getSignatureData().put(vk3, BLSSignatureData3a);
+
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            CachedStartHeightRewards.getInstance().setHeight(1);
+            CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
+            CachedLatestBlocks.getInstance().setTransactionBlock(prevblock);
+            block_database.save(String.valueOf(prevblock.getHeight()), prevblock);
+
+            kad1 = new KademliaData(new SecurityAuditProofs(adddress1, vk1, ecKeyPair1.getPublicKey(), signatureData1), new NettyConnectionInfo(System.getProperty("test.arg0") == null ? "192.168.1.106" : System.getProperty("test.arg0"), KademliaConfiguration.PORT));
+            kad2 = new KademliaData(new SecurityAuditProofs(adddress2, vk2, ecKeyPair2.getPublicKey(), signatureData2), new NettyConnectionInfo(System.getProperty("test.arg1") == null ? "192.168.1.115" : System.getProperty("test.arg1"), KademliaConfiguration.PORT));
+            kad3 = new KademliaData(new SecurityAuditProofs(adddress3, vk3, ecKeyPair3.getPublicKey(), signatureData3), new NettyConnectionInfo(System.getProperty("test.arg2") == null ? "192.168.1.111" : System.getProperty("test.arg2"), KademliaConfiguration.PORT));
+
+            System.out.println("ADRESS: " + adddress1 + " KEY1  " + vk1.toString());
+            System.out.println("ADRESS: " + adddress2 + " KEY2  " + vk2.toString());
+            System.out.println("ADRESS: " + adddress3 + " KEY3  " + vk3.toString());
+            CachedLatestBlocks.getInstance().getCommitteeBlock().getStakingMap().put(new StakingData(1, BigDecimal.valueOf(100.0)), kad3);
+            CachedLatestBlocks.getInstance().getCommitteeBlock().getStakingMap().put(new StakingData(2, BigDecimal.valueOf(200.0)), kad2);
+            CachedLatestBlocks.getInstance().getCommitteeBlock().getStakingMap().put(new StakingData(3, BigDecimal.valueOf(300.0)), kad1);
+
+            CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).put(vk1, System.getProperty("test.arg0") == null ? "192.168.1.106" : System.getProperty("test.arg0"));
+            //CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).put(vk2, "192.168.1.110");
+            CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).put(vk2, System.getProperty("test.arg1") == null ? "192.168.1.115" : System.getProperty("test.arg1"));
+            // CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).put(vk4, "192.168.1.115");
+            CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).put(vk3, System.getProperty("test.arg2") == null ? "192.168.1.111" : System.getProperty("test.arg2"));
+            // CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).put(vk6, "192.168.1.104");
+            CachedZoneIndex.getInstance().setZoneIndexInternalIP();
         }
-
-        CachedZoneIndex.getInstance().setZoneIndex(0);
-        List<SerializationUtil.Mapping> list = new ArrayList<>();
-        list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
-        list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
-        serenc = new SerializationUtil<Transaction>(Transaction.class, list);
-        IDatabase<String, TransactionBlock> block_database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
-        block_database.delete_db();
-        block_database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
-        IDatabase<String, byte[]> tree_datasbase = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getPatriciaTreeZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
-        tree_datasbase.delete_db();
-        tree_datasbase = new DatabaseFactory(String.class, byte[].class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getPatriciaTreeZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
-
-        sk1 = new BLSPrivateKey(1);
-        vk1 = new BLSPublicKey(sk1);
-
-        sk2 = new BLSPrivateKey(2);
-        vk2 = new BLSPublicKey(sk2);
-
-        sk3 = new BLSPrivateKey(3);
-        vk3 = new BLSPublicKey(sk3);
-
-        sk4 = new BLSPrivateKey(4);
-        vk4 = new BLSPublicKey(sk4);
-
-
-        sk5 = new BLSPrivateKey(5);
-        vk5 = new BLSPublicKey(sk5);
-
-        sk6 = new BLSPrivateKey(6);
-        vk6 = new BLSPublicKey(sk6);
-
-        int version = 0x00;
-        addreses = new ArrayList<>();
-        keypair = new ArrayList<>();
-        char[] mnemonic1 = "sample sail jungle learn general promote task puppy own conduct green affair ".toCharArray();
-        char[] mnemonic2 = "photo monitor cushion indicate civil witness orchard estate online favorite sustain extend".toCharArray();
-        char[] mnemonic3 = "initial car bulb nature animal honey learn awful grit arrow phrase entire ".toCharArray();
-        char[] mnemonic4 = "enrich pulse twin version inject horror village aunt brief magnet blush else ".toCharArray();
-        char[] mnemonic5 = "struggle travel ketchup tomato satoshi caught fog process grace pupil item ahead ".toCharArray();
-        char[] mnemonic6 = "spare defense enhance settle sun educate peace steel broken praise fluid intact ".toCharArray();
-        char[] mnemonic7 = "harvest school flip powder plunge bitter noise artefact actor people motion sport".toCharArray();
-        char[] mnemonic8 = "crucial rule cute steak mandate source supply current remove laugh blouse dial".toCharArray();
-        char[] mnemonic9 = "skate fluid door glide pause any youth jelly spatial faith chase sad ".toCharArray();
-        char[] mnemonic10 = "abstract raise duty scare year add fluid danger include smart senior ensure".toCharArray();
-        char[] passphrase = "p4ssphr4se".toCharArray();
-
-        Mnemonic mnem = new Mnemonic(Security.NORMAL, WordList.ENGLISH);
-        byte[] key1 = mnem.createSeed(mnemonic1, passphrase);
-        byte[] key2 = mnem.createSeed(mnemonic2, passphrase);
-        byte[] key3 = mnem.createSeed(mnemonic3, passphrase);
-        byte[] key4 = mnem.createSeed(mnemonic4, passphrase);
-        byte[] key5 = mnem.createSeed(mnemonic5, passphrase);
-        byte[] key6 = mnem.createSeed(mnemonic6, passphrase);
-        byte[] key7 = mnem.createSeed(mnemonic7, passphrase);
-        byte[] key8 = mnem.createSeed(mnemonic8, passphrase);
-        byte[] key9 = mnem.createSeed(mnemonic9, passphrase);
-        byte[] key10 = mnem.createSeed(mnemonic10, passphrase);
-
-        SecureRandom random = SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
-        random.setSeed(key1);
-        ECKeyPair ecKeyPair1 = Keys.create256r1KeyPair(random);
-        random.setSeed(key2);
-        ECKeyPair ecKeyPair2 = Keys.create256r1KeyPair(random);
-        random.setSeed(key3);
-        ECKeyPair ecKeyPair3 = Keys.create256r1KeyPair(random);
-        random.setSeed(key4);
-        ECKeyPair ecKeyPair4 = Keys.create256r1KeyPair(random);
-        random.setSeed(key5);
-        ECKeyPair ecKeyPair5 = Keys.create256r1KeyPair(random);
-        random.setSeed(key6);
-        ECKeyPair ecKeyPair6 = Keys.create256r1KeyPair(random);
-        random.setSeed(key7);
-        ECKeyPair ecKeyPair7 = Keys.create256r1KeyPair(random);
-        random.setSeed(key8);
-        ECKeyPair ecKeyPair8 = Keys.create256r1KeyPair(random);
-        random.setSeed(key9);
-        ECKeyPair ecKeyPair9 = Keys.create256r1KeyPair(random);
-        random.setSeed(key10);
-        ECKeyPair ecKeyPair10 = Keys.create256r1KeyPair(random);
-        String adddress1 = WalletAddress.generate_address((byte) version, ecKeyPair1.getPublicKey());
-        String adddress2 = WalletAddress.generate_address((byte) version, ecKeyPair2.getPublicKey());
-        String adddress3 = WalletAddress.generate_address((byte) version, ecKeyPair3.getPublicKey());
-        String adddress4 = WalletAddress.generate_address((byte) version, ecKeyPair4.getPublicKey());
-        String adddress5 = WalletAddress.generate_address((byte) version, ecKeyPair5.getPublicKey());
-        String adddress6 = WalletAddress.generate_address((byte) version, ecKeyPair6.getPublicKey());
-        String adddress7 = WalletAddress.generate_address((byte) version, ecKeyPair7.getPublicKey());
-        String adddress8 = WalletAddress.generate_address((byte) version, ecKeyPair8.getPublicKey());
-        String adddress9 = WalletAddress.generate_address((byte) version, ecKeyPair9.getPublicKey());
-        String adddress10 = WalletAddress.generate_address((byte) version, ecKeyPair10.getPublicKey());
-        addreses.add(adddress1);
-        addreses.add(adddress2);
-        addreses.add(adddress3);
-        addreses.add(adddress4);
-        addreses.add(adddress5);
-        addreses.add(adddress6);
-        addreses.add(adddress7);
-        addreses.add(adddress8);
-        addreses.add(adddress9);
-        addreses.add(adddress10);
-        keypair.add(ecKeyPair1);
-        keypair.add(ecKeyPair2);
-        keypair.add(ecKeyPair3);
-        keypair.add(ecKeyPair4);
-        keypair.add(ecKeyPair5);
-        keypair.add(ecKeyPair6);
-        keypair.add(ecKeyPair7);
-        keypair.add(ecKeyPair8);
-        keypair.add(ecKeyPair9);
-        keypair.add(ecKeyPair10);
-
-        ECDSASignatureData signatureData1 = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(adddress1)), ecKeyPair1);
-        ECDSASignatureData signatureData2 = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(adddress2)), ecKeyPair2);
-        ECDSASignatureData signatureData3 = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(adddress3)), ecKeyPair3);
-        ECDSASignatureData signatureData4 = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(adddress4)), ecKeyPair4);
-        ECDSASignatureData signatureData5 = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(adddress5)), ecKeyPair5);
-        ECDSASignatureData signatureData6 = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(adddress6)), ecKeyPair6);
-
-        TreeFactory.getMemoryTree(0).store(adddress1, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0, BigDecimal.valueOf(100), BigDecimal.valueOf(40)));
-        TreeFactory.getMemoryTree(0).store(adddress2, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0, BigDecimal.valueOf(200), BigDecimal.valueOf(30)));
-        TreeFactory.getMemoryTree(0).store(adddress3, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0, BigDecimal.valueOf(300), BigDecimal.valueOf(20)));
-        TreeFactory.getMemoryTree(0).store(adddress4, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
-        TreeFactory.getMemoryTree(0).store(adddress5, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
-        TreeFactory.getMemoryTree(0).store(adddress6, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
-        TreeFactory.getMemoryTree(0).store(adddress7, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
-        TreeFactory.getMemoryTree(0).store(adddress8, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
-        TreeFactory.getMemoryTree(0).store(adddress9, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
-        TreeFactory.getMemoryTree(0).store(adddress10, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
-
-
-        TransactionBlock prevblock = new TransactionBlock();
-        CommitteeBlock committeeBlock = new CommitteeBlock();
-        committeeBlock.setGeneration(1);
-        committeeBlock.setViewID(1);
-        prevblock.setHeight(1);
-        prevblock.setViewID(0);
-        prevblock.setHash("hash");
-        prevblock.getHeaderData().setTimestamp(GetTime.GetTimeStampInString());
-        prevblock.setBlockProposer(vk1.toRaw());
-        prevblock.setLeaderPublicKey(vk1);
-
-        Bytes message2 = Bytes.wrap("Hello, world Block 2".getBytes(UTF_8));
-        BLSSignatureData BLSSignatureData1a = new BLSSignatureData();
-        BLSSignatureData BLSSignatureData2a = new BLSSignatureData();
-        BLSSignatureData BLSSignatureData3a = new BLSSignatureData();
-
-
-        BLSSignatureData1a.getSignature()[0] = BLSSignature.sign(message2.toArray(), sk1);
-        BLSSignatureData1a.getSignature()[1] = BLSSignature.sign(message2.toArray(), sk1);
-        BLSSignatureData2a.getSignature()[0] = BLSSignature.sign(message2.toArray(), sk2);
-        BLSSignatureData2a.getSignature()[1] = BLSSignature.sign(message2.toArray(), sk2);
-        BLSSignatureData3a.getSignature()[0] = BLSSignature.sign(message2.toArray(), sk3);
-        BLSSignatureData3a.getSignature()[1] = BLSSignature.sign(message2.toArray(), sk3);
-
-        BLSSignatureData1a.getMessageHash()[0] = BLSSignature.GetMessageHashAsBase64String(message2.toArray());
-        BLSSignatureData1a.getMessageHash()[1] = BLSSignature.GetMessageHashAsBase64String(message2.toArray());
-        BLSSignatureData2a.getMessageHash()[0] = BLSSignature.GetMessageHashAsBase64String(message2.toArray());
-        BLSSignatureData2a.getMessageHash()[1] = BLSSignature.GetMessageHashAsBase64String(message2.toArray());
-        BLSSignatureData3a.getMessageHash()[0] = BLSSignature.GetMessageHashAsBase64String(message2.toArray());
-        BLSSignatureData3a.getMessageHash()[1] = BLSSignature.GetMessageHashAsBase64String(message2.toArray());
-
-
-        prevblock.getSignatureData().put(vk1, BLSSignatureData1a);
-        prevblock.getSignatureData().put(vk2, BLSSignatureData2a);
-        prevblock.getSignatureData().put(vk3, BLSSignatureData3a);
-
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        CachedStartHeightRewards.getInstance().setHeight(1);
-        CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
-        CachedLatestBlocks.getInstance().setTransactionBlock(prevblock);
-        block_database.save(String.valueOf(prevblock.getHeight()), prevblock);
-
-        kad1 = new KademliaData(new SecurityAuditProofs(adddress1, vk1, ecKeyPair1.getPublicKey(), signatureData1), new NettyConnectionInfo("192.168.1.106", KademliaConfiguration.PORT));
-        kad2 = new KademliaData(new SecurityAuditProofs(adddress2, vk2, ecKeyPair2.getPublicKey(), signatureData2), new NettyConnectionInfo("192.168.1.115", KademliaConfiguration.PORT));
-        kad3 = new KademliaData(new SecurityAuditProofs(adddress3, vk3, ecKeyPair3.getPublicKey(), signatureData3), new NettyConnectionInfo("192.168.1.116", KademliaConfiguration.PORT));
-
-        System.out.println("ADRESS: " + adddress1 + " KEY1  " + vk1.toString());
-        System.out.println("ADRESS: " + adddress2 + " KEY2  " + vk2.toString());
-        System.out.println("ADRESS: " + adddress3 + " KEY3  " + vk3.toString());
-        CachedLatestBlocks.getInstance().getCommitteeBlock().getStakingMap().put(new StakingData(1, BigDecimal.valueOf(100.0)), kad3);
-        CachedLatestBlocks.getInstance().getCommitteeBlock().getStakingMap().put(new StakingData(2, BigDecimal.valueOf(200.0)), kad2);
-        CachedLatestBlocks.getInstance().getCommitteeBlock().getStakingMap().put(new StakingData(3, BigDecimal.valueOf(300.0)), kad1);
-
-        CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).put(vk1, "192.168.1.106");
-        //CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).put(vk2, "192.168.1.110");
-        CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).put(vk2, "192.168.1.115");
-        // CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).put(vk4, "192.168.1.115");
-        CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).put(vk3, "192.168.1.116");
-        // CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).put(vk6, "192.168.1.104");
-        CachedZoneIndex.getInstance().setZoneIndexInternalIP();
     }
 
 
     @Test
     public void consensus_timer_test() throws Exception {
-        if (System.out.getClass().getName().contains("maven")) {
+        if (RunningConfig.isRunningInMaven() && !RunningConfig.isRunningInDocker() && RunningConfig.isRunningInAppveyor()) {
             return;
-        }
-        Socket socket = new Socket();
-        socket.connect(new InetSocketAddress("google.com", 80));
-        String IP = socket.getLocalAddress().getHostAddress();
-        int hit = 0;
-        for (Map.Entry<BLSPublicKey, String> entry : CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).entrySet()) {
-            if (IP.equals(entry.getValue())) {
-                if (vk1.equals(entry.getKey())) {
-                    CachedBLSKeyPair.getInstance().setPrivateKey(sk1);
-                    CachedBLSKeyPair.getInstance().setPublicKey(vk1);
-                } else if (vk2.equals(entry.getKey())) {
-                    CachedBLSKeyPair.getInstance().setPrivateKey(sk2);
-                    CachedBLSKeyPair.getInstance().setPublicKey(vk2);
-                } else if (vk3.equals(entry.getKey())) {
-                    CachedBLSKeyPair.getInstance().setPrivateKey(sk3);
-                    CachedBLSKeyPair.getInstance().setPublicKey(vk3);
-                } else if (vk4.equals(entry.getKey())) {
-                    CachedBLSKeyPair.getInstance().setPrivateKey(sk4);
-                    CachedBLSKeyPair.getInstance().setPublicKey(vk4);
-                } else if (vk5.equals(entry.getKey())) {
-                    CachedBLSKeyPair.getInstance().setPrivateKey(sk5);
-                    CachedBLSKeyPair.getInstance().setPublicKey(vk5);
-                } else if (vk6.equals(entry.getKey())) {
-                    CachedBLSKeyPair.getInstance().setPrivateKey(sk6);
-                    CachedBLSKeyPair.getInstance().setPublicKey(vk6);
+        } else if (RunningConfig.isRunningInMaven() && !RunningConfig.isRunningInDocker() && !RunningConfig.isRunningInAppveyor()) {
+            return;
+        } else if ((RunningConfig.isRunningInDocker() && !RunningConfig.isRunningInAppveyor()) || !RunningConfig.isRunningInMaven()) {
+            Socket socket = new Socket();
+            socket.connect(new InetSocketAddress("google.com", 80));
+            String IP = socket.getLocalAddress().getHostAddress();
+            int hit = 0;
+            for (Map.Entry<BLSPublicKey, String> entry : CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).entrySet()) {
+                if (IP.equals(entry.getValue())) {
+                    if (vk1.equals(entry.getKey())) {
+                        CachedBLSKeyPair.getInstance().setPrivateKey(sk1);
+                        CachedBLSKeyPair.getInstance().setPublicKey(vk1);
+                    } else if (vk2.equals(entry.getKey())) {
+                        CachedBLSKeyPair.getInstance().setPrivateKey(sk2);
+                        CachedBLSKeyPair.getInstance().setPublicKey(vk2);
+                    } else if (vk3.equals(entry.getKey())) {
+                        CachedBLSKeyPair.getInstance().setPrivateKey(sk3);
+                        CachedBLSKeyPair.getInstance().setPublicKey(vk3);
+                    } else if (vk4.equals(entry.getKey())) {
+                        CachedBLSKeyPair.getInstance().setPrivateKey(sk4);
+                        CachedBLSKeyPair.getInstance().setPublicKey(vk4);
+                    } else if (vk5.equals(entry.getKey())) {
+                        CachedBLSKeyPair.getInstance().setPrivateKey(sk5);
+                        CachedBLSKeyPair.getInstance().setPublicKey(vk5);
+                    } else if (vk6.equals(entry.getKey())) {
+                        CachedBLSKeyPair.getInstance().setPrivateKey(sk6);
+                        CachedBLSKeyPair.getInstance().setPublicKey(vk6);
+                    }
+                    hit = 1;
+                    break;
                 }
-                hit = 1;
-                break;
             }
+            if (hit == 0)
+                return;
+
+            CachedEventLoop.getInstance().start();
+            addreses_old = new ArrayList<>(addreses);
+            // 5 is the deafult
+            CountDownLatch latch = new CountDownLatch(5);
+            ConsensusTransactionTimer c = new ConsensusTransactionTimer(latch, addreses, keypair);
+            latch.await();
+            c.close();
+
+            //assertEquals(TreeFactory.getMemoryTree(1).getByaddress(addreses.get(0)).get().getAmount(), TreeFactory.getMemoryTree(1).getByaddress(addreses.get(0)).get().getAmount()-100);
+            for (int i = 0; i < addreses.size() - 1; i++) {
+                System.out.println(addreses.get(i) + " " + TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(addreses.get(i)).get().getAmount() + " " + TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(addreses.get(i)).get().getUnclaimed_reward());
+            }
+
+            IDatabase<String, TransactionBlock> block_database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
+            Map<String, TransactionBlock> res = block_database.seekFromStart();
+            Map<String, BigDecimal> claimed = new HashMap<>();
+            for (Map.Entry<String, TransactionBlock> entry : res.entrySet()) {
+                BigDecimal sum = entry.getValue().getTransactionList().stream().map(Transaction::getAmountWithTransactionFee).reduce(BigDecimal.ZERO, BigDecimal::add);
+                String address = CachedLatestBlocks.getInstance().getCommitteeBlock().getStakingMap().values().stream().map(KademliaData::getAddressData).filter(val -> val.getValidatorBlSPublicKey().equals(entry.getValue().getLeaderPublicKey())).findFirst().get().getAddress();
+                if (claimed.get(address) == null)
+                    claimed.put(address, sum);
+                else
+                    claimed.put(address, sum.add(claimed.get(address)));
+            }
+
+            //be aware that print functionality is  different it works only for latch 5
+            assertEquals(1.784998, TreeFactory.getMemoryTree(0).getByaddress("ADR-ADZE-7PQZ-2QGJ-FBKQ-ATF7-LWY3-HRXX-4QR6-FR4L-KPPM").get().getUnclaimed_reward().subtract(claimed.get("ADR-ADZE-7PQZ-2QGJ-FBKQ-ATF7-LWY3-HRXX-4QR6-FR4L-KPPM")).doubleValue());
+            assertEquals(1.190001, TreeFactory.getMemoryTree(0).getByaddress("ADR-ACVU-D5FH-VD2I-6WCM-74MN-MX6Q-5ZM2-CMH7-FNWO-ZA3W").get().getUnclaimed_reward().subtract(claimed.get("ADR-ACVU-D5FH-VD2I-6WCM-74MN-MX6Q-5ZM2-CMH7-FNWO-ZA3W")).doubleValue());
+            assertEquals(BigDecimal.valueOf(2.473339 - 0.10).setScale(RewardConfiguration.DECIMAL_PRECISION, RewardConfiguration.ROUNDING), TreeFactory.getMemoryTree(0).getByaddress("ADR-ADSZ-SLEU-HOHN-G7GM-L565-4EBG-566P-S7FM-SUI4-YLLW").get().getUnclaimed_reward().subtract(claimed.get("ADR-ADSZ-SLEU-HOHN-G7GM-L565-4EBG-566P-S7FM-SUI4-YLLW")));
+
+            assertEquals(1.190001, TreeFactory.getMemoryTree(0).getByaddress("ADR-ACVU-D5FH-VD2I-6WCM-74MN-MX6Q-5ZM2-CMH7-FNWO-ZA3W").get().getUnclaimed_reward().subtract(claimed.get("ADR-ACVU-D5FH-VD2I-6WCM-74MN-MX6Q-5ZM2-CMH7-FNWO-ZA3W")).doubleValue());
+            assertEquals(1.784998, TreeFactory.getMemoryTree(0).getByaddress("ADR-ADZE-7PQZ-2QGJ-FBKQ-ATF7-LWY3-HRXX-4QR6-FR4L-KPPM").get().getUnclaimed_reward().subtract(claimed.get("ADR-ADZE-7PQZ-2QGJ-FBKQ-ATF7-LWY3-HRXX-4QR6-FR4L-KPPM")).doubleValue());
+            assertEquals(BigDecimal.valueOf(2.473339 - 0.10).setScale(RewardConfiguration.DECIMAL_PRECISION, RewardConfiguration.ROUNDING), TreeFactory.getMemoryTree(0).getByaddress("ADR-ADSZ-SLEU-HOHN-G7GM-L565-4EBG-566P-S7FM-SUI4-YLLW").get().getUnclaimed_reward().subtract(claimed.get("ADR-ADSZ-SLEU-HOHN-G7GM-L565-4EBG-566P-S7FM-SUI4-YLLW")));
+
+            assertEquals(989.1, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(0)).get().getAmount().doubleValue());
+            assertEquals(984.8, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(1)).get().getAmount().doubleValue());
+            assertEquals(993.4, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(2)).get().getAmount().doubleValue());
+            assertEquals(993.0, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(3)).get().getAmount().doubleValue());
+            assertEquals(1008.0, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(4)).get().getAmount().doubleValue());
+            assertEquals(996.1, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(5)).get().getAmount().doubleValue());
+            assertEquals(1013.5, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(6)).get().getAmount().doubleValue());
+            assertEquals(1000.0, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(7)).get().getAmount().doubleValue());
+            assertEquals(1000.0, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(8)).get().getAmount().doubleValue());
+
         }
-        if (hit == 0)
-            return;
-
-        CachedEventLoop.getInstance().start();
-        addreses_old = new ArrayList<>(addreses);
-        // 5 is the deafult
-        CountDownLatch latch = new CountDownLatch(5);
-        ConsensusTransactionTimer c = new ConsensusTransactionTimer(latch, addreses, keypair);
-        latch.await();
-        c.close();
-
-        //assertEquals(TreeFactory.getMemoryTree(1).getByaddress(addreses.get(0)).get().getAmount(), TreeFactory.getMemoryTree(1).getByaddress(addreses.get(0)).get().getAmount()-100);
-        for (int i = 0; i < addreses.size() - 1; i++) {
-            System.out.println(addreses.get(i) + " " + TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(addreses.get(i)).get().getAmount() + " " + TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).getByaddress(addreses.get(i)).get().getUnclaimed_reward());
-        }
-
-        IDatabase<String, TransactionBlock> block_database = new DatabaseFactory(String.class, TransactionBlock.class).getDatabase(DatabaseType.ROCKS_DB, ZoneDatabaseFactory.getZoneInstance(CachedZoneIndex.getInstance().getZoneIndex()));
-        Map<String, TransactionBlock> res = block_database.seekFromStart();
-        Map<String, BigDecimal> claimed = new HashMap<>();
-        for (Map.Entry<String, TransactionBlock> entry : res.entrySet()) {
-            BigDecimal sum = entry.getValue().getTransactionList().stream().map(Transaction::getAmountWithTransactionFee).reduce(BigDecimal.ZERO, BigDecimal::add);
-            String address = CachedLatestBlocks.getInstance().getCommitteeBlock().getStakingMap().values().stream().map(KademliaData::getAddressData).filter(val -> val.getValidatorBlSPublicKey().equals(entry.getValue().getLeaderPublicKey())).findFirst().get().getAddress();
-            if (claimed.get(address) == null)
-                claimed.put(address, sum);
-            else
-                claimed.put(address, sum.add(claimed.get(address)));
-        }
-
-        //be aware that print functionality is  different it works only for latch 5
-        assertEquals(1.784998, TreeFactory.getMemoryTree(0).getByaddress("ADR-ADZE-7PQZ-2QGJ-FBKQ-ATF7-LWY3-HRXX-4QR6-FR4L-KPPM").get().getUnclaimed_reward().subtract(claimed.get("ADR-ADZE-7PQZ-2QGJ-FBKQ-ATF7-LWY3-HRXX-4QR6-FR4L-KPPM")).doubleValue());
-        assertEquals(1.190001, TreeFactory.getMemoryTree(0).getByaddress("ADR-ACVU-D5FH-VD2I-6WCM-74MN-MX6Q-5ZM2-CMH7-FNWO-ZA3W").get().getUnclaimed_reward().subtract(claimed.get("ADR-ACVU-D5FH-VD2I-6WCM-74MN-MX6Q-5ZM2-CMH7-FNWO-ZA3W")).doubleValue());
-        assertEquals(BigDecimal.valueOf(2.473339 - 0.10).setScale(RewardConfiguration.DECIMAL_PRECISION, RewardConfiguration.ROUNDING), TreeFactory.getMemoryTree(0).getByaddress("ADR-ADSZ-SLEU-HOHN-G7GM-L565-4EBG-566P-S7FM-SUI4-YLLW").get().getUnclaimed_reward().subtract(claimed.get("ADR-ADSZ-SLEU-HOHN-G7GM-L565-4EBG-566P-S7FM-SUI4-YLLW")));
-
-        assertEquals(1.190001, TreeFactory.getMemoryTree(0).getByaddress("ADR-ACVU-D5FH-VD2I-6WCM-74MN-MX6Q-5ZM2-CMH7-FNWO-ZA3W").get().getUnclaimed_reward().subtract(claimed.get("ADR-ACVU-D5FH-VD2I-6WCM-74MN-MX6Q-5ZM2-CMH7-FNWO-ZA3W")).doubleValue());
-        assertEquals(1.784998, TreeFactory.getMemoryTree(0).getByaddress("ADR-ADZE-7PQZ-2QGJ-FBKQ-ATF7-LWY3-HRXX-4QR6-FR4L-KPPM").get().getUnclaimed_reward().subtract(claimed.get("ADR-ADZE-7PQZ-2QGJ-FBKQ-ATF7-LWY3-HRXX-4QR6-FR4L-KPPM")).doubleValue());
-        assertEquals(BigDecimal.valueOf(2.473339 - 0.10).setScale(RewardConfiguration.DECIMAL_PRECISION, RewardConfiguration.ROUNDING), TreeFactory.getMemoryTree(0).getByaddress("ADR-ADSZ-SLEU-HOHN-G7GM-L565-4EBG-566P-S7FM-SUI4-YLLW").get().getUnclaimed_reward().subtract(claimed.get("ADR-ADSZ-SLEU-HOHN-G7GM-L565-4EBG-566P-S7FM-SUI4-YLLW")));
-
-        assertEquals(989.1, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(0)).get().getAmount().doubleValue());
-        assertEquals(984.8, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(1)).get().getAmount().doubleValue());
-        assertEquals(993.4, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(2)).get().getAmount().doubleValue());
-        assertEquals(993.0, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(3)).get().getAmount().doubleValue());
-        assertEquals(1008.0, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(4)).get().getAmount().doubleValue());
-        assertEquals(996.1, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(5)).get().getAmount().doubleValue());
-        assertEquals(1013.5, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(6)).get().getAmount().doubleValue());
-        assertEquals(1000.0, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(7)).get().getAmount().doubleValue());
-        assertEquals(1000.0, TreeFactory.getMemoryTree(0).getByaddress(addreses.get(8)).get().getAmount().doubleValue());
-
-
     }
  /*   public static void setup() throws Exception {
 
