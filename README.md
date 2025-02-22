@@ -1,9 +1,9 @@
 <div>
 <h1 align="center">
     <br>
-      <img align="left" src="https://github.com/Adrestus-net/Adrestus/blob/master/files/blocckhain.gif" alt="Snow" width="200"></td>
-      <img src="./files/logo.jpg" alt="Forest"width="200"></td>
-      <img align="right" width="200" src="https://github.com/Adrestus-net/Adrestus/blob/master/files/blocckhain.gif" style="box-sizing: border-box;"></td>
+      <img align="left" src="https://github.com/Adrestus-net/Adrestus/blob/master/images/blocckhain.gif" alt="Snow" width="200"></td>
+      <img src="images/logo.jpg" alt="Forest"width="200"></td>
+      <img align="right" width="200" src="https://github.com/Adrestus-net/Adrestus/blob/master/images/blocckhain.gif" style="box-sizing: border-box;"></td>
    <br>
 </h1>
 </div>

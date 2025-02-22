@@ -257,6 +257,7 @@
     <module>adrestus-api</module>
     <module>adrestus-bloom-filter</module>
     <module>adrestus-erasure-code</module>
+    <module>adrestus-shared-resources</module>
   </modules>
   <repositories>
     <repository>
@@ -289,7 +290,7 @@
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter</artifactId>
-      <version>5.11.3</version>
+      <version>5.12.0-RC2</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>
@@ -301,7 +302,7 @@
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-engine</artifactId>
-      <version>5.11.3</version>
+      <version>5.12.0-RC2</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>
@@ -317,7 +318,7 @@
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-api</artifactId>
-      <version>5.11.3</version>
+      <version>5.12.0-RC2</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>
@@ -369,7 +370,6 @@
     <maven-javadoc-plugin.version>3.10.0</maven-javadoc-plugin.version>
     <slf4j.version>2.0.16</slf4j.version>
     <kr.motd.maven>1.7.1</kr.motd.maven>
-    <test.containers.version>1.20.4</test.containers.version>
     <lz4.version>1.8.0</lz4.version>
     <logback.version>1.5.16</logback.version>
     <awaitutility.version>4.2.2</awaitutility.version>
@@ -379,28 +379,29 @@
     <maven-shade-plugin.version>3.6.0</maven-shade-plugin.version>
     <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
     <docker.api>3.4.1</docker.api>
-    <fury_core.version>0.9.0</fury_core.version>
+    <fury_core.version>0.10.0</fury_core.version>
     <maven-surefire-plugin.version>3.5.2</maven-surefire-plugin.version>
     <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
     <buildnumber-maven-plugin.version>3.2.1</buildnumber-maven-plugin.version>
     <exec-maven-plugin.version>3.4.1</exec-maven-plugin.version>
     <jmh.version>1.37</jmh.version>
+    <netty.version>4.2.0.RC3</netty.version>
     <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
     <activej.version>6.0-beta2</activej.version>
     <commons_net.version>3.11.1</commons_net.version>
-    <fastjson2.version>2.0.53</fastjson2.version>
-    <scala-library.version>2.13.16</scala-library.version>
-    <guava.version>33.3.1-jre</guava.version>
+    <fastjson2.version>2.0.55</fastjson2.version>
+    <scala-library.version>3.7.0-RC1-bin-20250219-345b2da-NIGHTLY</scala-library.version>
+    <guava.version>33.4.0-jre</guava.version>
     <maven-assembly-plugin>3.7.1</maven-assembly-plugin>
     <asm.version>9.7.1</asm.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <commonos_lang.version>3.12.0</commonos_lang.version>
+    <commonos_lang.version>3.17.0</commonos_lang.version>
     <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
-    <jupiter.version>5.11.3</jupiter.version>
+    <jupiter.version>5.12.0-RC2</jupiter.version>
     <java.version>21</java.version>
     <lombok.version>1.18.36</lombok.version>
     <maven.compiler.target>${java.version}</maven.compiler.target>
-    <comons_collections4.version>4.5.0-M2</comons_collections4.version>
+    <comons_collections4.version>4.5.0-M3</comons_collections4.version>
     <tuweni.verison>2.4.2</tuweni.verison>
   </properties>
 </project>

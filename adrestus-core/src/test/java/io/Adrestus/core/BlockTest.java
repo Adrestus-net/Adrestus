@@ -648,8 +648,13 @@ public class BlockTest {
             transactionBlock.setHash(HashUtil.sha256_bytetoString(tohash));
 
             TransactionBlock cloned = transactionBlock.clone();
+            TransactionBlock cloned2 = transactionBlock.clone();
             assertEquals(transactionBlock, cloned);
+            assertEquals(transactionBlock, cloned2);
             assertEquals(HashUtil.sha256_bytetoString(SerializationUtils.serialize(cloned)), (HashUtil.sha256_bytetoString(SerializationUtils.serialize(transactionBlock))));
+            assertEquals(HashUtil.sha256_bytetoString(SerializationUtils.serialize(cloned2)), (HashUtil.sha256_bytetoString(SerializationUtils.serialize(transactionBlock))));
+            cloned2.getOutbound().getMap_receipts().put(23,null);
+            assertNotEquals(cloned2,transactionBlock);
             cloned.setHash("");
             assertEquals(HashUtil.sha256_bytetoString(serenc.encode(cloned, size)), (HashUtil.sha256_bytetoString(tohash)));
             assertNotEquals(transactionBlock, cloned);

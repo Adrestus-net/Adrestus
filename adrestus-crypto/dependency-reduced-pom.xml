@@ -13,7 +13,7 @@
   <build>
     <resources>
       <resource>
-        <directory>src/resources</directory>
+        <directory>../adrestus-shared-resources/src/resources</directory>
         <includes>
           <include>**/*.dll</include>
           <include>**/*.so</include>
@@ -159,7 +159,7 @@
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter</artifactId>
-      <version>5.11.3</version>
+      <version>5.12.0-RC2</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>
@@ -171,7 +171,7 @@
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-engine</artifactId>
-      <version>5.11.3</version>
+      <version>5.12.0-RC2</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>
@@ -187,7 +187,7 @@
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-api</artifactId>
-      <version>5.11.3</version>
+      <version>5.12.0-RC2</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>
@@ -225,17 +225,19 @@
   </dependencies>
   <properties>
     <conscrypt.version>2.5.2</conscrypt.version>
+    <adrestus-shared-resources.version>1.0-SNAPSHOT</adrestus-shared-resources.version>
     <milagro.version>0.4.0</milagro.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <http.components>5.3.1</http.components>
+    <http.components>5.3.3</http.components>
     <openhft.version>0.27ea0</openhft.version>
-    <jna.version>5.15.0</jna.version>
-    <codec.version>1.17.1</codec.version>
-    <bcprov.version>1.79</bcprov.version>
+    <jna.version>5.16.0</jna.version>
+    <codec.version>1.18.0</codec.version>
+    <bcprov.version>1.80</bcprov.version>
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <config.version>1.0-SNAPSHOT</config.version>
     <spongycastle.version>1.58.0.0</spongycastle.version>
     <maven.compiler.target>${java.version}</maven.compiler.target>
+    <fst.version>2.56</fst.version>
     <jnr.version>2.2.17</jnr.version>
   </properties>
 </project>

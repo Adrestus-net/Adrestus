@@ -4,6 +4,7 @@ import io.Adrestus.TreeFactory;
 import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.config.KademliaConfiguration;
+import io.Adrestus.config.RunningConfig;
 import io.Adrestus.consensus.helper.ConsensusCommitteeTimer;
 import io.Adrestus.core.CommitteeBlock;
 import io.Adrestus.core.Resourses.CachedLatestBlocks;
@@ -25,11 +26,13 @@ import io.Adrestus.crypto.mnemonic.WordList;
 import io.Adrestus.network.CachedEventLoop;
 import io.Adrestus.p2p.kademlia.common.NettyConnectionInfo;
 import io.Adrestus.p2p.kademlia.repository.KademliaData;
+import io.Adrestus.util.SerializationFuryUtil;
 import io.distributedLedger.DatabaseFactory;
 import io.distributedLedger.DatabaseInstance;
 import io.distributedLedger.DatabaseType;
 import io.distributedLedger.IDatabase;
 import org.apache.commons.codec.binary.StringUtils;
+import org.apache.commons.lang3.SerializationUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -39,6 +42,9 @@ import java.net.Socket;
 import java.security.SecureRandom;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 
 public class ConsensusCommitteeTimerTest {
@@ -57,101 +63,115 @@ public class ConsensusCommitteeTimerTest {
 
     @BeforeAll
     public static void setup() throws Exception {
-        if (System.out.getClass().getName().contains("maven")) {
+        if (RunningConfig.isRunningInMaven() && !RunningConfig.isRunningInDocker() && RunningConfig.isRunningInAppveyor()) {
             return;
+        } else if (RunningConfig.isRunningInMaven() && !RunningConfig.isRunningInDocker() && !RunningConfig.isRunningInAppveyor()) {
+            return;
+        } else if ((RunningConfig.isRunningInDocker() && !RunningConfig.isRunningInAppveyor()) || !RunningConfig.isRunningInMaven()) {
+
+            IDatabase<String, CommitteeBlock> db = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
+            db.delete_db();
+
+            int version = 0x00;
+            sk1 = new BLSPrivateKey(1);
+            vk1 = new BLSPublicKey(sk1);
+
+            sk2 = new BLSPrivateKey(2);
+            vk2 = new BLSPublicKey(sk2);
+
+            sk3 = new BLSPrivateKey(3);
+            vk3 = new BLSPublicKey(sk3);
+
+            char[] mnemonic1 = "sample sail jungle learn general promote task puppy own conduct green affair ".toCharArray();
+            char[] mnemonic2 = "photo monitor cushion indicate civil witness orchard estate online favorite sustain extend".toCharArray();
+            char[] mnemonic3 = "struggle travel ketchup tomato satoshi caught fog process grace pupil item ahead ".toCharArray();
+            char[] passphrase = "p4ssphr4se".toCharArray();
+
+            Mnemonic mnem = new Mnemonic(Security.NORMAL, WordList.ENGLISH);
+            byte[] key1 = mnem.createSeed(mnemonic1, passphrase);
+            byte[] key2 = mnem.createSeed(mnemonic2, passphrase);
+            byte[] key3 = mnem.createSeed(mnemonic3, passphrase);
+            SecureRandom random = SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
+            random.setSeed(key1);
+            ecKeyPair1 = Keys.create256r1KeyPair(random);
+            random.setSeed(key2);
+            ecKeyPair2 = Keys.create256r1KeyPair(random);
+            random.setSeed(key3);
+            ecKeyPair3 = Keys.create256r1KeyPair(random);
+
+            address1 = WalletAddress.generate_address((byte) version, ecKeyPair1.getPublicKey());
+            address2 = WalletAddress.generate_address((byte) version, ecKeyPair2.getPublicKey());
+            address3 = WalletAddress.generate_address((byte) version, ecKeyPair3.getPublicKey());
+
+            ECDSASignatureData signatureData1 = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(address1)), ecKeyPair1);
+            ECDSASignatureData signatureData2 = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(address2)), ecKeyPair2);
+            ECDSASignatureData signatureData3 = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(address3)), ecKeyPair3);
+
+            TreeFactory.getMemoryTree(0).store(address1, new PatriciaTreeNode(BigDecimal.valueOf(3000), 0));
+            TreeFactory.getMemoryTree(0).store(address2, new PatriciaTreeNode(BigDecimal.valueOf(3000), 0));
+            TreeFactory.getMemoryTree(0).store(address3, new PatriciaTreeNode(BigDecimal.valueOf(3000), 0));
+
+            CommitteeBlock committeeBlock = new CommitteeBlock();
+            committeeBlock.setViewID(0);
+            committeeBlock.getHeaderData().setTimestamp("2022-11-18 15:01:29.304");
+            committeeBlock.getStructureMap().get(0).put(vk1, System.getProperty("test.arg0") == null ? "192.168.1.106" : System.getProperty("test.arg0"));
+            committeeBlock.getStructureMap().get(0).put(vk2, System.getProperty("test.arg1") == null ? "192.168.1.116" : System.getProperty("test.arg1"));
+            committeeBlock.getStructureMap().get(0).put(vk3, System.getProperty("test.arg2") == null ? "192.168.1.115" : System.getProperty("test.arg2"));
+
+            committeeBlock.getStakingMap().put(new StakingData(1, BigDecimal.valueOf(10.0)), new KademliaData(new SecurityAuditProofs(address1, vk1, ecKeyPair1.getPublicKey(), signatureData1), new NettyConnectionInfo(System.getProperty("test.arg0") == null ? "192.168.1.106" : System.getProperty("test.arg0"), KademliaConfiguration.PORT)));
+            committeeBlock.getStakingMap().put(new StakingData(2, BigDecimal.valueOf(13.0)), new KademliaData(new SecurityAuditProofs(address2, vk2, ecKeyPair2.getPublicKey(), signatureData2), new NettyConnectionInfo(System.getProperty("test.arg1") == null ? "192.168.1.116" : System.getProperty("test.arg1"), KademliaConfiguration.PORT)));
+            committeeBlock.getStakingMap().put(new StakingData(2, BigDecimal.valueOf(17.0)), new KademliaData(new SecurityAuditProofs(address3, vk3, ecKeyPair3.getPublicKey(), signatureData3), new NettyConnectionInfo(System.getProperty("test.arg2") == null ? "192.168.1.115" : System.getProperty("test.arg2"), KademliaConfiguration.PORT)));
+
+            CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
+            CachedLeaderIndex.getInstance().setCommitteePositionLeader(0);
+
+            CommitteeBlock cloned=CachedLatestBlocks.getInstance().getCommitteeBlock().clone();
+            assertEquals(CachedLatestBlocks.getInstance().getCommitteeBlock(), cloned);
+            assertEquals(committeeBlock, cloned);
+            assertEquals(HashUtil.sha256_bytetoString(SerializationUtils.serialize(CachedLatestBlocks.getInstance().getCommitteeBlock())), HashUtil.sha256_bytetoString(SerializationUtils.serialize(cloned)));
+            assertEquals(HashUtil.sha256_bytetoString(SerializationFuryUtil.getInstance().getFury().serialize(CachedLatestBlocks.getInstance().getCommitteeBlock())), HashUtil.sha256_bytetoString(SerializationFuryUtil.getInstance().getFury().serialize(cloned)));
+            cloned.getStructureMap().get(0).remove(vk1);
+            assertNotEquals(CachedLatestBlocks.getInstance().getCommitteeBlock(), cloned);
+            assertNotEquals(cloned, committeeBlock);
         }
-
-        IDatabase<String, CommitteeBlock> db = new DatabaseFactory(String.class, CommitteeBlock.class).getDatabase(DatabaseType.ROCKS_DB, DatabaseInstance.COMMITTEE_BLOCK);
-        db.delete_db();
-
-        int version = 0x00;
-        sk1 = new BLSPrivateKey(1);
-        vk1 = new BLSPublicKey(sk1);
-
-        sk2 = new BLSPrivateKey(2);
-        vk2 = new BLSPublicKey(sk2);
-
-        sk3 = new BLSPrivateKey(3);
-        vk3 = new BLSPublicKey(sk3);
-
-        char[] mnemonic1 = "sample sail jungle learn general promote task puppy own conduct green affair ".toCharArray();
-        char[] mnemonic2 = "photo monitor cushion indicate civil witness orchard estate online favorite sustain extend".toCharArray();
-        char[] mnemonic3 = "struggle travel ketchup tomato satoshi caught fog process grace pupil item ahead ".toCharArray();
-        char[] passphrase = "p4ssphr4se".toCharArray();
-
-        Mnemonic mnem = new Mnemonic(Security.NORMAL, WordList.ENGLISH);
-        byte[] key1 = mnem.createSeed(mnemonic1, passphrase);
-        byte[] key2 = mnem.createSeed(mnemonic2, passphrase);
-        byte[] key3 = mnem.createSeed(mnemonic3, passphrase);
-        SecureRandom random = SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
-        random.setSeed(key1);
-        ecKeyPair1 = Keys.create256r1KeyPair(random);
-        random.setSeed(key2);
-        ecKeyPair2 = Keys.create256r1KeyPair(random);
-        random.setSeed(key3);
-        ecKeyPair3 = Keys.create256r1KeyPair(random);
-
-        address1 = WalletAddress.generate_address((byte) version, ecKeyPair1.getPublicKey());
-        address2 = WalletAddress.generate_address((byte) version, ecKeyPair2.getPublicKey());
-        address3 = WalletAddress.generate_address((byte) version, ecKeyPair3.getPublicKey());
-
-        ECDSASignatureData signatureData1 = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(address1)), ecKeyPair1);
-        ECDSASignatureData signatureData2 = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(address2)), ecKeyPair2);
-        ECDSASignatureData signatureData3 = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(address3)), ecKeyPair3);
-
-        TreeFactory.getMemoryTree(0).store(address1, new PatriciaTreeNode(BigDecimal.valueOf(3000), 0));
-        TreeFactory.getMemoryTree(0).store(address2, new PatriciaTreeNode(BigDecimal.valueOf(3000), 0));
-        TreeFactory.getMemoryTree(0).store(address3, new PatriciaTreeNode(BigDecimal.valueOf(3000), 0));
-
-        CommitteeBlock committeeBlock = new CommitteeBlock();
-        committeeBlock.setViewID(0);
-        committeeBlock.getHeaderData().setTimestamp("2022-11-18 15:01:29.304");
-        committeeBlock.getStructureMap().get(0).put(vk1, "192.168.1.106");
-        committeeBlock.getStructureMap().get(0).put(vk2, "192.168.1.116");
-        committeeBlock.getStructureMap().get(0).put(vk3, "192.168.1.115");
-
-        committeeBlock.getStakingMap().put(new StakingData(1, BigDecimal.valueOf(10.0)), new KademliaData(new SecurityAuditProofs(address1, vk1, ecKeyPair1.getPublicKey(), signatureData1), new NettyConnectionInfo("192.168.1.106", KademliaConfiguration.PORT)));
-        committeeBlock.getStakingMap().put(new StakingData(2, BigDecimal.valueOf(13.0)), new KademliaData(new SecurityAuditProofs(address2, vk2, ecKeyPair2.getPublicKey(), signatureData2), new NettyConnectionInfo("192.168.1.116", KademliaConfiguration.PORT)));
-        committeeBlock.getStakingMap().put(new StakingData(2, BigDecimal.valueOf(17.0)), new KademliaData(new SecurityAuditProofs(address3, vk3, ecKeyPair3.getPublicKey(), signatureData3), new NettyConnectionInfo("192.168.1.115", KademliaConfiguration.PORT)));
-
-        CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
-        CachedLeaderIndex.getInstance().setCommitteePositionLeader(0);
     }
 
     @Test
     public void committe_test() throws Exception {
-        if (System.out.getClass().getName().contains("maven")) {
+        if (RunningConfig.isRunningInMaven() && !RunningConfig.isRunningInDocker() && RunningConfig.isRunningInAppveyor()) {
             return;
-        }
-        Socket socket = new Socket();
-        socket.connect(new InetSocketAddress("google.com", 80));
-        String IP = socket.getLocalAddress().getHostAddress();
-        int hit = 0;
-        for (Map.Entry<BLSPublicKey, String> entry : CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).entrySet()) {
-            if (IP.equals(entry.getValue())) {
-                if (vk1.equals(entry.getKey())) {
-                    CachedBLSKeyPair.getInstance().setPrivateKey(sk1);
-                    CachedBLSKeyPair.getInstance().setPublicKey(vk1);
-                } else if (vk2.equals(entry.getKey())) {
-                    CachedBLSKeyPair.getInstance().setPrivateKey(sk2);
-                    CachedBLSKeyPair.getInstance().setPublicKey(vk2);
-                } else if (vk3.equals(entry.getKey())) {
-                    CachedBLSKeyPair.getInstance().setPrivateKey(sk3);
-                    CachedBLSKeyPair.getInstance().setPublicKey(vk3);
+        } else if (RunningConfig.isRunningInMaven() && !RunningConfig.isRunningInDocker() && !RunningConfig.isRunningInAppveyor()) {
+            return;
+        } else if ((RunningConfig.isRunningInDocker() && !RunningConfig.isRunningInAppveyor()) || !RunningConfig.isRunningInMaven()) {
+            Socket socket = new Socket();
+            socket.connect(new InetSocketAddress("google.com", 80));
+            String IP = socket.getLocalAddress().getHostAddress();
+            int hit = 0;
+            for (Map.Entry<BLSPublicKey, String> entry : CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).entrySet()) {
+                if (IP.equals(entry.getValue())) {
+                    if (vk1.equals(entry.getKey())) {
+                        CachedBLSKeyPair.getInstance().setPrivateKey(sk1);
+                        CachedBLSKeyPair.getInstance().setPublicKey(vk1);
+                    } else if (vk2.equals(entry.getKey())) {
+                        CachedBLSKeyPair.getInstance().setPrivateKey(sk2);
+                        CachedBLSKeyPair.getInstance().setPublicKey(vk2);
+                    } else if (vk3.equals(entry.getKey())) {
+                        CachedBLSKeyPair.getInstance().setPrivateKey(sk3);
+                        CachedBLSKeyPair.getInstance().setPublicKey(vk3);
+                    }
+                    hit = 1;
+                    break;
                 }
-                hit = 1;
-                break;
             }
+            if (hit == 0)
+                return;
+
+            CachedEventLoop.getInstance().start();
+            CountDownLatch latch = new CountDownLatch(5);
+            ConsensusCommitteeTimer c = new ConsensusCommitteeTimer(latch);
+            latch.await();
+            c.close();
+
         }
-        if (hit == 0)
-            return;
-
-        CachedEventLoop.getInstance().start();
-        CountDownLatch latch = new CountDownLatch(5);
-        ConsensusCommitteeTimer c = new ConsensusCommitteeTimer(latch);
-        latch.await();
-        c.close();
-
     }
-
 }

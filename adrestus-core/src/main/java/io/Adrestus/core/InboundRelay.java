@@ -7,7 +7,7 @@ import io.activej.serializer.annotations.Serialize;
 import java.io.Serializable;
 import java.util.*;
 
-public class InboundRelay implements Serializable {
+public class InboundRelay implements Serializable, Cloneable {
     private LinkedHashMap<Integer, LinkedHashMap<Receipt.ReceiptBlock, List<Receipt>>> map_receipts;
 
     public InboundRelay(@Deserialize("map_receipts") Map<Integer, Map<Receipt.ReceiptBlock, List<Receipt>>> map_receipts) {
@@ -62,6 +62,24 @@ public class InboundRelay implements Serializable {
             return !(leftItr.hasNext() || rightItr.hasNext());
         }
         return true;
+    }
+
+    @Override
+    public InboundRelay clone() throws CloneNotSupportedException {
+        InboundRelay inboundRelay = (InboundRelay) super.clone();
+        inboundRelay.setMap_receipts(new LinkedHashMap<>());
+
+        if (this.getMap_receipts() == null || this.getMap_receipts().isEmpty())
+            return inboundRelay;
+
+        for (var outer : this.getMap_receipts().entrySet()) {
+            for (var inner : outer.getValue().entrySet()) {
+                inner.setValue(new ArrayList<>(inner.getValue()));
+                outer.setValue(new LinkedHashMap<>(outer.getValue()));
+            }
+            inboundRelay.getMap_receipts().put(outer.getKey(), new LinkedHashMap<>(outer.getValue()));
+        }
+        return inboundRelay;
     }
 
     @Override

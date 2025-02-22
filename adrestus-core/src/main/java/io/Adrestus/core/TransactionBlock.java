@@ -187,7 +187,9 @@ public class TransactionBlock extends AbstractBlock implements BlockFactory, Dis
     public TransactionBlock clone() {
         try {
             TransactionBlock cloned = (TransactionBlock) super.clone();
-            cloned.setTransactionList(new ArrayList<>(cloned.getTransactionList()));
+            cloned.setInbound(cloned.getInbound().clone());
+            cloned.setOutbound(cloned.getOutbound().clone());
+            cloned.setTransactionList(new ArrayList<>(this.getTransactionList()));
             return cloned;
         } catch (Exception e) {
             throw new AssertionError(e);

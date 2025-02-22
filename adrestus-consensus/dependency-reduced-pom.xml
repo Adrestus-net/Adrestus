@@ -13,10 +13,15 @@
   <build>
     <resources>
       <resource>
-        <directory>src/resources</directory>
+        <directory>../adrestus-shared-resources/src/resources</directory>
         <includes>
           <include>**/*.dll</include>
           <include>**/*.so</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>src/resources</directory>
+        <includes>
           <include>**/*.xml</include>
         </includes>
       </resource>
@@ -124,7 +129,7 @@
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter</artifactId>
-      <version>5.11.3</version>
+      <version>5.12.0-RC2</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>
@@ -136,7 +141,7 @@
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-engine</artifactId>
-      <version>5.11.3</version>
+      <version>5.12.0-RC2</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>
@@ -152,7 +157,7 @@
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-api</artifactId>
-      <version>5.11.3</version>
+      <version>5.12.0-RC2</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>
@@ -191,6 +196,7 @@
   <properties>
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <network.version>1.0-SNAPSHOT</network.version>
+    <adrestus-shared-resources.version>1.0-SNAPSHOT</adrestus-shared-resources.version>
     <config.version>1.0-SNAPSHOT</config.version>
     <maven.compiler.target>${java.version}</maven.compiler.target>
     <core.version>1.1-SNAPSHOT</core.version>

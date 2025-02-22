@@ -356,6 +356,9 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
     public void deleteAll() {
         w.lock();
         try {
+            if(rocksDB == null) {
+                return;
+            }
             final RocksIterator iterator = rocksDB.newIterator();
 
             iterator.seekToFirst();
@@ -397,6 +400,9 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
     public synchronized boolean delete_db() {
         w.lock();
         try {
+            if(rocksDB == null) {
+                return true;
+            }
             final RocksIterator iterator = rocksDB.newIterator();
 
             iterator.seekToFirst();
@@ -414,19 +420,19 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
             boolean del = dbFile.delete();
             //RocksDB.destroyDB(Directory.getConfigPath(), options);
 
-            if (this.databaseInstance != null)
+            if (this.databaseInstance != null) {
                 ZoneDatabaseFactory.closeDatabaseInstance(databaseInstance, options, dbFile.getAbsolutePath());
-            else
+            }
+            else {
                 ZoneDatabaseFactory.closeDatabaseInstance(patriciaTreeInstance, options, dbFile.getAbsolutePath());
+            }
 
+            FileUtils.deleteDirectory(dbFile);
             if (options != null)
                 options.close();
             if (rocksDB != null)
                 rocksDB.close();
             rocksDB = null;
-            if (databaseInstance.equals(DatabaseInstance.ZONE_0_TRANSACTION_BLOCK) || databaseInstance.equals(DatabaseInstance.ZONE_1_TRANSACTION_BLOCK) || databaseInstance.equals(DatabaseInstance.ZONE_2_TRANSACTION_BLOCK) || databaseInstance.equals(DatabaseInstance.ZONE_3_TRANSACTION_BLOCK))
-                FileUtils.deleteDirectory(dbFile.getParentFile());
-            FileUtils.deleteDirectory(dbFile);
             return del;
         } catch (NullPointerException exception) {
             LOGGER.error("RocksDBException occurred during delete_db operation. {}", exception.getMessage());
@@ -443,6 +449,9 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
     public boolean erase_db() {
         w.lock();
         try {
+            if(rocksDB == null) {
+                return true;
+            }
             final RocksIterator iterator = rocksDB.newIterator();
 
             iterator.seekToFirst();
@@ -473,9 +482,11 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
     public void closeNoDelete() {
         w.lock();
         try {
-            rocksDB.close();
-            options.close();
-            rocksDB = null;
+            if(rocksDB != null) {
+                rocksDB.close();
+                options.close();
+                rocksDB = null;
+            }
         } catch (NullPointerException exception) {
             LOGGER.error("RocksDBException occurred during delete_db operation. {}", exception.getMessage());
         } finally {

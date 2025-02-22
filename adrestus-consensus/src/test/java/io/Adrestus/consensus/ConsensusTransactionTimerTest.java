@@ -272,7 +272,7 @@ public class ConsensusTransactionTimerTest {
 
             kad1 = new KademliaData(new SecurityAuditProofs(adddress1, vk1, ecKeyPair1.getPublicKey(), signatureData1), new NettyConnectionInfo(System.getProperty("test.arg0") == null ? "192.168.1.106" : System.getProperty("test.arg0"), KademliaConfiguration.PORT));
             kad2 = new KademliaData(new SecurityAuditProofs(adddress2, vk2, ecKeyPair2.getPublicKey(), signatureData2), new NettyConnectionInfo(System.getProperty("test.arg1") == null ? "192.168.1.115" : System.getProperty("test.arg1"), KademliaConfiguration.PORT));
-            kad3 = new KademliaData(new SecurityAuditProofs(adddress3, vk3, ecKeyPair3.getPublicKey(), signatureData3), new NettyConnectionInfo(System.getProperty("test.arg2") == null ? "192.168.1.111" : System.getProperty("test.arg2"), KademliaConfiguration.PORT));
+            kad3 = new KademliaData(new SecurityAuditProofs(adddress3, vk3, ecKeyPair3.getPublicKey(), signatureData3), new NettyConnectionInfo(System.getProperty("test.arg2") == null ? "192.168.1.116" : System.getProperty("test.arg2"), KademliaConfiguration.PORT));
 
             System.out.println("ADRESS: " + adddress1 + " KEY1  " + vk1.toString());
             System.out.println("ADRESS: " + adddress2 + " KEY2  " + vk2.toString());
@@ -285,7 +285,7 @@ public class ConsensusTransactionTimerTest {
             //CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).put(vk2, "192.168.1.110");
             CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).put(vk2, System.getProperty("test.arg1") == null ? "192.168.1.115" : System.getProperty("test.arg1"));
             // CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).put(vk4, "192.168.1.115");
-            CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).put(vk3, System.getProperty("test.arg2") == null ? "192.168.1.111" : System.getProperty("test.arg2"));
+            CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(0).put(vk3, System.getProperty("test.arg2") == null ? "192.168.1.116" : System.getProperty("test.arg2"));
             // CachedLatestBlocks.getInstance().getCommitteeBlock().getStructureMap().get(1).put(vk6, "192.168.1.104");
             CachedZoneIndex.getInstance().setZoneIndexInternalIP();
         }

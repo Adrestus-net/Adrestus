@@ -292,6 +292,9 @@ public class LevelDBConnectionManager<K, V> implements IDatabase<K, V> {
     public void deleteByKey(K key) {
         w.lock();
         try {
+            if (level_db == null) {
+                return;
+            }
             final byte[] serializedKey = SerializationFuryUtil.getInstance().getFury().serialize(key);
             level_db.delete(serializedKey);
         } catch (final SerializationException exception) {
@@ -344,6 +347,9 @@ public class LevelDBConnectionManager<K, V> implements IDatabase<K, V> {
     public boolean delete_db() {
         w.lock();
         try {
+            if (level_db == null) {
+                return true;
+            }
             final DBIterator iterator = level_db.iterator();
 
             for (iterator.seekToFirst(); iterator.hasNext(); iterator.next()) {
@@ -567,8 +573,10 @@ public class LevelDBConnectionManager<K, V> implements IDatabase<K, V> {
     public void closeNoDelete() {
         w.lock();
         try {
-            level_db.close();
-            instance = null;
+            if (level_db != null) {
+                level_db.close();
+                instance = null;
+            }
         } catch (NullPointerException exception) {
             LOGGER.error("Exception occurred during delete_db operation. {}", exception.getMessage());
         } catch (final Exception exception) {

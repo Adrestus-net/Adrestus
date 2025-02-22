@@ -47,6 +47,7 @@ ENV MAVEN_OPTS="-Xms2048m -Xmx5g"
 # Set the working directory inside the container
 
 COPY pom.xml .
+COPY adrestus-shared-resources/pom.xml  ./adrestus-shared-resources/pom.xml
 COPY adrestus-api/pom.xml  ./adrestus-api/pom.xml
 COPY adrestus-bloom-filter/pom.xml ./adrestus-bloom-filter/pom.xml
 COPY adrestus-config/pom.xml ./adrestus-config/pom.xml
@@ -73,6 +74,8 @@ COPY adrestus-distributed-ledger ./adrestus-distributed-ledger
 COPY adrestus-erasure-code ./adrestus-erasure-code
 COPY adrestus-network ./adrestus-network
 COPY adrestus-protocol ./adrestus-protocol
+COPY adrestus-shared-resources/src/resources ./adrestus-shared-resources/src/resources
+COPY adrestus-shared-resources/target ./adrestus-shared-resources/target
 COPY adrestus-trie ./adrestus-trie
 COPY adrestus-util ./adrestus-util
 
@@ -80,6 +83,8 @@ COPY adrestus-util ./adrestus-util
 RUN mvn clean install -DskipTests
 
 WORKDIR /adrestus-consensus/
+RUN mvn install:install-file -Dfile=/adrestus-shared-resources/target/adrestus-shared-resources-1.0-SNAPSHOT-jar-with-dependencies.jar -DgroupId=io.Adrestus.v1 -DartifactId=adrestus-shared-resources -Dversion=1.0-SNAPSHOT -Dpackaging=jar
+RUN mvn install:install-file -Dfile=/adrestus-distributed-ledger/target/adrestus-distributed-ledger-1.0-SNAPSHOT-jar-with-dependencies.jar -DgroupId=io.Adrestus.v1 -DartifactId=adrestus-distributed-ledger -Dversion=1.0-SNAPSHOT -Dpackaging=jar
 RUN mvn install:install-file -Dfile=/adrestus-crypto/target/adrestus-crypto-1.0-SNAPSHOT-jar-with-dependencies.jar -DgroupId=io.Adrestus.v1 -DartifactId=adrestus-crypto -Dversion=1.0-SNAPSHOT -Dpackaging=jar
 RUN mvn install:install-file -Dfile=/adrestus-core/target/adrestus-core-1.1-SNAPSHOT-jar-with-dependencies.jar -DgroupId=io.Adrestus.v1 -DartifactId=adrestus-core -Dversion=1.1-SNAPSHOT -Dpackaging=jar
 RUN mvn install:install-file -Dfile=/adrestus-config/target/adrestus-config-1.0-SNAPSHOT-jar-with-dependencies.jar -DgroupId=io.Adrestus.v1 -DartifactId=adrestus-config -Dversion=1.0-SNAPSHOT -Dpackaging=jar

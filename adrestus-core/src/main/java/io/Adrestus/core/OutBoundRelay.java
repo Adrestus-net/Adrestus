@@ -7,7 +7,7 @@ import io.activej.serializer.annotations.Serialize;
 import java.io.Serializable;
 import java.util.*;
 
-public class OutBoundRelay implements Serializable {
+public class OutBoundRelay implements Serializable, Cloneable {
 
     private LinkedHashMap<Integer, LinkedHashMap<Receipt.ReceiptBlock, List<Receipt>>> map_receipts;
 
@@ -65,6 +65,24 @@ public class OutBoundRelay implements Serializable {
             return !(leftItr.hasNext() || rightItr.hasNext());
         }
         return true;
+    }
+
+    @Override
+    public OutBoundRelay clone() throws CloneNotSupportedException {
+        OutBoundRelay outBoundRelay = (OutBoundRelay) super.clone();
+        outBoundRelay.setMap_receipts(new LinkedHashMap<>());
+
+        if (this.getMap_receipts() == null || this.getMap_receipts().isEmpty())
+            return outBoundRelay;
+
+        for (var outer : this.getMap_receipts().entrySet()) {
+            for (var inner : outer.getValue().entrySet()) {
+                inner.setValue(new ArrayList<>(inner.getValue()));
+                outer.setValue(new LinkedHashMap<>(outer.getValue()));
+            }
+            outBoundRelay.getMap_receipts().put(outer.getKey(), new LinkedHashMap<>(outer.getValue()));
+        }
+        return outBoundRelay;
     }
 
     @Override

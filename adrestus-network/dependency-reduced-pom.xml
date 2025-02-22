@@ -127,7 +127,7 @@
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter</artifactId>
-      <version>5.11.3</version>
+      <version>5.12.0-RC2</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>
@@ -139,7 +139,7 @@
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-engine</artifactId>
-      <version>5.11.3</version>
+      <version>5.12.0-RC2</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>
@@ -155,7 +155,7 @@
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-api</artifactId>
-      <version>5.11.3</version>
+      <version>5.12.0-RC2</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>
@@ -192,11 +192,10 @@
     </dependency>
   </dependencies>
   <properties>
-    <netty.version>4.1.115.Final</netty.version>
     <activej.version>6.0-beta2</activej.version>
     <zookeeper.version>3.9.3</zookeeper.version>
     <ok.http.version>5.0.0-alpha.14</ok.http.version>
-    <gson.version>2.11.0</gson.version>
+    <gson.version>2.12.1</gson.version>
     <util.version>1.0-SNAPSHOT</util.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <kafka-clients.version>3.9.0</kafka-clients.version>

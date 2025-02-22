@@ -10,6 +10,7 @@
 
 
     <property name="org.slf4j.simpleLogger.showInitialization" value="false"/>
+    <statusListener class="ch.qos.logback.core.status.NopStatusListener"/>
 
 
     <!-- Suppress SLF4J informational messages -->

@@ -30,6 +30,7 @@
         <disruptor.version>4.0.0</disruptor.version>
         <cafeine.version>3.1.8</cafeine.version>
         <jakson.version>2.18.1</jakson.version>
+        <adrestus-shared-resources.version>1.0-SNAPSHOT</adrestus-shared-resources.version>
     </properties>
     <repositories>
         <repository>
@@ -71,6 +72,11 @@
         </dependency>
         <dependency>
             <groupId>io.Adrestus.v1</groupId>
+            <artifactId>adrestus-shared-resources</artifactId>
+            <version>${adrestus-shared-resources.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.Adrestus.v1</groupId>
             <artifactId>adrestus-distributed-ledger</artifactId>
             <version>${ledger.version}</version>
         </dependency>
@@ -87,6 +93,11 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
+            <version>${jakson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
             <version>${jakson.version}</version>
         </dependency>
         <dependency>
@@ -208,10 +219,15 @@
         </plugins>
         <resources>
             <resource>
-                <directory>src/resources</directory>
+                <directory>../adrestus-shared-resources/src/resources</directory>
                 <includes>
                     <include>**/*.dll</include>
                     <include>**/*.so</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>src/resources</directory>
+                <includes>
                     <include>**/*.xml</include>
                 </includes>
             </resource>

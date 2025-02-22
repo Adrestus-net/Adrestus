@@ -174,9 +174,16 @@ public class CommitteeBlock extends AbstractBlock implements BlockFactory, Disru
     @Override
     public CommitteeBlock clone() {
         try {
-//            byte[] bytes = SerializationFuryUtil.getInstance().getFury().serialize(this);
-//            return (CommitteeBlock) SerializationFuryUtil.getInstance().getFury().deserialize(bytes);
-            return (CommitteeBlock) super.clone();
+            CommitteeBlock committeeBlock = (CommitteeBlock) super.clone();
+            committeeBlock.setStakingMap(new TreeMap<>(this.StakingMap));
+            committeeBlock.setStructureMap(new HashMap<>());
+            for (var outer : this.StructureMap.entrySet()) {
+                committeeBlock.getStructureMap().put(outer.getKey(), new LinkedHashMap<>());
+                for (var inner : outer.getValue().entrySet()) {
+                    committeeBlock.getStructureMap().get(outer.getKey()).put(inner.getKey(), inner.getValue());
+                }
+            }
+            return committeeBlock;
         } catch (Exception e) {
             // This should never happen because we are Cloneable
             throw new AssertionError(e);

@@ -2,10 +2,7 @@ package io.Adrestus.consensus.docker;
 
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.async.ResultCallback;
-import com.github.dockerjava.api.command.BuildImageResultCallback;
-import com.github.dockerjava.api.command.CreateContainerResponse;
-import com.github.dockerjava.api.command.CreateNetworkResponse;
-import com.github.dockerjava.api.command.LogContainerCmd;
+import com.github.dockerjava.api.command.*;
 import com.github.dockerjava.api.model.*;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientBuilder;
@@ -14,6 +11,7 @@ import com.github.dockerjava.httpclient5.ApacheDockerHttpClient;
 import com.github.dockerjava.transport.DockerHttpClient;
 import io.Adrestus.config.RunningConfig;
 import org.awaitility.Awaitility;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -26,6 +24,8 @@ import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -40,7 +40,7 @@ public class ConsensusDockerTest {
     private static final String VRFTestName = "ConsensusVRFTest2";
     private static final String VDF2Test = "ConsensusVDF2Test";
     private static final String TransactionTestName = "ConsensusTransactionTimerTest";
-    //    private static final String VRFTestName = "ConsensusVRFTest2";
+    private static final String ConsensusCommitteeTimerTestName = "ConsensusCommitteeTimerTest";
     private static final String networkName = "network";
 //    private static final String imageConsensusName = "dockerfile-consensus-tests";
 
@@ -181,7 +181,7 @@ public class ConsensusDockerTest {
     }
 
 
-    //@Test
+    @Test
     public void VRFTest() throws IOException {
         if (RunningConfig.isRunningInAppveyor()) {
             return;
@@ -240,6 +240,15 @@ public class ConsensusDockerTest {
                 logContainerCmds.add(logContainerCmd);
             } catch (Exception e) {
                 e.printStackTrace();
+                // List all containers
+                ListContainersCmd listContainersCmd = dockerClient.listContainersCmd().withShowAll(true);
+                List<Container> containers = listContainersCmd.exec();
+
+                // Remove each container
+                for (Container cnt : containers) {
+                    dockerClient.removeContainerCmd(cnt.getId()).withForce(true).withRemoveVolumes(true).exec();
+                    System.out.println("Removed container: " + cnt.getId());
+                }
                 throw new RuntimeException(e);
             }
         }
@@ -260,6 +269,7 @@ public class ConsensusDockerTest {
                                 System.out.println(val.getContainerId() + " " + logLine);
                                 boolean containsException = containsException(logLine);
                                 if (containsException) {
+                                    dockerClient.removeContainerCmd(Objects.requireNonNull(val.getContainerId())).withForce(true).withRemoveVolumes(true).exec();
                                     throw new IllegalArgumentException("Exception found in" + "with log: " + logLine);
                                 }
                             }
@@ -275,23 +285,30 @@ public class ConsensusDockerTest {
             });
         });
 
-        Awaitility
-                .await()
-                .atMost(Duration.ofMinutes(4))
-                .untilAsserted(() -> {
-                    if (containerCount.get() != 0) {
-                        throw new AssertionError("Condition not met");
-                    }
-                    System.out.println("Done " + containerCount.get());
-                });
-        containerResponses.forEach(container -> {
-            // Remove the container
-            dockerClient.removeContainerCmd(container.getId()).withForce(true).withRemoveVolumes(true).exec();
-        });
-        dockerClient.close();
+        try {
+            Awaitility
+                    .await()
+                    .atMost(Duration.ofMinutes(4))
+                    .untilAsserted(() -> {
+                        if (containerCount.get() != 0) {
+                            throw new AssertionError("Condition not met");
+                        }
+                        System.out.println("Done " + containerCount.get());
+                    });
+        } finally {
+            // List all containers
+            ListContainersCmd listContainersCmd = dockerClient.listContainersCmd().withShowAll(true);
+            List<Container> containers = listContainersCmd.exec();
+
+            // Remove each container
+            for (Container cnt : containers) {
+                dockerClient.removeContainerCmd(cnt.getId()).withForce(true).withRemoveVolumes(true).exec();
+                System.out.println("Removed container: " + cnt.getId());
+            }
+        }
     }
 
-    //@Test
+    @Test
     public void VDFTest() throws IOException {
         if (RunningConfig.isRunningInAppveyor()) {
             return;
@@ -334,6 +351,15 @@ public class ConsensusDockerTest {
                 logContainerCmds.add(logContainerCmd);
             } catch (Exception e) {
                 e.printStackTrace();
+                // List all containers
+                ListContainersCmd listContainersCmd = dockerClient.listContainersCmd().withShowAll(true);
+                List<Container> containers = listContainersCmd.exec();
+
+                // Remove each container
+                for (Container cnt : containers) {
+                    dockerClient.removeContainerCmd(cnt.getId()).withForce(true).withRemoveVolumes(true).exec();
+                    System.out.println("Removed container: " + cnt.getId());
+                }
                 throw new RuntimeException(e);
             }
         }
@@ -354,6 +380,7 @@ public class ConsensusDockerTest {
                                 System.out.println(val.getContainerId() + " " + logLine);
                                 boolean containsException = containsException(logLine);
                                 if (containsException) {
+                                    dockerClient.removeContainerCmd(Objects.requireNonNull(val.getContainerId())).withForce(true).withRemoveVolumes(true).exec();
                                     throw new IllegalArgumentException("Exception found in" + "with log: " + logLine);
                                 }
                             }
@@ -382,10 +409,9 @@ public class ConsensusDockerTest {
             // Remove the container
             dockerClient.removeContainerCmd(container.getId()).withForce(true).withRemoveVolumes(true).exec();
         });
-        dockerClient.close();
     }
 
-    //@Test
+    @Test
     public void TransactionTest() throws IOException {
         if (RunningConfig.isRunningInAppveyor()) {
             return;
@@ -428,7 +454,15 @@ public class ConsensusDockerTest {
                 logContainerCmds.add(logContainerCmd);
             } catch (Exception e) {
                 e.printStackTrace();
-                throw new RuntimeException(e);
+                // List all containers
+                ListContainersCmd listContainersCmd = dockerClient.listContainersCmd().withShowAll(true);
+                List<Container> containers = listContainersCmd.exec();
+
+                // Remove each container
+                for (Container cnt : containers) {
+                    dockerClient.removeContainerCmd(cnt.getId()).withForce(true).withRemoveVolumes(true).exec();
+                    System.out.println("Removed container: " + cnt.getId());
+                }
             }
         }
         logContainerCmds.forEach(val -> {
@@ -440,7 +474,7 @@ public class ConsensusDockerTest {
                         @Override
                         public void onNext(Frame item) {
                             String logLine = new String(item.getPayload());
-//                            System.out.println(logLine);
+                            //System.out.println(logLine);
                             if (logLine.contains(TransactionTestName)) {
                                 first = true;
                             }
@@ -448,6 +482,7 @@ public class ConsensusDockerTest {
                                 System.out.println(val.getContainerId() + " " + logLine);
                                 boolean containsException = containsException(logLine);
                                 if (containsException) {
+                                    dockerClient.removeContainerCmd(Objects.requireNonNull(val.getContainerId())).withForce(true).withRemoveVolumes(true).exec();
                                     throw new IllegalArgumentException("Exception found in" + "with log: " + logLine);
                                 }
                             }
@@ -463,19 +498,141 @@ public class ConsensusDockerTest {
             });
         });
 
-        Awaitility
-                .await()
-                .atMost(Duration.ofMinutes(8))
-                .untilAsserted(() -> {
-                    if (containerCount.get() != 0) {
-                        throw new AssertionError("Condition not met");
-                    }
-                    System.out.println("Done " + containerCount.get());
-                });
-        containerResponses.forEach(container -> {
-            // Remove the container
-            dockerClient.removeContainerCmd(container.getId()).withForce(true).withRemoveVolumes(true).exec();
+        try {
+            Awaitility
+                    .await()
+                    .atMost(Duration.ofMinutes(8))
+                    .untilAsserted(() -> {
+                        if (containerCount.get() != 0) {
+                            throw new AssertionError("Condition not met");
+                        }
+                        System.out.println("Done " + containerCount.get());
+                    });
+        } finally {
+            // List all containers
+            ListContainersCmd listContainersCmd = dockerClient.listContainersCmd().withShowAll(true);
+            List<Container> containers = listContainersCmd.exec();
+
+            // Remove each container
+            for (Container cnt : containers) {
+                dockerClient.removeContainerCmd(cnt.getId()).withForce(true).withRemoveVolumes(true).exec();
+                System.out.println("Removed container: " + cnt.getId());
+            }
+        }
+    }
+
+    @Test
+    public void ConsensuCommitteeTest() throws IOException {
+        if (RunningConfig.isRunningInAppveyor()) {
+            return;
+        }
+
+        ArrayList<CreateContainerResponse> containerResponses = new ArrayList<>();
+        ArrayList<LogContainerCmd> logContainerCmds = new ArrayList<>();
+        AtomicInteger containerCount = new AtomicInteger(ipv4Addresses.size());
+        for (int i = 0; i < ipv4Addresses.size(); i++) {
+            CreateContainerResponse container = null;
+            try {
+                String[] buildCommand = {
+                        "sh", "-c", "mvn test -Dtest=" + ConsensusCommitteeTimerTestName +
+                        " -Dtest.arg0=" + ipv4Addresses.get(0) +
+                        " -Dtest.arg1=" + ipv4Addresses.get(1) +
+                        " -Dtest.arg2=" + ipv4Addresses.get(2)
+                };
+                container = dockerClient
+                        .createContainerCmd(imageAdrestusVM)
+                        .withNetworkDisabled(false)
+                        .withWorkingDir("/adrestus-consensus/")
+                        .withName("Container" + String.valueOf(i))
+                        .withCmd(buildCommand)
+                        .withHostConfig(HostConfig
+                                .newHostConfig()
+                                .withNetworkMode(networkName)
+                                .withBinds(new Bind(new File("./src").getAbsolutePath(), new Volume("/adrestus-consensus/src"))))
+                        .withIpv4Address(ipv4Addresses.get(i))
+                        .exec();
+
+                containerResponses.add(container);
+
+
+                dockerClient.startContainerCmd(container.getId()).exec();
+                System.out.println("Container started with ID: " + container.getId());
+                LogContainerCmd logContainerCmd = dockerClient.logContainerCmd(container.getId())
+                        .withStdOut(true)
+                        .withStdErr(true)
+                        .withFollowStream(true);
+                logContainerCmds.add(logContainerCmd);
+            } catch (Exception e) {
+                e.printStackTrace();
+                // List all containers
+                ListContainersCmd listContainersCmd = dockerClient.listContainersCmd().withShowAll(true);
+                List<Container> containers = listContainersCmd.exec();
+
+                // Remove each container
+                for (Container cnt : containers) {
+                    dockerClient.removeContainerCmd(cnt.getId()).withForce(true).withRemoveVolumes(true).exec();
+                    System.out.println("Removed container: " + cnt.getId());
+                }
+            }
+        }
+        logContainerCmds.forEach(val -> {
+            Thread.ofVirtual().start(() -> {
+                try {
+                    val.exec(new ResultCallback.Adapter<>() {
+                        boolean first = false;
+
+                        @Override
+                        public void onNext(Frame item) {
+                            String logLine = new String(item.getPayload());
+                            //System.out.println(logLine);
+                            if (logLine.contains(ConsensusCommitteeTimerTestName)) {
+                                first = true;
+                            }
+                            if (first) {
+                                System.out.println(val.getContainerId() + " " + logLine);
+                                boolean containsException = containsException(logLine);
+                                if (containsException) {
+                                    dockerClient.removeContainerCmd(Objects.requireNonNull(val.getContainerId())).withForce(true).withRemoveVolumes(true).exec();
+                                    throw new IllegalArgumentException("Exception found in" + "with log: " + logLine);
+                                }
+                            }
+                        }
+                    }).awaitCompletion();
+                    containerCount.getAndDecrement();
+                } catch (InterruptedException ex) {
+                    throw new RuntimeException(ex);
+                } catch (IllegalArgumentException e) {
+                    e.printStackTrace();
+                } finally {
+                }
+            });
         });
+
+        try {
+            Awaitility
+                    .await()
+                    .atMost(Duration.ofMinutes(8))
+                    .untilAsserted(() -> {
+                        if (containerCount.get() != 0) {
+                            throw new AssertionError("Condition not met");
+                        }
+                        System.out.println("Done " + containerCount.get());
+                    });
+        } finally {
+            // List all containers
+            ListContainersCmd listContainersCmd = dockerClient.listContainersCmd().withShowAll(true);
+            List<Container> containers = listContainersCmd.exec();
+
+            // Remove each container
+            for (Container cnt : containers) {
+                dockerClient.removeContainerCmd(cnt.getId()).withForce(true).withRemoveVolumes(true).exec();
+                System.out.println("Removed container: " + cnt.getId());
+            }
+        }
+    }
+
+    @AfterAll
+    public static void cleanup() throws InterruptedException, IOException {
         dockerClient.close();
     }
 }

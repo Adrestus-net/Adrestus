@@ -19,15 +19,17 @@
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <spongycastle.version>1.58.0.0</spongycastle.version>
-        <bcprov.version>1.79</bcprov.version>
-        <codec.version>1.17.1</codec.version>
-        <jna.version>5.15.0</jna.version>
+        <adrestus-shared-resources.version>1.0-SNAPSHOT</adrestus-shared-resources.version>
+        <bcprov.version>1.80</bcprov.version>
+        <codec.version>1.18.0</codec.version>
+        <jna.version>5.16.0</jna.version>
         <milagro.version>0.4.0</milagro.version>
         <jnr.version>2.2.17</jnr.version>
         <config.version>1.0-SNAPSHOT</config.version>
-        <http.components>5.3.1</http.components>
+        <http.components>5.3.3</http.components>
         <openhft.version>0.27ea0</openhft.version>
         <conscrypt.version>2.5.2</conscrypt.version>
+        <fst.version>2.56</fst.version>
     </properties>
     <repositories>
         <repository>
@@ -43,9 +45,15 @@
     <dependencies>
         <dependency>
             <groupId>org.conscrypt</groupId>
-            <artifactId>conscrypt-openjdk</artifactId>
+            <artifactId>conscrypt-openjdk-uber</artifactId>
             <version>${conscrypt.version}</version>
-            <classifier>${os.detected.classifier}</classifier>
+            <!--suppress UnresolvedMavenProperty -->
+            <!--classifier>${os.detected.classifier}</classifier>-->
+        </dependency>
+        <dependency>
+            <groupId>io.Adrestus.v1</groupId>
+            <artifactId>adrestus-shared-resources</artifactId>
+            <version>${adrestus-shared-resources.version}</version>
         </dependency>
         <dependency>
             <groupId>net.openhft</groupId>
@@ -55,7 +63,7 @@
         <dependency>
             <groupId>de.ruedigermoeller</groupId>
             <artifactId>fst</artifactId>
-            <version>2.56</version>
+            <version>${fst.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents.core5</groupId>
@@ -245,7 +253,7 @@
         </plugins>
         <resources>
             <resource>
-                <directory>src/resources</directory>
+                <directory>../adrestus-shared-resources/src/resources</directory>
                 <includes>
                     <include>**/*.dll</include>
                     <include>**/*.so</include>
