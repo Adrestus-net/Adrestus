@@ -653,8 +653,8 @@ public class BlockTest {
             assertEquals(transactionBlock, cloned2);
             assertEquals(HashUtil.sha256_bytetoString(SerializationUtils.serialize(cloned)), (HashUtil.sha256_bytetoString(SerializationUtils.serialize(transactionBlock))));
             assertEquals(HashUtil.sha256_bytetoString(SerializationUtils.serialize(cloned2)), (HashUtil.sha256_bytetoString(SerializationUtils.serialize(transactionBlock))));
-            cloned2.getOutbound().getMap_receipts().put(23,null);
-            assertNotEquals(cloned2,transactionBlock);
+            cloned2.getOutbound().getMap_receipts().put(23, null);
+            assertNotEquals(cloned2, transactionBlock);
             cloned.setHash("");
             assertEquals(HashUtil.sha256_bytetoString(serenc.encode(cloned, size)), (HashUtil.sha256_bytetoString(tohash)));
             assertNotEquals(transactionBlock, cloned);
@@ -877,8 +877,8 @@ public class BlockTest {
                 if (i == entries.size() - 1)
                     break;
 
-                long older = GetTime.GetTimestampFromString(block_entries.get(entries.get(i)).getHeaderData().getTimestamp()).getTime();
-                long newer = GetTime.GetTimestampFromString(block_entries.get(entries.get(i + 1)).getHeaderData().getTimestamp()).getTime();
+                long older = GetTime.GetTimestampFromString(block_entries.get(entries.get(i)).getHeaderData().getTimestamp()).toEpochMilli();
+                long newer = GetTime.GetTimestampFromString(block_entries.get(entries.get(i + 1)).getHeaderData().getTimestamp()).toEpochMilli();
                 sumtime = sumtime + (newer - older);
                 //System.out.println("edw "+(newer - older));
                 summdiffuclty = summdiffuclty + block_entries.get(entries.get(i)).getDifficulty();

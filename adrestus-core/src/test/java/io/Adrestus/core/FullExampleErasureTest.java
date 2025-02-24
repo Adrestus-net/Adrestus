@@ -65,8 +65,8 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
-import java.sql.Timestamp;
 import java.text.ParseException;
+import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -327,7 +327,7 @@ public class FullExampleErasureTest {
                 StringJoiner joiner2 = new StringJoiner(delimeter);
                 String[] splits = StringUtils.split(proofs.get(j), delimeter);
                 BLSPublicKey blsPublicKey = BLSPublicKey.fromByte(Hex.decodeHex(splits[0]));
-                Timestamp timestamp = GetTime.GetTimestampFromString(splits[1]);
+                Instant timestamp = GetTime.GetTimestampFromString(splits[1]);
                 boolean val = GetTime.CheckIfTimestampIsUnderOneMinute(timestamp);
                 Signature bls_sig2 = valueMapper.decode(Hex.decodeHex(splits[2]));
                 String strsgn = joiner2.add(Hex.encodeHexString(blsPublicKey.toBytes())).add(splits[1]).toString();

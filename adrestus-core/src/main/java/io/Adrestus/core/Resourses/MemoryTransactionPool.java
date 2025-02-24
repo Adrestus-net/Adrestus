@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -246,8 +246,8 @@ public class MemoryTransactionPool implements IMemoryPool<Transaction> {
                 List<Transaction> list = hashMap.values().stream().collect(Collectors.toList());
                 Transaction transaction = list.get(list.size() - 1);
                 int val2 = Integer.valueOf(transaction.getZoneFrom()).compareTo(Integer.valueOf(t2.getZoneFrom()));
-                Timestamp time1 = GetTime.GetTimestampFromString(transaction.getTimestamp());
-                Timestamp time2 = GetTime.GetTimestampFromString(t2.getTimestamp());
+                Instant time1 = GetTime.GetTimestampFromString(transaction.getTimestamp());
+                Instant time2 = GetTime.GetTimestampFromString(t2.getTimestamp());
 
                 int val3 = time1.compareTo(time2);
                 if (val2 == 0 && val3 < 0)

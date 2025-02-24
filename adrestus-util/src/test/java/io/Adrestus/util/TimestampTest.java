@@ -2,8 +2,8 @@ package io.Adrestus.util;
 
 import org.junit.jupiter.api.Test;
 
-import java.sql.Timestamp;
 import java.text.ParseException;
+import java.time.Instant;
 
 public class TimestampTest {
     @Test
@@ -12,7 +12,7 @@ public class TimestampTest {
         int count = 1000000;
         while (count > 0) {
             String val = GetTime.GetTimeStampInString();
-            Timestamp t = GetTime.GetTimestampFromString(val);
+            Instant t = GetTime.GetTimestampFromString(val);
             count--;
         }
     }

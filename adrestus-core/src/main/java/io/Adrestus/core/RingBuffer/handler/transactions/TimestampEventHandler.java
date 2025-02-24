@@ -10,12 +10,10 @@ import io.distributedLedger.DatabaseFactory;
 import io.distributedLedger.DatabaseType;
 import io.distributedLedger.IDatabase;
 import io.distributedLedger.ZoneDatabaseFactory;
-import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.Timestamp;
-import java.text.ParseException;
+import java.time.Instant;
 import java.util.*;
 
 public class TimestampEventHandler extends TransactionEventHandler implements TransactionUnitVisitor {
@@ -23,7 +21,6 @@ public class TimestampEventHandler extends TransactionEventHandler implements Tr
     private ArrayList<Transaction> results;
 
     public TimestampEventHandler() {
-        this.results = new ArrayList<>();
     }
 
     @Override
@@ -34,6 +31,8 @@ public class TimestampEventHandler extends TransactionEventHandler implements Tr
             return;
 
 
+        this.results = new ArrayList<>();
+
         transaction.accept(this);
 
         if (transaction.getType().equals(TransactionType.UNCLAIMED_FEE_REWARD))
@@ -42,37 +41,34 @@ public class TimestampEventHandler extends TransactionEventHandler implements Tr
         if (results.isEmpty())
             return;
 
-        Collections.sort(results, new Comparator<Transaction>() {
-            @SneakyThrows
-            @Override
-            public int compare(Transaction u1, Transaction u2) {
-                return GetTime.GetTimestampFromString(u2.getTimestamp()).compareTo(GetTime.GetTimestampFromString(u1.getTimestamp()));
-            }
-        });
         try {
-            Timestamp old = GetTime.GetTimestampFromString(results.get(0).getTimestamp());
-            Timestamp current = GetTime.GetTimestampFromString(transaction.getTimestamp());
-            Timestamp check = GetTime.GetTimeStampWithDelay();
-            if (current.before(old) || current.equals(old)) {
+            results.sort((u1, u2) -> GetTime.GetTimestampFromString(u2.getTimestamp()).compareTo(GetTime.GetTimestampFromString(u1.getTimestamp())));
+            Instant old = GetTime.GetTimestampFromString(results.getFirst().getTimestamp());
+            Instant current = GetTime.GetTimestampFromString(transaction.getTimestamp());
+            Instant check = GetTime.GetTimeStampWithDelay();
+            if (current.isBefore(old) || current.equals(old)) {
                 Optional.of("Transaction abort: Transaction timestamp is not a valid timestamp").ifPresent(val -> {
                     LOG.info(val);
                     transaction.infos(val);
                 });
                 transaction.setStatus(StatusType.ABORT);
             }
-            if (check.before(old) || check.equals(old)) {
+            if (check.isBefore(old) || check.equals(old)) {
                 Optional.of("Transaction abort: Transaction timestamp is not older than one minute delay").ifPresent(val -> {
                     LOG.info(val);
                     transaction.infos(val);
                 });
                 transaction.setStatus(StatusType.ABORT);
             }
-        } catch (ParseException e) {
+        } catch (Exception e) {
             Optional.of("Transaction abort: Transaction timestamp is not set abort").ifPresent(val -> {
                 LOG.info(val);
                 transaction.infos(val);
             });
             transaction.setStatus(StatusType.ABORT);
+        } finally {
+            this.results.clear();
+            this.results = null;
         }
 
     }

@@ -1,12 +1,14 @@
 package io.Adrestus.p2p.kademlia.util;
 
-import java.util.Date;
+
+import java.time.Instant;
 
 public class DateUtil {
     private DateUtil() {
     }
 
-    public static Date getDateOfSecondsAgo(int seconds) {
-        return new Date(new Date().getTime() - (seconds * 1000L));
+    public static Instant getDateOfSecondsAgo(int seconds) {
+        return Instant.now()
+                .minusSeconds(seconds * 1000L);
     }
 }

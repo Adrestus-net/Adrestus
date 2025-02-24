@@ -19,8 +19,8 @@ import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
-import java.sql.Timestamp;
 import java.text.ParseException;
+import java.time.Instant;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -122,7 +122,7 @@ public class StressBLSTest {
         StringJoiner joiner2 = new StringJoiner(delimeter);
         String[] splits = StringUtils.split(toSend, delimeter);
         BLSPublicKey blsPublicKey = BLSPublicKey.fromByte(Hex.decodeHex(splits[0]));
-        Timestamp timestamp = GetTime.GetTimestampFromString(splits[1]);
+        Instant timestamp = GetTime.GetTimestampFromString(splits[1]);
         boolean val = GetTime.CheckIfTimestampIsUnderOneMinute(timestamp);
         Signature bls_sig2 = valueMapper.decode(Hex.decodeHex(splits[2]));
         String strsgn = joiner2.add(Hex.encodeHexString(blsPublicKey.toBytes())).add(splits[1]).toString();

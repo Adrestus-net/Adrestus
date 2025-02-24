@@ -148,7 +148,7 @@ public abstract class AbstractBlock extends Object implements BlockFactory, Disr
 
     public AbstractBlock clone() {
         try {
-            AbstractBlock abstractBlock= (AbstractBlock) super.clone();
+            AbstractBlock abstractBlock = (AbstractBlock) super.clone();
             abstractBlock.setSignatureData(new TreeMap<>(this.signatureData));
             return abstractBlock;
         } catch (CloneNotSupportedException e) {

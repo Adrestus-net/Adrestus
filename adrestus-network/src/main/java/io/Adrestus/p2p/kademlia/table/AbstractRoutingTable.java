@@ -16,9 +16,9 @@ import io.Adrestus.p2p.kademlia.node.external.ExternalNode;
 import io.Adrestus.p2p.kademlia.util.FindNodeAnswerReducer;
 import lombok.NoArgsConstructor;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -65,7 +65,7 @@ public abstract class AbstractRoutingTable<ID extends Number, C extends Connecti
         else
             externalNode = (ExternalNode<ID, C>) node;
 
-        externalNode.setLastSeen(new Date());
+        externalNode.setLastSeen(Instant.now());
         Bucket<ID, C> bucket = this.findBucket(node.getId());
         if (bucket.contains(node)) {
             // If the element is already in the bucket, we update it and push it to the front of the bucket.
@@ -84,13 +84,13 @@ public abstract class AbstractRoutingTable<ID extends Number, C extends Connecti
             this.update(node);
         } catch (FullBucketException e) {
             Bucket<ID, C> bucket = this.findBucket(node.getId());
-            Date date = null;
+            Instant date = null;
             ID oldestNode = null;
             for (ID nodeId : bucket.getNodeIds()) {
                 if (nodeId.equals(this.id)) {
                     continue;
                 }
-                if (date == null || bucket.getNode(nodeId).getLastSeen().before(date)) {
+                if (date == null || bucket.getNode(nodeId).getLastSeen().isBefore(date)) {
                     date = bucket.getNode(nodeId).getLastSeen();
                     oldestNode = nodeId;
                 }

@@ -10,7 +10,7 @@ import io.Adrestus.util.GetTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.Timestamp;
+import java.time.Instant;
 
 
 public class TimeStampEventHandler implements BlockEventHandler<AbstractBlockEvent>, DisruptorBlockVisitor {
@@ -32,9 +32,9 @@ public class TimeStampEventHandler implements BlockEventHandler<AbstractBlockEve
             if (committeeBlock.getHeight() <= 1)
                 return;
 
-            Timestamp current = GetTime.GetTimestampFromString(committeeBlock.getHeaderData().getTimestamp());
-            Timestamp cached = GetTime.GetTimestampFromString(CachedLatestBlocks.getInstance().getCommitteeBlock().getHeaderData().getTimestamp());
-            if (!cached.before(current)) {
+            Instant current = GetTime.GetTimestampFromString(committeeBlock.getHeaderData().getTimestamp());
+            Instant cached = GetTime.GetTimestampFromString(CachedLatestBlocks.getInstance().getCommitteeBlock().getHeaderData().getTimestamp());
+            if (!cached.isBefore(current)) {
                 LOG.info("CommitteeBlock timestamp is not valid");
                 committeeBlock.setStatustype(StatusType.ABORT);
                 return;
@@ -51,10 +51,10 @@ public class TimeStampEventHandler implements BlockEventHandler<AbstractBlockEve
         try {
             if (transactionBlock.getHeight() <= 2)
                 return;
-            Timestamp current = GetTime.GetTimestampFromString(transactionBlock.getHeaderData().getTimestamp());
-            Timestamp cached = GetTime.GetTimestampFromString(CachedLatestBlocks.getInstance().getTransactionBlock().getHeaderData().getTimestamp());
+            Instant current = GetTime.GetTimestampFromString(transactionBlock.getHeaderData().getTimestamp());
+            Instant cached = GetTime.GetTimestampFromString(CachedLatestBlocks.getInstance().getTransactionBlock().getHeaderData().getTimestamp());
 
-            if (!cached.before(current)) {
+            if (!cached.isBefore(current)) {
                 LOG.info("TransactionBlock timestamp is not valid");
                 transactionBlock.setStatustype(StatusType.ABORT);
                 return;

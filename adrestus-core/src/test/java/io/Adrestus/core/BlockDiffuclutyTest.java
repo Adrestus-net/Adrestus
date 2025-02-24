@@ -40,11 +40,11 @@ public class BlockDiffuclutyTest {
             if (iterations == 0) {
                 n = 1;
                 summdiffuclty = bootsrap.getDifficulty();
-                sumtime = GetTime.GetTimeStamp().getTime() - GetTime.GetTimestampFromString(bootsrap.getHeaderData().getTimestamp()).getTime();
+                sumtime = GetTime.GetTimeStamp().toEpochMilli() - GetTime.GetTimestampFromString(bootsrap.getHeaderData().getTimestamp()).toEpochMilli();
             } else if (iterations == 1) {
-                long older = GetTime.GetTimestampFromString(results.get(keys.get(0)).getHeaderData().getTimestamp()).getTime();
+                long older = GetTime.GetTimestampFromString(results.get(keys.get(0)).getHeaderData().getTimestamp()).toEpochMilli();
                 Thread.sleep(200);
-                long newer = GetTime.GetTimeStamp().getTime();
+                long newer = GetTime.GetTimeStamp().toEpochMilli();
                 sumtime = sumtime + (newer - older);
                 summdiffuclty = summdiffuclty + results.get(keys.get(0)).getDifficulty();
             }
@@ -52,8 +52,8 @@ public class BlockDiffuclutyTest {
                 if (i == keys.size() - 1)
                     break;
 
-                long older = GetTime.GetTimestampFromString(results.get(keys.get(i)).getHeaderData().getTimestamp()).getTime();
-                long newer = GetTime.GetTimestampFromString(results.get(keys.get(i + 1)).getHeaderData().getTimestamp()).getTime();
+                long older = GetTime.GetTimestampFromString(results.get(keys.get(i)).getHeaderData().getTimestamp()).toEpochMilli();
+                long newer = GetTime.GetTimestampFromString(results.get(keys.get(i + 1)).getHeaderData().getTimestamp()).toEpochMilli();
                 sumtime = sumtime + (newer - older);
                 //System.out.println("edw "+(newer - older));
                 summdiffuclty = summdiffuclty + results.get(keys.get(i)).getDifficulty();
@@ -116,8 +116,8 @@ public class BlockDiffuclutyTest {
                 if (i == entries.size() - 1)
                     break;
 
-                long older = GetTime.GetTimestampFromString(block_entries.get(entries.get(i)).getHeaderData().getTimestamp()).getTime();
-                long newer = GetTime.GetTimestampFromString(block_entries.get(entries.get(i + 1)).getHeaderData().getTimestamp()).getTime();
+                long older = GetTime.GetTimestampFromString(block_entries.get(entries.get(i)).getHeaderData().getTimestamp()).toEpochMilli();
+                long newer = GetTime.GetTimestampFromString(block_entries.get(entries.get(i + 1)).getHeaderData().getTimestamp()).toEpochMilli();
                 sumtime = sumtime + (newer - older);
                 //System.out.println("edw "+(newer - older));
                 summdiffuclty = summdiffuclty + block_entries.get(entries.get(i)).getDifficulty();

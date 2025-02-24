@@ -45,8 +45,8 @@ public class DifficultyEventHandler implements BlockEventHandler<AbstractBlockEv
                 if (i == entries.size() - 1)
                     break;
 
-                long older = GetTime.GetTimestampFromString(block_entries.get(entries.get(i)).getHeaderData().getTimestamp()).getTime();
-                long newer = GetTime.GetTimestampFromString(block_entries.get(entries.get(i + 1)).getHeaderData().getTimestamp()).getTime();
+                long older = GetTime.GetTimestampFromString(block_entries.get(entries.get(i)).getHeaderData().getTimestamp()).toEpochMilli();
+                long newer = GetTime.GetTimestampFromString(block_entries.get(entries.get(i + 1)).getHeaderData().getTimestamp()).toEpochMilli();
                 sumtime = sumtime + (newer - older);
                 //System.out.println("edw "+(newer - older));
                 summdiffuclty = summdiffuclty + block_entries.get(entries.get(i)).getDifficulty();

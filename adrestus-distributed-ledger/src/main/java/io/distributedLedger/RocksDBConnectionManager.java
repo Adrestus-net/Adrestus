@@ -356,7 +356,7 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
     public void deleteAll() {
         w.lock();
         try {
-            if(rocksDB == null) {
+            if (rocksDB == null) {
                 return;
             }
             final RocksIterator iterator = rocksDB.newIterator();
@@ -400,7 +400,7 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
     public synchronized boolean delete_db() {
         w.lock();
         try {
-            if(rocksDB == null) {
+            if (rocksDB == null) {
                 return true;
             }
             final RocksIterator iterator = rocksDB.newIterator();
@@ -422,8 +422,7 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
 
             if (this.databaseInstance != null) {
                 ZoneDatabaseFactory.closeDatabaseInstance(databaseInstance, options, dbFile.getAbsolutePath());
-            }
-            else {
+            } else {
                 ZoneDatabaseFactory.closeDatabaseInstance(patriciaTreeInstance, options, dbFile.getAbsolutePath());
             }
 
@@ -449,7 +448,7 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
     public boolean erase_db() {
         w.lock();
         try {
-            if(rocksDB == null) {
+            if (rocksDB == null) {
                 return true;
             }
             final RocksIterator iterator = rocksDB.newIterator();
@@ -482,7 +481,7 @@ public class RocksDBConnectionManager<K, V> implements IDatabase<K, V> {
     public void closeNoDelete() {
         w.lock();
         try {
-            if(rocksDB != null) {
+            if (rocksDB != null) {
                 rocksDB.close();
                 options.close();
                 rocksDB = null;

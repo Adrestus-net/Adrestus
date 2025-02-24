@@ -6,13 +6,12 @@ import io.Adrestus.crypto.bls.model.FieldElement;
 
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.ThreadLocalRandom;
 
 public class CommonUtils {
     private static final long MAX_BATCH_VERIFY_RANDOM_MULTIPLIER = Long.MAX_VALUE;
 
     private static Random getRND() {
-        return ThreadLocalRandom.current();
+        return new Random();
     }
 
     public static int padCollection(List<List<Integer>> coll, int pad) {

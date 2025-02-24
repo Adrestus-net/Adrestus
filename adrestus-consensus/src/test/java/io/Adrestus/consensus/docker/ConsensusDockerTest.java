@@ -633,7 +633,7 @@ public class ConsensusDockerTest {
 
     @AfterAll
     public static void cleanup() throws InterruptedException, IOException {
-        if(dockerClient != null) {
+        if (dockerClient != null) {
             dockerClient.close();
         }
     }

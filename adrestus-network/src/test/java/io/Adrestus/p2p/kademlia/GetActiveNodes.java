@@ -88,7 +88,7 @@ public class GetActiveNodes {
             nextnode.store(String.valueOf(nextnode.getId()), ipString);
             list.add(nextnode);
         }
-        Thread.sleep(8000);
+        Thread.sleep(12000);
         List<String> vals = getActiveNode(bootsrtap);
         assertEquals(size, vals.size());
         List duplicates =

@@ -19,8 +19,8 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
-import java.sql.Timestamp;
 import java.text.ParseException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
@@ -82,7 +82,7 @@ public class ConsensusServerErasureTest {
             StringJoiner joiner2 = new StringJoiner(delimeter);
             String[] splits = StringUtils.split(rec, delimeter);
             BLSPublicKey blsPublicKey = BLSPublicKey.fromByte(Hex.decodeHex(splits[0]));
-            Timestamp timestamp = GetTime.GetTimestampFromString(splits[1]);
+            Instant timestamp = GetTime.GetTimestampFromString(splits[1]);
             boolean val = GetTime.CheckIfTimestampIsUnderOneMinute(timestamp);
             Signature bls_sig2 = valueMapper.decode(Hex.decodeHex(splits[2]));
             String strsgn = joiner2.add(Hex.encodeHexString(blsPublicKey.toBytes())).add(splits[1]).toString();

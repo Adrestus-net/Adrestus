@@ -1,69 +1,49 @@
 package io.Adrestus.util;
 
 import lombok.SneakyThrows;
-import org.apache.commons.net.ntp.TimeStamp;
 
-import java.sql.Timestamp;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.TimeZone;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 
 public class GetTime {
     private static final String FORMAT_STRING = "yyyy-MM-dd HH:mm:ss.SSS";
     private static final int ONE_MINUTE = 60 * 1000;
     private static final int TRANSACTION_BLOCK_DELAY = 1000;
 
-    private static long ExtractUTCTimestamp() {
-        try {
-            return TimeStamp.getCurrentTime().getTime();
-        } catch (Exception e) {
-            return System.currentTimeMillis();
-        }
-    }
+
+    // Thread-safe formatter (create once, reuse forever)
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ISO_INSTANT.withZone(ZoneOffset.UTC);
+    private static final DateTimeFormatter FORMATTER2 = DateTimeFormatter.ofPattern(FORMAT_STRING).withZone(ZoneOffset.UTC);
+
 
     public static String GetTimeStampInString() {
-        SimpleDateFormat sdf = new SimpleDateFormat(FORMAT_STRING);
-        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-        Timestamp timestamp = new Timestamp(ExtractUTCTimestamp());
-        return sdf.format(timestamp);
+        return FORMATTER.format(Instant.now());
     }
 
-    public static Timestamp GetTimeStamp() {
-        Timestamp timestamp = new Timestamp(ExtractUTCTimestamp());
-        return timestamp;
+    public static Instant GetTimeStamp() {
+        return Instant.now();
     }
 
     @SneakyThrows
-    public static Timestamp GetTimeStampWithDelay() {
-        Timestamp timestamp = new Timestamp(ExtractUTCTimestamp() + ONE_MINUTE);
-        SimpleDateFormat sdf = new SimpleDateFormat(FORMAT_STRING);
-        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-        Date parsedDate = sdf.parse(timestamp.toString());
-        Timestamp ts = new java.sql.Timestamp(parsedDate.getTime());
-        return ts;
+    public static Instant GetTimeStampWithDelay() {
+        return Instant.now().plusMillis(ONE_MINUTE);
     }
 
-    public static Timestamp GetTimeStampWithDelay(Timestamp timestamp) {
-        Long milliseconds = timestamp.getTime() + TRANSACTION_BLOCK_DELAY;
-        Timestamp updatedTimestamp = new Timestamp(milliseconds);
-        return updatedTimestamp;
+    public static Instant GetTimeStampWithDelay(Instant timestamp) {
+        return timestamp.plusMillis(TRANSACTION_BLOCK_DELAY);
     }
 
-    public static Timestamp GetTimestampFromString(String parseDate) throws ParseException {
-        SimpleDateFormat sdf = new SimpleDateFormat(FORMAT_STRING);
-        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-        Date parsedDate = sdf.parse(parseDate);
-        Timestamp timestamp = new java.sql.Timestamp(parsedDate.getTime());
-        return timestamp;
+    public static Instant GetTimestampFromString(String parseDate) {
+        try {
+            return FORMATTER.parse(parseDate, Instant::from);
+        } catch (Exception e) {
+            return FORMATTER2.parse(parseDate, Instant::from);
+        }
     }
 
-    public static boolean CheckIfTimestampIsUnderOneMinute(Timestamp timestamp) {
-        long tenAgo = System.currentTimeMillis() - ONE_MINUTE;
-
-        if (tenAgo < timestamp.getTime())
-            return true;
-
-        return false;
+    public static boolean CheckIfTimestampIsUnderOneMinute(Instant timestamp) {
+        long tenAgo = Instant.now().toEpochMilli() - ONE_MINUTE;
+        return tenAgo < timestamp.toEpochMilli();
     }
 }

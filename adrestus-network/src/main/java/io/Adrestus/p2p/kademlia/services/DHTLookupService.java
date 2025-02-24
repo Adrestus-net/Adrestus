@@ -17,7 +17,7 @@ import io.Adrestus.p2p.kademlia.util.NodeUtil;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.time.Instant;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -111,7 +111,7 @@ public class DHTLookupService<ID extends Number, C extends ConnectionInfo, K ext
     protected LookupAnswer<ID, K, V> getDataFromClosestNodes(Node<ID, C> caller, Node<ID, C> requester, K key, int currentTry) {
         ID hash = this.dhtKademliaNode.getKeyHashGenerator().generateHash(key);
         FindNodeAnswer<ID, C> findNodeAnswer = this.dhtKademliaNode.getRoutingTable().findClosest(hash);
-        Date date = DateUtil.getDateOfSecondsAgo(this.dhtKademliaNode.getNodeSettings().getMaximumLastSeenAgeToConsiderAlive());
+        Instant date = DateUtil.getDateOfSecondsAgo(this.dhtKademliaNode.getNodeSettings().getMaximumLastSeenAgeToConsiderAlive());
         for (ExternalNode<ID, C> externalNode : findNodeAnswer.getNodes()) {
             //ignore self because we already checked if current node holds the data or not
             //Also ignore nodeToIgnore if its not null

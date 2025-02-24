@@ -125,7 +125,7 @@ public class ConsensusCommitteeTimerTest {
             CachedLatestBlocks.getInstance().setCommitteeBlock(committeeBlock);
             CachedLeaderIndex.getInstance().setCommitteePositionLeader(0);
 
-            CommitteeBlock cloned=CachedLatestBlocks.getInstance().getCommitteeBlock().clone();
+            CommitteeBlock cloned = CachedLatestBlocks.getInstance().getCommitteeBlock().clone();
             assertEquals(CachedLatestBlocks.getInstance().getCommitteeBlock(), cloned);
             assertEquals(committeeBlock, cloned);
             assertEquals(HashUtil.sha256_bytetoString(SerializationUtils.serialize(CachedLatestBlocks.getInstance().getCommitteeBlock())), HashUtil.sha256_bytetoString(SerializationUtils.serialize(cloned)));

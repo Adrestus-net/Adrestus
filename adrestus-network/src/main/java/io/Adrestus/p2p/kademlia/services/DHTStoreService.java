@@ -20,7 +20,7 @@ import io.Adrestus.p2p.kademlia.util.DateUtil;
 import io.Adrestus.p2p.kademlia.util.NodeUtil;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -114,7 +114,7 @@ public class DHTStoreService<ID extends Number, C extends ConnectionInfo, K exte
     }
 
     protected StoreAnswer<ID, K> storeDataToClosestNode(Node<ID, C> caller, Node<ID, C> requester, List<ExternalNode<ID, C>> externalNodeList, K key, V value) {
-        Date date = DateUtil.getDateOfSecondsAgo(this.dhtKademliaNode.getNodeSettings().getMaximumLastSeenAgeToConsiderAlive());
+        Instant date = DateUtil.getDateOfSecondsAgo(this.dhtKademliaNode.getNodeSettings().getMaximumLastSeenAgeToConsiderAlive());
         for (ExternalNode<ID, C> externalNode : externalNodeList) {
             //if current node is the closest node, store the value (Scenario A)
             if (externalNode.getId().equals(this.dhtKademliaNode.getId())) {

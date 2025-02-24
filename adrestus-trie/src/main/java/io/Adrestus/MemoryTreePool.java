@@ -263,14 +263,10 @@ public class MemoryTreePool implements IMemoryTreePool, Cloneable {
 
     @SneakyThrows
     @Override
-    public Object clone() {
-        MemoryTreePool t = new MemoryTreePool();
-        t.setPatriciaTreeImp((MerklePatriciaTrie<Bytes, PatriciaTreeNode>) this.patriciaTreeImp.clone());
-        t.setValueSerializer(this.valueSerializer);
-        t.setRwl(this.rwl);
-        t.setR(this.r);
-        t.setW(this.w);
-        return t;
+    public IMemoryTreePool clone() {
+        IMemoryTreePool cloned = (IMemoryTreePool) super.clone();
+        cloned.setPatriciaTreeImp((MerklePatriciaTrie<Bytes, PatriciaTreeNode>) this.patriciaTreeImp.clone());
+        return cloned;
     }
 
 

@@ -108,7 +108,7 @@ public class MemoryReceiptPool implements IMemoryPool<Receipt> {
     public List<Receipt> getListByZone(int zone) throws Exception {
         r.lock();
         try {
-            List<Receipt> result = memorypool.values().parallelStream().filter(val -> val.getZoneFrom() == zone).collect(Collectors.toList());
+            List<Receipt> result = memorypool.values().stream().filter(val -> val.getZoneFrom() == zone).collect(Collectors.toList());
             return result;
         } finally {
             r.unlock();
@@ -130,7 +130,7 @@ public class MemoryReceiptPool implements IMemoryPool<Receipt> {
     public List<Receipt> getInboundList(int zone) throws Exception {
         r.lock();
         try {
-            List<Receipt> result = memorypool.values().parallelStream().filter(val -> val.getZoneFrom() != zone && val.getZoneTo() == zone).collect(Collectors.toList());
+            List<Receipt> result = memorypool.values().stream().filter(val -> val.getZoneFrom() != zone && val.getZoneTo() == zone).collect(Collectors.toList());
             return result;
         } finally {
             r.unlock();
@@ -141,7 +141,7 @@ public class MemoryReceiptPool implements IMemoryPool<Receipt> {
     public List<Receipt> getListToDelete(int zone) throws Exception {
         r.lock();
         try {
-            List<Receipt> result = memorypool.values().parallelStream().filter(val -> val.getZoneFrom() != zone && val.getZoneTo() != zone).collect(Collectors.toList());
+            List<Receipt> result = memorypool.values().stream().filter(val -> val.getZoneFrom() != zone && val.getZoneTo() != zone).collect(Collectors.toList());
             return result;
         } finally {
             r.unlock();
