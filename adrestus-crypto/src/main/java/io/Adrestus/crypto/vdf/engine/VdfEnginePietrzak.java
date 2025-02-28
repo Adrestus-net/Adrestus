@@ -1,6 +1,7 @@
 package io.Adrestus.crypto.vdf.engine;
 
 import com.google.common.hash.Hashing;
+import io.Adrestus.crypto.pca.cs.jna.gmp.GMP;
 import io.Adrestus.crypto.vdf.model.ClassGroup;
 
 import java.math.BigInteger;
@@ -268,7 +269,7 @@ public class VdfEnginePietrzak extends VdfEngine {
 
         one = one.shiftLeft((int) finalT);
         x.pow(one);
-        x.discriminant.compareTo(y.discriminant);
+        x.getDiscriminant().compareTo(y.getDiscriminant());
         return x.equals(y);
     }
 
@@ -288,7 +289,7 @@ public class VdfEnginePietrzak extends VdfEngine {
         byte[] proofBytes = new byte[proofBlob.length - 2 * length];
         System.arraycopy(proofBlob, 2 * length, proofBytes, 0, proofBytes.length);
 
-        discriminant = x.discriminant;
+        discriminant = x.getDiscriminant();
         List<ClassGroup> proof = deserializeProof(proofBytes, discriminant, length);
 
         if (proof == null) {
@@ -297,5 +298,10 @@ public class VdfEnginePietrzak extends VdfEngine {
 
         ClassGroup y = ClassGroup.fromBytes(resultBytes, discriminant);
         return verifyProof(x, y, proof, iterations, 8, numBits);
+    }
+
+    @Override
+    public void cleanup() {
+        GMP.getInstance().clear();
     }
 }

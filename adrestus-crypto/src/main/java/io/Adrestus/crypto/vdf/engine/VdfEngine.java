@@ -16,6 +16,8 @@ abstract public class VdfEngine {
 
     abstract public boolean verify(byte[] challenge, long difficulty, byte[] proofBlob);
 
+    abstract public void cleanup();
+
     private final static BigInteger M = new BigInteger(String.valueOf(8 * 3 * 5 * 7 * 11 * 13));
 
     protected int numBits;

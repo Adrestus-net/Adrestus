@@ -70,9 +70,9 @@ public class VdfEngineWesolowski extends VdfEngine {
 
     private BigInteger getBlock(long i, long k, long t, BigInteger b) {
         BigInteger two = BigIntUtils.createBigInteger(2);
-        BigInteger res = GMP.modPowInsecure(two, BigIntUtils.createBigInteger(t - k * (i + 1)), b);
+        BigInteger res = GMP.getInstance().modPowInsecure(two, BigIntUtils.createBigInteger(t - k * (i + 1)), b);
         res = res.multiply(two.shiftRight(1).shiftLeft((int) k));
-        return GMP.divide(res, b);
+        return GMP.getInstance().divide(res, b);
     }
 
     private ClassGroup evalOptimized(ClassGroup h, BigInteger b, long t, long k, long l, Map<Long, ClassGroup> powers) {
@@ -165,7 +165,7 @@ public class VdfEngineWesolowski extends VdfEngine {
         byte[] yBuf = new byte[elementLen];
         y.serialize(yBuf);
         BigInteger b = hashPrime(xBuf, yBuf);
-        BigInteger r = GMP.modPowInsecure(BigIntUtils.createBigInteger(2), BigIntUtils.createBigInteger(iterations), b);
+        BigInteger r = GMP.getInstance().modPowInsecure(BigIntUtils.createBigInteger(2), BigIntUtils.createBigInteger(iterations), b);
         proof.pow(b);
         x.pow(r);
         proof.multiplyWith(x);
@@ -192,5 +192,10 @@ public class VdfEngineWesolowski extends VdfEngine {
         ClassGroup y = ClassGroup.fromBytes(resultBytes, discriminant);
 
         return verifyProof(x, y, proof, iterations);
+    }
+
+    @Override
+    public void cleanup() {
+        GMP.getInstance().clear();
     }
 }

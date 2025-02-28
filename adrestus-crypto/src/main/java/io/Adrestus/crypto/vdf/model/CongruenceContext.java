@@ -16,22 +16,22 @@ public class CongruenceContext {
     }
 
     public BigInteger[] solveLinearCongruence(BigInteger a, BigInteger b, BigInteger m) {
-        BigInteger[] tmp = GMP.gcdExt(a, m);
+        BigInteger[] tmp = GMP.getInstance().gcdExt(a, m);
         this.g = tmp[0];
         this.d = tmp[1];
         //BigInteger mu = tmp[2];
 
         //ffi::mpz_divexact(&mut self.q, b, &self.g)
-        this.q = GMP.exactDivide(b, this.g);
+        this.q = GMP.getInstance().exactDivide(b, this.g);
 
         //ffi::mpz_mul(&mut self.r, &self.q, &self.d);
         this.r = this.q.multiply(this.d);
 
         //ffi::mpz_tdiv_r(mu, &self.r, m);
-        BigInteger mu = GMP.remainder(this.r, m);
+        BigInteger mu = GMP.getInstance().remainder(this.r, m);
 
         //ffi::mpz_divexact(v, &m, &self.g)
-        BigInteger v = GMP.exactDivide(m, this.g);
+        BigInteger v = GMP.getInstance().exactDivide(m, this.g);
 
         return new BigInteger[]{mu, v};
     }

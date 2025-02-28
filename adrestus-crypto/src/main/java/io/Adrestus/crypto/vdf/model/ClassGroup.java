@@ -1,7 +1,7 @@
 package io.Adrestus.crypto.vdf.model;
 
-
 import io.Adrestus.crypto.pca.cs.jna.gmp.GMP;
+import lombok.Getter;
 
 import java.math.BigInteger;
 import java.util.Collections;
@@ -12,8 +12,9 @@ import java.util.Map;
 import static io.Adrestus.crypto.vdf.utils.BigIntUtils.createBigInteger;
 
 
+@Getter
 public class ClassGroup {
-    public BigInteger a, b, c, discriminant;
+    private BigInteger a, b, c, discriminant;
 
     public ClassGroup(BigInteger a, BigInteger b, BigInteger c, BigInteger discriminant) {
         this.a = a;
@@ -66,7 +67,7 @@ public class ClassGroup {
     }
 
     private static int rawExport(byte[] v, int offset, BigInteger obj) {
-        byte[] tmp = GMP.mpzExport(obj, 1);
+        byte[] tmp = GMP.getInstance().mpzExport(obj, 1);
         System.arraycopy(tmp, 0, v, offset, tmp.length);
         return tmp.length;
     }
@@ -135,13 +136,13 @@ public class ClassGroup {
         ctx.congruenceContext.g = this.b.add(rhs.b);
 
         //ffi::mpz_fdiv_q_ui_self(&mut ctx.congruence_context.g, 2);
-        ctx.congruenceContext.g = GMP.fdivQUI(ctx.congruenceContext.g, 2);
+        ctx.congruenceContext.g = GMP.getInstance().fdivQUI(ctx.congruenceContext.g, 2);
 
         //ffi::mpz_sub(&mut ctx.h, &rhs.b, &self.b);            
         ctx.h = rhs.b.subtract(this.b);
 
         //ffi::mpz_fdiv_q_ui_self(&mut ctx.h, 2);
-        ctx.h = GMP.fdivQUI(ctx.h, 2);
+        ctx.h = GMP.getInstance().fdivQUI(ctx.h, 2);
 
         //ffi::three_gcd(&mut ctx.w, &self.a, &rhs.a, &ctx.congruence_context.g);
         ctx.w = this.a.gcd(rhs.a).gcd(ctx.congruenceContext.g);
@@ -150,13 +151,13 @@ public class ClassGroup {
         ctx.j = ctx.w;
 
         //ffi::mpz_fdiv_q(&mut ctx.s, &self.a, &ctx.w);
-        ctx.s = GMP.fdiv(this.a, ctx.w);
+        ctx.s = GMP.getInstance().fdiv(this.a, ctx.w);
 
         //ffi::mpz_fdiv_q(&mut ctx.t, &rhs.a, &ctx.w);
-        ctx.t = GMP.fdiv(rhs.a, ctx.w);
+        ctx.t = GMP.getInstance().fdiv(rhs.a, ctx.w);
 
         //ffi::mpz_fdiv_q(&mut ctx.u, &ctx.congruence_context.g, &ctx.w);
-        ctx.u = GMP.fdiv(ctx.congruenceContext.g, ctx.w);
+        ctx.u = GMP.getInstance().fdiv(ctx.congruenceContext.g, ctx.w);
 
         //ffi::mpz_mul(&mut ctx.a, &ctx.t, &ctx.u);
         ctx.a = ctx.t.multiply(ctx.u);
@@ -223,7 +224,7 @@ public class ClassGroup {
         ctx.v = ctx.l.subtract(ctx.h);
 
         //ffi::mpz_fdiv_q(&mut ctx.l, &ctx.v, &ctx.s);
-        ctx.l = GMP.fdiv(ctx.v, ctx.s);
+        ctx.l = GMP.getInstance().fdiv(ctx.v, ctx.s);
 
 
         //ffi::mpz_mul(&mut ctx.m, &ctx.t, &ctx.u);
@@ -248,7 +249,7 @@ public class ClassGroup {
         ctx.a = ctx.s.multiply(ctx.t);
 
         //ffi::mpz_fdiv_q(&mut ctx.lambda, &ctx.m, &ctx.a);
-        ctx.lambda = GMP.fdiv(ctx.m, ctx.a);
+        ctx.lambda = GMP.getInstance().fdiv(ctx.m, ctx.a);
 
         //ffi::mpz_mul(&mut self.a, &ctx.s, &ctx.t);
         this.a = ctx.s.multiply(ctx.t);
@@ -298,7 +299,7 @@ public class ClassGroup {
         ctx.denom = this.a.multiply(createBigInteger(2));
 
         //ffi::mpz_fdiv_q(&mut ctx.negative_a, &ctx.r, &ctx.denom);
-        ctx.negativeA = GMP.fdiv(ctx.r, ctx.denom);
+        ctx.negativeA = GMP.getInstance().fdiv(ctx.r, ctx.denom);
 
         //swap(&mut ctx.negative_a, &mut ctx.r);
         BigInteger tmp = ctx.r;
@@ -355,7 +356,7 @@ public class ClassGroup {
             ctx.oldB = tmp;
 
             //ffi::mpz_fdiv_q(&mut self.b, &ctx.s, &ctx.x);
-            this.b = GMP.fdiv(ctx.s, ctx.x);
+            this.b = GMP.getInstance().fdiv(ctx.s, ctx.x);
 
             //swap(&mut self.b, &mut ctx.s);
             tmp = this.b;

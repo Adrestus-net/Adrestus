@@ -29,7 +29,6 @@
         <lombok.version>1.18.36</lombok.version>
         <disruptor.version>4.0.0</disruptor.version>
         <cafeine.version>3.1.8</cafeine.version>
-        <jakson.version>2.18.1</jakson.version>
         <adrestus-shared-resources.version>1.0-SNAPSHOT</adrestus-shared-resources.version>
     </properties>
     <repositories>
@@ -89,11 +88,6 @@
             <groupId>io.Adrestus.v1</groupId>
             <artifactId>adrestus-erasure-code</artifactId>
             <version>${erasure-code.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>${jakson.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>

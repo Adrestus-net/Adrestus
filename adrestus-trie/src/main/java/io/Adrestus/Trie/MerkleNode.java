@@ -119,6 +119,13 @@ public class MerkleNode implements Serializable, Cloneable {
         }
     }
 
+    public void clear() {
+        this.transactionHash = "";
+        this.root = null;
+        this.left = null;
+        this.right = null;
+    }
+
     //Never Delete it
     @Override
     public String toString() {

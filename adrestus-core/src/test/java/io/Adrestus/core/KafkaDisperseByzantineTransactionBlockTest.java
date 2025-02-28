@@ -7,6 +7,7 @@ import io.Adrestus.Trie.MerkleTreeOptimizedImp;
 import io.Adrestus.Trie.PatriciaTreeNode;
 import io.Adrestus.config.AdrestusConfiguration;
 import io.Adrestus.config.KafkaConfiguration;
+import io.Adrestus.config.RunningConfig;
 import io.Adrestus.core.Resourses.CachedZoneIndex;
 import io.Adrestus.core.Util.BlockSizeCalculator;
 import io.Adrestus.crypto.HashUtil;
@@ -49,6 +50,7 @@ import io.Adrestus.util.SerializationUtil;
 import io.distributedLedger.*;
 import lombok.SneakyThrows;
 import org.apache.commons.codec.binary.StringUtils;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.spongycastle.util.encoders.Hex;
@@ -151,391 +153,407 @@ public class KafkaDisperseByzantineTransactionBlockTest {
     @SneakyThrows
     @BeforeAll
     public static void setup() {
-        if (System.out.getClass().getName().contains("maven")) {
-            System.out.println("Running from Maven: ");
+        if (RunningConfig.isRunningInMaven() && !RunningConfig.isRunningInDocker() && RunningConfig.isRunningInAppveyor()) {
             return;
-        }
+        } else if (RunningConfig.isRunningInMaven() && !RunningConfig.isRunningInDocker() && !RunningConfig.isRunningInAppveyor()) {
+            return;
+        } else if ((RunningConfig.isRunningInDocker() && !RunningConfig.isRunningInAppveyor()) || !RunningConfig.isRunningInMaven()) {
 
-        delete_test();
-        sk1 = new BLSPrivateKey(1);
-        vk1 = new BLSPublicKey(sk1);
+            delete_test();
+            sk1 = new BLSPrivateKey(1);
+            vk1 = new BLSPublicKey(sk1);
 
-        sk2 = new BLSPrivateKey(2);
-        vk2 = new BLSPublicKey(sk2);
+            sk2 = new BLSPrivateKey(2);
+            vk2 = new BLSPublicKey(sk2);
 
-        sk3 = new BLSPrivateKey(3);
-        vk3 = new BLSPublicKey(sk3);
+            sk3 = new BLSPrivateKey(3);
+            vk3 = new BLSPublicKey(sk3);
 
-        sk4 = new BLSPrivateKey(4);
-        vk4 = new BLSPublicKey(sk4);
+            sk4 = new BLSPrivateKey(4);
+            vk4 = new BLSPublicKey(sk4);
 
 
-        sk5 = new BLSPrivateKey(5);
-        vk5 = new BLSPublicKey(sk5);
+            sk5 = new BLSPrivateKey(5);
+            vk5 = new BLSPublicKey(sk5);
 
-        sk6 = new BLSPrivateKey(6);
-        vk6 = new BLSPublicKey(sk6);
+            sk6 = new BLSPrivateKey(6);
+            vk6 = new BLSPublicKey(sk6);
 
-        sk7 = new BLSPrivateKey(7);
-        vk7 = new BLSPublicKey(sk7);
+            sk7 = new BLSPrivateKey(7);
+            vk7 = new BLSPublicKey(sk7);
 
-        sk8 = new BLSPrivateKey(8);
-        vk8 = new BLSPublicKey(sk8);
+            sk8 = new BLSPrivateKey(8);
+            vk8 = new BLSPublicKey(sk8);
 
-        sizeCalculator = new BlockSizeCalculator();
-        List<SerializationUtil.Mapping> list = new ArrayList<>();
-        list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
-        list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
-        list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
-        list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
-        list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
-        serenc = new SerializationUtil<AbstractBlock>(AbstractBlock.class, list);
-        serenc_erasure = new SerializationUtil<SerializableErasureObject>(SerializableErasureObject.class, list);
-        serenc__final_erasure = new SerializationUtil<ArrayList<byte[]>>(new TypeToken<List<byte[]>>() {
-        }.getType());
-        SecureRandom random;
-        String mnemonic_code = "fd8cee9c1a3f3f57ab51b25740b24341ae093c8f697fde4df948050d3acd1700f6379d716104d2159e4912509c40ac81714d833e93b822e5ba0fadd68d5568a2";
-        random = SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
-        random.setSeed(Hex.decode(mnemonic_code));
+            sizeCalculator = new BlockSizeCalculator();
+            List<SerializationUtil.Mapping> list = new ArrayList<>();
+            list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
+            list.add(new SerializationUtil.Mapping(ECP.class, ctx -> new ECPmapper()));
+            list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
+            list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
+            list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap()));
+            serenc = new SerializationUtil<AbstractBlock>(AbstractBlock.class, list);
+            serenc_erasure = new SerializationUtil<SerializableErasureObject>(SerializableErasureObject.class, list);
+            serenc__final_erasure = new SerializationUtil<ArrayList<byte[]>>(new TypeToken<List<byte[]>>() {
+            }.getType());
+            SecureRandom random;
+            String mnemonic_code = "fd8cee9c1a3f3f57ab51b25740b24341ae093c8f697fde4df948050d3acd1700f6379d716104d2159e4912509c40ac81714d833e93b822e5ba0fadd68d5568a2";
+            random = SecureRandom.getInstance(AdrestusConfiguration.ALGORITHM, AdrestusConfiguration.PROVIDER);
+            random.setSeed(Hex.decode(mnemonic_code));
 
-        ECDSASign ecdsaSign = new ECDSASign();
+            ECDSASign ecdsaSign = new ECDSASign();
 
-        List<SerializationUtil.Mapping> list2 = new ArrayList<>();
-        list2.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
-        list2.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
-        trx_serence = new SerializationUtil<Transaction>(Transaction.class, list2);
+            List<SerializationUtil.Mapping> list2 = new ArrayList<>();
+            list2.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
+            list2.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
+            trx_serence = new SerializationUtil<Transaction>(Transaction.class, list2);
 
-        for (int i = 0; i < 10; i++) {
-            Mnemonic mnem = new Mnemonic(Security.NORMAL, WordList.ENGLISH);
-            char[] mnemonic_sequence = mnem.create();
-            char[] passphrase = "p4ssphr4se".toCharArray();
-            byte[] key = mnem.createSeed(mnemonic_sequence, passphrase);
-            ECKeyPair ecKeyPair = Keys.create256r1KeyPair(new SecureRandom(key));
-            String adddress = WalletAddress.generate_address((byte) version, ecKeyPair.getPublicKey());
-            addreses.add(adddress);
-            keypair.add(ecKeyPair);
-            TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(adddress, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
-        }
-
-        signatureData1 = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(addreses.get(0))), keypair.get(0));
-        signatureData2 = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(addreses.get(1))), keypair.get(1));
-        signatureData3 = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(addreses.get(2))), keypair.get(2));
-
-        transactionCallback = new TransactionCallback();
-
-        for (int j = 0; j < size; j++) {
-            for (int i = 0; i < 10 - 1; i++) {
-                Transaction transaction = new RegularTransaction();
-                transaction.setFrom(addreses.get(i));
-                transaction.setTo(addreses.get(i + 1));
-                transaction.setStatus(StatusType.PENDING);
-                transaction.setTimestamp(GetTime.GetTimeStampInString());
-                transaction.setZoneFrom(0);
-                transaction.setZoneTo(0);
-                transaction.setAmount(BigDecimal.valueOf(100));
-                transaction.setAmountWithTransactionFee(transaction.getAmount().multiply(BigDecimal.valueOf(j + 1 / 100.0)));
-                transaction.setNonce(j);
-                transaction.setXAxis(keypair.get(i).getXpubAxis());
-                transaction.setYAxis(keypair.get(i).getYpubAxis());
-                transaction.setTransactionCallback(transactionCallback);
-                byte byf[] = trx_serence.encode(transaction, 1024);
-                transaction.setHash(HashUtil.sha256_bytetoString(byf));
-                await().atMost(10, TimeUnit.MILLISECONDS);
-
-                ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(transaction.getHash().getBytes(StandardCharsets.UTF_8), keypair.get(i));
-                transaction.setSignature(signatureData);
-                transactions.add(transaction);
+            for (int i = 0; i < 10; i++) {
+                Mnemonic mnem = new Mnemonic(Security.NORMAL, WordList.ENGLISH);
+                char[] mnemonic_sequence = mnem.create();
+                char[] passphrase = "p4ssphr4se".toCharArray();
+                byte[] key = mnem.createSeed(mnemonic_sequence, passphrase);
+                ECKeyPair ecKeyPair = Keys.create256r1KeyPair(new SecureRandom(key));
+                String adddress = WalletAddress.generate_address((byte) version, ecKeyPair.getPublicKey());
+                addreses.add(adddress);
+                keypair.add(ecKeyPair);
+                TreeFactory.getMemoryTree(CachedZoneIndex.getInstance().getZoneIndex()).store(adddress, new PatriciaTreeNode(BigDecimal.valueOf(1000), 0));
             }
+
+            signatureData1 = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(addreses.get(0))), keypair.get(0));
+            signatureData2 = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(addreses.get(1))), keypair.get(1));
+            signatureData3 = ecdsaSign.signSecp256r1Message(HashUtil.sha256(StringUtils.getBytesUtf8(addreses.get(2))), keypair.get(2));
+
+            transactionCallback = new TransactionCallback();
+
+            for (int j = 0; j < size; j++) {
+                for (int i = 0; i < 10 - 1; i++) {
+                    Transaction transaction = new RegularTransaction();
+                    transaction.setFrom(addreses.get(i));
+                    transaction.setTo(addreses.get(i + 1));
+                    transaction.setStatus(StatusType.PENDING);
+                    transaction.setTimestamp(GetTime.GetTimeStampInString());
+                    transaction.setZoneFrom(0);
+                    transaction.setZoneTo(0);
+                    transaction.setAmount(BigDecimal.valueOf(100));
+                    transaction.setAmountWithTransactionFee(transaction.getAmount().multiply(BigDecimal.valueOf(j + 1 / 100.0)));
+                    transaction.setNonce(j);
+                    transaction.setXAxis(keypair.get(i).getXpubAxis());
+                    transaction.setYAxis(keypair.get(i).getYpubAxis());
+                    transaction.setTransactionCallback(transactionCallback);
+                    byte byf[] = trx_serence.encode(transaction, 1024);
+                    transaction.setHash(HashUtil.sha256_bytetoString(byf));
+                    await().atMost(10, TimeUnit.MILLISECONDS);
+
+                    ECDSASignatureData signatureData = ecdsaSign.signSecp256r1Message(transaction.getHash().getBytes(StandardCharsets.UTF_8), keypair.get(i));
+                    transaction.setSignature(signatureData);
+                    transactions.add(transaction);
+                }
+            }
+            transactionBlock = new TransactionBlock();
+            transactionBlock.setHash("hash");
+            transactionBlock.setZone(1);
+            transactionBlock.setViewID(1);
+            transactionBlock.setHeight(1);
+            transactionBlock.setTransactionList(transactions);
+
+            HashMap<BLSPublicKey, BLSSignatureData> hashMap = new HashMap<BLSPublicKey, BLSSignatureData>();
+            BLSSignatureData blsSignatureData1 = new BLSSignatureData();
+            blsSignatureData1.getSignature()[0] = BLSSignature.sign("0".getBytes(StandardCharsets.UTF_8), sk1);
+            blsSignatureData1.getSignature()[1] = BLSSignature.sign("1".getBytes(StandardCharsets.UTF_8), sk1);
+            blsSignatureData1.getMessageHash()[0] = "0";
+            blsSignatureData1.getMessageHash()[1] = "1";
+            BLSSignatureData blsSignatureData2 = new BLSSignatureData();
+            blsSignatureData2.getSignature()[0] = BLSSignature.sign("0".getBytes(StandardCharsets.UTF_8), sk2);
+            blsSignatureData2.getSignature()[1] = BLSSignature.sign("1".getBytes(StandardCharsets.UTF_8), sk2);
+            blsSignatureData2.getMessageHash()[0] = "0";
+            blsSignatureData2.getMessageHash()[1] = "1";
+            BLSSignatureData blsSignatureData3 = new BLSSignatureData();
+            blsSignatureData3.getSignature()[0] = BLSSignature.sign("0".getBytes(StandardCharsets.UTF_8), sk3);
+            blsSignatureData3.getSignature()[1] = BLSSignature.sign("1".getBytes(StandardCharsets.UTF_8), sk3);
+            blsSignatureData3.getMessageHash()[0] = "0";
+            blsSignatureData3.getMessageHash()[1] = "1";
+            BLSSignatureData blsSignatureData4 = new BLSSignatureData();
+            blsSignatureData4.getSignature()[0] = BLSSignature.sign("0".getBytes(StandardCharsets.UTF_8), sk4);
+            blsSignatureData4.getSignature()[1] = BLSSignature.sign("1".getBytes(StandardCharsets.UTF_8), sk4);
+            blsSignatureData4.getMessageHash()[0] = "0";
+            blsSignatureData4.getMessageHash()[1] = "1";
+            hashMap.put(vk1, blsSignatureData1);
+            hashMap.put(vk2, blsSignatureData2);
+            hashMap.put(vk3, blsSignatureData3);
+            hashMap.put(vk4, blsSignatureData4);
+            transactionBlock.AddAllSignatureData(hashMap);
+
+            Socket socket = new Socket();
+            socket.connect(new InetSocketAddress("google.com", 80));
+            String IP = socket.getLocalAddress().getHostAddress();
+            KafkaConfiguration.KAFKA_HOST = IP;
+            ips = new ArrayList<>();
+            ips.add(System.getProperty("test.arg0") == null ? "192.168.1.106" : System.getProperty("test.arg0"));
+            ips.add(System.getProperty("test.arg1") == null ? "192.168.1.116" : System.getProperty("test.arg1"));
+            ips.add(System.getProperty("test.arg2") == null ? "192.168.1.115" : System.getProperty("test.arg2"));
+            position = IntStream.range(0, list.size()).filter(i -> IP.equals(ips.get(i))).findFirst();
+            consensusBroker = new ConsensusBroker(ips, ips.getFirst(), position.getAsInt());
+            consensusBroker.initializeKafkaKingdom();
+            CachedEventLoop.getInstance().start();
         }
-        transactionBlock = new TransactionBlock();
-        transactionBlock.setHash("hash");
-        transactionBlock.setZone(1);
-        transactionBlock.setViewID(1);
-        transactionBlock.setHeight(1);
-        transactionBlock.setTransactionList(transactions);
-
-        HashMap<BLSPublicKey, BLSSignatureData> hashMap = new HashMap<BLSPublicKey, BLSSignatureData>();
-        BLSSignatureData blsSignatureData1 = new BLSSignatureData();
-        blsSignatureData1.getSignature()[0] = BLSSignature.sign("0".getBytes(StandardCharsets.UTF_8), sk1);
-        blsSignatureData1.getSignature()[1] = BLSSignature.sign("1".getBytes(StandardCharsets.UTF_8), sk1);
-        blsSignatureData1.getMessageHash()[0] = "0";
-        blsSignatureData1.getMessageHash()[1] = "1";
-        BLSSignatureData blsSignatureData2 = new BLSSignatureData();
-        blsSignatureData2.getSignature()[0] = BLSSignature.sign("0".getBytes(StandardCharsets.UTF_8), sk2);
-        blsSignatureData2.getSignature()[1] = BLSSignature.sign("1".getBytes(StandardCharsets.UTF_8), sk2);
-        blsSignatureData2.getMessageHash()[0] = "0";
-        blsSignatureData2.getMessageHash()[1] = "1";
-        BLSSignatureData blsSignatureData3 = new BLSSignatureData();
-        blsSignatureData3.getSignature()[0] = BLSSignature.sign("0".getBytes(StandardCharsets.UTF_8), sk3);
-        blsSignatureData3.getSignature()[1] = BLSSignature.sign("1".getBytes(StandardCharsets.UTF_8), sk3);
-        blsSignatureData3.getMessageHash()[0] = "0";
-        blsSignatureData3.getMessageHash()[1] = "1";
-        BLSSignatureData blsSignatureData4 = new BLSSignatureData();
-        blsSignatureData4.getSignature()[0] = BLSSignature.sign("0".getBytes(StandardCharsets.UTF_8), sk4);
-        blsSignatureData4.getSignature()[1] = BLSSignature.sign("1".getBytes(StandardCharsets.UTF_8), sk4);
-        blsSignatureData4.getMessageHash()[0] = "0";
-        blsSignatureData4.getMessageHash()[1] = "1";
-        hashMap.put(vk1, blsSignatureData1);
-        hashMap.put(vk2, blsSignatureData2);
-        hashMap.put(vk3, blsSignatureData3);
-        hashMap.put(vk4, blsSignatureData4);
-        transactionBlock.AddAllSignatureData(hashMap);
-
-        Socket socket = new Socket();
-        socket.connect(new InetSocketAddress("google.com", 80));
-        String IP = socket.getLocalAddress().getHostAddress();
-        KafkaConfiguration.KAFKA_HOST = IP;
-        ips = new ArrayList<>();
-        ips.add("192.168.1.106");
-        ips.add("192.168.1.116");
-        ips.add("192.168.1.115");
-        position = IntStream.range(0, list.size()).filter(i -> IP.equals(ips.get(i))).findFirst();
-        consensusBroker = new ConsensusBroker(ips, ips.getFirst(), position.getAsInt());
-        consensusBroker.initializeKafkaKingdom();
-        CachedEventLoop.getInstance().start();
     }
 
     @SneakyThrows
     @Test
     public void KafkaDisperseTest() {
-        if (System.out.getClass().getName().contains("maven")) {
-            System.out.println("Running from Maven: ");
+        if (RunningConfig.isRunningInMaven() && !RunningConfig.isRunningInDocker() && RunningConfig.isRunningInAppveyor()) {
             return;
-        }
+        } else if (RunningConfig.isRunningInMaven() && !RunningConfig.isRunningInDocker() && !RunningConfig.isRunningInAppveyor()) {
+            return;
+        } else if ((RunningConfig.isRunningInDocker() && !RunningConfig.isRunningInAppveyor()) || !RunningConfig.isRunningInMaven()) {
 
-        ArrayList<Long> elaspe_time = new ArrayList<>();
-        while (VIEW_NUMBER <= ITERATIONS_MAX) {
-            System.out.println("Iteration: " + VIEW_NUMBER);
-            if (position.getAsInt() == 0) {
-                if (VIEW_NUMBER > 1)
-                    consensusBroker.seekDisperseOffsetToEnd();
+            ArrayList<Long> elaspe_time = new ArrayList<>();
+            while (VIEW_NUMBER <= ITERATIONS_MAX) {
+                System.out.println("Iteration: " + VIEW_NUMBER);
+                if (position.getAsInt() == 0) {
+                    if (VIEW_NUMBER > 1)
+                        consensusBroker.seekDisperseOffsetToEnd();
 
-                Thread.sleep(10);
-                BlockSizeCalculator sizeCalculator = new BlockSizeCalculator();
-                sizeCalculator.setTransactionBlock(transactionBlock);
-                byte[] buffer = serenc.encode(transactionBlock, sizeCalculator.TransactionBlockSizeCalculator());
+                    Thread.sleep(10);
+                    BlockSizeCalculator sizeCalculator = new BlockSizeCalculator();
+                    sizeCalculator.setTransactionBlock(transactionBlock);
+                    byte[] buffer = serenc.encode(transactionBlock, sizeCalculator.TransactionBlockSizeCalculator());
 
-                long dataLen = buffer.length;
-                int sizeOfCommittee = 2;
-                double loss = .6;
-                int numSrcBlks = sizeOfCommittee;
-                int symbSize = (int) (dataLen / sizeOfCommittee);
-                FECParameterObject object = FECParametersPreConditions.CalculateFECParameters(dataLen, symbSize, numSrcBlks);
-                FECParameters fecParams = FECParameters.newParameters(object.getDataLen(), object.getSymbolSize(), object.getNumberOfSymbols());
+                    long dataLen = buffer.length;
+                    int sizeOfCommittee = 2;
+                    double loss = .6;
+                    int numSrcBlks = sizeOfCommittee;
+                    int symbSize = (int) (dataLen / sizeOfCommittee);
+                    FECParameterObject object = FECParametersPreConditions.CalculateFECParameters(dataLen, symbSize, numSrcBlks);
+                    FECParameters fecParams = FECParameters.newParameters(object.getDataLen(), object.getSymbolSize(), object.getNumberOfSymbols());
 
-                byte[] data = new byte[fecParams.dataLengthAsInt()];
-                System.arraycopy(buffer, 0, data, 0, data.length);
-                final ArrayDataEncoder enc = OpenRQ.newEncoder(data, fecParams);
-                ArrayList<SerializableErasureObject> serializableErasureObjects = new ArrayList<SerializableErasureObject>();
-                ArrayList<EncodingPacket> n = new ArrayList<EncodingPacket>();
-                for (SourceBlockEncoder sbEnc : enc.sourceBlockIterable()) {
-                    for (EncodingPacket srcPacket : sbEnc.sourcePacketsIterable()) {
-                        n.add(srcPacket);
-                    }
-                }
-                MerkleTreeOptimizedImp tree = new MerkleTreeOptimizedImp();
-                ArrayList<MerkleNode> merkleNodes = new ArrayList<MerkleNode>();
-                for (int i = 0; i < n.size(); i++) {
-                    SerializableErasureObject serializableErasureObject = new SerializableErasureObject(object, n.get(i).asArray(), new ArrayList<byte[]>());
-                    serializableErasureObjects.add(serializableErasureObject);
-                    merkleNodes.add(new MerkleNode(HashUtil.XXH3(serializableErasureObject.getOriginalPacketChunks())));
-                }
-                tree.constructTree(merkleNodes);
-                String original_hash = tree.getRootHash();
-                for (int j = 0; j < serializableErasureObjects.size(); j++) {
-                    tree.build_proofs(new MerkleNode(HashUtil.XXH3(serializableErasureObjects.get(j).getOriginalPacketChunks())));
-                    serializableErasureObjects.get(j).setProofs(tree.getMerkleeproofs());
-                    serializableErasureObjects.get(j).setRootMerkleHash(tree.getRootHash());
-                }
-                int sendSize = 0;
-                int onlyFirstSize = 0;
-                if (serializableErasureObjects.size() >= sizeOfCommittee) {
-                    sendSize = serializableErasureObjects.size() / sizeOfCommittee;
-                    onlyFirstSize = (n.size() - sendSize * sizeOfCommittee);
-                } else {
-                    sendSize = sizeOfCommittee;
-                    onlyFirstSize = sizeOfCommittee - sendSize * n.size();
-                }
-
-                int startPosition = 0;
-                ArrayList<ArrayList<byte[]>> finalList = new ArrayList<>();
-                while (startPosition < serializableErasureObjects.size()) {
-                    int endPosition = Math.min(startPosition + sendSize + onlyFirstSize, serializableErasureObjects.size());
-                    ArrayList<byte[]> toSend = new ArrayList<>(endPosition - startPosition);
-                    for (int i = startPosition; i < endPosition; i++) {
-                        SerializableErasureObject serializableErasureObject = serializableErasureObjects.get(i);
-                        toSend.add(serenc_erasure.encode(serializableErasureObject, serializableErasureObject.getSize()));
-                    }
-                    if (toSend.isEmpty()) {
-                        throw new IllegalArgumentException("Size of toSend is 0");
-                    }
-                    finalList.add(toSend);
-                    startPosition = endPosition;
-                    onlyFirstSize = 0;
-                }
-                assertEquals(finalList.size(), sizeOfCommittee);
-                RpcErasureServer example = new RpcErasureServer(IPFinder.getLocal_address(), 6082, CachedEventLoop.getInstance().getEventloop());
-                new Thread(example).start();
-                consensusBroker.distributeDisperseMessageFromLeader(finalList, String.valueOf(VIEW_NUMBER));
-            } else {
-                if (position.getAsInt() == 1) {
-                    long start = System.currentTimeMillis();
-                    ArrayList<byte[]> fromLeaderReceive = consensusBroker.receiveDisperseHandledMessageFromLeader(TopicType.DISPERSE_PHASE1, String.valueOf(VIEW_NUMBER) + 1);
-                    assertFalse(fromLeaderReceive.isEmpty());
-                    System.out.println("received");
-                    HashMap<String, ArrayList<byte[]>> finalList = new HashMap<>();
-
-                    Set<String> keysToRetrieve = new HashSet<>();
-                    SerializableErasureObject root = serenc_erasure.decode(fromLeaderReceive.getFirst());
-                    //#########################################################################################################################
-                    ArrayList<SerializableErasureObject> recserializableErasureObjects = new ArrayList<SerializableErasureObject>();
-                    if (!finalList.isEmpty()) {
-                        root = serenc_erasure.decode(finalList.get("192.168.1.106").getFirst());
-                        for (Map.Entry<String, ArrayList<byte[]>> entry : finalList.entrySet()) {
-                            try {
-                                if (entry.getValue().isEmpty()) {
-                                    keysToRetrieve.add(entry.getKey());
-                                    continue;
-                                }
-                                for (byte[] rec_buff : entry.getValue()) {
-                                    SerializableErasureObject object = serenc_erasure.decode(rec_buff);
-                                    if (!object.getRootMerkleHash().equals(root.getRootMerkleHash())) {
-                                        System.out.println("Meerklee Hash is not valid");
-                                        keysToRetrieve.add(entry.getKey());
-                                    } else {
-                                        recserializableErasureObjects.add(serenc_erasure.decode(rec_buff));
-                                    }
-                                }
-                            } catch (Exception e) {
-                                System.out.println("Serialization Exception");
-                                keysToRetrieve.add(entry.getKey());
-                            }
+                    byte[] data = new byte[fecParams.dataLengthAsInt()];
+                    System.arraycopy(buffer, 0, data, 0, data.length);
+                    final ArrayDataEncoder enc = OpenRQ.newEncoder(data, fecParams);
+                    ArrayList<SerializableErasureObject> serializableErasureObjects = new ArrayList<SerializableErasureObject>();
+                    ArrayList<EncodingPacket> n = new ArrayList<EncodingPacket>();
+                    for (SourceBlockEncoder sbEnc : enc.sourceBlockIterable()) {
+                        for (EncodingPacket srcPacket : sbEnc.sourcePacketsIterable()) {
+                            n.add(srcPacket);
                         }
-                        assertEquals(1, keysToRetrieve.size());
+                    }
+                    MerkleTreeOptimizedImp tree = new MerkleTreeOptimizedImp();
+                    ArrayList<MerkleNode> merkleNodes = new ArrayList<MerkleNode>();
+                    for (int i = 0; i < n.size(); i++) {
+                        SerializableErasureObject serializableErasureObject = new SerializableErasureObject(object, n.get(i).asArray(), new ArrayList<byte[]>());
+                        serializableErasureObjects.add(serializableErasureObject);
+                        merkleNodes.add(new MerkleNode(HashUtil.XXH3(serializableErasureObject.getOriginalPacketChunks())));
+                    }
+                    tree.constructTree(merkleNodes);
+                    String original_hash = tree.getRootHash();
+                    for (int j = 0; j < serializableErasureObjects.size(); j++) {
+                        tree.build_proofs(new MerkleNode(HashUtil.XXH3(serializableErasureObjects.get(j).getOriginalPacketChunks())));
+                        serializableErasureObjects.get(j).setProofs(tree.getMerkleeproofs());
+                        serializableErasureObjects.get(j).setRootMerkleHash(tree.getRootHash());
+                    }
+                    int sendSize = 0;
+                    int onlyFirstSize = 0;
+                    if (serializableErasureObjects.size() >= sizeOfCommittee) {
+                        sendSize = serializableErasureObjects.size() / sizeOfCommittee;
+                        onlyFirstSize = (n.size() - sendSize * sizeOfCommittee);
                     } else {
-                        keysToRetrieve.addAll(ips);
-                        keysToRetrieve.remove("192.168.1.106");
+                        sendSize = sizeOfCommittee;
+                        onlyFirstSize = sizeOfCommittee - sendSize * n.size();
                     }
 
-                    RpcErasureClient client = new RpcErasureClient("192.168.1.106", 6082, CachedEventLoop.getInstance().getEventloop());
-                    client.connect();
-                    Map<String, byte[]> serializableErasureObject = client.getErasureChunks(new ArrayList<>(keysToRetrieve));
-                    for (Map.Entry<String, byte[]> entry : serializableErasureObject.entrySet()) {
-                        ArrayList<byte[]> res = new ArrayList<>(serenc__final_erasure.decode(entry.getValue()));
-                        for (byte[] rec_buff : res) {
-                            SerializableErasureObject object = serenc_erasure.decode(rec_buff);
-                            if (!object.getRootMerkleHash().equals(root.getRootMerkleHash())) {
-                                throw new IllegalArgumentException("Meerklee Hash is not valid");
-                            } else {
-                                recserializableErasureObjects.add(serenc_erasure.decode(rec_buff));
-                            }
+                    int startPosition = 0;
+                    ArrayList<ArrayList<byte[]>> finalList = new ArrayList<>();
+                    while (startPosition < serializableErasureObjects.size()) {
+                        int endPosition = Math.min(startPosition + sendSize + onlyFirstSize, serializableErasureObjects.size());
+                        ArrayList<byte[]> toSend = new ArrayList<>(endPosition - startPosition);
+                        for (int i = startPosition; i < endPosition; i++) {
+                            SerializableErasureObject serializableErasureObject = serializableErasureObjects.get(i);
+                            toSend.add(serenc_erasure.encode(serializableErasureObject, serializableErasureObject.getSize()));
                         }
+                        if (toSend.isEmpty()) {
+                            throw new IllegalArgumentException("Size of toSend is 0");
+                        }
+                        finalList.add(toSend);
+                        startPosition = endPosition;
+                        onlyFirstSize = 0;
                     }
-                    recserializableErasureObjects.add(root);
-                    Collections.shuffle(recserializableErasureObjects);
-                    FECParameterObject recobject = recserializableErasureObjects.get(0).getFecParameterObject();
-                    FECParameters recfecParams = FECParameters.newParameters(recobject.getDataLen(), recobject.getSymbolSize(), recobject.getNumberOfSymbols());
-                    final ArrayDataDecoder dec = OpenRQ.newDecoder(recfecParams, recobject.getSymbolOverhead());
-
-                    for (int i = 0; i < recserializableErasureObjects.size(); i++) {
-                        EncodingPacket encodingPacket = dec.parsePacket(ByteBuffer.wrap(recserializableErasureObjects.get(i).getOriginalPacketChunks()), false).value();
-                        final SourceBlockDecoder sbDec = dec.sourceBlock(encodingPacket.sourceBlockNumber());
-                        sbDec.putEncodingPacket(encodingPacket);
-                    }
-
-                    TransactionBlock copys = (TransactionBlock) serenc.decode(dec.dataArray());
-                    assertDoesNotThrow(() -> assertNotNull(copys));
-                    System.out.println("Data is equal");
-
-                    long finish = System.currentTimeMillis();
-                    long timeElapsed = finish - 10 - start;
-                    elaspe_time.add(timeElapsed);
+                    assertEquals(finalList.size(), sizeOfCommittee);
+                    RpcErasureServer example = new RpcErasureServer(IPFinder.getLocal_address(), 6082, CachedEventLoop.getInstance().getEventloop());
+                    new Thread(example).start();
+                    consensusBroker.distributeDisperseMessageFromLeader(finalList, String.valueOf(VIEW_NUMBER));
                 } else {
-                    long start = System.currentTimeMillis();
-                    ArrayList<byte[]> fromLeaderReceive = consensusBroker.receiveDisperseHandledMessageFromLeader(TopicType.DISPERSE_PHASE1, String.valueOf(VIEW_NUMBER) + 2);
-                    assertFalse(fromLeaderReceive.isEmpty());
-                    System.out.println("received");
-                    HashMap<String, ArrayList<byte[]>> finalList = new HashMap<>();
+                    if (position.getAsInt() == 1) {
+                        long start = System.currentTimeMillis();
+                        ArrayList<byte[]> fromLeaderReceive = consensusBroker.receiveDisperseHandledMessageFromLeader(TopicType.DISPERSE_PHASE1, String.valueOf(VIEW_NUMBER) + 1);
+                        assertFalse(fromLeaderReceive.isEmpty());
+                        System.out.println("received");
+                        HashMap<String, ArrayList<byte[]>> finalList = new HashMap<>();
 
-                    Set<String> keysToRetrieve = new HashSet<>();
-                    SerializableErasureObject root = serenc_erasure.decode(fromLeaderReceive.getFirst());
-                    //#########################################################################################################################
-                    ArrayList<SerializableErasureObject> recserializableErasureObjects = new ArrayList<SerializableErasureObject>();
-                    if (!finalList.isEmpty()) {
-                        root = serenc_erasure.decode(finalList.get("192.168.1.106").getFirst());
-                        for (Map.Entry<String, ArrayList<byte[]>> entry : finalList.entrySet()) {
-                            try {
-                                if (entry.getValue().isEmpty()) {
-                                    keysToRetrieve.add(entry.getKey());
-                                    continue;
-                                }
-                                for (byte[] rec_buff : entry.getValue()) {
-                                    SerializableErasureObject object = serenc_erasure.decode(rec_buff);
-                                    if (!object.getRootMerkleHash().equals(root.getRootMerkleHash())) {
-                                        System.out.println("Meerklee Hash is not valid");
+                        Set<String> keysToRetrieve = new HashSet<>();
+                        SerializableErasureObject root = serenc_erasure.decode(fromLeaderReceive.getFirst());
+                        //#########################################################################################################################
+                        ArrayList<SerializableErasureObject> recserializableErasureObjects = new ArrayList<SerializableErasureObject>();
+                        if (!finalList.isEmpty()) {
+                            root = serenc_erasure.decode(finalList.get(System.getProperty("test.arg0") == null ? "192.168.1.106" : System.getProperty("test.arg0")).getFirst());
+                            for (Map.Entry<String, ArrayList<byte[]>> entry : finalList.entrySet()) {
+                                try {
+                                    if (entry.getValue().isEmpty()) {
                                         keysToRetrieve.add(entry.getKey());
-                                    } else {
-                                        recserializableErasureObjects.add(serenc_erasure.decode(rec_buff));
+                                        continue;
                                     }
+                                    for (byte[] rec_buff : entry.getValue()) {
+                                        SerializableErasureObject object = serenc_erasure.decode(rec_buff);
+                                        if (!object.getRootMerkleHash().equals(root.getRootMerkleHash())) {
+                                            System.out.println("Meerklee Hash is not valid");
+                                            keysToRetrieve.add(entry.getKey());
+                                        } else {
+                                            recserializableErasureObjects.add(serenc_erasure.decode(rec_buff));
+                                        }
+                                    }
+                                } catch (Exception e) {
+                                    System.out.println("Serialization Exception");
+                                    keysToRetrieve.add(entry.getKey());
                                 }
-                            } catch (Exception e) {
-                                System.out.println("Serialization Exception");
-                                keysToRetrieve.add(entry.getKey());
+                            }
+                            assertEquals(1, keysToRetrieve.size());
+                        } else {
+                            keysToRetrieve.addAll(ips);
+                            keysToRetrieve.remove(System.getProperty("test.arg0") == null ? "192.168.1.106" : System.getProperty("test.arg0"));
+                        }
+
+                        RpcErasureClient client = new RpcErasureClient(System.getProperty("test.arg0") == null ? "192.168.1.106" : System.getProperty("test.arg0"), 6082, CachedEventLoop.getInstance().getEventloop());
+                        client.connect();
+                        Map<String, byte[]> serializableErasureObject = client.getErasureChunks(new ArrayList<>(keysToRetrieve));
+                        for (Map.Entry<String, byte[]> entry : serializableErasureObject.entrySet()) {
+                            ArrayList<byte[]> res = new ArrayList<>(serenc__final_erasure.decode(entry.getValue()));
+                            for (byte[] rec_buff : res) {
+                                SerializableErasureObject object = serenc_erasure.decode(rec_buff);
+                                if (!object.getRootMerkleHash().equals(root.getRootMerkleHash())) {
+                                    throw new IllegalArgumentException("Meerklee Hash is not valid");
+                                } else {
+                                    recserializableErasureObjects.add(serenc_erasure.decode(rec_buff));
+                                }
                             }
                         }
-                        assertEquals(1, keysToRetrieve.size());
+                        recserializableErasureObjects.add(root);
+                        Collections.shuffle(recserializableErasureObjects);
+                        FECParameterObject recobject = recserializableErasureObjects.get(0).getFecParameterObject();
+                        FECParameters recfecParams = FECParameters.newParameters(recobject.getDataLen(), recobject.getSymbolSize(), recobject.getNumberOfSymbols());
+                        final ArrayDataDecoder dec = OpenRQ.newDecoder(recfecParams, recobject.getSymbolOverhead());
+
+                        for (int i = 0; i < recserializableErasureObjects.size(); i++) {
+                            EncodingPacket encodingPacket = dec.parsePacket(ByteBuffer.wrap(recserializableErasureObjects.get(i).getOriginalPacketChunks()), false).value();
+                            final SourceBlockDecoder sbDec = dec.sourceBlock(encodingPacket.sourceBlockNumber());
+                            sbDec.putEncodingPacket(encodingPacket);
+                        }
+
+                        TransactionBlock copys = (TransactionBlock) serenc.decode(dec.dataArray());
+                        assertDoesNotThrow(() -> assertNotNull(copys));
+                        System.out.println("Data is equal");
+
+                        long finish = System.currentTimeMillis();
+                        long timeElapsed = finish - 10 - start;
+                        elaspe_time.add(timeElapsed);
                     } else {
-                        keysToRetrieve.addAll(ips);
-                        keysToRetrieve.remove("192.168.1.106");
-                    }
+                        long start = System.currentTimeMillis();
+                        ArrayList<byte[]> fromLeaderReceive = consensusBroker.receiveDisperseHandledMessageFromLeader(TopicType.DISPERSE_PHASE1, String.valueOf(VIEW_NUMBER) + 2);
+                        assertFalse(fromLeaderReceive.isEmpty());
+                        System.out.println("received");
+                        HashMap<String, ArrayList<byte[]>> finalList = new HashMap<>();
 
-                    RpcErasureClient client = new RpcErasureClient("192.168.1.106", 6082, CachedEventLoop.getInstance().getEventloop());
-                    client.connect();
-                    Map<String, byte[]> serializableErasureObject = client.getErasureChunks(new ArrayList<>(keysToRetrieve));
-                    for (Map.Entry<String, byte[]> entry : serializableErasureObject.entrySet()) {
-                        ArrayList<byte[]> res = new ArrayList<>(serenc__final_erasure.decode(entry.getValue()));
-                        for (byte[] rec_buff : res) {
-                            SerializableErasureObject object = serenc_erasure.decode(rec_buff);
-                            if (!object.getRootMerkleHash().equals(root.getRootMerkleHash())) {
-                                throw new IllegalArgumentException("Meerklee Hash is not valid");
-                            } else {
-                                recserializableErasureObjects.add(serenc_erasure.decode(rec_buff));
+                        Set<String> keysToRetrieve = new HashSet<>();
+                        SerializableErasureObject root = serenc_erasure.decode(fromLeaderReceive.getFirst());
+                        //#########################################################################################################################
+                        ArrayList<SerializableErasureObject> recserializableErasureObjects = new ArrayList<SerializableErasureObject>();
+                        if (!finalList.isEmpty()) {
+                            root = serenc_erasure.decode(finalList.get(System.getProperty("test.arg0") == null ? "192.168.1.106" : System.getProperty("test.arg0")).getFirst());
+                            for (Map.Entry<String, ArrayList<byte[]>> entry : finalList.entrySet()) {
+                                try {
+                                    if (entry.getValue().isEmpty()) {
+                                        keysToRetrieve.add(entry.getKey());
+                                        continue;
+                                    }
+                                    for (byte[] rec_buff : entry.getValue()) {
+                                        SerializableErasureObject object = serenc_erasure.decode(rec_buff);
+                                        if (!object.getRootMerkleHash().equals(root.getRootMerkleHash())) {
+                                            System.out.println("Meerklee Hash is not valid");
+                                            keysToRetrieve.add(entry.getKey());
+                                        } else {
+                                            recserializableErasureObjects.add(serenc_erasure.decode(rec_buff));
+                                        }
+                                    }
+                                } catch (Exception e) {
+                                    System.out.println("Serialization Exception");
+                                    keysToRetrieve.add(entry.getKey());
+                                }
+                            }
+                            assertEquals(1, keysToRetrieve.size());
+                        } else {
+                            keysToRetrieve.addAll(ips);
+                            keysToRetrieve.remove(System.getProperty("test.arg0") == null ? "192.168.1.106" : System.getProperty("test.arg0"));
+                        }
+
+                        RpcErasureClient client = new RpcErasureClient(System.getProperty("test.arg0") == null ? "192.168.1.106" : System.getProperty("test.arg0"), 6082, CachedEventLoop.getInstance().getEventloop());
+                        client.connect();
+                        Map<String, byte[]> serializableErasureObject = client.getErasureChunks(new ArrayList<>(keysToRetrieve));
+                        for (Map.Entry<String, byte[]> entry : serializableErasureObject.entrySet()) {
+                            ArrayList<byte[]> res = new ArrayList<>(serenc__final_erasure.decode(entry.getValue()));
+                            for (byte[] rec_buff : res) {
+                                SerializableErasureObject object = serenc_erasure.decode(rec_buff);
+                                if (!object.getRootMerkleHash().equals(root.getRootMerkleHash())) {
+                                    throw new IllegalArgumentException("Meerklee Hash is not valid");
+                                } else {
+                                    recserializableErasureObjects.add(serenc_erasure.decode(rec_buff));
+                                }
                             }
                         }
-                    }
-                    recserializableErasureObjects.add(root);
-                    Collections.shuffle(recserializableErasureObjects);
-                    FECParameterObject recobject = recserializableErasureObjects.get(0).getFecParameterObject();
-                    FECParameters recfecParams = FECParameters.newParameters(recobject.getDataLen(), recobject.getSymbolSize(), recobject.getNumberOfSymbols());
-                    final ArrayDataDecoder dec = OpenRQ.newDecoder(recfecParams, recobject.getSymbolOverhead());
+                        recserializableErasureObjects.add(root);
+                        Collections.shuffle(recserializableErasureObjects);
+                        FECParameterObject recobject = recserializableErasureObjects.get(0).getFecParameterObject();
+                        FECParameters recfecParams = FECParameters.newParameters(recobject.getDataLen(), recobject.getSymbolSize(), recobject.getNumberOfSymbols());
+                        final ArrayDataDecoder dec = OpenRQ.newDecoder(recfecParams, recobject.getSymbolOverhead());
 
-                    for (int i = 0; i < recserializableErasureObjects.size(); i++) {
-                        EncodingPacket encodingPacket = dec.parsePacket(ByteBuffer.wrap(recserializableErasureObjects.get(i).getOriginalPacketChunks()), false).value();
-                        final SourceBlockDecoder sbDec = dec.sourceBlock(encodingPacket.sourceBlockNumber());
-                        sbDec.putEncodingPacket(encodingPacket);
+                        for (int i = 0; i < recserializableErasureObjects.size(); i++) {
+                            EncodingPacket encodingPacket = dec.parsePacket(ByteBuffer.wrap(recserializableErasureObjects.get(i).getOriginalPacketChunks()), false).value();
+                            final SourceBlockDecoder sbDec = dec.sourceBlock(encodingPacket.sourceBlockNumber());
+                            sbDec.putEncodingPacket(encodingPacket);
+                        }
+
+                        TransactionBlock copys = (TransactionBlock) serenc.decode(dec.dataArray());
+                        assertDoesNotThrow(() -> assertNotNull(copys));
+                        System.out.println("Data is equal");
+                        long finish = System.currentTimeMillis();
+                        long timeElapsed = finish - 10 - start;
+                        elaspe_time.add(timeElapsed);
                     }
 
-                    TransactionBlock copys = (TransactionBlock) serenc.decode(dec.dataArray());
-                    assertDoesNotThrow(() -> assertNotNull(copys));
-                    System.out.println("Data is equal");
-                    long finish = System.currentTimeMillis();
-                    long timeElapsed = finish - 10 - start;
-                    elaspe_time.add(timeElapsed);
                 }
-
+                VIEW_NUMBER++;
+                Thread.sleep(1000);
+                consensusBroker.clear();
             }
-            VIEW_NUMBER++;
-            Thread.sleep(1000);
-            consensusBroker.clear();
-        }
 
-        var map = consensusBroker.getSequencedMap();
-        var list = elaspe_time;
-        OptionalDouble average = elaspe_time.stream().skip(1).mapToLong(Long::longValue).average();
-        if (average.isPresent()) {
-            System.out.println("Average elapsed time: " + average.getAsDouble() + " ms");
-        } else {
-            System.out.println("No elapsed time recorded.");
+            var map = consensusBroker.getSequencedMap();
+            var list = elaspe_time;
+            OptionalDouble average = elaspe_time.stream().skip(1).mapToLong(Long::longValue).average();
+            if (average.isPresent()) {
+                System.out.println("Average elapsed time: " + average.getAsDouble() + " ms");
+            } else {
+                System.out.println("No elapsed time recorded.");
+            }
+        }
+    }
+
+    @SneakyThrows
+    @AfterAll
+    public static void tearDown() {
+        if (RunningConfig.isRunningInMaven() && !RunningConfig.isRunningInDocker() && RunningConfig.isRunningInAppveyor()) {
+            return;
+        } else if (RunningConfig.isRunningInMaven() && !RunningConfig.isRunningInDocker() && !RunningConfig.isRunningInAppveyor()) {
+            return;
+        } else if ((RunningConfig.isRunningInDocker() && !RunningConfig.isRunningInAppveyor()) || !RunningConfig.isRunningInMaven()) {
+            consensusBroker.shutDownGracefully();
         }
     }
 }

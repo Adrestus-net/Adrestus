@@ -7,16 +7,6 @@ import java.util.Random;
 public class GInteger extends BigInteger {
 
     private static final long serialVersionUID = 1L;
-    private final MPZMemory memory = new MPZMemory();
-
-    {
-        GMP.mpzImport(memory.peer, super.signum(), super.abs().toByteArray());
-    }
-
-    mpz_t getPeer() {
-        return memory.peer;
-    }
-
     public GInteger(BigInteger other) {
         super(other.toByteArray());
     }

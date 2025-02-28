@@ -90,6 +90,23 @@ RUN mvn install:install-file -Dfile=/adrestus-core/target/adrestus-core-1.1-SNAP
 RUN mvn install:install-file -Dfile=/adrestus-config/target/adrestus-config-1.0-SNAPSHOT-jar-with-dependencies.jar -DgroupId=io.Adrestus.v1 -DartifactId=adrestus-config -Dversion=1.0-SNAPSHOT -Dpackaging=jar
 RUN mvn install:install-file -Dfile=/adrestus-network/target/adrestus-network-1.0-SNAPSHOT-jar-with-dependencies.jar -DgroupId=io.Adrestus.v1 -DartifactId=adrestus-network -Dversion=1.0-SNAPSHOT -Dpackaging=jar
 
+WORKDIR /adrestus-core/
+RUN mvn install:install-file -Dfile=/adrestus-shared-resources/target/adrestus-shared-resources-1.0-SNAPSHOT-jar-with-dependencies.jar -DgroupId=io.Adrestus.v1 -DartifactId=adrestus-shared-resources -Dversion=1.0-SNAPSHOT -Dpackaging=jar
+RUN mvn install:install-file -Dfile=/adrestus-util/target/adrestus-util-1.0-SNAPSHOT-jar-with-dependencies.jar -DgroupId=io.Adrestus.v1 -DartifactId=adrestus-util -Dversion=1.0-SNAPSHOT -Dpackaging=jar
+RUN mvn install:install-file -Dfile=/adrestus-trie/target/adrestus-trie-1.0-SNAPSHOT-jar-with-dependencies.jar -DgroupId=io.Adrestus.v1 -DartifactId=adrestus-trie -Dversion=1.0-SNAPSHOT -Dpackaging=jar
+RUN mvn install:install-file -Dfile=/adrestus-distributed-ledger/target/adrestus-distributed-ledger-1.0-SNAPSHOT-jar-with-dependencies.jar -DgroupId=io.Adrestus.v1 -DartifactId=adrestus-distributed-ledger -Dversion=1.0-SNAPSHOT -Dpackaging=jar
+RUN mvn install:install-file -Dfile=/adrestus-crypto/target/adrestus-crypto-1.0-SNAPSHOT-jar-with-dependencies.jar -DgroupId=io.Adrestus.v1 -DartifactId=adrestus-crypto -Dversion=1.0-SNAPSHOT -Dpackaging=jar
+RUN mvn install:install-file -Dfile=/adrestus-config/target/adrestus-config-1.0-SNAPSHOT-jar-with-dependencies.jar -DgroupId=io.Adrestus.v1 -DartifactId=adrestus-config -Dversion=1.0-SNAPSHOT -Dpackaging=jar
+RUN mvn install:install-file -Dfile=/adrestus-network/target/adrestus-network-1.0-SNAPSHOT-jar-with-dependencies.jar -DgroupId=io.Adrestus.v1 -DartifactId=adrestus-network -Dversion=1.0-SNAPSHOT -Dpackaging=jar
+
+
+WORKDIR /adrestus-network/
+RUN mvn install:install-file -Dfile=/adrestus-shared-resources/target/adrestus-shared-resources-1.0-SNAPSHOT-jar-with-dependencies.jar -DgroupId=io.Adrestus.v1 -DartifactId=adrestus-shared-resources -Dversion=1.0-SNAPSHOT -Dpackaging=jar
+RUN mvn install:install-file -Dfile=/adrestus-util/target/adrestus-util-1.0-SNAPSHOT-jar-with-dependencies.jar -DgroupId=io.Adrestus.v1 -DartifactId=adrestus-util -Dversion=1.0-SNAPSHOT -Dpackaging=jar
+RUN mvn install:install-file -Dfile=/adrestus-trie/target/adrestus-trie-1.0-SNAPSHOT-jar-with-dependencies.jar -DgroupId=io.Adrestus.v1 -DartifactId=adrestus-trie -Dversion=1.0-SNAPSHOT -Dpackaging=jar
+RUN mvn install:install-file -Dfile=/adrestus-distributed-ledger/target/adrestus-distributed-ledger-1.0-SNAPSHOT-jar-with-dependencies.jar -DgroupId=io.Adrestus.v1 -DartifactId=adrestus-distributed-ledger -Dversion=1.0-SNAPSHOT -Dpackaging=jar
+RUN mvn install:install-file -Dfile=/adrestus-crypto/target/adrestus-crypto-1.0-SNAPSHOT-jar-with-dependencies.jar -DgroupId=io.Adrestus.v1 -DartifactId=adrestus-crypto -Dversion=1.0-SNAPSHOT -Dpackaging=jar
+RUN mvn install:install-file -Dfile=/adrestus-config/target/adrestus-config-1.0-SNAPSHOT-jar-with-dependencies.jar -DgroupId=io.Adrestus.v1 -DartifactId=adrestus-config -Dversion=1.0-SNAPSHOT -Dpackaging=jar
 
 
 ## Copy only pom.xml first to allow caching of dependencies

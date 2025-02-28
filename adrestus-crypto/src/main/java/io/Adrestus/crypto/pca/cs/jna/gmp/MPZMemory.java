@@ -15,16 +15,11 @@ public class MPZMemory extends Memory {
     MPZMemory() {
         super(mpz_t.SIZE);
         peer = new mpz_t(this);
-        LibGMP.__gmpz_init(peer);
+        LibGMPLoader.getInstance().getGmp().__gmpz_init(peer);
     }
 
     @Override
-    protected void finalize() {
-        LibGMP.__gmpz_clear(peer);
-        try {
-            super.finalize();
-        } catch (Throwable e) {
-            e.printStackTrace();
-        }
+    public void close() {
+        peer.clear();
     }
 }

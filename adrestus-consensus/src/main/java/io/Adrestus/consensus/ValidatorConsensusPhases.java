@@ -754,7 +754,7 @@ public class ValidatorConsensusPhases {
             list.add(new SerializationUtil.Mapping(ECP2.class, ctx -> new ECP2mapper()));
             list.add(new SerializationUtil.Mapping(BigDecimal.class, ctx -> new BigDecimalSerializer()));
             list.add(new SerializationUtil.Mapping(BigInteger.class, ctx -> new BigIntegerSerializer()));
-            list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap<>()));
+            list.add(new SerializationUtil.Mapping(TreeMap.class, ctx -> new CustomSerializerTreeMap<BLSPublicKey, BLSSignatureData>()));
             this.ips = this.blockIndex.getIpList(CachedZoneIndex.getInstance().getZoneIndex());
             this.block_serialize = new SerializationUtil<AbstractBlock>(AbstractBlock.class, list);
             this.serenc_rpc = new SerializationUtil<ArrayList<byte[]>>(new TypeToken<List<byte[]>>() {

@@ -13,6 +13,7 @@ import com.sun.jna.Pointer;
  */
 public class mpz_t extends Pointer {
     public static final int SIZE = 16;//size in bytes of the native structures
+    private final long peer;
 
     /**
      * Construct a long from a native address.
@@ -21,6 +22,7 @@ public class mpz_t extends Pointer {
      */
     public mpz_t(long peer) {
         super(peer);
+        this.peer = peer;
     }
 
     /**
@@ -30,5 +32,11 @@ public class mpz_t extends Pointer {
      */
     public mpz_t(Pointer from) {
         this(Pointer.nativeValue(from));
+    }
+
+    public void clear() {
+        if (super.peer != 0) {
+            LibGMPLoader.getInstance().getGmp().__gmpz_clear(this);
+        }
     }
 }
