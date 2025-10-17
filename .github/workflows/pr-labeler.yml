@@ -1,0 +1,29 @@
+name: PR Labeler
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  label:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Print labeler config
+        run: |
+          echo "=== .github/labeler.yml ==="
+          # Print only the first 200 lines to avoid log overflow in CI output
+          sed -n '1,200p' .github/labeler.yml
+
+      - uses: actions/labeler@v5
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          configuration-path: .github/labeler.yml
+          sync-labels: true
+          dot: true

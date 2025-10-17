@@ -1,0 +1,92 @@
+# GitHub Actions Labeler configuration for actions/labeler@v5
+# This configuration uses the v5 schema with array matchers
+
+# Module-specific labels
+api:
+  - changed-files:
+    - any-glob-to-any-file: 'adrestus-api/**/*'
+
+bloom-filter:
+  - changed-files:
+    - any-glob-to-any-file: 'adrestus-bloom-filter/**/*'
+
+config:
+  - changed-files:
+    - any-glob-to-any-file: 'adrestus-config/**/*'
+
+consensus:
+  - changed-files:
+    - any-glob-to-any-file: 'adrestus-consensus/**/*'
+
+core:
+  - changed-files:
+    - any-glob-to-any-file: 'adrestus-core/**/*'
+
+crypto:
+  - changed-files:
+    - any-glob-to-any-file: 'adrestus-crypto/**/*'
+
+distributed-ledger:
+  - changed-files:
+    - any-glob-to-any-file: 'adrestus-distributed-ledger/**/*'
+
+erasure-code:
+  - changed-files:
+    - any-glob-to-any-file: 'adrestus-erasure-code/**/*'
+
+network:
+  - changed-files:
+    - any-glob-to-any-file: 'adrestus-network/**/*'
+
+protocol:
+  - changed-files:
+    - any-glob-to-any-file: 'adrestus-protocol/**/*'
+
+shared-resources:
+  - changed-files:
+    - any-glob-to-any-file: 'adrestus-shared-resources/**/*'
+
+trie:
+  - changed-files:
+    - any-glob-to-any-file: 'adrestus-trie/**/*'
+
+util:
+  - changed-files:
+    - any-glob-to-any-file: 'adrestus-util/**/*'
+
+# Documentation labels
+documentation:
+  - changed-files:
+    - any-glob-to-any-file: 
+      - '**/*.md'
+      - 'docs/**/*'
+
+# CI/CD labels
+ci:
+  - changed-files:
+    - any-glob-to-any-file:
+      - '.github/**/*'
+      - '.circleci/**/*'
+      - 'appveyor.yml'
+
+# Docker labels
+docker:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'Dockerfile*'
+      - 'docker-compose.yml'
+      - '.dockerignore'
+
+# Build configuration labels
+build:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'pom.xml'
+      - '**/pom.xml'
+      - 'makefile'
+      - '*.sh'
+
+# Test labels
+tests:
+  - changed-files:
+    - any-glob-to-any-file: '**/src/test/**/*'
